@@ -1,5 +1,6 @@
-import type { IDishRepository } from "../../domain/repositories/IDishRepository";
-import type { IUserContextRepository } from "../../domain/repositories/IUserContextRepository";
+import type { IDishRepository } from "../ports/IDishRepository";
+import type { IUserContextRepository } from "../ports/IUserContextRepository";
+import type { SuggestDishForUserResponseDto } from "../dtos/SuggestDishForUserResponseDto";
 
 /**
  * DTO phản hồi cho use case đề xuất món ăn.
@@ -10,34 +11,6 @@ import type { IUserContextRepository } from "../../domain/repositories/IUserCont
  *   trực tiếp đến domain model.
  * - DTO giúp tách interface giữa tầng application và presentation, tránh “rò” cấu trúc domain ra khỏi API.
  */
-export interface SuggestDishForUserResponseDto {
-  userId: string;
-  context: {
-    sessionId: string;
-    queryText?: string | null;
-    latitude: number;
-    longitude: number;
-    budgetConstraint?: number | null;
-    dietaryConstraints?: string[] | null;
-    hoursConstraint?: string | null;
-    weatherSignal?: string | null;
-    trafficSignal?: string | null;
-    timeSignal?: string | null;
-    experienceClusterId?: number | null;
-    reviewSummary?: string | null;
-  } | null;
-  suggestedDishes: Array<{
-    id: string;
-    name: string;
-    category?: string | null;
-    spiceLevel?: number | null;
-    temperature?: "hot" | "cold" | "neutral" | null;
-    portionSize?: "light" | "regular" | "heavy" | null;
-    moodKeywords?: string[] | null;
-    price?: number | null;
-  }>;
-}
-
 /**
  * Use case đầu tiên cho Moodbite: đề xuất món ăn cho một người dùng dựa trên ngữ cảnh tìm kiếm.
  *

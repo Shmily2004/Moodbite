@@ -144,8 +144,14 @@ Thumbs.db
 
 # Project Specific
 config/secrets.yaml
-data_raw/
-data_cleaned/
+data_pipeline/data_raw/
+data_pipeline/data_cleaned/
 *.pth
+*.pt
 *.onnx
 *.glb
+*.ckpt
+*.weights
+*.bin
+outputs/
+runs/

@@ -1,16 +1,24 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "SpatialJSON",
+  "description": "Standardized format for floorplan data exchange between AI and Frontend",
   "type": "object",
   "properties": {
     "project_id": { "type": "string" },
     "metadata": {
       "type": "object",
       "properties": {
-        "scale_ratio": { "type": "number" },
-        "unit": { "type": "string", "enum": ["mm", "cm", "m"] },
-        "origin": { "type": "array", "items": { "type": "number" }, "minItems": 3, "maxItems": 3 }
-      }
+        "scale_ratio": { "type": "number", "default": 0.01 },
+        "unit": { "type": "string", "enum": ["mm", "cm", "m"], "default": "mm" },
+        "origin": { 
+          "type": "array", 
+          "items": { "type": "number" }, 
+          "minItems": 3, 
+          "maxItems": 3,
+          "default": [0, 0, 0]
+        }
+      },
+      "required": ["scale_ratio", "unit"]
     },
     "levels": {
       "type": "array",
@@ -18,13 +26,107 @@
         "type": "object",
         "properties": {
           "level_id": { "type": "string" },
-          "elevation": { "type": "number" },
-          "height": { "type": "number" },
-          "walls": { "type": "array", "items": { "type": "object" } },
-          "openings": { "type": "array", "items": { "type": "object" } },
-          "objects": { "type": "array", "items": { "type": "object" } },
-          "rooms": { "type": "array", "items": { "type": "object" } }
-        }
+          "elevation": { "type": "number", "default": 0 },
+          "height": { "type": "number", "default": 3000 },
+          "walls": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "points": { 
+                  "type": "array", 
+                  "items": { 
+                    "type": "array", 
+                    "items": { "type": "number" },
+                    "minItems": 2,
+                    "maxItems": 2
+                  } 
+                },
+                "thickness": { "type": "number" },
+                "type": { "type": "string", "enum": ["inner", "outer", "partition"] }
+              },
+              "required": ["id", "points", "thickness"]
+            }
+          },
+          "openings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "wall_id": { "type": "string" },
+                "type": { "type": "string", "enum": ["door", "window"] },
+                "position": { 
+                  "type": "array", 
+                  "items": { "type": "number" },
+                  "minItems": 2,
+                  "maxItems": 2
+                },
+                "size": { 
+                  "type": "array", 
+                  "items": { "type": "number" },
+                  "minItems": 2,
+                  "maxItems": 2
+                },
+                "orientation": { "type": "number" }
+              },
+              "required": ["id", "type", "position", "size"]
+            }
+          },
+          "objects": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "type": { "type": "string" },
+                "position": { 
+                  "type": "array", 
+                  "items": { "type": "number" },
+                  "minItems": 3,
+                  "maxItems": 3
+                },
+                "rotation": { 
+                  "type": "array", 
+                  "items": { "type": "number" },
+                  "minItems": 3,
+                  "maxItems": 3
+                },
+                "scale": { 
+                  "type": "array", 
+                  "items": { "type": "number" },
+                  "minItems": 3,
+                  "maxItems": 3
+                },
+                "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+              },
+              "required": ["id", "type", "position"]
+            }
+          },
+          "rooms": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "name": { "type": "string" },
+                "boundary": { 
+                  "type": "array", 
+                  "items": { 
+                    "type": "array", 
+                    "items": { "type": "number" },
+                    "minItems": 2,
+                    "maxItems": 2
+                  } 
+                },
+                "area": { "type": "number" }
+              },
+              "required": ["id", "boundary"]
+            }
+          }
+        },
+        "required": ["level_id", "walls"]
       }
     }
   },

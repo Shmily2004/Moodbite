@@ -26,7 +26,7 @@ def preprocess_floorplan(image_path: str, output_path: str):
     )
 
     # 5. Khử nhiễu đốm nhỏ (Morphological Operations)
-    kernel = np.one((2, 2), np.uint8)
+    kernel = np.ones((2, 2), np.uint8)
     processed = cv2.morphologyEx(binary, cv2.MORPH_OPEN, kernel)
 
     # 6. Lưu kết quả

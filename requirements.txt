@@ -1,0 +1,12 @@
+PyYAML
+pandas
+numpy
+opencv-python
+torch
+transformers
+ultralytics
+jsonschema
+pytest
+scikit-learn
+requests
+Pillow

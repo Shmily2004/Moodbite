@@ -2,7 +2,23 @@ import type { UserContext } from "../../domain/entities/UserContext";
 import type { IUserContextRepository } from "../../application/ports/IUserContextRepository";
 
 export class InMemoryUserContextRepository implements IUserContextRepository {
-  private readonly contexts: UserContext[] = [];
+  private readonly contexts: UserContext[] = [
+    {
+      session_id: "user-1",
+      query_text: "món gì ấm bụng cho hôm nay",
+      latitude: 21.0285,
+      longitude: 105.8542,
+      budget_constraint: 50000,
+      dietary_constraint: [],
+      hours_constraint: null,
+      searched_at: "2026-07-31T09:00:00.000Z",
+      weather_signal: "rainy",
+      traffic_signal: null,
+      time_signal: "morning",
+      experience_cluster_id: null,
+      review_summary: "muốn món gì đó comfort, cozy, ấm bụng vì trời mưa",
+    },
+  ];
 
   async save(context: UserContext): Promise<UserContext> {
     const existingIndex = this.contexts.findIndex((item) => item.session_id === context.session_id);

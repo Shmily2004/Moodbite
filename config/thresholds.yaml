@@ -1,0 +1,29 @@
+# AI Model Thresholds
+ai:
+  segformer:
+    iou_threshold: 0.85
+    input_size: [512, 512]
+  yolo:
+    confidence_threshold: 0.5
+    iou_threshold: 0.45
+    model_version: "v11n"
+  ocr:
+    otsu_threshold: 127
+    padding: 10
+
+# Architecture & Spatial Standards
+spatial:
+  wall_thickness:
+    thin: 110
+    medium: 220
+    thick: 330
+    snap_tolerance: 50 # mm
+  scale:
+    default_ratio: 0.01 # 1px = 1cm
+  alignment:
+    axis_snap_threshold: 100 # mm
+
+# API & Services
+services:
+  timeout_seconds: 30
+  max_retries: 3

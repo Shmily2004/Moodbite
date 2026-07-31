@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SpatialJSON",
+  "type": "object",
+  "properties": {
+    "project_id": { "type": "string" },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "scale_ratio": { "type": "number" },
+        "unit": { "type": "string", "enum": ["mm", "cm", "m"] },
+        "origin": { "type": "array", "items": { "type": "number" }, "minItems": 3, "maxItems": 3 }
+      }
+    },
+    "levels": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "level_id": { "type": "string" },
+          "elevation": { "type": "number" },
+          "height": { "type": "number" },
+          "walls": { "type": "array", "items": { "type": "object" } },
+          "openings": { "type": "array", "items": { "type": "object" } },
+          "objects": { "type": "array", "items": { "type": "object" } },
+          "rooms": { "type": "array", "items": { "type": "object" } }
+        }
+      }
+    }
+  },
+  "required": ["project_id", "levels"]
+}

@@ -23,31 +23,29 @@ def train_yolo():
     logger.info(f"Initializing YOLO with config: Conf={conf_threshold}, IoU={iou_threshold}, Version={model_version}")
 
     # 2. Khởi tạo model
-    # Note: 'yolo11n.pt' will be downloaded automatically if not present
+    # Note: model weights will be downloaded automatically if not present locally
+    model_name = f"yolo{model_version}.pt" if "yolo" not in model_version else f"{model_version}.pt"
     try:
-        model_name = f"yolo{model_version}.pt" if "yolo" not in model_version else f"{model_version}.pt"
-        # For demo purposes in Phase 1, we use yolo11n.pt
-        model = YOLO('yolo11n.pt') 
+        model = YOLO(model_name)
     except Exception as e:
-        logger.error(f"Failed to initialize YOLO model: {e}")
+        logger.error(f"Failed to initialize YOLO model '{model_name}': {e}")
         return
 
-    # 3. Huấn luyện (Skeleton configuration)
+    # 3. Huấn luyện
     data_yaml = Path('data_pipeline/data.yaml')
     
     logger.info("Starting training YOLOv11...")
     
-    # In a real scenario, this would execute the training
     if data_yaml.exists():
-        # results = model.train(
-        #     data=str(data_yaml), 
-        #     epochs=100, 
-        #     imgsz=640, 
-        #     conf=conf_threshold,
-        #     iou=iou_threshold,
-        #     device='0' # or 'cpu'
-        # )
-        logger.info("YOLO model.train() call prepared with data.yaml.")
+        results = model.train(
+            data=str(data_yaml),
+            epochs=100,
+            imgsz=640,
+            conf=conf_threshold,
+            iou=iou_threshold,
+            device='0' if config_service.get('ai.yolo.use_gpu', True) else 'cpu'
+        )
+        logger.info(f"YOLO training completed. Results: {results}")
     else:
         logger.warning(f"Data config {data_yaml} not found. YOLO training script verified but skipped execution.")
 

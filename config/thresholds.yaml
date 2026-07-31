@@ -6,7 +6,7 @@ ai:
   yolo:
     confidence_threshold: 0.5
     iou_threshold: 0.45
-    model_version: "v11n"
+    model_version: "11n"
   ocr:
     otsu_threshold: 127
     padding: 10

@@ -59,6 +59,8 @@ EXCLUDED_KEYWORDS = [
     "hospital",
     "pharmacy",
     "bakery",
+    "tiệm bánh",
+    "lò bánh",
     "bookstore",
     "stationery",
     "car wash",

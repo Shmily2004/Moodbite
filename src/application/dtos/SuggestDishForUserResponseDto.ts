@@ -23,5 +23,16 @@ export interface SuggestDishForUserResponseDto {
     portionSize?: "light" | "regular" | "heavy" | null;
     moodKeywords?: string[] | null;
     price?: number | null;
+    restaurantId: string;
+  }>;
+  suggestedRestaurants: Array<{
+    id: string;
+    name: string;
+    address?: string | null;
+    latitude: number;
+    longitude: number;
+    rating?: number | null;
+    priceRange?: number | null;
+    dishIds: string[];
   }>;
 }

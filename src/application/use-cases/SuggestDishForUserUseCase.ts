@@ -1,5 +1,6 @@
 import type { IDishRepository } from "../ports/IDishRepository";
 import type { IUserContextRepository } from "../ports/IUserContextRepository";
+import type { IRestaurantRepository } from "../ports/IRestaurantRepository";
 import type { SuggestDishForUserResponseDto } from "../dtos/SuggestDishForUserResponseDto";
 
 /**
@@ -27,7 +28,11 @@ import type { SuggestDishForUserResponseDto } from "../dtos/SuggestDishForUserRe
  *      + điều kiện thời gian/điều kiện sử dụng.
  *    - Đây là nơi logic điều phối diễn ra: use case phối hợp nhiều repository lại với nhau và chuyển
  *      dữ liệu từ domain sang một cấu trúc dễ dùng cho application/presentation.
- * 5. Use case trả về DTO, không trả Entity trực tiếp, để tầng ngoài không phụ thuộc vào cấu trúc domain.
+ * 5. Sau khi có danh sách món ăn đề xuất, use case dùng restaurant_id của từng món để tra
+ *    IRestaurantRepository và trả về danh sách quán tương ứng (chỉ lấy quán is_active = true).
+ *    Đây là bước "món ăn trước, quán sau" đúng theo luồng UX: người dùng thấy món phù hợp trước,
+ *    sau đó mới thấy quán nào đang bán món đó.
+ * 6. Use case trả về DTO, không trả Entity trực tiếp, để tầng ngoài không phụ thuộc vào cấu trúc domain.
  *
  * Vì sao use case là nơi điều phối logic mà không phải Entity hay Controller?
  * - Entity: chỉ chứa trạng thái và quy tắc nghiệp vụ cốt lõi của chính nó. Entity không nên biết
@@ -40,10 +45,27 @@ import type { SuggestDishForUserResponseDto } from "../dtos/SuggestDishForUserRe
  * Nói ngắn gọn: Entity mô tả “điều gì là đúng” cho domain, Controller mô tả “đầu vào/đầu ra giao tiếp”,
  * còn Use Case mô tả “một quy trình nghiệp vụ cụ thể sẽ diễn ra như thế nào”.
  */
+/**
+ * Kiểu dữ liệu rút gọn cho món ăn dùng nội bộ trong use case (không phải Entity đầy đủ).
+ * restaurant_id bắt buộc có mặt vì đây là khóa để tra ra quán ở bước 5 của luồng use case.
+ */
+type DishSummary = {
+  id: string;
+  name: string;
+  category?: string | null;
+  spice_level?: number | null;
+  temperature?: "hot" | "cold" | "neutral" | null;
+  portion_size?: "light" | "regular" | "heavy" | null;
+  mood_keywords?: string[] | null;
+  price?: number | null;
+  restaurant_id: string;
+};
+
 export class SuggestDishForUserUseCase {
   constructor(
     private readonly userContextRepository: IUserContextRepository,
-    private readonly dishRepository: IDishRepository
+    private readonly dishRepository: IDishRepository,
+    private readonly restaurantRepository: IRestaurantRepository
   ) {}
 
   /**
@@ -57,6 +79,7 @@ export class SuggestDishForUserUseCase {
         userId,
         context: null,
         suggestedDishes: [],
+        suggestedRestaurants: [],
       };
     }
 
@@ -78,6 +101,8 @@ export class SuggestDishForUserUseCase {
       : [];
 
     const combinedDishes = this.mergeDishResults(keywordMatches, budgetMatches, dietaryMatches);
+
+    const suggestedRestaurants = await this.resolveRestaurantsForDishes(combinedDishes);
 
     return {
       userId,
@@ -104,8 +129,56 @@ export class SuggestDishForUserUseCase {
         portionSize: dish.portion_size,
         moodKeywords: dish.mood_keywords,
         price: dish.price,
+        restaurantId: dish.restaurant_id,
       })),
+      suggestedRestaurants,
     };
+  }
+
+  /**
+   * Từ danh sách món ăn đã được đề xuất, gom nhóm theo restaurant_id rồi tra IRestaurantRepository
+   * để lấy thông tin quán. Chỉ trả về quán đang is_active = true, đúng nguyên tắc lọc TRƯỚC khi
+   * đưa vào kết quả hiển thị (không hiển thị quán đã ngừng hoạt động dù món của nó khớp tiêu chí).
+   */
+  private async resolveRestaurantsForDishes(
+    dishes: Array<{ id: string; restaurant_id: string }>
+  ): Promise<SuggestDishForUserResponseDto["suggestedRestaurants"]> {
+    const dishIdsByRestaurant = new Map<string, string[]>();
+
+    for (const dish of dishes) {
+      const existing = dishIdsByRestaurant.get(dish.restaurant_id);
+      if (existing) {
+        existing.push(dish.id);
+      } else {
+        dishIdsByRestaurant.set(dish.restaurant_id, [dish.id]);
+      }
+    }
+
+    const restaurantIds = Array.from(dishIdsByRestaurant.keys());
+    const restaurants = await Promise.all(
+      restaurantIds.map((id) => this.restaurantRepository.findById(id))
+    );
+
+    const result: SuggestDishForUserResponseDto["suggestedRestaurants"] = [];
+
+    restaurants.forEach((restaurant, index) => {
+      if (!restaurant || !restaurant.is_active || restaurant.deleted_at) {
+        return;
+      }
+
+      result.push({
+        id: restaurant.id,
+        name: restaurant.name,
+        address: restaurant.address,
+        latitude: restaurant.latitude,
+        longitude: restaurant.longitude,
+        rating: restaurant.rating,
+        priceRange: restaurant.price_range,
+        dishIds: dishIdsByRestaurant.get(restaurantIds[index]) ?? [],
+      });
+    });
+
+    return result;
   }
 
   /**
@@ -148,13 +221,13 @@ export class SuggestDishForUserUseCase {
    * Gộp và làm sạch kết quả từ các nguồn lọc khác nhau.
    */
   private mergeDishResults(
-    keywordMatches: Array<{ id: string; name: string; category?: string | null; spice_level?: number | null; temperature?: "hot" | "cold" | "neutral" | null; portion_size?: "light" | "regular" | "heavy" | null; mood_keywords?: string[] | null; price?: number | null; }>,
-    budgetMatches: Array<{ id: string; name: string; category?: string | null; spice_level?: number | null; temperature?: "hot" | "cold" | "neutral" | null; portion_size?: "light" | "regular" | "heavy" | null; mood_keywords?: string[] | null; price?: number | null; }>,
+    keywordMatches: DishSummary[],
+    budgetMatches: DishSummary[],
     dietaryMatches: Array<{ name: string; category?: string | null }>
-  ) {
-    const seen = new Map<string, { id: string; name: string; category?: string | null; spice_level?: number | null; temperature?: "hot" | "cold" | "neutral" | null; portion_size?: "light" | "regular" | "heavy" | null; mood_keywords?: string[] | null; price?: number | null; }>;
+  ): DishSummary[] {
+    const seen = new Map<string, DishSummary>();
 
-    const addDish = (dish: { id: string; name: string; category?: string | null; spice_level?: number | null; temperature?: "hot" | "cold" | "neutral" | null; portion_size?: "light" | "regular" | "heavy" | null; mood_keywords?: string[] | null; price?: number | null; }) => {
+    const addDish = (dish: DishSummary) => {
       if (!seen.has(dish.id)) {
         seen.set(dish.id, dish);
       }

@@ -1,0 +1,13 @@
+train: C:\Users\Admin\Downloads\MoodBite_Project\data_pipeline\data_raw\floorplans_yolo\train\images
+val: C:\Users\Admin\Downloads\MoodBite_Project\data_pipeline\data_raw\floorplans_yolo\valid\images
+test: C:\Users\Admin\Downloads\MoodBite_Project\data_pipeline\data_raw\floorplans_yolo\test\images
+
+nc: 3
+names: ['door', 'wall', 'window']
+
+roboflow:
+  workspace: floorplan-recognition
+  project: cubicasa5k-2-qpmsa
+  version: 6
+  license: MIT
+  url: https://universe.roboflow.com/floorplan-recognition/cubicasa5k-2-qpmsa/dataset/6

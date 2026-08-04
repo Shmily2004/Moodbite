@@ -20,12 +20,39 @@ def extract_features():
     df['all_text'] = df.apply(lambda row: ' '.join(row.values.astype(str)).lower(), axis=1)
 
     # 2. Xây dựng Bộ từ điển Cảm xúc (Mood Lexicon)
+    #
+    # LƯU Ý QUAN TRỌNG: bộ từ khóa gốc (chill, thư giãn, xuýt xoa, ...) được thiết kế để đọc
+    # từ text review/description của khách hàng. Nhưng dữ liệu cào được từ Google Maps/OSM
+    # KHÔNG có trường description/review (hầu hết đều null) — chỉ có categoryName dạng
+    # "Nhà hàng lẩu", "Quán cà phê", ... Nếu chỉ dùng bộ từ khóa gốc, mood score sẽ ra 0
+    # cho gần như toàn bộ dataset vì không có từ nào khớp.
+    #
+    # Vì vậy bổ sung thêm nhóm từ khóa suy luận từ LOẠI HÌNH quán ăn (categoryName) —
+    # đây là suy luận heuristic (VD: quán lẩu/nướng thường cay-nóng), không chính xác
+    # 100% như đọc được review thật, nhưng vẫn tốt hơn nhiều so với toàn bộ ra 0.
+    # Khi dự án có dữ liệu review thật (vd Apify actor có field 'reviews'), nên ưu tiên
+    # dùng lại bộ từ khóa gốc trên chính text đó.
     mood_dictionaries = {
-        'comfort_cozy': ['chill', 'thư giãn', 'yên tĩnh', 'thoải mái', 'ấm cúng', 'tâm tình', 'nhẹ nhàng', 'view đẹp'],
-        'spicy_hot': ['cay', 'nóng', 'tê', 'đậm đà', 'xuýt xoa', 'sa tế', 'ớt'],
-        'fresh_healthy': ['tươi', 'thanh mát', 'sạch', 'healthy', 'rau', 'healthy', 'ngọt tự nhiên'],
-        'cheap_budget': ['rẻ', 'bình dân', 'sinh viên', 'hợp lý', 'phải chăng', 'vỉa hè'],
-        'quick_fast': ['nhanh', 'vội', 'tiện', 'lấy luôn', 'không phải đợi', 'ăn liền']
+        'comfort_cozy': [
+            'chill', 'thư giãn', 'yên tĩnh', 'thoải mái', 'ấm cúng', 'tâm tình', 'nhẹ nhàng', 'view đẹp',
+            'cà phê', 'coffee', 'trà', 'gia đình', 'ấm bụng',
+        ],
+        'spicy_hot': [
+            'cay', 'nóng', 'tê', 'đậm đà', 'xuýt xoa', 'sa tế', 'ớt',
+            'lẩu', 'nướng', 'cà ri', 'curry',
+        ],
+        'fresh_healthy': [
+            'tươi', 'thanh mát', 'sạch', 'healthy', 'rau', 'ngọt tự nhiên',
+            'chay', 'hải sản', 'salad', 'organic', 'hữu cơ',
+        ],
+        'cheap_budget': [
+            'rẻ', 'bình dân', 'sinh viên', 'hợp lý', 'phải chăng', 'vỉa hè',
+            'quán ăn nhỏ', 'ăn nhanh',
+        ],
+        'quick_fast': [
+            'nhanh', 'vội', 'tiện', 'lấy luôn', 'không phải đợi', 'ăn liền',
+            'ăn nhanh', 'fast food', 'giao đồ ăn', 'mang về', 'lưu động',
+        ]
     }
 
     # 3. Hàm tính điểm Cảm xúc (Scoring Function)
@@ -47,7 +74,9 @@ def extract_features():
             df[col] = df[col] / max_val
 
     # 6. Lọc lại các cột cần thiết
-    columns_to_keep = ['title', 'location/lat', 'location/lng', 'totalScore'] + mood_columns
+    # Giữ lại categoryName/address (trước đây bị loại) vì tầng ứng dụng (TypeScript) cần
+    # categoryName để suy luận loại món và address để hiển thị cho người dùng.
+    columns_to_keep = ['title', 'placeId', 'location/lat', 'location/lng', 'totalScore', 'categoryName', 'address'] + mood_columns
     final_cols = [c for c in columns_to_keep if c in df.columns]
     df_features = df[final_cols]
 

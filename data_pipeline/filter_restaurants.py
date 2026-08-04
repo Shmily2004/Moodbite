@@ -97,6 +97,13 @@ def _normalize(text: str | None) -> str:
     text = text.replace("-", " ")
     return text
 
+def _flatten_field(value: Any) -> str:
+    """Chuyển 1 field bất kỳ (str, list, None...) thành text để so khớp từ khóa."""
+    if value is None:
+        return ""
+    if isinstance(value, (list, tuple, set)):
+        return " ".join(_flatten_field(v) for v in value)
+    return str(value)
 
 def _iter_item_texts(item: ET.Element) -> List[str]:
     values: List[str] = []

@@ -97,13 +97,19 @@ def _normalize(text: str | None) -> str:
     text = text.replace("-", " ")
     return text
 
+
 def _flatten_field(value: Any) -> str:
-    """Chuyển 1 field bất kỳ (str, list, None...) thành text để so khớp từ khóa."""
+    """Chuyển 1 field bất kỳ (str, list, None...) thành text để so khớp từ khóa.
+    Quan trọng: nếu value là list (ví dụ field 'categories' của Google Maps có thể
+    chứa nhiều nhãn phụ), nối các phần tử bằng dấu cách thay vì dùng str(list) —
+    str(list) tạo ra chuỗi kiểu "['a', 'b']" chứa dấu ngoặc/nháy gây nhiễu khi so khớp.
+    """
     if value is None:
         return ""
     if isinstance(value, (list, tuple, set)):
         return " ".join(_flatten_field(v) for v in value)
     return str(value)
+
 
 def _iter_item_texts(item: ET.Element) -> List[str]:
     values: List[str] = []
@@ -112,8 +118,8 @@ def _iter_item_texts(item: ET.Element) -> List[str]:
         if node is not None and node.text:
             values.append(node.text)
     return values
- 
- 
+
+
 def is_restaurant_item(item: ET.Element | Dict[str, Any]) -> bool:
     if isinstance(item, dict):
         primary_text = " | ".join(
@@ -130,14 +136,14 @@ def is_restaurant_item(item: ET.Element | Dict[str, Any]) -> bool:
                 node_values[tag] = node.text
         primary_text = " | ".join(_flatten_field(node_values[k]) for k in ["title", "categoryName"])
         secondary_text = " | ".join(_flatten_field(node_values[k]) for k in ["categories", "description", "subTitle"])
- 
+
     normalized_primary = _normalize(primary_text)
     normalized_secondary = _normalize(secondary_text)
     normalized_all = _normalize(f"{primary_text} | {secondary_text}")
- 
+
     if not normalized_all:
         return False
- 
+
     # Ưu tiên tín hiệu chính (title + categoryName): nếu chính nó đã rõ ràng là
     # nhà hàng/quán ăn, KHÔNG để nhãn phụ (categories list) phủ quyết — tránh trường hợp
     # 1 địa điểm có nhiều nhãn phụ trộn lẫn (vd "Nhà hàng pizza" + "Cửa hàng bán pizza mang về")
@@ -145,15 +151,15 @@ def is_restaurant_item(item: ET.Element | Dict[str, Any]) -> bool:
     if any(keyword in normalized_primary for keyword in RESTAURANT_KEYWORDS):
         if not any(keyword in normalized_primary for keyword in EXCLUDED_KEYWORDS):
             return True
- 
+
     # Không có tín hiệu chính rõ ràng -> xét toàn bộ text (bao gồm nhãn phụ) như cũ,
     # để vẫn bắt được các trường hợp categoryName mơ hồ nhưng description/categories rõ ràng.
     if any(keyword in normalized_all for keyword in EXCLUDED_KEYWORDS):
         return False
- 
+
     if any(keyword in normalized_all for keyword in RESTAURANT_KEYWORDS):
         return True
- 
+
     return False
 
 

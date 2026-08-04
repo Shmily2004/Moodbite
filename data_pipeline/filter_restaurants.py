@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
 import xml.etree.ElementTree as ET
@@ -7,13 +7,13 @@ from typing import List, Dict, Any
 
 
 RESTAURANT_KEYWORDS = [
-    "nhà hàng",
-    "nhà hàng hải sản",
-    "nhà hàng gia đình",
-    "nhà hàng món lẩu",
-    "quán ăn",
-    "quán",
-    "quán cafe",
+    "nhÃ  hÃ ng",
+    "nhÃ  hÃ ng háº£i sáº£n",
+    "nhÃ  hÃ ng gia Ä‘Ã¬nh",
+    "nhÃ  hÃ ng mÃ³n láº©u",
+    "quÃ¡n Äƒn",
+    "quÃ¡n",
+    "quÃ¡n cafe",
     "cafe",
     "coffee",
     "restaurant",
@@ -26,32 +26,32 @@ RESTAURANT_KEYWORDS = [
     "fast food",
     "buffet",
     "seafood",
-    "phở",
-    "bún",
-    "miến",
-    "bánh",
-    "cà phê",
-    "trà sữa",
+    "phá»Ÿ",
+    "bÃºn",
+    "miáº¿n",
+    "bÃ¡nh",
+    "cÃ  phÃª",
+    "trÃ  sá»¯a",
 ]
 
 EXCLUDED_KEYWORDS = [
-    "khách sạn",
+    "khÃ¡ch sáº¡n",
     "hotel",
     "resort",
-    "cửa hàng",
-    "siêu thị",
+    "cá»­a hÃ ng",
+    "siÃªu thá»‹",
     "market",
     "grocery",
     "supermarket",
-    "chăn nuôi",
+    "chÄƒn nuÃ´i",
     "pet",
     "farm",
     "motel",
     "homestay",
     "hostel",
     "apartment",
-    "phòng trọ",
-    "nhà nghỉ",
+    "phÃ²ng trá»",
+    "nhÃ  nghá»‰",
     "spa",
     "salon",
     "beauty",
@@ -59,8 +59,8 @@ EXCLUDED_KEYWORDS = [
     "hospital",
     "pharmacy",
     "bakery",
-    "tiệm bánh",
-    "lò bánh",
+    "tiá»‡m bÃ¡nh",
+    "lÃ² bÃ¡nh",
     "bookstore",
     "stationery",
     "car wash",
@@ -68,13 +68,13 @@ EXCLUDED_KEYWORDS = [
     "repair",
     "school",
     "university",
-    "người cung cấp thực phẩm",
-    "nhà cung cấp thực phẩm",
-    "cung cấp thực phẩm",
-    "công ty",
-    "công ty tnnh",
-    "công ty tnhh",
-    "chi nhánh",
+    "ngÆ°á»i cung cáº¥p thá»±c pháº©m",
+    "nhÃ  cung cáº¥p thá»±c pháº©m",
+    "cung cáº¥p thá»±c pháº©m",
+    "cÃ´ng ty",
+    "cÃ´ng ty tnnh",
+    "cÃ´ng ty tnhh",
+    "chi nhÃ¡nh",
     "viettel",
     "telecom",
     "company",
@@ -105,28 +105,48 @@ def _iter_item_texts(item: ET.Element) -> List[str]:
         if node is not None and node.text:
             values.append(node.text)
     return values
-
-
+ 
+ 
 def is_restaurant_item(item: ET.Element | Dict[str, Any]) -> bool:
     if isinstance(item, dict):
-        texts = " | ".join(
-            str(item.get(key) or "")
-            for key in ["title", "categoryName", "categories", "description", "subTitle"]
+        primary_text = " | ".join(
+            _flatten_field(item.get(key)) for key in ["title", "categoryName"]
+        )
+        secondary_text = " | ".join(
+            _flatten_field(item.get(key)) for key in ["categories", "description", "subTitle"]
         )
     else:
-        texts = " | ".join(_iter_item_texts(item))
-
-    normalized = _normalize(texts)
-
-    if not normalized:
+        node_values = {tag: None for tag in ["title", "categoryName", "categories", "description", "subTitle"]}
+        for tag in node_values:
+            node = item.find(tag)
+            if node is not None and node.text:
+                node_values[tag] = node.text
+        primary_text = " | ".join(_flatten_field(node_values[k]) for k in ["title", "categoryName"])
+        secondary_text = " | ".join(_flatten_field(node_values[k]) for k in ["categories", "description", "subTitle"])
+ 
+    normalized_primary = _normalize(primary_text)
+    normalized_secondary = _normalize(secondary_text)
+    normalized_all = _normalize(f"{primary_text} | {secondary_text}")
+ 
+    if not normalized_all:
         return False
-
-    if any(keyword in normalized for keyword in EXCLUDED_KEYWORDS):
+ 
+    # Ưu tiên tín hiệu chính (title + categoryName): nếu chính nó đã rõ ràng là
+    # nhà hàng/quán ăn, KHÔNG để nhãn phụ (categories list) phủ quyết — tránh trường hợp
+    # 1 địa điểm có nhiều nhãn phụ trộn lẫn (vd "Nhà hàng pizza" + "Cửa hàng bán pizza mang về")
+    # bị loại oan chỉ vì 1 nhãn phụ chứa từ khóa loại trừ.
+    if any(keyword in normalized_primary for keyword in RESTAURANT_KEYWORDS):
+        if not any(keyword in normalized_primary for keyword in EXCLUDED_KEYWORDS):
+            return True
+ 
+    # Không có tín hiệu chính rõ ràng -> xét toàn bộ text (bao gồm nhãn phụ) như cũ,
+    # để vẫn bắt được các trường hợp categoryName mơ hồ nhưng description/categories rõ ràng.
+    if any(keyword in normalized_all for keyword in EXCLUDED_KEYWORDS):
         return False
-
-    if any(keyword in normalized for keyword in RESTAURANT_KEYWORDS):
+ 
+    if any(keyword in normalized_all for keyword in RESTAURANT_KEYWORDS):
         return True
-
+ 
     return False
 
 

@@ -46,9 +46,19 @@ def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 
 class RecommendationService:
     def __init__(self, dataset_path: str = "data_pipeline/data_cleaned/dataset_moodbite_features.csv"):
-        """Load restaurant dataset"""
+        """Load restaurant dataset - KHÔNG crash nếu thiếu file, chỉ đánh dấu is_ready=False.
+        Toàn bộ app (bao gồm endpoint /predict-floorplan không liên quan) sẽ vẫn chạy được
+        thay vì sập hoàn toàn chỉ vì thiếu 1 dataset - đúng nguyên tắc graceful degradation
+        đã áp dụng xuyên suốt dự án (VD: CsvRestaurantRepository.ts phía TypeScript)."""
         self.dataset_path = Path(dataset_path)
-        self.restaurants = self._load_dataset()
+        self.restaurants: pd.DataFrame | None = None
+        self.is_ready = False
+        try:
+            self.restaurants = self._load_dataset()
+            self.is_ready = True
+        except FileNotFoundError as e:
+            print(f"⚠️  {e}")
+            print("⚠️  RecommendationService khởi động ở chế độ degraded - /api/recommend sẽ trả lỗi rõ ràng thay vì crash app.")
 
     def _load_dataset(self) -> pd.DataFrame:
         """Load CSV dataset"""
@@ -81,6 +91,12 @@ class RecommendationService:
             List of recommended restaurants, đã sắp xếp theo mood-score giảm dần
             (khi bằng điểm, quán gần hơn được ưu tiên).
         """
+        if not self.is_ready or self.restaurants is None:
+            raise FileNotFoundError(
+                f"Dataset chưa sẵn sàng ({self.dataset_path} không tồn tại). "
+                "Server đang chạy ở chế độ degraded - endpoint này không dùng được."
+            )
+
         score_column = MOOD_TO_SCORE_COLUMN.get(mood.lower())
         if score_column is None:
             raise ValueError(

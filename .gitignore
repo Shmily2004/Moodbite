@@ -146,6 +146,11 @@ Thumbs.db
 config/secrets.yaml
 data_pipeline/data_raw/
 data_pipeline/data_cleaned/
+# Ngoại lệ: dataset_moodbite_features.csv là file đã xử lý (546 dòng, ~112KB), KHÔNG phải
+# raw data. Cần commit để bản deploy live (Railway/FastAPI) có data thật để chạy - server
+# deploy không tự chạy được data_pipeline (không có data_raw/*.json - dữ liệu cào từ Apify/OSM
+# vẫn giữ nguyên tắc không commit).
+!data_pipeline/data_cleaned/dataset_moodbite_features.csv
 *.pth
 *.pt
 *.onnx

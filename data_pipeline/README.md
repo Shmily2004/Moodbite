@@ -91,21 +91,13 @@ python -m src.infrastructure.ai.train_yolo               # train full (100 epoch
 ### Model đã train
 
 Model weight (`.pt`, `.onnx`) **không được commit vào git** (quá nặng, đã `.gitignore`).
+Model đã train được lưu tại HuggingFace Hub: *(cập nhật link sau khi upload)*
 
-Model YOLO (door/wall/window detection, train trên CubiCasa5K) đã được lưu tại HuggingFace Hub:
-- Repo: https://huggingface.co/Shmily2004/moodbite-yolo-floorplan
-- Tải trực tiếp: https://huggingface.co/Shmily2004/moodbite-yolo-floorplan/resolve/main/best.pt
-
-Tải về để dùng lại (không cần train lại từ đầu):
+Upload model mới lên HuggingFace:
 ```bash
-curl -L -o best.pt https://huggingface.co/Shmily2004/moodbite-yolo-floorplan/resolve/main/best.pt
-```
-
-Upload model mới (sau khi train lại) lên HuggingFace:
-```bash
-pip install huggingface_hub
-python -c "from huggingface_hub import login; login()"
-python -m data_pipeline.upload_model_to_hf --file runs/detect/train/weights/best.pt --repo-name moodbite-yolo-floorplan
+pip install huggingface_hub --break-system-packages
+huggingface-cli login
+python -m data_pipeline.upload_model_to_hf --file path/to/best.pt --repo-name moodbite-yolo-floorplan
 ```
 
 ## 🧪 Testing

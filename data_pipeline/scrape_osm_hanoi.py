@@ -70,23 +70,23 @@ DEFAULT_AREA_NAME = "Hà Nội"
 
 def _build_overpass_query(area_name: str, amenity_values: List[str], timeout_s: int = 180) -> str:
     amenity_regex = "|".join(amenity_values)
-    # area["name"="..."] tìm theo tên khu vực hành chính đã có trong OSM, chính xác hơn
-    # nhiều so với việc tự vẽ 1 bounding box hình chữ nhật (sẽ lấy thừa/thiếu ở biên).
     return f"""
 [out:json][timeout:{timeout_s}];
-area["name"="{area_name}"]["boundary"="administrative"]->.searchArea;
 (
-  nwr["amenity"~"^({amenity_regex})$"](area.searchArea);
+  nwr["amenity"~"^({amenity_regex})$"](21.0,105.7,21.15,105.9);
 );
 out center tags;
 """.strip()
 
 
 def _fetch_overpass(query: str) -> Optional[Dict[str, Any]]:
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+    }
     for endpoint in OVERPASS_ENDPOINTS:
         try:
             logger.info(f"Đang gọi Overpass API: {endpoint}")
-            response = requests.post(endpoint, data={"data": query}, timeout=200)
+            response = requests.post(endpoint, data={"data": query}, headers=headers, timeout=200)
             response.raise_for_status()
             return response.json()
         except Exception as e:

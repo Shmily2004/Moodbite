@@ -3,7 +3,7 @@ uvicorn==0.24.0
 PyYAML
 pandas
 numpy
-opencv-python
+opencv-python-headless
 torch
 transformers
 ultralytics

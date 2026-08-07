@@ -4,6 +4,7 @@ from PIL import Image
 import io
 from pathlib import Path
 from src.application.services.recommendation_service import recommendation_service
+from src.application.services.depth_estimation_service import depth_estimation_service
 
 router = APIRouter()
 
@@ -119,3 +120,60 @@ def get_supported_moods():
         "supported_moods": ["happy", "sad", "excited", "relaxed"],
         "description": "Use these mood values in POST /api/recommend"
     }
+
+
+@router.post("/estimate-depth")
+async def estimate_depth(file: UploadFile = File(...)):
+    """
+    Ước lượng depth map (chiều sâu) từ 1 ảnh chụp thật (VD ảnh review/chủ quán đăng).
+
+    Input: Image file (JPG, PNG) - ảnh chụp thường, không cần bản vẽ kỹ thuật.
+    Output: depth map dạng ảnh xám (base64 PNG) - pixel càng sáng càng gần camera.
+
+    LƯU Ý: đây là depth TƯƠNG ĐỐI từ 1 ảnh duy nhất (dùng Depth Anything V2, model
+    pretrained, không cần train riêng), không phải bản scan 3D chính xác tuyệt đối.
+    """
+    try:
+        contents = await file.read()
+        image = Image.open(io.BytesIO(contents)).convert("RGB")
+
+        depth_image = depth_estimation_service.estimate_depth(image)
+        depth_base64 = depth_estimation_service.depth_map_to_base64_png(depth_image)
+
+        return {
+            "status": "success",
+            "depth_map_base64_png": depth_base64,
+            "image_size": {"width": image.width, "height": image.height},
+        }
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/generate-point-cloud")
+async def generate_point_cloud(file: UploadFile = File(...), max_points: int = Query(default=20000, le=100000)):
+    """
+    Sinh point cloud 3D đơn giản (x, y, z, color) từ 1 ảnh chụp thật.
+
+    Input: Image file (JPG, PNG), max_points (giới hạn số điểm trả về, mặc định 20000).
+    Output: Danh sách điểm 3D, mỗi điểm có tọa độ (x, y, z) và màu (hex).
+
+    LƯU Ý: dùng camera pinhole giả định (không có thông số camera thật từ ảnh review),
+    nên tọa độ mang tính minh họa cảm giác chiều sâu, KHÔNG chính xác để đo đạc thật.
+    """
+    try:
+        contents = await file.read()
+        image = Image.open(io.BytesIO(contents)).convert("RGB")
+
+        points = depth_estimation_service.generate_point_cloud(image, max_points=max_points)
+
+        return {
+            "status": "success",
+            "total_points": len(points),
+            "points": points,
+        }
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))

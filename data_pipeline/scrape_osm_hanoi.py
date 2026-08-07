@@ -80,8 +80,13 @@ out center tags;
 
 
 def _fetch_overpass(query: str) -> Optional[Dict[str, Any]]:
+    # overpass-api.de bắt đầu chặn (406) các request thiếu header Accept/Accept-Encoding
+    # đầy đủ hoặc dùng User-Agent generic (kể từ 2026). Cần gửi đủ 3 header dưới đây,
+    # không chỉ User-Agent, để không bị coi là bot và bị từ chối.
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+        "User-Agent": "MoodBiteThesisProject/1.0 (dat-do-an-tot-nghiep; contact-via-github-Shmily2004)",
+        "Accept": "application/json, application/osm3s+xml, */*",
+        "Accept-Encoding": "gzip, deflate, br",
     }
     for endpoint in OVERPASS_ENDPOINTS:
         try:

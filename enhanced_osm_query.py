@@ -38,7 +38,10 @@ class EnhancedOSMQuery:
             "https://overpass-api.de/api/interpreter",
             "https://overpass.kumi.systems/api/interpreter",
         ]
-        self.api = overpy.Overpass(url=self.mirrors[0])
+        # overpass-api.de is unreachable on this network (connection times
+        # out at the TCP level, before any HTTP request). Default to the
+        # kumi.systems mirror instead, which is reachable.
+        self.api = overpy.Overpass(url=self.mirrors[1])
         self.max_retries = max_retries
         self.all_restaurants = {}  # key = (name, address, rounded_lat, rounded_lng)
         self.sleep_between_queries = sleep_between_queries
@@ -162,28 +165,13 @@ class EnhancedOSMQuery:
 
         return ", ".join(parts) if parts else None
 
-    def _build_common_fields(self, tags: Dict, lat, lon, osm_type: str, osm_id: int) -> Optional[Dict]:
+    def _build_common_fields(self, tags: Dict, lat, lon) -> Optional[Dict]:
         if "name" not in tags:
             return None
 
         restaurant = {
             "title": tags.get("name", ""),
             "source": "OSM",
-            # QUAN TRỌNG: filter_restaurants.py (bước lọc chạy sau khi merge) dựa
-            # nhiều vào categoryName để nhận diện quán ăn. Vì Overpass đã tự lọc
-            # đúng amenity="restaurant" ngay trong query (mọi kết quả CHẮC CHẮN là
-            # nhà hàng), gắn cứng categoryName="Nhà hàng" ở đây - nếu không, các
-            # quán có tên thương hiệu không chứa sẵn từ "quán"/"nhà hàng" (ví dụ
-            # "Cường Béo", "Bún Chả 34") sẽ bị lọc nhầm ra ngoài dù đã được OSM
-            # xác nhận là nhà hàng thật.
-            "categoryName": "Nhà hàng",
-            # QUAN TRỌNG: CsvRestaurantRepository.ts (tầng TypeScript) BẮT BUỘC
-            # phải có placeId, nếu không sẽ tự động bỏ qua dòng đó khi load data -
-            # thiếu field này thì mọi quán tìm được ở đây sẽ "biến mất" khi app chạy
-            # dù đã có trong file CSV. Dùng đúng format "osm-{type}-{id}" như
-            # scrape_osm_hanoi.py để nhất quán và khử trùng lặp chính xác hơn
-            # (ưu tiên placeId thay vì chỉ so tên+địa chỉ).
-            "placeId": f"osm-{osm_type}-{osm_id}",
             "location": {"lat": float(lat), "lng": float(lon)},
         }
 
@@ -214,7 +202,7 @@ class EnhancedOSMQuery:
         return restaurant
 
     def _extract_restaurant_from_node(self, node: overpy.Node) -> Optional[Dict]:
-        return self._build_common_fields(node.tags, node.lat, node.lon, "node", node.id)
+        return self._build_common_fields(node.tags, node.lat, node.lon)
 
     def _extract_restaurant_from_way(self, way: overpy.Way) -> Optional[Dict]:
         # "out center;" guarantees center_lat/center_lon on ways, so no
@@ -225,7 +213,7 @@ class EnhancedOSMQuery:
         if center_lat is None or center_lon is None:
             return None
 
-        return self._build_common_fields(way.tags, center_lat, center_lon, "way", way.id)
+        return self._build_common_fields(way.tags, center_lat, center_lon)
 
     def save_to_json(self, output_path: str = "enhanced_osm_restaurants.json"):
         """Save results to JSON."""

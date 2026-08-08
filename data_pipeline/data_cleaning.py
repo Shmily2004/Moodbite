@@ -54,9 +54,12 @@ def clean_data(raw_file: str = None):
         logger.info(f"Dropped {before_drop - len(df)} records with missing essential fields: {available_essential}")
 
     # 3. Fill non-essential missing values
-    if 'totalScore' in df.columns:
-        df['totalScore'] = df['totalScore'].fillna(0)
-    
+    # LƯU Ý: totalScore KHÔNG được fillna(0) - quán không có rating (VD: toàn bộ quán
+    # từ OpenStreetMap, không có hệ thống rating sao như Google Maps) sẽ trông giống
+    # "bị đánh giá 0 sao" nếu điền 0, trong khi thực ra nghĩa là "không có dữ liệu".
+    # Để trống (NaN) - tầng ứng dụng (CsvRestaurantRepository.ts) đã xử lý đúng giá trị
+    # rỗng thành `rating: null` thay vì giả định là số 0.
+
     if 'categoryName' in df.columns:
         df['categoryName'] = df['categoryName'].fillna('Unknown')
 

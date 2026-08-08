@@ -61,6 +61,15 @@ type DishSummary = {
   restaurant_id: string;
 };
 
+/**
+ * Giới hạn mặc định số lượng món ăn/quán trả về trong 1 lần gọi. Không giới hạn sẽ
+ * trả về TẤT CẢ món khớp ít nhất 1 tiêu chí (mood HOẶC budget HOẶC dietary) - với
+ * dataset nhỏ (vài quán mẫu) không thấy vấn đề, nhưng với dataset thật (3711 quán ở
+ * Hà Nội) có thể trả về hàng nghìn kết quả trong 1 response, vừa vô dụng cho UX
+ * (không ai xem hết 1000+ gợi ý) vừa nặng cho payload API.
+ */
+const DEFAULT_MAX_RESULTS = 20;
+
 export class SuggestDishForUserUseCase {
   constructor(
     private readonly userContextRepository: IUserContextRepository,
@@ -71,7 +80,7 @@ export class SuggestDishForUserUseCase {
   /**
    * Thực thi use case.
    */
-  async execute(userId: string): Promise<SuggestDishForUserResponseDto> {
+  async execute(userId: string, maxResults: number = DEFAULT_MAX_RESULTS): Promise<SuggestDishForUserResponseDto> {
     const userContext = await this.userContextRepository.findByUserId(userId);
 
     if (!userContext) {
@@ -100,7 +109,7 @@ export class SuggestDishForUserUseCase {
       ? this.filterByDietaryConstraints(await this.dishRepository.findAll(), dietaryConstraints)
       : [];
 
-    const combinedDishes = this.mergeDishResults(keywordMatches, budgetMatches, dietaryMatches);
+    const combinedDishes = this.mergeDishResults(keywordMatches, budgetMatches, dietaryMatches, maxResults);
 
     const suggestedRestaurants = await this.resolveRestaurantsForDishes(combinedDishes);
 
@@ -220,31 +229,43 @@ export class SuggestDishForUserUseCase {
   /**
    * Gộp và làm sạch kết quả từ các nguồn lọc khác nhau.
    */
+  /**
+   * Gộp kết quả từ các nguồn lọc khác nhau, xếp hạng theo mức độ khớp (món khớp
+   * càng nhiều tiêu chí - mood/budget - càng được ưu tiên lên đầu), rồi giới hạn
+   * số lượng trả về theo maxResults. Trước đây hàm này trả về TOÀN BỘ union không
+   * giới hạn, gây ra response khổng lồ (1332+ quán) khi chạy trên dataset thật.
+   */
   private mergeDishResults(
     keywordMatches: DishSummary[],
     budgetMatches: DishSummary[],
-    dietaryMatches: Array<{ name: string; category?: string | null }>
+    dietaryMatches: Array<{ name: string; category?: string | null }>,
+    maxResults: number
   ): DishSummary[] {
-    const seen = new Map<string, DishSummary>();
+    const dishById = new Map<string, DishSummary>();
+    const matchScoreById = new Map<string, number>();
 
     const addDish = (dish: DishSummary) => {
-      if (!seen.has(dish.id)) {
-        seen.set(dish.id, dish);
+      if (!dishById.has(dish.id)) {
+        dishById.set(dish.id, dish);
       }
+      matchScoreById.set(dish.id, (matchScoreById.get(dish.id) ?? 0) + 1);
     };
 
     keywordMatches.forEach(addDish);
     budgetMatches.forEach(addDish);
 
-    const dietaryDishIds = new Set(dietaryMatches.map((dish) => dish.name.toLowerCase()));
-    const result = Array.from(seen.values());
+    const dietaryDishNames = new Set(dietaryMatches.map((dish) => dish.name.toLowerCase()));
 
-    return result.filter((dish) => {
-      if (dietaryMatches.length === 0) {
-        return true;
-      }
+    let candidates = Array.from(dishById.values());
 
-      return dietaryDishIds.has(dish.name.toLowerCase());
-    });
+    // Dietary constraint là điều kiện LỌC CỨNG (loại hẳn nếu không khớp), không phải
+    // điểm cộng thêm - món không đáp ứng hạn chế dinh dưỡng thì loại khỏi kết quả.
+    if (dietaryMatches.length > 0) {
+      candidates = candidates.filter((dish) => dietaryDishNames.has(dish.name.toLowerCase()));
+    }
+
+    candidates.sort((a, b) => (matchScoreById.get(b.id) ?? 0) - (matchScoreById.get(a.id) ?? 0));
+
+    return candidates.slice(0, maxResults);
   }
 }

@@ -165,13 +165,24 @@ class EnhancedOSMQuery:
 
         return ", ".join(parts) if parts else None
 
-    def _build_common_fields(self, tags: Dict, lat, lon) -> Optional[Dict]:
+    def _build_common_fields(self, tags: Dict, lat, lon, osm_type: str, osm_id: int) -> Optional[Dict]:
         if "name" not in tags:
             return None
 
         restaurant = {
             "title": tags.get("name", ""),
             "source": "OSM",
+            # QUAN TRỌNG: filter_restaurants.py dựa nhiều vào categoryName để nhận
+            # diện quán ăn. Overpass đã tự lọc đúng amenity="restaurant" trong query
+            # (mọi kết quả CHẮC CHẮN là nhà hàng), nên gắn cứng categoryName ở đây -
+            # nếu không, quán tên thương hiệu không chứa sẵn từ "quán"/"nhà hàng"
+            # (VD "Cường Béo") sẽ bị lọc nhầm ra ngoài.
+            "categoryName": "Nhà hàng",
+            # QUAN TRỌNG: CsvRestaurantRepository.ts (tầng TypeScript) BẮT BUỘC phải
+            # có placeId, nếu không sẽ âm thầm bỏ qua dòng đó khi load data - đã xác
+            # nhận thật: 209 quán thêm vào lần trước đều thiếu placeId nên sẽ "biến
+            # mất" hoàn toàn khi app chạy dù có trong file CSV.
+            "placeId": f"osm-{osm_type}-{osm_id}",
             "location": {"lat": float(lat), "lng": float(lon)},
         }
 
@@ -202,7 +213,7 @@ class EnhancedOSMQuery:
         return restaurant
 
     def _extract_restaurant_from_node(self, node: overpy.Node) -> Optional[Dict]:
-        return self._build_common_fields(node.tags, node.lat, node.lon)
+        return self._build_common_fields(node.tags, node.lat, node.lon, "node", node.id)
 
     def _extract_restaurant_from_way(self, way: overpy.Way) -> Optional[Dict]:
         # "out center;" guarantees center_lat/center_lon on ways, so no
@@ -213,7 +224,7 @@ class EnhancedOSMQuery:
         if center_lat is None or center_lon is None:
             return None
 
-        return self._build_common_fields(way.tags, center_lat, center_lon)
+        return self._build_common_fields(way.tags, center_lat, center_lon, "way", way.id)
 
     def save_to_json(self, output_path: str = "enhanced_osm_restaurants.json"):
         """Save results to JSON."""

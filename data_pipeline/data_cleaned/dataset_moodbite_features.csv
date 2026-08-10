@@ -1,477 +1,496 @@
 ﻿title,placeId,location/lat,location/lng,categoryName,address,comfort_cozy_score,spicy_hot_score,fresh_healthy_score,cheap_budget_score,quick_fast_score
-Quán Ăn Ngon - Phan Bội Châu,osm-node-721836715,21.0262611,105.8434161,Nhà hàng,"18, Phố Phan Bội Châu",0.0,0.0,0.0,0.0,0
-Pho 10,osm-node-773601261,21.0304724,105.8488474,Nhà hàng,"10, Phố Lý Quốc Sư",0.0,0.0,0.0,0.0,0
-Nhà Hàng Chả Cá Thủy Hồng,osm-node-1671744985,21.0361852,105.8469741,Nhà hàng,"12, 12 Hàng Gà, Hoàn Kiếm, Hà Nội, Việt Nam, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Nhà Hàng Highway 4,osm-node-2175084765,21.029439,105.8092811,Nhà hàng,"575, Ngõ 575 Kim Mã, Quận Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0
-Cơm Cường,osm-node-2366849408,21.0174867,105.8484165,Nhà hàng,"14, Nguyễn Bỉnh Khiêm",0.0,0.0,0.0,0.0,0
-True Viet,osm-node-2495836898,21.0645792,105.8313838,Nhà hàng,"156, Đường Âu Cơ, Hanoi",0.0,0.0,0.0,0.0,0
-Phở Cường,osm-node-2587491495,21.0339341,105.8548223,Nhà hàng,"23, Phố Hàng Muối, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Quán Cơm Mậu Dịch,osm-node-3496464405,21.0455452,105.8405476,Nhà hàng,"37, Phố Nam Tràng, Phường Ba Đình, Hà Nội",0.5,0.0,0.0,0.0,0
-Quan An Ngon,osm-node-3496893646,21.0406918,105.8425141,Nhà hàng,"34, Phố Phan Đình Phùng, Phường Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0
-Phở 24,osm-node-3541565714,21.0178536,105.7960898,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Nhà hàng Cánh Buồm,osm-node-3787800312,20.6442433,105.9236269,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Bún Chẳ Đắc Kim,osm-node-4151407589,21.0310565,105.8472795,Nhà hàng,"67, Đường Thành, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Noodle & Roll,osm-node-4327534896,21.0297478,105.8492754,Nhà hàng,"39C, Phố Lý Quốc Sư",0.0,0.0,0.0,0.0,0
-Little Hanoi,osm-node-4327575690,21.0334623,105.8537432,Nhà hàng,"16, Phố Hàng Bè, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Nhà Hàng Highway 4,osm-node-4358971989,21.0348754,105.8475332,Nhà hàng,,0.0,0.25,0.0,0.0,0
-Porte D' Annam,osm-node-4437567193,21.0290469,105.849678,Nhà hàng,"22, Phố Nhà Thờ",0.0,0.0,0.0,0.0,0
-Nhà Hàng Hoàng Minh,osm-node-4450138703,20.9791012,105.7836814,Nhà hàng,Mỗ Lao,0.0,0.0,0.0,0.0,0
-Bun Ca sam Cay Si,osm-node-4481034394,21.0333829,105.8526709,Nhà hàng,,0.0,0.25,0.0,0.0,0
-Chay Aummee,osm-node-4481407690,21.0457483,105.8425594,Nhà hàng,"26, Phố Châu Long, Phường Ba Đình, Hà Nội",0.0,0.0,0.5,0.0,0
-Nhà Hàng Hưng Phát,osm-node-4486692390,21.0293208,105.8421665,Nhà hàng,"7, Đường Điện Biên Phủ, Phường Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0
-Son Duong Quan,osm-node-4486827794,21.0320782,105.8555601,Nhà hàng,"23, Phố Hàng Tre",0.0,0.0,0.0,0.0,0
-Nhà Hàng Buk Buk,osm-node-4497894667,21.0315049,105.7691999,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Quán Cơm Chay Bồ Đề,osm-node-4508014325,21.0242062,105.8450881,Nhà hàng,,0.0,0.0,0.5,0.0,0
-Cơm Chay Sala Quán,osm-node-4523072389,21.0383505,105.8290578,Nhà hàng,"170, Ngọc Hà, Phường Ba Đình, Hà Nội",0.0,0.0,0.5,0.0,0
-NHÀ HÀNG TRAU THÚY HĂNG,osm-node-4550335190,21.0580568,105.9076863,Nhà hàng,,0.0,0.0,0.5,0.0,0
-Sixty Six,osm-node-4550335291,21.0339774,105.8486972,Nhà hàng,"66, Phố Hàng Bồ, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Talky cafe $,osm-node-4709218790,21.0153433,105.8131053,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Nhà Hàng Hồng Hoài,osm-node-4709634891,21.0337915,105.8474622,Nhà hàng,"20, Phố Bát Đàn, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Minh Minh Quán,osm-node-4745160523,21.0336376,105.9100447,Nhà hàng,"37/42, Phố Sài Đồng",0.5,0.0,0.0,0.0,0
-Tung's Kitchen,osm-node-4759687343,21.0313543,105.8489788,Nhà hàng,"2, Phố Hàng Bông, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Quán Lươn Bà Liên,osm-node-4805279021,21.0355549,105.8178405,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Nhà Hàng Chicken Street,osm-node-4810696421,21.0313374,105.8321031,Nhà hàng,Lý Văn Phúc,0.0,0.0,0.0,0.0,0
-Bánh cuốn Gia An,osm-node-5030033123,21.0152726,105.8011916,Nhà hàng,"70, Phố Trung Hoà, Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0
-Nhà Hàng An Lạc Chay,osm-node-5088087021,21.0238115,105.8419625,Nhà hàng,,0.0,0.0,0.5,0.0,0
-Nhà Hàng Chay Liên Hoa,osm-node-5088092923,21.0135722,105.846735,Nhà hàng,,0.0,0.0,0.5,0.0,0
-Dong Phu,osm-node-5242789221,21.033564,105.8470901,Nhà hàng,"12, Hàng Điếu, Cửa Đông, Hoàn Kiếm, Hà Nội, Vietnam, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Xoi Cat Lam,osm-node-5255356021,21.032181,105.8467339,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Nhà Hàng Mỹ Phồ,osm-node-5277149621,21.0305967,105.8474703,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Bún Chả - Nem Cua Bê,osm-node-5323152623,21.0349731,105.8475555,Nhà hàng,"23, Phố Bát Sứ, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Nhà Hàng Hanoi Food Culture,osm-node-5324912922,21.0340799,105.853663,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Nhà Hàng Chay Mihn,osm-node-5332620122,21.0284211,105.8483461,Nhà hàng,"09, Phố Ấu Triệu",0.0,0.0,1.0,0.0,0
-Quán Phở Thìn,osm-node-5334178022,21.0181784,105.8553,Nhà hàng,"13, Phố Lò Đúc",0.0,0.0,0.0,0.0,0
-Nhà Háng,osm-node-5397611521,21.0337212,105.8478093,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Tâm An Lạc,osm-node-5411550522,21.0256891,105.8440968,Nhà hàng,Phố Lý Thường Kiệt,0.0,0.0,0.0,0.0,0
-Bò Tơ Quán Mộc,osm-node-5485647547,21.0503921,105.7850989,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Nhà Hàng A2 Ngọc Khánh,osm-node-5485664752,21.0262998,105.8114972,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Nhà Hàng Bia Hơi Hải Xồm,osm-node-5485766230,21.0344004,105.811264,Nhà hàng,"5, Phan Kế Bính, Quận Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0
-Nhà Hàng Bếp Mường,osm-node-5485791896,21.027178,105.8171936,Nhà hàng,"8, Phố Nguyễn Công Hoan, Quận Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0
-Nhà Hàng Garden House,osm-node-5491288621,21.0331966,105.8539228,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Nhà hàng Phủ Lý,osm-node-5758797421,21.0426409,105.7960114,Nhà hàng,"112 B9, Phố Tô Hiệu",0.0,0.0,0.0,0.0,0
-Bánh Đa Cua Hải Phòng,osm-node-5880291585,21.0111486,105.8045073,Nhà hàng,"39, Phố Nguyễn Thị Định",0.0,0.0,0.0,0.0,0
-Tiên Tửu Quán - Lẩu - Các Món Nhậu,osm-node-5948536485,21.0306728,105.8193537,Nhà hàng,"287, Phố Kim Mã",0.0,0.25,0.0,0.0,0
-Bánh Cuốn Bà Hạnh,osm-node-5983124785,21.0290963,105.8487482,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Ẩm Thực Chay Tịnh Nghiệp,osm-node-6036359888,21.0343921,105.8301652,Nhà hàng,"56A, Đội Cấn, Phường Ba Đình, Hà Nội",0.0,0.0,0.5,0.0,0
-Phở Thật,osm-node-6049182299,21.0380367,105.8522189,Nhà hàng,"48, Đường Trần Nhật Duật, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Veggie castle,osm-node-6127555185,21.0436976,105.8446857,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Thảo Linh,osm-node-6169695785,20.9640244,105.8244541,Nhà hàng,"Kiot 15, Rainbow Linh Đàm",0.0,0.0,0.0,0.0,0
-Nhà Hàng Chay Tâm An,osm-node-6174044986,21.0119248,105.8376422,Nhà hàng,Ngõ 180 Kim Hoa,0.5,0.0,1.0,0.0,0
-Bánh xèo - Nem cuốn - Quẩy,osm-node-6228818585,21.0340643,105.8496955,Nhà hàng,"22, Phố Hàng Bồ, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Bún Mọc Hằng Hiếu,osm-node-6269089078,21.0166063,105.8123208,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Nhà Hàng Hỏa Lò,osm-node-6324767985,21.0771591,105.8227977,Nhà hàng,Ngõ 374 Âu Cơ,0.0,0.0,0.0,0.0,0
-Nhà Hàng King BBQ,osm-node-6324812247,21.024043,105.8539531,Nhà hàng,"20, Hai Bà Trưng, Hoàn Kiếm, Hà Nội",0.0,0.0,0.5,0.0,0
-Nhà Hàng King BBQ,osm-node-6346505980,21.0362704,105.7613852,Nhà hàng,"Shophouse B2-06, KĐT Vinhomes Gardenia, Hàm Nghi, Nam Từ Liêm, Hà Nội",0.0,0.0,0.5,0.0,0
-Pho 10,osm-node-6402581586,21.0305956,105.8487232,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Nhà Hàng Chay Tuệ Giác,osm-node-6413826385,21.016337,105.8250572,Nhà hàng,"15, Phố Trần Quang Diệu",0.0,0.0,0.5,0.0,0
-Bún Riêu Cua Thu,osm-node-6425005085,21.0292058,105.8483343,Nhà hàng,"5A, Thọ Xương, Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Đụt Quán - Ốc,osm-node-6432124485,21.0129421,105.8025668,Nhà hàng,"Số 3 Ngõ 41, Trần Duy Hưng",0.0,0.0,0.0,0.0,0
-Thắng Hằng (bún chả),osm-node-6448940987,21.0525413,105.8374622,Nhà hàng,Yên Phụ,0.0,0.0,0.0,0.0,0
-Cơm Nấm Việt Hà Thành,osm-node-6483119385,21.0189669,105.8284746,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Nhà Hàng CIAO,osm-node-6488009486,21.0297106,105.8276931,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Nhà Hàng Home Hanoi,osm-node-6525781986,21.0453801,105.8424599,Nhà hàng,"34, Phố Châu Long, Phường Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0
-Nhac cafe,osm-node-6533893985,21.0324152,105.855273,Nhà hàng,"7, Phố Hàng Thùng",0.0,0.0,0.0,0.0,0
-Ốc Bông Quán,osm-node-6611456185,21.0239287,105.8566213,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Phở Đường Tăng,osm-node-6616671217,20.9926672,105.8144635,Nhà hàng,"35, Phố Khương Hạ",0.0,0.0,0.0,0.0,0
-Nhà Hàng Hương Mai,osm-node-6628638085,21.0121151,105.8040818,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Quán Nướng ABéo,osm-node-6640901648,21.0326627,105.8290076,Nhà hàng,"10, Phố Kim Mã, Phường Ba Đình, Hà Nội",0.0,0.5,0.0,0.0,0
-Bún cá Văn,osm-node-6640913832,21.0429002,105.8395084,Nhà hàng,"174, Phố Quán Thánh, Phường Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0
-Phở Lý Quốc Sư,osm-node-6679712288,21.0109743,105.831105,Nhà hàng,"119D1, Phố Đặng Văn Ngữ, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0
-Nhà Hàng Món Huế,osm-node-6681348985,21.011719,105.801052,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Nộm Mai Nga,osm-node-6689625508,21.0192721,105.8528021,Nhà hàng,"25, Phố Hàm Long",0.0,0.0,0.0,0.0,0
-Bố Đế Quán,osm-node-6699204786,21.0672457,105.830883,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Chợ Cô Dần - Cơm Sườn & Phá Lấu,osm-node-6705528525,21.0132031,105.8330408,Nhà hàng,"119, Phố Nam Đồng, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0
-Tấm cuisine & Traditional house,osm-node-6784112360,21.0636852,105.8655285,Nhà hàng,"Số 7, ngách 2, ngõ 437, Ngọc Thụy, Long Biên, Hà Nội",0.0,0.0,0.0,0.0,0
-Cơm 123,osm-node-6822174389,21.0170339,105.8317134,Nhà hàng,"482, Phố Xã Đàn, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0
-Vũ Kiều Tú / Sen Trang An / Cumulus,osm-node-6882889996,21.0327728,105.8539006,Nhà hàng,"45-47, Phố Hàng Bè, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Giang Nam Restaurant,osm-node-7025533318,21.0337076,105.848427,Nhà hàng,"79, Phố Hàng Bồ, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Ba Ba Sơn Đông,osm-node-7055985628,21.0346219,105.7888949,Nhà hàng,"50, Phố Trần Thái Tông, Quận Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0
-Bún Chả Sinh Từ,osm-node-7056027929,21.0346716,105.7889104,Nhà hàng,"48, Phố Trần Thái Tông, Quận Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0
-Lẩu Ốc Bún Ốc Gia Truyền Khương Thượng,osm-node-7089810485,20.9963442,105.8294948,Nhà hàng,"18, Ngõ 134 Lê Trọng Tấn",0.0,0.25,0.0,0.0,0
-Cơm - Phở Chay Từ Bi,osm-node-7106593486,21.0491199,105.8398964,Nhà hàng,"30A, Ngõ Trúc Lạc, Phường Ba Đình, Hà Nội",0.0,0.0,0.5,0.0,0
-RueDuCamp Quán cà phê,osm-node-7112196485,21.0279649,105.8448225,Nhà hàng,"50A, Phố Tràng Thi",1.0,0.0,0.0,0.0,0
-Nhà Hàng Ầu Ơ Bếp Việt,osm-node-7205751930,21.0213654,105.8566874,Nhà hàng,"15, Phố Lý Thường Kiệt, Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Pho Thìn,osm-node-7217547685,21.0251921,105.845147,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Quỳnh Quán,osm-node-7333832605,20.9735521,105.8202606,Nhà hàng,"Ki ốt 02 D Vinaconex 2, Nghiêm Xuân Yêm, Hoàng Mai, Hà Nội",0.0,0.0,0.0,0.0,0
-Bún Chả Sinh Từ,osm-node-7516955870,21.014312,105.8195072,Nhà hàng,"10, Phố Hoàng Cầu, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0
-Bún Chả Sinh Từ,osm-node-7516955871,21.0110316,105.8311756,Nhà hàng,"111D1, Phố Đặng Văn Ngữ, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0
-Bún Ngan Cô Tuyết,osm-node-8132877478,21.0100991,105.8263379,Nhà hàng,"25, Ngõ 167 Tây Sơn, Đống Đa, Hà Nội",0.5,0.0,0.0,0.0,0
-"nhom6,T01-14, Cơm Ngon",osm-node-8346042982,21.0773776,105.7739715,Nhà hàng,"40, Cầu Vồng, Bắc Từ Liêm, Hà Nội",0.0,0.0,0.0,0.0,0
-"nhom6,T01-16, Ốc Tài Chính",osm-node-8347330261,21.0771875,105.7736319,Nhà hàng,"52, Cầu Vồng, Bắc Từ Liêm, Phường Đức Thắng",0.0,0.0,0.0,0.0,0
-"nhom6,T01-19, vịt nuongứ Vân Đình",osm-node-8347362707,21.0769205,105.7732674,Nhà hàng,"62, Cầu Vồng, Bắc Từ Liêm, Phường Đức Thắng",0.0,0.0,0.0,0.0,0
-"nhom6,T01-26, lẩu nướng",osm-node-8347371227,21.0774562,105.7748218,Nhà hàng,"5, Cầu Vồng, Bắc Từ Liêm, Phường Đức Thắng",0.0,0.5,0.0,0.0,0
-Nhà Hàng Củi,osm-node-8563466265,21.0191661,105.8259313,Nhà hàng,"3, Ngõ 31 Hoàng Cầu, Quận Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0
-Cháo Lòng Phố Cổ,osm-node-8631526113,21.0360382,105.8520965,Nhà hàng,"26, Phố Hàng Buồm, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Bánh Tráng Phú Cường Cơ Sở 3,osm-node-9551695377,20.9794509,105.7856786,Nhà hàng,"102, Đường Trần Phú, Hà Đông, Hà Nội",0.0,0.0,0.0,0.0,0
-Bánh Tráng Phú Cường Cơ Sở 4,osm-node-9551695378,21.0171361,105.7985636,Nhà hàng,"100, Phố Vũ Phạm Hàm, Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0
-Bánh Tráng Phú Cường Cơ Sở 1,osm-node-9551699235,21.0160069,105.8099478,Nhà hàng,"42, Phố Nguyên Hồng, Đống Đa, Phường Láng Hạ",0.0,0.0,0.0,0.0,0
-Bánh tráng Phú Cường cơ sở 2,osm-node-9551703841,21.0195383,105.8423388,Nhà hàng,"104, Phố Yết Kiêu, Hai Bà Trưng, Phường Nguyễn Du",0.0,0.0,0.0,0.0,0
-Cơm Ông Bình,osm-node-9800789973,21.0675911,105.7620797,Nhà hàng,"Bắc Từ Liêm, Hà Nội",0.0,0.0,0.0,0.0,0
-Ưu Đàm Chay,osm-node-9945276817,21.0187719,105.84814,Nhà hàng,"55, Phố Nguyễn Du, Hai Bà Trưng, Hà Nội",0.0,0.0,1.0,0.0,0
-Nét Huế,osm-node-10002371867,21.0502542,105.8933138,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Old Hanoi Restaurant,osm-node-10044381092,21.0299337,105.842667,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Lẩu&Nướng Ăndeee - 188 Phó Đức Chính,osm-node-10158964415,21.0442652,105.8460809,Nhà hàng,"188, Phố Phó Đức Chính, Phường Ba Đình, Hà Nội",0.0,1.0,0.0,0.0,0
-The East,osm-node-10179892274,21.0297293,105.8441279,Nhà hàng,"Phố Tống Duy Tân, Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-bún đậu 34,osm-node-10213648463,21.0799412,105.7726806,Nhà hàng,"Phố Văn Hội, Bắc Từ Liêm",0.0,0.0,0.0,0.0,0
-Cơm Ngon,osm-node-10219253935,21.0813579,105.7719273,Nhà hàng,"Sông Nhuệ, Bắc Từ Liêm, Phường Đức Thắng",0.0,0.0,0.0,0.0,0
-iMeatU Korea BBQ,osm-node-10245908053,21.0269786,105.8241813,Nhà hàng,"116K1, Phố Giảng Võ, Ba Đình, Hà Nội",0.0,0.25,0.5,0.0,0
-Bánh bao Bình Mỗ,osm-node-10264303109,21.0293084,105.8464797,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Pho Gon,osm-node-10281779509,21.0213052,105.8560894,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Phở bưng Hàng Trống,osm-node-10298555575,21.0313423,105.8493056,Nhà hàng,"8, Phố Hàng Trống, Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Miến trộn mực,osm-node-10298693325,21.0333264,105.852783,Nhà hàng,"Ngõ Trung Yên, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Bánh cuốn gia truyền thanh vân,osm-node-10298693328,21.0362825,105.8470163,Nhà hàng,"14, Phố Hàng Gà, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Phở Lâm,osm-node-10298693329,21.0356438,105.846433,Nhà hàng,"48, Phố Hàng Vải, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Quan banh con Thanh van,osm-node-10557047309,21.0181861,105.8519116,Nhà hàng,Phố Lê Văn Hưu,0.0,0.0,0.0,0.0,0
-Bún Ốc Hương Xưa,osm-node-10628095751,20.9878992,105.7510054,Nhà hàng,"10-LK45, Khu đất dịch vụ LK16, LK17, LK 18a,LK18b, Hà Đông, Hà Nội",0.0,0.0,0.0,0.0,0
-Vi Lai,osm-node-10676070107,21.0240772,105.8455937,Nhà hàng,,0.0,0.0,0.0,0.0,0
-O Bun Cha,osm-node-10734202162,21.0339076,105.8543042,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Chào Bạn,osm-node-10756018605,21.0679405,105.8224048,Nhà hàng,Đường Tô Ngọc Vân,0.0,0.0,0.0,0.0,0
-Vua Phở,osm-node-10848035601,21.0485161,105.8078637,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Quán Vịt Zozo,osm-node-10848090099,21.0482947,105.808876,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Cháo Niêu,osm-node-10848092608,21.0482401,105.8092974,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Lòng Bờm - Lòng lợn Thuỵ Khuê,osm-node-10856105369,21.0481604,105.8097431,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Chung Trường - Lòng lợn chợ Bưởi,osm-node-10856105373,21.0479914,105.8101233,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Phở bò Đức Khôi,osm-node-10860208391,21.0364989,105.8462128,Nhà hàng,"77, Phố Phùng Hưng, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Phở bò Hồ Lợi,osm-node-10860234700,21.0875693,105.8061257,Nhà hàng,"28 Ng. 209, An Dương Vương, Tây Hồ, Hanoi",0.0,0.0,0.0,0.0,0
-Cháo sườn sụn,osm-node-10872881535,21.0473666,105.8110341,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Bánh Tráng Phú Cường cơ sở 5,osm-node-11015659150,21.0092132,105.8489241,Nhà hàng,"340, Phố Bà Triệu, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Chả cá 84,osm-node-11083594406,21.0207793,105.8459944,Nhà hàng,"84, Phố Trần Quốc Toản",0.0,0.0,0.0,0.0,0
-Ngan chặt Gia Huy,osm-node-11168751430,21.0459733,105.8035235,Nhà hàng,"75, Đường Hoàng Quốc Việt, Quận Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0
-Bánh tráng Bé My,osm-node-11212195531,21.0101638,105.8358316,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Cơm tấm sườn nướng,osm-node-11212248141,21.0479495,105.784293,Nhà hàng,,0.0,0.25,0.0,0.0,0
-Cơm niêu Tố Uyên,osm-node-11212544453,21.0081435,105.8333252,Nhà hàng,"101C2, Phố Phạm Ngọc Thạch, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0
-Bún cá hạnh phúc,osm-node-11215223962,21.0470658,105.7842888,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Phở,osm-node-11215223970,21.0470096,105.7842885,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Bún cá Việt Nam,osm-node-11215223971,21.0472369,105.7842896,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Phở Vũ,osm-node-11215223972,21.0472914,105.7842898,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Minh Anh Bia - Bún chả,osm-node-11215223976,21.0475194,105.7842225,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Chảnh Nướng,osm-node-11215223983,21.0477247,105.7842919,Nhà hàng,,0.0,0.25,0.0,0.0,0
-Nhà hàng Tầm Vị,osm-node-11218013237,21.0287751,105.8394545,Nhà hàng,"4, Phố Yên Thế",0.0,0.0,0.0,0.0,0
-Bánh mì chay Vegan,osm-node-11371361970,21.0303507,105.8497103,Nhà hàng,"64, Phố Hàng Trống",0.0,0.0,0.5,0.0,0
-Quán Little Hà Nội,osm-node-11371431369,21.0302188,105.8489505,Nhà hàng,"24b, Phố Lý Quốc Sư",0.0,0.0,0.0,0.0,0
-Ngan Huế Thương,osm-node-11372720514,20.9917089,105.9456661,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Bánh cuốn nóng 101 Bà Triệu,osm-node-11468718378,21.012338,105.8505177,Nhà hàng,"155, Phố Triệu Việt Vương, Hai Bà Trưng, Hà Nội",0.0,0.25,0.0,0.0,0
-Cơm Tấm Tỷ Đô,osm-node-11470110667,21.0126551,105.8505824,Nhà hàng,"147, Phố Triệu Việt Vương, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Vua Chả Cá,osm-node-11472430137,21.0132741,105.8509418,Nhà hàng,"76A, Phố Mai Hắc Đế, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-An Biên Eatery,osm-node-11505669842,21.0141696,105.8506004,Nhà hàng,"111, Phố Triệu Việt Vương, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Phở Cồ,osm-node-11563394778,21.0456914,105.7862359,Nhà hàng,"77, Phố Phạm Tuấn Tài, Quận Bắc Từ Liêm, Hà Nội",0.0,0.0,0.0,0.0,0
-Cơm ngon Bình dân,osm-node-11563394783,21.0454499,105.786234,Nhà hàng,"65, Phố Phạm Tuấn Tài, Quận Bắc Từ Liêm, Hà Nội",0.0,0.0,0.0,1.0,0
-Nhà hàng Phúc Lâm,osm-node-11568539974,21.0442928,105.784162,Nhà hàng,"9A, Ngõ 6 Đặng Thùy Trâm, Quận Bắc Từ Liêm, Hà Nội",0.0,0.0,0.0,0.0,0
-Cháo lòng Hợp Lý 4,osm-node-11568902926,21.0433502,105.7861262,Nhà hàng,"9, Phố Phạm Tuấn Tài, Quận Cầu Giấy, Hà Nội",0.0,0.0,0.0,1.0,0
-Cơm Ngon Quán,osm-node-11568902927,21.0433095,105.7861234,Nhà hàng,"9A3, Phố Phạm Tuấn Tài, Quận Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0
-Phở trâu giật Minh Quân,osm-node-11568902928,21.043277,105.786121,Nhà hàng,"9A, Phố Phạm Tuấn Tài, Quận Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0
-Quán Cừu Vui Vẻ,osm-node-11568902930,21.0432146,105.7861186,Nhà hàng,"9, Phố Phạm Tuấn Tài, Quận Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0
-Lòng Ngon Quán,osm-node-11568902935,21.0431357,105.7859577,Nhà hàng,"2, Ngõ 3 Phạm Tuấn Tài, Quận Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0
-Nhà hàng Ngọc Hiếu,osm-node-11572546708,21.0427604,105.786396,Nhà hàng,"18, Phố Phạm Tuấn Tài, Quận Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0
-Dũng Thuỷ,osm-node-11584471212,21.0443217,105.7814927,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Kiều Hoa Quán,osm-node-11586911182,21.0449085,105.7843548,Nhà hàng,"10, Phố Đặng Thùy Trâm, Quận Bắc Từ Liêm, Hà Nội",0.0,0.0,0.0,0.0,0
-Bún đậu Cúc Cu,osm-node-11586915429,21.0455868,105.785841,Nhà hàng,"2, Ngách 421/4 Hoàng Quốc Việt, Quận Bắc Từ Liêm, Hà Nội",0.0,0.0,0.0,0.0,0
-Thiên Lộc Quán,osm-node-11586987534,21.0450525,105.7840889,Nhà hàng,"6, Phố Đặng Thùy Trâm, Quận Bắc Từ Liêm, Hà Nội",0.0,0.0,0.0,0.0,0
-Cơm Quê Phố Cổ,osm-node-11590640347,21.0454315,105.7842289,Nhà hàng,"Phố Đặng Thùy Trâm, Quận Bắc Từ Liêm, Hà Nội",0.0,0.0,0.0,0.0,0
-Cồ Dạt - Phở Bò Nam Định,osm-node-11590640352,21.0454658,105.784229,Nhà hàng,"Phố Đặng Thùy Trâm, Quận Bắc Từ Liêm, Hà Nội",0.0,0.0,0.0,0.0,0
-Bánh cuốn nóng,osm-node-11590640359,21.0455624,105.7842292,Nhà hàng,"Phố Đặng Thùy Trâm, Quận Bắc Từ Liêm, Hà Nội",0.0,0.25,0.0,0.0,0
-Hoàng Nam 89,osm-node-11590640365,21.0456249,105.7842294,Nhà hàng,"Phố Đặng Thùy Trâm, Quận Bắc Từ Liêm, Hà Nội",0.0,0.0,0.0,0.0,0
-Yêu Huế,osm-node-11590657186,21.0458928,105.7842293,Nhà hàng,"Phố Đặng Thùy Trâm, Quận Bắc Từ Liêm, Hà Nội",0.0,0.0,0.0,0.0,0
-Bánh cuốn gia truyền Thanh Vân,osm-node-11591740419,21.0153054,105.8498107,Nhà hàng,"48, Phố Tuệ Tĩnh, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Bánh cuốn nóng 117 Bà Triệu,osm-node-11598930306,21.0157917,105.8494249,Nhà hàng,"117, Phố Bà Triệu, Hai Bà Trưng, Hà Nội",0.0,0.25,0.0,0.0,0
-Hiệu Cơm Việt Nam,osm-node-11601353643,21.01619,105.8497525,Nhà hàng,"48, Phố Bùi Thị Xuân, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Cơm Rang - Phở - Bún Cháo,osm-node-11601645095,21.0167091,105.8497579,Nhà hàng,"26, Phố Bùi Thị Xuân, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Mr. Bảy Miền Tây,osm-node-11609602708,21.0320556,105.8469059,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Bánh Cuốn 86,osm-node-11613547722,21.0160144,105.8502267,Nhà hàng,"86, Phố Triệu Việt Vương, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Bún Chả - Nem Rán,osm-node-11615961396,21.0166595,105.8498791,Nhà hàng,"47, Phố Bùi Thị Xuân, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Quán cơm Minh Hiền,osm-node-11615961404,21.0160697,105.8499661,Nhà hàng,"75, Phố Bùi Thị Xuân, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Bánh cuốn Bà Khê,osm-node-11617804910,21.040504,105.7843637,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Cơm Nam Đen,osm-node-11618566526,21.0381044,105.7818791,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Quán 286,osm-node-11618566527,21.0382215,105.7818482,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Bún đậu Tú Kiểu,osm-node-11618566528,21.0382283,105.7819155,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Phở,osm-node-11618650232,21.0368571,105.7828028,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Thái Phở Cuốn,osm-node-11618650233,21.0368552,105.7828855,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Tiệm vịt tiềm A Cường,osm-node-11633344430,21.0453824,105.8688786,Nhà hàng,"137, Phố Ngọc Lâm, Long Biên, Hà Nội",0.0,0.0,0.0,0.0,0
-Cơm cháy gà Lẩu gà thuốc Bắc,osm-node-11633344439,21.0451979,105.8685243,Nhà hàng,"115, Ngọc Lâm, Long Biên, Hà Nội",0.0,0.25,0.0,0.0,0
-Quán Nam Vịt,osm-node-11633344440,21.0451841,105.8685022,Nhà hàng,"113, Phố Ngọc Lâm, Long Biên, Hà Nội",0.0,0.0,0.0,0.0,0
-Thanh bún ngan,osm-node-11633344441,21.0451498,105.8684163,Nhà hàng,"107, Phố Ngọc Lâm, Long Biên, Hà Nội",0.0,0.0,0.0,0.0,0
-Nem lụi Huế,osm-node-11633344446,21.0450506,105.8682281,Nhà hàng,"95, Phố Ngọc Lâm, Long Biên, Hà Nội",0.0,0.0,0.0,0.0,0
-Phương Nguyên Quán,osm-node-11644509069,21.042005,105.7930668,Nhà hàng,"106C4, Phố Nghĩa Tân",0.0,0.0,0.0,0.0,0
-BANH Mi NHE,osm-node-11652527569,21.0303627,105.856488,Nhà hàng,9 Hang Voi St. (2nd Floor),0.0,0.0,0.0,0.0,0
-Phở Thìn 1979,osm-node-11663033697,21.0337897,105.8350287,Nhà hàng,"35, Đường Hùng Vương, Phường Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0
-Xôi Tiến,osm-node-11675163969,21.0292381,105.848015,Nhà hàng,"51, Ngõ Huyện",0.0,0.0,0.0,0.0,0
-"Bún đậu, giả cày",osm-node-11675985402,21.0394264,105.8468451,Nhà hàng,"5, Phố Phùng Hưng, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Chả cá lăng Toàn Xuân,osm-node-11675985403,21.0393809,105.8468352,Nhà hàng,"7, Phố Phùng Hưng, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Nhà hàng Đồng Đội,osm-node-11675985407,21.0391319,105.8467824,Nhà hàng,"11C, Phố Phùng Hưng, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Phố nướng xứ Lạng,osm-node-11675985408,21.0390476,105.8467609,Nhà hàng,"15, Phố Phùng Hưng, Phường Hoàn Kiếm, Hà Nội",0.0,0.25,0.0,0.0,0
-Nhà hàng Quả Trám,osm-node-11675985410,21.0387871,105.846716,Nhà hàng,"21, Phố Phùng Hưng, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Lươn đồng xứ Nghệ,osm-node-11675985412,21.0387,105.846693,Nhà hàng,"25, Phố Phùng Hưng, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Quán Bánh Cuốn Nóng Gia Truyền,osm-node-11676661169,21.034455,105.8301501,Nhà hàng,"50, Phố Đội Cấn, Phường Ba Đình, Hà Nội",0.0,0.25,0.0,0.0,0
-Phở Tư lùn,osm-node-11683507069,21.0365868,105.8475526,Nhà hàng,"68, Phố Hàng Mã, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Lẩu dê Nhất Ly,osm-node-11683982775,21.0391463,105.8472791,Nhà hàng,"15A, Phố Hàng Cót, Phường Hoàn Kiếm, Hà Nội",0.0,0.25,0.0,0.0,0
-Nhà Hàng Sake,osm-node-11768045210,20.9922521,105.8737005,Nhà hàng,"66, Tan Khai, Phường Vĩnh Hưng",0.0,0.0,0.0,0.0,0
-Nét Huế,osm-node-11782452957,21.0154954,105.8510453,Nhà hàng,"43, Phố Mai Hắc Đế, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Nhà Hàng Chay Me&An Vegetarian,osm-node-11866085369,21.0202038,105.850731,Nhà hàng,"61, Phố Hàm Long",0.0,0.0,0.5,0.0,0
-Green Inn,osm-node-11878372469,21.0324629,105.847612,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Thích nhất mỳ,osm-node-11883463169,21.0615198,105.8267217,Nhà hàng,"20, Ngách 31/46 Xuân Diệu",0.0,0.0,0.0,0.0,0
-Kiez Vegan – Hanoi,osm-node-11888380369,21.0631814,105.8243292,Nhà hàng,"2a, Ngõ 12 Đặng Thai Mai",0.5,0.0,0.0,0.0,0
-Simisi,osm-node-11985320507,21.0231568,105.8081926,Nhà hàng,"18, Phố Chùa Láng",0.0,0.0,0.0,0.0,0
-Bún chả 309,osm-node-12000107441,21.0649573,105.7793907,Nhà hàng,"309, Đường Cổ Nhuế, Bắc Từ Liêm, Hà Nội",0.0,0.0,0.0,0.0,0
-May de Cuisine,osm-node-12063757631,21.0340257,105.8535075,Nhà hàng,"107, Phố Mã Mây, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-34 Railway,osm-node-12078106240,21.0316301,105.8449371,Nhà hàng,"34, Quận Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Coffee Như Ý,osm-node-12078106241,21.0315299,105.8449144,Nhà hàng,"Quận Hoàn Kiếm, Hà Nội",0.5,0.0,0.0,0.0,0
-Nhà hàng Phương Nam,osm-node-12105870160,21.0163051,105.8509763,Nhà hàng,"13, Phố Mai Hắc Đế, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Nem Phùng - Nem Chua,osm-node-12106408165,21.0167316,105.8511645,Nhà hàng,"1B, Phố Trần Nhân Tông, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Cau Go,osm-node-12149714102,21.032057,105.8521518,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Nhà Hàng  Khiêm,osm-node-12165016301,21.0143166,105.849969,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Phở Tuấn C8 Giảng Võ,osm-node-12313947065,21.0281525,105.8226197,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Chay vỉa hè,osm-node-12343563164,21.0197312,105.8493044,Nhà hàng,,0.0,0.0,0.5,1.0,0
-Pho Ga 26,osm-node-12394092001,21.0326621,105.850539,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Com Chay Vegan Buffet (120k),osm-node-12395826102,21.072521,105.8145064,Nhà hàng,,0.0,0.0,0.5,0.0,0
-Nét Huế,osm-node-12589868470,21.0368948,105.7864722,Nhà hàng,"122-124, Đường Xuân Thủy, Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0
-Quán Kem Xôi,osm-node-12603545131,21.0305121,105.8186441,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Bún riêu Cô Hoàn,osm-node-12644660556,21.0378412,105.8478491,Nhà hàng,"14, Phố Hàng Lược, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Bánh Tráng Bé My,osm-node-12644690080,21.0212183,105.8484936,Nhà hàng,"33, Phố Quang Trung",0.0,0.0,0.0,0.0,0
-Chè Nhà Suvy,osm-node-12644690081,21.021273,105.8485082,Nhà hàng,"33, Phố Quang Trung",0.0,0.0,0.0,0.0,0
-Nem nướng Nha Trang,osm-node-12645462057,21.0443741,105.7925632,Nhà hàng,112 A9,0.0,0.25,0.0,0.0,0
-Bún cá rô đồng Hải Dương,osm-node-12645509921,21.0427329,105.7961736,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Cơm tấm Út Thắng,osm-node-12645523372,21.0427765,105.7962279,Nhà hàng,"106 B8, Phố Tô Hiệu",0.0,0.0,0.0,0.0,0
-Mau Dich 37,osm-node-12646622201,21.0457957,105.840158,Nhà hàng,"158, Phố Trấn Vũ, Phường Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0
-Bún chả 29,osm-node-12651094220,21.0511586,105.8391105,Nhà hàng,"29, Phố Yên Phụ",0.0,0.0,0.0,0.0,0
-Ăn Vặt Mẹ Sữa,osm-node-12651100308,21.0106904,105.819097,Nhà hàng,"139, Nguyễn Văn Tuyết",0.0,0.0,0.0,0.0,0
-Ngan Yến,osm-node-12654261909,21.0515501,105.8408198,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Bánh cuốn Hồ Tây,osm-node-12654299492,21.05134,105.8387514,Nhà hàng,"34, Phố Yên Phụ",0.0,0.0,0.0,0.0,0
-Bún chả que tre,osm-node-12657776443,21.0437437,105.8458763,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Hương bánh xèo,osm-node-12659337379,21.0541021,105.8364016,Nhà hàng,"139, Yên Phụ",0.0,0.0,0.0,0.0,0
-Bún Đậu Mẹt Tuấn Trọc,osm-node-12659367887,21.041391,105.8457429,Nhà hàng,"23, Phố Phan Huy Ích, Phường Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0
-Chay Tâm Khối,osm-node-12692463221,21.0323897,105.8468214,Nhà hàng,"70, Phố Hàng Điếu, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.5,0.0,0
-MẸT Vietnamese restaurant & Vegetarian Food Met 8,osm-node-12821562701,21.033707,105.8473661,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Chè Lan,osm-node-12836900460,21.008899,105.8662428,Nhà hàng,"69, Phố Lãng Yên, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Bún bò Huế O Hường,osm-node-12860550543,20.8676411,105.857856,Nhà hàng,,0.0,0.0,0.0,0.0,0
-An Lạc Chay Quán,osm-node-12862421502,21.0673912,105.8231246,Nhà hàng,39 Ngõ 45 Đường Tô Ngọc Vân,0.0,0.0,0.5,0.0,0
-Phở Mẹ Vợ,osm-node-12864500102,21.0615116,105.8314523,Nhà hàng,Ngõ 42 Xuân Diệu,0.0,0.0,0.0,0.0,0
-The Corner Food,osm-node-12995529901,21.0304002,105.8506218,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Nam Phở Gà,osm-node-13027856695,21.0299024,105.8414371,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Phở Thành,osm-node-13027900308,21.0257242,105.8452674,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Bún bò Huế - lẩu đuôi bò,osm-node-13120433101,21.0598012,105.8641216,Nhà hàng,"336, Đường Ngọc Thụy",0.0,0.25,0.0,0.0,0
-Nhung Phở gà Bún thang,osm-node-13275142601,21.054639,105.8361069,Nhà hàng,"145, Phố Yên Phụ",0.0,0.0,0.0,0.0,0
-Gia Phú,osm-node-13284616875,20.941018,105.9585101,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Bún Ốc Chả Nem Bà Bảy Đang,osm-node-13289050126,21.0495715,105.8044662,Nhà hàng,"31, Võ Chí Công, Hà Nội",0.0,0.0,0.0,0.0,0
-Cồ Luật,osm-node-13318767667,20.9437931,105.9514148,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Cơm Phương Thảo,osm-node-13321407681,20.9437356,105.9572992,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Bánh mì Dân Tổ,osm-node-13408172097,21.0072846,105.8333542,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Loving Vegetarian Restaurant,osm-node-13463740401,21.0281081,105.8395645,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Bún chả Việt Khiêm,osm-node-13473985979,21.0435925,105.8646603,Nhà hàng,"Chợ Ẩm Thực Ngọc Lâm, Long Biên",0.0,0.0,0.0,0.0,0
-Phở Gà 46,osm-node-13475283216,21.048228,105.8655957,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Phở Bò 63,osm-node-13508941681,21.0477321,105.8652033,Nhà hàng,"63, Đường Ngọc Thụy, quận Long Biên, Hà Nội",0.0,0.0,0.0,0.0,0
-Bún Ziu Gánh,osm-node-13513730201,21.0244577,105.836276,Nhà hàng,,0.0,0.0,0.0,0.0,0
-The Banh Mi Station,osm-node-13516584409,21.0322557,105.8532716,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Chay Vỉa Hè,osm-node-13592363601,21.0457732,105.8426269,Nhà hàng,,0.0,0.0,0.5,1.0,0
-Hội quán thực dưỡng,osm-node-13607254748,20.974621,105.8346721,Nhà hàng,"59C1 Khu đô thị Đại Kim, Phố Nguyễn Cảnh Dị, Hoàng Mai, Phường Định Công",0.0,0.0,0.0,0.0,0
-Bun Cha 40k,osm-node-13610849401,21.0292562,105.839687,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Miến Lươn Chân Cầm,osm-node-13624907801,21.0304288,105.8486949,Nhà hàng,"1, Phố Chân Cầm",0.0,0.0,0.0,0.0,0
-Hà Thành Mansion,osm-node-13630080601,21.0208818,105.84904,Nhà hàng,"14, Phố Ngô Văn Sở",0.0,0.0,0.0,0.0,0
-Bún Bò Huế Hiền Hạnh,osm-node-13637673905,21.0147509,105.8047557,Nhà hàng,"247, Đường Nguyễn Ngọc Vũ",0.0,0.0,0.0,0.0,0
-Bún Chả Hạnh Béo,osm-node-13640707701,21.0190445,105.7999399,Nhà hàng,Phố Nguyễn Bá Khoản,0.0,0.0,0.0,0.0,0
-Cơm Phở,osm-node-13641363901,21.0304396,105.8488587,Nhà hàng,"12, Phố Lý Quốc Sư",0.0,0.0,0.0,0.0,0
-Bánh Cuốn Nóng Gia Truyền,osm-node-13644445201,21.0191201,105.7998414,Nhà hàng,Phố Nguyễn Bá Khoản,0.0,0.25,0.0,0.0,0
-Met Vietnamese Restaurant,osm-node-13647364502,21.033134,105.8524813,Nhà hàng,"34, Phố Gia Ngư, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Xới Cơm - Tiệm ăn gia đình,osm-node-13649628501,21.0143834,105.8132176,Nhà hàng,Ngõ 36 Phố Láng Hạ,0.5,0.0,0.0,0.0,0
-Cơm gà xử quảng,osm-node-13651572501,21.0189274,105.7999723,Nhà hàng,"1, Phố Nguyễn Bá Khoản",0.0,0.0,0.0,0.0,0
-Bún chả 41,osm-node-13666531601,21.03456,105.8458793,Nhà hàng,"41, Phố Cửa Đông, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Maison Sen Buffet,osm-node-13668872401,21.0307345,105.7878281,Nhà hàng,"90, Phố Trần Thái Tông",0.0,0.0,0.0,0.0,0
-Bún chả Sinh Từ,osm-node-13671676601,21.0158996,105.7979683,Nhà hàng,"62, Phố Vũ Phạm Hàm",0.0,0.0,0.0,0.0,0
-Hông Loan Quán,osm-node-13703831902,21.0737186,105.8271613,Nhà hàng,,0.0,0.0,0.0,0.0,0
-FamiCháo - 52 Ngõ Thổ Quan,osm-node-13743071480,21.018235,105.8334182,Nhà hàng,"52, Ngõ Thổ Quan, Quận Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0
-Nhà hàng An Lạc,osm-node-13853083740,20.5528045,105.7938021,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Madam Tư Hồng,osm-node-13907404801,21.028801,105.845737,Nhà hàng,"5, Ngõ Hội Vũ, Hà Nội",0.0,0.0,0.0,0.0,0
-Chay Tâm Khởi,osm-node-13981899117,21.0243367,105.8430004,Nhà hàng,,0.0,0.0,0.5,0.0,0
-Bánh Mì Chay SQ,osm-node-13981943861,21.0273806,105.8414361,Nhà hàng,,0.0,0.0,0.5,0.0,0
-Nhà Hàng Chay Rasa,osm-node-13982143275,21.0170585,105.8556336,Nhà hàng,,0.0,0.0,0.5,0.0,0
-King BBQ Hàm Nghi,osm-way-677800151,21.0362819,105.7613887,Nhà hàng,"Shophouse B2-06, KĐT Vinhomes Gardenia, Hàm Nghi, Nam Từ Liêm, Hà Nội",0.0,0.0,0.0,0.0,0
-Món Huế,osm-way-841374806,21.0223439,105.8194265,Nhà hàng,"Phố Láng Hạ, Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0
-Cơm tấm Ốc Sài Gòn,osm-way-904729846,21.011758,105.8483936,Nhà hàng,"21, Phố Đoàn Trần Nghiệp, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Cơm tấm Huy,osm-way-1115091181,21.0174124,105.8310956,Nhà hàng,"500, Phố Xã Đàn, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0
-Nhà Chay Achi,osm-way-1163872123,21.0412388,105.8271968,Nhà hàng,"50, Đường Thụy Khuê, Tây Hồ, Hà Nội",0.0,0.0,0.5,0.0,0
-Phở Gà Ta Phương Linh,osm-way-1164347901,21.0415721,105.8265891,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Món Ngon Sài Thành,osm-way-1231374575,21.0194634,105.8087167,Nhà hàng,"59A, Phố Huỳnh Thúc Kháng, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0
-Bánh cuốn Gia An,osm-way-1231374576,21.0194958,105.8086484,Nhà hàng,"61, Phố Huỳnh Thúc Kháng, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0
-Cơm Văn Phòng,osm-way-1234095160,21.0288701,105.856118,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Tiệm cơm Tháng Năm,osm-way-1246866121,21.0153632,105.8494781,Nhà hàng,"62, Phố Tuệ Tĩnh, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-"Gia Thành - Hủ Tiếu, Bánh Canh, Cơm Tấm",osm-way-1253312189,21.015471,105.8508015,Nhà hàng,"36C, Phố Mai Hắc Đế, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Nét Huế,osm-way-1330098155,21.0062844,105.7537492,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Trâu Kiến Minh,osm-way-1330098161,21.0061749,105.7539837,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Phở Cuốn Hương Mai,osm-way-1330098167,21.0058207,105.7549073,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Roll House,osm-way-1330108346,21.005794,105.7538697,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Nét Huế,osm-way-1331658950,20.9959331,105.8695216,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Roll House,osm-way-1331658951,20.9957839,105.8695209,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Phở gà Lâm,osm-way-1365472868,21.0151695,105.8137562,Nhà hàng,"26, Phố Láng Hạ",0.0,0.0,0.0,0.0,0
-Nhà hàng Tâm An,osm-way-1386126635,20.5543429,105.7936914,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Bình Minh Quán - Cơm Văn Phòng,osm-way-1455393100,21.0967532,105.8567919,Nhà hàng,"57, Đường Thiên Nga 1, Đông Anh, Hà Nội",0.0,0.0,0.0,0.0,0
-Phở Thái Tử,osm-node-7690438058,21.0334631,105.772312,Nhà hàng,"20x5, Phố Dương Khuê, Từ Liêm, Hanoi",0.0,0.0,0.0,0.0,0
-Lẩu Hơi Lãng Bạc,osm-node-6162359986,21.0518071,105.8381255,Nhà hàng,"52, Yên Phụ",0.0,0.25,0.0,0.0,0
-Cá Thùy Linh,osm-node-7056022256,21.0345704,105.7888821,Nhà hàng,"52, Phố Trần Thái Tông, Quận Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0
-Nhà hàng Hải Yến Bách Khoa,osm-node-11186157294,21.00487,105.8425222,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Vựa Hải Sản Gió Biển,osm-node-11372720516,20.9914455,105.9461001,Nhà hàng,,0.0,0.0,0.5,0.0,0
-Bếp Ngư ông,osm-node-13506385429,21.0515064,105.8626588,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Giang Dung 2,osm-way-1210228263,21.013534,105.8315319,Nhà hàng,"158, Ngõ Xã Đàn 2, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0
-Thế Giới Hải Sản,osm-way-1218337313,21.0342082,105.8379603,Nhà hàng,"36, Đường Điện Biên Phủ, Phường Ba Đình, Hà Nội",0.0,0.0,0.5,0.0,0
-Ba Ba Sơn Đông,osm-way-1219438153,21.0155971,105.8332584,Nhà hàng,"416, Phố Xã Đàn, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0
-Bay Seafood Buffet,osm-way-1233838148,21.0272637,105.8572373,Nhà hàng,"14, Phố Tông Đản, Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Poseidon,osm-way-1331658960,20.9949381,105.8697839,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Nhà Hàng Dim Sum Minh Ký,osm-node-5870096885,21.0243978,105.8429344,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Nhà Hàng Dim Sum Đại Hùng,osm-node-6496942485,21.0188856,105.8286661,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Trung Hoa Đệ Nhất Sủi Cảo,osm-node-6693830420,21.0292976,105.8123813,Nhà hàng,"28, Nguyễn Chí Thanh, Quận Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0
-Nhà hàng Wen Xing HongKong,osm-node-6728910455,21.0160209,105.815518,Nhà hàng,"175, Phố Thái Hà, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0
-Kaoya,osm-node-7181130685,21.0355373,105.8504975,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Susu Bánh Bao Thượng Hải,osm-node-11281683527,21.016386,105.8315838,Nhà hàng,"227, Phố Xã Đàn, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0
-Mỳ Vằn Thắn - Mỳ gia Quảng Đông Kố Kiên,osm-node-11613547706,21.0153601,105.8500699,Nhà hàng,"40, Phố Tuệ Tĩnh, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Taipei Express,osm-node-11659995710,21.0103485,105.8496749,Nhà hàng,"34, Phố Lê Đại Hành, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Long Wang,osm-node-11683982777,21.0390195,105.847282,Nhà hàng,"15A, Phố Hàng Cót, Quận Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Hao Chi - Dimsum Taipei,osm-node-11697674110,21.0103899,105.8511899,Nhà hàng,"3, Phố Thái Phiên, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Haidilao Hot Pot,osm-node-11985285017,21.0236491,105.809305,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Meiwei,osm-node-12098955284,21.0110994,105.8495785,Nhà hàng,"191, Phố Bà Triệu, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Cơm gà Hải Nam,osm-way-863472429,21.007701,105.8334883,Nhà hàng,"12, Phố Phạm Ngọc Thạch, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0
-Le Garden,osm-way-1235566725,21.0128112,105.8506074,Nhà hàng,"143, Phố Triệu Việt Vương, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Nhà hàng Tam Vị Chân Hỏa 三味珍火,osm-way-1264582880,21.0359039,105.8036072,Nhà hàng,"32, Đường Nguyễn Khánh Toàn, Quận Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0
-Manwah,osm-way-1331658926,20.9964386,105.8683434,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Hadilao,osm-way-1331658929,20.9965284,105.8687296,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Shang Chi,osm-way-1331668370,20.9955126,105.8693629,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Osihi,osm-node-2136341357,21.0675537,105.8212455,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Nhà Hàng New Sake 1,osm-node-2399180441,21.0307862,105.8194213,Nhà hàng,,0.0,0.0,0.0,0.0,0
-PAKU PAKU(波食波食）,osm-node-2399180442,21.0307817,105.8193586,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Nhà Hàng Koto,osm-node-2399188052,21.0296823,105.8102219,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Nhà Hàng Kurama(蔵馬）,osm-node-2399188053,21.029746,105.810586,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Totoya(ととや）,osm-node-2399188054,21.029967,105.812293,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Izakaya Yancha,osm-node-2399194698,21.0294166,105.8090898,Nhà hàng,"579, Phố Kim Mã, Quận Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0
-Kitaguni,osm-node-2399239575,21.0292029,105.8074289,Nhà hàng,"639, Phố Kim Mã, Quận Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0
-Ofukuro,osm-node-2399239576,21.0285111,105.806208,Nhà hàng,"Phố Kim Mã, Quận Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0
-Nhà Hàng Wa Japanese Cuisine,osm-node-3370369424,21.049334,105.839318,Nhà hàng,"7, Phố Trúc Bạch, Phường Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0
-Nhà Hàng Moto-san,osm-node-3671198536,21.0254125,105.8577493,Nhà hàng,"4, Lý Đạo Thành, Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Nhà hàng Yumi,osm-node-3711330943,21.0151072,105.7814958,Nhà hàng,"số 24 BT1 khu đô thị mới Mễ Trì hạ, nam Từ Liêm, Hà Nội, Mễ Trì, Nam Từ Liêm, Hà Nội",0.0,0.0,0.0,0.0,0
-The sushi club,osm-node-4226277399,21.0625927,105.8291621,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Street Sushi,osm-node-4622570694,21.0348271,105.810956,Nhà hàng,"40, Phố Phan Kế Bính, Quận Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0
-Nhà Hàng Akaari,osm-node-5621040324,21.0297825,105.8369781,Nhà hàng,"5, Phố Văn Miếu, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0
-Nhà Hàng Nabesu,osm-node-6551006685,21.0048395,105.8045696,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Nhà Hàng Hồ Tây Sushi,osm-node-6606142441,21.0444866,105.8180573,Nhà hàng,"173, Phố Nguyễn Đình Thi, Tây Hồ, Hà Nội",0.0,0.0,0.0,0.0,0
-Nhà Hàng Kaiba Sushi,osm-node-6656456339,21.0211894,105.8556502,Nhà hàng,"16, Phố Phan Chu Trinh, Quận Hoan Kiem, Hà Nội",0.0,0.0,0.0,0.0,0
-SUSHI GARDEN - NHÀ HÀNG NHẬT BẢN,osm-node-6679645374,21.0129836,105.8328594,Nhà hàng,"107, Phố Nam Đồng, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0
-Nhà Hàng Sio Sushi,osm-node-6807375326,21.016746,105.8239549,Nhà hàng,"67, Phố Hoàng Cầu, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0
-Shichifuku Hanoi,osm-node-6946996147,21.0330453,105.8068682,Nhà hàng,"63, Phố Đào Tấn, Quận Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0
-Takoyaki,osm-node-10261572487,21.0389067,105.7854561,Nhà hàng,"30, Ngõ 33 Phan Văn Trường, Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0
-Minori,osm-node-10691121371,21.0294025,105.8090094,Nhà hàng,"581, Phố Kim Mã, Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0
-Shibuya Paradaisu,osm-node-11164095932,21.0031099,105.755898,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Moichi,osm-node-11168787972,21.0511266,105.8406847,Nhà hàng,"11A, Phố An Dương, Tây Hồ, Hà Nội",0.0,0.0,0.0,0.0,0
-Tamaya,osm-node-11200436073,20.9833258,105.8424762,Nhà hàng,"6, Phố Kim Đồng, Hoàng Mai, Hà Nội",0.0,0.0,0.0,0.0,0
-Nhà hàng Nhật Bản Minori,osm-node-11372720513,20.9917641,105.9455472,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Wabi Sabi Sushi,osm-node-11472430138,21.0133991,105.8509227,Nhà hàng,"15, Phố Mai Hắc Đế, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Tokyo Tan-Tan,osm-node-11476192647,21.0121321,105.8496861,Nhà hàng,"148B, Phố Bùi Thị Xuân, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Una Family,osm-node-11505669840,21.0142366,105.8505962,Nhà hàng,"107, Phố Triệu Việt Vương, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Nhà hàng Tonchan,osm-node-11505669841,21.0142021,105.8506281,Nhà hàng,"109, Phố Triệu Việt Vương, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Sumibozu - Gà Nướng Than,osm-node-11505669843,21.0140916,105.8505752,Nhà hàng,"115, Phố Triệu Việt Vương, Hai Bà Trưng, Hà Nội",0.0,0.25,0.0,0.0,0
-Ikazaya Yancha,osm-node-11505669846,21.0139502,105.8505838,Nhà hàng,"121, Phố Triệu Việt Vương, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Yakiniku Sakura,osm-node-11510383979,21.0147861,105.8497332,Nhà hàng,"90B, Phố Bùi Thị Xuân, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-washoku IKEDA,osm-node-11521920507,21.0348968,105.8108024,Nhà hàng,,0.0,0.0,0.0,0.0,0
-chikuan,osm-node-11521920511,21.0370214,105.8104166,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Sushila,osm-node-11591740420,21.0153918,105.8498083,Nhà hàng,"78, Phố Bùi Thị Xuân, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Shinbashi,osm-node-11649693308,21.0157817,105.8505547,Nhà hàng,"65, Phố Triệu Việt Vương, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-The Ramen Mafia,osm-node-12098955278,21.0101045,105.8506388,Nhà hàng,"118, Phố Mai Hắc Đế, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-CoCo Ichibanya,osm-node-12287492375,21.0760133,105.8126928,Nhà hàng,,0.0,0.25,0.0,0.0,0
-Izakaya Unatoto,osm-node-12375798343,21.0296837,105.8105812,Nhà hàng,"531, Phố Kim Mã, Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0
-Tokyo Tantan Ramen,osm-node-12651858498,21.0339953,105.808908,Nhà hàng,"36/38, Dao Tan, Quận Ba Đình, Ha Noi",0.0,0.0,0.0,0.0,0
-ISHIDAYA - The 3rd Generation,osm-node-12661290607,21.0304349,105.834279,Nhà hàng,"8A, Phố Hàng Cháo, Quận Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0
-Izakaya Matsuki,osm-node-13703841401,21.0626218,105.8291964,Nhà hàng,Phố Quảng An,0.0,0.0,0.0,0.0,0
-Nhà hàng Sakura,osm-way-1163015446,21.0420651,105.8297273,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Hatoyama,osm-way-1218337314,21.0341366,105.8380308,Nhà hàng,"36, Đường Điện Biên Phủ, Phường Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0
-iSushi,osm-way-1234955616,21.0130849,105.8502462,Nhà hàng,"158, Phố Triệu Việt Vương, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Hadu Sushi,osm-way-1234955626,21.0131702,105.8500372,Nhà hàng,"149, Phố Bùi Thị Xuân, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Umemi Ramen,osm-way-1235442383,21.0125352,105.850857,Nhà hàng,"100, Phố Mai Hắc Đế, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Takumi,osm-way-1235566715,21.0126094,105.8508227,Nhà hàng,"98, Phố Mai Hắc Đế, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Nhan Sushi Ha Noi,osm-way-1238550132,21.0143771,105.8505985,Nhà hàng,"101, Phố Triệu Việt Vương, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Sumo BBQ,osm-way-1246805135,21.0131066,105.8478962,Nhà hàng,"67, Phố Tô Hiến Thành, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Shogun,osm-way-1249564975,21.0163429,105.850207,Nhà hàng,"72, Phố Triệu Việt Vương, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Nagomi,osm-way-1249565003,21.016249,105.8499972,Nhà hàng,"67, Phố Bùi Thị Xuân, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Sanmaru Ramen,osm-way-1253325096,21.0159711,105.8504913,Nhà hàng,"59, Phố Triệu Việt Vương, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Kasa Sushi,osm-way-1253517141,21.0162597,105.8505355,Nhà hàng,"49, Phố Triệu Việt Vương, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Yakihouse BBQ,osm-way-1330098164,21.0059822,105.7542069,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Hachidori,osm-way-1330098168,21.005813,105.7550198,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Yakimono,osm-way-1331668359,20.9957821,105.8693086,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Shogun,osm-way-1331668369,20.9953302,105.869308,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Lẩu Nướng Minh Minh,osm-node-4974302123,20.970647,105.7795514,Nhà hàng,"Số 10, Số 10 Trần Hưng Đạo",0.0,0.5,0.0,0.0,0
-Nhà hàng Samwon,osm-node-5485740783,21.0223566,105.7883168,Nhà hàng,"68, Dương Đình Nghệ, Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0
-Nhà Hàng Viako Garden,osm-node-6544086586,21.0101935,105.8046017,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Nhà Hàng Mr Lee's Snack Bar,osm-node-6702180256,21.0165573,105.7952392,Nhà hàng,"5, Ngõ 100 - Trung Kính, Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0
-Umiga,osm-node-6904450115,21.0676759,105.8005476,Nhà hàng,"10, Đường Đỗ Nhuận, Tây Hồ, Hà Nội",0.0,0.0,0.0,0.0,0
-Itaewon Dakgalbi,osm-node-10129864868,21.0291148,105.8066682,Nhà hàng,"647, Phố Kim Mã, Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0
-Mì cay Sa Sin,osm-node-11563394779,21.0456533,105.7862374,Nhà hàng,"75, Phố Phạm Tuấn Tài, Quận Bắc Từ Liêm, Hà Nội",0.0,0.25,0.0,0.0,0
-Xèo Xèo,osm-node-11564316616,21.044793,105.7849103,Nhà hàng,"27, Phố Đặng Thùy Trâm, Quận Bắc Từ Liêm, Hà Nội",0.0,0.0,0.0,0.0,0
-Samcheop Topokki,osm-node-11572142338,21.041801,105.7869133,Nhà hàng,"14, Phố Trần Quốc Hoàn, Quận Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0
-Korea Food,osm-node-11618566529,21.0381808,105.7819355,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Gumiho,osm-node-11625397932,21.0139975,105.849991,Nhà hàng,"133, Phố Bùi Thị Xuân, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Dookki,osm-node-12098955282,21.0112282,105.8493825,Nhà hàng,"191, Phố Bà Triệu, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Dookki,osm-node-12240739576,20.9661164,105.7570937,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Big Mama Restaurant,osm-node-12277048849,21.017833,105.7836461,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Hanoi Gwang Hae,osm-node-12277048850,21.0178377,105.7832763,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Mr. Dakgalbi,osm-node-12589868468,21.0370464,105.7866107,Nhà hàng,"122-124, Đường Xuân Thủy, Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0
-바보아저씨,osm-node-12654222689,21.016643,105.7778321,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Gogi House,osm-way-1234955627,21.0131127,105.8500279,Nhà hàng,"151, Phố Bùi Thị Xuân, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Guigui BBQ,osm-way-1330098160,21.0062573,105.7538611,Nhà hàng,,0.0,0.0,0.0,0.0,0
-King BBQ,osm-way-1330098165,21.0059264,105.7543462,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Dooki,osm-way-1330108344,21.0058353,105.753654,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Mr Dakgalbi,osm-way-1330108345,21.0058196,105.7537912,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Jeonbok,osm-way-1330108350,21.0055568,105.754426,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Gogi House,osm-way-1331658927,20.9964388,105.8684744,Nhà hàng,,0.0,0.0,0.0,0.0,0
-KPub,osm-way-1331658942,20.9963919,105.8693181,Nhà hàng,,0.0,0.0,0.0,0.0,0
-King BBQ,osm-way-1331658944,20.9961334,105.8695128,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Dookki,osm-way-1331658992,20.9948589,105.8694759,Nhà hàng,,0.0,0.0,0.0,0.0,0
-King BBQ Buffet,osm-way-1331668373,20.9951413,105.8693629,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Pizza Hut,osm-node-2399180443,21.0303431,105.8159146,Nhà hàng,"409, Kim Mã, Quận Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0
-Nhà Hàng GoldMalt Sài Đồng,osm-node-4005477934,21.0387571,105.9044083,Nhà hàng,"13, No1A, Long Biên, Hà Nội",0.0,0.0,0.0,0.0,0
-Pizza Hut,osm-node-4090272750,21.0258945,105.8334587,Nhà hàng,"138, Phố Tôn Đức Thắng, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0
-Pizza Hut,osm-node-4090277644,21.0031239,105.816661,Nhà hàng,"72A, Đường Nguyễn Trãi, Thanh Xuân, Hà Nội",0.0,0.0,0.0,0.0,0
-Pizza Hut,osm-node-4090279692,20.9969652,105.8683844,Nhà hàng,"48, Minh Khai, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Pizza Hut,osm-node-4090284259,21.0072356,105.7930282,Nhà hàng,"222, Trần Duy Hưng, Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0
-Pizza Hut,osm-node-4090297904,21.011391,105.8492805,Nhà hàng,"191, Phố Bà Triệu, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Pizza Hut,osm-node-4090305470,21.0504678,105.8932462,Nhà hàng,"Đường Nguyễn Văn Linh, Long Biên, Hà Nội",0.0,0.0,0.0,0.0,0
-Pizza Hut,osm-node-4090309926,20.9642392,105.7718101,Nhà hàng,"409, Tô Hiệu, Hà Đông, Hà Nội",0.0,0.0,0.0,0.0,0
-Pizza Hut,osm-node-4091985948,21.0171583,105.799144,Nhà hàng,"146, Phố Trung Hoà, Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0
-Pizza Hut,osm-node-4091988292,20.9804803,105.8447867,Nhà hàng,"609, Trương Định, Hoàng Mai, Hà Nội",0.0,0.0,0.0,0.0,0
-Pizza Hut,osm-node-4091994843,20.9791502,105.785428,Nhà hàng,"110, Trần Phú, Hà Đông, Hà Nội",0.0,0.0,0.0,0.0,0
-Pizza Hut,osm-node-4091998924,21.0188607,105.8552418,Nhà hàng,"32B, Phố Phan Chu Trinh, Phố Phan Huy Chú, Hà Nội",0.0,0.0,0.0,0.0,0
-Nhà Hàng Luna D' Autunno,osm-node-4375604995,21.0264034,105.842688,Nhà hàng,"27, Nam Ngư",0.0,0.0,0.0,0.0,0
-Pizza Callo,osm-node-5031536021,20.9662859,105.7899548,Nhà hàng,,0.0,0.0,0.0,0.0,0
-VNUA restaurant,osm-node-5485670666,21.0065578,105.9332118,Nhà hàng,"NA, Đường S, Gia Lâm, Hà Nội",0.0,0.0,0.0,0.0,0
-Vivienne,osm-node-6255746085,21.0291579,105.8492595,Nhà hàng,,0.0,0.0,0.0,0.0,0
-NYC Pizza,osm-node-6477774987,21.0349168,105.8535259,Nhà hàng,"63, Phố Mã Mây, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Pizza Hut,osm-node-6685568161,21.0260933,105.8332166,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Pizza Hut,osm-node-6690139595,21.0139665,105.8340501,Nhà hàng,"159, Phố Xã Đàn, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0
-Nhà Hàng Cugini,osm-node-6698878885,21.0680065,105.8224879,Nhà hàng,Ngõ 67 - Đường Tô Ngọc Vân,0.0,0.0,0.0,0.0,0
-Roma Pizza,osm-node-6776001092,21.0139772,105.8159781,Nhà hàng,"192, Thái Thịnh, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0
-Pizza Hut,osm-node-6846162972,20.9634396,105.8254261,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Pizza Hut,osm-node-7076962085,21.0622848,105.8079019,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Quinza - 15A Ngoc Thuy,osm-node-7231903687,21.0463222,105.8649889,Nhà hàng,"15A, Ngọc Thụy",0.0,0.0,0.0,0.0,0
-Time Coffee,osm-node-8563466267,21.0142507,105.8313879,Nhà hàng,"156, Ngõ Xã Đàn 2, Đống Đa, Hà Nội",1.0,0.0,0.0,0.0,0
-Pizza Hut,osm-node-9931514400,21.0544669,105.8369651,Nhà hàng,,0.0,0.0,0.0,0.0,0
-d,osm-node-10216519958,21.0730862,105.7726483,Nhà hàng,"dd, Ngõ 151 Phố Lê Văn Hiến, Từ Liêm, Hà Nội",0.0,0.0,0.0,0.0,0
-Pizza 4P's,osm-node-12098955280,21.0114032,105.8507164,Nhà hàng,"114, Phố Mai Hắc Đế, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0
-Pizza 4P's,osm-node-12118199554,21.0362237,105.7825964,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Pizza 4P's,osm-node-12277048845,21.017037,105.7839985,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Pizza Hut,osm-node-12389640473,20.9497279,105.9338949,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Kuma Pizza,osm-node-12589868467,21.0375129,105.7866518,Nhà hàng,"122-124, Đường Xuân Thủy, Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0
-Nhà hàng Hoàng Việt,osm-node-13261890146,21.040774,105.7607079,Nhà hàng,"724, Cầu Diễn, quận Nam Từ Liêm, Hà Nội",0.0,0.0,0.0,0.0,0
-Pizza 4P's,osm-node-13806229591,21.0304778,105.8302048,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Pizza Hut,osm-way-892577281,21.0020477,105.8168203,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Pizza Hut,osm-way-1331638432,20.9937184,105.8683022,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Chops,osm-node-4164895890,21.0625869,105.8291428,Nhà hàng,"4, Phố Quảng An, Tây Hồ, Hà Nội",0.0,0.0,0.0,0.0,0
-Nhà Hàng New York Sports Bar,osm-node-4748803213,21.0236407,105.8508563,Nhà hàng,"38, Phố Bà Triệu, Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0
-Jewel Diner,osm-node-6610502429,21.0766766,105.8163328,Nhà hàng,"21, Phố Trịnh Công Sơn",0.0,0.0,0.0,0.0,0
-Nhà Hàng Fritagogo,osm-node-8519855378,21.0639342,105.8672685,Nhà hàng,,0.0,0.0,0.0,0.0,0
-Chops,osm-node-9912896146,21.0272224,105.8101527,Nhà hàng,"56, Phố Phạm Huy Thông, Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0
-Chops,osm-node-9912980443,21.0294427,105.82688,Nhà hàng,"134, Phố Giảng Võ, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0
-Hương Việt,osm-node-4523211689,21.0360635,105.8488756,Nhà hàng,"13, Phố Hàng Cá",0.5,0.0,0.0,0.0,0
-Nhà Hàng L'amore,osm-node-4739350321,21.0328009,105.8503828,Nhà hàng,"42, Lương Văn Can",0.5,0.0,0.0,0.0,0
-Quán bánh xèo Thanh Nga,osm-node-5485781399,21.0760243,105.7735397,Nhà hàng,"số 18, Lê Văn Hiến, Bắc Từ Liêm, Hà Nội",0.5,0.0,0.0,0.0,0
-Panam' Cuisine,osm-node-5679069421,21.0199124,105.848831,Nhà hàng,"26, Trương Hán Siêu",0.5,0.0,0.0,0.0,0
-Nhà Hàng Délices de Mai,osm-node-5751409631,21.065582,105.8226426,Nhà hàng,"66 Quảng Bá, Phố Quảng Bá",0.5,0.0,0.0,0.0,0
-Noble Moment,osm-node-6551069588,21.009924,105.8029594,Nhà hàng,,0.5,0.0,0.0,0.0,0
-Nhà Hàng Cà Phê Hub,osm-node-6562291992,21.0148346,105.8233229,Nhà hàng,,1.0,0.0,0.0,0.0,0
-Nhà Hàng Ando,osm-node-6581045085,20.9746321,105.9121884,Nhà hàng,,0.5,0.0,0.0,0.0,0
-Chay Tuệ Giác Hà Nam,osm-node-6707415685,20.5488925,105.9133381,Nhà hàng,"54F, Trần Phú",0.5,0.0,0.5,0.0,0
-1,osm-node-11655592469,21.0354292,105.7991243,Nhà hàng,,0.5,0.0,0.0,0.0,0
-Toà D6,osm-way-1183713524,20.9626712,105.7487657,Nhà hàng,,0.5,0.0,0.0,0.0,0
-Nhà hàng Nam Long,osm-way-1498073029,21.0444102,105.8383165,Nhà hàng,"01, Phố Trấn Vũ, Phường Ba Đình, Hà Nội",0.5,0.0,0.0,0.0,0
+Quán Ăn Ngon - Phan Bội Châu,osm-node-721836715,21.0262611,105.8434161,Nhà hàng,"18, Phố Phan Bội Châu",0.0,0.0,0.0,0.0,0.0
+Pho 10,osm-node-773601261,21.0304724,105.8488474,Nhà hàng,"10, Phố Lý Quốc Sư",0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Chả Cá Thủy Hồng,osm-node-1671744985,21.0361852,105.8469741,Nhà hàng,"12, 12 Hàng Gà, Hoàn Kiếm, Hà Nội, Việt Nam, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Highway 4,osm-node-2175084765,21.029439,105.8092811,Nhà hàng,"575, Ngõ 575 Kim Mã, Quận Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Cơm Cường,osm-node-2366849408,21.0174867,105.8484165,Nhà hàng,"14, Nguyễn Bỉnh Khiêm",0.0,0.0,0.0,0.0,0.0
+True Viet,osm-node-2495836898,21.0645792,105.8313838,Nhà hàng,"156, Đường Âu Cơ, Hanoi",0.0,0.0,0.0,0.0,0.0
+Phở Cường,osm-node-2587491495,21.0339341,105.8548223,Nhà hàng,"23, Phố Hàng Muối, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Quán Cơm Mậu Dịch,osm-node-3496464405,21.0455452,105.8405476,Nhà hàng,"37, Phố Nam Tràng, Phường Ba Đình, Hà Nội",0.5,0.0,0.0,0.0,0.0
+Quan An Ngon,osm-node-3496893646,21.0406918,105.8425141,Nhà hàng,"34, Phố Phan Đình Phùng, Phường Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Phở 24,osm-node-3541565714,21.0178536,105.7960898,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Nhà hàng Cánh Buồm,osm-node-3787800312,20.6442433,105.9236269,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Bún Chẳ Đắc Kim,osm-node-4151407589,21.0310565,105.8472795,Nhà hàng,"67, Đường Thành, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Noodle & Roll,osm-node-4327534896,21.0297478,105.8492754,Nhà hàng,"39C, Phố Lý Quốc Sư",0.0,0.0,0.0,0.0,0.0
+Little Hanoi,osm-node-4327575690,21.0334623,105.8537432,Nhà hàng,"16, Phố Hàng Bè, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Highway 4,osm-node-4358971989,21.0348754,105.8475332,Nhà hàng,,0.0,0.25,0.0,0.0,0.0
+Porte D' Annam,osm-node-4437567193,21.0290469,105.849678,Nhà hàng,"22, Phố Nhà Thờ",0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Hoàng Minh,osm-node-4450138703,20.9791012,105.7836814,Nhà hàng,Mỗ Lao,0.0,0.0,0.0,0.0,0.0
+Bun Ca sam Cay Si,osm-node-4481034394,21.0333829,105.8526709,Nhà hàng,,0.0,0.25,0.0,0.0,0.0
+Chay Aummee,osm-node-4481407690,21.0457483,105.8425594,Nhà hàng,"26, Phố Châu Long, Phường Ba Đình, Hà Nội",0.0,0.0,0.5,0.0,0.0
+Nhà Hàng Hưng Phát,osm-node-4486692390,21.0293208,105.8421665,Nhà hàng,"7, Đường Điện Biên Phủ, Phường Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Son Duong Quan,osm-node-4486827794,21.0320782,105.8555601,Nhà hàng,"23, Phố Hàng Tre",0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Buk Buk,osm-node-4497894667,21.0315049,105.7691999,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Quán Cơm Chay Bồ Đề,osm-node-4508014325,21.0242062,105.8450881,Nhà hàng,,0.0,0.0,0.5,0.0,0.0
+Cơm Chay Sala Quán,osm-node-4523072389,21.0383505,105.8290578,Nhà hàng,"170, Ngọc Hà, Phường Ba Đình, Hà Nội",0.0,0.0,0.5,0.0,0.0
+NHÀ HÀNG TRAU THÚY HĂNG,osm-node-4550335190,21.0580568,105.9076863,Nhà hàng,,0.0,0.0,0.5,0.0,0.0
+Sixty Six,osm-node-4550335291,21.0339774,105.8486972,Nhà hàng,"66, Phố Hàng Bồ, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Talky cafe $,osm-node-4709218790,21.0153433,105.8131053,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Hồng Hoài,osm-node-4709634891,21.0337915,105.8474622,Nhà hàng,"20, Phố Bát Đàn, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Minh Minh Quán,osm-node-4745160523,21.0336376,105.9100447,Nhà hàng,"37/42, Phố Sài Đồng",0.5,0.0,0.0,0.0,0.0
+Tung's Kitchen,osm-node-4759687343,21.0313543,105.8489788,Nhà hàng,"2, Phố Hàng Bông, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Quán Lươn Bà Liên,osm-node-4805279021,21.0355549,105.8178405,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Chicken Street,osm-node-4810696421,21.0313374,105.8321031,Nhà hàng,Lý Văn Phúc,0.0,0.0,0.0,0.0,0.0
+Bánh cuốn Gia An,osm-node-5030033123,21.0152726,105.8011916,Nhà hàng,"70, Phố Trung Hoà, Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nhà Hàng An Lạc Chay,osm-node-5088087021,21.0238115,105.8419625,Nhà hàng,,0.0,0.0,0.5,0.0,0.0
+Nhà Hàng Chay Liên Hoa,osm-node-5088092923,21.0135722,105.846735,Nhà hàng,,0.0,0.0,0.5,0.0,0.0
+Dong Phu,osm-node-5242789221,21.033564,105.8470901,Nhà hàng,"12, Hàng Điếu, Cửa Đông, Hoàn Kiếm, Hà Nội, Vietnam, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Xoi Cat Lam,osm-node-5255356021,21.032181,105.8467339,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Mỹ Phồ,osm-node-5277149621,21.0305967,105.8474703,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Bún Chả - Nem Cua Bê,osm-node-5323152623,21.0349731,105.8475555,Nhà hàng,"23, Phố Bát Sứ, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Hanoi Food Culture,osm-node-5324912922,21.0340799,105.853663,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Chay Mihn,osm-node-5332620122,21.0284211,105.8483461,Nhà hàng,"09, Phố Ấu Triệu",0.0,0.0,1.0,0.0,0.0
+Quán Phở Thìn,osm-node-5334178022,21.0181784,105.8553,Nhà hàng,"13, Phố Lò Đúc",0.0,0.0,0.0,0.0,0.0
+Nhà Háng,osm-node-5397611521,21.0337212,105.8478093,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Tâm An Lạc,osm-node-5411550522,21.0256891,105.8440968,Nhà hàng,Phố Lý Thường Kiệt,0.0,0.0,0.0,0.0,0.0
+Bò Tơ Quán Mộc,osm-node-5485647547,21.0503921,105.7850989,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Nhà Hàng A2 Ngọc Khánh,osm-node-5485664752,21.0262998,105.8114972,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Bia Hơi Hải Xồm,osm-node-5485766230,21.0344004,105.811264,Nhà hàng,"5, Phan Kế Bính, Quận Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Bếp Mường,osm-node-5485791896,21.027178,105.8171936,Nhà hàng,"8, Phố Nguyễn Công Hoan, Quận Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Garden House,osm-node-5491288621,21.0331966,105.8539228,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Nhà hàng Phủ Lý,osm-node-5758797421,21.0426409,105.7960114,Nhà hàng,"112 B9, Phố Tô Hiệu",0.0,0.0,0.0,0.0,0.0
+Bánh Đa Cua Hải Phòng,osm-node-5880291585,21.0111486,105.8045073,Nhà hàng,"39, Phố Nguyễn Thị Định",0.0,0.0,0.0,0.0,0.0
+Tiên Tửu Quán - Lẩu - Các Món Nhậu,osm-node-5948536485,21.0306728,105.8193537,Nhà hàng,"287, Phố Kim Mã",0.0,0.25,0.0,0.0,0.0
+Bánh Cuốn Bà Hạnh,osm-node-5983124785,21.0290963,105.8487482,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Ẩm Thực Chay Tịnh Nghiệp,osm-node-6036359888,21.0343921,105.8301652,Nhà hàng,"56A, Đội Cấn, Phường Ba Đình, Hà Nội",0.0,0.0,0.5,0.0,0.0
+Phở Thật,osm-node-6049182299,21.0380367,105.8522189,Nhà hàng,"48, Đường Trần Nhật Duật, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Veggie castle,osm-node-6127555185,21.0436976,105.8446857,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Thảo Linh,osm-node-6169695785,20.9640244,105.8244541,Nhà hàng,"Kiot 15, Rainbow Linh Đàm",0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Chay Tâm An,osm-node-6174044986,21.0119248,105.8376422,Nhà hàng,Ngõ 180 Kim Hoa,0.5,0.0,1.0,0.0,0.0
+Bánh xèo - Nem cuốn - Quẩy,osm-node-6228818585,21.0340643,105.8496955,Nhà hàng,"22, Phố Hàng Bồ, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Bún Mọc Hằng Hiếu,osm-node-6269089078,21.0166063,105.8123208,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Hỏa Lò,osm-node-6324767985,21.0771591,105.8227977,Nhà hàng,Ngõ 374 Âu Cơ,0.0,0.0,0.0,0.0,0.0
+Nhà Hàng King BBQ,osm-node-6324812247,21.024043,105.8539531,Nhà hàng,"20, Hai Bà Trưng, Hoàn Kiếm, Hà Nội",0.0,0.0,0.5,0.0,0.0
+Nhà Hàng King BBQ,osm-node-6346505980,21.0362704,105.7613852,Nhà hàng,"Shophouse B2-06, KĐT Vinhomes Gardenia, Hàm Nghi, Nam Từ Liêm, Hà Nội",0.0,0.0,0.5,0.0,0.0
+Pho 10,osm-node-6402581586,21.0305956,105.8487232,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Chay Tuệ Giác,osm-node-6413826385,21.016337,105.8250572,Nhà hàng,"15, Phố Trần Quang Diệu",0.0,0.0,0.5,0.0,0.0
+Bún Riêu Cua Thu,osm-node-6425005085,21.0292058,105.8483343,Nhà hàng,"5A, Thọ Xương, Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Đụt Quán - Ốc,osm-node-6432124485,21.0129421,105.8025668,Nhà hàng,"Số 3 Ngõ 41, Trần Duy Hưng",0.0,0.0,0.0,0.0,0.0
+Thắng Hằng (bún chả),osm-node-6448940987,21.0525413,105.8374622,Nhà hàng,Yên Phụ,0.0,0.0,0.0,0.0,0.0
+Cơm Nấm Việt Hà Thành,osm-node-6483119385,21.0189669,105.8284746,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Nhà Hàng CIAO,osm-node-6488009486,21.0297106,105.8276931,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Home Hanoi,osm-node-6525781986,21.0453801,105.8424599,Nhà hàng,"34, Phố Châu Long, Phường Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nhac cafe,osm-node-6533893985,21.0324152,105.855273,Nhà hàng,"7, Phố Hàng Thùng",0.0,0.0,0.0,0.0,0.0
+Ốc Bông Quán,osm-node-6611456185,21.0239287,105.8566213,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Phở Đường Tăng,osm-node-6616671217,20.9926672,105.8144635,Nhà hàng,"35, Phố Khương Hạ",0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Hương Mai,osm-node-6628638085,21.0121151,105.8040818,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Quán Nướng ABéo,osm-node-6640901648,21.0326627,105.8290076,Nhà hàng,"10, Phố Kim Mã, Phường Ba Đình, Hà Nội",0.0,0.5,0.0,0.0,0.0
+Bún cá Văn,osm-node-6640913832,21.0429002,105.8395084,Nhà hàng,"174, Phố Quán Thánh, Phường Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Phở Lý Quốc Sư,osm-node-6679712288,21.0109743,105.831105,Nhà hàng,"119D1, Phố Đặng Văn Ngữ, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Món Huế,osm-node-6681348985,21.011719,105.801052,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Nộm Mai Nga,osm-node-6689625508,21.0192721,105.8528021,Nhà hàng,"25, Phố Hàm Long",0.0,0.0,0.0,0.0,0.0
+Bố Đế Quán,osm-node-6699204786,21.0672457,105.830883,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Chợ Cô Dần - Cơm Sườn & Phá Lấu,osm-node-6705528525,21.0132031,105.8330408,Nhà hàng,"119, Phố Nam Đồng, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Tấm cuisine & Traditional house,osm-node-6784112360,21.0636852,105.8655285,Nhà hàng,"Số 7, ngách 2, ngõ 437, Ngọc Thụy, Long Biên, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Cơm 123,osm-node-6822174389,21.0170339,105.8317134,Nhà hàng,"482, Phố Xã Đàn, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Vũ Kiều Tú / Sen Trang An / Cumulus,osm-node-6882889996,21.0327728,105.8539006,Nhà hàng,"45-47, Phố Hàng Bè, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Giang Nam Restaurant,osm-node-7025533318,21.0337076,105.848427,Nhà hàng,"79, Phố Hàng Bồ, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Ba Ba Sơn Đông,osm-node-7055985628,21.0346219,105.7888949,Nhà hàng,"50, Phố Trần Thái Tông, Quận Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Bún Chả Sinh Từ,osm-node-7056027929,21.0346716,105.7889104,Nhà hàng,"48, Phố Trần Thái Tông, Quận Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Lẩu Ốc Bún Ốc Gia Truyền Khương Thượng,osm-node-7089810485,20.9963442,105.8294948,Nhà hàng,"18, Ngõ 134 Lê Trọng Tấn",0.0,0.25,0.0,0.0,0.0
+Cơm - Phở Chay Từ Bi,osm-node-7106593486,21.0491199,105.8398964,Nhà hàng,"30A, Ngõ Trúc Lạc, Phường Ba Đình, Hà Nội",0.0,0.0,0.5,0.0,0.0
+RueDuCamp Quán cà phê,osm-node-7112196485,21.0279649,105.8448225,Nhà hàng,"50A, Phố Tràng Thi",1.0,0.0,0.0,0.0,0.0
+Nhà Hàng Ầu Ơ Bếp Việt,osm-node-7205751930,21.0213654,105.8566874,Nhà hàng,"15, Phố Lý Thường Kiệt, Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Pho Thìn,osm-node-7217547685,21.0251921,105.845147,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Quỳnh Quán,osm-node-7333832605,20.9735521,105.8202606,Nhà hàng,"Ki ốt 02 D Vinaconex 2, Nghiêm Xuân Yêm, Hoàng Mai, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Bún Chả Sinh Từ,osm-node-7516955870,21.014312,105.8195072,Nhà hàng,"10, Phố Hoàng Cầu, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Bún Chả Sinh Từ,osm-node-7516955871,21.0110316,105.8311756,Nhà hàng,"111D1, Phố Đặng Văn Ngữ, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Bún Ngan Cô Tuyết,osm-node-8132877478,21.0100991,105.8263379,Nhà hàng,"25, Ngõ 167 Tây Sơn, Đống Đa, Hà Nội",0.5,0.0,0.0,0.0,0.0
+"nhom6,T01-14, Cơm Ngon",osm-node-8346042982,21.0773776,105.7739715,Nhà hàng,"40, Cầu Vồng, Bắc Từ Liêm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+"nhom6,T01-16, Ốc Tài Chính",osm-node-8347330261,21.0771875,105.7736319,Nhà hàng,"52, Cầu Vồng, Bắc Từ Liêm, Phường Đức Thắng",0.0,0.0,0.0,0.0,0.0
+"nhom6,T01-19, vịt nuongứ Vân Đình",osm-node-8347362707,21.0769205,105.7732674,Nhà hàng,"62, Cầu Vồng, Bắc Từ Liêm, Phường Đức Thắng",0.0,0.0,0.0,0.0,0.0
+"nhom6,T01-26, lẩu nướng",osm-node-8347371227,21.0774562,105.7748218,Nhà hàng,"5, Cầu Vồng, Bắc Từ Liêm, Phường Đức Thắng",0.0,0.5,0.0,0.0,0.0
+Nhà Hàng Củi,osm-node-8563466265,21.0191661,105.8259313,Nhà hàng,"3, Ngõ 31 Hoàng Cầu, Quận Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Cháo Lòng Phố Cổ,osm-node-8631526113,21.0360382,105.8520965,Nhà hàng,"26, Phố Hàng Buồm, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Bánh Tráng Phú Cường Cơ Sở 3,osm-node-9551695377,20.9794509,105.7856786,Nhà hàng,"102, Đường Trần Phú, Hà Đông, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Bánh Tráng Phú Cường Cơ Sở 4,osm-node-9551695378,21.0171361,105.7985636,Nhà hàng,"100, Phố Vũ Phạm Hàm, Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Bánh Tráng Phú Cường Cơ Sở 1,osm-node-9551699235,21.0160069,105.8099478,Nhà hàng,"42, Phố Nguyên Hồng, Đống Đa, Phường Láng Hạ",0.0,0.0,0.0,0.0,0.0
+Bánh tráng Phú Cường cơ sở 2,osm-node-9551703841,21.0195383,105.8423388,Nhà hàng,"104, Phố Yết Kiêu, Hai Bà Trưng, Phường Nguyễn Du",0.0,0.0,0.0,0.0,0.0
+Cơm Ông Bình,osm-node-9800789973,21.0675911,105.7620797,Nhà hàng,"Bắc Từ Liêm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Ưu Đàm Chay,osm-node-9945276817,21.0187719,105.84814,Nhà hàng,"55, Phố Nguyễn Du, Hai Bà Trưng, Hà Nội",0.0,0.0,1.0,0.0,0.0
+Nét Huế,osm-node-10002371867,21.0502542,105.8933138,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Old Hanoi Restaurant,osm-node-10044381092,21.0299337,105.842667,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Lẩu&Nướng Ăndeee - 188 Phó Đức Chính,osm-node-10158964415,21.0442652,105.8460809,Nhà hàng,"188, Phố Phó Đức Chính, Phường Ba Đình, Hà Nội",0.0,1.0,0.0,0.0,0.0
+The East,osm-node-10179892274,21.0297293,105.8441279,Nhà hàng,"Phố Tống Duy Tân, Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+bún đậu 34,osm-node-10213648463,21.0799412,105.7726806,Nhà hàng,"Phố Văn Hội, Bắc Từ Liêm",0.0,0.0,0.0,0.0,0.0
+Cơm Ngon,osm-node-10219253935,21.0813579,105.7719273,Nhà hàng,"Sông Nhuệ, Bắc Từ Liêm, Phường Đức Thắng",0.0,0.0,0.0,0.0,0.0
+iMeatU Korea BBQ,osm-node-10245908053,21.0269786,105.8241813,Nhà hàng,"116K1, Phố Giảng Võ, Ba Đình, Hà Nội",0.0,0.25,0.5,0.0,0.0
+Bánh bao Bình Mỗ,osm-node-10264303109,21.0293084,105.8464797,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Pho Gon,osm-node-10281779509,21.0213052,105.8560894,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Phở bưng Hàng Trống,osm-node-10298555575,21.0313423,105.8493056,Nhà hàng,"8, Phố Hàng Trống, Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Miến trộn mực,osm-node-10298693325,21.0333264,105.852783,Nhà hàng,"Ngõ Trung Yên, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Bánh cuốn gia truyền thanh vân,osm-node-10298693328,21.0362825,105.8470163,Nhà hàng,"14, Phố Hàng Gà, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Phở Lâm,osm-node-10298693329,21.0356438,105.846433,Nhà hàng,"48, Phố Hàng Vải, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Quan banh con Thanh van,osm-node-10557047309,21.0181861,105.8519116,Nhà hàng,Phố Lê Văn Hưu,0.0,0.0,0.0,0.0,0.0
+Bún Ốc Hương Xưa,osm-node-10628095751,20.9878992,105.7510054,Nhà hàng,"10-LK45, Khu đất dịch vụ LK16, LK17, LK 18a,LK18b, Hà Đông, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Vi Lai,osm-node-10676070107,21.0240772,105.8455937,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+O Bun Cha,osm-node-10734202162,21.0339076,105.8543042,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Chào Bạn,osm-node-10756018605,21.0679405,105.8224048,Nhà hàng,Đường Tô Ngọc Vân,0.0,0.0,0.0,0.0,0.0
+Vua Phở,osm-node-10848035601,21.0485161,105.8078637,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Quán Vịt Zozo,osm-node-10848090099,21.0482947,105.808876,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Cháo Niêu,osm-node-10848092608,21.0482401,105.8092974,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Lòng Bờm - Lòng lợn Thuỵ Khuê,osm-node-10856105369,21.0481604,105.8097431,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Chung Trường - Lòng lợn chợ Bưởi,osm-node-10856105373,21.0479914,105.8101233,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Phở bò Đức Khôi,osm-node-10860208391,21.0364989,105.8462128,Nhà hàng,"77, Phố Phùng Hưng, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Phở bò Hồ Lợi,osm-node-10860234700,21.0875693,105.8061257,Nhà hàng,"28 Ng. 209, An Dương Vương, Tây Hồ, Hanoi",0.0,0.0,0.0,0.0,0.0
+Cháo sườn sụn,osm-node-10872881535,21.0473666,105.8110341,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Bánh Tráng Phú Cường cơ sở 5,osm-node-11015659150,21.0092132,105.8489241,Nhà hàng,"340, Phố Bà Triệu, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Chả cá 84,osm-node-11083594406,21.0207793,105.8459944,Nhà hàng,"84, Phố Trần Quốc Toản",0.0,0.0,0.0,0.0,0.0
+Ngan chặt Gia Huy,osm-node-11168751430,21.0459733,105.8035235,Nhà hàng,"75, Đường Hoàng Quốc Việt, Quận Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Bánh tráng Bé My,osm-node-11212195531,21.0101638,105.8358316,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Cơm tấm sườn nướng,osm-node-11212248141,21.0479495,105.784293,Nhà hàng,,0.0,0.25,0.0,0.0,0.0
+Cơm niêu Tố Uyên,osm-node-11212544453,21.0081435,105.8333252,Nhà hàng,"101C2, Phố Phạm Ngọc Thạch, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Bún cá hạnh phúc,osm-node-11215223962,21.0470658,105.7842888,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Phở,osm-node-11215223970,21.0470096,105.7842885,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Bún cá Việt Nam,osm-node-11215223971,21.0472369,105.7842896,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Phở Vũ,osm-node-11215223972,21.0472914,105.7842898,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Minh Anh Bia - Bún chả,osm-node-11215223976,21.0475194,105.7842225,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Chảnh Nướng,osm-node-11215223983,21.0477247,105.7842919,Nhà hàng,,0.0,0.25,0.0,0.0,0.0
+Nhà hàng Tầm Vị,osm-node-11218013237,21.0287751,105.8394545,Nhà hàng,"4, Phố Yên Thế",0.0,0.0,0.0,0.0,0.0
+Bánh mì chay Vegan,osm-node-11371361970,21.0303507,105.8497103,Nhà hàng,"64, Phố Hàng Trống",0.0,0.0,0.5,0.0,0.0
+Quán Little Hà Nội,osm-node-11371431369,21.0302188,105.8489505,Nhà hàng,"24b, Phố Lý Quốc Sư",0.0,0.0,0.0,0.0,0.0
+Ngan Huế Thương,osm-node-11372720514,20.9917089,105.9456661,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Bánh cuốn nóng 101 Bà Triệu,osm-node-11468718378,21.012338,105.8505177,Nhà hàng,"155, Phố Triệu Việt Vương, Hai Bà Trưng, Hà Nội",0.0,0.25,0.0,0.0,0.0
+Cơm Tấm Tỷ Đô,osm-node-11470110667,21.0126551,105.8505824,Nhà hàng,"147, Phố Triệu Việt Vương, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Vua Chả Cá,osm-node-11472430137,21.0132741,105.8509418,Nhà hàng,"76A, Phố Mai Hắc Đế, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+An Biên Eatery,osm-node-11505669842,21.0141696,105.8506004,Nhà hàng,"111, Phố Triệu Việt Vương, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Phở Cồ,osm-node-11563394778,21.0456914,105.7862359,Nhà hàng,"77, Phố Phạm Tuấn Tài, Quận Bắc Từ Liêm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Cơm ngon Bình dân,osm-node-11563394783,21.0454499,105.786234,Nhà hàng,"65, Phố Phạm Tuấn Tài, Quận Bắc Từ Liêm, Hà Nội",0.0,0.0,0.0,1.0,0.0
+Nhà hàng Phúc Lâm,osm-node-11568539974,21.0442928,105.784162,Nhà hàng,"9A, Ngõ 6 Đặng Thùy Trâm, Quận Bắc Từ Liêm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Cháo lòng Hợp Lý 4,osm-node-11568902926,21.0433502,105.7861262,Nhà hàng,"9, Phố Phạm Tuấn Tài, Quận Cầu Giấy, Hà Nội",0.0,0.0,0.0,1.0,0.0
+Cơm Ngon Quán,osm-node-11568902927,21.0433095,105.7861234,Nhà hàng,"9A3, Phố Phạm Tuấn Tài, Quận Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Phở trâu giật Minh Quân,osm-node-11568902928,21.043277,105.786121,Nhà hàng,"9A, Phố Phạm Tuấn Tài, Quận Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Quán Cừu Vui Vẻ,osm-node-11568902930,21.0432146,105.7861186,Nhà hàng,"9, Phố Phạm Tuấn Tài, Quận Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Lòng Ngon Quán,osm-node-11568902935,21.0431357,105.7859577,Nhà hàng,"2, Ngõ 3 Phạm Tuấn Tài, Quận Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nhà hàng Ngọc Hiếu,osm-node-11572546708,21.0427604,105.786396,Nhà hàng,"18, Phố Phạm Tuấn Tài, Quận Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Dũng Thuỷ,osm-node-11584471212,21.0443217,105.7814927,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Kiều Hoa Quán,osm-node-11586911182,21.0449085,105.7843548,Nhà hàng,"10, Phố Đặng Thùy Trâm, Quận Bắc Từ Liêm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Bún đậu Cúc Cu,osm-node-11586915429,21.0455868,105.785841,Nhà hàng,"2, Ngách 421/4 Hoàng Quốc Việt, Quận Bắc Từ Liêm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Thiên Lộc Quán,osm-node-11586987534,21.0450525,105.7840889,Nhà hàng,"6, Phố Đặng Thùy Trâm, Quận Bắc Từ Liêm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Cơm Quê Phố Cổ,osm-node-11590640347,21.0454315,105.7842289,Nhà hàng,"Phố Đặng Thùy Trâm, Quận Bắc Từ Liêm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Cồ Dạt - Phở Bò Nam Định,osm-node-11590640352,21.0454658,105.784229,Nhà hàng,"Phố Đặng Thùy Trâm, Quận Bắc Từ Liêm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Bánh cuốn nóng,osm-node-11590640359,21.0455624,105.7842292,Nhà hàng,"Phố Đặng Thùy Trâm, Quận Bắc Từ Liêm, Hà Nội",0.0,0.25,0.0,0.0,0.0
+Hoàng Nam 89,osm-node-11590640365,21.0456249,105.7842294,Nhà hàng,"Phố Đặng Thùy Trâm, Quận Bắc Từ Liêm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Yêu Huế,osm-node-11590657186,21.0458928,105.7842293,Nhà hàng,"Phố Đặng Thùy Trâm, Quận Bắc Từ Liêm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Bánh cuốn gia truyền Thanh Vân,osm-node-11591740419,21.0153054,105.8498107,Nhà hàng,"48, Phố Tuệ Tĩnh, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Bánh cuốn nóng 117 Bà Triệu,osm-node-11598930306,21.0157917,105.8494249,Nhà hàng,"117, Phố Bà Triệu, Hai Bà Trưng, Hà Nội",0.0,0.25,0.0,0.0,0.0
+Hiệu Cơm Việt Nam,osm-node-11601353643,21.01619,105.8497525,Nhà hàng,"48, Phố Bùi Thị Xuân, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Cơm Rang - Phở - Bún Cháo,osm-node-11601645095,21.0167091,105.8497579,Nhà hàng,"26, Phố Bùi Thị Xuân, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Mr. Bảy Miền Tây,osm-node-11609602708,21.0320556,105.8469059,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Bánh Cuốn 86,osm-node-11613547722,21.0160144,105.8502267,Nhà hàng,"86, Phố Triệu Việt Vương, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Bún Chả - Nem Rán,osm-node-11615961396,21.0166595,105.8498791,Nhà hàng,"47, Phố Bùi Thị Xuân, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Quán cơm Minh Hiền,osm-node-11615961404,21.0160697,105.8499661,Nhà hàng,"75, Phố Bùi Thị Xuân, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Bánh cuốn Bà Khê,osm-node-11617804910,21.040504,105.7843637,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Cơm Nam Đen,osm-node-11618566526,21.0381044,105.7818791,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Quán 286,osm-node-11618566527,21.0382215,105.7818482,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Bún đậu Tú Kiểu,osm-node-11618566528,21.0382283,105.7819155,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Phở,osm-node-11618650232,21.0368571,105.7828028,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Thái Phở Cuốn,osm-node-11618650233,21.0368552,105.7828855,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Tiệm vịt tiềm A Cường,osm-node-11633344430,21.0453824,105.8688786,Nhà hàng,"137, Phố Ngọc Lâm, Long Biên, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Cơm cháy gà Lẩu gà thuốc Bắc,osm-node-11633344439,21.0451979,105.8685243,Nhà hàng,"115, Ngọc Lâm, Long Biên, Hà Nội",0.0,0.25,0.0,0.0,0.0
+Quán Nam Vịt,osm-node-11633344440,21.0451841,105.8685022,Nhà hàng,"113, Phố Ngọc Lâm, Long Biên, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Thanh bún ngan,osm-node-11633344441,21.0451498,105.8684163,Nhà hàng,"107, Phố Ngọc Lâm, Long Biên, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nem lụi Huế,osm-node-11633344446,21.0450506,105.8682281,Nhà hàng,"95, Phố Ngọc Lâm, Long Biên, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Phương Nguyên Quán,osm-node-11644509069,21.042005,105.7930668,Nhà hàng,"106C4, Phố Nghĩa Tân",0.0,0.0,0.0,0.0,0.0
+BANH Mi NHE,osm-node-11652527569,21.0303627,105.856488,Nhà hàng,9 Hang Voi St. (2nd Floor),0.0,0.0,0.0,0.0,0.0
+Phở Thìn 1979,osm-node-11663033697,21.0337897,105.8350287,Nhà hàng,"35, Đường Hùng Vương, Phường Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Xôi Tiến,osm-node-11675163969,21.0292381,105.848015,Nhà hàng,"51, Ngõ Huyện",0.0,0.0,0.0,0.0,0.0
+"Bún đậu, giả cày",osm-node-11675985402,21.0394264,105.8468451,Nhà hàng,"5, Phố Phùng Hưng, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Chả cá lăng Toàn Xuân,osm-node-11675985403,21.0393809,105.8468352,Nhà hàng,"7, Phố Phùng Hưng, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nhà hàng Đồng Đội,osm-node-11675985407,21.0391319,105.8467824,Nhà hàng,"11C, Phố Phùng Hưng, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Phố nướng xứ Lạng,osm-node-11675985408,21.0390476,105.8467609,Nhà hàng,"15, Phố Phùng Hưng, Phường Hoàn Kiếm, Hà Nội",0.0,0.25,0.0,0.0,0.0
+Nhà hàng Quả Trám,osm-node-11675985410,21.0387871,105.846716,Nhà hàng,"21, Phố Phùng Hưng, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Lươn đồng xứ Nghệ,osm-node-11675985412,21.0387,105.846693,Nhà hàng,"25, Phố Phùng Hưng, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Quán Bánh Cuốn Nóng Gia Truyền,osm-node-11676661169,21.034455,105.8301501,Nhà hàng,"50, Phố Đội Cấn, Phường Ba Đình, Hà Nội",0.0,0.25,0.0,0.0,0.0
+Phở Tư lùn,osm-node-11683507069,21.0365868,105.8475526,Nhà hàng,"68, Phố Hàng Mã, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Lẩu dê Nhất Ly,osm-node-11683982775,21.0391463,105.8472791,Nhà hàng,"15A, Phố Hàng Cót, Phường Hoàn Kiếm, Hà Nội",0.0,0.25,0.0,0.0,0.0
+Nhà Hàng Sake,osm-node-11768045210,20.9922521,105.8737005,Nhà hàng,"66, Tan Khai, Phường Vĩnh Hưng",0.0,0.0,0.0,0.0,0.0
+Nét Huế,osm-node-11782452957,21.0154954,105.8510453,Nhà hàng,"43, Phố Mai Hắc Đế, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Chay Me&An Vegetarian,osm-node-11866085369,21.0202038,105.850731,Nhà hàng,"61, Phố Hàm Long",0.0,0.0,0.5,0.0,0.0
+Green Inn,osm-node-11878372469,21.0324629,105.847612,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Thích nhất mỳ,osm-node-11883463169,21.0615198,105.8267217,Nhà hàng,"20, Ngách 31/46 Xuân Diệu",0.0,0.0,0.0,0.0,0.0
+Kiez Vegan – Hanoi,osm-node-11888380369,21.0631814,105.8243292,Nhà hàng,"2a, Ngõ 12 Đặng Thai Mai",0.5,0.0,0.0,0.0,0.0
+Simisi,osm-node-11985320507,21.0231568,105.8081926,Nhà hàng,"18, Phố Chùa Láng",0.0,0.0,0.0,0.0,0.0
+Bún chả 309,osm-node-12000107441,21.0649573,105.7793907,Nhà hàng,"309, Đường Cổ Nhuế, Bắc Từ Liêm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+May de Cuisine,osm-node-12063757631,21.0340257,105.8535075,Nhà hàng,"107, Phố Mã Mây, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+34 Railway,osm-node-12078106240,21.0316301,105.8449371,Nhà hàng,"34, Quận Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Coffee Như Ý,osm-node-12078106241,21.0315299,105.8449144,Nhà hàng,"Quận Hoàn Kiếm, Hà Nội",0.5,0.0,0.0,0.0,0.0
+Nhà hàng Phương Nam,osm-node-12105870160,21.0163051,105.8509763,Nhà hàng,"13, Phố Mai Hắc Đế, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nem Phùng - Nem Chua,osm-node-12106408165,21.0167316,105.8511645,Nhà hàng,"1B, Phố Trần Nhân Tông, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Cau Go,osm-node-12149714102,21.032057,105.8521518,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Nhà Hàng  Khiêm,osm-node-12165016301,21.0143166,105.849969,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Phở Tuấn C8 Giảng Võ,osm-node-12313947065,21.0281525,105.8226197,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Chay vỉa hè,osm-node-12343563164,21.0197312,105.8493044,Nhà hàng,,0.0,0.0,0.5,1.0,0.0
+Pho Ga 26,osm-node-12394092001,21.0326621,105.850539,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Com Chay Vegan Buffet (120k),osm-node-12395826102,21.072521,105.8145064,Nhà hàng,,0.0,0.0,0.5,0.0,0.0
+Nét Huế,osm-node-12589868470,21.0368948,105.7864722,Nhà hàng,"122-124, Đường Xuân Thủy, Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Quán Kem Xôi,osm-node-12603545131,21.0305121,105.8186441,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Bún riêu Cô Hoàn,osm-node-12644660556,21.0378412,105.8478491,Nhà hàng,"14, Phố Hàng Lược, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Bánh Tráng Bé My,osm-node-12644690080,21.0212183,105.8484936,Nhà hàng,"33, Phố Quang Trung",0.0,0.0,0.0,0.0,0.0
+Chè Nhà Suvy,osm-node-12644690081,21.021273,105.8485082,Nhà hàng,"33, Phố Quang Trung",0.0,0.0,0.0,0.0,0.0
+Nem nướng Nha Trang,osm-node-12645462057,21.0443741,105.7925632,Nhà hàng,112 A9,0.0,0.25,0.0,0.0,0.0
+Bún cá rô đồng Hải Dương,osm-node-12645509921,21.0427329,105.7961736,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Cơm tấm Út Thắng,osm-node-12645523372,21.0427765,105.7962279,Nhà hàng,"106 B8, Phố Tô Hiệu",0.0,0.0,0.0,0.0,0.0
+Mau Dich 37,osm-node-12646622201,21.0457957,105.840158,Nhà hàng,"158, Phố Trấn Vũ, Phường Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Bún chả 29,osm-node-12651094220,21.0511586,105.8391105,Nhà hàng,"29, Phố Yên Phụ",0.0,0.0,0.0,0.0,0.0
+Ăn Vặt Mẹ Sữa,osm-node-12651100308,21.0106904,105.819097,Nhà hàng,"139, Nguyễn Văn Tuyết",0.0,0.0,0.0,0.0,0.0
+Ngan Yến,osm-node-12654261909,21.0515501,105.8408198,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Bánh cuốn Hồ Tây,osm-node-12654299492,21.05134,105.8387514,Nhà hàng,"34, Phố Yên Phụ",0.0,0.0,0.0,0.0,0.0
+Bún chả que tre,osm-node-12657776443,21.0437437,105.8458763,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Hương bánh xèo,osm-node-12659337379,21.0541021,105.8364016,Nhà hàng,"139, Yên Phụ",0.0,0.0,0.0,0.0,0.0
+Bún Đậu Mẹt Tuấn Trọc,osm-node-12659367887,21.041391,105.8457429,Nhà hàng,"23, Phố Phan Huy Ích, Phường Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Chay Tâm Khối,osm-node-12692463221,21.0323897,105.8468214,Nhà hàng,"70, Phố Hàng Điếu, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.5,0.0,0.0
+MẸT Vietnamese restaurant & Vegetarian Food Met 8,osm-node-12821562701,21.033707,105.8473661,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Chè Lan,osm-node-12836900460,21.008899,105.8662428,Nhà hàng,"69, Phố Lãng Yên, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Bún bò Huế O Hường,osm-node-12860550543,20.8676411,105.857856,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+An Lạc Chay Quán,osm-node-12862421502,21.0673912,105.8231246,Nhà hàng,39 Ngõ 45 Đường Tô Ngọc Vân,0.0,0.0,0.5,0.0,0.0
+Phở Mẹ Vợ,osm-node-12864500102,21.0615116,105.8314523,Nhà hàng,Ngõ 42 Xuân Diệu,0.0,0.0,0.0,0.0,0.0
+The Corner Food,osm-node-12995529901,21.0304002,105.8506218,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Nam Phở Gà,osm-node-13027856695,21.0299024,105.8414371,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Phở Thành,osm-node-13027900308,21.0257242,105.8452674,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Bún bò Huế - lẩu đuôi bò,osm-node-13120433101,21.0598012,105.8641216,Nhà hàng,"336, Đường Ngọc Thụy",0.0,0.25,0.0,0.0,0.0
+Nhung Phở gà Bún thang,osm-node-13275142601,21.054639,105.8361069,Nhà hàng,"145, Phố Yên Phụ",0.0,0.0,0.0,0.0,0.0
+Gia Phú,osm-node-13284616875,20.941018,105.9585101,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Bún Ốc Chả Nem Bà Bảy Đang,osm-node-13289050126,21.0495715,105.8044662,Nhà hàng,"31, Võ Chí Công, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Cồ Luật,osm-node-13318767667,20.9437931,105.9514148,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Cơm Phương Thảo,osm-node-13321407681,20.9437356,105.9572992,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Bánh mì Dân Tổ,osm-node-13408172097,21.0072846,105.8333542,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Loving Vegetarian Restaurant,osm-node-13463740401,21.0281081,105.8395645,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Bún chả Việt Khiêm,osm-node-13473985979,21.0435925,105.8646603,Nhà hàng,"Chợ Ẩm Thực Ngọc Lâm, Long Biên",0.0,0.0,0.0,0.0,0.0
+Phở Gà 46,osm-node-13475283216,21.048228,105.8655957,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Phở Bò 63,osm-node-13508941681,21.0477321,105.8652033,Nhà hàng,"63, Đường Ngọc Thụy, quận Long Biên, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Bún Ziu Gánh,osm-node-13513730201,21.0244577,105.836276,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+The Banh Mi Station,osm-node-13516584409,21.0322557,105.8532716,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Chay Vỉa Hè,osm-node-13592363601,21.0457732,105.8426269,Nhà hàng,,0.0,0.0,0.5,1.0,0.0
+Hội quán thực dưỡng,osm-node-13607254748,20.974621,105.8346721,Nhà hàng,"59C1 Khu đô thị Đại Kim, Phố Nguyễn Cảnh Dị, Hoàng Mai, Phường Định Công",0.0,0.0,0.0,0.0,0.0
+Bun Cha 40k,osm-node-13610849401,21.0292562,105.839687,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Miến Lươn Chân Cầm,osm-node-13624907801,21.0304288,105.8486949,Nhà hàng,"1, Phố Chân Cầm",0.0,0.0,0.0,0.0,0.0
+Hà Thành Mansion,osm-node-13630080601,21.0208818,105.84904,Nhà hàng,"14, Phố Ngô Văn Sở",0.0,0.0,0.0,0.0,0.0
+Bún Bò Huế Hiền Hạnh,osm-node-13637673905,21.0147509,105.8047557,Nhà hàng,"247, Đường Nguyễn Ngọc Vũ",0.0,0.0,0.0,0.0,0.0
+Bún Chả Hạnh Béo,osm-node-13640707701,21.0190445,105.7999399,Nhà hàng,Phố Nguyễn Bá Khoản,0.0,0.0,0.0,0.0,0.0
+Cơm Phở,osm-node-13641363901,21.0304396,105.8488587,Nhà hàng,"12, Phố Lý Quốc Sư",0.0,0.0,0.0,0.0,0.0
+Bánh Cuốn Nóng Gia Truyền,osm-node-13644445201,21.0191201,105.7998414,Nhà hàng,Phố Nguyễn Bá Khoản,0.0,0.25,0.0,0.0,0.0
+Met Vietnamese Restaurant,osm-node-13647364502,21.033134,105.8524813,Nhà hàng,"34, Phố Gia Ngư, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Xới Cơm - Tiệm ăn gia đình,osm-node-13649628501,21.0143834,105.8132176,Nhà hàng,Ngõ 36 Phố Láng Hạ,0.5,0.0,0.0,0.0,0.0
+Cơm gà xử quảng,osm-node-13651572501,21.0189274,105.7999723,Nhà hàng,"1, Phố Nguyễn Bá Khoản",0.0,0.0,0.0,0.0,0.0
+Bún chả 41,osm-node-13666531601,21.03456,105.8458793,Nhà hàng,"41, Phố Cửa Đông, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Maison Sen Buffet,osm-node-13668872401,21.0307345,105.7878281,Nhà hàng,"90, Phố Trần Thái Tông",0.0,0.0,0.0,0.0,0.0
+Bún chả Sinh Từ,osm-node-13671676601,21.0158996,105.7979683,Nhà hàng,"62, Phố Vũ Phạm Hàm",0.0,0.0,0.0,0.0,0.0
+Hông Loan Quán,osm-node-13703831902,21.0737186,105.8271613,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+FamiCháo - 52 Ngõ Thổ Quan,osm-node-13743071480,21.018235,105.8334182,Nhà hàng,"52, Ngõ Thổ Quan, Quận Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nhà hàng An Lạc,osm-node-13853083740,20.5528045,105.7938021,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Madam Tư Hồng,osm-node-13907404801,21.028801,105.845737,Nhà hàng,"5, Ngõ Hội Vũ, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Chay Tâm Khởi,osm-node-13981899117,21.0243367,105.8430004,Nhà hàng,,0.0,0.0,0.5,0.0,0.0
+Bánh Mì Chay SQ,osm-node-13981943861,21.0273806,105.8414361,Nhà hàng,,0.0,0.0,0.5,0.0,0.0
+Nhà Hàng Chay Rasa,osm-node-13982143275,21.0170585,105.8556336,Nhà hàng,,0.0,0.0,0.5,0.0,0.0
+King BBQ Hàm Nghi,osm-way-677800151,21.0362819,105.7613887,Nhà hàng,"Shophouse B2-06, KĐT Vinhomes Gardenia, Hàm Nghi, Nam Từ Liêm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Món Huế,osm-way-841374806,21.0223439,105.8194265,Nhà hàng,"Phố Láng Hạ, Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Cơm tấm Ốc Sài Gòn,osm-way-904729846,21.011758,105.8483936,Nhà hàng,"21, Phố Đoàn Trần Nghiệp, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Cơm tấm Huy,osm-way-1115091181,21.0174124,105.8310956,Nhà hàng,"500, Phố Xã Đàn, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nhà Chay Achi,osm-way-1163872123,21.0412388,105.8271968,Nhà hàng,"50, Đường Thụy Khuê, Tây Hồ, Hà Nội",0.0,0.0,0.5,0.0,0.0
+Phở Gà Ta Phương Linh,osm-way-1164347901,21.0415721,105.8265891,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Món Ngon Sài Thành,osm-way-1231374575,21.0194634,105.8087167,Nhà hàng,"59A, Phố Huỳnh Thúc Kháng, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Bánh cuốn Gia An,osm-way-1231374576,21.0194958,105.8086484,Nhà hàng,"61, Phố Huỳnh Thúc Kháng, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Cơm Văn Phòng,osm-way-1234095160,21.0288701,105.856118,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Tiệm cơm Tháng Năm,osm-way-1246866121,21.0153632,105.8494781,Nhà hàng,"62, Phố Tuệ Tĩnh, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+"Gia Thành - Hủ Tiếu, Bánh Canh, Cơm Tấm",osm-way-1253312189,21.015471,105.8508015,Nhà hàng,"36C, Phố Mai Hắc Đế, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nét Huế,osm-way-1330098155,21.0062844,105.7537492,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Trâu Kiến Minh,osm-way-1330098161,21.0061749,105.7539837,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Phở Cuốn Hương Mai,osm-way-1330098167,21.0058207,105.7549073,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Roll House,osm-way-1330108346,21.005794,105.7538697,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Nét Huế,osm-way-1331658950,20.9959331,105.8695216,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Roll House,osm-way-1331658951,20.9957839,105.8695209,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Phở gà Lâm,osm-way-1365472868,21.0151695,105.8137562,Nhà hàng,"26, Phố Láng Hạ",0.0,0.0,0.0,0.0,0.0
+Nhà hàng Tâm An,osm-way-1386126635,20.5543429,105.7936914,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Bình Minh Quán - Cơm Văn Phòng,osm-way-1455393100,21.0967532,105.8567919,Nhà hàng,"57, Đường Thiên Nga 1, Đông Anh, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Phở Thái Tử,osm-node-7690438058,21.0334631,105.772312,Nhà hàng,"20x5, Phố Dương Khuê, Từ Liêm, Hanoi",0.0,0.0,0.0,0.0,0.0
+Lẩu Hơi Lãng Bạc,osm-node-6162359986,21.0518071,105.8381255,Nhà hàng,"52, Yên Phụ",0.0,0.25,0.0,0.0,0.0
+Cá Thùy Linh,osm-node-7056022256,21.0345704,105.7888821,Nhà hàng,"52, Phố Trần Thái Tông, Quận Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nhà hàng Hải Yến Bách Khoa,osm-node-11186157294,21.00487,105.8425222,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Vựa Hải Sản Gió Biển,osm-node-11372720516,20.9914455,105.9461001,Nhà hàng,,0.0,0.0,0.5,0.0,0.0
+Bếp Ngư ông,osm-node-13506385429,21.0515064,105.8626588,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Giang Dung 2,osm-way-1210228263,21.013534,105.8315319,Nhà hàng,"158, Ngõ Xã Đàn 2, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Thế Giới Hải Sản,osm-way-1218337313,21.0342082,105.8379603,Nhà hàng,"36, Đường Điện Biên Phủ, Phường Ba Đình, Hà Nội",0.0,0.0,0.5,0.0,0.0
+Ba Ba Sơn Đông,osm-way-1219438153,21.0155971,105.8332584,Nhà hàng,"416, Phố Xã Đàn, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Bay Seafood Buffet,osm-way-1233838148,21.0272637,105.8572373,Nhà hàng,"14, Phố Tông Đản, Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Poseidon,osm-way-1331658960,20.9949381,105.8697839,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Dim Sum Minh Ký,osm-node-5870096885,21.0243978,105.8429344,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Dim Sum Đại Hùng,osm-node-6496942485,21.0188856,105.8286661,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Trung Hoa Đệ Nhất Sủi Cảo,osm-node-6693830420,21.0292976,105.8123813,Nhà hàng,"28, Nguyễn Chí Thanh, Quận Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nhà hàng Wen Xing HongKong,osm-node-6728910455,21.0160209,105.815518,Nhà hàng,"175, Phố Thái Hà, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Kaoya,osm-node-7181130685,21.0355373,105.8504975,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Susu Bánh Bao Thượng Hải,osm-node-11281683527,21.016386,105.8315838,Nhà hàng,"227, Phố Xã Đàn, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Mỳ Vằn Thắn - Mỳ gia Quảng Đông Kố Kiên,osm-node-11613547706,21.0153601,105.8500699,Nhà hàng,"40, Phố Tuệ Tĩnh, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Taipei Express,osm-node-11659995710,21.0103485,105.8496749,Nhà hàng,"34, Phố Lê Đại Hành, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Long Wang,osm-node-11683982777,21.0390195,105.847282,Nhà hàng,"15A, Phố Hàng Cót, Quận Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Hao Chi - Dimsum Taipei,osm-node-11697674110,21.0103899,105.8511899,Nhà hàng,"3, Phố Thái Phiên, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Haidilao Hot Pot,osm-node-11985285017,21.0236491,105.809305,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Meiwei,osm-node-12098955284,21.0110994,105.8495785,Nhà hàng,"191, Phố Bà Triệu, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Cơm gà Hải Nam,osm-way-863472429,21.007701,105.8334883,Nhà hàng,"12, Phố Phạm Ngọc Thạch, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Le Garden,osm-way-1235566725,21.0128112,105.8506074,Nhà hàng,"143, Phố Triệu Việt Vương, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nhà hàng Tam Vị Chân Hỏa 三味珍火,osm-way-1264582880,21.0359039,105.8036072,Nhà hàng,"32, Đường Nguyễn Khánh Toàn, Quận Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Manwah,osm-way-1331658926,20.9964386,105.8683434,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Hadilao,osm-way-1331658929,20.9965284,105.8687296,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Shang Chi,osm-way-1331668370,20.9955126,105.8693629,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Osihi,osm-node-2136341357,21.0675537,105.8212455,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Nhà Hàng New Sake 1,osm-node-2399180441,21.0307862,105.8194213,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+PAKU PAKU(波食波食）,osm-node-2399180442,21.0307817,105.8193586,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Koto,osm-node-2399188052,21.0296823,105.8102219,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Kurama(蔵馬）,osm-node-2399188053,21.029746,105.810586,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Totoya(ととや）,osm-node-2399188054,21.029967,105.812293,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Izakaya Yancha,osm-node-2399194698,21.0294166,105.8090898,Nhà hàng,"579, Phố Kim Mã, Quận Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Kitaguni,osm-node-2399239575,21.0292029,105.8074289,Nhà hàng,"639, Phố Kim Mã, Quận Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Ofukuro,osm-node-2399239576,21.0285111,105.806208,Nhà hàng,"Phố Kim Mã, Quận Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Wa Japanese Cuisine,osm-node-3370369424,21.049334,105.839318,Nhà hàng,"7, Phố Trúc Bạch, Phường Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Moto-san,osm-node-3671198536,21.0254125,105.8577493,Nhà hàng,"4, Lý Đạo Thành, Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nhà hàng Yumi,osm-node-3711330943,21.0151072,105.7814958,Nhà hàng,"số 24 BT1 khu đô thị mới Mễ Trì hạ, nam Từ Liêm, Hà Nội, Mễ Trì, Nam Từ Liêm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+The sushi club,osm-node-4226277399,21.0625927,105.8291621,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Street Sushi,osm-node-4622570694,21.0348271,105.810956,Nhà hàng,"40, Phố Phan Kế Bính, Quận Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Akaari,osm-node-5621040324,21.0297825,105.8369781,Nhà hàng,"5, Phố Văn Miếu, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Nabesu,osm-node-6551006685,21.0048395,105.8045696,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Hồ Tây Sushi,osm-node-6606142441,21.0444866,105.8180573,Nhà hàng,"173, Phố Nguyễn Đình Thi, Tây Hồ, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Kaiba Sushi,osm-node-6656456339,21.0211894,105.8556502,Nhà hàng,"16, Phố Phan Chu Trinh, Quận Hoan Kiem, Hà Nội",0.0,0.0,0.0,0.0,0.0
+SUSHI GARDEN - NHÀ HÀNG NHẬT BẢN,osm-node-6679645374,21.0129836,105.8328594,Nhà hàng,"107, Phố Nam Đồng, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Sio Sushi,osm-node-6807375326,21.016746,105.8239549,Nhà hàng,"67, Phố Hoàng Cầu, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Shichifuku Hanoi,osm-node-6946996147,21.0330453,105.8068682,Nhà hàng,"63, Phố Đào Tấn, Quận Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Takoyaki,osm-node-10261572487,21.0389067,105.7854561,Nhà hàng,"30, Ngõ 33 Phan Văn Trường, Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Minori,osm-node-10691121371,21.0294025,105.8090094,Nhà hàng,"581, Phố Kim Mã, Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Shibuya Paradaisu,osm-node-11164095932,21.0031099,105.755898,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Moichi,osm-node-11168787972,21.0511266,105.8406847,Nhà hàng,"11A, Phố An Dương, Tây Hồ, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Tamaya,osm-node-11200436073,20.9833258,105.8424762,Nhà hàng,"6, Phố Kim Đồng, Hoàng Mai, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nhà hàng Nhật Bản Minori,osm-node-11372720513,20.9917641,105.9455472,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Wabi Sabi Sushi,osm-node-11472430138,21.0133991,105.8509227,Nhà hàng,"15, Phố Mai Hắc Đế, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Tokyo Tan-Tan,osm-node-11476192647,21.0121321,105.8496861,Nhà hàng,"148B, Phố Bùi Thị Xuân, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Una Family,osm-node-11505669840,21.0142366,105.8505962,Nhà hàng,"107, Phố Triệu Việt Vương, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nhà hàng Tonchan,osm-node-11505669841,21.0142021,105.8506281,Nhà hàng,"109, Phố Triệu Việt Vương, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Sumibozu - Gà Nướng Than,osm-node-11505669843,21.0140916,105.8505752,Nhà hàng,"115, Phố Triệu Việt Vương, Hai Bà Trưng, Hà Nội",0.0,0.25,0.0,0.0,0.0
+Ikazaya Yancha,osm-node-11505669846,21.0139502,105.8505838,Nhà hàng,"121, Phố Triệu Việt Vương, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Yakiniku Sakura,osm-node-11510383979,21.0147861,105.8497332,Nhà hàng,"90B, Phố Bùi Thị Xuân, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+washoku IKEDA,osm-node-11521920507,21.0348968,105.8108024,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+chikuan,osm-node-11521920511,21.0370214,105.8104166,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Sushila,osm-node-11591740420,21.0153918,105.8498083,Nhà hàng,"78, Phố Bùi Thị Xuân, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Shinbashi,osm-node-11649693308,21.0157817,105.8505547,Nhà hàng,"65, Phố Triệu Việt Vương, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+The Ramen Mafia,osm-node-12098955278,21.0101045,105.8506388,Nhà hàng,"118, Phố Mai Hắc Đế, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+CoCo Ichibanya,osm-node-12287492375,21.0760133,105.8126928,Nhà hàng,,0.0,0.25,0.0,0.0,0.0
+Izakaya Unatoto,osm-node-12375798343,21.0296837,105.8105812,Nhà hàng,"531, Phố Kim Mã, Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Tokyo Tantan Ramen,osm-node-12651858498,21.0339953,105.808908,Nhà hàng,"36/38, Dao Tan, Quận Ba Đình, Ha Noi",0.0,0.0,0.0,0.0,0.0
+ISHIDAYA - The 3rd Generation,osm-node-12661290607,21.0304349,105.834279,Nhà hàng,"8A, Phố Hàng Cháo, Quận Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Izakaya Matsuki,osm-node-13703841401,21.0626218,105.8291964,Nhà hàng,Phố Quảng An,0.0,0.0,0.0,0.0,0.0
+Nhà hàng Sakura,osm-way-1163015446,21.0420651,105.8297273,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Hatoyama,osm-way-1218337314,21.0341366,105.8380308,Nhà hàng,"36, Đường Điện Biên Phủ, Phường Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0.0
+iSushi,osm-way-1234955616,21.0130849,105.8502462,Nhà hàng,"158, Phố Triệu Việt Vương, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Hadu Sushi,osm-way-1234955626,21.0131702,105.8500372,Nhà hàng,"149, Phố Bùi Thị Xuân, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Umemi Ramen,osm-way-1235442383,21.0125352,105.850857,Nhà hàng,"100, Phố Mai Hắc Đế, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Takumi,osm-way-1235566715,21.0126094,105.8508227,Nhà hàng,"98, Phố Mai Hắc Đế, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nhan Sushi Ha Noi,osm-way-1238550132,21.0143771,105.8505985,Nhà hàng,"101, Phố Triệu Việt Vương, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Sumo BBQ,osm-way-1246805135,21.0131066,105.8478962,Nhà hàng,"67, Phố Tô Hiến Thành, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Shogun,osm-way-1249564975,21.0163429,105.850207,Nhà hàng,"72, Phố Triệu Việt Vương, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nagomi,osm-way-1249565003,21.016249,105.8499972,Nhà hàng,"67, Phố Bùi Thị Xuân, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Sanmaru Ramen,osm-way-1253325096,21.0159711,105.8504913,Nhà hàng,"59, Phố Triệu Việt Vương, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Kasa Sushi,osm-way-1253517141,21.0162597,105.8505355,Nhà hàng,"49, Phố Triệu Việt Vương, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Yakihouse BBQ,osm-way-1330098164,21.0059822,105.7542069,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Hachidori,osm-way-1330098168,21.005813,105.7550198,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Yakimono,osm-way-1331668359,20.9957821,105.8693086,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Shogun,osm-way-1331668369,20.9953302,105.869308,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Lẩu Nướng Minh Minh,osm-node-4974302123,20.970647,105.7795514,Nhà hàng,"Số 10, Số 10 Trần Hưng Đạo",0.0,0.5,0.0,0.0,0.0
+Nhà hàng Samwon,osm-node-5485740783,21.0223566,105.7883168,Nhà hàng,"68, Dương Đình Nghệ, Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Viako Garden,osm-node-6544086586,21.0101935,105.8046017,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Mr Lee's Snack Bar,osm-node-6702180256,21.0165573,105.7952392,Nhà hàng,"5, Ngõ 100 - Trung Kính, Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Umiga,osm-node-6904450115,21.0676759,105.8005476,Nhà hàng,"10, Đường Đỗ Nhuận, Tây Hồ, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Itaewon Dakgalbi,osm-node-10129864868,21.0291148,105.8066682,Nhà hàng,"647, Phố Kim Mã, Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Mì cay Sa Sin,osm-node-11563394779,21.0456533,105.7862374,Nhà hàng,"75, Phố Phạm Tuấn Tài, Quận Bắc Từ Liêm, Hà Nội",0.0,0.25,0.0,0.0,0.0
+Xèo Xèo,osm-node-11564316616,21.044793,105.7849103,Nhà hàng,"27, Phố Đặng Thùy Trâm, Quận Bắc Từ Liêm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Samcheop Topokki,osm-node-11572142338,21.041801,105.7869133,Nhà hàng,"14, Phố Trần Quốc Hoàn, Quận Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Korea Food,osm-node-11618566529,21.0381808,105.7819355,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Gumiho,osm-node-11625397932,21.0139975,105.849991,Nhà hàng,"133, Phố Bùi Thị Xuân, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Dookki,osm-node-12098955282,21.0112282,105.8493825,Nhà hàng,"191, Phố Bà Triệu, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Dookki,osm-node-12240739576,20.9661164,105.7570937,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Big Mama Restaurant,osm-node-12277048849,21.017833,105.7836461,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Hanoi Gwang Hae,osm-node-12277048850,21.0178377,105.7832763,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Mr. Dakgalbi,osm-node-12589868468,21.0370464,105.7866107,Nhà hàng,"122-124, Đường Xuân Thủy, Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0.0
+바보아저씨,osm-node-12654222689,21.016643,105.7778321,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Gogi House,osm-way-1234955627,21.0131127,105.8500279,Nhà hàng,"151, Phố Bùi Thị Xuân, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Guigui BBQ,osm-way-1330098160,21.0062573,105.7538611,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+King BBQ,osm-way-1330098165,21.0059264,105.7543462,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Dooki,osm-way-1330108344,21.0058353,105.753654,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Mr Dakgalbi,osm-way-1330108345,21.0058196,105.7537912,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Jeonbok,osm-way-1330108350,21.0055568,105.754426,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Gogi House,osm-way-1331658927,20.9964388,105.8684744,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+KPub,osm-way-1331658942,20.9963919,105.8693181,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+King BBQ,osm-way-1331658944,20.9961334,105.8695128,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Dookki,osm-way-1331658992,20.9948589,105.8694759,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+King BBQ Buffet,osm-way-1331668373,20.9951413,105.8693629,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Pizza Hut,osm-node-2399180443,21.0303431,105.8159146,Nhà hàng,"409, Kim Mã, Quận Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nhà Hàng GoldMalt Sài Đồng,osm-node-4005477934,21.0387571,105.9044083,Nhà hàng,"13, No1A, Long Biên, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Pizza Hut,osm-node-4090272750,21.0258945,105.8334587,Nhà hàng,"138, Phố Tôn Đức Thắng, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Pizza Hut,osm-node-4090277644,21.0031239,105.816661,Nhà hàng,"72A, Đường Nguyễn Trãi, Thanh Xuân, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Pizza Hut,osm-node-4090279692,20.9969652,105.8683844,Nhà hàng,"48, Minh Khai, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Pizza Hut,osm-node-4090284259,21.0072356,105.7930282,Nhà hàng,"222, Trần Duy Hưng, Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Pizza Hut,osm-node-4090297904,21.011391,105.8492805,Nhà hàng,"191, Phố Bà Triệu, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Pizza Hut,osm-node-4090305470,21.0504678,105.8932462,Nhà hàng,"Đường Nguyễn Văn Linh, Long Biên, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Pizza Hut,osm-node-4090309926,20.9642392,105.7718101,Nhà hàng,"409, Tô Hiệu, Hà Đông, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Pizza Hut,osm-node-4091985948,21.0171583,105.799144,Nhà hàng,"146, Phố Trung Hoà, Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Pizza Hut,osm-node-4091988292,20.9804803,105.8447867,Nhà hàng,"609, Trương Định, Hoàng Mai, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Pizza Hut,osm-node-4091994843,20.9791502,105.785428,Nhà hàng,"110, Trần Phú, Hà Đông, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Pizza Hut,osm-node-4091998924,21.0188607,105.8552418,Nhà hàng,"32B, Phố Phan Chu Trinh, Phố Phan Huy Chú, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Luna D' Autunno,osm-node-4375604995,21.0264034,105.842688,Nhà hàng,"27, Nam Ngư",0.0,0.0,0.0,0.0,0.0
+Pizza Callo,osm-node-5031536021,20.9662859,105.7899548,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+VNUA restaurant,osm-node-5485670666,21.0065578,105.9332118,Nhà hàng,"NA, Đường S, Gia Lâm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Vivienne,osm-node-6255746085,21.0291579,105.8492595,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+NYC Pizza,osm-node-6477774987,21.0349168,105.8535259,Nhà hàng,"63, Phố Mã Mây, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Pizza Hut,osm-node-6685568161,21.0260933,105.8332166,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Pizza Hut,osm-node-6690139595,21.0139665,105.8340501,Nhà hàng,"159, Phố Xã Đàn, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Cugini,osm-node-6698878885,21.0680065,105.8224879,Nhà hàng,Ngõ 67 - Đường Tô Ngọc Vân,0.0,0.0,0.0,0.0,0.0
+Roma Pizza,osm-node-6776001092,21.0139772,105.8159781,Nhà hàng,"192, Thái Thịnh, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Pizza Hut,osm-node-6846162972,20.9634396,105.8254261,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Pizza Hut,osm-node-7076962085,21.0622848,105.8079019,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Quinza - 15A Ngoc Thuy,osm-node-7231903687,21.0463222,105.8649889,Nhà hàng,"15A, Ngọc Thụy",0.0,0.0,0.0,0.0,0.0
+Time Coffee,osm-node-8563466267,21.0142507,105.8313879,Nhà hàng,"156, Ngõ Xã Đàn 2, Đống Đa, Hà Nội",1.0,0.0,0.0,0.0,0.0
+Pizza Hut,osm-node-9931514400,21.0544669,105.8369651,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+d,osm-node-10216519958,21.0730862,105.7726483,Nhà hàng,"dd, Ngõ 151 Phố Lê Văn Hiến, Từ Liêm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Pizza 4P's,osm-node-12098955280,21.0114032,105.8507164,Nhà hàng,"114, Phố Mai Hắc Đế, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Pizza 4P's,osm-node-12118199554,21.0362237,105.7825964,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Pizza 4P's,osm-node-12277048845,21.017037,105.7839985,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Pizza Hut,osm-node-12389640473,20.9497279,105.9338949,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Kuma Pizza,osm-node-12589868467,21.0375129,105.7866518,Nhà hàng,"122-124, Đường Xuân Thủy, Cầu Giấy, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nhà hàng Hoàng Việt,osm-node-13261890146,21.040774,105.7607079,Nhà hàng,"724, Cầu Diễn, quận Nam Từ Liêm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Pizza 4P's,osm-node-13806229591,21.0304778,105.8302048,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Pizza Hut,osm-way-892577281,21.0020477,105.8168203,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Pizza Hut,osm-way-1331638432,20.9937184,105.8683022,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Chops,osm-node-4164895890,21.0625869,105.8291428,Nhà hàng,"4, Phố Quảng An, Tây Hồ, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Nhà Hàng New York Sports Bar,osm-node-4748803213,21.0236407,105.8508563,Nhà hàng,"38, Phố Bà Triệu, Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Jewel Diner,osm-node-6610502429,21.0766766,105.8163328,Nhà hàng,"21, Phố Trịnh Công Sơn",0.0,0.0,0.0,0.0,0.0
+Nhà Hàng Fritagogo,osm-node-8519855378,21.0639342,105.8672685,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Chops,osm-node-9912896146,21.0272224,105.8101527,Nhà hàng,"56, Phố Phạm Huy Thông, Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Chops,osm-node-9912980443,21.0294427,105.82688,Nhà hàng,"134, Phố Giảng Võ, Đống Đa, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Hương Việt,osm-node-4523211689,21.0360635,105.8488756,Nhà hàng,"13, Phố Hàng Cá",0.5,0.0,0.0,0.0,0.0
+Nhà Hàng L'amore,osm-node-4739350321,21.0328009,105.8503828,Nhà hàng,"42, Lương Văn Can",0.5,0.0,0.0,0.0,0.0
+Quán bánh xèo Thanh Nga,osm-node-5485781399,21.0760243,105.7735397,Nhà hàng,"số 18, Lê Văn Hiến, Bắc Từ Liêm, Hà Nội",0.5,0.0,0.0,0.0,0.0
+Panam' Cuisine,osm-node-5679069421,21.0199124,105.848831,Nhà hàng,"26, Trương Hán Siêu",0.5,0.0,0.0,0.0,0.0
+Nhà Hàng Délices de Mai,osm-node-5751409631,21.065582,105.8226426,Nhà hàng,"66 Quảng Bá, Phố Quảng Bá",0.5,0.0,0.0,0.0,0.0
+Noble Moment,osm-node-6551069588,21.009924,105.8029594,Nhà hàng,,0.5,0.0,0.0,0.0,0.0
+Nhà Hàng Cà Phê Hub,osm-node-6562291992,21.0148346,105.8233229,Nhà hàng,,1.0,0.0,0.0,0.0,0.0
+Nhà Hàng Ando,osm-node-6581045085,20.9746321,105.9121884,Nhà hàng,,0.5,0.0,0.0,0.0,0.0
+Chay Tuệ Giác Hà Nam,osm-node-6707415685,20.5488925,105.9133381,Nhà hàng,"54F, Trần Phú",0.5,0.0,0.5,0.0,0.0
+1,osm-node-11655592469,21.0354292,105.7991243,Nhà hàng,,0.5,0.0,0.0,0.0,0.0
+Toà D6,osm-way-1183713524,20.9626712,105.7487657,Nhà hàng,,0.5,0.0,0.0,0.0,0.0
+Nhà hàng Nam Long,osm-way-1498073029,21.0444102,105.8383165,Nhà hàng,"01, Phố Trấn Vũ, Phường Ba Đình, Hà Nội",0.5,0.0,0.0,0.0,0.0
+Cửa Hàng Bún Chả Hương Liên,osm-node-4272727197,21.0180504,105.8538843,Nhà hàng,"24, Phố Lê Văn Hưu, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Cửa Hàng Hoàng Tâm Xôi,osm-node-4936488121,21.0402766,105.8481886,Nhà hàng,"Phố Hàng Đậu, Phường Ba Đình, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Cửa Hàng Bia Hơi Duy Thái,osm-node-5490298321,21.0610851,105.7838507,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Phở Thìn Bờ Hồ,osm-node-5526708021,21.0303491,105.8540297,Nhà hàng,"61, Phố Đinh Tiên Hoàng, Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Cửa Hàng Bún Chả Hàng Quạt,osm-node-7025965385,21.0324643,105.8489735,Nhà hàng,"74, Phố Hàng Quạt, Phường Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+KỲ Bistro,osm-way-1046745534,21.0645744,105.8278152,Nhà hàng,"51, Đường Xuân Diệu, Tây Hồ, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Thai Village,osm-node-963611886,21.0320076,105.8512129,Nhà hàng,"3B, Phố Lê Thái Tổ, Hoàn Kiếm, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Thai Express,osm-node-11164095942,21.0109435,105.849603,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Tiệm Ăn Ken,osm-node-11491092585,21.0149553,105.8502835,Nhà hàng,"110B, Phố Triệu Việt Vương, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Khrua Baan Thai,osm-node-11500070697,21.0147202,105.8505466,Nhà hàng,"89, Phố Triệu Việt Vương, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Bếp Thái Koh Yam,osm-node-12117241051,21.012437,105.8487786,Nhà hàng,"3A, Ngõ Bà Triệu, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Som ตำ Thai,osm-node-12118199559,21.0357426,105.7828273,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Thai Restaurant Seafood,osm-node-12245679304,21.0153561,105.80111,Nhà hàng,"74, Phố Trung Hoà",0.0,0.0,0.0,0.0,0.0
+Sawasdee Quan Ngon Thai,osm-node-12646627101,21.0718415,105.8219277,Nhà hàng,"56, Ngõ 52 Đường Tô Ngọc Vân",0.0,0.0,0.0,0.0,0.0
+Tux-tax,osm-node-13610849501,21.0291206,105.8395886,Nhà hàng,"17, Phố Yên Thế",0.0,0.0,0.0,0.0,0.0
+Thai Street Food,osm-way-1249564999,21.0164275,105.8499749,Nhà hàng,"57, Phố Bùi Thị Xuân, Hai Bà Trưng, Hà Nội",0.0,0.0,0.0,0.0,0.0
+Thai Express,osm-way-1330098163,21.00603,105.7540883,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Thai Express,osm-way-1331668374,20.9951414,105.8695034,Nhà hàng,,0.0,0.0,0.0,0.0,0.0
+Khách Sạn Haneul,osm-node-4205271789,21.0140828,105.8479487,Nhà hàng,"11a, Thể Giao, Hai Bà trưng, Ha Noi",0.0,0.0,0.0,0.0,0.0

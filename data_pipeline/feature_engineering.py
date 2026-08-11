@@ -76,7 +76,12 @@ def extract_features():
     # 6. Lọc lại các cột cần thiết
     # Giữ lại categoryName/address (trước đây bị loại) vì tầng ứng dụng (TypeScript) cần
     # categoryName để suy luận loại món và address để hiển thị cho người dùng.
-    columns_to_keep = ['title', 'placeId', 'location/lat', 'location/lng', 'totalScore', 'categoryName', 'address'] + mood_columns
+    # Giữ lại 'cuisine' (trước đây bị loại ở chính bước này) - đây là field đã cào được
+    # từ OSM (data_pipeline/scrape_osm_hanoi.py + scrapers/enhanced_osm_query.py) nhưng
+    # chưa từng được dùng, dù all_text ở bước 1 đã ghép nó vào lúc tính mood_score. Giữ
+    # lại cột này để tầng dish-knowledge-base (Python + TS) có thể dùng cuisine làm tín
+    # hiệu match chính xác hơn categoryName một mình.
+    columns_to_keep = ['title', 'placeId', 'location/lat', 'location/lng', 'totalScore', 'categoryName', 'cuisine', 'address'] + mood_columns
     final_cols = [c for c in columns_to_keep if c in df.columns]
     df_features = df[final_cols]
 

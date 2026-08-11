@@ -3,16 +3,9 @@ import { resolve } from "node:path";
 import { parse } from "csv-parse/sync";
 import type { Dish } from "../../domain/entities/Dish";
 import type { IDishRepository } from "../../application/ports/IDishRepository";
+import { dishesForCategory } from "./DishKnowledgeBase";
 
 const DEFAULT_CSV_PATH = "data_pipeline/data_cleaned/dataset_moodbite_features.csv";
-
-const MOOD_SCORE_COLUMNS: Array<{ column: string; keyword: string }> = [
-  { column: "comfort_cozy_score", keyword: "comfort" },
-  { column: "spicy_hot_score", keyword: "spicy" },
-  { column: "fresh_healthy_score", keyword: "fresh" },
-  { column: "cheap_budget_score", keyword: "cheap" },
-  { column: "quick_fast_score", keyword: "quick" },
-];
 
 type CsvRow = {
   title: string;
@@ -23,15 +16,23 @@ type CsvRow = {
 
 /**
  * QUAN TRỌNG - ĐỌC TRƯỚC KHI DÙNG:
- * Adapter này tạo ra "món ăn đại diện" (synthetic dish) cho mỗi quán, suy luận từ
- * categoryName (VD: "Nhà hàng phở" -> món "Phở") + mood score đã tính sẵn.
- * ĐÂY KHÔNG PHẢI DỮ LIỆU MÓN ĂN THẬT — vì nguồn dữ liệu cào được (Google Maps/OSM)
- * chỉ cung cấp thông tin CẤP QUÁN (tên, loại hình, địa chỉ, rating), không có thực đơn/menu
- * chi tiết từng món. Đây là giải pháp tạm cho MVP để luồng "đề xuất món -> quán" có dữ liệu
- * thật để chạy, KHÔNG nên coi là nguồn dữ liệu món ăn chính thức lâu dài.
+ * Adapter này suy luận món ăn THẬT (VD "Phở bò", "Lẩu Thái") cho mỗi quán, dựa trên
+ * categoryName khớp với data_pipeline/dish_knowledge_base.json (nguồn tri thức món ăn
+ * DÙNG CHUNG với tầng Python - xem data_pipeline/dish_knowledge.py). Một quán có thể sinh
+ * ra NHIỀU Dish (VD "Nhà hàng phở" -> cả "Phở bò" và "Phở gà").
  *
- * Khi dự án có dữ liệu menu thật (vd cào thêm ảnh/text menu, hoặc nhập tay các món phổ biến
- * theo từng quán), nên thay adapter này bằng 1 nguồn dữ liệu dish-level thật sự.
+ * VẪN LÀ SUY LUẬN HEURISTIC, KHÔNG PHẢI MENU THẬT — vì nguồn dữ liệu cào được (Google
+ * Maps/OSM) chỉ cung cấp thông tin CẤP QUÁN (tên, loại hình, địa chỉ, rating), không có
+ * thực đơn chi tiết từng món. Trước đây (phiên bản cũ) món ăn = chính categoryName gốc
+ * (VD dish "Nhà hàng gia đình") - không phải tên món thật, chỉ là loại hình quán được gán
+ * nhãn lại. Bản này thay bằng tên món thật suy luận qua knowledge base, độ tin cậy khác
+ * nhau tuỳ rule (xem confidence "specific" | "generic_fallback" | "unknown" trong knowledge
+ * base) - CHƯA lộ field confidence này ra Dish entity (xem TODO bên dưới).
+ *
+ * TODO: khi dự án có dữ liệu menu thật cho từng quán cụ thể, nên ưu tiên món thật đó thay
+ * vì suy luận ở đây. Cũng nên cân nhắc thêm field `confidence`/`source` vào Dish entity để
+ * tầng UI phân biệt được "món suy luận cụ thể" vs "suy luận chung chung" vs "không suy luận
+ * được" (hiện 3 loại confidence này bị bỏ qua sau khi rời khỏi adapter này).
  */
 export class CsvDishRepository implements IDishRepository {
   private readonly dishes: Dish[];
@@ -59,36 +60,31 @@ export class CsvDishRepository implements IDishRepository {
     const nowIso = new Date().toISOString();
 
     this.dishes = rows
-      .map((row): Dish | null => {
+      .flatMap((row): Dish[] => {
         if (!row.placeId) {
-          return null;
+          return [];
         }
 
-        const moodKeywords = MOOD_SCORE_COLUMNS.filter(({ column }) => {
-          const value = Number(row[column]);
-          return !Number.isNaN(value) && value > 0;
-        })
-          .sort((a, b) => Number(row[b.column]) - Number(row[a.column]))
-          .slice(0, 2)
-          .map(({ keyword }) => keyword);
+        // Một quán có thể sinh ra NHIỀU món (VD "Nhà hàng phở" -> "Phở bò" + "Phở gà"),
+        // khác với bản cũ (1 quán = đúng 1 "dish" giả = categoryName).
+        const { dishes } = dishesForCategory(row.categoryName);
 
-        return {
-          id: `dish-${row.placeId}`,
+        return dishes.map((dish, index) => ({
+          id: `dish-${row.placeId}-${index}`,
           restaurant_id: row.placeId,
-          name: row.categoryName || row.title,
+          name: dish.name,
           category: row.categoryName || null,
-          spice_level: null,
-          temperature: null,
-          portion_size: null,
-          mood_keywords: moodKeywords.length > 0 ? moodKeywords : null,
+          spice_level: dish.spice_level ?? null,
+          temperature: dish.temperature ?? null,
+          portion_size: dish.portion_size ?? null,
+          mood_keywords: dish.mood_keywords.length > 0 ? dish.mood_keywords : null,
           price: null,
           is_active: true,
           updated_by: "batch_pipeline",
           created_at: nowIso,
           updated_at: nowIso,
-        };
-      })
-      .filter((d): d is Dish => d !== null);
+        }));
+      });
   }
 
   async save(dish: Dish): Promise<Dish> {

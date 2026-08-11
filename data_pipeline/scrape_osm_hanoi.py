@@ -70,10 +70,15 @@ DEFAULT_AREA_NAME = "Hà Nội"
 
 def _build_overpass_query(area_name: str, amenity_values: List[str], timeout_s: int = 180) -> str:
     amenity_regex = "|".join(amenity_values)
+    # Hà Nội thật trải dài 20°53'-21°23' N, 105°44'-106°02' E (nguồn: Cổng thông tin
+    # điện tử Hà Nội). Bbox trước đó (21.0,105.7,21.15,105.9) chỉ phủ khu vực trung
+    # tâm, BỎ SÓT toàn bộ dải phía bắc (Sóc Sơn, Đông Anh, khu vực sân bay Nội Bài) -
+    # đây là nguyên nhân chính khiến nhiều quán ở các quận/huyện ngoại thành bị thiếu.
+    # Dùng bbox rộng hơn 1 chút so với ranh giới hành chính chính thức cho an toàn.
     return f"""
 [out:json][timeout:{timeout_s}];
 (
-  nwr["amenity"~"^({amenity_regex})$"](21.0,105.7,21.15,105.9);
+  nwr["amenity"~"^({amenity_regex})$"](20.85,105.70,21.40,106.05);
 );
 out center tags;
 """.strip()

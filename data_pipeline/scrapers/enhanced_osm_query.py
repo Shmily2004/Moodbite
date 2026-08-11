@@ -65,8 +65,10 @@ class EnhancedOSMQuery:
             "cake",
         ]
 
-        # Hanoi bounding box: (south, west, north, east)
-        self.bbox = (20.5, 105.7, 21.1, 106.0)
+        # Hà Nội thật trải dài 20°53'-21°23' N, 105°44'-106°02' E - dùng cùng bbox đã
+        # sửa với scrape_osm_hanoi.py để đảm bảo phủ đủ toàn bộ thành phố, không chỉ
+        # khu vực trung tâm.
+        self.bbox = (20.85, 105.70, 21.40, 106.05)
 
     def query_by_cuisine(self) -> List[Dict]:
         """Query OSM by specific cuisine types."""

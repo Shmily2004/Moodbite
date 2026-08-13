@@ -36,22 +36,29 @@ def extract_features():
         'comfort_cozy': [
             'chill', 'thư giãn', 'yên tĩnh', 'thoải mái', 'ấm cúng', 'tâm tình', 'nhẹ nhàng', 'view đẹp',
             'cà phê', 'coffee', 'trà', 'gia đình', 'ấm bụng',
+            # Từ khóa cuisine (field 'cuisine' cào từ OSM, tiếng Anh) - tín hiệu thật
+            # nhưng trước đây bị bỏ qua vì bộ từ điển chỉ có tiếng Việt.
+            'japanese', 'korean', 'cake',
         ],
         'spicy_hot': [
             'cay', 'nóng', 'tê', 'đậm đà', 'xuýt xoa', 'sa tế', 'ớt',
             'lẩu', 'nướng', 'cà ri', 'curry',
+            'pho', 'cha_ca', 'thai', 'chinese',
         ],
         'fresh_healthy': [
             'tươi', 'thanh mát', 'sạch', 'healthy', 'rau', 'ngọt tự nhiên',
             'chay', 'hải sản', 'salad', 'organic', 'hữu cơ',
+            'seafood', 'vietnamese',
         ],
         'cheap_budget': [
             'rẻ', 'bình dân', 'sinh viên', 'hợp lý', 'phải chăng', 'vỉa hè',
             'quán ăn nhỏ', 'ăn nhanh',
+            'banh_mi', 'street',
         ],
         'quick_fast': [
             'nhanh', 'vội', 'tiện', 'lấy luôn', 'không phải đợi', 'ăn liền',
             'ăn nhanh', 'fast food', 'giao đồ ăn', 'mang về', 'lưu động',
+            'pizza', 'burger',
         ]
     }
 

@@ -108,6 +108,29 @@ python -c "from huggingface_hub import login; login()"
 python -m data_pipeline.upload_model_to_hf --file runs/detect/train/weights/best.pt --repo-name moodbite-yolo-floorplan
 ```
 
+### Demo ML model (dish-rule classifier)
+
+The repository contains a lightweight demo classifier that maps `(categoryName, cuisine)` → `rule_id` used
+by the ML adapter. For reproducibility we avoid committing the model artifact in the repo.
+
+To obtain the demo model you have two options:
+
+1. Train locally (recommended for development):
+
+```bash
+python scripts/train_dish_classifier.py
+```
+
+2. Download a hosted model (if available):
+
+```bash
+python scripts/download_model.py --url https://example.com/path/to/dish_rule_classifier.joblib
+```
+
+After placing the file at `models/dish_rule_classifier.joblib` the ML adapter will load
+it automatically at runtime and the service will prefer ML-assigned rules when available.
+
+
 ## 🧪 Testing
 
 Run tests using `pytest`:

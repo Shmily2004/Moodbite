@@ -18,7 +18,7 @@ from src.application.services.recommendation_service import (
     recommendation_service,
 )
 from data_pipeline.dish_knowledge import load_knowledge_base, match_rule_for_category
-from src.infrastructure.adapters.ml_dish_adapter import predict_rule_id
+from src.config.di import predict_rule_id
 
 # Cùng 1 mood (happy/sad/excited/relaxed) cần ánh xạ sang 2 nơi khác nhau:
 #   - MOOD_TO_SCORE_COLUMN (đã có sẵn): cột mood-score cấp QUÁN để xếp hạng/lọc.

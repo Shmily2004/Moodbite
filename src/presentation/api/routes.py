@@ -4,6 +4,7 @@ from PIL import Image
 import io
 from pathlib import Path
 from src.application.services.recommendation_service import recommendation_service
+from src.application.services.dish_recommendation_service import dish_recommendation_service
 from src.application.services.depth_estimation_service import depth_estimation_service
 
 router = APIRouter()
@@ -95,6 +96,35 @@ def recommend(request: RecommendRequest):
             "mood": request.mood,
             "recommendations": recommendations,
             "total_recommendations": len(recommendations)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/suggest-dish")
+def suggest_dish(request: RecommendRequest):
+    """
+    Đề xuất MÓN ĂN trước, sau đó mới hiện quán bán món đó (dish-first), thay vì đề xuất
+    quán trực tiếp như /api/recommend. Món ăn suy luận từ categoryName qua
+    data_pipeline/dish_knowledge_base.json - đây vẫn là suy luận heuristic (chưa có menu
+    thật từng quán), xem dish_confidence trong response ("specific" = khớp rule cụ thể
+    như "phở"/"lẩu"..., "generic_fallback" = suy luận rộng từ nhóm chung như "nhà hàng").
+
+    Input: mood (happy, sad, excited, relaxed)
+    Output: Danh sách món ăn đề xuất, mỗi món kèm danh sách quán bán món đó
+    """
+    try:
+        suggestions = dish_recommendation_service.suggest(
+            mood=request.mood,
+            user_lat=request.user_lat,
+            user_lng=request.user_lng,
+            top_k_restaurants_per_dish=request.top_k,
+        )
+
+        return {
+            "status": "success",
+            "mood": request.mood,
+            "suggested_dishes": suggestions,
+            "total_dishes": len(suggestions),
         }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

@@ -1,41 +1,34 @@
-# Project State - MoodBite
+# Trạng thái dự án - MoodBite (Cập nhật: 2026-08-13)
 
-## 📅 Current Status: Phase 1 (Data Pipeline & AI Foundations)
+## 📅 Current Status: Phase 1 (Data Pipeline & ML Foundations)
+
 ### ✅ Phase 0: Infrastructure & Standards (COMPLETED)
-- **Repo Structure:** Clean Architecture established.
+- **Repo Structure:** Clean Architecture established (`src/config/di.py`).
 - **Standards:** `CODING_STANDARDS.md` and `.gitignore` finalized.
 - **Config:** `ConfigService` and `thresholds.yaml` implemented for centralized management.
-- **Schema:** `schema.json` and `docs/spatial_schema.md` synchronized for Spatial JSON v1.0.
+- **Schema:** `schema.json` and `docs/spatial_schema.md` synchronized.
 
 ### 🚧 Phase 1: Data Pipeline & Recommendation Engine (ACTIVE)
+- **Data Cleaning & Feature Engineering:** 
+    - `data_pipeline/feature_engineering.py` fixed and ran successfully. 
+    - Output: `dataset_moodbite_features.csv` (4169 records). 
+    - **Coverage:** 98.08% of records have at least one mood-score > 0 (up from ~52.3%).
+- **Machine Learning & Recommendation (PRIMARY FOCUS):** 
+    - Prototype ML pipeline (`scripts/train_dish_classifier.py`) implemented (TF-IDF + LogisticRegression).
+    - Holdout test accuracy: **0.9856**.
+    - ML Adapter + DI integrated (`src/infrastructure/adapters/ml_dish_adapter.py`, `src/application/services/dish_recommendation_service.py`).
+- **Floorplan / Photo→3D work (ABANDONED/PAUSED):**
+    - Legacy scripts (`train_segformer.py`, `train_yolo.py`) remain but original CubiCasa5K approach is ABANDONED.
+    - Depth Anything V2 approach (`depth_estimation_service.py`) is PAUSED due to environment issues. Do NOT prioritize 3D frontend work now.
 
-- **Data Cleaning:** `data_pipeline/data_cleaning.py` implemented with automated filtering (active).
-- **Feature Engineering:** `data_pipeline/feature_engineering.py` implements mood lexicon scoring (active).
-- **Recommendation Engine (PRIMARY FOCUS):** 
-    - Core logic in `src/application/use-cases/SuggestDishForUserUseCase.ts` and `src/application/services/recommendation_service.py` (deployed).
-    - Recent commit `54fab2b` expanded mood-score using `cuisine` and added rating as tie-breaker.
-- **Floorplan / Photo→3D work:**
-    - Legacy scripts `src/infrastructure/ai/train_segformer.py` and `src/infrastructure/ai/train_yolo.py` remain in the repo but the original plan to train on CubiCasa5K and generate Spatial JSON/Three.js has been ABANDONED (see rationale below).
-    - Alternative Photo→3D approach (`Depth Anything V2`) was TRIED (`src/application/services/depth_estimation_service.py`) but is currently PAUSED due to environment and priority decisions.
-
-**Testing:** Base test suite remains and should be used as the canonical health check (see next steps).
-
-### 🔍 Evidence of Progress & Current Decisions
-- `ConfigService` and data pipeline tests present and maintained.
-- `dataset_moodbite_features.csv` contains ~4180 real Hanoi restaurants and is the primary data source for recommendations.
-- Photo→3D via blueprint-based training (SegFormer/YOLO on CubiCasa5K) was found to be a mismatched approach for real photos and is ABANDONED.
-- Depth Anything V2 experiments exist but are PAUSED; code kept for future re-evaluation (`/api/estimate-depth`, `/api/generate-point-cloud`).
-
-### ⚠️ Risks & Limitations (Updated)
-- **Scope drift / outdated docs:** Some docs (SRS, spatial schema, labeling guidelines) describe an earlier blueprint-based direction — they are outdated and must not be used as the source of truth for current work.
-- **Environment issues:** Depth Anything experiments failed due to environment (`Could not import module 'pipeline'`); these are paused and not blocking recommendation work.
-- **Data quality:** Recommendation logic depends on `dataset_moodbite_features.csv` completeness (watch for missing `categoryName`/`placeId`).
+### ⚠️ Risks & Limitations
+- **Model in Repo:** The demo model (`models/dish_rule_classifier.joblib`) was accidentally committed. It must be removed from Git to avoid bloating the repo.
+- **Test Suite Issues:** `pytest` has collection errors due to module naming/duplicate folders. Needs fixing for CI automation.
+- **Scope drift / outdated docs:** Some docs (SRS, spatial schema) describe the old blueprint direction. They are outdated.
+- **ML Adapter robustness:** Needs better logging, metrics, error handling (corrupt/missing model), and unit tests for fallback logic.
 
 ### ⏭️ Next Practical Steps (Prioritized)
-1. Treat recommendation pipeline as PRIMARY: continue improving mood-score, ranking, and dataset quality.
-2. Run and fix tests/typechecks: `pytest` and `npx tsc --noEmit` are the canonical verification steps.
-3. Use `data_pipeline/scrapers/enhanced_osm_query.py` to expand dataset with bbox `20.85,105.70,21.40,106.05` for Hanoi when needed.
-4. Keep Photo→3D artifacts archived for later; do NOT prioritize training or 3D frontend work now.
-
----
-_Edited 2026-08-13: Updated to reflect current project pivot and priorities._
+1. **Git Cleanup (URGENT):** Remove the `.joblib` model artifact from git tracking, add `models/` to `.gitignore`, and create `scripts/download_model.py`.
+2. **Fix Test Suite & CI:** Resolve `pytest` collection issues and setup GitHub Actions (CI) to run lint + tests automatically.
+3. **Enhance ML Adapter:** Write unit tests for missing file, corrupt file, and fallback KB.
+4. **Dataset Expansion:** Use `enhanced_osm_query.py` to expand dataset (bbox `20.85,105.70,21.40,106.05` for Hanoi) when needed.

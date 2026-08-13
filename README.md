@@ -108,12 +108,69 @@ python -c "from huggingface_hub import login; login()"
 python -m data_pipeline.upload_model_to_hf --file runs/detect/train/weights/best.pt --repo-name moodbite-yolo-floorplan
 ```
 
+### Demo ML model (dish-rule classifier)
+
+The repository contains a lightweight demo classifier that maps `(categoryName, cuisine)` → `rule_id` used
+by the ML adapter. For reproducibility we avoid committing the model artifact in the repo.
+
+To obtain the demo model you have two options:
+
+1. Train locally (recommended for development):
+
+```bash
+python scripts/train_dish_classifier.py
+```
+
+2. Download a hosted model (if available):
+
+```bash
+python scripts/download_model.py --url https://example.com/path/to/dish_rule_classifier.joblib
+```
+
+After placing the file at `models/dish_rule_classifier.joblib` the ML adapter will load
+it automatically at runtime and the service will prefer ML-assigned rules when available.
+
+
 ## 🧪 Testing
 
 Run tests using `pytest`:
 ```bash
 pytest
 ```
+
+## 🍽️ Dish-suggestion (ML-backed) — quickstart
+
+The project includes a lightweight demo for an ML-backed adapter that predicts a
+knowledge-base `rule_id` from `categoryName`/`cuisine` and returns dishes from
+`data_pipeline/dish_knowledge_base.json`. Use the demo to reproduce the workflow:
+
+1. Ensure the data pipeline has been run and `dataset_moodbite_features.csv` exists:
+```bash
+python -m data_pipeline.merge_and_prepare_raw
+python -m data_pipeline.data_cleaning
+python -m data_pipeline.feature_engineering
+```
+
+2. Train the simple classifier (demo):
+```bash
+python scripts/train_dish_classifier.py
+```
+
+3. Quick demo of predictions:
+```bash
+python scripts/predict_dish_from_model.py
+```
+
+4. Run the service-level smoke demo (calls `DishRecommendationService`):
+```bash
+python scripts/run_suggest_demo.py
+```
+
+Notes:
+- The ML model is a lightweight TF-IDF + LogisticRegression demo saved to `models/`.
+- The runtime service prefers ML rule assignment when the model is available and
+    falls back to the rule-based KB matching.
+
 
 ## 📄 License
 

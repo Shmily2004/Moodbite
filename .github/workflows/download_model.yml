@@ -1,0 +1,36 @@
+name: Download Demo Model
+
+on:
+  workflow_dispatch:
+    inputs:
+      model_url:
+        description: 'Direct URL to the joblib model file (required)'
+        required: true
+        type: string
+
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install requirements
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install requests
+
+      - name: Download model
+        run: |
+          python scripts/download_model.py --url "${{ github.event.inputs.model_url }}" --out models/dish_rule_classifier.joblib
+
+      - name: Upload model artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dish_rule_classifier
+          path: models/dish_rule_classifier.joblib

@@ -110,9 +110,16 @@ class RecommendationService:
             axis=1,
         )
 
-        # Sắp xếp theo mood-score giảm dần, hòa điểm thì ưu tiên quán gần hơn.
+        # Sắp xếp theo: (1) mood-score giảm dần, (2) rating thật giảm dần (quán không
+        # có rating coi như 0 CHỈ để xếp hạng, KHÔNG ghi đè giá trị thật - dùng cột
+        # tạm _rating_for_sort), (3) khoảng cách gần hơn. Thêm bước (2) vì ~48% dataset
+        # có mood-score bằng nhau (thường = 0, do categoryName quá chung chung như
+        # "Nhà hàng") - nếu không có rating làm tiêu chí phụ, thứ tự sẽ gần như ngẫu
+        # nhiên trong nhóm đó, để lọt quán rating thấp lên trước quán rating cao.
+        df["_rating_for_sort"] = df["totalScore"].fillna(0)
         top_restaurants = df.sort_values(
-            by=[score_column, "distance_km"], ascending=[False, True]
+            by=[score_column, "_rating_for_sort", "distance_km"],
+            ascending=[False, False, True],
         ).head(top_k)
 
         recommendations = []

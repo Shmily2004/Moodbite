@@ -160,3 +160,5 @@ data_pipeline/data_cleaned/*
 *.bin
 outputs/
 runs/
+test_images/
+models/

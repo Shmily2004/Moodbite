@@ -153,29 +153,41 @@ export class SuggestDishForUserUseCase {
     dishes: Array<{ id: string; restaurant_id: string }>
   ): Promise<SuggestDishForUserResponseDto["suggestedRestaurants"]> {
     const dishIdsByRestaurant = new Map<string, string[]>();
+    // dishes đã được sắp xếp theo mức độ khớp giảm dần (từ mergeDishResults) - dùng
+    // VỊ TRÍ trong mảng làm đại diện cho thứ hạng khớp (nhỏ hơn = khớp tốt hơn),
+    // không cần truyền riêng điểm số ra khỏi mergeDishResults.
+    const bestRankByRestaurant = new Map<string, number>();
 
-    for (const dish of dishes) {
+    dishes.forEach((dish, index) => {
       const existing = dishIdsByRestaurant.get(dish.restaurant_id);
       if (existing) {
         existing.push(dish.id);
       } else {
         dishIdsByRestaurant.set(dish.restaurant_id, [dish.id]);
       }
-    }
+
+      const currentBest = bestRankByRestaurant.get(dish.restaurant_id);
+      if (currentBest === undefined || index < currentBest) {
+        bestRankByRestaurant.set(dish.restaurant_id, index);
+      }
+    });
 
     const restaurantIds = Array.from(dishIdsByRestaurant.keys());
     const restaurants = await Promise.all(
       restaurantIds.map((id) => this.restaurantRepository.findById(id))
     );
 
-    const result: SuggestDishForUserResponseDto["suggestedRestaurants"] = [];
+    type RankedRestaurant = SuggestDishForUserResponseDto["suggestedRestaurants"][number] & {
+      rank: number;
+    };
+    const ranked: RankedRestaurant[] = [];
 
     restaurants.forEach((restaurant, index) => {
       if (!restaurant || !restaurant.is_active || restaurant.deleted_at) {
         return;
       }
 
-      result.push({
+      ranked.push({
         id: restaurant.id,
         name: restaurant.name,
         address: restaurant.address,
@@ -184,10 +196,23 @@ export class SuggestDishForUserUseCase {
         rating: restaurant.rating,
         priceRange: restaurant.price_range,
         dishIds: dishIdsByRestaurant.get(restaurantIds[index]) ?? [],
+        rank: bestRankByRestaurant.get(restaurant.id) ?? Number.MAX_SAFE_INTEGER,
       });
     });
 
-    return result;
+    // Sắp xếp 2 cấp: (1) thứ hạng khớp mood/budget của món TỐT NHẤT quán đó có (rank
+    // nhỏ hơn = khớp tốt hơn, giữ đúng thứ tự ưu tiên chính), (2) khi bằng rank, ưu
+    // tiên rating cao hơn (quán không có rating xếp cuối trong nhóm hòa, KHÔNG bị
+    // coi là 0 sao thật). Cần bước (2) vì ~48% dataset có categoryName chung chung
+    // ("Nhà hàng") không tạo được tín hiệu mood rõ ràng -> rất nhiều quán hòa rank,
+    // rating là tiêu chí phân biệt duy nhất còn lại trong nhóm đó.
+    ranked.sort((a, b) => {
+      const rankDiff = a.rank - b.rank;
+      if (rankDiff !== 0) return rankDiff;
+      return (b.rating ?? -1) - (a.rating ?? -1);
+    });
+
+    return ranked.map(({ rank, ...rest }) => rest);
   }
 
   /**

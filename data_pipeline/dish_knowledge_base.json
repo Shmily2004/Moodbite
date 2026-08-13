@@ -1,0 +1,220 @@
+{
+  "_readme": "Bảng tri thức món ăn dùng chung cho cả Python (recommendation_service.py) và TypeScript (CsvDishRepository.ts). MỤC ĐÍCH: thay thế cách làm cũ (lấy categoryName làm tên món giả) bằng tên món ăn THẬT, suy luận từ categoryName/cuisine. VẪN LÀ SUY LUẬN HEURISTIC, không phải menu thật của từng quán — vì nguồn cào (Google Maps/OSM) không có menu chi tiết. Khi có dữ liệu menu thật cho 1 quán cụ thể, nên ưu tiên món thật đó thay vì entry suy luận ở đây. Sửa/mở rộng file này ở MỘT chỗ duy nhất để cả 2 tầng cùng cập nhật.",
+  "mood_tags_reference": ["comfort", "cozy", "spicy", "fresh", "sweet", "cheap", "quick"],
+  "rules": [
+    {
+      "id": "pho",
+      "match_category": ["phở"],
+      "match_cuisine": ["vietnamese"],
+      "confidence": "specific",
+      "dishes": [
+        {"name": "Phở bò", "cuisine": "Việt Nam", "spice_level": 1, "temperature": "hot", "portion_size": "regular", "mood_keywords": ["comfort", "cozy"]},
+        {"name": "Phở gà", "cuisine": "Việt Nam", "spice_level": 0, "temperature": "hot", "portion_size": "regular", "mood_keywords": ["comfort", "cozy", "fresh"]}
+      ]
+    },
+    {
+      "id": "lau",
+      "match_category": ["lẩu"],
+      "match_cuisine": [],
+      "confidence": "specific",
+      "dishes": [
+        {"name": "Lẩu Thái", "cuisine": "Thái/Việt", "spice_level": 3, "temperature": "hot", "portion_size": "heavy", "mood_keywords": ["spicy", "cozy"]},
+        {"name": "Lẩu gà lá é", "cuisine": "Việt Nam", "spice_level": 2, "temperature": "hot", "portion_size": "heavy", "mood_keywords": ["comfort", "cozy"]}
+      ]
+    },
+    {
+      "id": "hai_san",
+      "match_category": ["hải sản"],
+      "match_cuisine": ["seafood"],
+      "confidence": "specific",
+      "dishes": [
+        {"name": "Hải sản nướng", "cuisine": "Việt Nam", "spice_level": 1, "temperature": "hot", "portion_size": "heavy", "mood_keywords": ["fresh", "spicy"]},
+        {"name": "Lẩu hải sản", "cuisine": "Việt Nam", "spice_level": 1, "temperature": "hot", "portion_size": "heavy", "mood_keywords": ["fresh", "cozy"]}
+      ]
+    },
+    {
+      "id": "nuong",
+      "match_category": ["món nướng", "nướng"],
+      "match_cuisine": ["barbecue", "bbq"],
+      "confidence": "specific",
+      "dishes": [
+        {"name": "Nem nướng", "cuisine": "Việt Nam", "spice_level": 1, "temperature": "hot", "portion_size": "regular", "mood_keywords": ["spicy", "cheap"]},
+        {"name": "Thịt nướng vỉ", "cuisine": "Việt Nam", "spice_level": 1, "temperature": "hot", "portion_size": "heavy", "mood_keywords": ["spicy", "cozy"]}
+      ]
+    },
+    {
+      "id": "pizza",
+      "match_category": ["pizza"],
+      "match_cuisine": ["pizza", "italian"],
+      "confidence": "specific",
+      "dishes": [
+        {"name": "Pizza hải sản", "cuisine": "Ý", "spice_level": 0, "temperature": "hot", "portion_size": "heavy", "mood_keywords": ["comfort", "cozy"]},
+        {"name": "Pizza phô mai", "cuisine": "Ý", "spice_level": 0, "temperature": "hot", "portion_size": "heavy", "mood_keywords": ["comfort", "cheap"]}
+      ]
+    },
+    {
+      "id": "y",
+      "match_category": ["nhà hàng ý"],
+      "match_cuisine": ["italian"],
+      "confidence": "specific",
+      "dishes": [
+        {"name": "Mì Ý sốt bò bằm", "cuisine": "Ý", "spice_level": 0, "temperature": "hot", "portion_size": "regular", "mood_keywords": ["comfort", "cozy"]},
+        {"name": "Pizza", "cuisine": "Ý", "spice_level": 0, "temperature": "hot", "portion_size": "heavy", "mood_keywords": ["comfort"]}
+      ]
+    },
+    {
+      "id": "nhat",
+      "match_category": ["nhật bản"],
+      "match_cuisine": ["japanese", "sushi", "ramen"],
+      "confidence": "specific",
+      "dishes": [
+        {"name": "Sushi", "cuisine": "Nhật Bản", "spice_level": 0, "temperature": "cold", "portion_size": "light", "mood_keywords": ["fresh"]},
+        {"name": "Ramen", "cuisine": "Nhật Bản", "spice_level": 1, "temperature": "hot", "portion_size": "regular", "mood_keywords": ["comfort", "cozy"]}
+      ]
+    },
+    {
+      "id": "trung_quoc",
+      "match_category": ["trung quốc", "quảng đông"],
+      "match_cuisine": ["chinese", "cantonese", "dim_sum"],
+      "confidence": "specific",
+      "dishes": [
+        {"name": "Dimsum", "cuisine": "Trung Quốc", "spice_level": 0, "temperature": "hot", "portion_size": "light", "mood_keywords": ["fresh", "cozy"]},
+        {"name": "Mì xào giòn", "cuisine": "Trung Quốc", "spice_level": 1, "temperature": "hot", "portion_size": "regular", "mood_keywords": ["comfort", "quick"]}
+      ]
+    },
+    {
+      "id": "thai",
+      "match_category": ["thái lan"],
+      "match_cuisine": ["thai"],
+      "confidence": "specific",
+      "dishes": [
+        {"name": "Tom yum", "cuisine": "Thái Lan", "spice_level": 3, "temperature": "hot", "portion_size": "regular", "mood_keywords": ["spicy", "fresh"]},
+        {"name": "Pad Thái", "cuisine": "Thái Lan", "spice_level": 1, "temperature": "hot", "portion_size": "regular", "mood_keywords": ["quick", "spicy"]}
+      ]
+    },
+    {
+      "id": "chay",
+      "match_category": ["ăn chay", "chay"],
+      "match_cuisine": ["vegetarian", "vegan"],
+      "confidence": "specific",
+      "dishes": [
+        {"name": "Cơm chay", "cuisine": "Việt Nam", "spice_level": 0, "temperature": "hot", "portion_size": "regular", "mood_keywords": ["fresh", "cheap"]}
+      ]
+    },
+    {
+      "id": "thit_ga",
+      "match_category": ["thịt gà"],
+      "match_cuisine": ["chicken"],
+      "confidence": "specific",
+      "dishes": [
+        {"name": "Cơm gà", "cuisine": "Việt Nam", "spice_level": 0, "temperature": "hot", "portion_size": "regular", "mood_keywords": ["comfort", "quick"]},
+        {"name": "Gà rán", "cuisine": "Fast food", "spice_level": 1, "temperature": "hot", "portion_size": "regular", "mood_keywords": ["quick", "cheap"]}
+      ]
+    },
+    {
+      "id": "bit_tet",
+      "match_category": ["bít tết"],
+      "match_cuisine": ["steak_house"],
+      "confidence": "specific",
+      "dishes": [
+        {"name": "Bít tết", "cuisine": "Âu", "spice_level": 0, "temperature": "hot", "portion_size": "heavy", "mood_keywords": ["comfort"]}
+      ]
+    },
+    {
+      "id": "com",
+      "match_category": ["nhà hàng cơm", "cơm bình dân"],
+      "match_cuisine": [],
+      "confidence": "specific",
+      "dishes": [
+        {"name": "Cơm sườn", "cuisine": "Việt Nam", "spice_level": 0, "temperature": "hot", "portion_size": "regular", "mood_keywords": ["comfort", "cheap", "quick"]},
+        {"name": "Cơm rang", "cuisine": "Việt Nam", "spice_level": 0, "temperature": "hot", "portion_size": "regular", "mood_keywords": ["cheap", "quick"]}
+      ]
+    },
+    {
+      "id": "mi",
+      "match_category": ["quán mì"],
+      "match_cuisine": [],
+      "confidence": "specific",
+      "dishes": [
+        {"name": "Mì vằn thắn", "cuisine": "Việt Nam", "spice_level": 0, "temperature": "hot", "portion_size": "regular", "mood_keywords": ["comfort", "quick"]}
+      ]
+    },
+    {
+      "id": "trang_mieng",
+      "match_category": ["tráng miệng"],
+      "match_cuisine": ["dessert"],
+      "confidence": "specific",
+      "dishes": [
+        {"name": "Chè", "cuisine": "Việt Nam", "spice_level": 0, "temperature": "cold", "portion_size": "light", "mood_keywords": ["sweet", "fresh"]},
+        {"name": "Bánh ngọt", "cuisine": "Âu", "spice_level": 0, "temperature": "neutral", "portion_size": "light", "mood_keywords": ["sweet", "cozy"]}
+      ]
+    },
+    {
+      "id": "bua_sang",
+      "match_category": ["bữa sáng", "điểm tâm"],
+      "match_cuisine": ["breakfast"],
+      "confidence": "specific",
+      "dishes": [
+        {"name": "Xôi", "cuisine": "Việt Nam", "spice_level": 0, "temperature": "hot", "portion_size": "regular", "mood_keywords": ["comfort", "cheap", "quick"]},
+        {"name": "Bánh mì", "cuisine": "Việt Nam", "spice_level": 0, "temperature": "neutral", "portion_size": "light", "mood_keywords": ["quick", "cheap"]}
+      ]
+    },
+    {
+      "id": "an_nhanh",
+      "match_category": ["ăn nhanh", "mang về", "fast_food"],
+      "match_cuisine": ["fast_food", "burger"],
+      "confidence": "specific",
+      "dishes": [
+        {"name": "Gà rán", "cuisine": "Fast food", "spice_level": 1, "temperature": "hot", "portion_size": "regular", "mood_keywords": ["quick", "cheap"]},
+        {"name": "Burger", "cuisine": "Fast food", "spice_level": 0, "temperature": "hot", "portion_size": "regular", "mood_keywords": ["quick", "cheap"]},
+        {"name": "Cơm hộp", "cuisine": "Việt Nam", "spice_level": 0, "temperature": "hot", "portion_size": "regular", "mood_keywords": ["quick", "cheap"]}
+      ]
+    },
+    {
+      "id": "bia_bar",
+      "match_category": ["quán bar", "quán bia"],
+      "match_cuisine": [],
+      "confidence": "specific",
+      "dishes": [
+        {"name": "Đồ nhắm", "cuisine": "Việt Nam", "spice_level": 1, "temperature": "hot", "portion_size": "regular", "mood_keywords": ["cozy", "spicy"]},
+        {"name": "Bia hơi", "cuisine": "Việt Nam", "spice_level": 0, "temperature": "cold", "portion_size": "light", "mood_keywords": ["cheap", "cozy"]}
+      ]
+    },
+    {
+      "id": "an_nho_nhe",
+      "match_category": ["quán ăn nhỏ", "ăn nhẹ"],
+      "match_cuisine": [],
+      "confidence": "specific",
+      "dishes": [
+        {"name": "Bún", "cuisine": "Việt Nam", "spice_level": 0, "temperature": "hot", "portion_size": "regular", "mood_keywords": ["comfort", "cheap"]},
+        {"name": "Miến", "cuisine": "Việt Nam", "spice_level": 0, "temperature": "hot", "portion_size": "light", "mood_keywords": ["comfort", "cheap"]}
+      ]
+    },
+    {
+      "id": "ca_phe",
+      "match_category": ["cà phê", "coffee"],
+      "match_cuisine": ["cafe", "coffee_shop"],
+      "confidence": "generic_fallback",
+      "dishes": [
+        {"name": "Cà phê sữa đá", "cuisine": "Việt Nam", "spice_level": 0, "temperature": "cold", "portion_size": "light", "mood_keywords": ["cozy", "cheap"]},
+        {"name": "Trà đào cam sả", "cuisine": "Việt Nam", "spice_level": 0, "temperature": "cold", "portion_size": "light", "mood_keywords": ["fresh", "sweet"]},
+        {"name": "Bánh ngọt", "cuisine": "Âu", "spice_level": 0, "temperature": "neutral", "portion_size": "light", "mood_keywords": ["sweet", "cozy"]}
+      ]
+    },
+    {
+      "id": "nha_hang_generic",
+      "match_category": ["nhà hàng"],
+      "match_cuisine": [],
+      "confidence": "generic_fallback",
+      "dishes": [
+        {"name": "Cơm", "cuisine": "Việt Nam", "spice_level": 0, "temperature": "hot", "portion_size": "regular", "mood_keywords": ["comfort", "cheap"]},
+        {"name": "Phở", "cuisine": "Việt Nam", "spice_level": 1, "temperature": "hot", "portion_size": "regular", "mood_keywords": ["comfort", "cozy"]},
+        {"name": "Bún chả", "cuisine": "Việt Nam", "spice_level": 1, "temperature": "hot", "portion_size": "regular", "mood_keywords": ["comfort", "quick"]}
+      ]
+    }
+  ],
+  "unmatched_fallback": {
+    "confidence": "unknown",
+    "note": "Không khớp rule nào - dùng categoryName gốc làm tên món (giữ hành vi cũ) để không mất restaurant khỏi kết quả, nhưng đánh dấu confidence=unknown để tầng UI có thể hiển thị khác (VD: 'loại hình: X' thay vì 'món: X')."
+  }
+}

@@ -1,33 +1,55 @@
-# Project State - MoodBite
+# Trạng thái dự án - MoodBite (Cập nhật)
 
-## 📅 Current Status: Phase 1 (Data Pipeline & AI Foundations)
+**Cập nhật:** 2026-08-13
 
-### ✅ Phase 0: Infrastructure & Standards (COMPLETED)
-- **Repo Structure:** Clean Architecture established.
-- **Standards:** `CODING_STANDARDS.md` and `.gitignore` finalized.
-- **Config:** `ConfigService` and `thresholds.yaml` implemented for centralized management.
-- **Schema:** `schema.json` and `docs/spatial_schema.md` synchronized for Spatial JSON v1.0.
+## Tóm tắt hiện trạng (thực tế)
 
-### 🚧 Phase 1: Data Pipeline & AI Training (IN PROGRESS)
-- **Data Cleaning:** `data_pipeline/data_cleaning.py` implemented with automated filtering.
-- **Feature Engineering:** `data_pipeline/feature_engineering.py` implements mood lexicon scoring.
-- **Preprocessing:** `data_pipeline/floorplan_preprocessing.py` utilizes OpenCV for image enhancement.
-- **AI Training:** 
-    - `train_segformer.py`: Configurable script for wall segmentation using MIT-B3.
-    - `train_yolo.py`: Configurable script for object detection using YOLOv11.
-- **Testing:** Base test suite expanded to include configuration and preprocessing validation.
+- `data_pipeline/feature_engineering.py` đã được sửa (loại PowerShell wrapper) và chạy thành công.
+- File features sinh ra: `data_pipeline/data_cleaned/dataset_moodbite_features.csv` — Tổng bản ghi: **4169**.
+- Tỷ lệ bản ghi có ít nhất một mood-score > 0: **98.08%** (trước: ~52.3%).
+- Đã thử nghiệm pipeline huấn luyện mẫu cho gợi ý món ăn: `scripts/train_dish_classifier.py` — Test accuracy (holdout): **0.9856**.
+- Mô hình demo được lưu: `models/dish_rule_classifier.joblib` (hiện đang được commit trong repo — xem phần hành động tiếp theo).
+- Clean Architecture: `src/config/di.py` (DI), `src/infrastructure/adapters/ml_dish_adapter.py` (ML adapter) và `src/application/services/dish_recommendation_service.py` đã được cập nhật để hỗ trợ luồng ML/KB.
+- Tests: Thêm và chạy chọn lọc `tests/test_ml_dish_adapter.py` và `tests/test_dish_recommendation_service.py` (passed khi chạy từng file).
+- Git: Các thay đổi đã được commit và push lên `origin/main`.
 
-### 🔍 Evidence of Progress
-- Functional `ConfigService` passing unit tests.
-- Spatial JSON schema validation passing for sample outputs.
-- Training scripts initialized with proper logging and model configuration.
+## Việc đã hoàn thành (gần đây)
 
-### ⚠️ Risks & Limitations
-- **Dataset Size:** Currently using small sample datasets; needs scaling for robust model performance.
-- **Hardware:** Model training requires GPU (CUDA) for efficient execution.
-- **Accuracy:** Wall segmentation accuracy depends heavily on floorplan image quality.
+- Sửa và chạy lại feature engineering → tạo `dataset_moodbite_features.csv` với coverage tăng mạnh.
+- Thêm prototype ML pipeline (TF-IDF + LogisticRegression) và lưu artifact mẫu.
+- Tích hợp adapter ML + DI và cập nhật `DishRecommendationService` để dùng `predict_rule_id()`.
+- Viết các script demo và test smoke; commit & push thay đổi.
 
-### ⏭️ Next Phase (Phase 2)
-- Integration of AI outputs into the Spatial JSON generator.
-- Initial 3D visualization using Three.js.
-- Refinement of the personalized recommendation engine.
+## Vấn đề hiện tại & rủi ro
+
+- Mô hình demo (`models/dish_rule_classifier.joblib`) đang trong git — không nên để artifact huấn luyện trong repo cho môi trường production.
+- `pytest` toàn bộ chưa chạy sạch do xung đột tên module/tests (khi có nhiều bản sao repo cùng lúc) — cần fix để CI chạy tự động.
+- ML adapter cần được hoàn thiện: logging, metrics, xử lý lỗi (corrupt/missing model), và unit tests cho fallback.
+
+## Hành động ưu tiên đề xuất (next steps)
+
+1. Loại bỏ artifact mô hình khỏi git, thêm `models/` vào `.gitignore`, và cung cấp script tải/mô phỏng mô hình.
+
+   Gợi ý lệnh để thực hiện ngay (chạy trong thư mục repo):
+
+```bash
+git rm --cached models/dish_rule_classifier.joblib
+echo "models/" >> .gitignore
+git add .gitignore
+git commit -m "chore: remove model artifact and ignore models/"
+git push
+```
+
+2. Thêm script `scripts/download_model.py` hoặc hướng dẫn trong README để người dev có thể tái tạo/tải mô hình (HuggingFace/artifacts).
+3. Viết unit tests bổ sung cho ML adapter: missing file, corrupt file, fallback KB.
+4. Sửa test-collection issues để `pytest` chạy toàn bộ test suite trong CI (đặt tên test rõ ràng, loại trừ thư mục duplicate).
+5. Thiết lập CI (GitHub Actions) để chạy lint + `pytest` + kiểm tra model-presence (optional: build artifact step).
+
+## Nhiệm vụ tiếp theo tôi có thể làm ngay (bạn cho phép)
+
+- A. Thực hiện các lệnh git trên (loại bỏ model khỏi commit và update `.gitignore`) rồi push.
+- B. Tạo `scripts/download_model.py` + cập nhật `README.md` hướng dẫn tải hoặc tái huấn luyện.
+- C. Thêm unit tests cho ML adapter và chạy `pytest` toàn bộ để xác thực.
+- D. Tạo workflow CI cơ bản (GitHub Actions) để chạy tests và báo lỗi khi `pytest` fail.
+
+Vui lòng cho biết bạn muốn tôi bắt đầu với bước nào (A/B/C/D), tôi sẽ tiếp tục tự động.

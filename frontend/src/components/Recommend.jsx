@@ -47,14 +47,36 @@ export default function Recommend(){
       {recs && (
         <div>
           <h4>Restaurants</h4>
-          <pre>{JSON.stringify(recs, null, 2)}</pre>
+          <ul>
+            {(recs.recommendations || []).map((r, i)=> (
+              <li key={i}>
+                <strong>{r.title || r.name || r.placeId}</strong>
+                {r.dish_confidence && (<em> — {r.dish_confidence}</em>)}
+                <div style={{fontSize:12,color:'#444'}}>{r.address || r.location?.lat + ',' + r.location?.lng}</div>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 
       {dishes && (
         <div>
           <h4>Suggested Dishes</h4>
-          <pre>{JSON.stringify(dishes, null, 2)}</pre>
+          <ol>
+            {(dishes.suggested_dishes || []).map((d, i)=> (
+              <li key={i} style={{marginBottom:8}}>
+                <strong>{d.dish}</strong> <span style={{fontSize:12,color:'#666'}}>{d.dish_confidence || ''}</span>
+                <div style={{marginTop:6}}>
+                  <em>Top restaurants for this dish:</em>
+                  <ul>
+                    {(d.restaurants || []).slice(0,5).map((r,j)=> (
+                      <li key={j}>{r.title || r.name || r.placeId} — {r.address || ''}</li>
+                    ))}
+                  </ul>
+                </div>
+              </li>
+            ))}
+          </ol>
         </div>
       )}
     </div>

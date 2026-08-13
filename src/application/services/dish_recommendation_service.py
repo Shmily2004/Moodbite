@@ -18,6 +18,7 @@ from src.application.services.recommendation_service import (
     recommendation_service,
 )
 from data_pipeline.dish_knowledge import load_knowledge_base, match_rule_for_category
+from src.infrastructure.adapters.ml_dish_adapter import predict_rule_id
 
 # Cùng 1 mood (happy/sad/excited/relaxed) cần ánh xạ sang 2 nơi khác nhau:
 #   - MOOD_TO_SCORE_COLUMN (đã có sẵn): cột mood-score cấp QUÁN để xếp hạng/lọc.
@@ -79,8 +80,18 @@ class DishRecommendationService:
             lambda row: _haversine_km(user_lat, user_lng, row["location/lat"], row["location/lng"]),
             axis=1,
         )
-        df["_rule_id"] = df["categoryName"].apply(
-            lambda c: (match_rule_for_category(c, self._kb) or {}).get("id")
+        # Prefer ML prediction for rule id when available, otherwise fallback to KB matching
+        def _assign_rule(row):
+            predicted = predict_rule_id(row.get("categoryName"), row.get("cuisine"))
+            if predicted:
+                return predicted
+            return (match_rule_for_category(row.get("categoryName"), self._kb) or {}).get("id")
+
+        df["_rule_id"] = df.apply(_assign_rule, axis=1)
+        # mark whether the rule assignment came from ML (for downstream confidence reporting)
+        df["_predicted_by_ml"] = df.apply(
+            lambda row: predict_rule_id(row.get("categoryName"), row.get("cuisine")) is not None,
+            axis=1,
         )
 
         # 3. Với mỗi món ứng viên, lấy quán thuộc đúng rule đó, xếp hạng theo mood-score
@@ -113,12 +124,14 @@ class DishRecommendationService:
                 for _, r in top_restaurants.iterrows()
             ]
 
+            # if any matching restaurant was assigned via ML, mark dish_confidence as 'ml'
+            ml_assigned = matching["_predicted_by_ml"].any() if not matching.empty else False
             results.append({
                 "dish_name": dish["name"],
                 "cuisine": dish.get("cuisine"),
                 "spice_level": dish.get("spice_level"),
                 "temperature": dish.get("temperature"),
-                "dish_confidence": rule["confidence"],
+                "dish_confidence": "ml" if ml_assigned else rule["confidence"],
                 "restaurants": restaurant_list,
             })
 

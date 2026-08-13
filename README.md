@@ -115,6 +115,40 @@ Run tests using `pytest`:
 pytest
 ```
 
+## 🍽️ Dish-suggestion (ML-backed) — quickstart
+
+The project includes a lightweight demo for an ML-backed adapter that predicts a
+knowledge-base `rule_id` from `categoryName`/`cuisine` and returns dishes from
+`data_pipeline/dish_knowledge_base.json`. Use the demo to reproduce the workflow:
+
+1. Ensure the data pipeline has been run and `dataset_moodbite_features.csv` exists:
+```bash
+python -m data_pipeline.merge_and_prepare_raw
+python -m data_pipeline.data_cleaning
+python -m data_pipeline.feature_engineering
+```
+
+2. Train the simple classifier (demo):
+```bash
+python scripts/train_dish_classifier.py
+```
+
+3. Quick demo of predictions:
+```bash
+python scripts/predict_dish_from_model.py
+```
+
+4. Run the service-level smoke demo (calls `DishRecommendationService`):
+```bash
+python scripts/run_suggest_demo.py
+```
+
+Notes:
+- The ML model is a lightweight TF-IDF + LogisticRegression demo saved to `models/`.
+- The runtime service prefers ML rule assignment when the model is available and
+    falls back to the rule-based KB matching.
+
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.

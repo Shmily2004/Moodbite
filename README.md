@@ -108,27 +108,22 @@ python -c "from huggingface_hub import login; login()"
 python -m data_pipeline.upload_model_to_hf --file runs/detect/train/weights/best.pt --repo-name moodbite-yolo-floorplan
 ```
 
-### Demo ML model (dish-rule classifier)
+Demo ML model (dish-rule classifier)
 
-The repository contains a lightweight demo classifier that maps `(categoryName, cuisine)` → `rule_id` used
-by the ML adapter. For reproducibility we avoid committing the model artifact in the repo.
+Historically the repo included a small demo classifier that attempted to map
+`categoryName` → `rule_id`. That training pipeline was removed because the labels
+were deterministically derived from `categoryName` (label leakage), producing
+artificially high accuracy. To avoid misleading results the repository no longer
+contains a local training script for this demo.
 
-To obtain the demo model you have two options:
+If you need ML-driven rule assignment you have two practical options:
 
-1. Train locally (recommended for development):
+- Use the rule-based matcher directly via `data_pipeline.dish_knowledge.match_rule_for_category()` — this
+    is deterministic and the canonical behavior used by the service.
+- If you have a legitimately trained model (trained on external, non-leaky data), place it at
+    `models/dish_rule_classifier.joblib` or use `scripts/download_model.py --url <MODEL_URL>` to fetch a hosted model.
 
-```bash
-python scripts/train_dish_classifier.py
-```
-
-2. Download a hosted model (if available):
-
-```bash
-python scripts/download_model.py --url https://example.com/path/to/dish_rule_classifier.joblib
-```
-
-After placing the file at `models/dish_rule_classifier.joblib` the ML adapter will load
-it automatically at runtime and the service will prefer ML-assigned rules when available.
+The service will prefer a provided model artifact when present, otherwise it falls back to the rule-based KB.
 
 
 ## 🧪 Testing

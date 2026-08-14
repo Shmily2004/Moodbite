@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import UploadFloorplan from './components/UploadFloorplan'
 import Recommend from './components/Recommend'
 
 export default function App(){
@@ -10,7 +9,6 @@ export default function App(){
         <h1>MoodBite — Demo UI</h1>
         <nav style={{marginBottom:20}}>
           <button onClick={()=>setRoute('home')}>Home</button>
-          <button onClick={()=>setRoute('upload')}>Upload Floorplan</button>
           <button onClick={()=>setRoute('recommend')}>Recommend</button>
         </nav>
       </header>
@@ -22,7 +20,12 @@ export default function App(){
             <p>Backend API base: <code>http://localhost:8001/api</code></p>
           </div>
         )}
-        {route === 'upload' && <UploadFloorplan />}
+        {route === 'upload' && (
+          <div className="card">
+            <h3>Upload Floorplan (paused)</h3>
+            <p>The Photo→3D floorplan feature is paused by architecture decision and is not available in the demo UI.</p>
+          </div>
+        )}
         {route === 'recommend' && <Recommend />}
       </main>
     </div>

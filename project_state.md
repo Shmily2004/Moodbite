@@ -53,9 +53,11 @@ PCT_WITH_MOOD_GT0:98.08%
 
 ### ⚠️ Risks & Limitations
 - **Model in Repo:** The demo model (`models/dish_rule_classifier.joblib`) was accidentally committed. It must be removed from Git to avoid bloating the repo.
-- **Test Suite Issues:** `pytest` has collection errors due to module naming/duplicate folders. Needs fixing for CI automation.
+- **Test Suite:** Local `pytest` runs pass (14/14). CI should run tests in a clean environment; ensure GitHub Actions runs `pytest` to catch environment-specific collection issues.
 - **Scope drift / outdated docs:** Some docs (SRS, spatial schema) describe the old blueprint direction. They are outdated.
 - **ML Adapter robustness:** Needs better logging, metrics, error handling (corrupt/missing model), and unit tests for fallback logic.
+
+**Historical ML leakage note:** A prior demo training script attempted to learn `rule_id` from `categoryName` while `categoryName` was present in the model input. That caused trivial high accuracy (~98.56%) because labels were deterministically derived from the input via `match_rule_for_category()`; this training pipeline has been removed from the repo. Do not report the old 98.56% number as evidence of a real ML model.
 
 ### ⏭️ Next Practical Steps (Prioritized)
 1. **Git Cleanup (URGENT):** Remove the `.joblib` model artifact from git tracking, add `models/` to `.gitignore`, and create `scripts/download_model.py`.

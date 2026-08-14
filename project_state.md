@@ -7,8 +7,8 @@
 - `data_pipeline/feature_engineering.py` đã được sửa (loại PowerShell wrapper) và chạy thành công.
 - File features sinh ra: `data_pipeline/data_cleaned/dataset_moodbite_features.csv` — Tổng bản ghi: **4169**.
 - Tỷ lệ bản ghi có ít nhất một mood-score > 0: **98.08%** (trước: ~52.3%).
-- Đã thử nghiệm pipeline huấn luyện mẫu cho gợi ý món ăn: `scripts/train_dish_classifier.py` — Test accuracy (holdout): **0.9856**.
-- Mô hình demo được lưu: `models/dish_rule_classifier.joblib` (hiện đang được commit trong repo — xem phần hành động tiếp theo).
+- Đã thử nghiệm pipeline huấn luyện mẫu cho gợi ý món ăn: `scripts/train_dish_classifier.py` — NOTE: the reported "Test accuracy: **0.9856**" is NOT a valid generalization metric. The label (`rule_id`) was deterministically derived from `categoryName` by `match_rule_for_category()` while the model input includes `categoryName` (data leakage). This reproduces a lookup, not a predictive model. Do not treat 0.9856 as a real accuracy.
+- Mô hình demo (`models/dish_rule_classifier.joblib`) was committed earlier; this artifact should be removed from the repository and replaced with an explicit download/repro script or kept out-of-repo.
 - Clean Architecture: `src/config/di.py` (DI), `src/infrastructure/adapters/ml_dish_adapter.py` (ML adapter) và `src/application/services/dish_recommendation_service.py` đã được cập nhật để hỗ trợ luồng ML/KB.
 - Tests: Thêm và chạy chọn lọc `tests/test_ml_dish_adapter.py` và `tests/test_dish_recommendation_service.py` (passed khi chạy từng file).
 - Git: Các thay đổi đã được commit và push lên `origin/main`.

@@ -2,7 +2,7 @@
 
 Các quyết định sau đây đã được thống nhất — KHÔNG thay đổi mà không hỏi user trước.
 
-1. Photo→3D và Web UI: **đã tạm dừng theo yêu cầu user** — đừng chủ động đề xuất hoặc kích hoạt lại.
+1. Photo→3D và Web UI: **đang tiến triển** — frontend features (including floorplan upload) are expected to continue development; do not leave the docs claiming the UI is paused.
 2. `totalScore` KHÔNG `fillna(0)` — để null khi không có rating thật (NaN → `null` tầng ứng dụng).
 3. Kết quả đề xuất giới hạn: `DEFAULT_MAX_RESULTS = 20` (TypeScript) / `top_k=5` mặc định (Python).
 4. Nguồn data ưu tiên: Apify + OpenStreetMap (bbox chuẩn: `20.85,105.70,21.40,106.05`).

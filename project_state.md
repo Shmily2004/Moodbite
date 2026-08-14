@@ -1,55 +1,33 @@
-# Trạng thái dự án - MoodBite (Cập nhật)
+# Trạng thái dự án - MoodBite (Cập nhật: 2026-08-13)
 
-**Cập nhật:** 2026-08-13
+## 📅 Current Status: Phase 1 (Data Pipeline & ML Foundations)
 
-## Tóm tắt hiện trạng (thực tế)
+### ✅ Phase 0: Infrastructure & Standards (COMPLETED)
+- **Repo Structure:** Clean Architecture established (`src/config/di.py`).
+- **Standards:** `CODING_STANDARDS.md` and `.gitignore` finalized.
+- **Config:** `ConfigService` and `thresholds.yaml` implemented for centralized management.
+- **Schema:** `schema.json` and `docs/spatial_schema.md` synchronized.
 
-- `data_pipeline/feature_engineering.py` đã được sửa (loại PowerShell wrapper) và chạy thành công.
-- File features sinh ra: `data_pipeline/data_cleaned/dataset_moodbite_features.csv` — Tổng bản ghi: **4169**.
-- Tỷ lệ bản ghi có ít nhất một mood-score > 0: **98.08%** (trước: ~52.3%).
-- Đã thử nghiệm pipeline huấn luyện mẫu cho gợi ý món ăn: `scripts/train_dish_classifier.py` — NOTE: the reported "Test accuracy: **0.9856**" is NOT a valid generalization metric. The label (`rule_id`) was deterministically derived from `categoryName` by `match_rule_for_category()` while the model input includes `categoryName` (data leakage). This reproduces a lookup, not a predictive model. Do not treat 0.9856 as a real accuracy.
-- Mô hình demo (`models/dish_rule_classifier.joblib`) was committed earlier; this artifact should be removed from the repository and replaced with an explicit download/repro script or kept out-of-repo.
-- Clean Architecture: `src/config/di.py` (DI), `src/infrastructure/adapters/ml_dish_adapter.py` (ML adapter) và `src/application/services/dish_recommendation_service.py` đã được cập nhật để hỗ trợ luồng ML/KB.
-- Tests: Thêm và chạy chọn lọc `tests/test_ml_dish_adapter.py` và `tests/test_dish_recommendation_service.py` (passed khi chạy từng file).
-- Git: Các thay đổi đã được commit và push lên `origin/main`.
+### 🚧 Phase 1: Data Pipeline & Recommendation Engine (ACTIVE)
+- **Data Cleaning & Feature Engineering:**
+    - `data_pipeline/feature_engineering.py` đã được sửa (giữ lại cột `cuisine`) và chạy thành công.
+    - File features: `data_pipeline/data_cleaned/dataset_moodbite_features.csv` — SỐ BẢN GHI CẦN XÁC NHẬN LẠI (đã thấy 2 con số khác nhau ở các thời điểm: 4169 và 4180 — kiểm tra thật trước khi ghi chính thức).
+    - Tỷ lệ mood-score > 0: con số 98.08% CHƯA được verify lại trong phiên gần nhất — cần tự kiểm tra trước khi coi là chính thức.
+    - Dish-first: `dish_recommendation_service.py` + `dish_knowledge.py`/`dish_knowledge_base.json` (Python) và `CsvDishRepository.ts`/`DishKnowledgeBase.ts` (TS) — đã verify chạy được với dữ liệu thật.
+    - ML adapter (`ml_dish_adapter.py`) và script train (`train_dish_classifier.py`) ĐÃ BỊ GỠ BỎ — model cũ bị lỗi rò rỉ nhãn (label suy ra trực tiếp từ chính input), độ chính xác 98.56% không có giá trị thật.
+    - Tests: `pytest` — 14/14 pass khi chạy TOÀN BỘ cùng lúc (đã verify, không phải từng file riêng lẻ).
+- **Floorplan / Photo→3D work (ABANDONED/PAUSED):**
+    - Legacy scripts (`train_segformer.py`, `train_yolo.py`) còn tồn tại nhưng hướng CubiCasa5K đã bị BỎ.
+    - Depth Anything V2 (`depth_estimation_service.py`) TẠM DỪNG do lỗi môi trường. Đừng ưu tiên làm tiếp phần 3D.
 
-## Việc đã hoàn thành (gần đây)
+### ⚠️ Risks & Limitations
+- **Model in Repo:** The demo model (`models/dish_rule_classifier.joblib`) was accidentally committed. It must be removed from Git to avoid bloating the repo.
+- **Test Suite Issues:** `pytest` has collection errors due to module naming/duplicate folders. Needs fixing for CI automation.
+- **Scope drift / outdated docs:** Some docs (SRS, spatial schema) describe the old blueprint direction. They are outdated.
+- **ML Adapter robustness:** Needs better logging, metrics, error handling (corrupt/missing model), and unit tests for fallback logic.
 
-- Sửa và chạy lại feature engineering → tạo `dataset_moodbite_features.csv` với coverage tăng mạnh.
-- Thêm prototype ML pipeline (TF-IDF + LogisticRegression) và lưu artifact mẫu.
-- Tích hợp adapter ML + DI và cập nhật `DishRecommendationService` để dùng `predict_rule_id()`.
-- Viết các script demo và test smoke; commit & push thay đổi.
-
-## Vấn đề hiện tại & rủi ro
-
-- Mô hình demo (`models/dish_rule_classifier.joblib`) đang trong git — không nên để artifact huấn luyện trong repo cho môi trường production.
-- `pytest` toàn bộ chưa chạy sạch do xung đột tên module/tests (khi có nhiều bản sao repo cùng lúc) — cần fix để CI chạy tự động.
-- ML adapter cần được hoàn thiện: logging, metrics, xử lý lỗi (corrupt/missing model), và unit tests cho fallback.
-
-## Hành động ưu tiên đề xuất (next steps)
-
-1. Loại bỏ artifact mô hình khỏi git, thêm `models/` vào `.gitignore`, và cung cấp script tải/mô phỏng mô hình.
-
-   Gợi ý lệnh để thực hiện ngay (chạy trong thư mục repo):
-
-```bash
-git rm --cached models/dish_rule_classifier.joblib
-echo "models/" >> .gitignore
-git add .gitignore
-git commit -m "chore: remove model artifact and ignore models/"
-git push
-```
-
-2. Thêm script `scripts/download_model.py` hoặc hướng dẫn trong README để người dev có thể tái tạo/tải mô hình (HuggingFace/artifacts).
-3. Viết unit tests bổ sung cho ML adapter: missing file, corrupt file, fallback KB.
-4. Sửa test-collection issues để `pytest` chạy toàn bộ test suite trong CI (đặt tên test rõ ràng, loại trừ thư mục duplicate).
-5. Thiết lập CI (GitHub Actions) để chạy lint + `pytest` + kiểm tra model-presence (optional: build artifact step).
-
-## Nhiệm vụ tiếp theo tôi có thể làm ngay (bạn cho phép)
-
-- A. Thực hiện các lệnh git trên (loại bỏ model khỏi commit và update `.gitignore`) rồi push.
-- B. Tạo `scripts/download_model.py` + cập nhật `README.md` hướng dẫn tải hoặc tái huấn luyện.
-- C. Thêm unit tests cho ML adapter và chạy `pytest` toàn bộ để xác thực.
-- D. Tạo workflow CI cơ bản (GitHub Actions) để chạy tests và báo lỗi khi `pytest` fail.
-
-Vui lòng cho biết bạn muốn tôi bắt đầu với bước nào (A/B/C/D), tôi sẽ tiếp tục tự động.
+### ⏭️ Next Practical Steps (Prioritized)
+1. **Git Cleanup (URGENT):** Remove the `.joblib` model artifact from git tracking, add `models/` to `.gitignore`, and create `scripts/download_model.py`.
+2. **Fix Test Suite & CI:** Resolve `pytest` collection issues and setup GitHub Actions (CI) to run lint + tests automatically.
+3. **Enhance ML Adapter:** Write unit tests for missing file, corrupt file, and fallback KB.
+4. **Dataset Expansion:** Use `enhanced_osm_query.py` to expand dataset (bbox `20.85,105.70,21.40,106.05` for Hanoi) when needed.

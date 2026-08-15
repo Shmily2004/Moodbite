@@ -147,11 +147,16 @@ Thumbs.db
 config/secrets.yaml
 data_pipeline/data_raw/
 data_pipeline/data_cleaned/*
-# Ngoại lệ: dataset_moodbite_features.csv là file đã xử lý (546 dòng, ~112KB), KHÔNG phải
+# Ngoại lệ: dataset_moodbite_features.csv là file đã xử lý (4170 dòng, ~1MB), KHÔNG phải
 # raw data. Cần commit để bản deploy live (Railway/FastAPI) có data thật để chạy - server
 # deploy không tự chạy được data_pipeline (không có data_raw/*.json - dữ liệu cào từ Apify/OSM
 # vẫn giữ nguyên tắc không commit).
 !data_pipeline/data_cleaned/dataset_moodbite_features.csv
+# Cùng lý do: restaurant_details.json (~1MB) chứa giá/review/ảnh cho GET /api/restaurant/
+# {place_id}. Không commit thì endpoint này chết trên Railway dù local vẫn chạy tốt.
+# Đã cắt còn 10 review + 12 ảnh mỗi quán để file không vượt giới hạn 100MB/file của GitHub
+# khi cào đủ 4170 quán (xem MAX_REVIEWS_PER_PLACE trong feature_engineering.py).
+!data_pipeline/data_cleaned/restaurant_details.json
 *.pth
 *.pt
 *.onnx

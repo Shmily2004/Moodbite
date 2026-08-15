@@ -3,8 +3,12 @@ from pydantic import BaseModel
 from PIL import Image
 import io
 from pathlib import Path
-from src.application.services.recommendation_service import recommendation_service
+from src.application.services.recommendation_service import (
+    recommendation_service,
+    DEFAULT_MAX_DISTANCE_KM,
+)
 from src.application.services.dish_recommendation_service import dish_recommendation_service
+from src.application.services.restaurant_details_service import restaurant_details_service
 from src.application.services.depth_estimation_service import depth_estimation_service
 
 router = APIRouter()
@@ -15,6 +19,8 @@ class RecommendRequest(BaseModel):
     user_lat: float = 21.0285
     user_lng: float = 105.8542
     top_k: int = 5
+    # Bán kính tìm kiếm (km). Đặt null để tắt lọc theo khoảng cách.
+    max_distance_km: float | None = DEFAULT_MAX_DISTANCE_KM
 
 # Global model cache
 model = None
@@ -88,7 +94,8 @@ def recommend(request: RecommendRequest):
             mood=request.mood,
             user_lat=request.user_lat,
             user_lng=request.user_lng,
-            top_k=request.top_k
+            top_k=request.top_k,
+            max_distance_km=request.max_distance_km,
         )
         
         return {
@@ -99,6 +106,48 @@ def recommend(request: RecommendRequest):
         }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/restaurant/{place_id}")
+def restaurant_details(place_id: str):
+    """
+    Chi tiết 1 quán: giá, review thật (kèm sao + ngày), ảnh, không gian, giờ mở cửa.
+
+    Input: place_id (lấy từ field placeId trong response của /api/recommend)
+    Output: chi tiết quán, hoặc has_details=false nếu quán chưa có dữ liệu.
+    """
+    try:
+        details = restaurant_details_service.get(place_id)
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+
+    if details is None:
+        # KHÔNG phải 404: quán vẫn tồn tại và vẫn được đề xuất, chỉ là chưa cào được
+        # phần chi tiết (3623/4170 quán từ OpenStreetMap không có giá/review/ảnh).
+        # Trả 200 kèm has_details=false để UI hiện "chưa có dữ liệu" thay vì báo lỗi.
+        return {
+            "status": "success",
+            "placeId": place_id,
+            "has_details": False,
+            "reason": "Quán này lấy từ OpenStreetMap, chưa có dữ liệu giá/review/ảnh.",
+        }
+
+    return {
+        "status": "success",
+        "placeId": place_id,
+        "has_details": True,
+        "name": details.get("title"),
+        "price": details.get("price"),
+        "atmosphere": details.get("additionalInfo/Bầu không khí"),
+        "opening_hours": details.get("openingHours"),
+        "images": details.get("imageUrls", []),
+        "reviews": details.get("reviews", []),
+        # Google Maps hầu như KHÔNG có menu có cấu trúc (chỉ ~2% quán ở Hà Nội), nên
+        # thay vì bịa dữ liệu, trả link để người dùng tự xem menu tại nguồn.
+        "menu_url": details.get("menu"),
+        "website": details.get("website"),
+        "google_maps_url": details.get("url"),
+    }
+
 
 @router.post("/suggest-dish")
 def suggest_dish(request: RecommendRequest):

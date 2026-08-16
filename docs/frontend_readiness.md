@@ -1,6 +1,17 @@
 # Đánh giá mức sẵn sàng Frontend + Phương án kiến trúc
 
-> **Trạng thái:** CHỜ BẠN CHỌN KIẾN TRÚC. Chưa triển khai frontend mới.
+> ## ✅ ĐÃ CHỐT (2026-08-16)
+>
+> | Quyết định | Chọn |
+> |---|---|
+> | Mẫu kiến trúc | **FSD + MVVM** (P4) |
+> | Ngôn ngữ | **TypeScript** |
+> | Tách Client/Admin | **Monorepo + package dùng chung** (Option C) |
+>
+> Backend **giữ nguyên Clean Architecture** — không đổi gì.
+> Chi tiết ràng buộc đã ghi vào [`CLAUDE.md`](../CLAUDE.md) mục 1b.
+>
+> **Client:** bắt đầu được ngay. **Admin:** phải làm SQLite + auth + endpoint admin trước.
 
 ---
 

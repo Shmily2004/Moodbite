@@ -183,3 +183,115 @@ def test_osm_tiles_cover_the_whole_bbox():
 def test_osm_source_declares_itself():
     source = OsmOverpassSource()
     assert source.name == "openstreetmap"
+
+
+# --- Khử trùng lặp khi gộp nguồn ---------------------------------------------
+
+
+def test_dedupe_keeps_richest_record_not_first():
+    """Bug thật: cách cũ giữ bản ghi ĐẦU TIÊN theo thứ tự tên file, nên một đợt cào mới
+    (giàu rating/review) bị bản cũ rỗng hơn đè mất chỗ."""
+    from data_pipeline.merge_and_prepare_raw import _dedupe_keep_richest
+
+    poor = {"placeId": "ChIJ1", "title": "Quán A"}
+    rich = {"placeId": "ChIJ1", "title": "Quán A", "totalScore": 4.5,
+            "reviewsCount": 120, "price": "100-200 N ₫", "phone": "0900"}
+
+    kept = _dedupe_keep_richest([poor, rich])
+    assert len(kept) == 1
+    assert kept[0]["totalScore"] == 4.5, "phải giữ bản giàu thông tin hơn"
+
+    # Đảo thứ tự vẫn ra cùng kết quả - không phụ thuộc tên file nữa.
+    kept_reversed = _dedupe_keep_richest([rich, poor])
+    assert kept_reversed[0]["totalScore"] == 4.5
+
+
+def test_dedupe_preserves_first_seen_order():
+    from data_pipeline.merge_and_prepare_raw import _dedupe_keep_richest
+
+    records = [
+        {"placeId": "a", "title": "A"},
+        {"placeId": "b", "title": "B"},
+        {"placeId": "a", "title": "A", "phone": "1"},
+    ]
+    assert [r["placeId"] for r in _dedupe_keep_richest(records)] == ["a", "b"]
+
+
+def test_dedupe_falls_back_to_title_address_without_place_id():
+    from data_pipeline.merge_and_prepare_raw import _dedupe_keep_richest
+
+    records = [
+        {"title": "Quán X", "address": "1 Lò Đúc"},
+        {"title": "Quán X", "address": "1 Lò Đúc", "totalScore": 4.0},
+    ]
+    kept = _dedupe_keep_richest(records)
+    assert len(kept) == 1 and kept[0]["totalScore"] == 4.0
+
+
+# --- Khử trùng lặp GIỮA các nguồn --------------------------------------------
+
+
+def _place(pid, title, lat, lng, **extra):
+    return {"placeId": pid, "title": title,
+            "location": {"lat": str(lat), "lng": str(lng)}, **extra}
+
+
+def test_cross_source_merges_same_restaurant_from_osm_and_google():
+    """OSM và Google đánh id khác nhau nên bước khử trùng theo placeId không bắt được.
+    Đo thật: 22/435 quán Apify đã có sẵn trong dataset từ OSM."""
+    from data_pipeline.merge_and_prepare_raw import dedupe_across_sources
+
+    osm = _place("osm-node-1", "Chops", 21.0500, 105.8200)
+    google = _place("ChIJx", "Chops Tay Ho", 21.0500, 105.8201, totalScore=4.3)
+
+    kept = dedupe_across_sources([osm, google])
+    assert len(kept) == 1
+    assert kept[0]["totalScore"] == 4.3, "phải giữ bản có rating"
+
+
+def test_cross_source_fills_gaps_from_the_discarded_record():
+    """Gộp KHÔNG được làm mất dữ liệu: trường nào bản thắng còn trống thì lấy từ bản kia."""
+    from data_pipeline.merge_and_prepare_raw import dedupe_across_sources
+
+    osm = _place("osm-node-1", "Ding tea", 21.05, 105.82, phone="0900", cuisine="tea")
+    google = _place("ChIJy", "Ding tea Xuân La", 21.05, 105.8201,
+                    totalScore=4.1, reviewsCount=88, price="20-50 N ₫")
+
+    kept = dedupe_across_sources([osm, google])
+    assert len(kept) == 1
+    assert kept[0]["totalScore"] == 4.1      # từ Google
+    assert kept[0]["phone"] == "0900"        # giữ lại từ OSM
+
+
+def test_cross_source_keeps_different_restaurants_that_are_close():
+    """Hai quán KHÁC NHAU cạnh nhau trên cùng con phố không được gộp."""
+    from data_pipeline.merge_and_prepare_raw import dedupe_across_sources
+
+    a = _place("osm-1", "Phở Thìn", 21.05, 105.82)
+    b = _place("osm-2", "Bún Chả Hương Liên", 21.05, 105.8201)
+    assert len(dedupe_across_sources([a, b])) == 2
+
+
+def test_cross_source_keeps_same_name_when_far_apart():
+    """Chuỗi cửa hàng: cùng tên nhưng ở hai nơi -> là hai quán thật."""
+    from data_pipeline.merge_and_prepare_raw import dedupe_across_sources
+
+    a = _place("osm-1", "Highlands Coffee", 21.05, 105.82)
+    b = _place("ChIJz", "Highlands Coffee", 21.02, 105.85)
+    assert len(dedupe_across_sources([a, b])) == 2
+
+
+def test_cross_source_short_names_are_not_substring_matched():
+    """"Bún" nằm trong "Bún Chả Hương Liên" nhưng là hai quán khác nhau."""
+    from data_pipeline.merge_and_prepare_raw import dedupe_across_sources
+
+    a = _place("osm-1", "Bún", 21.05, 105.82)
+    b = _place("ChIJq", "Bún Chả Hương Liên", 21.05, 105.8201)
+    assert len(dedupe_across_sources([a, b])) == 2
+
+
+def test_cross_source_keeps_records_without_coordinates():
+    from data_pipeline.merge_and_prepare_raw import dedupe_across_sources
+
+    records = [{"placeId": "x", "title": "Không toạ độ"}]
+    assert len(dedupe_across_sources(records)) == 1

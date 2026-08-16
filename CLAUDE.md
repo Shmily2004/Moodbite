@@ -73,6 +73,82 @@ trên PowerShell và gặp ParserError ngay.
 
 ---
 
+## 1b. KIẾN TRÚC ĐÃ CHỐT — hai tầng, hai kiến trúc, một nguyên tắc
+
+Quyết định ngày 2026-08-16. **Không đổi nếu chưa bàn lại.**
+
+```
+FRONTEND (React)          Kiến trúc: FSD + MVVM
+  app → pages → widgets → features → entities → shared
+  Việc: TRÌNH BÀY + TƯƠNG TÁC
+            │  HTTP /api/v1 (JSON)
+            ▼
+BACKEND (FastAPI)         Kiến trúc: Clean Architecture
+  presentation → application → domain ← infrastructure
+  Việc: NGHIỆP VỤ + DỮ LIỆU
+```
+
+### Vì sao hai bên KHÁC nhau
+
+| | Backend | Frontend |
+|---|---|---|
+| Có quy tắc nghiệp vụ riêng | ✅ Có | ❌ Không |
+| Bài toán chính | Nghiệp vụ phức tạp, nhiều nguồn dữ liệu | Tổ chức UI, luồng tương tác |
+| Kiến trúc | Clean Architecture | Feature-Sliced Design + MVVM |
+| Kiểm tra tự động | `python scripts/check_architecture.py` | `npx steiger ./src` |
+
+**Điểm chung — nguyên tắc gốc duy nhất: DEPENDENCY RULE.**
+Phụ thuộc chỉ đi MỘT CHIỀU, và phải cưỡng chế được bằng máy trong CI.
+
+### 🚫 BUSINESS LOGIC CHỈ ĐƯỢC NẰM Ở BACKEND
+
+Đây là chốt chặn quan trọng nhất của mục này.
+
+Frontend **KHÔNG** được chứa: công thức xếp hạng · bảng điểm mood · quy tắc suy luận món ·
+ngưỡng lọc · quy tắc nghiệp vụ bất kỳ.
+
+Frontend **CHỈ** được chứa: quy tắc HIỂN THỊ (định dạng khoảng cách, giá, nhãn tin cậy),
+state của giao diện, điều phối gọi API.
+
+> Lý do: dự án này từng suýt chết vì có HAI nơi chứa nghiệp vụ (hai backend song song).
+> Thêm "business layer" ở frontend là tái phạm đúng sai lầm đó — sửa công thức xếp hạng
+> sẽ phải sửa 2 chỗ, và chắc chắn sẽ có lúc quên một chỗ.
+
+### Ánh xạ thuật ngữ (dùng khi viết báo cáo / bảo vệ)
+
+Dự án CÓ ĐỦ 3 lớp cổ điển, chỉ khác tên gọi:
+
+| Thuật ngữ cổ điển | Trong MoodBite | File |
+|---|---|---|
+| Model / Business | Backend Clean Architecture | `src/domain/`, `src/application/` |
+| Data Access | Repository + Port | `src/infrastructure/repositories/` |
+| Controller | Hook (ViewModel) | `features/*/model/use*.js` |
+| View | Component React | `features/*/ui/*.jsx` |
+
+React không có khái niệm Controller như MVC server-render, nên Controller được hiện thực
+bằng hook. Đây là lựa chọn CÓ CHỦ ĐÍCH, không phải thiếu sót.
+
+### Cấu trúc frontend bắt buộc
+
+```
+src/
+├── app/        khởi tạo, router, provider
+├── pages/      một route = một page
+├── widgets/    khối UI ghép sẵn dùng lại được
+├── features/   MỘT hành động người dùng = một feature
+│   └── <ten-feature>/
+│       ├── ui/      VIEW — chỉ JSX, không gọi API, không giữ state phức tạp
+│       ├── model/   VIEWMODEL — hook: state + điều phối
+│       └── api/     gọi shared/api
+├── entities/   khái niệm nghiệp vụ (restaurant, dish, interaction)
+└── shared/     api client, UI cơ bản, lib, config
+```
+
+**Luật import: chỉ được đi XUỐNG.** `pages → widgets → features → entities → shared`.
+Cấm import ngược lên, cấm import ngang giữa hai feature.
+
+---
+
 ## 2. Hướng phụ thuộc — chốt chặn không được phá
 
 ```
@@ -176,6 +252,35 @@ giờ mở cửa.
 python scripts/data_report.py
 ```
 Không có số đo thì không được nói "dữ liệu đã cải thiện".
+
+### Review / ảnh / rating / giá — ĐỪNG XOÁ, ĐỪNG HỨA THÊM
+
+Trạng thái thật (đo 2026-08-16): **440/4226 quán (10.4%)** có review + ảnh + giá, lấy từ
+Apify Google Maps từ trước. Phần này **ĐÃ CHẠY XONG**: lưu ở `restaurant_details.json`,
+trả qua `GET /api/v1/restaurants/{id}`, hiển thị ở `RestaurantCard.jsx`, và được dùng làm
+tín hiệu tìm kiếm (trọng số 0.55 trong `text_relevance.py`).
+
+- ❌ **KHÔNG xoá** phần này. Nó đang chạy tốt và không tốn công duy trì.
+- ❌ **KHÔNG hứa** sẽ cào thêm bằng cách miễn phí. Không tồn tại cách miễn phí + hợp pháp:
+  OSM không có rating/review/ảnh; Apify và Google Places đều trả phí; ShopeeFood/Foody/
+  Facebook cấm theo ToS.
+- ✅ **Gọi đúng tên:** đây là **lớp làm giàu (enrichment)**, không phải tính năng lõi.
+  Luôn kèm tỷ lệ phủ khi nhắc tới.
+
+### Công cụ KHÔNG liên quan tới thu thập dữ liệu quán
+
+Nếu người dùng đề xuất dùng các thứ sau để "lấy dữ liệu Google Maps", phải nói rõ là
+không liên quan, thay vì làm theo:
+
+| Công cụ | Thực chất làm gì |
+|---|---|
+| `faster-whisper` / Whisper | Chuyển GIỌNG NÓI thành chữ. Không biết Google Maps là gì |
+| OCR | Đọc chữ trong ảnh |
+| YOLO / SegFormer | Nhận diện vật thể trong ảnh (phần floorplan đã tạm dừng) |
+
+Whisper CÓ một công dụng hợp lệ khác, đúng như đề án mục 7 nhắc tới: chuyển video review
+TikTok/YouTube thành chữ rồi trích tên quán. Nhưng đó là **bài toán khác**, cần thêm bước
+nhận diện thực thể và đối chiếu dataset — không phải "trích xuất Google Maps".
 
 ---
 

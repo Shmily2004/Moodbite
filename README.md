@@ -93,7 +93,7 @@ MoodBite/
 │   └── presentation/       FastAPI
 ├── data_pipeline/          Cào, làm sạch, tính đặc trưng dữ liệu
 ├── frontend/               React + Vite
-├── tests/                  137 test
+├── tests/                  146 test
 ├── scripts/                Công cụ, gồm checker kiến trúc
 ├── docs/                   Tài liệu kỹ thuật
 ├── rules/                  Quy tắc nghiệp vụ theo tài liệu gốc
@@ -110,19 +110,21 @@ Dataset đã có sẵn trong repo — **không cần chạy lại pipeline** tr�
 
 | | Số lượng | Tỷ lệ |
 |---|---|---|
-| Quán ăn | **4226** | — |
-| Có toạ độ, tên, loại hình, địa chỉ | 4226 | **100%** |
-| Có nguồn gốc (`source`, `data_confidence`) | 4226 | **100%** |
-| Có đơn vị hành chính (`district`) | 3620 | 85.7% |
-| Có gợi ý món (`dishes`) | 1487 | 35.2% |
-| Có số điện thoại | 1023 | 24.2% |
-| Có giờ mở cửa | 954 | 22.6% |
-| Có tiện nghi | 656 | 15.5% |
-| Có rating | 350 | 8.3% |
-| Có giá | 228 | 5.4% |
-| Có khai báo chế độ ăn | 117 | 2.8% |
+| Quán ăn | **4938** | — |
+| Có toạ độ, tên, loại hình, địa chỉ | 4938 | **100%** |
+| Có nguồn gốc (`source`, `data_confidence`) | 4938 | **100%** |
+| Có đơn vị hành chính (`district`) | 4787 | 96.9% |
+| Có số điện thoại | 1641 | 33.2% |
+| Có giờ mở cửa | 1608 | 32.6% |
+| Có gợi ý món (`dishes`) | 1462 | 29.6% |
+| Có đánh giá (rating) | 1145 | 23.2% |
+| Có review + ảnh + giá | 1310 | 26.5% |
+| Có giá | 643 | 13.0% |
+| Có tiện nghi | 645 | 13.1% |
+| Có khai báo chế độ ăn | 115 | 2.3% |
 
-Đơn vị hành chính phủ: **125**. Trùng lặp: **0%**.
+Nguồn: OpenStreetMap 3528 · Google Maps (Apify) 1410.
+Đơn vị hành chính phủ: **142**. Trùng lặp: **0%**.
 Đo lại bất cứ lúc nào: `python scripts/data_report.py`
 
 Thu thập thêm dữ liệu (miễn phí, không cần API key):
@@ -153,7 +155,7 @@ Một lệnh, chạy được ở PowerShell / CMD / bash / macOS / Linux:
 python scripts/verify.py
 ```
 
-Kiểm 5 việc: app dựng được · 137 test · hướng phụ thuộc Clean Architecture ·
+Kiểm 5 việc: app dựng được · 146 test · hướng phụ thuộc Clean Architecture ·
 chỉ có 1 backend · frontend build được. Tất cả cũng chạy tự động trong CI
 (`.github/workflows/ci.yml`).
 
@@ -185,7 +187,7 @@ chỉ có 1 backend · frontend build được. Tất cả cũng chạy tự đ�
 - 🟡 **Ngữ cảnh thời điểm** — giờ ăn đã bật; thời tiết tắt mặc định (`MOODBITE_ENABLE_WEATHER=1`)
 - ✅ **Frontend** — ô tìm kiếm tự do + định vị thật
 - ⬜ **Bản đồ** — chưa làm, đã có hướng dẫn
-- ⬜ **Phân cụm / tóm tắt review** — chưa đủ dữ liệu (chỉ 8.3% quán có review)
+- 🟡 **Phân cụm / tóm tắt review** — 23.2% quán có review, gần ngưỡng đáng làm
 - ✅ **Lọc theo khu vực / giờ mở cửa / chế độ ăn** — mới bổ sung
 - ⏸️ **Floorplan → 3D** — tạm dừng, tắt mặc định (bật bằng `MOODBITE_ENABLE_SPATIAL=1`)
 - ⏸️ **Model ML gợi ý món** — model cũ bị rò rỉ nhãn nên đã gỡ; hiện dùng khớp từ khoá.

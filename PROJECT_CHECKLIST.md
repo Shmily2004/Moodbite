@@ -19,8 +19,8 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Frontend | ✅ Chạy được | ô tìm kiếm tự do + định vị, chưa có bản đồ |
 | Bản đồ Google Maps | ⬜ Chưa làm | đã có hướng dẫn đầy đủ |
 | Kiến trúc | ✅ Sạch | Clean Architecture + checker tự động trong CI |
-| Test | ✅ 137 test xanh | gồm test "app phải dựng được" |
-| Dữ liệu | ✅ 4226 quán · 125 đơn vị HC | provenance 100%, trùng lặp 0% |
+| Test | ✅ 146 test xanh | gồm test "app phải dựng được" |
+| Dữ liệu | ✅ 4938 quán · 142 đơn vị HC | provenance 100%, trùng lặp 0% |
 | Thu thập dữ liệu đa nguồn | ✅ Xong | kiến trúc `SourceAdapter`, thêm nguồn không sửa pipeline |
 | Lọc giờ mở cửa / chế độ ăn / quận | ✅ Xong | thiếu dữ liệu KHÔNG bị loại |
 | Phân cụm / tóm tắt review | ⬜ Chưa làm | **dữ liệu chưa đủ** — xem mục ⚠️ |
@@ -132,37 +132,62 @@ Kiểm lại (mục 4 của `python scripts/verify.py` đã tự kiểm việc n
 
 ## ⚠️ ĐỘ PHỦ DỮ LIỆU (đo bằng `python scripts/data_report.py`)
 
-### Trước → Sau khi bổ sung nguồn OSM (2026-08-16)
+### Trước → Sau (đo bằng `python scripts/data_report.py`)
+
+Mốc "trước" = dataset gốc ngày 2026-08-16, đo lại từ git bằng cùng công cụ.
 
 | Chỉ số | Trước | Sau | Thay đổi |
 |---|---|---|---|
-| Tổng số quán | 4170 | **4226** | +56 |
-| Quán duy nhất | 4170 | 4226 | trùng lặp **0%** |
-| Đơn vị hành chính phủ | **0** | **125** | +125 |
-| `district` | 0% | **85.7%** | +85.7đ |
-| `phone` | 0% | **24.2%** | +24.2đ |
-| `dishes` | 0% | **35.2%** | +35.2đ |
-| `amenities` | 0% | **15.5%** | +15.5đ |
-| `aliases` | 0% | **7.8%** | +7.8đ |
-| `dietary` | 0% | **2.8%** | +2.8đ |
+| Tổng số quán | 4170 | **4938** | +768 |
+| Quán duy nhất | 4170 | 4938 | trùng lặp **0%** |
+| Đơn vị hành chính phủ | **0** | **142** | +142 |
+| `district` | 0% | **96.9%** | +96.9đ |
+| **`totalScore` (đánh giá)** | **8.4%** | **23.2%** | **+14.8đ** |
+| `reviewsCount` | 11.7% | **25.5%** | +13.8đ |
+| Quán có review + ảnh + giá | 440 | **1310** | +870 |
+| `price` | 5.5% | **13.0%** | +7.5đ |
+| `openingHours` | 22.7% | **32.6%** | +9.9đ |
+| `phone` | 0% | **33.2%** | +33.2đ |
+| `dishes` | 0% | **29.6%** | +29.6đ |
+| `amenities` | 0% | **13.1%** | +13.1đ |
+| `website` | 8.5% | **12.5%** | +4.0đ |
+| `Bầu không khí` | 8.7% | **21.9%** | +13.2đ |
+| `aliases` | 0% | **6.6%** | +6.6đ |
+| `dietary` | 0% | **2.3%** | +2.3đ |
 | `source` / `data_confidence` | 0% | **100%** | +100đ |
-| `openingHours` | 22.7% | 22.6% | ~không đổi |
-| `cuisine` | 36.5% | 36.1% | ~không đổi |
-| `totalScore` (đánh giá) | 8.4% | 8.3% | ~không đổi |
-| `price` | 5.5% | 5.4% | ~không đổi |
+| `cuisine` | 36.5% | 30.4% | −6.1đ (mẫu số tăng) |
 
-**Nguồn:** `openstreetmap` 3680 · `google_maps_apify` 546.
+**Nguồn:** `openstreetmap` 3528 · `google_maps_apify` 1410.
 
-### Vì sao đánh giá/giá KHÔNG cải thiện
+### Đã làm gì để đạt được
 
-OpenStreetMap là dữ liệu **bản đồ**, không phải nền tảng đánh giá — nó **không có**
-rating, review, ảnh, giá. Không có cách nào lấy được từ OSM.
+1. **Nguồn OSM mới** (`data_pipeline/sources/osm_overpass.py`) — lấy đủ tag mà bản cào cũ
+   bỏ phí: `phone`, `opening_hours`, `diet:*`, `outdoor_seating`, `cuisine`…
+2. **Gán khu vực từ toạ độ** — ranh giới hành chính OSM + point-in-polygon offline.
+3. **3 đợt cào Apify Google Maps** (~1276 quán mới, 87% có đánh giá).
+4. **Khử trùng lặp giữa các nguồn** — OSM và Google đánh id khác nhau nên cùng một quán
+   xuất hiện 2 lần; nay gộp theo *gần nhau ≤50m + trùng tên*, giữ bản giàu thông tin hơn
+   và bù các trường còn trống từ bản kia.
 
-Muốn cải thiện các trường này **bắt buộc** phải có Google Places API key (tốn tiền).
-Adapter đã cắm sẵn chỗ, chỉ cần viết `sources/google_places.py`.
+### Vì sao đánh giá vẫn chỉ 23.2%
 
-Các nguồn có dữ liệu đó (ShopeeFood, GrabFood, Foody, Facebook) đều **cấm thu thập tự
-động trong ToS** → không dùng. Phân tích đầy đủ: `docs/data_sources.md`.
+OpenStreetMap (3528 quán, 71% dataset) là dữ liệu **bản đồ**, **không có** rating/review/
+ảnh/giá. Toàn bộ 1145 quán có đánh giá đều đến từ Apify Google Maps.
+
+**Còn thiếu 3793 quán chưa có đánh giá.** Vùng đáng cào tiếp, xếp theo mật độ:
+
+| Khu vực | Thiếu | Tâm `[lng, lat]` | Bán kính | Mật độ |
+|---|---|---|---|---|
+| **Phường Hoàn Kiếm** | **770** | `[105.8509, 21.0325]` | 0.7 km | **499/km²** |
+| Phường Cửa Nam | 183 | `[105.8505, 21.0235]` | 0.9 km | 74/km² |
+| Phường Ba Đình | 210 | `[105.8381, 21.0395]` | 1.1 km | 55/km² |
+| Hai Bà Trưng | 185 | `[105.8582, 21.0075]` | 1.3 km | 33/km² |
+
+Từ khoá nên dùng (chiếm 81% khoảng trống): `nhà hàng` · `quán cà phê` · `quán ăn`.
+KHÔNG dùng tên món (`phở`, `bún chả`…) — đã có 251 quán phở, 747 quán cà phê rồi.
+
+Các nguồn có sẵn rating khác (ShopeeFood, GrabFood, Foody, Facebook) đều **cấm thu thập
+tự động trong ToS** → không dùng. Phân tích đầy đủ: `docs/data_sources.md`.
 
 ### Hệ quả tới tính năng
 
@@ -170,13 +195,13 @@ Các nguồn có dữ liệu đó (ShopeeFood, GrabFood, Foody, Facebook) đều
 |---|---|---|
 | Bản đồ, khoảng cách | ✅ | 100% quán có toạ độ |
 | Tìm bằng câu tự do | ✅ | tên + loại hình phủ 100% |
-| Lọc theo khu vực | ✅ **mới** | 85.7% có `district` |
-| Lọc theo giờ mở cửa | ✅ **mới** | 22.6% có dữ liệu, thiếu thì giữ lại |
-| Lọc chay/thuần chay | 🟡 **mới** | chỉ 2.8% khai báo |
+| Lọc theo khu vực | ✅ **mới** | 96.9% có `district` |
+| Lọc theo giờ mở cửa | ✅ **mới** | 32.6% có dữ liệu, thiếu thì giữ lại |
+| Lọc chay/thuần chay | 🟡 **mới** | chỉ 2.3% khai báo |
 | Gợi ý món | ✅ | suy luận từ tên quán + `cuisine` |
-| Xếp hạng theo đánh giá | ❌ | chỉ 8.3% có rating |
-| Lọc theo giá | ❌ | chỉ 5.4% có giá |
-| Tìm kiếm ngữ nghĩa (embedding) | ❌ | chỉ 8.4% có review |
+| Xếp hạng theo đánh giá | 🟡 | 23.2% có rating (tập trung ở trung tâm) |
+| Lọc theo giá | 🟡 | 13.0% có giá |
+| Tìm kiếm ngữ nghĩa (embedding) | 🟡 | 23.2% có review — gần ngưỡng đáng làm |
 | Phân cụm trải nghiệm | ❌ | thuộc tính không gian chỉ 8.6% |
 
 ---

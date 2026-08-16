@@ -91,6 +91,10 @@ class SearchResultItemSchema(BaseModel):
     amenities: List[str] = []
     # Nguồn gốc dữ liệu - client có thể hiển thị "theo OpenStreetMap" cho minh bạch.
     source: Optional[str] = None
+    # Cụm trải nghiệm (Lớp 1 đề án). null = CHƯA phân cụm, KHÔNG phải "cụm kém" -
+    # client nên hiện "Đang cập nhật" thay vì để trống hoặc báo lỗi.
+    experience_cluster_id: Optional[int] = None
+    experience_cluster_label: Optional[str] = None
     suggested_dish: Optional[SuggestedDishSchema] = None
 
 
@@ -152,3 +156,52 @@ class HealthData(BaseModel):
 class MoodsData(BaseModel):
     supported_moods: List[str]
     description: str
+
+
+# --- Envelope (đặc tả API mục 1.5) -------------------------------------------
+#
+# VÌ SAO PHẢI KHAI BÁO TƯỜNG MINH: nếu route dùng `response_model=None` và trả
+# JSONResponse thô, OpenAPI ghi schema rỗng `{}`. Khi đó `openapi-typescript` không sinh
+# được kiểu cho frontend - mất toàn bộ lợi ích của việc dùng TypeScript.
+#
+# Khai báo các lớp bọc dưới đây để hợp đồng API xuất hiện đầy đủ trong OpenAPI, và
+# frontend sinh type tự động từ đó.
+
+
+class ErrorDetail(BaseModel):
+    code: str
+    message: str
+    details: dict = {}
+
+
+class ErrorEnvelope(BaseModel):
+    error: ErrorDetail
+
+
+class SearchResponse(BaseModel):
+    data: SearchResponseData
+
+
+class RestaurantDetailResponse(BaseModel):
+    data: RestaurantDetailData
+
+
+class InteractionResponse(BaseModel):
+    data: InteractionResponseData
+
+
+class HealthResponse(BaseModel):
+    data: HealthData
+
+
+class MoodsResponse(BaseModel):
+    data: MoodsData
+
+
+# Mô tả lỗi dùng chung cho mọi endpoint, để OpenAPI ghi rõ hình dạng lỗi.
+ERROR_RESPONSES = {
+    400: {"model": ErrorEnvelope, "description": "INVALID_REQUEST"},
+    404: {"model": ErrorEnvelope, "description": "RESTAURANT_NOT_FOUND"},
+    503: {"model": ErrorEnvelope, "description": "DATA_NOT_READY"},
+    500: {"model": ErrorEnvelope, "description": "INTERNAL_ERROR"},
+}

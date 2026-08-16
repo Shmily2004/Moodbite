@@ -12,6 +12,9 @@
 > Chi tiết ràng buộc đã ghi vào [`CLAUDE.md`](../CLAUDE.md) mục 1b.
 >
 > **Client:** bắt đầu được ngay. **Admin:** phải làm SQLite + auth + endpoint admin trước.
+>
+> **Bản đồ dùng Leaflet + OpenStreetMap** (miễn phí, không cần API key) thay vì Google Maps —
+> Google bắt buộc bật thanh toán dù có hạn mức miễn phí. Xem `docs/google_maps_integration.md`.
 
 ---
 

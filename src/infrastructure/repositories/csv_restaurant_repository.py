@@ -38,6 +38,8 @@ COL_AMENITIES = "amenities"
 COL_PHONE = "phone"
 COL_WEBSITE = "website"
 COL_SOURCE = "source"
+COL_CLUSTER_ID = "experience_cluster_id"
+COL_CLUSTER_LABEL = "experience_cluster_label"
 COL_CONFIDENCE = "data_confidence"
 
 REQUIRED_COLUMNS = (COL_NAME, COL_LAT, COL_LNG)
@@ -245,4 +247,6 @@ class CsvRestaurantRepository:
             website=_as_str(row.get(COL_WEBSITE)),
             source=_as_str(row.get(COL_SOURCE)),
             data_confidence=_as_str(row.get(COL_CONFIDENCE)),
+            experience_cluster_id=_as_int(row.get(COL_CLUSTER_ID)),
+            experience_cluster_label=_as_str(row.get(COL_CLUSTER_LABEL)),
         )

@@ -6,6 +6,78 @@
 
 ---
 
+## ⭐ PHƯƠNG ÁN MIỄN PHÍ — Leaflet + OpenStreetMap (KHUYẾN NGHỊ)
+
+**Google Maps JavaScript API bắt buộc bật thanh toán (cần thẻ tín dụng/ghi nợ) dù có hạn
+mức miễn phí hàng tháng.** Không có thẻ thì không dùng được, kể cả khi chỉ dùng rất ít.
+
+**Leaflet + tile OpenStreetMap: miễn phí hoàn toàn, KHÔNG cần key, KHÔNG cần thẻ.**
+
+```bash
+cd frontend
+npm install leaflet react-leaflet
+```
+
+```jsx
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import 'leaflet/dist/leaflet.css'
+import { HANOI_CENTER } from './useUserLocation'
+
+export default function RestaurantMap({ restaurants = [], userPosition }) {
+  const center = userPosition || HANOI_CENTER
+
+  return (
+    <MapContainer center={[center.lat, center.lng]} zoom={14}
+                  style={{ height: 420, width: '100%' }}>
+      {/* Ghi công là BẮT BUỘC theo giấy phép ODbL của OpenStreetMap */}
+      <TileLayer
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      />
+
+      {restaurants
+        .filter(r => r.lat != null && r.lng != null)
+        .map(r => (
+          <Marker key={r.id ?? `${r.lat},${r.lng}`} position={[r.lat, r.lng]}>
+            <Popup>
+              <strong>{r.name}</strong>
+              <div>{r.address}</div>
+              <div>{r.distanceM} m</div>
+              {/* null = CHƯA CÓ dữ liệu, không phải 0 sao */}
+              {r.rating != null && <div>{r.rating} ★</div>}
+            </Popup>
+          </Marker>
+        ))}
+    </MapContainer>
+  )
+}
+```
+
+### So sánh hai phương án
+
+| | Leaflet + OSM | Google Maps |
+|---|---|---|
+| Chi phí | ✅ **Miễn phí hoàn toàn** | 🟡 Có hạn mức miễn phí nhưng **cần thẻ** |
+| API key | ✅ Không cần | ❌ Bắt buộc |
+| Chất lượng bản đồ VN | 🟡 Tốt, ít chi tiết hơn | ✅ Chi tiết nhất |
+| Nhất quán giấy phép | ✅ Dữ liệu quán cũng từ OSM | 🟡 Trộn hai nguồn |
+| Đổi sang cái kia sau này | ✅ Chỉ thay 1 component | ✅ |
+
+**Với đồ án tốt nghiệp, Leaflet là lựa chọn đúng** — chứng minh được năng lực kỹ thuật y
+hệt, không phát sinh chi phí, và nhất quán với việc dữ liệu quán vốn đã lấy từ OSM.
+
+⚠️ Lưu ý về tile OSM công cộng: có [chính sách sử dụng](https://operations.osmfoundation.org/policies/tiles/)
+giới hạn lưu lượng, đủ cho đồ án và demo nhưng không dành cho sản phẩm lưu lượng lớn.
+Khi cần mở rộng, chuyển sang nhà cung cấp tile khác (MapTiler, Stadia…) — chỉ đổi 1 dòng `url`.
+
+**Phần định vị người dùng ở mục 2 dưới đây dùng chung cho cả hai phương án.**
+
+---
+
+## Phương án Google Maps (chỉ khi đã có thẻ thanh toán)
+
+---
+
 ## 1. Tin tốt: backend KHÔNG cần sửa gì
 
 `POST /api/recommend` đã trả sẵn toạ độ. Response thật (đã kiểm chứng):

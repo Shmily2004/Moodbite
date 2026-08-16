@@ -38,10 +38,15 @@ DEFAULT_MAX_DISTANCE_KM = 10.0
 #
 # Câu tự do được ưu tiên cao nhất vì đó là thứ người dùng CHỦ ĐỘNG nói ra.
 # Ngữ cảnh (thời tiết/giờ) trọng số thấp nhất - nó chỉ nên đẩy nhẹ, không lấn át ý người dùng.
-W_TEXT = 0.40
-W_MOOD = 0.30
-W_DISTANCE = 0.20
-W_RATING = 0.10
+W_TEXT = 0.22        # khớp TỪ KHOÁ (tên, loại hình, review)
+W_SEMANTIC = 0.16    # khớp NGỮ NGHĨA (TF-IDF cosine) - Lớp 2 đề án
+W_MOOD = 0.26
+W_DISTANCE = 0.17
+W_RATING = 0.09
+# Cụm trải nghiệm (Lớp 1 đề án) - tín hiệu PHỤ, trọng số nhỏ nhất có chủ đích.
+# Đề án nói rõ phân cụm "dùng làm một tín hiệu đầu vào cho bước xếp hạng, KHÔNG phải
+# bước ra quyết định cuối cùng".
+W_CLUSTER = 0.10
 
 # Rating trung bình toàn hệ thống, dùng làm giá trị TRUNG LẬP cho quán chưa có rating.
 # Tuyệt đối không dùng 0: quán chưa có đánh giá không phải quán dở (quy tắc Cold Start,
@@ -59,7 +64,9 @@ class RankedRestaurant:
     distance_km: float
     rank_position: int
     text_score: float = 0.0
+    semantic_score: float = 0.0
     mood_score: float = 0.0
+    cluster_score: float = 0.0
     match_sources: List[str] = field(default_factory=list)
 
     @property
@@ -86,6 +93,45 @@ def _rating_score(rating: Optional[float]) -> float:
     return max(0.0, min(value / MAX_RATING, 1.0))
 
 
+# Giá trị TRUNG LẬP cho quán chưa được phân cụm (Cold Start).
+# rules/rules.md mục 3.3 cấm tuyệt đối việc gán 0 hoặc NULL cho `cluster_score`:
+# quán chưa phân cụm KHÔNG phải quán dở, nó chỉ là chưa đủ dữ liệu để xếp nhóm.
+NEUTRAL_CLUSTER_SCORE = 0.5
+
+
+def _cluster_score(
+    restaurant: Restaurant, cluster_quality: Optional[Dict[int, float]]
+) -> float:
+    """Điểm chất lượng cụm mà quán thuộc về, chuẩn hoá [0, 1].
+
+    Chưa phân cụm -> trả giá trị TRUNG LẬP toàn hệ thống, đúng quy tắc Cold Start.
+    """
+    if not cluster_quality or restaurant.experience_cluster_id is None:
+        return NEUTRAL_CLUSTER_SCORE
+    return cluster_quality.get(restaurant.experience_cluster_id, NEUTRAL_CLUSTER_SCORE)
+
+
+def compute_cluster_quality(restaurants: Sequence[Restaurant]) -> Dict[int, float]:
+    """Chất lượng trung bình của từng cụm, suy từ rating thật của các quán trong cụm.
+
+    Tính từ DỮ LIỆU chứ không gán tay: cụm nào quy tụ nhiều quán đánh giá cao thì điểm
+    cụm cao. Nhờ vậy một quán chưa có rating vẫn được hưởng tín hiệu chất lượng từ
+    "hàng xóm cùng cụm" - đây chính là giá trị của việc phân cụm.
+    """
+    totals: Dict[int, List[float]] = {}
+    for restaurant in restaurants:
+        cluster_id = restaurant.experience_cluster_id
+        if cluster_id is None or restaurant.rating is None:
+            continue
+        totals.setdefault(cluster_id, []).append(restaurant.rating)
+
+    return {
+        cluster_id: max(0.0, min(sum(values) / len(values) / MAX_RATING, 1.0))
+        for cluster_id, values in totals.items()
+        if values
+    }
+
+
 def _normalize_mood(raw_score: float) -> float:
     """Điểm mood thô có thể âm (trọng số âm) hoặc > 1. Ép về [0, 1] để cộng được với
     các tín hiệu khác mà không có tín hiệu nào lấn át chỉ vì thang đo khác nhau."""
@@ -109,6 +155,7 @@ def rank_restaurants(
     context: ContextSignal = NEUTRAL_CONTEXT,
     max_distance_km: Optional[float] = DEFAULT_MAX_DISTANCE_KM,
     limit: int = 10,
+    semantic_scores: Optional[Dict[str, float]] = None,
 ) -> List[RankedRestaurant]:
     """Xếp hạng nhà hàng theo toàn bộ tín hiệu hiện có.
 
@@ -121,8 +168,10 @@ def rank_restaurants(
         return []
 
     effective_weights = _merge_weights(mood_weights, context.mood_bias())
+    # Chất lượng cụm tính MỘT LẦN cho cả lượt tìm kiếm, không tính lại cho từng quán.
+    cluster_quality = compute_cluster_quality(active)
 
-    scored: List[tuple[Restaurant, float, float, float, List[str]]] = []
+    scored: List[tuple[Restaurant, float, float, float, List[str], float, float]] = []
     for restaurant in active:
         distance_km = origin.distance_km(restaurant.location)
 
@@ -133,15 +182,25 @@ def rank_restaurants(
             else 0.0
         )
         mood_norm = _normalize_mood(mood_raw)
+        cluster = _cluster_score(restaurant, cluster_quality)
+        semantic = (
+            semantic_scores.get(restaurant.place_id, 0.0)
+            if semantic_scores and restaurant.place_id else 0.0
+        )
 
         predicted = (
             W_TEXT * relevance.score
+            + W_SEMANTIC * min(semantic, 1.0)
             + W_MOOD * mood_norm
             + W_DISTANCE * _distance_score(distance_km, max_distance_km)
             + W_RATING * _rating_score(restaurant.rating)
+            + W_CLUSTER * cluster
         )
+        sources = list(relevance.sources)
+        if semantic >= 0.15 and "semantic" not in sources:
+            sources.append("semantic")
         scored.append(
-            (restaurant, predicted, distance_km, relevance.score, relevance.sources)
+            (restaurant, predicted, distance_km, relevance.score, sources, cluster, semantic)
         )
 
     # Lọc bán kính TRƯỚC khi cắt top. Nếu bán kính làm rỗng kết quả thì bỏ lọc -
@@ -155,9 +214,8 @@ def rank_restaurants(
     scored.sort(key=lambda s: (-s[1], s[2]))
 
     ranked: List[RankedRestaurant] = []
-    for position, (restaurant, predicted, distance_km, text_score, sources) in enumerate(
-        scored[:limit], start=1
-    ):
+    for position, (restaurant, predicted, distance_km, text_score, sources, cluster,
+                   semantic) in enumerate(scored[:limit], start=1):
         mood_value = (
             restaurant.weighted_mood_score(effective_weights) if effective_weights else 0.0
         )
@@ -168,11 +226,14 @@ def rank_restaurants(
                 distance_km=round(distance_km, 2),
                 rank_position=position,
                 text_score=round(text_score, 4),
+                semantic_score=round(semantic, 4),
                 mood_score=round(mood_value, 4),
+                cluster_score=round(cluster, 4),
                 match_sources=sources,
             )
         )
     return ranked
 
 
-__all__ = ["RankedRestaurant", "rank_restaurants", "DEFAULT_MAX_DISTANCE_KM"]
+__all__ = ["RankedRestaurant", "rank_restaurants", "compute_cluster_quality",
+           "DEFAULT_MAX_DISTANCE_KM", "NEUTRAL_CLUSTER_SCORE"]

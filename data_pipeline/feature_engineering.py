@@ -109,6 +109,11 @@ def extract_features():
         'delivery', 'takeaway',
         'dishes',                             # gợi ý món từ tag cuisine của OSM
         'menu',
+        # Cụm trải nghiệm do data_pipeline/clustering.py sinh ra (Lớp 1 của đề án).
+        # PHẢI có ở đây, nếu không mỗi lần chạy lại feature_engineering sẽ xoá mất cụm
+        # và phải chạy lại clustering. Thứ tự đúng:
+        #   merge -> cleaning -> feature_engineering -> clustering
+        'experience_cluster_id', 'experience_cluster_label',
     ]
 
     columns_to_keep = (

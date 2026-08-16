@@ -51,6 +51,12 @@ class Restaurant:
     source: Optional[str] = None
     data_confidence: Optional[str] = None
 
+    # Cụm trải nghiệm (Lớp 1 đề án). None = CHƯA PHÂN CỤM, không phải "cụm kém".
+    # Quy tắc Cold Start (rules/rules.md mục 3.3): khi tính điểm phải dùng giá trị TRUNG
+    # LẬP toàn hệ thống cho quán chưa có cụm, TUYỆT ĐỐI không dùng 0 hay NULL.
+    experience_cluster_id: Optional[int] = None
+    experience_cluster_label: Optional[str] = None
+
     @property
     def atmosphere_text(self) -> Optional[str]:
         """Các tag không gian gộp thành 1 chuỗi để so khớp văn bản."""

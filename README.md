@@ -92,8 +92,8 @@ MoodBite/
 │   ├── infrastructure/     Đọc CSV/JSON, ML
 │   └── presentation/       FastAPI
 ├── data_pipeline/          Cào, làm sạch, tính đặc trưng dữ liệu
-├── frontend/               React + Vite
-├── tests/                  146 test
+├── frontend/               React + TypeScript + FSD (monorepo)
+├── tests/                  171 test
 ├── scripts/                Công cụ, gồm checker kiến trúc
 ├── docs/                   Tài liệu kỹ thuật
 ├── rules/                  Quy tắc nghiệp vụ theo tài liệu gốc
@@ -155,7 +155,7 @@ Một lệnh, chạy được ở PowerShell / CMD / bash / macOS / Linux:
 python scripts/verify.py
 ```
 
-Kiểm 5 việc: app dựng được · 146 test · hướng phụ thuộc Clean Architecture ·
+Kiểm 5 việc: app dựng được · 171 test · hướng phụ thuộc Clean Architecture ·
 chỉ có 1 backend · frontend build được. Tất cả cũng chạy tự động trong CI
 (`.github/workflows/ci.yml`).
 

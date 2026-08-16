@@ -147,6 +147,20 @@ src/
 **Luật import: chỉ được đi XUỐNG.** `pages → widgets → features → entities → shared`.
 Cấm import ngược lên, cấm import ngang giữa hai feature.
 
+### Ràng buộc CHI PHÍ — chủ dự án không có thẻ thanh toán
+
+Không được đề xuất giải pháp cần thẻ tín dụng/ghi nợ. Cụ thể:
+
+| Cần trả tiền / cần thẻ | Dùng thay thế miễn phí |
+|---|---|
+| Google Maps JavaScript API | **Leaflet + tile OpenStreetMap** |
+| Google Places API (rating/review) | Apify free tier theo tháng, hoặc nhập tay |
+| Google Routes API (thời gian đi thật) | Khoảng cách haversine (đã có) |
+| Dịch vụ embedding trả phí | TF-IDF (đã có, chạy CPU) |
+
+Google Maps có hạn mức miễn phí NHƯNG vẫn bắt buộc bật thanh toán mới dùng được — với
+người không có thẻ thì coi như không dùng được.
+
 ---
 
 ## 2. Hướng phụ thuộc — chốt chặn không được phá
@@ -281,6 +295,37 @@ không liên quan, thay vì làm theo:
 Whisper CÓ một công dụng hợp lệ khác, đúng như đề án mục 7 nhắc tới: chuyển video review
 TikTok/YouTube thành chữ rồi trích tên quán. Nhưng đó là **bài toán khác**, cần thêm bước
 nhận diện thực thể và đối chiếu dataset — không phải "trích xuất Google Maps".
+
+---
+
+## 4c. Các lớp mô hình — thứ tự chạy pipeline BẮT BUỘC
+
+```
+merge_and_prepare_raw  →  data_cleaning  →  feature_engineering  →  clustering
+```
+
+⚠️ `clustering` PHẢI chạy CUỐI. Chạy `feature_engineering` sau sẽ **xoá mất** 2 cột
+`experience_cluster_id` / `experience_cluster_label` và phải phân cụm lại.
+
+| Lớp (đề án) | Trạng thái | Ở đâu |
+|---|---|---|
+| 1. Phân cụm trải nghiệm | ✅ KMeans k=7 | `data_pipeline/clustering.py` (offline) |
+| 2. Tìm kiếm ngữ nghĩa | ✅ TF-IDF cosine | `infrastructure/adapters/tfidf_semantic_search.py` |
+| 3. Xếp hạng ngữ cảnh | 🟡 công thức trọng số | `domain/services/search_ranking.py` |
+| 4. Tóm tắt review | ❌ chưa làm | review TB 106 ký tự, quá ngắn |
+| 5. Gợi ý món | ✅ heuristic | `use_cases/search_restaurants.py` |
+
+**Quy tắc bắt buộc khi động vào các lớp này:**
+
+- **sklearn CHỈ được xuất hiện ở `data_pipeline/` và `infrastructure/`.** Domain phải
+  thuần Python — checker kiến trúc sẽ chặn nếu vi phạm.
+- **Cold Start (rules/rules.md mục 3.3):** quán chưa phân cụm dùng `NEUTRAL_CLUSTER_SCORE`
+  (0.5), TUYỆT ĐỐI không dùng 0 hay NULL. Quán chưa phân cụm ≠ quán dở.
+- **Tổng trọng số xếp hạng phải = 1.0** để `predicted_score` luôn trong [0,1]. Có test khoá.
+- **Mọi thành phần ML phải suy biến an toàn:** thiếu sklearn / chưa đủ dữ liệu → trả rỗng
+  và hệ thống lui về khớp từ khoá, KHÔNG được làm hỏng lượt tìm kiếm.
+- **Chọn siêu tham số bằng SỐ ĐO, không bằng cảm tính.** Mọi hằng số (k, ngưỡng tín hiệu
+  tối thiểu, kích thước cụm nhỏ nhất) đều phải có comment ghi rõ đã thử gì và vì sao chọn.
 
 ---
 

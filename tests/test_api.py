@@ -28,6 +28,19 @@ SESSION = "3f9a0000-0000-4000-8000-000000000000"
 API = "/api/v1"
 
 
+class NullSemanticSearch:
+    """Tắt tìm kiếm ngữ nghĩa trong test API: test ở đây kiểm HỢP ĐỒNG HTTP, không
+    kiểm chất lượng xếp hạng - dựng chỉ mục TF-IDF chỉ làm test chậm và giòn."""
+
+    is_ready = False
+
+    def similarity(self, query_text):
+        return {}
+
+    def status(self):
+        return {"ready": False, "reason": "tat trong test"}
+
+
 def _container(restaurants=None, details=None, restaurants_ready=True):
     restaurants = restaurants if restaurants is not None else [
         make_restaurant(
@@ -50,6 +63,7 @@ def _container(restaurants=None, details=None, restaurants_ready=True):
     c.interaction_repository = interactions
     c.rule_predictor = predictor
     c.context_provider = context
+    c.semantic_search = NullSemanticSearch()
     c.search_restaurants = SearchRestaurantsUseCase(repo, knowledge, context, predictor)
     c.get_restaurant_details = GetRestaurantDetailsUseCase(details_repo)
     c.log_interaction = LogInteractionUseCase(interactions, repo)

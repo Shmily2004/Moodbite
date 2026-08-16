@@ -23,6 +23,7 @@ from src.application.ports.context_provider import ContextProvider
 from src.application.ports.dish_knowledge_repository import DishKnowledgeRepository
 from src.application.ports.restaurant_repository import RestaurantRepository
 from src.application.ports.rule_predictor import RulePredictor
+from src.application.ports.semantic_search import SemanticSearchPort
 from src.domain.entities.dish import CONFIDENCE_ML, Dish
 from src.domain.entities.restaurant import Restaurant
 from src.domain.services import search_ranking, text_relevance
@@ -84,6 +85,8 @@ class SearchResultItem:
     dietary: List[str] = field(default_factory=list)
     amenities: List[str] = field(default_factory=list)
     source: Optional[str] = None
+    experience_cluster_id: Optional[int] = None
+    experience_cluster_label: Optional[str] = None
     suggested_dish: Optional[SuggestedDish] = None
 
 
@@ -102,11 +105,13 @@ class SearchRestaurantsUseCase:
         dish_knowledge: DishKnowledgeRepository,
         context_provider: Optional[ContextProvider] = None,
         rule_predictor: Optional[RulePredictor] = None,
+        semantic_search: Optional[SemanticSearchPort] = None,
     ) -> None:
         self._restaurants = restaurants
         self._dish_knowledge = dish_knowledge
         self._context_provider = context_provider
         self._rule_predictor = rule_predictor
+        self._semantic_search = semantic_search
 
     def execute(self, query: SearchQuery) -> SearchResult:
         if not self._restaurants.is_ready:
@@ -135,6 +140,7 @@ class SearchRestaurantsUseCase:
             context=context,
             max_distance_km=query.max_distance_km,
             limit=max(1, min(query.limit, MAX_LIMIT)),
+            semantic_scores=self._semantic_scores(query.query_text),
         )
 
         if query.query_text and not any(r.text_score > 0 for r in ranked):
@@ -174,6 +180,18 @@ class SearchRestaurantsUseCase:
                     f"Hợp lệ: {list(MOOD_PROFILES)}"
                 )
         return None
+
+    def _semantic_scores(self, query_text: Optional[str]) -> Dict[str, float]:
+        """Điểm tương đồng ngữ nghĩa (Lớp 2). Adapter hỏng/chưa sẵn sàng -> trả rỗng,
+        hệ thống tự lui về khớp từ khoá thay vì hỏng cả lượt tìm kiếm."""
+        if not query_text or self._semantic_search is None:
+            return {}
+        try:
+            if not self._semantic_search.is_ready:
+                return {}
+            return self._semantic_search.similarity(query_text)
+        except Exception:
+            return {}
 
     def _resolve_context(self, origin: Location) -> ContextSignal:
         if self._context_provider is None:
@@ -317,6 +335,8 @@ class SearchRestaurantsUseCase:
             dietary=list(restaurant.dietary),
             amenities=list(restaurant.amenities),
             source=restaurant.source,
+            experience_cluster_id=restaurant.experience_cluster_id,
+            experience_cluster_label=restaurant.experience_cluster_label,
             suggested_dish=self._suggest_dish(restaurant),
         )
 

@@ -12,12 +12,18 @@ from src.application.use_cases.log_interaction import (
 )
 from src.presentation.api.dependencies import get_log_interaction
 from src.presentation.api.envelope import success
-from src.presentation.api.schemas import InteractionRequest, InteractionResponseData
+from src.presentation.api.schemas import (
+    ERROR_RESPONSES,
+    InteractionRequest,
+    InteractionResponse,
+    InteractionResponseData,
+)
 
 router = APIRouter(tags=["interactions"])
 
 
-@router.post("/interactions", response_model=None, status_code=201)
+@router.post("/interactions", response_model=InteractionResponse, status_code=201,
+             responses=ERROR_RESPONSES)
 def log_interaction(
     body: InteractionRequest,
     use_case: LogInteractionUseCase = Depends(get_log_interaction),

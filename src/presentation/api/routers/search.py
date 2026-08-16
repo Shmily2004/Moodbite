@@ -13,7 +13,12 @@ from src.application.use_cases.search_restaurants import (
 )
 from src.presentation.api.dependencies import get_search_restaurants
 from src.presentation.api.envelope import success
-from src.presentation.api.schemas import SearchRequest, SearchResponseData
+from src.presentation.api.schemas import (
+    ERROR_RESPONSES,
+    SearchRequest,
+    SearchResponse,
+    SearchResponseData,
+)
 
 router = APIRouter(tags=["search"])
 
@@ -32,7 +37,8 @@ def _dish_to_dict(dish) -> dict | None:
     }
 
 
-@router.post("/search", response_model=None, summary="Tìm kiếm & xếp hạng nhà hàng")
+@router.post("/search", response_model=SearchResponse, responses=ERROR_RESPONSES,
+             summary="Tìm kiếm & xếp hạng nhà hàng")
 def search(
     body: SearchRequest,
     use_case: SearchRestaurantsUseCase = Depends(get_search_restaurants),
@@ -78,6 +84,8 @@ def search(
                 "dietary": item.dietary,
                 "amenities": item.amenities,
                 "source": item.source,
+                "experience_cluster_id": item.experience_cluster_id,
+                "experience_cluster_label": item.experience_cluster_label,
                 "suggested_dish": _dish_to_dict(item.suggested_dish),
             }
             for item in result.results

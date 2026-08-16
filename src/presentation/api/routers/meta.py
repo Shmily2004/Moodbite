@@ -10,14 +10,19 @@ from fastapi import APIRouter, Depends
 from src.domain.value_objects.mood import SUPPORTED_MOODS
 from src.presentation.api.dependencies import Container, get_container
 from src.presentation.api.envelope import success
-from src.presentation.api.schemas import HealthData, MoodsData
+from src.presentation.api.schemas import (
+    HealthData,
+    HealthResponse,
+    MoodsData,
+    MoodsResponse,
+)
 
 router = APIRouter(tags=["meta"])
 
 API_VERSION = "v1"
 
 
-@router.get("/health", response_model=None)
+@router.get("/health", response_model=HealthResponse)
 def health(container: Container = Depends(get_container)):
     services = container.health()
     core_ready = services["restaurants"].get("ready", False)
@@ -29,7 +34,7 @@ def health(container: Container = Depends(get_container)):
     return success(payload.model_dump())
 
 
-@router.get("/moods", response_model=None)
+@router.get("/moods", response_model=MoodsResponse)
 def moods():
     """Các mood dùng cho lối tắt `mood` của POST /search.
 

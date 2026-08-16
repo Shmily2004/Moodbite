@@ -1,0 +1,1112 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "MoodBite API",
+    "description": "Gợi ý nhà hàng theo ngữ cảnh: câu tìm kiếm tự do + vị trí + thời điểm.\n\nMọi response bọc trong `data` (thành công) hoặc `error` (lỗi).\nXem GET /api/v1/health để biết nguồn dữ liệu nào đã sẵn sàng.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/v1/search": {
+      "post": {
+        "tags": [
+          "search"
+        ],
+        "summary": "Tìm kiếm & xếp hạng nhà hàng",
+        "description": "Nhận nhu cầu bằng ngôn ngữ tự nhiên kèm ràng buộc, trả danh sách đã xếp hạng.\n\nMỗi kết quả kèm `suggested_dish` (Lớp 5 của đề án) - gợi ý MÓN đi liền với quán, thay\nvì bắt client gọi thêm một endpoint khác và tự ghép hai danh sách.",
+        "operationId": "search_api_v1_search_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "RESTAURANT_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "DATA_NOT_READY",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/restaurants/{restaurant_id}": {
+      "get": {
+        "tags": [
+          "restaurants"
+        ],
+        "summary": "Restaurant Detail",
+        "description": "Chi tiết 1 quán: giá, review thật, ảnh, không gian, giờ mở cửa.\n\n`restaurant_id` lấy từ field `restaurant_id` trong kết quả của POST /api/v1/search.\n\nQuán chưa cào được chi tiết trả 200 kèm `has_details: false` (KHÔNG phải 404) - quán\nvẫn tồn tại và vẫn được đề xuất, chỉ là chưa có dữ liệu bổ sung.",
+        "operationId": "restaurant_detail_api_v1_restaurants__restaurant_id__get",
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Restaurant Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestaurantDetailResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "RESTAURANT_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "DATA_NOT_READY",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/interactions": {
+      "post": {
+        "tags": [
+          "interactions"
+        ],
+        "summary": "Log Interaction",
+        "description": "Ghi một sự kiện tương tác gắn với một nhà hàng cụ thể.\n\n`is_positive_signal` được tính Ở SERVER theo quy tắc thống nhất, không để client tự\nsuy luận - nếu không, nhãn huấn luyện sẽ nhiễu.",
+        "operationId": "log_interaction_api_v1_interactions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InteractionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InteractionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "RESTAURANT_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "DATA_NOT_READY",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "tags": [
+          "meta"
+        ],
+        "summary": "Health",
+        "operationId": "health_api_v1_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/moods": {
+      "get": {
+        "tags": [
+          "meta"
+        ],
+        "summary": "Moods",
+        "description": "Các mood dùng cho lối tắt `mood` của POST /search.\n\nĐề án ưu tiên tìm kiếm bằng câu tự do; danh sách này chỉ phục vụ nút bấm nhanh.",
+        "operationId": "moods_api_v1_moods_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MoodsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": [
+          "meta"
+        ],
+        "summary": "Health",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ActionType": {
+        "type": "string",
+        "enum": [
+          "view_detail",
+          "get_directions",
+          "save",
+          "explicit_positive",
+          "explicit_negative"
+        ],
+        "title": "ActionType"
+      },
+      "ErrorDetail": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "details": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Details",
+            "default": {}
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "title": "ErrorDetail"
+      },
+      "ErrorEnvelope": {
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorDetail"
+          }
+        },
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "title": "ErrorEnvelope"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HealthData": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "api_version": {
+            "type": "string",
+            "title": "Api Version"
+          },
+          "services": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Services"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "api_version",
+          "services"
+        ],
+        "title": "HealthData"
+      },
+      "HealthResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/HealthData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "HealthResponse"
+      },
+      "InteractionRequest": {
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "title": "Session Id"
+          },
+          "restaurant_id": {
+            "type": "string",
+            "title": "Restaurant Id"
+          },
+          "action_type": {
+            "$ref": "#/components/schemas/ActionType"
+          },
+          "search_query_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Search Query Id"
+          },
+          "dwell_time_ms": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dwell Time Ms",
+            "description": "Bắt buộc khi action_type = view_detail."
+          },
+          "rank_position": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rank Position"
+          }
+        },
+        "type": "object",
+        "required": [
+          "session_id",
+          "restaurant_id",
+          "action_type"
+        ],
+        "title": "InteractionRequest"
+      },
+      "InteractionResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/InteractionResponseData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "InteractionResponse"
+      },
+      "InteractionResponseData": {
+        "properties": {
+          "interaction_event_id": {
+            "type": "string",
+            "title": "Interaction Event Id"
+          },
+          "is_positive_signal": {
+            "type": "boolean",
+            "title": "Is Positive Signal"
+          }
+        },
+        "type": "object",
+        "required": [
+          "interaction_event_id",
+          "is_positive_signal"
+        ],
+        "title": "InteractionResponseData"
+      },
+      "MoodsData": {
+        "properties": {
+          "supported_moods": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Supported Moods"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          }
+        },
+        "type": "object",
+        "required": [
+          "supported_moods",
+          "description"
+        ],
+        "title": "MoodsData"
+      },
+      "MoodsResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/MoodsData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "MoodsResponse"
+      },
+      "RestaurantDetailData": {
+        "properties": {
+          "restaurant_id": {
+            "type": "string",
+            "title": "Restaurant Id"
+          },
+          "has_details": {
+            "type": "boolean",
+            "title": "Has Details"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "price_range": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price Range"
+          },
+          "atmosphere": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Atmosphere"
+          },
+          "opening_hours": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Opening Hours"
+          },
+          "images": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Images",
+            "default": []
+          },
+          "reviews": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Reviews",
+            "default": []
+          },
+          "menu_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Menu Url"
+          },
+          "website": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Website"
+          },
+          "google_maps_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Google Maps Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "restaurant_id",
+          "has_details"
+        ],
+        "title": "RestaurantDetailData"
+      },
+      "RestaurantDetailResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/RestaurantDetailData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "RestaurantDetailResponse"
+      },
+      "SearchRequest": {
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "title": "Session Id",
+            "description": "UUID v4 do client tự sinh và lưu ở localStorage. Không có tài khoản người dùng (SRS mục 8, Won't-have)."
+          },
+          "latitude": {
+            "type": "number",
+            "maximum": 90.0,
+            "minimum": -90.0,
+            "title": "Latitude",
+            "default": 21.0285
+          },
+          "longitude": {
+            "type": "number",
+            "maximum": 180.0,
+            "minimum": -180.0,
+            "title": "Longitude",
+            "default": 105.8542
+          },
+          "query_text": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Query Text",
+            "description": "Nhu cầu bằng câu tự nhiên, VD \"quán lẩu ấm cúng gần đây\"."
+          },
+          "mood": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mood",
+            "description": "Lối tắt tuỳ chọn thay cho query_text. Hợp lệ: ['happy', 'sad', 'excited', 'relaxed']"
+          },
+          "max_distance_km": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Distance Km",
+            "description": "null = tắt lọc theo khoảng cách.",
+            "default": 10.0
+          },
+          "dietary_restrictions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Dietary Restrictions",
+            "description": "vegetarian | vegan | halal | kosher | gluten_free. Dữ liệu rất thưa - quán chưa khai báo vẫn được giữ lại."
+          },
+          "opening_hours_constraint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Opening Hours Constraint",
+            "description": "\"now\" hoặc \"HH:mm\". Quán chưa có dữ liệu giờ vẫn giữ lại."
+          },
+          "district": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "District",
+            "description": "Đơn vị hành chính, VD \"Phường Cầu Giấy\". Không khớp quán nào -> bỏ lọc."
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 50.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "default": 10
+          }
+        },
+        "type": "object",
+        "required": [
+          "session_id"
+        ],
+        "title": "SearchRequest"
+      },
+      "SearchResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/SearchResponseData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "SearchResponse"
+      },
+      "SearchResponseData": {
+        "properties": {
+          "search_query_id": {
+            "type": "string",
+            "title": "Search Query Id"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/SearchResultItemSchema"
+            },
+            "type": "array",
+            "title": "Results"
+          },
+          "context": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Context",
+            "default": []
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "search_query_id",
+          "results"
+        ],
+        "title": "SearchResponseData"
+      },
+      "SearchResultItemSchema": {
+        "properties": {
+          "restaurant_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Restaurant Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address"
+          },
+          "latitude": {
+            "type": "number",
+            "title": "Latitude"
+          },
+          "longitude": {
+            "type": "number",
+            "title": "Longitude"
+          },
+          "distance_m": {
+            "type": "integer",
+            "title": "Distance M"
+          },
+          "price_range": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price Range"
+          },
+          "rating": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rating"
+          },
+          "user_ratings_total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Ratings Total"
+          },
+          "rank_position": {
+            "type": "integer",
+            "title": "Rank Position"
+          },
+          "predicted_score": {
+            "type": "number",
+            "title": "Predicted Score"
+          },
+          "match_source": {
+            "type": "string",
+            "title": "Match Source"
+          },
+          "district": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "District"
+          },
+          "dietary": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Dietary",
+            "default": []
+          },
+          "amenities": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Amenities",
+            "default": []
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          },
+          "experience_cluster_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Experience Cluster Id"
+          },
+          "experience_cluster_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Experience Cluster Label"
+          },
+          "suggested_dish": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SuggestedDishSchema"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "restaurant_id",
+          "name",
+          "category",
+          "address",
+          "latitude",
+          "longitude",
+          "distance_m",
+          "price_range",
+          "rating",
+          "user_ratings_total",
+          "rank_position",
+          "predicted_score",
+          "match_source"
+        ],
+        "title": "SearchResultItemSchema"
+      },
+      "SuggestedDishSchema": {
+        "properties": {
+          "dish_id": {
+            "type": "string",
+            "title": "Dish Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "cuisine": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cuisine"
+          },
+          "spice_level": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spice Level"
+          },
+          "temperature": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temperature"
+          },
+          "confidence": {
+            "type": "string",
+            "title": "Confidence"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "dish_id",
+          "name",
+          "confidence"
+        ],
+        "title": "SuggestedDishSchema"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

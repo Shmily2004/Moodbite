@@ -8,12 +8,17 @@ from src.application.use_cases.get_restaurant_details import (
 )
 from src.presentation.api.dependencies import get_restaurant_details_use_case
 from src.presentation.api.envelope import success
-from src.presentation.api.schemas import RestaurantDetailData
+from src.presentation.api.schemas import (
+    ERROR_RESPONSES,
+    RestaurantDetailData,
+    RestaurantDetailResponse,
+)
 
 router = APIRouter(tags=["restaurants"])
 
 
-@router.get("/restaurants/{restaurant_id}", response_model=None)
+@router.get("/restaurants/{restaurant_id}", response_model=RestaurantDetailResponse,
+            responses=ERROR_RESPONSES)
 def restaurant_detail(
     restaurant_id: str,
     use_case: GetRestaurantDetailsUseCase = Depends(get_restaurant_details_use_case),

@@ -291,3 +291,52 @@ def test_single_character_keyword_is_not_dropped():
     assert rule.matches_text("Nhà hàng Ý Bella") is True
     assert rule.matches_text("Nhà hàng") is False, "rule đồ Ý không được khớp quán chung chung"
     assert rule.matches_text("HIRYU Japanese Restaurant") is False
+
+
+# --- Phân cụm trải nghiệm (Lớp 1) + quy tắc Cold Start -----------------------
+
+
+def test_cluster_quality_computed_from_real_ratings():
+    """Điểm cụm suy từ rating THẬT của các quán trong cụm, không gán tay."""
+    from src.domain.services.search_ranking import compute_cluster_quality
+
+    good = [make_restaurant(f"G{i}", rating=5.0, experience_cluster_id=1) for i in range(3)]
+    bad = [make_restaurant(f"B{i}", rating=2.0, experience_cluster_id=2) for i in range(3)]
+    quality = compute_cluster_quality(good + bad)
+    assert quality[1] > quality[2]
+    assert quality[1] == pytest.approx(1.0)
+
+
+def test_unclustered_restaurant_uses_neutral_not_zero():
+    """rules/rules.md mục 3.3: CẤM gán 0/NULL cho quán chưa phân cụm.
+    Quán chưa đủ dữ liệu để phân cụm KHÔNG phải quán dở."""
+    from src.domain.services.search_ranking import NEUTRAL_CLUSTER_SCORE
+
+    in_bad_cluster = make_restaurant("Cum Kem", rating=1.0, experience_cluster_id=9)
+    unclustered = make_restaurant("Chua Phan Cum", rating=1.0)
+
+    out = rank([in_bad_cluster, unclustered])
+    scores = {r.restaurant.name: r.cluster_score for r in out}
+    assert scores["Chua Phan Cum"] == NEUTRAL_CLUSTER_SCORE
+    assert scores["Cum Kem"] < NEUTRAL_CLUSTER_SCORE, "cụm toàn quán 1 sao phải thấp hơn trung lập"
+
+
+def test_cluster_lifts_restaurant_without_own_rating():
+    """Giá trị THẬT của phân cụm: quán chưa có rating vẫn hưởng tín hiệu chất lượng
+    từ các quán cùng cụm."""
+    neighbours = [make_restaurant(f"N{i}", rating=5.0, experience_cluster_id=1) for i in range(4)]
+    no_rating_good_cluster = make_restaurant("Cung Cum Tot", rating=None, experience_cluster_id=1)
+    no_rating_no_cluster = make_restaurant("Khong Cum", rating=None)
+
+    out = rank(neighbours + [no_rating_good_cluster, no_rating_no_cluster], limit=20)
+    scores = {r.restaurant.name: r.predicted_score for r in out}
+    assert scores["Cung Cum Tot"] > scores["Khong Cum"]
+
+
+def test_ranking_weights_sum_to_one():
+    """predicted_score phải nằm gọn trong [0,1] để giải thích được cho người dùng."""
+    from src.domain.services import search_ranking as sr
+
+    total = (sr.W_TEXT + sr.W_SEMANTIC + sr.W_MOOD + sr.W_DISTANCE
+             + sr.W_RATING + sr.W_CLUSTER)
+    assert total == pytest.approx(1.0)

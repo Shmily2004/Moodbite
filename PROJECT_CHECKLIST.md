@@ -16,14 +16,16 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Gợi ý món trong kết quả | ✅ Xong | lồng trong từng quán, không còn endpoint riêng |
 | Ghi nhận tương tác | ✅ Xong | `POST /interactions` → nhãn cho mô hình sau này |
 | Ngữ cảnh thời điểm | ✅ Giờ ăn · 🟡 thời tiết tắt mặc định | bật bằng `MOODBITE_ENABLE_WEATHER=1` |
-| Frontend | ✅ Chạy được | ô tìm kiếm tự do + định vị, chưa có bản đồ |
-| Bản đồ Google Maps | ⬜ Chưa làm | đã có hướng dẫn đầy đủ |
+| Frontend Client | ✅ **TypeScript + FSD** | 21 test, có bản đồ, steiger trong CI |
+| Bản đồ | ✅ **Xong** | Leaflet + OpenStreetMap, miễn phí, không cần key |
 | Kiến trúc | ✅ Sạch | Clean Architecture + checker tự động trong CI |
-| Test | ✅ 146 test xanh | gồm test "app phải dựng được" |
+| Test | ✅ 171 backend + 21 frontend | tổng 192 |
 | Dữ liệu | ✅ 4938 quán · 142 đơn vị HC | provenance 100%, trùng lặp 0% |
 | Thu thập dữ liệu đa nguồn | ✅ Xong | kiến trúc `SourceAdapter`, thêm nguồn không sửa pipeline |
 | Lọc giờ mở cửa / chế độ ăn / quận | ✅ Xong | thiếu dữ liệu KHÔNG bị loại |
-| Phân cụm / tóm tắt review | ⬜ Chưa làm | **dữ liệu chưa đủ** — xem mục ⚠️ |
+| **Lớp 1 — Phân cụm trải nghiệm** | ✅ **Xong** | KMeans k=7, Silhouette 0.318 |
+| **Lớp 2 — Tìm kiếm ngữ nghĩa** | ✅ **Xong** | TF-IDF cosine, 4938 quán |
+| Lớp 4 — Tóm tắt review | ⬜ Chưa làm | review TB 106 ký tự, quá ngắn |
 | Đăng nhập / tài khoản | ⬜ Ngoài phạm vi | SRS mục 8, Won't-have |
 
 **Tự kiểm toàn bộ bằng MỘT lệnh** (chạy được ở PowerShell, CMD, bash, macOS, Linux):
@@ -88,10 +90,30 @@ Kiểm lại (mục 4 của `python scripts/verify.py` đã tự kiểm việc n
 | `GET /api/v1/moods` | 4 mood dùng cho nút bấm nhanh |
 
 ### Các lớp mô hình theo đề án
-- [x] **Lớp 2 (bản khả thi) — tìm kiếm câu tự do:** khớp lai theo tên → loại hình →
-      không gian → review, kèm `match_source` nói rõ khớp nhờ đâu
-- [x] **Lớp 3 — xếp hạng theo ngữ cảnh:** `predicted_score` tổng hợp câu tự do (0.40) +
-      mood (0.30) + khoảng cách (0.20) + đánh giá (0.10)
+- [x] **Lớp 1 — Phân cụm trải nghiệm (KMeans):** `data_pipeline/clustering.py`
+      - Đặc trưng: mức giá · đánh giá · độ phổ biến (log) · không gian · số tiện nghi
+      - **k=7** chọn bằng Silhouette (thử k=3..8, có ràng buộc cụm ≥1% để loại cụm nhiễu)
+      - **Silhouette 0.318 · Davies-Bouldin 1.025 · Calinski-Harabasz 413.1**
+      - Phân cụm 1197/4938 quán có đủ tín hiệu; còn lại để TRỐNG theo quy tắc Cold Start
+      - Cụm dùng làm 1 tín hiệu xếp hạng (trọng số 0.10), KHÔNG phải quyết định cuối cùng
+- [x] **Lớp 2 — Tìm kiếm ngữ nghĩa (TF-IDF + cosine):**
+      `infrastructure/adapters/tfidf_semantic_search.py`, chỉ mục 4938 quán
+      - n-gram ký tự (2-4) thay vì tách từ, vì tiếng Việt không tách từ bằng khoảng trắng
+      - Khớp được cách diễn đạt khác nhau: "yên tĩnh" ↔ review "tĩnh lặng"
+      - Đứng sau một PORT nên đổi sang sentence-transformers sau này không phải sửa use case
+- [x] **Lớp 2 (bổ trợ) — khớp từ khoá:** tên → loại hình → không gian → review,
+      kèm `match_source` nói rõ khớp nhờ đâu
+- [x] **Lớp 3 — xếp hạng theo ngữ cảnh:** `predicted_score` tổng hợp 6 tín hiệu
+      (tổng trọng số = 1.0, nên điểm luôn nằm trong [0,1] và giải thích được):
+
+      | Tín hiệu | Trọng số |
+      |---|---|
+      | khớp từ khoá | 0.22 |
+      | **khớp ngữ nghĩa (Lớp 2)** | **0.16** |
+      | mood + ngữ cảnh thời điểm | 0.26 |
+      | khoảng cách | 0.17 |
+      | đánh giá | 0.09 |
+      | **cụm trải nghiệm (Lớp 1)** | **0.10** |
 - [x] **Lớp 4 (một phần) — tín hiệu thời điểm:** giờ ăn/cuối tuần luôn bật; thời tiết qua
       Open-Meteo (miễn phí, không cần key), tắt mặc định
 - [x] **Lớp 5 — gợi ý món:** lồng trong từng kết quả, kèm `confidence`
@@ -208,36 +230,38 @@ tự động trong ToS** → không dùng. Phân tích đầy đủ: `docs/data_
 
 ## 🚧 VIỆC TIẾP THEO (ưu tiên từ trên xuống)
 
-### 1. Bản đồ tương tác 🔥
-Đề án mục 5 nói toàn bộ trải nghiệm nên diễn ra trên bản đồ, không phải danh sách rời.
-Dữ liệu đã sẵn sàng 100% (mọi quán đều có toạ độ).
+### 1. Mở rộng đánh giá — MIỄN PHÍ, không cần Google Places
+Hiện 23.2% quán có đánh giá. **Đây KHÔNG còn là nút thắt**: Lớp 1 (phân cụm) và Lớp 2
+(tìm kiếm ngữ nghĩa) đã chạy được với dữ liệu hiện có.
 
-- [ ] Lấy API key + **giới hạn key theo tên miền** (bắt buộc)
-- [ ] `npm install @vis.gl/react-google-maps`
-- [ ] `features/map/RestaurantMap.jsx`, ghim kết quả lên bản đồ
-- [ ] Hướng dẫn đầy đủ: `docs/google_maps_integration.md`
+Cách miễn phí, theo thứ tự đáng làm:
 
-### 2. Google Places API — nút thắt lớn nhất 🔥
-Chặn cả 3 lớp mô hình còn lại (embedding, phân cụm, tóm tắt review) VÀ mọi tính năng
-dựa trên đánh giá/giá.
+- [ ] **Apify free tier mỗi tháng** — credit miễn phí được cấp lại theo chu kỳ. Mỗi đợt
+      ~500 quán. Chạy 3-4 tháng là phủ xong trung tâm Hà Nội. Cấu hình + toạ độ vùng đã
+      có sẵn ở mục "Vì sao đánh giá vẫn chỉ 23.2%" bên trên.
+- [ ] **Tự nhập tay quán trọng điểm** — 50-100 quán nổi tiếng ở Hoàn Kiếm, nhập bằng
+      Admin sau khi có. Chậm nhưng miễn phí và chất lượng cao.
+- [ ] ⏸️ Google Places API — **để sau**, chỉ làm nếu có thẻ thanh toán. Chỗ cắm adapter
+      đã sẵn sàng (`data_pipeline/sources/`), viết thêm 1 file là chạy.
 
-- [ ] Lấy API key (cần thẻ thanh toán)
-- [ ] Viết `data_pipeline/sources/google_places.py` (chỗ cắm đã sẵn sàng)
-- [ ] ⚠️ Đọc kỹ ToS: Google cấm lưu trữ lâu dài phần lớn nội dung Places
+> ⚠️ ĐỪNG scrape ShopeeFood/GrabFood/Foody/Facebook để lách — vi phạm ToS, rất dễ bị hỏi
+> khi bảo vệ. Xem `docs/data_sources.md`.
 
-### 3. Bật thời tiết khi chạy thật
+### 2. Bật thời tiết khi chạy thật
 - [ ] `MOODBITE_ENABLE_WEATHER=1` (Open-Meteo miễn phí, không cần key)
-- [ ] Xác nhận lại cơ chế tự khắc phục khi API lỗi trên môi trường thật
+- [ ] Xác nhận cơ chế tự khắc phục khi API lỗi trên môi trường thật
 
-### 4. Frontend — CHỜ BẠN CHỌN KIẾN TRÚC 🔥
-- [ ] Đọc `docs/frontend_readiness.md`, chọn: công nghệ (P1-P4) + cách tách Client/Admin (A-D)
-- [ ] Client frontend: **READY** để bắt đầu ngay
-- [ ] Admin frontend: **NOT READY** — cần SQLite + auth + endpoint admin trước
+### 3. Frontend Admin — CHẶN, cần backend trước
+- [ ] Chuyển lưu trữ sang SQLite (`SqliteRestaurantRepository`, use case không đổi)
+- [ ] Thêm xác thực (1 tài khoản admin + JWT ngắn hạn)
+- [ ] Endpoint `/api/v1/admin/*` (CRUD + soft-delete)
+- [ ] Chỉ khi đó mới dựng `apps/admin`
 
-### 5. Khi đã có dữ liệu tương tác
-- [ ] Huấn luyện mô hình xếp hạng thay cho công thức trọng số (Lớp 3 đầy đủ)
-- [ ] Đánh giá bằng NDCG / Precision@K theo đề án mục 8
-- [ ] ⚠️ Chỉ làm khi có nhãn thật — huấn luyện khi chưa có nhãn chỉ tạo ảo giác chính xác
+### 4. Lớp 3 đầy đủ — khi đã có dữ liệu tương tác
+- [ ] Huấn luyện mô hình xếp hạng thay công thức trọng số
+- [ ] Đánh giá bằng NDCG / Precision@K (đề án mục 8)
+- [ ] ⚠️ Chỉ làm khi có nhãn thật — `interactions.jsonl` hiện **0 bản ghi**.
+      Huấn luyện khi chưa có nhãn chỉ tạo ảo giác chính xác.
 
 ---
 

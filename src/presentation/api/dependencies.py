@@ -31,6 +31,7 @@ from src.infrastructure.repositories.json_dish_knowledge_repository import (
 from src.infrastructure.repositories.json_restaurant_details_repository import (
     JsonRestaurantDetailsRepository,
 )
+from src.infrastructure.adapters.tfidf_semantic_search import TfidfSemanticSearch
 from src.infrastructure.repositories.jsonl_interaction_repository import (
     JsonlInteractionRepository,
 )
@@ -54,6 +55,7 @@ class Container:
     interaction_repository: object
     rule_predictor: object
     context_provider: object
+    semantic_search: object
     search_restaurants: SearchRestaurantsUseCase
     get_restaurant_details: GetRestaurantDetailsUseCase
     log_interaction: LogInteractionUseCase
@@ -71,6 +73,7 @@ class Container:
             "interactions": _status_of(self.interaction_repository),
             "ml_rule_predictor": _status_of(self.rule_predictor),
             "context_provider": _status_of(self.context_provider),
+            "semantic_search": _status_of(self.semantic_search),
         }
 
 
@@ -102,6 +105,11 @@ def build_container(settings: Optional[Settings] = None) -> Container:
         if settings.enable_weather
         else ClockOnlyContextProvider()
     )
+    # Chỉ mục ngữ nghĩa dựng MỘT LẦN lúc khởi động từ dữ liệu đã nạp - không dựng lại
+    # ở mỗi request (dựng mất ~1 giây cho 5000 quán).
+    semantic_search = TfidfSemanticSearch(
+        restaurant_repository.list_all() if restaurant_repository.is_ready else []
+    )
 
     return Container(
         settings=settings,
@@ -111,11 +119,13 @@ def build_container(settings: Optional[Settings] = None) -> Container:
         interaction_repository=interaction_repository,
         rule_predictor=rule_predictor,
         context_provider=context_provider,
+        semantic_search=semantic_search,
         search_restaurants=SearchRestaurantsUseCase(
             restaurants=restaurant_repository,
             dish_knowledge=dish_knowledge_repository,
             context_provider=context_provider,
             rule_predictor=rule_predictor,
+            semantic_search=semantic_search,
         ),
         get_restaurant_details=GetRestaurantDetailsUseCase(details_repository),
         log_interaction=LogInteractionUseCase(

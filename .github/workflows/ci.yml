@@ -37,8 +37,11 @@ jobs:
         run: python scripts/check_architecture.py
 
   frontend:
-    name: Frontend (React)
+    name: Frontend (React + TypeScript + FSD)
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
     steps:
       - uses: actions/checkout@v4
 
@@ -50,9 +53,15 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
 
       - name: Install deps
-        working-directory: frontend
         run: npm ci
 
-      - name: Build
-        working-directory: frontend
+      # Build đã bao gồm `tsc --noEmit`, nên sai tên field API là CI đỏ ngay.
+      - name: Build (gồm kiểm tra kiểu TypeScript)
         run: npm run build
+
+      - name: Test
+        run: npm run test --workspace @moodbite/client
+
+      # Chốt chặn kiến trúc frontend - bản tương đương check_architecture.py của backend.
+      - name: Kiểm tra luật import Feature-Sliced Design
+        run: npx steiger ./apps/client/src --no-watch

@@ -6,7 +6,7 @@ VÌ SAO CÓ FILE NÀY: tài liệu trước đây ghi 4 lệnh nối bằng `&&`
 bash/macOS/Linux. PowerShell 5.1 (mặc định trên Windows) KHÔNG hỗ trợ `&&`, cũng không có
 `grep`/`wc`. Viết bằng Python thì chạy được ở mọi nơi, không cần nhớ cú pháp shell nào.
 
-Kiểm 5 việc:
+Kiểm 7 việc:
   1. App FastAPI dựng được               (bug từng làm app không khởi động được)
   2. Toàn bộ test xanh
   3. Hướng phụ thuộc Clean Architecture đúng
@@ -73,8 +73,20 @@ def check_architecture() -> tuple[bool, str]:
     return code == 0, (lines[-1] if lines else "khong co output")
 
 
+# Dấu hiệu của một SERVER lẻn vào frontend. TypeScript trong `frontend/` là ĐÚNG
+# (frontend dùng TS theo kiến trúc đã chốt) - thứ bị cấm là code CHẠY PHÍA SERVER.
+SERVER_SIGNATURES = (
+    "express(", "fastify(", "createServer(", "next/server",
+    "@nestjs", "from 'http'", 'from "http"',
+)
+
+
 def check_single_backend() -> tuple[bool, str]:
-    """Chỉ được có MỘT backend. Xem CLAUDE.md muc -1."""
+    """Chỉ được có MỘT backend. Xem CLAUDE.md muc -1.
+
+    LƯU Ý: luật này KHÔNG cấm TypeScript - frontend dùng TypeScript theo đúng kiến trúc
+    đã chốt. Thứ bị cấm là một SERVER thứ hai, dù viết bằng ngôn ngữ gì.
+    """
     problems: list[str] = []
 
     apps = [
@@ -85,23 +97,39 @@ def check_single_backend() -> tuple[bool, str]:
         problems.append(f"co {len(apps)} noi tao FastAPI (phai = 1): "
                         f"{[str(p.relative_to(ROOT)) for p in apps]}")
 
+    # TypeScript chỉ được nằm trong frontend/ (hoặc archive/).
     stray_ts = [
         p for p in ROOT.rglob("*.ts")
-        if not any(part in ("archive", "node_modules", ".git") for part in p.parts)
+        if not any(part in ("archive", "node_modules", ".git", "frontend") for part in p.parts)
     ]
     if stray_ts:
-        problems.append(f"co {len(stray_ts)} file .ts ngoai archive/ (phai = 0): "
+        problems.append(f"co {len(stray_ts)} file .ts ngoai frontend/ va archive/: "
                         f"{[str(p.relative_to(ROOT)) for p in stray_ts[:5]]}")
+
+    # Frontend KHÔNG được chứa code chạy phía server.
+    frontend_src = ROOT / "frontend"
+    server_files: list[str] = []
+    if frontend_src.exists():
+        for pattern in ("*.ts", "*.tsx", "*.js", "*.jsx"):
+            for p in frontend_src.rglob(pattern):
+                if any(part in ("node_modules", "dist", ".vite") for part in p.parts):
+                    continue
+                text = p.read_text(encoding="utf-8", errors="ignore")
+                if any(sig in text for sig in SERVER_SIGNATURES):
+                    server_files.append(str(p.relative_to(ROOT)))
+    if server_files:
+        problems.append(f"frontend chua code SERVER (backend thu hai): {server_files[:5]}")
 
     if (ROOT / "package.json").exists():
         problems.append("co package.json o thu muc goc (phai khong co)")
 
     if problems:
         return False, "\n        ".join(problems)
-    return True, "1 app FastAPI, 0 file .ts ngoai archive/, khong co package.json o goc"
+    return True, "1 app FastAPI, khong co server thu hai, khong co package.json o goc"
 
 
 def check_frontend() -> tuple[bool, str] | tuple[None, str]:
+    """Build + test + kiem tra kien truc FSD cua frontend."""
     frontend = ROOT / "frontend"
     if not (frontend / "node_modules").exists():
         return None, "chua cai node_modules - chay: cd frontend; npm install"
@@ -111,9 +139,38 @@ def check_frontend() -> tuple[bool, str] | tuple[None, str]:
 
     code, out = run([npm, "run", "build"], cwd=frontend)
     if code != 0:
-        return False, out.strip()[-800:]
+        return False, "BUILD LOI:\n" + out.strip()[-700:]
     built = next((ln.strip() for ln in out.splitlines() if "built in" in ln), "build xong")
     return True, built
+
+
+def check_frontend_tests() -> tuple[bool, str] | tuple[None, str]:
+    frontend = ROOT / "frontend"
+    npm = shutil.which("npm") or shutil.which("npm.cmd")
+    if not (frontend / "node_modules").exists() or not npm:
+        return None, "bo qua - chua cai node_modules"
+
+    code, out = run([npm, "run", "test", "--workspace", "@moodbite/client"], cwd=frontend)
+    summary = next(
+        (ln.strip() for ln in out.splitlines() if "Tests " in ln and ("passed" in ln or "failed" in ln)),
+        "khong doc duoc ket qua",
+    )
+    return code == 0, summary
+
+
+def check_frontend_architecture() -> tuple[bool, str] | tuple[None, str]:
+    """Cuong che luat import Feature-Sliced Design - ban tuong duong cua
+    check_architecture.py o phia backend."""
+    frontend = ROOT / "frontend"
+    npx = shutil.which("npx") or shutil.which("npx.cmd")
+    if not (frontend / "node_modules").exists() or not npx:
+        return None, "bo qua - chua cai node_modules"
+
+    code, out = run([npx, "steiger", "./apps/client/src", "--no-watch"], cwd=frontend)
+    if code == 0:
+        return True, "FSD OK: khong vi pham luat import"
+    problems = [ln.strip() for ln in out.splitlines() if "✘" in ln or "Found" in ln]
+    return False, "\n".join(problems[-6:]) or out.strip()[-500:]
 
 
 CHECKS = [
@@ -122,6 +179,8 @@ CHECKS = [
     ("3. Clean Architecture", check_architecture),
     ("4. Chi mot backend", check_single_backend),
     ("5. Frontend build", check_frontend),
+    ("6. Frontend test", check_frontend_tests),
+    ("7. Frontend FSD", check_frontend_architecture),
 ]
 
 

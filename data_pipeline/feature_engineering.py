@@ -91,7 +91,31 @@ def extract_features():
         'additionalInfo/Khách hàng',      # phù hợp nhóm / gia đình / đi một mình
         'additionalInfo/Nổi tiếng về',
     ]
-    columns_to_keep = ['title', 'placeId', 'location/lat', 'location/lng', 'totalScore', 'categoryName', 'cuisine', 'address'] + mood_columns + enrichment_columns
+    # PROVENANCE_COLUMNS: mỗi bản ghi phải trả lời được "ở đâu ra, đáng tin tới đâu,
+    # cập nhật lúc nào". Trước đây dataset trộn lẫn Google + OSM mà KHÔNG có cách nào
+    # phân biệt, nên không thể đánh giá chất lượng dữ liệu hay ưu tiên nguồn tốt hơn.
+    provenance_columns = [
+        'source', 'source_url', 'last_updated', 'data_confidence',
+    ]
+
+    # DISCOVERY_COLUMNS: các trường phục vụ tìm kiếm / lọc / hiển thị mà bản cào mới
+    # (data_pipeline/sources/osm_overpass.py) đã lấy về nhưng trước đây bị bước này cắt bỏ.
+    discovery_columns = [
+        'district', 'district_confidence',   # quận/huyện - suy từ toạ độ
+        'phone', 'street',
+        'aliases',                            # tên gọi khác -> tăng khả năng khớp tìm kiếm
+        'amenities',                          # outdoor_seating, air_conditioning, wifi...
+        'dietary',                            # vegetarian / vegan / halal
+        'delivery', 'takeaway',
+        'dishes',                             # gợi ý món từ tag cuisine của OSM
+        'menu',
+    ]
+
+    columns_to_keep = (
+        ['title', 'placeId', 'location/lat', 'location/lng', 'totalScore',
+         'categoryName', 'cuisine', 'address']
+        + mood_columns + enrichment_columns + provenance_columns + discovery_columns
+    )
     final_cols = [c for c in columns_to_keep if c in df.columns]
     df_features = df[final_cols]
     

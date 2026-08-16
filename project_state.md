@@ -1,66 +1,28 @@
-# Trạng thái dự án - MoodBite (Cập nhật: 2026-08-13)
+# ⚠️ File này đã được thay thế
 
-## 📅 Current Status: Phase 1 (Data Pipeline & ML Foundations)
+Trạng thái dự án nay nằm ở **[`PROJECT_CHECKLIST.md`](PROJECT_CHECKLIST.md)**.
 
-### ✅ Phase 0: Infrastructure & Standards (COMPLETED)
-- **Repo Structure:** Clean Architecture established (`src/config/di.py`).
-- **Standards:** `CODING_STANDARDS.md` and `.gitignore` finalized.
-- **Config:** `ConfigService` and `thresholds.yaml` implemented for centralized management.
-- **Schema:** `schema.json` and `docs/spatial_schema.md` synchronized.
+## Vì sao chuyển
 
-### 🚧 Phase 1: Data Pipeline & Recommendation Engine (ACTIVE)
-- **Data Cleaning & Feature Engineering:**
-    - `data_pipeline/feature_engineering.py` đã được sửa (giữ lại cột `cuisine`) và chạy thành công.
-    - File features: `data_pipeline/data_cleaned/dataset_moodbite_features.csv` — Row count: **4169** (verified).
-    - Mood-score coverage: **98.08%** (4089/4169) — verified.
-    - Verification (commands & raw outputs):
+Có hai file cùng mô tả trạng thái dự án thì chắc chắn sẽ có lúc chúng mâu thuẫn nhau, và
+khi đó không ai biết tin file nào. Chỉ giữ **một** nguồn sự thật.
 
+## Những gì file cũ ghi sai (rút kinh nghiệm)
+
+File này từng ghi backend "hoạt động tốt" và "14/14 test pass". Kiểm chứng lại ngày
+2026-08-16 cho thấy:
+
+- **App không khởi động được** — `main.py` dùng `@app.exception_handler` trước khi biến
+  `app` tồn tại (`NameError`).
+- Test vẫn xanh **vì không có test nào import app**.
+- `/api/recommend` và `/api/suggest-dish` cũng hỏng riêng (đọc `request.mood` trên object
+  `Request` thay vì trên body).
+
+→ Bài học đã đưa vào [`CLAUDE.md`](CLAUDE.md): **chỉ đánh dấu hoàn thành sau khi chạy thật**,
+không dựa vào tài liệu. Nay đã có test bắt buộc app phải dựng được, chạy trong CI.
+
+Nội dung cũ vẫn xem lại được trong lịch sử git:
+
+```bash
+git log --follow -p project_state.md
 ```
-Get-ChildItem data_pipeline/data_raw/:
-Mode          LastWriteTime   Length Name                           
-----          -------------   ------ ----                           
--a----   8/7/2026   5:15 PM   146979 01_raw_places.json             
--a----   8/7/2026   5:15 PM 12043919 02_raw_places.json             
--a----   8/7/2026   5:15 PM 10836649 03_raw_places.json             
--a----  8/11/2026  10:02 AM  3107321 04_raw_places_osm.json         
--a----  8/11/2026  10:23 AM   165222 04_raw_places_osm_enhanced.json
--a----  8/13/2026   2:03 PM 16141064 merged_places.csv              
-
-git diff --stat data_pipeline/data_cleaned/dataset_moodbite_features.csv:
-(no output — working-tree CSV matches committed CSV)
-
-Committed (HEAD) row count:
-HEAD_ROWS:4169
-
-Remote (origin/main) row count:
-ORIGIN_MAIN_ROWS:4169
-
-Script output (fresh run / verification):
-FILE: data_pipeline/data_cleaned/dataset_moodbite_features.csv
-ROWS: 4169
-MOOD_COLS: ['comfort_cozy_score', 'spicy_hot_score', 'fresh_healthy_score', 'cheap_budget_score', 'quick_fast_score']
-ROWS_WITH_MOOD_GT0: 4089
-PCT_WITH_MOOD_GT0:98.08%
-```
-
-    - Note: `git diff --stat` produced no differences, and both `HEAD` and `origin/main` have 4169 rows. This indicates the regenerated 4169-row CSV is not a local regression from missing raw files on this machine; it matches the committed & remote state.
-    - Dish-first: `dish_recommendation_service.py` + `dish_knowledge.py`/`dish_knowledge_base.json` (Python) và `CsvDishRepository.ts`/`DishKnowledgeBase.ts` (TS) — đã verify chạy được với dữ liệu thật.
-    - ML adapter (`ml_dish_adapter.py`) và script train (`train_dish_classifier.py`) ĐÃ BỊ GỠ BỎ — model cũ bị lỗi rò rỉ nhãn (label suy ra trực tiếp từ chính input), độ chính xác 98.56% không có giá trị thật.
-    - Tests: `pytest` — 14/14 pass khi chạy TOÀN BỘ cùng lúc (đã verify, không phải từng file riêng lẻ).
-- **Floorplan / Photo→3D work (ABANDONED/PAUSED):**
-    - Legacy scripts (`train_segformer.py`, `train_yolo.py`) còn tồn tại nhưng hướng CubiCasa5K đã bị BỎ.
-    - Depth Anything V2 (`depth_estimation_service.py`) TẠM DỪNG do lỗi môi trường. Đừng ưu tiên làm tiếp phần 3D.
-
-### ⚠️ Risks & Limitations
-- **Model in Repo:** The demo model (`models/dish_rule_classifier.joblib`) was accidentally committed. It must be removed from Git to avoid bloating the repo.
-- **Test Suite:** Local `pytest` runs pass (14/14). CI should run tests in a clean environment; ensure GitHub Actions runs `pytest` to catch environment-specific collection issues.
-- **Scope drift / outdated docs:** Some docs (SRS, spatial schema) describe the old blueprint direction. They are outdated.
-- **ML Adapter robustness:** Needs better logging, metrics, error handling (corrupt/missing model), and unit tests for fallback logic.
-
-**Historical ML leakage note:** A prior demo training script attempted to learn `rule_id` from `categoryName` while `categoryName` was present in the model input. That caused trivial high accuracy (~98.56%) because labels were deterministically derived from the input via `match_rule_for_category()`; this training pipeline has been removed from the repo. Do not report the old 98.56% number as evidence of a real ML model.
-
-### ⏭️ Next Practical Steps (Prioritized)
-1. **Git Cleanup (URGENT):** Remove the `.joblib` model artifact from git tracking, add `models/` to `.gitignore`, and create `scripts/download_model.py`.
-2. **Fix Test Suite & CI:** Resolve `pytest` collection issues and setup GitHub Actions (CI) to run lint + tests automatically.
-3. **Enhance ML Adapter:** Write unit tests for missing file, corrupt file, and fallback KB.
-4. **Dataset Expansion:** Use `enhanced_osm_query.py` to expand dataset (bbox `20.85,105.70,21.40,106.05` for Hanoi) when needed.

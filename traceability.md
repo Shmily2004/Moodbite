@@ -5,7 +5,7 @@
 | ID | Requirement | Implementation | Validation |
 |---|---|---|---|
 | R0.1 | Standard Folder Structure | Repository Root | Manual Review |
-| R0.2 | Centralized Configuration | `config/thresholds.yaml`, `src/infrastructure/config_service.py` | `tests/test_config.py` |
+| R0.2 | Centralized Configuration | `config/thresholds.yaml`, `src/infrastructure/config/config_service.py` | `tests/test_config.py` |
 | R0.3 | Coding Standards | `CODING_STANDARDS.md` | Linter Config (ruff) |
 | R0.4 | Spatial JSON Contract | `schema.json`, `docs/spatial_schema.md` | `tests/test_schema.py` |
 | R0.5 | Git Cleanliness | `.gitignore` | Manual Review |
@@ -31,7 +31,7 @@
 
 ## Status Update (2026-08-13)
 - Blueprint-based Floorplan → Spatial JSON → 3D pipeline (SegFormer + YOLO on CubiCasa5K) is ABANDONED: training on architectural blueprints does not transfer to real photos used by the product.
-- Photo→3D experiments using Depth Anything V2 (`src/application/services/depth_estimation_service.py`) were TRIED but are currently PAUSED due to environment issues and product prioritization.
+- Photo→3D experiments using Depth Anything V2 (`src/infrastructure/ai/depth_estimation_service.py`) were TRIED but are currently PAUSED due to environment issues and product prioritization.
 - Primary focus is Recommendation Engine using `data_pipeline/data_cleaned/dataset_moodbite_features.csv` and corresponding TypeScript/Python implementations.
 
 Notes: rely on git commit history and deployed services as source-of-truth rather than older markdown requirements.

@@ -1,172 +1,198 @@
-# MoodBite: From Floorplan to 3D & Personalized Dining
+# MoodBite
 
-MoodBite is an AI-driven platform that transforms 2D floorplans into immersive 3D environments and provides personalized dish suggestions based on user context and restaurant data.
+Gợi ý quán ăn ở Hà Nội theo **nhu cầu diễn đạt tự do**, vị trí và thời điểm.
 
-## 🚀 Project Overview
+Gõ "quán lẩu ấm cúng gần đây" hoặc "chỗ yên tĩnh để làm việc" thay vì chọn trong bộ lọc
+cứng — kết quả kèm sẵn gợi ý món ăn cho từng quán.
 
-This project consists of two main pillars:
-1.  **AI Spatial Reconstruction:** Converting 2D architectural floorplans into 3D models using Computer Vision (SegFormer for wall segmentation and YOLOv11 for object detection).
-2.  **Mood-Based Recommendation:** Suggesting dishes and restaurants based on user "mood" signals extracted from reviews and environmental context.
+> 📍 **Không biết dự án đang ở đâu?** Đọc [`PROJECT_CHECKLIST.md`](PROJECT_CHECKLIST.md) —
+> đã làm gì, đang làm gì, làm gì tiếp theo.
 
-## 🛠️ Tech Stack
+---
 
--   **Backend:** Python 3.10+, FastAPI
--   **AI/ML:** PyTorch, Transformers (SegFormer), Ultralytics (YOLOv11), OpenCV
--   **Frontend:** React, Three.js, TypeScript
--   **Architecture:** Clean Architecture (Domain-Driven Design)
+## Chạy thử trong 3 bước
 
-## 📁 Project Structure
-
-```text
-MoodBite_Project/
-├── config/             # Centralized thresholds and configurations
-├── data_pipeline/      # Data cleaning, feature engineering, and preprocessing
-├── docs/               # Technical documentation and spatial schemas
-├── src/
-│   ├── domain/         # Core business logic and entities
-│   ├── application/    # Use cases and ports
-│   ├── infrastructure/ # AI models, adapters, and external services
-│   └── presentation/   # API controllers and UI
-├── tests/              # Unit and integration tests
-└── schema.json         # Authoritative Spatial JSON contract
-```
-
-## ⚙️ Setup & Installation
-
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/Shmily2004/Moodbite.git
-    cd Moodbite
-    ```
-
-2.  **Environment Setup:**
-    ```bash
-    python -m venv .venv
-    source .venv/bin/activate  # Windows: .venv\Scripts\activate
-    pip install -r requirements.txt
-    ```
-
-3.  **Configuration:**
-    Adjust thresholds and AI parameters in `config/thresholds.yaml`.
-
-## 🏃 Execution
-
-### Data Pipeline (Nhà hàng)
 ```bash
-# 1. Gộp các file JSON cào được (Apify/OSM), khử trùng lặp, lọc chỉ đồ ăn cho người
-python -m data_pipeline.merge_and_prepare_raw
+# 1. Cài thư viện
+python -m venv .venv
+.venv\Scripts\activate          # Windows
+# source .venv/bin/activate     # macOS/Linux
+pip install -r requirements.txt
 
-# 2. Làm sạch dữ liệu
-python -m data_pipeline.data_cleaning
+# 2. Chạy backend
+uvicorn app:app --reload --port 8001
 
-# 3. Trích xuất đặc trưng mood-score
-python -m data_pipeline.feature_engineering
+# 3. Mở Swagger UI để thử API
+# http://localhost:8001/docs
 ```
 
-Kết quả: `data_pipeline/data_cleaned/dataset_moodbite_features.csv` — được `CsvRestaurantRepository`/`CsvDishRepository`
-(TypeScript) tự động đọc khi khởi động app (`src/config/diContainer.ts`). Nếu file này chưa tồn tại, app tự
-fallback về dữ liệu mẫu (`InMemory*Repository`) thay vì lỗi.
+Kiểm tra mọi thứ sẵn sàng chưa:
 
-Để cào thêm dữ liệu miễn phí từ OpenStreetMap (bổ sung cho Apify):
 ```bash
-python -m data_pipeline.scrape_osm_hanoi
+curl http://localhost:8001/health
 ```
 
-### AI Training (Phase 1 - Floorplan → 3D)
+Chạy frontend (cửa sổ terminal khác):
 
-Dataset floorplan (CubiCasa5K qua Roboflow, ~5000 ảnh, license CC BY-NC 4.0 - chỉ dùng phi thương mại):
+```powershell
+cd frontend
+copy .env.example .env.local    # macOS/Linux: cp .env.example .env.local
+npm install
+npm run dev                     # http://localhost:5173
+```
+
+---
+
+## API
+
+Base URL: `/api/v1`. Mọi response bọc trong `data` (thành công) hoặc `error` (lỗi).
+
+| Method | Endpoint | Công dụng |
+|---|---|---|
+| POST | `/api/v1/search` | Tìm quán bằng **câu tự do** + vị trí, trả danh sách đã xếp hạng |
+| GET | `/api/v1/restaurants/{id}` | Chi tiết quán (giá, review, ảnh) |
+| POST | `/api/v1/interactions` | Ghi tương tác — nhãn cho mô hình xếp hạng sau này |
+| GET | `/api/v1/moods` | 4 mood dùng cho nút bấm nhanh |
+| GET | `/health` | Trạng thái từng nguồn dữ liệu |
+
+Ví dụ:
+
 ```bash
-pip install roboflow --break-system-packages
-export ROBOFLOW_API_KEY="your_api_key"   # lấy miễn phí tại roboflow.com
-python -m data_pipeline.download_floorplan_dataset
+curl -X POST http://localhost:8001/api/v1/search \
+  -H "Content-Type: application/json" \
+  -d '{
+        "session_id": "3f9a0000-0000-4000-8000-000000000000",
+        "query_text": "quán lẩu ấm cúng gần đây",
+        "latitude": 21.0285,
+        "longitude": 105.8542,
+        "limit": 5
+      }'
 ```
 
-Train (khuyến nghị dùng Google Colab để có GPU miễn phí - train trên CPU rất chậm):
+Mỗi kết quả kèm sẵn `suggested_dish` — không phải gọi thêm endpoint nào.
+
+Bốn quy ước quan trọng khi đọc response:
+
+- **Tên trường là `snake_case`** (`restaurant_id`, `predicted_score`) theo đặc tả API mục 1.3.
+- `price_range`, `rating`, `user_ratings_total` bằng `null` nghĩa là **chưa có dữ liệu**,
+  không phải "miễn phí" hay "0 sao". Phần lớn quán lấy từ OpenStreetMap.
+- `price_range` là **chuỗi** (`"100-200 N ₫"`), không phải số.
+- `match_source` cho biết quán được gợi ý nhờ đâu (tên / loại hình / không gian / review),
+  và `warnings` liệt kê những gì server **không** làm được với request đó.
+
+---
+
+## Cấu trúc dự án
+
+```
+MoodBite/
+├── src/                    Backend (Clean Architecture 4 tầng)
+│   ├── domain/             Quy tắc nghiệp vụ — thuần Python
+│   ├── application/        Use case + port
+│   ├── infrastructure/     Đọc CSV/JSON, ML
+│   └── presentation/       FastAPI
+├── data_pipeline/          Cào, làm sạch, tính đặc trưng dữ liệu
+├── frontend/               React + Vite
+├── tests/                  137 test
+├── scripts/                Công cụ, gồm checker kiến trúc
+├── docs/                   Tài liệu kỹ thuật
+├── rules/                  Quy tắc nghiệp vụ theo tài liệu gốc
+└── archive/                Code cũ giữ lại để tham khảo
+```
+
+Chi tiết: [`docs/backend_architecture.md`](docs/backend_architecture.md)
+
+---
+
+## Dữ liệu
+
+Dataset đã có sẵn trong repo — **không cần chạy lại pipeline** trừ khi muốn cào thêm.
+
+| | Số lượng | Tỷ lệ |
+|---|---|---|
+| Quán ăn | **4226** | — |
+| Có toạ độ, tên, loại hình, địa chỉ | 4226 | **100%** |
+| Có nguồn gốc (`source`, `data_confidence`) | 4226 | **100%** |
+| Có đơn vị hành chính (`district`) | 3620 | 85.7% |
+| Có gợi ý món (`dishes`) | 1487 | 35.2% |
+| Có số điện thoại | 1023 | 24.2% |
+| Có giờ mở cửa | 954 | 22.6% |
+| Có tiện nghi | 656 | 15.5% |
+| Có rating | 350 | 8.3% |
+| Có giá | 228 | 5.4% |
+| Có khai báo chế độ ăn | 117 | 2.8% |
+
+Đơn vị hành chính phủ: **125**. Trùng lặp: **0%**.
+Đo lại bất cứ lúc nào: `python scripts/data_report.py`
+
+Thu thập thêm dữ liệu (miễn phí, không cần API key):
+
 ```bash
-python -m src.infrastructure.ai.train_segformer
-python -m src.infrastructure.ai.train_yolo --epochs 3   # test nhanh trước
-python -m src.infrastructure.ai.train_yolo               # train full (100 epoch)
+python -m data_pipeline.harvest --list              # xem nguồn nào sẵn sàng
+python -m data_pipeline.harvest                     # chạy mọi nguồn
 ```
 
-### Model đã train
+Rồi chạy lại pipeline:
 
-Model weight (`.pt`, `.onnx`) **không được commit vào git** (quá nặng, đã `.gitignore`).
-
-Model YOLO (door/wall/window detection, train trên CubiCasa5K) đã được lưu tại HuggingFace Hub:
-- Repo: https://huggingface.co/Shmily2004/moodbite-yolo-floorplan
-- Tải trực tiếp: https://huggingface.co/Shmily2004/moodbite-yolo-floorplan/resolve/main/best.pt
-
-Tải về để dùng lại (không cần train lại từ đầu):
-```bash
-curl -L -o best.pt https://huggingface.co/Shmily2004/moodbite-yolo-floorplan/resolve/main/best.pt
-```
-
-Upload model mới (sau khi train lại) lên HuggingFace:
-```bash
-pip install huggingface_hub
-python -c "from huggingface_hub import login; login()"
-python -m data_pipeline.upload_model_to_hf --file runs/detect/train/weights/best.pt --repo-name moodbite-yolo-floorplan
-```
-
-Demo ML model (dish-rule classifier)
-
-Historically the repo included a small demo classifier that attempted to map
-`categoryName` → `rule_id`. That training pipeline was removed because the labels
-were deterministically derived from `categoryName` (label leakage), producing
-artificially high accuracy. To avoid misleading results the repository no longer
-contains a local training script for this demo.
-
-If you need ML-driven rule assignment you have two practical options:
-
-- Use the rule-based matcher directly via `data_pipeline.dish_knowledge.match_rule_for_category()` — this
-    is deterministic and the canonical behavior used by the service.
-- If you have a legitimately trained model (trained on external, non-leaky data), place it at
-    `models/dish_rule_classifier.joblib` or use `scripts/download_model.py --url <MODEL_URL>` to fetch a hosted model.
-
-The service will prefer a provided model artifact when present, otherwise it falls back to the rule-based KB.
-
-
-## 🧪 Testing
-
-Run tests using `pytest`:
-```bash
-pytest
-```
-
-## 🍽️ Dish-suggestion (ML-backed) — quickstart
-
-The project includes a lightweight demo for an ML-backed adapter that predicts a
-knowledge-base `rule_id` from `categoryName`/`cuisine` and returns dishes from
-`data_pipeline/dish_knowledge_base.json`. Use the demo to reproduce the workflow:
-
-1. Ensure the data pipeline has been run and `dataset_moodbite_features.csv` exists:
 ```bash
 python -m data_pipeline.merge_and_prepare_raw
 python -m data_pipeline.data_cleaning
 python -m data_pipeline.feature_engineering
+python scripts/data_report.py                       # đo độ phủ trước/sau
 ```
 
-2. Train the simple classifier (demo):
-```bash
-python scripts/train_dish_classifier.py
+Thêm nguồn mới (Google Places...) — xem [`docs/data_sources.md`](docs/data_sources.md).
+
+---
+
+## Kiểm tra chất lượng
+
+Một lệnh, chạy được ở PowerShell / CMD / bash / macOS / Linux:
+
+```
+python scripts/verify.py
 ```
 
-3. Quick demo of predictions:
-```bash
-python scripts/predict_dish_from_model.py
-```
+Kiểm 5 việc: app dựng được · 137 test · hướng phụ thuộc Clean Architecture ·
+chỉ có 1 backend · frontend build được. Tất cả cũng chạy tự động trong CI
+(`.github/workflows/ci.yml`).
 
-4. Run the service-level smoke demo (calls `DishRecommendationService`):
-```bash
-python scripts/run_suggest_demo.py
-```
+> ⚠️ **Windows:** PowerShell 5.1 không hỗ trợ `&&` để nối lệnh, và không có
+> `grep`/`wc`. Dùng lệnh trên thay vì gõ tay từng bước.
 
-Notes:
-- The ML model is a lightweight TF-IDF + LogisticRegression demo saved to `models/`.
-- The runtime service prefers ML rule assignment when the model is available and
-    falls back to the rule-based KB matching.
+---
 
+## Tài liệu
 
-## 📄 License
+| File | Nội dung |
+|---|---|
+| [`PROJECT_CHECKLIST.md`](PROJECT_CHECKLIST.md) | **Tiến độ dự án — đọc đầu tiên** |
+| [`CLAUDE.md`](CLAUDE.md) | Quy tắc bắt buộc cho AI khi sửa code |
+| [`docs/backend_architecture.md`](docs/backend_architecture.md) | Backend nằm ở đâu, vì sao |
+| [`docs/frontend_architecture.md`](docs/frontend_architecture.md) | 3 phương án frontend (đã chọn & triển khai A) |
+| [`docs/google_maps_integration.md`](docs/google_maps_integration.md) | Bản đồ + vị trí người dùng |
+| [`docs/data_sources.md`](docs/data_sources.md) | Đánh giá nguồn dữ liệu, vì sao dùng/không dùng |
+| [`docs/frontend_readiness.md`](docs/frontend_readiness.md) | **Mức sẵn sàng frontend + phương án kiến trúc** |
+| [`CODING_STANDARDS.md`](CODING_STANDARDS.md) | Quy ước viết code |
+| [`rules/`](rules/) | Quy tắc nghiệp vụ theo tài liệu gốc |
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+---
+
+## Trạng thái các tính năng
+
+- ✅ **Tìm kiếm bằng câu tự do + gợi ý món** — chạy được
+- ✅ **Ghi nhận tương tác** — chuẩn bị dữ liệu cho mô hình xếp hạng
+- 🟡 **Ngữ cảnh thời điểm** — giờ ăn đã bật; thời tiết tắt mặc định (`MOODBITE_ENABLE_WEATHER=1`)
+- ✅ **Frontend** — ô tìm kiếm tự do + định vị thật
+- ⬜ **Bản đồ** — chưa làm, đã có hướng dẫn
+- ⬜ **Phân cụm / tóm tắt review** — chưa đủ dữ liệu (chỉ 8.3% quán có review)
+- ✅ **Lọc theo khu vực / giờ mở cửa / chế độ ăn** — mới bổ sung
+- ⏸️ **Floorplan → 3D** — tạm dừng, tắt mặc định (bật bằng `MOODBITE_ENABLE_SPATIAL=1`)
+- ⏸️ **Model ML gợi ý món** — model cũ bị rò rỉ nhãn nên đã gỡ; hiện dùng khớp từ khoá.
+  ⚠️ Con số "98.56% chính xác" trong tài liệu cũ **không có giá trị thật**.
+
+---
+
+## License
+
+MIT

@@ -108,6 +108,13 @@ venv/
 ENV/
 env/
 
+# Biến môi trường - CHỨA API KEY, không bao giờ được commit.
+# .env.example thì ngược lại: PHẢI commit để người khác biết cần khai báo biến gì.
+.env
+.env.local
+.env.*.local
+!.env.example
+
 # Spyder project settings
 .spyderproject
 .spyproject
@@ -168,3 +175,12 @@ outputs/
 runs/
 test_images/
 models/
+committed.csv
+# Dữ liệu tương tác người dùng sinh ra lúc chạy (nhãn cho mô hình xếp hạng).
+# Không commit: mỗi máy/lần chạy sẽ khác nhau và file chỉ lớn dần.
+data_pipeline/data_cleaned/interactions.jsonl
+
+# Cache theo o cua Overpass - sinh lai duoc, chi de tang toc chay lai.
+data_pipeline/data_raw/.osm_cache/
+# Log chay thu thap du lieu
+harvest.log

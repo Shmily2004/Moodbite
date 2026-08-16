@@ -28,7 +28,7 @@ import numpy as np
 from PIL import Image
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
-from src.application.services.depth_estimation_service import depth_estimation_service
+from src.infrastructure.ai.depth_estimation_service import depth_estimation_service
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)

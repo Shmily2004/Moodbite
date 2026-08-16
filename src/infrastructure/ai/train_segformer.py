@@ -8,7 +8,7 @@ import sys
 
 # Add project root to path
 sys.path.append(str(Path(__file__).resolve().parents[3]))
-from src.infrastructure.config_service import config_service
+from src.infrastructure.config.config_service import config_service
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')

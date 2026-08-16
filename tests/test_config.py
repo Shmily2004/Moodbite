@@ -3,7 +3,7 @@ from pathlib import Path
 import sys
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
-from src.infrastructure.config_service import config_service
+from src.infrastructure.config.config_service import config_service
 
 class TestConfigService(unittest.TestCase):
     def test_get_existing_config(self):

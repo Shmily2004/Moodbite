@@ -1,33 +1,23 @@
-import React, { useState } from 'react'
-import Recommend from './components/Recommend'
+import SearchPage from './features/search/SearchPage'
 
-export default function App(){
-  const [route, setRoute] = useState('home')
+export default function App() {
   return (
-    <div style={{fontFamily:'Arial, sans-serif', padding:20}}>
-      <header>
-        <h1>MoodBite — Demo UI</h1>
-        <nav style={{marginBottom:20}}>
-          <button onClick={()=>setRoute('home')}>Home</button>
-          <button onClick={()=>setRoute('recommend')}>Recommend</button>
-        </nav>
+    <div className="app">
+      <header className="app__header">
+        <h1>MoodBite</h1>
+        <p className="muted">
+          Gợi ý quán ăn theo nhu cầu, vị trí và thời điểm của bạn.
+        </p>
       </header>
 
       <main>
-        {route === 'home' && (
-          <div>
-            <p>Quick demo UI to interact with the MoodBite API.</p>
-            <p>Backend API base: <code>http://localhost:8001/api</code></p>
-          </div>
-        )}
-        {route === 'upload' && (
-          <div className="card">
-            <h3>Upload Floorplan (paused)</h3>
-            <p>The Photo→3D floorplan feature is paused by architecture decision and is not available in the demo UI.</p>
-          </div>
-        )}
-        {route === 'recommend' && <Recommend />}
+        <SearchPage />
       </main>
+
+      <footer className="app__footer muted">
+        Khoảng cách tính theo đường chim bay. Món ăn là suy luận từ loại hình quán,
+        chưa phải thực đơn thật.
+      </footer>
     </div>
   )
 }

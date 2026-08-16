@@ -83,6 +83,46 @@ def merge_raw_json_files(raw_dir: Path) -> List[Dict[str, Any]]:
     return unique_records
 
 
+# Tiền tố placeId -> nguồn. Dùng để bù thông tin nguồn cho dữ liệu cào từ trước khi
+# pipeline có khái niệm provenance (các file 01-03 do Apify cào từ Google Maps).
+PLACE_ID_SOURCE_PREFIX = {
+    "ChIJ": ("google_maps_apify", "verified"),
+    "osm-": ("openstreetmap", "community"),
+}
+
+
+def backfill_provenance(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Bảo đảm MỌI bản ghi đều trả lời được "ở đâu ra, đáng tin tới đâu".
+
+    Các file cào cũ (01-03) không có field `source` vì lúc đó pipeline chưa có khái niệm
+    này. Suy ngược từ tiền tố `placeId` là cách duy nhất đúng - KHÔNG bịa thêm dữ liệu,
+    chỉ ghi lại sự thật vốn đã nằm trong định danh.
+    """
+    filled = 0
+    for record in records:
+        # Chuẩn hoá biến thể tên nguồn TRƯỚC, không phụ thuộc việc có đủ field hay chưa.
+        # Bản cào cũ ghi "OSM", bản mới ghi "openstreetmap" - để lẫn hai cách viết thì
+        # thống kê theo nguồn sẽ tách nhầm thành hai nguồn khác nhau.
+        if str(record.get("source") or "").strip().upper() == "OSM":
+            record["source"] = "openstreetmap"
+
+        if record.get("source") and record.get("data_confidence"):
+            continue
+
+        place_id = str(record.get("placeId") or "")
+        for prefix, (source, confidence) in PLACE_ID_SOURCE_PREFIX.items():
+            if place_id.startswith(prefix):
+                record.setdefault("source", source)
+                record["source"] = record.get("source") or source
+                record.setdefault("data_confidence", confidence)
+                filled += 1
+                break
+
+    if filled:
+        logger.info(f"Đã bù thông tin nguồn cho {filled} record cào từ trước")
+    return records
+
+
 def filter_to_food_only(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     filtered = [r for r in records if is_restaurant_item(r)]
     logger.info(f"Sau khi lọc chỉ giữ đồ ăn cho người: {len(filtered)}/{len(records)} record")
@@ -98,6 +138,7 @@ def merge_and_prepare(raw_dir: str | Path | None = None, output_filename: str = 
     if not unique_records:
         return None
 
+    unique_records = backfill_provenance(unique_records)
     filtered_records = filter_to_food_only(unique_records)
     if not filtered_records:
         logger.warning("Không còn record nào sau khi lọc.")

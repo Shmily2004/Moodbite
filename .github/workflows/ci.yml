@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  backend:
+    name: Backend (Python)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Chốt chặn quan trọng nhất: app PHẢI import và dựng được.
+      # Trước đây app hỏng (NameError) mà CI vẫn xanh vì không test nào import app.
+      - name: Smoke check - app phải dựng được
+        run: python -c "from src.presentation.api.main import create_app; create_app(); print('app OK')"
+
+      - name: Run pytest
+        run: pytest -q
+
+      # Chốt chặn kiến trúc: domain KHÔNG được phụ thuộc framework/thư viện hạ tầng.
+      - name: Kiểm tra hướng phụ thuộc Clean Architecture
+        run: python scripts/check_architecture.py
+
+  frontend:
+    name: Frontend (React)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install deps
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build
+        working-directory: frontend
+        run: npm run build

@@ -141,4 +141,5 @@ class DishRecommendationService:
         return results
 
 
-dish_recommendation_service = DishRecommendationService()
+# Note: do NOT create module-level singleton here. Service should be instantiated
+# by application startup and provided via DI (app.state or Depends).

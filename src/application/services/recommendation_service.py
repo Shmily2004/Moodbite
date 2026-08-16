@@ -81,16 +81,22 @@ def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 
 
 class RecommendationService:
-    def __init__(self, dataset_path: str = "data_pipeline/data_cleaned/dataset_moodbite_features.csv"):
-        """Load restaurant dataset - KHÔNG crash nếu thiếu file, chỉ đánh dấu is_ready=False.
-        Toàn bộ app (bao gồm endpoint /predict-floorplan không liên quan) sẽ vẫn chạy được
-        thay vì sập hoàn toàn chỉ vì thiếu 1 dataset - đúng nguyên tắc graceful degradation
-        đã áp dụng xuyên suốt dự án (VD: CsvRestaurantRepository.ts phía TypeScript)."""
+    def __init__(self, dataset_path: str = "data_pipeline/data_cleaned/dataset_moodbite_features.csv", repository=None):
+        """Load restaurant dataset via repository if provided, else fallback to CSV path.
+
+        Repository should implement `load_all()` returning a pandas DataFrame.
+        Service will not crash the app if data missing; it will run in degraded mode.
+        """
         self.dataset_path = Path(dataset_path)
+        self._repo = repository
         self.restaurants: pd.DataFrame | None = None
         self.is_ready = False
+
         try:
-            self.restaurants = self._load_dataset()
+            if self._repo is not None:
+                self.restaurants = self._repo.load_all()
+            else:
+                self.restaurants = self._load_dataset()
             self.is_ready = True
         except FileNotFoundError as e:
             print(f"⚠️  {e}")

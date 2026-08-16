@@ -1,15 +1,15 @@
-from fastapi import APIRouter, File, UploadFile, HTTPException, Query
+from fastapi import APIRouter, File, UploadFile, HTTPException, Query, Request
 from pydantic import BaseModel
 from PIL import Image
 import io
 from pathlib import Path
-from src.application.services.recommendation_service import (
-    recommendation_service,
-    DEFAULT_MAX_DISTANCE_KM,
+from src.application.services.recommendation_service import DEFAULT_MAX_DISTANCE_KM
+from src.presentation.api.schemas import (
+    RecommendResponse,
+    SuggestDishResponse,
+    RestaurantDetailsResponse,
+    ModelInfoResponse,
 )
-from src.application.services.dish_recommendation_service import dish_recommendation_service
-from src.application.services.restaurant_details_service import restaurant_details_service
-from src.application.services.depth_estimation_service import depth_estimation_service
 
 router = APIRouter()
 
@@ -81,8 +81,8 @@ async def predict_floorplan(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.post("/recommend")
-def recommend(request: RecommendRequest):
+@router.post("/recommend", response_model=RecommendResponse)
+def recommend(request_body: RecommendRequest, request: Request):
     """
     Get restaurant recommendations based on mood
     
@@ -90,12 +90,13 @@ def recommend(request: RecommendRequest):
     Output: Top 5 recommended restaurants
     """
     try:
+        recommendation_service = request.app.state.recommendation_service
         recommendations = recommendation_service.recommend(
-            mood=request.mood,
-            user_lat=request.user_lat,
-            user_lng=request.user_lng,
-            top_k=request.top_k,
-            max_distance_km=request.max_distance_km,
+            mood=request_body.mood,
+            user_lat=request_body.user_lat,
+            user_lng=request_body.user_lng,
+            top_k=request_body.top_k,
+            max_distance_km=request_body.max_distance_km,
         )
         
         return {
@@ -107,8 +108,8 @@ def recommend(request: RecommendRequest):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.get("/restaurant/{place_id}")
-def restaurant_details(place_id: str):
+@router.get("/restaurant/{place_id}", response_model=RestaurantDetailsResponse)
+def restaurant_details(place_id: str, request: Request):
     """
     Chi tiết 1 quán: giá, review thật (kèm sao + ngày), ảnh, không gian, giờ mở cửa.
 
@@ -116,6 +117,7 @@ def restaurant_details(place_id: str):
     Output: chi tiết quán, hoặc has_details=false nếu quán chưa có dữ liệu.
     """
     try:
+        restaurant_details_service = request.app.state.restaurant_details_service
         details = restaurant_details_service.get(place_id)
     except FileNotFoundError as e:
         raise HTTPException(status_code=503, detail=str(e))
@@ -149,8 +151,8 @@ def restaurant_details(place_id: str):
     }
 
 
-@router.post("/suggest-dish")
-def suggest_dish(request: RecommendRequest):
+@router.post("/suggest-dish", response_model=SuggestDishResponse)
+def suggest_dish(request_body: RecommendRequest, request: Request):
     """
     Đề xuất MÓN ĂN trước, sau đó mới hiện quán bán món đó (dish-first), thay vì đề xuất
     quán trực tiếp như /api/recommend. Món ăn suy luận từ categoryName qua
@@ -162,11 +164,12 @@ def suggest_dish(request: RecommendRequest):
     Output: Danh sách món ăn đề xuất, mỗi món kèm danh sách quán bán món đó
     """
     try:
+        dish_recommendation_service = request.app.state.dish_recommendation_service
         suggestions = dish_recommendation_service.suggest(
-            mood=request.mood,
-            user_lat=request.user_lat,
-            user_lng=request.user_lng,
-            top_k_restaurants_per_dish=request.top_k,
+            mood=request_body.mood,
+            user_lat=request_body.user_lat,
+            user_lng=request_body.user_lng,
+            top_k_restaurants_per_dish=request_body.top_k,
         )
 
         return {
@@ -178,8 +181,8 @@ def suggest_dish(request: RecommendRequest):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.get("/model-info")
-def model_info():
+@router.get("/model-info", response_model=ModelInfoResponse)
+def model_info(request: Request):
     """Get model information"""
     model_instance = get_model()
     if model_instance is None:
@@ -202,7 +205,7 @@ def get_supported_moods():
 
 
 @router.post("/estimate-depth")
-async def estimate_depth(file: UploadFile = File(...)):
+async def estimate_depth(file: UploadFile = File(...), request: Request = None):
     """
     Ước lượng depth map (chiều sâu) từ 1 ảnh chụp thật (VD ảnh review/chủ quán đăng).
 
@@ -216,6 +219,7 @@ async def estimate_depth(file: UploadFile = File(...)):
         contents = await file.read()
         image = Image.open(io.BytesIO(contents)).convert("RGB")
 
+        depth_estimation_service = request.app.state.depth_estimation_service
         depth_image = depth_estimation_service.estimate_depth(image)
         depth_base64 = depth_estimation_service.depth_map_to_base64_png(depth_image)
 
@@ -231,7 +235,7 @@ async def estimate_depth(file: UploadFile = File(...)):
 
 
 @router.post("/generate-point-cloud")
-async def generate_point_cloud(file: UploadFile = File(...), max_points: int = Query(default=20000, le=100000)):
+async def generate_point_cloud(file: UploadFile = File(...), max_points: int = Query(default=20000, le=100000), request: Request = None):
     """
     Sinh point cloud 3D đơn giản (x, y, z, color) từ 1 ảnh chụp thật.
 
@@ -245,6 +249,7 @@ async def generate_point_cloud(file: UploadFile = File(...), max_points: int = Q
         contents = await file.read()
         image = Image.open(io.BytesIO(contents)).convert("RGB")
 
+        depth_estimation_service = request.app.state.depth_estimation_service
         points = depth_estimation_service.generate_point_cloud(image, max_points=max_points)
 
         return {

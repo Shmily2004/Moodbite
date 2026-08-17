@@ -64,8 +64,10 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Test
-        run: npm run test --workspace @moodbite/client
+      # Cả hai app. Trong đó có smoke test render <App /> - chốt chặn chống MÀN HÌNH
+      # TRẮNG, tương đương "app phải dựng được" của backend.
+      - name: Test (client + admin)
+        run: npm run test
 
       # Chốt chặn kiến trúc frontend - bản tương đương check_architecture.py của backend.
       # Kiểm CẢ HAI app: bỏ sót admin nghĩa là chỉ canh được một nửa kiến trúc.

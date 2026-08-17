@@ -19,10 +19,12 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Frontend Client | ✅ **TypeScript + FSD** | 21 test, có bản đồ, steiger trong CI |
 | Bản đồ | ✅ **Xong** | Leaflet + OpenStreetMap, miễn phí, không cần key |
 | Kiến trúc | ✅ Sạch | Clean Architecture + checker tự động trong CI |
-| Test | ✅ 234 backend + 21 frontend | tổng 255, chạy hết 15 giây |
+| Test | ✅ 234 backend + 35 frontend | tổng 269, chạy hết 15 giây |
+| Router + layout | ✅ Xong | react-router v6, khung dùng chung, `RequireAuth` cho admin |
+| Chạy xem giao diện | ✅ **một lệnh** | `python scripts/run_dev.py --admin` |
 | Kho lưu trữ | ✅ CSV (mặc định) · ✅ SQLite (chọn được) | `MOODBITE_STORAGE=sqlite`, kết quả GIỐNG HỆT |
-| **Frontend Admin** | ✅ **Xong** | `apps/admin`, cổng 5174, đăng nhập + sửa + ẩn/bỏ ẩn |
-| Xác thực admin | ✅ Xong | 1 tài khoản, token HMAC 1 giờ, fail-closed |
+| **Frontend Admin** | ✅ **Code xong** · ⬜ **chưa bật** | `python scripts/check_permissions.py` để xem thiếu gì |
+| Xác thực admin | ✅ Code xong | 1 tài khoản, token HMAC 1 giờ, fail-closed |
 | Phụ thuộc Python | ✅ 15 → **7** gói | gỡ torch/ultralytics/transformers/opencv (~2GB) khỏi CI |
 | Dữ liệu | ✅ 4938 quán · 142 đơn vị HC | provenance 100%, trùng lặp 0% |
 | Thu thập dữ liệu đa nguồn | ✅ Xong | kiến trúc `SourceAdapter`, thêm nguồn không sửa pipeline |
@@ -153,6 +155,17 @@ Kiểm lại (mục 4 của `python scripts/verify.py` đã tự kiểm việc n
       `frontend/tsconfig.json` (TS5083). Không nằm trong CI nên hỏng âm thầm.
 - [x] **`@moodbite/ui` trỏ vào file không tồn tại** — đã khai dependency + alias ở
       `vite.config.ts`/`tsconfig.json` nhưng `packages/ui/src/index.ts` chưa có
+- [x] **Quán đã ẩn VẪN XEM ĐƯỢC nếu biết link** (2026-08-17) — `GET /restaurants/{id}`
+      chỉ đọc kho CHI TIẾT, mà kho đó không có khái niệm `is_active`. Ẩn quán xong nó
+      biến mất khỏi `/search` nhưng vào thẳng link vẫn ra 200.
+      ⚠️ **Test đơn vị KHÔNG bắt được** — chúng chỉ kiểm ở tầng repository. Chỉ test
+      end-to-end chạy uvicorn thật mới lộ ra.
+- [x] **Test khoá SAI hành vi** (2026-08-17) — `test_restaurant_detail_missing_is_200_not_404`
+      dùng id KHÔNG tồn tại rồi khẳng định phải trả 200, trong khi bảng mã lỗi mục 5 nói
+      id không tồn tại phải là 404. Đã sửa test cho đúng đặc tả và tách thành 2 ca.
+- [x] **CI frontend chắc chắn đỏ** (2026-08-17) — `frontend/package-lock.json` bị xoá lúc
+      chuyển monorepo nhưng `ci.yml` vẫn `npm ci`. Máy local xanh vì đã có `node_modules`.
+      Nay `verify.py` mục 8 tự kiểm việc này.
 
 ### Frontend
 - [x] Dựng lại theo cấu trúc feature-based (phương án A trong `docs/frontend_architecture.md`)
@@ -163,6 +176,77 @@ Kiểm lại (mục 4 của `python scripts/verify.py` đã tự kiểm việc n
 - [x] 1 lượt gọi API thay vì 2 lượt tuần tự
 - [x] Hiện `match_source` và `dish_confidence` — nói thật vì sao quán được gợi ý
 - [x] Ghi tương tác khi người dùng xem chi tiết / bấm chỉ đường
+
+### Tín hiệu thời tiết (2026-08-17)
+- [x] Gọi THẬT Open-Meteo: Hoàn Kiếm 27.2°C, `CLEAR`, mất 0.94s, không cần key
+- [x] 17 test ở `tests/test_context_provider.py` khoá cơ chế suy biến: mất mạng /
+      timeout / HTTP 500 / JSON hỏng đều cho ngữ cảnh trung lập, **tín hiệu giờ vẫn đúng**
+- [x] Kiểm bằng mutation test: bỏ `except Exception` → 5 test đỏ ngay
+
+### Kho lưu trữ ghi được — SQLite (2026-08-17)
+- [x] `SqliteRestaurantRepository` — use case KHÔNG đổi một dòng nào.
+      Bật bằng `MOODBITE_STORAGE=sqlite`, mặc định vẫn là CSV.
+- [x] Dựng CSDL: `python scripts/build_sqlite.py` → 4938 quán, 4.0 MB
+- [x] **Đối chiếu từng trường của 4938 quán: KHỚP HOÀN TOÀN với bản CSV**
+- [x] Gọi API thật trên cả hai kho: `predicted_score` giống hệt tới 6 chữ số
+- [x] Có cột `is_active` (soft-delete) — thứ bản CSV không lưu được
+
+### Trang quản trị (2026-08-17)
+- [x] **Xác thực** — 1 tài khoản + token HMAC ngắn hạn (mặc định 1 giờ).
+      Dùng `hmac`/`hashlib`/`secrets` của thư viện chuẩn, KHÔNG thêm thư viện nào.
+      PBKDF2-SHA256 600k vòng. **Fail-closed**: thiếu cấu hình → 503, không bao giờ mở.
+- [x] **Endpoint `/api/v1/admin/*`** — login · list · PATCH · hide · restore
+      - Trường sửa được do DOMAIN quyết định (`domain/value_objects/restaurant_edit.py`),
+        không phải router. Sửa `rating`/cụm → 400, vì chúng do pipeline sinh ra.
+      - Xác thực gắn ở CẤP ROUTER → thêm endpoint mới KHÔNG THỂ quên bảo vệ.
+- [x] **`apps/admin`** — React + TS, cùng cấu trúc FSD với client, cổng 5174
+- [x] **Ranh giới client/admin cưỡng chế bằng KIỂU**: `createApi()` trả lớp không hề có
+      method quản trị; `createAdminApi()` bắt buộc truyền hàm lấy token
+- [x] 37 test ở `tests/test_admin_api.py`, chạy thật end-to-end với uvicorn
+
+### Chốt chặn MÀN HÌNH TRẮNG + cách chạy (2026-08-17)
+
+Chủ dự án báo "mở giao diện lên không thấy gì". Đã kiểm bằng trình duyệt THẬT (Edge
+headless, `--dump-dom`): **cả hai app đều render đúng** — client hiện header + ô tìm kiếm,
+admin hiện form đăng nhập. Code không hỏng. Hỏng là ở CÁCH HƯỚNG DẪN CHẠY.
+
+- [x] **Smoke test render `<App />`** cho cả hai app — trước đó KHÔNG CÓ.
+      21 test frontend cũ chỉ kiểm `format.ts` và `RestaurantCard.tsx` (hai file lá),
+      app quản trị thì **0 test**. Đây đúng là lỗ hổng backend đã trả giá để học
+      (CLAUDE.md mục 0): test xanh nhưng app không chạy được, vì không test nào dựng app.
+- [x] Test app admin vào `verify.py` mục 6 và vào CI — trước đó CI chỉ chạy test client
+- [x] **`python scripts/run_dev.py [--admin]`** — một lệnh chạy cả backend lẫn giao diện,
+      tự kiểm điều kiện và in rõ địa chỉ. Trước đây phải mở 3 terminal, nhớ 3 lệnh ở 2
+      thư mục; thiếu một bước là màn hình trắng mà không có gì báo thiếu bước nào.
+- [x] README gốc: thêm hẳn mục "Giao diện nằm ở đâu" + 3 nguyên nhân màn hình trắng.
+      README cũ **không hề nhắc tới app quản trị**, và còn ghi sai (bản đồ "chưa làm",
+      floorplan "bật bằng biến môi trường" trong khi đã archive).
+
+> Nguyên nhân hay gặp nhất của màn hình trắng: bấm đúp mở
+> `frontend/apps/client/dist/index.html`. File build trỏ `/assets/...` theo đường dẫn
+> TUYỆT ĐỐI, mở bằng `file://` sẽ không tìm thấy. Phải mở qua `http://localhost:5173`.
+
+### Router + layout dùng chung (2026-08-17)
+- [x] **react-router v6** cho cả hai app. Trước đó client render thẳng 1 trang, admin
+      chỉ bật/tắt giữa 2 trạng thái — thêm trang thứ hai là phải sửa `App.tsx`.
+- [x] **Khung dùng chung** ở `app/layout/`: client có `RootLayout` (header + footer),
+      admin có `AdminLayout` (thanh trên + điều hướng + đăng xuất). Trang cắm qua `<Outlet />`.
+- [x] **`RequireAuth` đặt ở tầng NGOÀI** cây route admin → thêm trang mới là tự động
+      được bảo vệ, KHÔNG THỂ quên. Bản song song của việc backend gắn xác thực cấp router.
+- [x] Đăng nhập xong quay lại đúng trang đang định vào (`state.from`)
+- [x] Trang 404 cho cả hai app, **vẫn nằm trong khung layout**
+- [x] `ROUTES` để ở `shared/config/` chứ không ở `app/` — vì `pages/` cũng cần, mà luật
+      FSD cấm import ngược lên. `steiger` đã chặn đúng lúc viết sai chỗ này.
+- [x] Kiểm bằng TRÌNH DUYỆT THẬT: 4 đường dẫn (client `/`, client 404, admin `/login`,
+      admin `/` chưa đăng nhập → đá về login) đều render đúng. Deep-link không 404.
+
+### Dọn dẹp phụ thuộc (2026-08-17)
+- [x] Chuyển toàn bộ floorplan/3D vào `archive/spatial-3d/` (11 file)
+- [x] `requirements.txt`: **15 → 7 gói**, bỏ torch/ultralytics/transformers/opencv/
+      Pillow/python-multipart/jsonschema/PyYAML (~2GB CI phải tải mỗi lần chạy)
+- [x] Thêm `pytest.ini` — trước đó KHÔNG có cấu hình pytest nào, nên pytest quét từ
+      thư mục gốc và thu thập cả test của code đã nghỉ hưu
+- [x] Tiêm container vào `create_app()` cho test — bộ test **38s → 15s** dù thêm 63 test
 
 ---
 
@@ -242,7 +326,35 @@ tự động trong ToS** → không dùng. Phân tích đầy đủ: `docs/data_
 
 ---
 
-## 🚧 VIỆC TIẾP THEO (ưu tiên từ trên xuống)
+## 🚧 VIỆC TIẾP THEO
+
+> **Quy ước:** mục dưới đây CHỈ chứa việc **chưa làm hoặc chưa xong**.
+> Việc đã xong nằm ở phần ✅ ĐÃ LÀM XONG bên trên — không lặp lại ở đây.
+
+### Tổng hợp: 14 việc chưa xong, chia theo thứ đang CHẶN chúng
+
+*(16 ô `[ ]` trong file này — 14 việc thật, cộng 2 dòng ⚠️ là ghi chú ràng buộc chứ
+không phải việc phải làm.)*
+
+| # | Việc | Chặn bởi | Ai làm được |
+|---|---|---|---|
+| 1 | Dựng lại CSDL SQLite | — | **làm ngay được** |
+| 2 | Sinh tài khoản quản trị | — | **làm ngay được** |
+| 3 | Đặt 3 biến `MOODBITE_ADMIN_*` | — | **làm ngay được** |
+| 4 | Đặt `MOODBITE_STORAGE=sqlite` | — | **làm ngay được** |
+| 5 | Tóm tắt review trích rút | — | **lập trình được** |
+| 6 | Cảnh báo tỷ lệ phủ 12% của Lớp 4 | mục 5 | lập trình được |
+| 7 | `POST /admin/restaurants` (thêm quán mới) | — | **lập trình được** |
+| 8 | Form thêm quán ở `apps/admin` | mục 7 | lập trình được |
+| 9 | Apify free tier hàng tháng | tài khoản + credit | cần người thật |
+| 10 | Nhập tay 50-100 quán Hoàn Kiếm | mục 1-4 | cần người thật |
+| 11 | Google Places API | **cần thẻ thanh toán** | ⏸️ để sau |
+| 12 | Huấn luyện mô hình xếp hạng | `interactions.jsonl` = **0 bản ghi** | ⛔ chờ dữ liệu |
+| 13 | Đánh giá NDCG / Precision@K | mục 12 | ⛔ chờ dữ liệu |
+| 14 | Bật thời tiết + siết CORS khi deploy | chưa deploy | cần môi trường thật |
+
+**Đọc nhanh:** 4 việc đầu chỉ là **cấu hình** (vài phút). 4 việc tiếp là **lập trình
+được ngay**. 6 việc còn lại chờ tiền, người, hoặc dữ liệu — không phải chờ code.
 
 ### 1. Mở rộng đánh giá — MIỄN PHÍ, không cần Google Places
 Hiện 23.2% quán có đánh giá. **Đây KHÔNG còn là nút thắt**: Lớp 1 (phân cụm) và Lớp 2
@@ -266,40 +378,24 @@ Cách miễn phí, theo thứ tự đáng làm:
 > ⚠️ ĐỪNG scrape ShopeeFood/GrabFood/Foody/Facebook để lách — vi phạm ToS, rất dễ bị hỏi
 > khi bảo vệ. Xem `docs/data_sources.md`.
 
-### 2. ✅ Thời tiết — ĐÃ XONG (2026-08-17)
-- [x] Gọi THẬT Open-Meteo: Hoàn Kiếm 27.2°C, `CLEAR`, mất 0.94s, không cần key
-- [x] 17 test ở `tests/test_context_provider.py` khoá cơ chế suy biến: mất mạng /
-      timeout / HTTP 500 / JSON hỏng đều cho ngữ cảnh trung lập, **tín hiệu giờ vẫn đúng**
-- [x] Kiểm bằng mutation test: bỏ `except Exception` → 5 test đỏ ngay
-- [ ] Còn lại: bật `MOODBITE_ENABLE_WEATHER=1` trên môi trường deploy thật (chưa deploy)
+### 2. Bật quyền quản trị trên máy đang dùng — CHỈ LÀ CẤU HÌNH, không phải lập trình
 
-### 3. ✅ Frontend Admin — ĐÃ XONG (2026-08-17)
-- [x] **Chuyển lưu trữ sang SQLite** — `SqliteRestaurantRepository`, use case KHÔNG đổi
-      một dòng nào. Bật bằng `MOODBITE_STORAGE=sqlite`, mặc định vẫn là CSV.
-      - Dựng CSDL: `python scripts/build_sqlite.py` → 4938 quán, 4.0 MB
-      - **Đối chiếu từng trường của 4938 quán: KHỚP HOÀN TOÀN với bản CSV**
-      - Gọi API thật trên cả hai kho: 10 kết quả, `predicted_score` giống hệt tới 6 chữ số
-- [x] **Xác thực** — 1 tài khoản + token HMAC ngắn hạn (mặc định 1 giờ).
-      Dùng `hmac`/`hashlib`/`secrets` của thư viện chuẩn, KHÔNG thêm thư viện nào.
-      PBKDF2-SHA256 600k vòng. **Fail-closed**: chưa đặt đủ 3 biến môi trường → 503.
-      Sinh mật khẩu: `python scripts/make_admin_password.py`
-- [x] **Endpoint `/api/v1/admin/*`** — login · list · PATCH · hide · restore
-      - Trường sửa được do DOMAIN quyết định (`domain/value_objects/restaurant_edit.py`),
-        không phải router. Sửa `rating`/cụm → 400, vì chúng do pipeline sinh ra.
-      - Xác thực gắn ở CẤP ROUTER → thêm endpoint mới KHÔNG THỂ quên bảo vệ.
-- [x] **`apps/admin`** — React + TS, cùng cấu trúc FSD với client, cổng 5174.
-      `npm run dev:admin`
-- [x] **Ranh giới client/admin cưỡng chế bằng KIỂU**: `createApi()` trả lớp không hề có
-      method quản trị; `createAdminApi()` bắt buộc truyền hàm lấy token.
+Code đã xong và đã chạy thật. Nhưng **quyền chưa được đặt trên máy này**, nên
+`/api/v1/admin/*` đang trả 503 (đúng thiết kế fail-closed). Kiểm bất cứ lúc nào:
 
-**Bug thật do test end-to-end bắt được** (test đơn vị KHÔNG thấy): ẩn quán xong,
-`GET /restaurants/{id}` vẫn trả 200 — vì use case đó chỉ đọc kho CHI TIẾT, mà kho này
-không có khái niệm `is_active`. Ai biết link vẫn xem được quán đã ẩn. Đã sửa bằng cách
-kiểm kho quán trước. Nhân đó phát hiện `test_restaurant_detail_missing_is_200_not_404`
-đang khoá SAI hành vi: nó dùng id không tồn tại rồi khẳng định phải trả 200, trong khi
-bảng mã lỗi mục 5 nói id không tồn tại phải là 404.
+```
+python scripts/check_permissions.py
+```
 
-### 3b. Lớp 4 — tóm tắt review: ĐÃ ĐO LẠI, KHẢ THI hơn tưởng
+- [ ] Dựng CSDL ghi được: `python scripts/build_sqlite.py` *(đã có file, chỉ cần dựng lại
+      sau mỗi lần chạy data_pipeline)*
+- [ ] Sinh tài khoản: `python scripts/make_admin_password.py`
+- [ ] Đặt 3 biến `MOODBITE_ADMIN_USER` / `_PASSWORD_HASH` / `_SECRET` (script in sẵn lệnh)
+- [ ] Đặt `MOODBITE_STORAGE=sqlite` rồi khởi động lại backend
+
+Mẫu đầy đủ ở `.env.example`.
+
+### 3. Lớp 4 — tóm tắt review (đã đo, CHƯA làm)
 
 Kết luận cũ "review TB 106 ký tự, quá ngắn" đo SAI ĐƠN VỊ — nó đo từng review lẻ, trong
 khi tóm tắt làm việc trên TOÀN BỘ review của một quán gộp lại.
@@ -316,11 +412,22 @@ khi tóm tắt làm việc trên TOÀN BỘ review của một quán gộp lại
 - [ ] Làm tóm tắt **trích rút** (chọn câu tiêu biểu), KHÔNG dùng LLM trả phí
 - [ ] ⚠️ Chỉ phủ được 592/4938 quán (12%) — phải nói rõ tỷ lệ phủ, đây là lớp LÀM GIÀU
 
-### 4. Lớp 3 đầy đủ — khi đã có dữ liệu tương tác
+### 4. Admin thêm mới quán — CHƯA có
+
+Hiện admin chỉ SỬA được quán đã tồn tại.
+
+- [ ] `POST /api/v1/admin/restaurants` để nhập quán hoàn toàn mới
+- [ ] Form thêm quán ở `apps/admin` (cần tối thiểu: tên + toạ độ)
+
+### 5. Lớp 3 đầy đủ — CHẶN, chờ dữ liệu tương tác
 - [ ] Huấn luyện mô hình xếp hạng thay công thức trọng số
 - [ ] Đánh giá bằng NDCG / Precision@K (đề án mục 8)
 - [ ] ⚠️ Chỉ làm khi có nhãn thật — `interactions.jsonl` hiện **0 bản ghi**.
       Huấn luyện khi chưa có nhãn chỉ tạo ảo giác chính xác.
+
+### 6. Triển khai thật — chưa deploy
+- [ ] Bật `MOODBITE_ENABLE_WEATHER=1` trên môi trường thật (code + test đã xong)
+- [ ] Đặt `MOODBITE_CORS_ORIGINS` cụ thể thay vì `*`
 
 ---
 

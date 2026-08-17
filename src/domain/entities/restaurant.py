@@ -36,6 +36,9 @@ class Restaurant:
     # được coi là điểm xấu khi xếp hạng.
     atmosphere_tags: List[str] = field(default_factory=list)   # 8.7% quán có
     review_text: Optional[str] = None                          # 8.4% quán có
+    # Ảnh đại diện cho card kết quả. CHỈ 21.5% quán có -> giao diện phải coi "không có
+    # ảnh" là trường hợp BÌNH THƯỜNG, không phải lỗi.
+    thumbnail_url: Optional[str] = None
     opening_hours: Optional[str] = None                        # 25.6% quán có
     is_active: bool = True  # soft-delete: quán tắt không bao giờ được trả cho người dùng
 

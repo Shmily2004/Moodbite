@@ -1516,6 +1516,18 @@
             "type": "string",
             "title": "Match Source"
           },
+          "thumbnail_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Thumbnail Url",
+            "description": "Ảnh đại diện. null = chưa có ảnh (78.5% quán)"
+          },
           "district": {
             "anyOf": [
               {

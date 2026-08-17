@@ -49,6 +49,28 @@ class JsonRestaurantDetailsRepository:
                 texts[str(place_id)] = joined
         return texts
 
+    def thumbnail_urls(self) -> Dict[str, str]:
+        """{place_id: URL ảnh ĐẦU TIÊN} - để card kết quả tìm kiếm có ảnh.
+
+        CHỈ lấy 1 ảnh, không lấy cả bộ: danh sách kết quả chỉ hiển thị 1 ảnh nhỏ, kéo
+        cả 6.5 ảnh/quán vào response chỉ làm nặng JSON mà không dùng tới. Xem đủ ảnh
+        thì gọi GET /restaurants/{id}.
+
+        ĐỘ PHỦ THẤP: chỉ 1064/4938 quán (21.5%) có ảnh. Giao diện BẮT BUỘC phải xử lý
+        đẹp trường hợp không có ảnh - đó là trường hợp PHỔ BIẾN (78.5%), không phải lỗi.
+        """
+        self._ensure_loaded()
+        if not self._details:
+            return {}
+        thumbnails: Dict[str, str] = {}
+        for place_id, detail in self._details.items():
+            images = detail.get("imageUrls") or []
+            if images and isinstance(images, list):
+                first = images[0]
+                if isinstance(first, str) and first.strip():
+                    thumbnails[str(place_id)] = first.strip()
+        return thumbnails
+
     def status(self) -> dict:
         return {
             "ready": self.is_ready,

@@ -28,6 +28,15 @@ const restaurantIcon = L.divIcon({
   iconAnchor: [8, 8],
 });
 
+// Ghim của quán ĐANG ĐƯỢC CHỌN: to hơn + có quầng sáng, để mắt bắt được ngay khi
+// người dùng bấm vào một thẻ trong danh sách.
+const activeIcon = L.divIcon({
+  className: 'map-pin map-pin--active',
+  html: '<span class="map-pin__dot"></span>',
+  iconSize: [22, 22],
+  iconAnchor: [11, 11],
+});
+
 const userIcon = L.divIcon({
   className: 'map-pin map-pin--user',
   html: '<span class="map-pin__dot"></span>',
@@ -53,6 +62,8 @@ interface RestaurantMapProps {
   restaurants: SearchResultItem[];
   center: Coordinates;
   userPosition?: Coordinates | null;
+  /** placeId của quán đang chọn - ghim tương ứng sẽ được làm nổi. */
+  activeId?: string | null;
   onSelect?: (restaurant: SearchResultItem) => void;
 }
 
@@ -60,18 +71,19 @@ export function RestaurantMap({
   restaurants,
   center,
   userPosition,
+  activeId,
   onSelect,
 }: RestaurantMapProps) {
   const withCoordinates = restaurants.filter(hasCoordinates);
 
   return (
-    <div className="map">
-      <MapContainer
-        center={[center.lat, center.lng]}
-        zoom={14}
-        scrollWheelZoom
-        style={{ height: '100%', width: '100%' }}
-      >
+    <MapContainer
+      className="map"
+      center={[center.lat, center.lng]}
+      zoom={14}
+      scrollWheelZoom
+      style={{ height: '100%', width: '100%' }}
+    >
         {/* Ghi công là BẮT BUỘC theo giấy phép ODbL của OpenStreetMap. */}
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -89,7 +101,11 @@ export function RestaurantMap({
           <Marker
             key={restaurant.restaurant_id ?? `${restaurant.latitude},${restaurant.longitude}`}
             position={[restaurant.latitude, restaurant.longitude]}
-            icon={restaurantIcon}
+            icon={
+              activeId && restaurant.restaurant_id === activeId
+                ? activeIcon
+                : restaurantIcon
+            }
             eventHandlers={onSelect ? { click: () => onSelect(restaurant) } : undefined}
           >
             <Popup>
@@ -104,7 +120,6 @@ export function RestaurantMap({
             </Popup>
           </Marker>
         ))}
-      </MapContainer>
-    </div>
+    </MapContainer>
   );
 }

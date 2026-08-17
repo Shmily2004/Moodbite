@@ -46,7 +46,10 @@ describe('RestaurantCard', () => {
     render(<RestaurantCard restaurant={makeRestaurant()} />);
     expect(screen.getByText('Phở Thìn Bờ Hồ')).toBeInTheDocument();
     expect(screen.getByText('320 m')).toBeInTheDocument();
-    expect(screen.getByText('4.5★ (120)')).toBeInTheDocument();
+    // Markup mới tách ★ / số / số lượt thành nhiều thẻ, nên khớp theo NỘI DUNG gộp
+    // của phần tử cha thay vì một chuỗi liền.
+    expect(screen.getByText((_, el) => el?.className === 'card__rating' &&
+      /4\.5/.test(el.textContent ?? '') && /120/.test(el.textContent ?? ''))).toBeInTheDocument();
     expect(screen.getByText('100-200 N ₫')).toBeInTheDocument();
   });
 
@@ -63,7 +66,8 @@ describe('RestaurantCard', () => {
 
   it('luôn hiện mức tin cậy của món gợi ý — món là suy luận, không phải thực đơn thật', () => {
     render(<RestaurantCard restaurant={makeRestaurant()} />);
-    expect(screen.getByText('Phở bò')).toBeInTheDocument();
+    expect(screen.getByText(/Phở bò/)).toBeInTheDocument();
+    // Mức tin cậy phải HIỆN RA CHỮ, không được giấu trong tooltip `title`.
     expect(screen.getByText(/khớp loại hình/)).toBeInTheDocument();
   });
 
@@ -84,7 +88,31 @@ describe('RestaurantCard', () => {
   it('báo sự kiện lên trên thay vì tự gọi API', async () => {
     const onOpenDetail = vi.fn();
     render(<RestaurantCard restaurant={makeRestaurant()} onOpenDetail={onOpenDetail} />);
-    screen.getByRole('button', { name: /Xem giá/ }).click();
+
+    // Bố cục mới: BẤM CẢ THẺ để mở chi tiết, không còn nút "Xem giá" riêng —
+    // vùng bấm to hơn, hợp với thao tác ngón tay trên điện thoại.
+    screen.getByRole('button', { name: /Phở Thìn Bờ Hồ/ }).click();
+
     expect(onOpenDetail).toHaveBeenCalledOnce();
+  });
+
+  it('quán KHÔNG có ảnh vẫn hiện ô đại diện, không để trống', () => {
+    // 78.5% quán không có ảnh -> đây là trường hợp PHỔ BIẾN, phải trông có chủ đích.
+    const { container } = render(
+      <RestaurantCard restaurant={makeRestaurant({ thumbnail_url: null })} />,
+    );
+
+    expect(container.querySelector('.thumb--generated')).not.toBeNull();
+  });
+
+  it('quán CÓ ảnh thì hiện ảnh thật', () => {
+    const { container } = render(
+      <RestaurantCard
+        restaurant={makeRestaurant({ thumbnail_url: 'https://example.test/a.jpg' })}
+      />,
+    );
+
+    const img = container.querySelector('.thumb img');
+    expect(img).toHaveAttribute('src', 'https://example.test/a.jpg');
   });
 });

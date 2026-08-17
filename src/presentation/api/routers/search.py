@@ -80,6 +80,7 @@ def search(
                 "rank_position": item.rank_position,
                 "predicted_score": item.predicted_score,
                 "match_source": item.match_source,
+                "thumbnail_url": item.thumbnail_url,
                 "district": item.district,
                 "dietary": item.dietary,
                 "amenities": item.amenities,

@@ -85,6 +85,9 @@ class SearchResultItemSchema(BaseModel):
     predicted_score: float
     # Vì sao quán này khớp: review / atmosphere / category / name / mood.
     match_source: str
+    thumbnail_url: Optional[str] = Field(
+        None, description="Ảnh đại diện. null = chưa có ảnh (78.5% quán)"
+    )
     # Đơn vị hành chính. Từ 2025 Việt Nam bỏ cấp quận nên giá trị là "Phường ...".
     district: Optional[str] = None
     dietary: List[str] = []

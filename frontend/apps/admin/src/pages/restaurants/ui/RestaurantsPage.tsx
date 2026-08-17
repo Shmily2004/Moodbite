@@ -1,32 +1,26 @@
 /**
  * Trang quản lý quán — tầng `pages`: GHÉP feature lại, giữ state điều phối.
  *
- * Component "thông minh" duy nhất của app admin. Mọi thứ bên dưới nhận props.
+ * KHÔNG còn nhận props: từ khi có router, trang là route con của `AdminLayout` nên
+ * không có component cha để truyền props xuống. Phiên đăng nhập lấy qua context.
+ * Nút đăng xuất đã chuyển lên `AdminLayout` — nó thuộc về khung, không thuộc về trang.
  */
+import { useAdminSessionContext } from '@/features/admin-login';
 import { RestaurantRow, useRestaurantAdmin } from '@/features/manage-restaurants';
 
-export interface RestaurantsPageProps {
-  onExpired: () => void;
-  onLogout: () => void;
-}
-
-export function RestaurantsPage({ onExpired, onLogout }: RestaurantsPageProps) {
-  const admin = useRestaurantAdmin({ onExpired });
+export function RestaurantsPage() {
+  const session = useAdminSessionContext();
+  const admin = useRestaurantAdmin({ onExpired: session.handleExpired });
 
   return (
     <div className="page">
-      <header className="topbar">
-        <div>
-          <h1>Quản lý quán</h1>
-          <p className="muted small">
-            Ẩn quán để nó biến mất khỏi tìm kiếm của người dùng. Dữ liệu KHÔNG bị xoá —
-            bỏ ẩn lúc nào cũng được.
-          </p>
-        </div>
-        <button className="ghost" onClick={onLogout}>
-          Đăng xuất
-        </button>
-      </header>
+      <div className="page__intro">
+        <h2>Quản lý quán</h2>
+        <p className="muted small">
+          Ẩn quán để nó biến mất khỏi tìm kiếm của người dùng. Dữ liệu KHÔNG bị xoá —
+          bỏ ẩn lúc nào cũng được.
+        </p>
+      </div>
 
       <div className="toolbar">
         <input

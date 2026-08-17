@@ -115,6 +115,10 @@ def build_container(settings: Optional[Settings] = None) -> Container:
     # nội dung review. Việc ghép 2 nguồn là trách nhiệm của composition root, không phải
     # của repository - mỗi repository chỉ đọc đúng một nguồn.
     review_texts = details_repository.review_texts() if details_repository.is_ready else {}
+    # Ảnh đại diện cho card kết quả - ghép cùng chỗ với review, theo đúng một lối.
+    thumbnail_urls = (
+        details_repository.thumbnail_urls() if details_repository.is_ready else {}
+    )
 
     # ĐÂY là toàn bộ chi phí của việc đổi kho lưu trữ: một câu if ở composition root.
     # Use case, domain và router không biết dữ liệu đến từ CSV hay SQLite - cả hai
@@ -126,7 +130,9 @@ def build_container(settings: Optional[Settings] = None) -> Container:
         restaurant_repository = SqliteRestaurantRepository(settings.restaurants_db)
     else:
         restaurant_repository = CsvRestaurantRepository(
-            settings.restaurants_csv, review_texts=review_texts
+            settings.restaurants_csv,
+            review_texts=review_texts,
+            thumbnail_urls=thumbnail_urls,
         )
     dish_knowledge_repository = JsonDishKnowledgeRepository(
         settings.dish_knowledge_json

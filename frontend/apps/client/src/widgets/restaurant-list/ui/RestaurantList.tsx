@@ -13,9 +13,18 @@ import { useInteractionLogger } from '@/features/log-interaction';
 interface RestaurantListProps {
   restaurants: SearchResultItem[];
   searchQueryId: string | null;
+  /** placeId quán đang chọn trên bản đồ - thẻ tương ứng được tô sáng. */
+  activeId?: string | null;
+  /** Báo lên trên khi người dùng bấm một thẻ, để bản đồ làm nổi ghim tương ứng. */
+  onActivate?: (id: string | null) => void;
 }
 
-export function RestaurantList({ restaurants, searchQueryId }: RestaurantListProps) {
+export function RestaurantList({
+  restaurants,
+  searchQueryId,
+  activeId,
+  onActivate,
+}: RestaurantListProps) {
   const { detail, loading, error, load, clear } = useRestaurantDetail();
   const { log, startViewTimer } = useInteractionLogger();
   const [openId, setOpenId] = useState<string | null>(null);
@@ -23,6 +32,7 @@ export function RestaurantList({ restaurants, searchQueryId }: RestaurantListPro
 
   const open = async (restaurant: SearchResultItem) => {
     if (!restaurant.restaurant_id) return;
+    onActivate?.(restaurant.restaurant_id);
     setOpenId(restaurant.restaurant_id);
     setStopTimer(() =>
       startViewTimer(restaurant.restaurant_id!, restaurant.rank_position, searchQueryId),
@@ -43,6 +53,7 @@ export function RestaurantList({ restaurants, searchQueryId }: RestaurantListPro
         <RestaurantCard
           key={restaurant.restaurant_id ?? restaurant.rank_position}
           restaurant={restaurant}
+          active={activeId != null && restaurant.restaurant_id === activeId}
           onOpenDetail={openId === restaurant.restaurant_id ? undefined : open}
         >
           {openId === restaurant.restaurant_id && (

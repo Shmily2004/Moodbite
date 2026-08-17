@@ -574,6 +574,11 @@ export interface components {
             predicted_score: number;
             /** Match Source */
             match_source: string;
+            /**
+             * Thumbnail Url
+             * @description Ảnh đại diện. null = chưa có ảnh (78.5% quán)
+             */
+            thumbnail_url?: string | null;
             /** District */
             district?: string | null;
             /**

@@ -1,96 +1,513 @@
+/* =========================================================================
+   MoodBite — hệ thiết kế của app người dùng.
+
+   BỐ CỤC: BẢN ĐỒ LÀ NỀN, không phải một ô nhỏ nhét giữa trang.
+     - Máy tính (≥900px): bản đồ tràn màn hình, panel 400px nổi bên trái.
+     - Điện thoại: bản đồ tràn màn hình, kết quả trượt lên từ đáy (bottom sheet).
+
+   MÀU: xám ẤM (lệch vàng nhẹ) chứ không phải xám xanh mặc định của framework.
+   Chỉ MỘT màu nhấn (caramel) + một màu ngữ nghĩa (xanh lá = đang mở cửa).
+   Bản đồ vốn đã nhiều màu, nên phần khung phải im lặng để không đánh nhau với nó.
+
+   ⚠️ 78.5% quán KHÔNG có ảnh. Ô ảnh vì thế phải có bản thay thế trông CHỦ ĐÍCH
+   (.thumb--generated), không được để khoảng trắng như ảnh vỡ.
+   ========================================================================= */
+
 :root {
-  --bg: #ffffff;
-  --fg: #1a1a1a;
-  --muted: #6b7280;
-  --border: #e5e7eb;
-  --surface: #f9fafb;
-  --primary: #b45309;
-  --warn: #92400e;
-  --warn-bg: #fef3c7;
-  --error: #b91c1c;
-  --radius: 8px;
+  /* Nền ấm: lệch vàng ~4° so với xám trung tính, để không "lạnh" như xám mặc định. */
+  --bg:          #F7F5F1;
+  --surface:     #FFFFFF;
+  --surface-2:   #F1EEE8;
+  --ink:         #1B1A17;
+  --ink-soft:    #504C45;
+  --muted:       #8B857B;
+  --rule:        #E3DED5;
+  --rule-soft:   #EFEBE4;
+
+  --accent:      #A6431A;   /* caramel / đất nung */
+  --accent-ink:  #FFFFFF;
+  --accent-soft: #FBEDE4;
+  --open:        #2C6B4F;   /* xanh lá thảo mộc = đang mở cửa */
+  --open-soft:   #E6F1EB;
+  --warn:        #8A5A00;
+  --warn-soft:   #FDF3E0;
+  --error:       #A32A1E;
+  --error-soft:  #FBEAE7;
+
+  --shadow-sm: 0 1px 2px rgba(27, 26, 23, .06), 0 1px 3px rgba(27, 26, 23, .08);
+  --shadow-md: 0 2px 6px rgba(27, 26, 23, .08), 0 8px 24px rgba(27, 26, 23, .10);
+  --shadow-lg: 0 4px 12px rgba(27, 26, 23, .10), 0 16px 48px rgba(27, 26, 23, .16);
+
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 18px;
+  --r-pill: 999px;
+
+  --panel-w: 400px;
+
+  --step--2: 0.72rem;
+  --step--1: 0.82rem;
+  --step-0:  0.94rem;
+  --step-1:  1.06rem;
+  --step-2:  1.35rem;
+
+  --font: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg:          #14140F;
+    --surface:     #1D1C18;
+    --surface-2:   #262420;
+    --ink:         #EDE9E1;
+    --ink-soft:    #BDB7AC;
+    --muted:       #8C877D;
+    --rule:        #35322C;
+    --rule-soft:   #2B2924;
+
+    --accent:      #E08B5A;
+    --accent-ink:  #241008;
+    --accent-soft: #33200F;
+    --open:        #6FBE95;
+    --open-soft:   #16281F;
+    --warn:        #D9A24B;
+    --warn-soft:   #2C2312;
+    --error:       #E58A7C;
+    --error-soft:  #2E1714;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, .4);
+    --shadow-md: 0 2px 8px rgba(0, 0, 0, .45);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, .55);
+  }
 }
 
 * { box-sizing: border-box; }
 
+html, body, #root { height: 100%; }
+
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  color: var(--fg);
-  background: var(--bg);
+  font-family: var(--font);
+  font-size: var(--step-0);
   line-height: 1.5;
+  color: var(--ink);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
 }
 
-.app { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; }
-.app__header h1 { margin: 0 0 4px; font-size: 1.75rem; }
-.app__footer { margin-top: 40px; font-size: 0.8rem; border-top: 1px solid var(--border); padding-top: 12px; }
+/* Số liệu (khoảng cách, điểm, giá) xếp thẳng cột khi đứng cạnh nhau. */
+.tnum { font-variant-numeric: tabular-nums; }
 
-.muted { color: var(--muted); }
-.warn { color: var(--warn); background: var(--warn-bg); padding: 8px 10px; border-radius: var(--radius); font-size: 0.875rem; }
-.error { color: var(--error); font-size: 0.9rem; }
+/* =========================================================================
+   KHUNG: bản đồ là nền, panel nổi lên trên
+   ========================================================================= */
 
-/* --- form --- */
-.search__form { display: flex; gap: 8px; margin: 20px 0 12px; }
+.shell { position: relative; height: 100dvh; overflow: hidden; }
+
+.map-layer { position: absolute; inset: 0; z-index: 0; }
+.map-layer .map { width: 100%; height: 100%; }
+
+/* Nhãn thương hiệu nổi góc trên. Nhỏ thôi - bản đồ mới là nội dung chính. */
+.brand {
+  position: absolute;
+  top: 14px; right: 14px;
+  z-index: 3;
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 13px;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-pill);
+  box-shadow: var(--shadow-sm);
+  font-weight: 700;
+  font-size: var(--step--1);
+  letter-spacing: -0.01em;
+}
+.brand__dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent);
+}
+
+/* --- Panel kết quả -------------------------------------------------------- */
+
+.panel {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+/* Máy tính: cột trái cao hết màn hình. */
+@media (min-width: 900px) {
+  .panel {
+    top: 12px; left: 12px; bottom: 12px;
+    width: var(--panel-w);
+    border: 1px solid var(--rule);
+    border-radius: var(--r-lg);
+  }
+}
+
+/* Điện thoại: tấm trượt từ đáy. Mặc định chỉ ló ~46% để còn thấy bản đồ. */
+@media (max-width: 899px) {
+  .panel {
+    left: 0; right: 0; bottom: 0;
+    max-height: 88dvh;
+    height: 46dvh;
+    border-top-left-radius: var(--r-lg);
+    border-top-right-radius: var(--r-lg);
+    transition: height .22s ease;
+  }
+  .panel--expanded { height: 88dvh; }
+}
+
+.panel__handle {
+  flex: none;
+  display: flex; justify-content: center; align-items: center;
+  gap: 8px;
+  padding: 8px 0 4px;
+  background: none; border: none; width: 100%;
+  cursor: pointer;
+  color: var(--muted);
+  font: inherit; font-size: var(--step--2);
+}
+.panel__handle::before {
+  content: '';
+  width: 38px; height: 4px; border-radius: 2px;
+  background: var(--rule);
+}
+
+/* Tay kéo CHỈ có ý nghĩa với tấm trượt trên điện thoại. Rule này phải nằm SAU phần
+   khai `display: flex` ở trên — cùng độ ưu tiên thì cái viết sau thắng. Đặt nhầm thứ
+   tự là tay kéo hiện cả trên máy tính (đã từng bị đúng lỗi này). */
+@media (min-width: 900px) {
+  .panel__handle { display: none; }
+}
+
+.panel__head {
+  flex: none;
+  padding: 12px 14px 10px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+
+/* Danh sách cuộn riêng - trang không bao giờ cuộn theo. */
+.panel__body { flex: 1; overflow-y: auto; overscroll-behavior: contain; }
+
+/* =========================================================================
+   Ô TÌM KIẾM
+   ========================================================================= */
+
+.search__form { display: flex; gap: 8px; }
+
 .search__input {
-  flex: 1; padding: 12px 14px; font-size: 1rem;
-  border: 1px solid var(--border); border-radius: var(--radius);
+  flex: 1; min-width: 0;
+  padding: 11px 14px;
+  font: inherit;
+  color: var(--ink);
+  background: var(--surface-2);
+  border: 1px solid transparent;
+  border-radius: var(--r-pill);
 }
-.search__input:focus { outline: 2px solid var(--primary); outline-offset: -1px; }
+.search__input::placeholder { color: var(--muted); }
+.search__input:focus {
+  outline: none;
+  background: var(--surface);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
 
 .btn {
-  padding: 10px 14px; font-size: 0.9rem; cursor: pointer;
-  border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg);
+  padding: 10px 16px;
+  font: inherit; font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  color: var(--ink);
+  white-space: nowrap;
 }
-.btn:hover:not(:disabled) { background: var(--surface); }
-.btn:disabled { opacity: 0.6; cursor: not-allowed; }
-.btn--primary { background: var(--primary); color: #fff; border-color: var(--primary); }
-.btn--primary:hover:not(:disabled) { filter: brightness(1.08); }
-.btn--link { background: none; border: none; color: var(--primary); padding: 6px 0; text-decoration: underline; }
+.btn:hover:not(:disabled) { background: var(--surface-2); }
+.btn:disabled { opacity: .55; cursor: not-allowed; }
+.btn--primary {
+  background: var(--accent); color: var(--accent-ink); border-color: var(--accent);
+}
+.btn--primary:hover:not(:disabled) { filter: brightness(1.07); }
+.btn--link {
+  background: none; border: none; color: var(--accent);
+  padding: 4px 0; text-decoration: underline; font-weight: 600;
+  font-size: var(--step--1); cursor: pointer;
+}
+
+:where(button, a, input, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* --- Chip ---------------------------------------------------------------- */
+
+.chips {
+  display: flex; gap: 6px;
+  margin-top: 9px;
+  /* Cuộn ngang thay vì xuống dòng: giữ phần đầu panel luôn thấp, nhường chỗ cho
+     kết quả - thứ người dùng thật sự cần nhìn. */
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+.chips::-webkit-scrollbar { display: none; }
+/* Vệt mờ mép phải: nói cho người dùng biết hàng chip còn kéo được, thay vì trông
+   như chữ bị cắt cụt do lỗi. */
+.chips {
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 26px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 26px), transparent);
+}
 
 .chip {
-  padding: 5px 11px; font-size: 0.8rem; cursor: pointer;
-  border: 1px solid var(--border); border-radius: 999px; background: var(--surface);
+  flex: none;
+  padding: 5px 12px;
+  font: inherit; font-size: var(--step--1);
+  cursor: pointer;
+  color: var(--ink-soft);
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-pill);
 }
-.chip:hover { border-color: var(--primary); }
-
-.search__examples, .search__controls, .search__shortcuts {
-  display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px;
+.chip:hover { border-color: var(--accent); color: var(--accent); }
+.chip--active {
+  background: var(--accent); color: var(--accent-ink); border-color: var(--accent);
 }
-.search__controls { font-size: 0.875rem; }
 
-/* --- results --- */
-.results { list-style: none; padding: 0; margin: 20px 0 0; }
+.search__controls {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+  margin-top: 9px;
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+}
+.search__controls select, .search__controls input[type='range'] { font: inherit; }
+
+/* =========================================================================
+   THẺ KẾT QUẢ
+   ========================================================================= */
+
+.results { list-style: none; margin: 0; padding: 0; }
 
 .card {
-  border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 14px; margin-bottom: 12px;
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  gap: 12px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--rule-soft);
+  cursor: pointer;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
 }
-.card__head { display: flex; gap: 8px; align-items: baseline; }
-.card__rank { color: var(--muted); font-size: 0.8rem; }
-.card__meta { display: flex; flex-wrap: wrap; gap: 10px; font-size: 0.85rem; color: var(--muted); margin-top: 4px; }
-.card__address { font-size: 0.85rem; color: var(--muted); margin-top: 2px; }
-.card__why { font-size: 0.78rem; color: var(--muted); margin-top: 6px; font-style: italic; }
+.card:hover { background: var(--surface-2); }
+.card--active { background: var(--accent-soft); }
 
-.dish { margin-top: 8px; padding: 8px 10px; background: var(--surface); border-radius: var(--radius); font-size: 0.875rem; }
-.dish__confidence { display: block; font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
-.dish__confidence--generic_fallback { color: var(--warn); }
+/* --- Ô ảnh ---------------------------------------------------------------
+   Chỉ 21.5% quán có ảnh thật. Bản thay thế được SINH RA từ tên quán (màu + chữ
+   cái đầu) nên mỗi quán một màu ổn định — trông có chủ đích, không phải ảnh vỡ. */
+.thumb {
+  width: 84px; height: 84px;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  flex: none;
+  background: var(--surface-2);
+  position: relative;
+}
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-/* --- detail --- */
-.detail { margin-top: 10px; padding: 10px; background: var(--surface); border-radius: var(--radius); font-size: 0.875rem; }
+.thumb--generated {
+  display: grid; place-items: center;
+  font-size: 1.6rem; font-weight: 700;
+  color: #fff;
+  /* --tile-h do component đặt, suy ra từ tên quán -> màu ổn định cho mỗi quán. */
+  background:
+    linear-gradient(145deg,
+      hsl(var(--tile-h, 25) 42% 46%),
+      hsl(calc(var(--tile-h, 25) + 18) 45% 34%));
+}
+.thumb__glyph { font-size: 1.7rem; line-height: 1; }
+
+.card__body { min-width: 0; }
+
+.card__title {
+  display: flex; align-items: baseline; gap: 7px;
+  margin: 0 0 2px;
+  font-size: var(--step-1);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+.card__name {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.card__rank {
+  flex: none;
+  font-size: var(--step--2); font-weight: 700;
+  color: var(--muted);
+}
+
+/* Hàng số liệu: sao · khoảng cách · giá. Dấu chấm ngăn cách vẽ bằng CSS. */
+.card__stats {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: 4px 8px;
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+}
+.card__stats > * + *::before {
+  content: '·';
+  margin-right: 8px;
+  color: var(--rule);
+}
+.card__rating { font-weight: 700; color: var(--ink); }
+.card__star { color: #D99A2B; }
+/* "chưa có đánh giá" phải NHẠT hơn số thật, để không nhầm là một giá trị. */
+.card__norating { color: var(--muted); font-style: italic; }
+
+.card__address {
+  margin: 3px 0 0;
+  font-size: var(--step--1);
+  color: var(--muted);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+.tag {
+  padding: 2px 8px;
+  font-size: var(--step--2); font-weight: 600;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  color: var(--ink-soft);
+}
+.tag--open { background: var(--open-soft); color: var(--open); }
+.tag--dish { background: var(--accent-soft); color: var(--accent); }
+/* Món suy luận rộng -> phải nhìn ra là kém chắc chắn, không được trông như sự thật. */
+.tag--guess { background: var(--warn-soft); color: var(--warn); }
+
+.card__why {
+  margin: 6px 0 0;
+  font-size: var(--step--2);
+  color: var(--muted);
+}
+
+/* =========================================================================
+   TRẠNG THÁI
+   ========================================================================= */
+
+.state {
+  padding: 32px 22px;
+  text-align: center;
+  color: var(--muted);
+  /* Panel cao hết màn hình; nếu để chữ dính đỉnh thì phần dưới trống hoác. */
+  display: flex; flex-direction: column; justify-content: center;
+  min-height: 190px;
+}
+.state__title { color: var(--ink); font-weight: 700; margin: 0 0 4px; }
+
+.notice { margin: 9px 14px 0; padding: 8px 11px; border-radius: var(--r-sm); font-size: var(--step--1); }
+.notice--warn  { background: var(--warn-soft);  color: var(--warn); }
+.notice--error { background: var(--error-soft); color: var(--error); }
+.notice--info  { background: var(--surface-2);  color: var(--ink-soft); }
+
+.muted { color: var(--muted); }
+.small { font-size: var(--step--1); }
+
+/* Vệt xương khi đang tải - báo "sắp có nội dung" thay vì nhảy giật. */
+.skeleton { display: grid; grid-template-columns: 84px 1fr; gap: 12px; padding: 12px 14px; }
+.skeleton__box, .skeleton__line {
+  background: linear-gradient(90deg, var(--surface-2) 25%, var(--rule-soft) 50%, var(--surface-2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.3s infinite;
+  border-radius: var(--r-sm);
+}
+.skeleton__box { width: 84px; height: 84px; border-radius: var(--r-md); }
+.skeleton__line { height: 11px; margin-bottom: 7px; }
+.skeleton__line--short { width: 55%; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+/* =========================================================================
+   CHI TIẾT QUÁN (mở trong panel)
+   ========================================================================= */
+
+.detail { padding: 12px 14px; border-top: 1px solid var(--rule-soft); background: var(--surface-2); }
 .detail__images { display: flex; gap: 6px; overflow-x: auto; margin: 8px 0; }
-.detail__images img { width: 110px; height: 80px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
-.detail__reviews blockquote { margin: 6px 0; padding-left: 10px; border-left: 3px solid var(--border); font-size: 0.85rem; }
+.detail__images img {
+  width: 116px; height: 84px; object-fit: cover;
+  border-radius: var(--r-sm); flex-shrink: 0;
+}
+.detail__reviews blockquote {
+  margin: 7px 0; padding-left: 10px;
+  border-left: 3px solid var(--rule);
+  font-size: var(--step--1); color: var(--ink-soft);
+}
 .detail__reviews blockquote p { margin: 2px 0; white-space: pre-wrap; }
-.stars { color: #b8860b; }
-.detail__links { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; font-size: 0.85rem; }
+.detail__links { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; font-size: var(--step--1); }
+.detail__links a { color: var(--accent); }
+.stars { color: #D99A2B; }
 
-/* --- bản đồ (Leaflet) --- */
-.map { height: 380px; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 16px; }
-.map-pin__dot { display: block; width: 14px; height: 14px; border-radius: 50%; background: #ea4335; border: 2px solid #fff; box-shadow: 0 0 3px rgba(0,0,0,.4); }
-.map-pin--user .map-pin__dot { background: #1a73e8; width: 16px; height: 16px; }
+/* =========================================================================
+   BẢN ĐỒ (Leaflet)
+   ========================================================================= */
 
-.view-toggle { display: flex; gap: 8px; margin-bottom: 12px; }
-.chip--active { background: var(--primary); color: #fff; border-color: var(--primary); }
+.map { background: var(--surface-2); }
 
-.card__cluster { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
-.search__toggle { font-size: 0.875rem; }
+.map-pin__dot {
+  display: block;
+  width: 13px; height: 13px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2.5px solid #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .45);
+}
+.map-pin--user .map-pin__dot { background: #1A73E8; width: 15px; height: 15px; }
+.map-pin--active .map-pin__dot {
+  width: 19px; height: 19px;
+  border-width: 3px;
+  box-shadow: 0 0 0 6px rgba(166, 67, 26, .28), 0 1px 5px rgba(0, 0, 0, .45);
+}
+
+/* Popup Leaflet mặc định rất "web 2005" - kéo về cùng ngôn ngữ với phần còn lại. */
+.leaflet-popup-content-wrapper {
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-md);
+  background: var(--surface);
+  color: var(--ink);
+}
+.leaflet-popup-content { margin: 10px 12px; font-family: var(--font); font-size: var(--step--1); }
+.leaflet-popup-tip { background: var(--surface); }
+.leaflet-container { font-family: var(--font); background: var(--surface-2); }
+.leaflet-control-attribution {
+  font-size: 10px !important;
+  background: rgba(255, 255, 255, .82) !important;
+}
+
+/* Ở chế độ tối, tile OSM sáng chói giữa khung tối -> giảm sáng cho đỡ chói mắt. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .leaflet-tile-pane {
+    filter: brightness(.72) saturate(.85) contrast(1.05);
+  }
+  :root:not([data-theme='light']) .leaflet-control-attribution {
+    background: rgba(20, 20, 15, .8) !important;
+    color: var(--muted);
+  }
+}
+
+/* =========================================================================
+   Trang phụ (404) - dùng lại khung đơn giản, không có bản đồ
+   ========================================================================= */
+
+.plain { max-width: 620px; margin: 0 auto; padding: 56px 20px; }
+.plain h2 { font-size: var(--step-2); margin: 0 0 6px; }
+.plain a { color: var(--accent); }

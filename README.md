@@ -10,36 +10,78 @@ cứng — kết quả kèm sẵn gợi ý món ăn cho từng quán.
 
 ---
 
-## Chạy thử trong 3 bước
+## 🚀 Chạy và XEM GIAO DIỆN
 
-```bash
-# 1. Cài thư viện
-python -m venv .venv
-.venv\Scripts\activate          # Windows
-# source .venv/bin/activate     # macOS/Linux
-pip install -r requirements.txt
-
-# 2. Chạy backend
-uvicorn app:app --reload --port 8001
-
-# 3. Mở Swagger UI để thử API
-# http://localhost:8001/docs
-```
-
-Kiểm tra mọi thứ sẵn sàng chưa:
-
-```bash
-curl http://localhost:8001/health
-```
-
-Chạy frontend (cửa sổ terminal khác):
+**Cài một lần:**
 
 ```powershell
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
 cd frontend
-copy .env.example .env.local    # macOS/Linux: cp .env.example .env.local
 npm install
-npm run dev                     # http://localhost:5173
+cd ..
 ```
+
+**Chạy — MỘT lệnh khởi động cả backend lẫn giao diện:**
+
+```powershell
+python scripts/run_dev.py            # backend + app người dùng
+python scripts/run_dev.py --admin    # thêm cả app quản trị
+```
+
+Script tự kiểm điều kiện, khởi động mọi thứ, rồi in ra địa chỉ để mở.
+
+### 👉 Giao diện nằm ở đâu
+
+| Cái gì | Địa chỉ | Cần gì trước |
+|---|---|---|
+| **App người dùng** (tìm quán) | **http://localhost:5173** | backend chạy |
+| **App quản trị** (sửa/ẩn quán) | **http://localhost:5174** | backend chạy + [đã cấu hình quyền](#bật-trang-quản-trị) |
+| Swagger UI (thử API tay) | http://localhost:8001/docs | backend chạy |
+| Trạng thái hệ thống | http://localhost:8001/api/v1/health | backend chạy |
+
+> ⚠️ **Màn hình trắng?** Ba nguyên nhân, theo thứ tự hay gặp:
+> 1. **Chưa chạy dev server.** Giao diện là ứng dụng React, KHÔNG phải file HTML tĩnh.
+>    Phải có `npm run dev` (hoặc `python scripts/run_dev.py`) đang chạy.
+> 2. **Mở thẳng file `frontend/apps/client/dist/index.html`** bằng cách bấm đúp.
+>    Không dùng được: file build tham chiếu `/assets/...` theo đường dẫn tuyệt đối, mở
+>    bằng `file://` sẽ không tìm thấy → trang trắng. Phải mở qua `http://localhost:5173`.
+> 3. **Backend chưa chạy.** Giao diện vẫn hiện khung và ô tìm kiếm, nhưng tìm sẽ báo lỗi
+>    "Không kết nối được tới server".
+
+Chạy tay từng phần (mỗi lệnh MỘT cửa sổ terminal riêng):
+
+```powershell
+python -m uvicorn app:app --reload --port 8001   # backend
+```
+```powershell
+cd frontend
+npm run dev          # app người dùng  -> http://localhost:5173
+```
+```powershell
+cd frontend
+npm run dev:admin    # app quản trị    -> http://localhost:5174
+```
+
+### Bật trang quản trị
+
+Trang quản trị **fail-closed**: chưa cấu hình thì mọi `/api/v1/admin/*` trả 503 và không
+đăng nhập được. Xem còn thiếu gì:
+
+```powershell
+python scripts/check_permissions.py
+```
+
+Làm đủ 3 bước rồi khởi động lại backend:
+
+```powershell
+python scripts/build_sqlite.py          # 1. CSDL ghi được (CSV chỉ đọc)
+python scripts/make_admin_password.py   # 2. sinh tài khoản, in ra 3 biến cần đặt
+$env:MOODBITE_STORAGE = "sqlite"        # 3. bật kho ghi được
+```
+
+Mẫu đầy đủ các biến môi trường: [`.env.example`](.env.example)
 
 ---
 
@@ -185,11 +227,15 @@ chỉ có 1 backend · frontend build được. Tất cả cũng chạy tự đ�
 - ✅ **Tìm kiếm bằng câu tự do + gợi ý món** — chạy được
 - ✅ **Ghi nhận tương tác** — chuẩn bị dữ liệu cho mô hình xếp hạng
 - 🟡 **Ngữ cảnh thời điểm** — giờ ăn đã bật; thời tiết tắt mặc định (`MOODBITE_ENABLE_WEATHER=1`)
-- ✅ **Frontend** — ô tìm kiếm tự do + định vị thật
-- ⬜ **Bản đồ** — chưa làm, đã có hướng dẫn
-- 🟡 **Phân cụm / tóm tắt review** — 23.2% quán có review, gần ngưỡng đáng làm
-- ✅ **Lọc theo khu vực / giờ mở cửa / chế độ ăn** — mới bổ sung
-- ⏸️ **Floorplan → 3D** — tạm dừng, tắt mặc định (bật bằng `MOODBITE_ENABLE_SPATIAL=1`)
+- ✅ **App người dùng** (`localhost:5173`) — ô tìm kiếm tự do + định vị thật
+- ✅ **App quản trị** (`localhost:5174`) — đăng nhập, sửa, ẩn/bỏ ẩn quán.
+  ⚠️ Phải cấu hình quyền trước, xem [Bật trang quản trị](#bật-trang-quản-trị)
+- ✅ **Bản đồ** — Leaflet + OpenStreetMap, miễn phí, không cần API key
+- ✅ **Phân cụm trải nghiệm (Lớp 1)** — KMeans k=7, Silhouette 0.318
+- ✅ **Tìm kiếm ngữ nghĩa (Lớp 2)** — TF-IDF cosine trên 4938 quán
+- ⬜ **Tóm tắt review (Lớp 4)** — chưa làm; đo lại thấy khả thi cho 592 quán
+- ✅ **Lọc theo khu vực / giờ mở cửa / chế độ ăn**
+- ⏸️ **Floorplan → 3D** — đã chuyển vào `archive/spatial-3d/`, không còn trong app
 - ⏸️ **Model ML gợi ý món** — model cũ bị rò rỉ nhãn nên đã gỡ; hiện dùng khớp từ khoá.
   ⚠️ Con số "98.56% chính xác" trong tài liệu cũ **không có giá trị thật**.
 

@@ -11,7 +11,7 @@
     "dev:admin": "npm run dev --workspace @moodbite/admin",
     "build": "npm run build --workspace @moodbite/client && npm run build --workspace @moodbite/admin",
     "typecheck": "tsc -p tsconfig.json && npm run typecheck --workspace @moodbite/client && npm run typecheck --workspace @moodbite/admin",
-    "test": "npm run test --workspace @moodbite/client",
+    "test": "npm run test --workspace @moodbite/client && npm run test --workspace @moodbite/admin",
     "lint:arch": "steiger ./apps/client/src && steiger ./apps/admin/src",
     "gen:api": "openapi-typescript ./openapi.json -o ./packages/api-client/src/schema.d.ts"
   },

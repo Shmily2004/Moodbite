@@ -71,7 +71,57 @@ frontend/
 ```
 
 **Luật import: chỉ đi XUỐNG** `pages → widgets → features → entities → shared`.
-Cưỡng chế bằng `npx steiger ./apps/client/src` (chạy trong CI).
+Cưỡng chế bằng `npm run lint:arch` (chạy trong CI, kiểm cả hai app).
+
+---
+
+## Layout và route
+
+Cả hai app dùng **react-router v6**. Khung giao diện (header/nav/footer) nằm ở tầng
+`app/layout/`, các trang cắm vào qua `<Outlet />` — thêm trang mới KHÔNG phải chép lại khung.
+
+```
+apps/<app>/src/app/
+├── App.tsx            dựng router, không chứa giao diện
+├── routes.tsx         ĐĂNG KÝ ROUTE - nơi duy nhất khai "đường dẫn nào ra trang nào"
+└── layout/            khung dùng chung
+```
+
+### Cây route
+
+| App | Đường dẫn | Trang | Ghi chú |
+|---|---|---|---|
+| client | `/` | `pages/search` | trong `RootLayout` |
+| client | `*` | `pages/not-found` | vẫn trong `RootLayout` |
+| admin | `/login` | `pages/login` | công khai |
+| admin | `/` | `pages/restaurants` | sau `RequireAuth` → `AdminLayout` |
+| admin | `*` | `pages/not-found` | sau `RequireAuth` → `AdminLayout` |
+
+Riêng app admin lồng thêm hai lớp:
+
+```
+AdminSessionProvider   phiên đăng nhập, dùng chung mọi route
+├── /login             công khai
+└── RequireAuth        chưa đăng nhập -> đá về /login
+    └── AdminLayout    thanh trên + điều hướng + nút đăng xuất
+        └── các trang
+```
+
+`RequireAuth` đặt ở tầng NGOÀI nên **thêm trang mới là tự động được bảo vệ, không thể
+quên** — bản song song của việc backend gắn xác thực ở cấp router.
+
+> ⚠️ `RequireAuth` chỉ là lớp phòng vệ cho trải nghiệm. Chốt chặn THẬT ở backend:
+> không có token thì mọi `/api/v1/admin/*` trả 401, dù giao diện vẽ ra gì đi nữa.
+
+### Thêm một trang mới
+
+1. Tạo `pages/<ten-trang>/` gồm `ui/<Ten>Page.tsx` và `index.ts`
+2. Thêm đường dẫn vào `shared/config/routes.ts` *(app admin — client hiện chỉ có `/`)*
+3. Thêm một dòng vào `children` trong `app/routes.tsx`
+4. Muốn hiện trên thanh điều hướng thì thêm `<NavLink>` vào `AdminLayout`
+
+Hằng số đường dẫn để ở `shared/config/` chứ không ở `app/`, vì cả `app/` lẫn `pages/`
+đều cần — mà luật FSD cấm `pages/` import ngược lên `app/`.
 
 ## Lệnh
 

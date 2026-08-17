@@ -82,6 +82,8 @@ class SearchResultItem:
     predicted_score: float
     match_source: str
     district: Optional[str] = None
+    # Ảnh đại diện. None = quán chưa có ảnh (78.5% quán) - KHÔNG phải lỗi.
+    thumbnail_url: Optional[str] = None
     dietary: List[str] = field(default_factory=list)
     amenities: List[str] = field(default_factory=list)
     source: Optional[str] = None
@@ -322,6 +324,7 @@ class SearchRestaurantsUseCase:
             name=restaurant.name,
             category=restaurant.category,
             address=restaurant.address,
+            thumbnail_url=restaurant.thumbnail_url,
             latitude=restaurant.location.lat,
             longitude=restaurant.location.lng,
             distance_m=int(round(ranked.distance_km * 1000)),

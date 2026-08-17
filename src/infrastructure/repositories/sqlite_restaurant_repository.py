@@ -56,6 +56,7 @@ CREATE TABLE IF NOT EXISTS restaurants (
     mood_scores              TEXT,     -- JSON {tên cột: điểm}
     atmosphere_tags          TEXT,     -- JSON array
     review_text              TEXT,
+    thumbnail_url            TEXT,     -- chi 21.5% quan co anh
     opening_hours            TEXT,
     is_active                INTEGER NOT NULL DEFAULT 1,  -- soft-delete
     district                 TEXT,
@@ -77,7 +78,8 @@ CREATE INDEX IF NOT EXISTS idx_restaurants_is_active ON restaurants(is_active);
 # Thứ tự cột phải khớp câu SELECT bên dưới.
 _COLUMNS = (
     "place_id, name, category, lat, lng, address, cuisine, price, rating, "
-    "reviews_count, mood_scores, atmosphere_tags, review_text, opening_hours, "
+    "reviews_count, mood_scores, atmosphere_tags, review_text, thumbnail_url, "
+    "opening_hours, "
     "is_active, district, dietary, amenities, phone, website, source, "
     "data_confidence, experience_cluster_id, experience_cluster_label"
 )
@@ -324,6 +326,7 @@ class SqliteRestaurantRepository:
             mood_scores=_json_scores(row["mood_scores"]),
             atmosphere_tags=_json_list(row["atmosphere_tags"]),
             review_text=row["review_text"],
+            thumbnail_url=row["thumbnail_url"],
             opening_hours=row["opening_hours"],
             is_active=bool(row["is_active"]),
             district=row["district"],

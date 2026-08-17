@@ -2,15 +2,20 @@
  * Ô tìm kiếm — component "NGU": chỉ nhận props và báo sự kiện lên trên.
  *
  * Đề án mục 2: người dùng GÕ NHU CẦU BẰNG CÂU TỰ NHIÊN thay vì bị ép chọn trong bộ lọc
- * cứng. Các nút mood bên dưới chỉ là lối tắt gợi ý, không phải cách dùng chính.
+ * cứng. Các nút mood chỉ là lối tắt gợi ý, không phải cách dùng chính.
+ *
+ * BỐ CỤC: ô nhập + một hàng chip cuộn ngang. Bộ lọc chi tiết (bán kính, vị trí) giấu
+ * sau nút "Bộ lọc" — panel rất hẹp (400px trên máy tính, nửa màn hình trên điện thoại),
+ * nên phần đầu phải thấp để còn chỗ cho KẾT QUẢ, thứ người dùng thật sự cần nhìn.
  */
+import { useState } from 'react';
 import type { FormEvent } from 'react';
 
 const EXAMPLE_QUERIES = [
   'phở bò gần đây',
   'chỗ yên tĩnh để làm việc',
   'quán lẩu ấm cúng',
-  'ăn gì đó nhẹ, tốt cho sức khoẻ',
+  'ăn nhẹ, tốt cho sức khoẻ',
 ];
 
 const MOOD_SHORTCUTS = [
@@ -39,6 +44,8 @@ interface SearchFormProps {
 }
 
 export function SearchForm(props: SearchFormProps) {
+  const [showFilters, setShowFilters] = useState(false);
+
   const submit = (event: FormEvent) => {
     event.preventDefault();
     props.onSubmit();
@@ -52,66 +59,22 @@ export function SearchForm(props: SearchFormProps) {
           type="text"
           value={props.queryText}
           onChange={(event) => props.onQueryTextChange(event.target.value)}
-          placeholder="Bạn muốn ăn gì? VD: quán lẩu ấm cúng gần đây"
+          placeholder="Bạn muốn ăn gì?"
           aria-label="Nhu cầu của bạn"
         />
         <button className="btn btn--primary" type="submit" disabled={props.loading}>
-          {props.loading ? 'Đang tìm…' : 'Tìm'}
+          {props.loading ? '…' : 'Tìm'}
         </button>
       </form>
 
-      <div className="search__examples">
-        {EXAMPLE_QUERIES.map((query) => (
-          <button key={query} className="chip" onClick={() => props.onPickExample(query)}>
-            {query}
-          </button>
-        ))}
-      </div>
-
-      <div className="search__controls">
-        <label>
-          Bán kính:{' '}
-          <select
-            value={props.maxDistanceKm ?? ''}
-            onChange={(event) =>
-              props.onMaxDistanceChange(
-                event.target.value ? Number(event.target.value) : null,
-              )
-            }
-          >
-            {RADIUS_OPTIONS.map((km) => (
-              <option key={km} value={km}>
-                {km} km
-              </option>
-            ))}
-            <option value="">Không giới hạn</option>
-          </select>
-        </label>
-
-        <label className="search__toggle">
-          <input
-            type="checkbox"
-            checked={props.openNow}
-            onChange={(event) => props.onOpenNowChange(event.target.checked)}
-          />{' '}
-          Đang mở cửa
-        </label>
-
+      <div className="chips">
         <button
-          className="btn"
-          onClick={props.onRequestLocation}
-          disabled={props.locationLoading}
+          className={props.openNow ? 'chip chip--active' : 'chip'}
+          onClick={() => props.onOpenNowChange(!props.openNow)}
+          aria-pressed={props.openNow}
         >
-          {props.locationLoading ? 'Đang định vị…' : '📍 Dùng vị trí của tôi'}
+          🕒 Đang mở
         </button>
-
-        <span className="muted">
-          {props.locationIsDefault ? 'Đang dùng trung tâm Hà Nội' : 'Đang dùng vị trí của bạn'}
-        </span>
-      </div>
-
-      <div className="search__shortcuts">
-        <span className="muted">Hoặc chọn nhanh:</span>
         {MOOD_SHORTCUTS.map((mood) => (
           <button
             key={mood.value}
@@ -121,7 +84,63 @@ export function SearchForm(props: SearchFormProps) {
             {mood.label}
           </button>
         ))}
+        <button
+          className={showFilters ? 'chip chip--active' : 'chip'}
+          onClick={() => setShowFilters((open) => !open)}
+          aria-expanded={showFilters}
+        >
+          ⚙️ Bộ lọc
+        </button>
       </div>
+
+      {showFilters && (
+        <div className="search__controls">
+          <label>
+            Bán kính{' '}
+            <select
+              value={props.maxDistanceKm ?? ''}
+              onChange={(event) =>
+                props.onMaxDistanceChange(
+                  event.target.value ? Number(event.target.value) : null,
+                )
+              }
+            >
+              {RADIUS_OPTIONS.map((km) => (
+                <option key={km} value={km}>
+                  {km} km
+                </option>
+              ))}
+              <option value="">Không giới hạn</option>
+            </select>
+          </label>
+
+          <button
+            className="btn"
+            onClick={props.onRequestLocation}
+            disabled={props.locationLoading}
+          >
+            {props.locationLoading ? 'Đang định vị…' : '📍 Vị trí của tôi'}
+          </button>
+
+          <span className="muted small">
+            {props.locationIsDefault ? 'Trung tâm Hà Nội' : 'Vị trí của bạn'}
+          </span>
+        </div>
+      )}
+
+      {!props.queryText && (
+        <div className="chips">
+          {EXAMPLE_QUERIES.map((query) => (
+            <button
+              key={query}
+              className="chip"
+              onClick={() => props.onPickExample(query)}
+            >
+              {query}
+            </button>
+          ))}
+        </div>
+      )}
     </section>
   );
 }

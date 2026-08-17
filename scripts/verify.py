@@ -161,12 +161,22 @@ def check_frontend_tests() -> tuple[bool, str] | tuple[None, str]:
     if not (frontend / "node_modules").exists() or not npm:
         return None, "bo qua - chua cai node_modules"
 
-    code, out = run([npm, "run", "test", "--workspace", "@moodbite/client"], cwd=frontend)
-    summary = next(
-        (ln.strip() for ln in out.splitlines() if "Tests " in ln and ("passed" in ln or "failed" in ln)),
-        "khong doc duoc ket qua",
-    )
-    return code == 0, summary
+    # Chạy test của CẢ HAI app. App admin trước đây có 0 test - nghĩa là màn hình trắng
+    # ở trang quản trị sẽ lọt qua CI mà không ai biết.
+    ket_qua: list[str] = []
+    hong = False
+    for app in ("client", "admin"):
+        code, out = run(
+            [npm, "run", "test", "--workspace", f"@moodbite/{app}"], cwd=frontend
+        )
+        summary = next(
+            (ln.strip() for ln in out.splitlines()
+             if "Tests " in ln and ("passed" in ln or "failed" in ln)),
+            "khong doc duoc ket qua",
+        )
+        ket_qua.append(f"{app}: {summary}")
+        hong = hong or code != 0
+    return not hong, " · ".join(ket_qua)
 
 
 def check_frontend_architecture() -> tuple[bool, str] | tuple[None, str]:

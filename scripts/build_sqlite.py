@@ -37,10 +37,10 @@ from src.infrastructure.repositories.sqlite_restaurant_repository import (  # no
 INSERT = """
 INSERT INTO restaurants (
     place_id, name, category, lat, lng, address, cuisine, price, rating,
-    reviews_count, mood_scores, atmosphere_tags, review_text, opening_hours,
+    reviews_count, mood_scores, atmosphere_tags, review_text, thumbnail_url, opening_hours,
     is_active, district, dietary, amenities, phone, website, source,
     data_confidence, experience_cluster_id, experience_cluster_label
-) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
 """
 
 
@@ -63,6 +63,7 @@ def _row(restaurant, is_active: bool = True) -> tuple:
         json.dumps(restaurant.mood_scores, ensure_ascii=False),
         json.dumps(restaurant.atmosphere_tags, ensure_ascii=False),
         restaurant.review_text,
+        restaurant.thumbnail_url,
         restaurant.opening_hours,
         1 if is_active else 0,
         restaurant.district,
@@ -122,7 +123,11 @@ def main() -> int:
     details = JsonRestaurantDetailsRepository(settings.restaurant_details_json)
     review_texts = details.review_texts() if details.is_ready else {}
     print(f"Doc CSV : {settings.restaurants_csv}")
-    repo = CsvRestaurantRepository(settings.restaurants_csv, review_texts=review_texts)
+    repo = CsvRestaurantRepository(
+        settings.restaurants_csv,
+        review_texts=review_texts,
+        thumbnail_urls=details.thumbnail_urls() if details.is_ready else {},
+    )
     if not repo.is_ready:
         print(f"[LOI] {repo.load_error}")
         return 1

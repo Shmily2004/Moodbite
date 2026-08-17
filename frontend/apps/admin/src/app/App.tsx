@@ -1,31 +1,15 @@
 /**
- * Gốc app quản trị.
+ * Gốc app quản trị — chỉ dựng router từ danh sách route đã khai ở `routes.tsx`.
  *
- * Chưa dùng router: app chỉ có hai trạng thái (chưa đăng nhập / đã đăng nhập). Thêm
- * `react-router` lúc này là phức tạp hoá mà không được gì.
+ * Khung giao diện nằm ở `layout/AdminLayout.tsx`, chốt chặn đăng nhập ở
+ * `layout/RequireAuth.tsx`.
  */
-import { LoginForm, useAdminSession } from '@/features/admin-login';
-import { RestaurantsPage } from '@/pages/restaurants';
+import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+import { routes } from './routes';
 import './styles.css';
 
+const router = createBrowserRouter(routes);
+
 export function App() {
-  const session = useAdminSession();
-
-  if (!session.isLoggedIn) {
-    return (
-      <div className="shell shell--centered">
-        <LoginForm
-          loading={session.loading}
-          error={session.error}
-          onSubmit={(username, password) => void session.login(username, password)}
-        />
-      </div>
-    );
-  }
-
-  return (
-    <div className="shell">
-      <RestaurantsPage onExpired={session.handleExpired} onLogout={session.logout} />
-    </div>
-  );
+  return <RouterProvider router={router} />;
 }

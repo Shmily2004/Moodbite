@@ -140,6 +140,7 @@ class CsvRestaurantRepository:
         csv_path: Path | str,
         eager: bool = True,
         review_texts: Optional[Dict[str, str]] = None,
+        thumbnail_urls: Optional[Dict[str, str]] = None,
     ) -> None:
         """`review_texts` ({place_id: nội dung review}) đến từ restaurant_details.json.
 
@@ -149,6 +150,7 @@ class CsvRestaurantRepository:
         """
         self.csv_path = Path(csv_path)
         self._review_texts = review_texts or {}
+        self._thumbnail_urls = thumbnail_urls or {}
         self._restaurants: Optional[List[Restaurant]] = None
         self._by_place_id: dict[str, Restaurant] = {}
         self._load_error: Optional[str] = None
@@ -240,6 +242,7 @@ class CsvRestaurantRepository:
             atmosphere_tags=_as_tags(row.get(COL_ATMOSPHERE)),
             opening_hours=_as_str(row.get(COL_OPENING_HOURS)),
             review_text=self._review_texts.get(place_id) if place_id else None,
+            thumbnail_url=self._thumbnail_urls.get(place_id) if place_id else None,
             district=_as_str(row.get(COL_DISTRICT)),
             dietary=_as_list(row.get(COL_DIETARY)),
             amenities=_as_list(row.get(COL_AMENITIES)),

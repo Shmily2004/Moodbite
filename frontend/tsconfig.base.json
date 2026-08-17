@@ -1,0 +1,28 @@
+{
+  // Tuỳ chọn TypeScript DÙNG CHUNG cho mọi package/app trong monorepo.
+  //
+  // VÌ SAO TÁCH RA: trước đây chỉ có duy nhất `apps/client/tsconfig.json`. Mọi file
+  // ngoài `apps/client/` (toàn bộ `packages/`, `steiger.config.ts`) không được
+  // tsconfig nào bao phủ, nên IDE lùi về cấu hình mặc định: `strict` TẮT và
+  // `moduleResolution` cũ. Hậu quả: `steiger.config.ts` báo đỏ TS2307 giả trong
+  // editor, còn `packages/api-client` thì bị kiểm tra LỎNG hơn lúc build — lỗi thật
+  // bị giấu tới tận khi chạy `npm run build`.
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    // "bundler": Vite lo phần bundle, nên TS được phép resolve theo kiểu bundler
+    // (đọc "exports" trong package.json). Thiếu dòng này là nguồn gốc TS2307 ở trên.
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowImportingTsExtensions": false,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true
+  }
+}

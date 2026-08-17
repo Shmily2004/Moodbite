@@ -6,18 +6,22 @@ VÌ SAO CÓ FILE NÀY: tài liệu trước đây ghi 4 lệnh nối bằng `&&`
 bash/macOS/Linux. PowerShell 5.1 (mặc định trên Windows) KHÔNG hỗ trợ `&&`, cũng không có
 `grep`/`wc`. Viết bằng Python thì chạy được ở mọi nơi, không cần nhớ cú pháp shell nào.
 
-Kiểm 7 việc:
+Kiểm 8 việc:
   1. App FastAPI dựng được               (bug từng làm app không khởi động được)
   2. Toàn bộ test xanh
   3. Hướng phụ thuộc Clean Architecture đúng
   4. CHỈ CÓ MỘT backend                   (không có backend thứ hai lẻn vào)
   5. Frontend build được                  (bỏ qua nếu chưa cài node_modules)
+  6. Frontend test xanh
+  7. Luật import Feature-Sliced Design
+  8. CI cài đặt được                      (lockfile + đường dẫn trong ci.yml)
 
 Thoát mã 0 = tất cả đạt. Khác 0 = có mục hỏng, xem chi tiết ở output.
 """
 from __future__ import annotations
 
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -137,11 +141,18 @@ def check_frontend() -> tuple[bool, str] | tuple[None, str]:
     if not npm:
         return None, "khong tim thay npm trong PATH"
 
+    # Kiểm kiểu TRƯỚC build: `npm run build` chỉ chạy tsc cho `apps/client`, không phủ
+    # `packages/**` và `steiger.config.ts` (thuộc project gốc `frontend/tsconfig.json`).
+    code, out = run([npm, "run", "typecheck"], cwd=frontend)
+    if code != 0:
+        errors = [ln.strip() for ln in out.splitlines() if ": error TS" in ln]
+        return False, "TYPECHECK LOI:\n        " + "\n        ".join(errors[:8] or [out.strip()[-500:]])
+
     code, out = run([npm, "run", "build"], cwd=frontend)
     if code != 0:
         return False, "BUILD LOI:\n" + out.strip()[-700:]
     built = next((ln.strip() for ln in out.splitlines() if "built in" in ln), "build xong")
-    return True, built
+    return True, "typecheck OK · " + built
 
 
 def check_frontend_tests() -> tuple[bool, str] | tuple[None, str]:
@@ -173,14 +184,55 @@ def check_frontend_architecture() -> tuple[bool, str] | tuple[None, str]:
     return False, "\n".join(problems[-6:]) or out.strip()[-500:]
 
 
+def check_ci_installable() -> tuple[bool, str]:
+    """CI cai dat duoc — bat loi ma 5 muc tren KHONG the bat.
+
+    VI SAO CO MUC NAY (bug that, 2026-08-17): luc chuyen frontend sang monorepo,
+    `frontend/package-lock.json` bi xoa. May local van xanh het vi `node_modules` da
+    cai san tu truoc, nhung CI chay `npm ci` tren may sach — ma `npm ci` BAT BUOC phai
+    co lockfile, va `actions/setup-node` cung loi neu `cache-dependency-path` tro vao
+    file khong ton tai. Ket qua: verify.py bao "TAT CA DAT" trong khi CI chac chan do.
+
+    Doc ci.yml bang regex, khong dung PyYAML — de script chay duoc ma khong can cai them.
+    """
+    problems: list[str] = []
+
+    # Moi workspace root (package.json co khoa "workspaces") phai co lockfile di kem,
+    # neu khong `npm ci` khong the chay.
+    for pkg in ROOT.rglob("package.json"):
+        if any(part in ("node_modules", "archive", ".git") for part in pkg.parts):
+            continue
+        if '"workspaces"' not in pkg.read_text(encoding="utf-8", errors="ignore"):
+            continue
+        if not (pkg.parent / "package-lock.json").exists():
+            problems.append(
+                f"thieu {pkg.parent.relative_to(ROOT)}/package-lock.json "
+                f"-> `npm ci` trong CI se loi. Sinh lai: cd "
+                f"{pkg.parent.relative_to(ROOT)}; npm install --package-lock-only"
+            )
+
+    ci = ROOT / ".github" / "workflows" / "ci.yml"
+    if ci.exists():
+        text = ci.read_text(encoding="utf-8", errors="ignore")
+        for rel in re.findall(r"cache-dependency-path:\s*(\S+)", text):
+            rel = rel.strip("'\"")
+            if not (ROOT / rel).exists():
+                problems.append(f"ci.yml tro vao file khong ton tai: {rel}")
+
+    if problems:
+        return False, "\n        ".join(problems)
+    return True, "lockfile day du, moi duong dan trong ci.yml deu ton tai"
+
+
 CHECKS = [
     ("1. App FastAPI dung duoc", check_app_boots),
     ("2. Test", check_tests),
     ("3. Clean Architecture", check_architecture),
     ("4. Chi mot backend", check_single_backend),
-    ("5. Frontend build", check_frontend),
+    ("5. Frontend typecheck + build", check_frontend),
     ("6. Frontend test", check_frontend_tests),
     ("7. Frontend FSD", check_frontend_architecture),
+    ("8. CI cai dat duoc", check_ci_installable),
 ]
 
 

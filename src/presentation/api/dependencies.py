@@ -35,6 +35,9 @@ from src.infrastructure.adapters.tfidf_semantic_search import TfidfSemanticSearc
 from src.infrastructure.repositories.jsonl_interaction_repository import (
     JsonlInteractionRepository,
 )
+from src.infrastructure.repositories.sqlite_restaurant_repository import (
+    SqliteRestaurantRepository,
+)
 
 
 def _status_of(adapter: object) -> dict:
@@ -90,9 +93,18 @@ def build_container(settings: Optional[Settings] = None) -> Container:
     # của repository - mỗi repository chỉ đọc đúng một nguồn.
     review_texts = details_repository.review_texts() if details_repository.is_ready else {}
 
-    restaurant_repository = CsvRestaurantRepository(
-        settings.restaurants_csv, review_texts=review_texts
-    )
+    # ĐÂY là toàn bộ chi phí của việc đổi kho lưu trữ: một câu if ở composition root.
+    # Use case, domain và router không biết dữ liệu đến từ CSV hay SQLite - cả hai
+    # adapter đều triển khai cùng port `RestaurantRepository`.
+    #
+    # SQLite đã lưu sẵn `review_text` (do `scripts/build_sqlite.py` ghép lúc dựng CSDL),
+    # nên không cần truyền `review_texts` vào nữa.
+    if settings.storage_backend == "sqlite":
+        restaurant_repository = SqliteRestaurantRepository(settings.restaurants_db)
+    else:
+        restaurant_repository = CsvRestaurantRepository(
+            settings.restaurants_csv, review_texts=review_texts
+        )
     dish_knowledge_repository = JsonDishKnowledgeRepository(
         settings.dish_knowledge_json
     )

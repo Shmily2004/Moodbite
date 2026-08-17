@@ -23,6 +23,13 @@ def _path_from_env(env_key: str, default_relative: str) -> Path:
 @dataclass(frozen=True)
 class Settings:
     restaurants_csv: Path
+    # CSDL SQLite dựng bằng `python scripts/build_sqlite.py`. Chỉ dùng khi
+    # storage_backend='sqlite'.
+    restaurants_db: Path
+    # 'csv' (mặc định) | 'sqlite'. Để CSV làm mặc định vì đó là thứ pipeline sinh ra
+    # trực tiếp; SQLite là bước chuẩn bị cho trang Admin (cần SỬA/ẨN quán, CSV không
+    # làm được an toàn). Bật bằng MOODBITE_STORAGE=sqlite.
+    storage_backend: str
     restaurant_details_json: Path
     dish_knowledge_json: Path
     dish_model_path: Path
@@ -47,6 +54,11 @@ class Settings:
                 "MOODBITE_RESTAURANTS_CSV",
                 "data_pipeline/data_cleaned/dataset_moodbite_features.csv",
             ),
+            restaurants_db=_path_from_env(
+                "MOODBITE_RESTAURANTS_DB",
+                "data_pipeline/data_cleaned/moodbite.db",
+            ),
+            storage_backend=os.getenv("MOODBITE_STORAGE", "csv").strip().lower(),
             restaurant_details_json=_path_from_env(
                 "MOODBITE_RESTAURANT_DETAILS_JSON",
                 "data_pipeline/data_cleaned/restaurant_details.json",

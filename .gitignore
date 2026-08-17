@@ -184,3 +184,8 @@ data_pipeline/data_cleaned/interactions.jsonl
 data_pipeline/data_raw/.osm_cache/
 # Log chay thu thap du lieu
 harvest.log
+
+# CSDL SQLite dung tu CSV bang `python scripts/build_sqlite.py` - SINH LAI DUOC,
+# khong commit (4MB va se lech voi CSV moi lan pipeline chay lai).
+data_pipeline/data_cleaned/*.db
+

@@ -55,8 +55,13 @@ jobs:
       - name: Install deps
         run: npm ci
 
+      # Kiểm kiểu TOÀN monorepo: `npm run build` chỉ phủ `apps/client`, còn
+      # `packages/**` và `steiger.config.ts` thuộc project gốc `frontend/tsconfig.json`.
+      - name: Kiểm tra kiểu TypeScript (toàn monorepo)
+        run: npm run typecheck
+
       # Build đã bao gồm `tsc --noEmit`, nên sai tên field API là CI đỏ ngay.
-      - name: Build (gồm kiểm tra kiểu TypeScript)
+      - name: Build
         run: npm run build
 
       - name: Test

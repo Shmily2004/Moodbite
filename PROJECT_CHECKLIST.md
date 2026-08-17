@@ -1,6 +1,6 @@
 # MoodBite — Bảng theo dõi tiến độ
 
-**Cập nhật:** 2026-08-16
+**Cập nhật:** 2026-08-17
 **Nguyên tắc:** file này chỉ ghi thứ đã **chạy thật và kiểm chứng được**. Không ghi theo
 kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh để tự kiểm lại.
 
@@ -15,17 +15,18 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Tìm kiếm bằng câu tự do | ✅ Chạy được | đúng ý đề án, thay cho dropdown mood |
 | Gợi ý món trong kết quả | ✅ Xong | lồng trong từng quán, không còn endpoint riêng |
 | Ghi nhận tương tác | ✅ Xong | `POST /interactions` → nhãn cho mô hình sau này |
-| Ngữ cảnh thời điểm | ✅ Giờ ăn · 🟡 thời tiết tắt mặc định | bật bằng `MOODBITE_ENABLE_WEATHER=1` |
+| Ngữ cảnh thời điểm | ✅ Giờ ăn · ✅ thời tiết (tắt mặc định) | đã gọi thật Open-Meteo: 27.2°C, 0.94s; 17 test suy biến |
 | Frontend Client | ✅ **TypeScript + FSD** | 21 test, có bản đồ, steiger trong CI |
 | Bản đồ | ✅ **Xong** | Leaflet + OpenStreetMap, miễn phí, không cần key |
 | Kiến trúc | ✅ Sạch | Clean Architecture + checker tự động trong CI |
-| Test | ✅ 171 backend + 21 frontend | tổng 192 |
+| Test | ✅ 201 backend + 21 frontend | tổng 222 |
+| Kho lưu trữ | ✅ CSV (mặc định) · ✅ SQLite (chọn được) | `MOODBITE_STORAGE=sqlite`, kết quả GIỐNG HỆT |
 | Dữ liệu | ✅ 4938 quán · 142 đơn vị HC | provenance 100%, trùng lặp 0% |
 | Thu thập dữ liệu đa nguồn | ✅ Xong | kiến trúc `SourceAdapter`, thêm nguồn không sửa pipeline |
 | Lọc giờ mở cửa / chế độ ăn / quận | ✅ Xong | thiếu dữ liệu KHÔNG bị loại |
 | **Lớp 1 — Phân cụm trải nghiệm** | ✅ **Xong** | KMeans k=7, Silhouette 0.318 |
 | **Lớp 2 — Tìm kiếm ngữ nghĩa** | ✅ **Xong** | TF-IDF cosine, 4938 quán |
-| Lớp 4 — Tóm tắt review | ⬜ Chưa làm | review TB 106 ký tự, quá ngắn |
+| Lớp 4 — Tóm tắt review | 🟡 Chưa làm, nhưng ĐÃ KHẢ THI | đo lại: gộp theo quán TB 666 ký tự, 592 quán đủ điều kiện |
 | Đăng nhập / tài khoản | ⬜ Ngoài phạm vi | SRS mục 8, Won't-have |
 
 **Tự kiểm toàn bộ bằng MỘT lệnh** (chạy được ở PowerShell, CMD, bash, macOS, Linux):
@@ -34,8 +35,9 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 python scripts/verify.py
 ```
 
-Lệnh này kiểm 5 việc và in rõ từng mục đạt/hỏng:
-app dựng được · test · hướng phụ thuộc · **chỉ có 1 backend** · frontend build.
+Lệnh này kiểm 8 việc và in rõ từng mục đạt/hỏng: app dựng được · test backend ·
+hướng phụ thuộc · **chỉ có 1 backend** · frontend build · test frontend · luật import
+FSD · **CI cài đặt được**.
 
 > ⚠️ **Đừng nối lệnh bằng `&&` trên Windows.** PowerShell 5.1 không hỗ trợ `&&`
 > (báo lỗi *"The token '&&' is not a valid statement separator"*), cũng không có
@@ -139,6 +141,15 @@ Kiểm lại (mục 4 của `python scripts/verify.py` đã tự kiểm việc n
 - [x] **Review lấn át tên quán** — quán tên "Phở Bò" thua quán chỉ nhắc "bò" trong review
 - [x] **Gợi ý món sai** — "Bún Chả - Nem Cua Bê" bị gợi ý "Gà rán"
 - [x] **`.env.local` chưa được `.gitignore`** — API key có thể bị commit
+- [x] **CI frontend chắc chắn đỏ sau khi chuyển sang monorepo** (2026-08-17) —
+      `frontend/package-lock.json` bị xoá lúc dựng lại frontend, nhưng `ci.yml` vẫn
+      `cache-dependency-path: frontend/package-lock.json` + `npm ci`. Máy local vẫn xanh
+      vì `node_modules` đã cài sẵn → **verify.py không phát hiện được**. Đã sinh lại
+      lockfile và kiểm chứng bằng chính lệnh CI dùng (`npm ci` → exit 0).
+- [x] **`npm run typecheck` không chạy được** — script gọi `tsc --build` nhưng không có
+      `frontend/tsconfig.json` (TS5083). Không nằm trong CI nên hỏng âm thầm.
+- [x] **`@moodbite/ui` trỏ vào file không tồn tại** — đã khai dependency + alias ở
+      `vite.config.ts`/`tsconfig.json` nhưng `packages/ui/src/index.ts` chưa có
 
 ### Frontend
 - [x] Dựng lại theo cấu trúc feature-based (phương án A trong `docs/frontend_architecture.md`)
@@ -247,15 +258,40 @@ Cách miễn phí, theo thứ tự đáng làm:
 > ⚠️ ĐỪNG scrape ShopeeFood/GrabFood/Foody/Facebook để lách — vi phạm ToS, rất dễ bị hỏi
 > khi bảo vệ. Xem `docs/data_sources.md`.
 
-### 2. Bật thời tiết khi chạy thật
-- [ ] `MOODBITE_ENABLE_WEATHER=1` (Open-Meteo miễn phí, không cần key)
-- [ ] Xác nhận cơ chế tự khắc phục khi API lỗi trên môi trường thật
+### 2. ✅ Thời tiết — ĐÃ XONG (2026-08-17)
+- [x] Gọi THẬT Open-Meteo: Hoàn Kiếm 27.2°C, `CLEAR`, mất 0.94s, không cần key
+- [x] 17 test ở `tests/test_context_provider.py` khoá cơ chế suy biến: mất mạng /
+      timeout / HTTP 500 / JSON hỏng đều cho ngữ cảnh trung lập, **tín hiệu giờ vẫn đúng**
+- [x] Kiểm bằng mutation test: bỏ `except Exception` → 5 test đỏ ngay
+- [ ] Còn lại: bật `MOODBITE_ENABLE_WEATHER=1` trên môi trường deploy thật (chưa deploy)
 
-### 3. Frontend Admin — CHẶN, cần backend trước
-- [ ] Chuyển lưu trữ sang SQLite (`SqliteRestaurantRepository`, use case không đổi)
+### 3. Frontend Admin — vẫn CHẶN, nhưng đã đi được 1/3
+- [x] **Chuyển lưu trữ sang SQLite** — `SqliteRestaurantRepository`, use case KHÔNG đổi
+      một dòng nào. Bật bằng `MOODBITE_STORAGE=sqlite`, mặc định vẫn là CSV.
+      - Dựng CSDL: `python scripts/build_sqlite.py` → 4938 quán, 4.0 MB
+      - **Đối chiếu từng trường của 4938 quán: KHỚP HOÀN TOÀN với bản CSV**
+      - Gọi API thật trên cả hai kho: 10 kết quả, `predicted_score` giống hệt tới 6 chữ số
+      - Có sẵn cột `is_active` (soft-delete) — thứ bản CSV không lưu được
 - [ ] Thêm xác thực (1 tài khoản admin + JWT ngắn hạn)
 - [ ] Endpoint `/api/v1/admin/*` (CRUD + soft-delete)
 - [ ] Chỉ khi đó mới dựng `apps/admin`
+
+### 3b. Lớp 4 — tóm tắt review: ĐÃ ĐO LẠI, KHẢ THI hơn tưởng
+
+Kết luận cũ "review TB 106 ký tự, quá ngắn" đo SAI ĐƠN VỊ — nó đo từng review lẻ, trong
+khi tóm tắt làm việc trên TOÀN BỘ review của một quán gộp lại.
+
+Đo lại bằng `python scripts/review_report.py` (1310 quán có chi tiết):
+
+| Chỉ số | Giá trị |
+|---|---|
+| Một review lẻ | TB 122.8 ký tự · trung vị 63 — **vẫn ngắn** |
+| **Gộp theo quán** | **TB 666.2 ký tự · trung vị 468 · p90 1556** |
+| Số review mỗi quán | TB 5.4 · trung vị 6 |
+| **Quán đáng tóm tắt** (≥300 ký tự gộp và ≥5 review) | **592 quán = 45.2%** số quán có chi tiết |
+
+- [ ] Làm tóm tắt **trích rút** (chọn câu tiêu biểu), KHÔNG dùng LLM trả phí
+- [ ] ⚠️ Chỉ phủ được 592/4938 quán (12%) — phải nói rõ tỷ lệ phủ, đây là lớp LÀM GIÀU
 
 ### 4. Lớp 3 đầy đủ — khi đã có dữ liệu tương tác
 - [ ] Huấn luyện mô hình xếp hạng thay công thức trọng số
@@ -306,13 +342,28 @@ src/
     ├── error_handlers.py              lỗi → mã HTTP
     └── routers/                       search, restaurants, interactions, meta
 
-frontend/src/
-├── domain/          session.js (UUID phiên), formatters.js (quy tắc hiển thị)
-├── services/        httpClient.js (bóc envelope) ⭐, moodbiteApi.js (ánh xạ field) ⭐
-└── features/
-    ├── search/      useSearch.js, SearchPage.jsx, RestaurantCard.jsx
-    └── map/         useUserLocation.js
+frontend/                            Monorepo npm workspaces — React + TS + FSD
+├── packages/
+│   ├── api-client/src/              DÙNG CHUNG cho client + admin (admin chưa dựng)
+│   │   ├── schema.d.ts                SINH TỰ ĐỘNG từ openapi.json — KHÔNG sửa tay
+│   │   ├── http.ts                    nơi DUY NHẤT biết envelope {data}/{error} ⭐
+│   │   └── endpoints.ts               các endpoint, gắn kiểu từ schema ⭐
+│   └── ui/src/index.ts              cố ý còn rỗng — chờ apps/admin
+└── apps/client/src/
+    ├── app/                         App.tsx, styles.css
+    ├── pages/search/                SearchPage.tsx
+    ├── widgets/                     restaurant-list, restaurant-map (Leaflet)
+    ├── features/                    MỘT hành động = MỘT feature
+    │   ├── search-restaurants/        model/useSearch.ts ⭐ + ui/SearchForm.tsx
+    │   ├── pick-location/             model/useUserLocation.ts
+    │   ├── view-restaurant-detail/    model/useRestaurantDetail.ts
+    │   └── log-interaction/           model/useInteractionLogger.ts
+    ├── entities/restaurant/         model/format.ts (quy tắc HIỂN THỊ) ⭐ + ui/RestaurantCard.tsx
+    └── shared/                      api/ (dựng client), config/env.ts, lib/session.ts
 ```
+
+> Bản frontend JavaScript cũ nằm ở `archive/frontend-v1/` — **không dùng nữa**, giữ lại
+> để đối chiếu. Đừng sửa file trong đó.
 
 ⭐ = nên đọc đầu tiên khi quay lại dự án.
 
@@ -327,7 +378,8 @@ frontend/src/
 | Danh sách món ăn | `data_pipeline/dish_knowledge_base.json` |
 | Đường dẫn file, biến môi trường | `infrastructure/config/settings.py` |
 | Field trả về cho frontend | `presentation/api/schemas.py` |
-| Cách gọi API ở frontend | `frontend/src/services/moodbiteApi.js` |
+| Cách gọi API ở frontend | `frontend/packages/api-client/src/endpoints.ts` |
+| Quy tắc hiển thị (khoảng cách, giá, nhãn tin cậy) | `frontend/apps/client/src/entities/restaurant/model/format.ts` |
 
 ---
 

@@ -1,22 +1,14 @@
 {
+  // Chỉ khai những gì KHÁC với `tsconfig.base.json`: app này chạy trên trình duyệt
+  // nên cần DOM + JSX, và cần alias trỏ tới mã nguồn của package dùng chung.
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "target": "ES2022",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
-    "moduleResolution": "bundler",
     "jsx": "react-jsx",
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowImportingTsExtensions": false,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
     "types": ["vite/client", "vitest/globals", "node"],
-    "baseUrl": ".",
+    // KHÔNG dùng `baseUrl` — TypeScript đã đánh dấu deprecated (sẽ ngừng hoạt động ở
+    // TS 7.0). Từ TS 5.x, `paths` chạy được mà không cần `baseUrl`: đường dẫn được
+    // tính tương đối với CHÍNH file tsconfig này.
     "paths": {
       "@/*": ["./src/*"],
       "@moodbite/api-client": ["../../packages/api-client/src/index.ts"],

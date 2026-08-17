@@ -1,0 +1,15 @@
+{
+  // Project bao phủ phần monorepo NẰM NGOÀI `apps/client`: các package dùng chung và
+  // file cấu hình ở gốc `frontend/`.
+  //
+  // Không có file này thì IDE không tìm được tsconfig cho `packages/**` và
+  // `steiger.config.ts` — xem lời giải thích ở `tsconfig.base.json`.
+  //
+  // `apps/client` CÓ tsconfig riêng (cần thêm DOM + JSX + alias), nên cố ý KHÔNG
+  // include ở đây để hai project không chồng lấn.
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node"]
+  },
+  "include": ["packages/**/*.ts", "packages/**/*.d.ts", "steiger.config.ts"]
+}

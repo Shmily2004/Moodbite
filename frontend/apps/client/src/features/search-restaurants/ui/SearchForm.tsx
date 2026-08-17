@@ -1,12 +1,13 @@
 /**
  * Ô tìm kiếm — component "NGU": chỉ nhận props và báo sự kiện lên trên.
  *
- * Đề án mục 2: người dùng GÕ NHU CẦU BẰNG CÂU TỰ NHIÊN thay vì bị ép chọn trong bộ lọc
- * cứng. Các nút mood chỉ là lối tắt gợi ý, không phải cách dùng chính.
+ * Đề án mục 2: người dùng GÕ NHU CẦU BẰNG CÂU TỰ NHIÊN thay vì bị ép chọn bộ lọc cứng.
+ * Nút mood chỉ là lối tắt, không phải cách dùng chính.
  *
- * BỐ CỤC: ô nhập + một hàng chip cuộn ngang. Bộ lọc chi tiết (bán kính, vị trí) giấu
- * sau nút "Bộ lọc" — panel rất hẹp (400px trên máy tính, nửa màn hình trên điện thoại),
- * nên phần đầu phải thấp để còn chỗ cho KẾT QUẢ, thứ người dùng thật sự cần nhìn.
+ * TÁCH LÀM HAI vì bố cục mới đặt chúng ở hai chỗ khác nhau:
+ *   - `SearchForm`         → ô nhập, nằm trên THANH TRÊN
+ *   - `SearchForm.Filters` → hàng chip lọc, nằm ngay dưới thanh trên
+ * Cùng một feature nên để cùng file; tách file chỉ làm khó tìm.
  */
 import { useState } from 'react';
 import type { FormEvent } from 'react';
@@ -30,43 +31,57 @@ const RADIUS_OPTIONS = [2, 5, 10, 20];
 interface SearchFormProps {
   queryText: string;
   onQueryTextChange: (value: string) => void;
+  loading: boolean;
+  onSubmit: () => void;
+}
+
+export function SearchForm({
+  queryText,
+  onQueryTextChange,
+  loading,
+  onSubmit,
+}: SearchFormProps) {
+  const submit = (event: FormEvent) => {
+    event.preventDefault();
+    onSubmit();
+  };
+
+  return (
+    <form className="search__form" onSubmit={submit} role="search">
+      <input
+        className="search__input"
+        type="text"
+        value={queryText}
+        onChange={(event) => onQueryTextChange(event.target.value)}
+        placeholder="Bạn muốn ăn gì? VD: quán lẩu ấm cúng gần đây"
+        aria-label="Nhu cầu của bạn"
+      />
+      <button className="btn btn--primary" type="submit" disabled={loading}>
+        {loading ? '…' : 'Tìm'}
+      </button>
+    </form>
+  );
+}
+
+interface FiltersProps {
   maxDistanceKm: number | null;
   onMaxDistanceChange: (value: number | null) => void;
   openNow: boolean;
   onOpenNowChange: (value: boolean) => void;
-  loading: boolean;
   locationIsDefault: boolean;
   locationLoading: boolean;
   onRequestLocation: () => void;
-  onSubmit: () => void;
-  onPickExample: (query: string) => void;
   onPickMood: (mood: string) => void;
+  onPickExample: (query: string) => void;
+  /** Chỉ gợi ý câu mẫu khi ô tìm còn trống - gõ rồi thì gợi ý thành nhiễu. */
+  showExamples: boolean;
 }
 
-export function SearchForm(props: SearchFormProps) {
-  const [showFilters, setShowFilters] = useState(false);
-
-  const submit = (event: FormEvent) => {
-    event.preventDefault();
-    props.onSubmit();
-  };
+function Filters(props: FiltersProps) {
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   return (
-    <section className="search">
-      <form className="search__form" onSubmit={submit}>
-        <input
-          className="search__input"
-          type="text"
-          value={props.queryText}
-          onChange={(event) => props.onQueryTextChange(event.target.value)}
-          placeholder="Bạn muốn ăn gì?"
-          aria-label="Nhu cầu của bạn"
-        />
-        <button className="btn btn--primary" type="submit" disabled={props.loading}>
-          {props.loading ? '…' : 'Tìm'}
-        </button>
-      </form>
-
+    <>
       <div className="chips">
         <button
           className={props.openNow ? 'chip chip--active' : 'chip'}
@@ -85,15 +100,26 @@ export function SearchForm(props: SearchFormProps) {
           </button>
         ))}
         <button
-          className={showFilters ? 'chip chip--active' : 'chip'}
-          onClick={() => setShowFilters((open) => !open)}
-          aria-expanded={showFilters}
+          className={showAdvanced ? 'chip chip--active' : 'chip'}
+          onClick={() => setShowAdvanced((open) => !open)}
+          aria-expanded={showAdvanced}
         >
           ⚙️ Bộ lọc
         </button>
+
+        {props.showExamples &&
+          EXAMPLE_QUERIES.map((query) => (
+            <button
+              key={query}
+              className="chip"
+              onClick={() => props.onPickExample(query)}
+            >
+              {query}
+            </button>
+          ))}
       </div>
 
-      {showFilters && (
+      {showAdvanced && (
         <div className="search__controls">
           <label>
             Bán kính{' '}
@@ -127,20 +153,8 @@ export function SearchForm(props: SearchFormProps) {
           </span>
         </div>
       )}
-
-      {!props.queryText && (
-        <div className="chips">
-          {EXAMPLE_QUERIES.map((query) => (
-            <button
-              key={query}
-              className="chip"
-              onClick={() => props.onPickExample(query)}
-            >
-              {query}
-            </button>
-          ))}
-        </div>
-      )}
-    </section>
+    </>
   );
 }
+
+SearchForm.Filters = Filters;

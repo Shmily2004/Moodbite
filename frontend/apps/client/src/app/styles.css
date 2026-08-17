@@ -43,7 +43,7 @@
   --r-lg: 18px;
   --r-pill: 999px;
 
-  --panel-w: 400px;
+  --rail-w: 380px;
 
   --step--2: 0.72rem;
   --step--1: 0.82rem;
@@ -99,100 +99,99 @@ body {
 .tnum { font-variant-numeric: tabular-nums; }
 
 /* =========================================================================
-   KHUNG: bản đồ là nền, panel nổi lên trên
+   KHUNG: THANH TRÊN + BẢN ĐỒ + RAIL ĐỀ XUẤT
+   -------------------------------------------------------------------------
+   Bản đồ KHÔNG nuốt cả màn hình. MoodBite không phải Google Maps clone —
+   USP là "gợi ý theo ngữ cảnh + tâm trạng", nên danh sách đề xuất phải luôn
+   nhìn thấy được, không phải kéo lên mới thấy.
+
+     ┌──────────────────────────────────────────────┐
+     │ MoodBite    🔍 Tìm quán...              👤   │  thanh trên
+     ├──────────────────────┬───────────────────────┤
+     │        MAP           │  Kết quả đề xuất      │
+     └──────────────────────┴───────────────────────┘
+
+   Điện thoại: xếp dọc — thanh trên, bản đồ thấp (34dvh), rail chiếm phần còn lại.
    ========================================================================= */
 
-.shell { position: relative; height: 100dvh; overflow: hidden; }
-
-.map-layer { position: absolute; inset: 0; z-index: 0; }
-.map-layer .map { width: 100%; height: 100%; }
-
-/* Nhãn thương hiệu nổi góc trên. Nhỏ thôi - bản đồ mới là nội dung chính. */
-.brand {
-  position: absolute;
-  top: 14px; right: 14px;
-  z-index: 3;
-  display: flex; align-items: center; gap: 7px;
-  padding: 7px 13px;
-  background: var(--surface);
-  border: 1px solid var(--rule);
-  border-radius: var(--r-pill);
-  box-shadow: var(--shadow-sm);
-  font-weight: 700;
-  font-size: var(--step--1);
-  letter-spacing: -0.01em;
-}
-.brand__dot {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: var(--accent);
-}
-
-/* --- Panel kết quả -------------------------------------------------------- */
-
-.panel {
-  position: absolute;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  background: var(--surface);
-  box-shadow: var(--shadow-lg);
+.shell {
+  height: 100dvh;
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  background: var(--bg);
   overflow: hidden;
 }
 
-/* Máy tính: cột trái cao hết màn hình. */
-@media (min-width: 900px) {
-  .panel {
-    top: 12px; left: 12px; bottom: 12px;
-    width: var(--panel-w);
-    border: 1px solid var(--rule);
-    border-radius: var(--r-lg);
-  }
+/* --- Thanh trên ----------------------------------------------------------- */
+
+.topbar {
+  display: flex; align-items: center; gap: 14px;
+  padding: 10px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--rule);
 }
 
-/* Điện thoại: tấm trượt từ đáy. Mặc định chỉ ló ~46% để còn thấy bản đồ. */
-@media (max-width: 899px) {
-  .panel {
-    left: 0; right: 0; bottom: 0;
-    max-height: 88dvh;
-    height: 46dvh;
-    border-top-left-radius: var(--r-lg);
-    border-top-right-radius: var(--r-lg);
-    transition: height .22s ease;
-  }
-  .panel--expanded { height: 88dvh; }
-}
-
-.panel__handle {
+.brand {
+  display: flex; align-items: center; gap: 8px;
+  font-weight: 800; letter-spacing: -.02em;
+  font-size: 1.02rem;
   flex: none;
-  display: flex; justify-content: center; align-items: center;
-  gap: 8px;
-  padding: 8px 0 4px;
-  background: none; border: none; width: 100%;
-  cursor: pointer;
-  color: var(--muted);
-  font: inherit; font-size: var(--step--2);
 }
-.panel__handle::before {
-  content: '';
-  width: 38px; height: 4px; border-radius: 2px;
-  background: var(--rule);
-}
+.brand__dot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); }
+.brand__name { display: none; }
+@media (min-width: 560px) { .brand__name { display: inline; } }
 
-/* Tay kéo CHỈ có ý nghĩa với tấm trượt trên điện thoại. Rule này phải nằm SAU phần
-   khai `display: flex` ở trên — cùng độ ưu tiên thì cái viết sau thắng. Đặt nhầm thứ
-   tự là tay kéo hiện cả trên máy tính (đã từng bị đúng lỗi này). */
-@media (min-width: 900px) {
-  .panel__handle { display: none; }
-}
+.topbar .search__form { flex: 1; max-width: 560px; }
 
-.panel__head {
-  flex: none;
-  padding: 12px 14px 10px;
+.topbar__ctx {
+  display: none;
+  font-size: var(--step--1); color: var(--muted); white-space: nowrap;
+}
+@media (min-width: 1000px) { .topbar__ctx { display: block; } }
+
+/* --- Hàng chip ------------------------------------------------------------ */
+
+.filterbar {
+  padding: 8px 16px;
+  background: var(--surface);
   border-bottom: 1px solid var(--rule-soft);
 }
 
+/* --- Thân: bản đồ + rail -------------------------------------------------- */
+
+.main { display: grid; min-height: 0; }
+
+@media (min-width: 900px) {
+  .main { grid-template-columns: 1fr var(--rail-w); }
+}
+@media (max-width: 899px) {
+  /* Điện thoại: bản đồ vừa đủ để định hướng, phần còn lại dành cho đề xuất. */
+  .main { grid-template-rows: 34dvh 1fr; }
+}
+
+.map-pane { position: relative; min-height: 0; background: var(--surface-2); }
+.map-pane .map { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+.rail {
+  display: flex; flex-direction: column;
+  min-height: 0;
+  background: var(--surface);
+  border-left: 1px solid var(--rule);
+}
+@media (max-width: 899px) {
+  .rail { border-left: none; border-top: 1px solid var(--rule); }
+}
+
+.rail__head {
+  flex: none;
+  display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.rail__count { font-weight: 700; font-size: var(--step-0); }
+
 /* Danh sách cuộn riêng - trang không bao giờ cuộn theo. */
-.panel__body { flex: 1; overflow-y: auto; overscroll-behavior: contain; }
+.rail__body { flex: 1; overflow-y: auto; overscroll-behavior: contain; min-height: 0; }
 
 /* =========================================================================
    Ô TÌM KIẾM
@@ -395,6 +394,41 @@ body {
   color: var(--muted);
 }
 
+/* --- MỨC PHÙ HỢP ---------------------------------------------------------
+   Nhãn chữ + thanh. Thanh CHỈ để so tương đối giữa các quán trong cùng lượt tìm;
+   con số thật dồn quanh 0.6 nên không hiện % (xem `model/format.ts`). */
+
+.fit { display: flex; align-items: center; gap: 8px; margin: 5px 0 6px; }
+.fit__label { font-size: var(--step--1); font-weight: 700; white-space: nowrap; }
+.fit__bar {
+  flex: 1; height: 5px; min-width: 40px;
+  border-radius: 3px; background: var(--surface-2); overflow: hidden;
+}
+.fit__bar i { display: block; height: 100%; border-radius: 3px; }
+
+.fit--high .fit__label { color: var(--accent); }
+.fit--high .fit__bar i { background: var(--accent); }
+.fit--mid  .fit__label { color: var(--ink-soft); }
+.fit--mid  .fit__bar i { background: var(--ink-soft); }
+/* Mức thấp cố tình NHẠT: không được trông ngang hàng với quán khớp thật. */
+.fit--low  .fit__label { color: var(--muted); font-weight: 600; }
+.fit--low  .fit__bar i { background: var(--muted); }
+
+/* --- VÌ SAO ĐƯỢC ĐỀ XUẤT -------------------------------------------------- */
+
+.why { list-style: none; margin: 7px 0 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+.why__row {
+  display: grid; grid-template-columns: 16px 1fr; gap: 6px;
+  align-items: start;
+  font-size: var(--step--1); color: var(--ink-soft);
+}
+
+.card__meta-foot {
+  margin: 7px 0 0;
+  font-size: var(--step--2);
+  color: var(--muted);
+}
+
 /* =========================================================================
    TRẠNG THÁI
    ========================================================================= */
@@ -408,6 +442,8 @@ body {
   min-height: 190px;
 }
 .state__title { color: var(--ink); font-weight: 700; margin: 0 0 4px; }
+/* Gợi ý cách sửa - đừng chỉ báo "không có kết quả" rồi để người dùng tự đoán. */
+.state__fixes { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 12px; }
 
 .notice { margin: 9px 14px 0; padding: 8px 11px; border-radius: var(--r-sm); font-size: var(--step--1); }
 .notice--warn  { background: var(--warn-soft);  color: var(--warn); }

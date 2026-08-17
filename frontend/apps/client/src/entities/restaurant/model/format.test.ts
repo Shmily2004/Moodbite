@@ -3,14 +3,7 @@
  * người dùng ("0 sao", "miễn phí") cho quán vốn chỉ THIẾU dữ liệu.
  */
 import { describe, expect, it } from 'vitest';
-import {
-  describeCluster,
-  describeDishConfidence,
-  describeMatchSource,
-  formatDistance,
-  formatPrice,
-  formatRating,
-} from './format';
+import { describeCluster, describeDishConfidence, describeFit, describeMatchSource, describeReasons, formatDistance, formatPrice, formatRating } from './format';
 
 describe('formatDistance', () => {
   it('hiện mét khi dưới 1km', () => {
@@ -86,5 +79,64 @@ describe('describeCluster', () => {
 
   it('có cụm thì hiện nhãn cụm', () => {
     expect(describeCluster('Cao cấp, không gian sang')).toBe('Cao cấp, không gian sang');
+  });
+});
+
+describe('describeFit — mức phù hợp', () => {
+  it('KHÔNG hiện phần trăm thô của predicted_score', () => {
+    // Điểm thật dồn quanh 0.6; hiện "61%" khiến người dùng tưởng gợi ý kém
+    // trong khi đó lại là quán khớp nhất. Nhãn phải là CHỮ.
+    expect(describeFit(0.61).label).toBe('Phù hợp');
+    expect(describeFit(0.61).label).not.toMatch(/%/);
+  });
+
+  it('chia đúng 3 mức theo phân bố điểm đo được', () => {
+    expect(describeFit(0.721).label).toBe('Rất phù hợp');  // cao nhất đo được
+    expect(describeFit(0.68).label).toBe('Rất phù hợp');
+    expect(describeFit(0.613).label).toBe('Phù hợp');       // trung vị đo được
+    expect(describeFit(0.576).label).toBe('Có thể hợp');    // thấp nhất đo được
+  });
+
+  it('thanh luôn nhìn thấy được, không bao giờ tràn', () => {
+    for (const score of [0, 0.3, 0.576, 0.613, 0.721, 0.95, 1]) {
+      const { barPercent } = describeFit(score);
+      expect(barPercent).toBeGreaterThanOrEqual(8);
+      expect(barPercent).toBeLessThanOrEqual(100);
+    }
+  });
+
+  it('điểm cao hơn thì thanh dài hơn', () => {
+    expect(describeFit(0.72).barPercent).toBeGreaterThan(describeFit(0.60).barPercent);
+  });
+});
+
+describe('describeReasons — vì sao quán được đề xuất', () => {
+  it('dịch mã match_source sang câu người đọc hiểu', () => {
+    const reasons = describeReasons('name+review');
+    expect(reasons).toHaveLength(1);
+    expect(reasons[0].text).toBe('Khớp tên quán, đánh giá');
+  });
+
+  it('nhắc lại CHÍNH CÂU người dùng gõ khi khớp về không gian', () => {
+    const reasons = describeReasons('atmosphere+name', 'quán lẩu ấm cúng');
+    expect(reasons[0].text).toBe('Hợp với "quán lẩu ấm cúng"');
+    expect(reasons[1].text).toBe('Khớp tên quán');
+  });
+
+  it('không có câu tìm thì vẫn nói được lý do', () => {
+    expect(describeReasons('atmosphere')[0].text).toBe('Hợp về không gian và cảm giác');
+  });
+
+  it('tối đa 2 dòng — thẻ dài quá thì không ai đọc', () => {
+    expect(describeReasons('name+category+review+semantic+atmosphere+mood')).toHaveLength(2);
+  });
+
+  it('mã lạ từ backend vẫn nói được gì đó, không im lặng', () => {
+    expect(describeReasons('mã_lạ')).toHaveLength(1);
+  });
+
+  it('không có match_source thì trả rỗng, KHÔNG bịa lý do', () => {
+    expect(describeReasons(null)).toEqual([]);
+    expect(describeReasons('')).toEqual([]);
   });
 });

@@ -1,17 +1,76 @@
-/* Giao diện quản trị: cố ý KHÁC hẳn app client về màu, để nhìn là biết đang ở đâu.
-   Client dùng tông ấm; admin dùng tông xám lạnh - tránh sửa nhầm dữ liệu thật vì
-   tưởng đang ở màn hình người dùng. */
+/* =========================================================================
+   MoodBite Quản trị — DÙNG CHUNG hệ thiết kế với app người dùng.
+
+   Cùng thang xám ấm, cùng bo góc, cùng cỡ chữ, cùng chế độ tối.
+   KHÁC DUY NHẤT: màu nhấn xanh dương thay vì caramel.
+
+   VÌ SAO CỐ TÌNH KHÁC MÀU (không phải quên đồng bộ):
+   admin sửa được dữ liệu thật mà hàng nghìn người dùng nhìn thấy. Màu khác nhau để
+   không bao giờ nhầm mình đang ở màn hình nào — cùng cách Gmail và Google Admin
+   Console vẫn khác nhau dù cùng một ngôn ngữ thiết kế.
+   ========================================================================= */
 
 :root {
-  --bg: #f5f6f8;
-  --surface: #ffffff;
-  --ink: #1b1f27;
-  --muted: #6b7280;
-  --rule: #dfe3e8;
-  --accent: #1f5f8b;
-  --danger: #a33b2a;
-  --ok: #1a7f5a;
-  --warn-bg: #fdf3e7;
+  --bg:          #F7F5F1;
+  --surface:     #FFFFFF;
+  --surface-2:   #F1EEE8;
+  --ink:         #1B1A17;
+  --ink-soft:    #504C45;
+  --muted:       #8B857B;
+  --rule:        #E3DED5;
+  --rule-soft:   #EFEBE4;
+
+  --accent:      #1F5F8B;   /* xanh dương — dấu hiệu "đang ở trang quản trị" */
+  --accent-ink:  #FFFFFF;
+  --accent-soft: #E8F0F6;
+  --open:        #2C6B4F;
+  --open-soft:   #E6F1EB;
+  --warn:        #8A5A00;
+  --warn-soft:   #FDF3E0;
+  --error:       #A32A1E;
+  --error-soft:  #FBEAE7;
+
+  --shadow-sm: 0 1px 2px rgba(27, 26, 23, .06), 0 1px 3px rgba(27, 26, 23, .08);
+  --shadow-lg: 0 4px 12px rgba(27, 26, 23, .10), 0 16px 48px rgba(27, 26, 23, .16);
+
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 18px;
+  --r-pill: 999px;
+
+  --step--2: 0.72rem;
+  --step--1: 0.82rem;
+  --step-0:  0.94rem;
+  --step-1:  1.06rem;
+  --step-2:  1.35rem;
+
+  --font: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg:          #14140F;
+    --surface:     #1D1C18;
+    --surface-2:   #262420;
+    --ink:         #EDE9E1;
+    --ink-soft:    #BDB7AC;
+    --muted:       #8C877D;
+    --rule:        #35322C;
+    --rule-soft:   #2B2924;
+
+    --accent:      #5FA3CE;
+    --accent-ink:  #0B1720;
+    --accent-soft: #16242E;
+    --open:        #6FBE95;
+    --open-soft:   #16281F;
+    --warn:        #D9A24B;
+    --warn-soft:   #2C2312;
+    --error:       #E58A7C;
+    --error-soft:  #2E1714;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, .4);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, .55);
+  }
 }
 
 * { box-sizing: border-box; }
@@ -20,111 +79,180 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
-  font-family: 'Segoe UI', system-ui, sans-serif;
-  font-size: 15px;
+  font-family: var(--font);
+  font-size: var(--step-0);
   line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
 }
 
-.shell { max-width: 1100px; margin: 0 auto; padding: 24px 20px 64px; }
-.shell--centered { display: flex; min-height: 100vh; align-items: center; justify-content: center; }
-
-h1 { font-size: 1.5rem; margin: 0 0 4px; }
-
+.tnum { font-variant-numeric: tabular-nums; }
 .muted { color: var(--muted); }
-.small { font-size: 0.86rem; }
+.small { font-size: var(--step--1); }
 
-.card {
-  background: var(--surface);
-  border: 1px solid var(--rule);
-  border-radius: 8px;
-  padding: 24px;
+.shell { max-width: 1120px; margin: 0 auto; padding: 22px 20px 64px; }
+.shell--centered {
+  display: flex; min-height: 100vh; align-items: center; justify-content: center;
+  max-width: none; padding: 20px;
 }
 
-.login { width: min(380px, 92vw); display: flex; flex-direction: column; gap: 6px; }
-.login label { font-weight: 600; margin-top: 10px; font-size: 0.9rem; }
+h1 { font-size: var(--step-1); margin: 0; letter-spacing: -.015em; font-weight: 800; }
+h2 { font-size: var(--step-2); margin: 0 0 3px; letter-spacing: -.015em; }
 
-input[type='text'], input[type='password'], input:not([type]) {
-  width: 100%;
-  padding: 8px 10px;
-  border: 1px solid var(--rule);
-  border-radius: 5px;
-  font: inherit;
-  background: var(--surface);
-  color: var(--ink);
-}
-input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-
-button {
-  padding: 8px 14px;
-  border: 1px solid var(--accent);
-  background: var(--accent);
-  color: #fff;
-  border-radius: 5px;
-  font: inherit;
-  cursor: pointer;
-  margin-top: 12px;
-}
-button:disabled { opacity: 0.6; cursor: not-allowed; }
-button.ghost { background: transparent; color: var(--accent); margin-top: 0; }
-button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+/* --- Thanh trên + điều hướng --------------------------------------------- */
 
 .topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin-bottom: 18px;
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 16px; flex-wrap: wrap;
   padding-bottom: 12px;
+  margin-bottom: 18px;
   border-bottom: 1px solid var(--rule);
 }
+/* Chấm VUÔNG (client dùng chấm TRÒN) — nhìn thoáng qua là biết đang ở admin. */
+.topbar h1::before {
+  content: '';
+  display: inline-block;
+  width: 9px; height: 9px;
+  border-radius: 2px;
+  background: var(--accent);
+  margin-right: 8px;
+}
 
-/* Thanh điều hướng trong layout. Trang đang mở được tô đậm để biết mình đang ở đâu. */
-.nav { display: flex; gap: 14px; margin-top: 6px; }
+.nav { display: flex; gap: 14px; margin-top: 5px; }
 .nav__link {
   color: var(--muted);
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: var(--step--1);
   padding: 2px 0;
   border-bottom: 2px solid transparent;
 }
 .nav__link:hover { color: var(--ink); }
-.nav__link--active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
-.nav__link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.nav__link--active {
+  color: var(--accent); border-bottom-color: var(--accent); font-weight: 700;
+}
 
-.page__intro { margin-bottom: 14px; }
-.page__intro h2 { margin: 0 0 2px; font-size: 1.15rem; }
+/* --- Nút / ô nhập --------------------------------------------------------- */
 
-.toolbar { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
-.toolbar input:not([type='checkbox']) { flex: 1 1 260px; }
-.check { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; white-space: nowrap; }
+input[type='text'], input[type='password'], input:not([type]) {
+  width: 100%;
+  padding: 8px 11px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-sm);
+  font: inherit;
+  background: var(--surface);
+  color: var(--ink);
+}
+input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+button {
+  padding: 7px 14px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-radius: var(--r-sm);
+  font: inherit; font-weight: 600;
+  cursor: pointer;
+}
+button:disabled { opacity: .55; cursor: not-allowed; }
+button.ghost { background: transparent; color: var(--accent); }
+button.ghost:hover:not(:disabled) { background: var(--accent-soft); }
+:where(button, a, input):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* --- Đăng nhập ------------------------------------------------------------ */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+  padding: 26px;
+  box-shadow: var(--shadow-lg);
+}
+.login { width: min(380px, 92vw); display: flex; flex-direction: column; gap: 4px; }
+.login h1 { color: var(--accent); font-size: var(--step-2); margin-bottom: 2px; }
+.login label { font-weight: 700; margin-top: 12px; font-size: var(--step--1); }
+.login button { margin-top: 18px; padding: 10px; }
+
+/* --- Thanh công cụ -------------------------------------------------------- */
+
+.toolbar {
+  display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.toolbar input:not([type='checkbox']) { flex: 1 1 280px; }
+.check {
+  display: flex; align-items: center; gap: 6px;
+  font-size: var(--step--1); white-space: nowrap; color: var(--ink-soft);
+}
 .check input { width: auto; }
 
-.error { color: var(--danger); background: #fbece8; padding: 9px 12px; border-radius: 5px; }
-.notice { color: var(--ok); background: #e8f5ef; padding: 9px 12px; border-radius: 5px; }
+/* --- Thông báo ------------------------------------------------------------ */
 
-/* Bảng rộng cuộn trong khung riêng - trang không bao giờ cuộn ngang. */
-.table-scroll { overflow-x: auto; background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; }
-table { border-collapse: collapse; width: 100%; min-width: 720px; }
-th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; }
-th { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+.error, .notice {
+  padding: 9px 12px; border-radius: var(--r-sm); font-size: var(--step--1);
+  margin-bottom: 12px;
+}
+.error  { background: var(--error-soft); color: var(--error); }
+.notice { background: var(--open-soft);  color: var(--open); }
+
+/* --- Bảng ----------------------------------------------------------------- */
+
+.page__intro { margin-bottom: 16px; }
+
+.table-scroll {
+  overflow-x: auto;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+}
+table { border-collapse: collapse; width: 100%; min-width: 760px; }
+th, td {
+  text-align: left; padding: 11px 14px;
+  border-bottom: 1px solid var(--rule-soft);
+  vertical-align: top;
+}
+th {
+  font-size: var(--step--2); text-transform: uppercase; letter-spacing: .05em;
+  color: var(--muted); border-bottom: 1px solid var(--rule); font-weight: 700;
+}
 tbody tr:last-child td { border-bottom: none; }
+.row:hover { background: var(--surface-2); }
 
-/* Quán đã ẩn phải NHÌN LÀ BIẾT, không chỉ khác chữ trong cột trạng thái. */
-.row--hidden { background: #fafafa; color: var(--muted); }
+/* Quán đã ẩn phải NHÌN LÀ BIẾT, không chỉ khác chữ ở cột trạng thái. */
+.row--hidden { background: var(--surface-2); color: var(--muted); }
 .row--hidden b { text-decoration: line-through; }
-.row--editing { background: var(--warn-bg); }
+.row--editing { background: var(--warn-soft); }
 
-.pill { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 0.8rem; font-weight: 600; }
-.pill--on { background: #e8f5ef; color: var(--ok); }
-.pill--off { background: #f0f0f0; color: var(--muted); }
+.pill {
+  display: inline-block; padding: 2px 10px; border-radius: var(--r-pill);
+  font-size: var(--step--2); font-weight: 700;
+}
+.pill--on  { background: var(--open-soft); color: var(--open); }
+.pill--off { background: var(--surface-2); color: var(--muted); }
 
 td.actions, .actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
+/* --- Sửa tại chỗ ---------------------------------------------------------- */
+
 .edit-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 10px 16px;
-  margin-bottom: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 11px 16px;
+  margin-bottom: 11px;
 }
-.edit-grid label { display: flex; flex-direction: column; gap: 3px; font-size: 0.85rem; font-weight: 600; }
+.edit-grid label {
+  display: flex; flex-direction: column; gap: 3px;
+  font-size: var(--step--2); font-weight: 700; color: var(--ink-soft);
+}
+
+/* --- Trang phụ ------------------------------------------------------------ */
+
+.page { padding-top: 4px; }
+.plain { max-width: 620px; padding: 40px 0; }
+a { color: var(--accent); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

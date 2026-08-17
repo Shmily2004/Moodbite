@@ -1,16 +1,16 @@
 /**
  * Trang tìm quán — tầng `pages`: GHÉP các widget/feature, giữ state điều phối.
  *
- * BỐ CỤC BẢN ĐỒ LÀ NỀN:
- *   - lớp dưới : bản đồ tràn kín màn hình
- *   - lớp trên : panel kết quả (cột trái trên máy tính, tấm trượt từ đáy trên điện thoại)
+ * BỐ CỤC (chốt với chủ dự án 2026-08-17):
+ *   thanh trên (thương hiệu + ô tìm) → hàng chip lọc → [ BẢN ĐỒ | RAIL ĐỀ XUẤT ]
  *
- * Bản đồ và danh sách NỐI HAI CHIỀU: bấm ghim → thẻ được tô sáng và cuộn tới;
- * bấm thẻ → ghim tương ứng phóng to. Đây là điểm khiến giao diện "giống bản đồ thật"
- * chứ không phải một danh sách có kèm ảnh bản đồ.
+ * Bản đồ CỐ TÌNH không chiếm cả màn hình. MoodBite không phải Google Maps clone: khi
+ * người dùng gõ "quán lẩu ấm cúng gần đây", thứ họ cần thấy trước là QUÁN NÀO PHÙ HỢP,
+ * không phải bản đồ. Rail đề xuất vì thế luôn hiện, không phải kéo lên mới thấy.
+ *
+ * Bản đồ và rail nối HAI CHIỀU: bấm ghim → thẻ sáng lên và cuộn tới; bấm thẻ → ghim to ra.
  */
 import { useEffect, useRef, useState } from 'react';
-import type { SearchResultItem } from '@moodbite/api-client';
 import { RestaurantList } from '@/widgets/restaurant-list';
 import { RestaurantMap } from '@/widgets/restaurant-map';
 import { SearchForm, useSearch } from '@/features/search-restaurants';
@@ -21,7 +21,6 @@ export function SearchPage() {
   const search = useSearch({ position: location.position });
   const [openNow, setOpenNow] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [expanded, setExpanded] = useState(false);
 
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -39,13 +38,13 @@ export function SearchPage() {
     void search.run({ openNow });
   };
 
-  /** Chọn từ bản đồ -> mở tấm trượt và cuộn tới đúng thẻ. */
-  const selectFromMap = (restaurant: SearchResultItem) => {
-    setActiveId(restaurant.restaurant_id ?? null);
-    setExpanded(true);
+  /** Mở rộng bán kính rồi tìm lại - lối thoát khi không có kết quả nào. */
+  const widenRadius = () => {
+    search.setMaxDistanceKm(20);
+    setActiveId(null);
+    void search.run({ openNow });
   };
 
-  // Cuộn tới thẻ đang chọn. Chỉ chạy khi activeId đổi, không chạy mỗi lần render.
   useEffect(() => {
     if (!activeId || !listRef.current) return;
     const node = listRef.current.querySelector(`[data-id="${CSS.escape(activeId)}"]`);
@@ -54,97 +53,124 @@ export function SearchPage() {
 
   return (
     <div className="shell">
-      <div className="map-layer">
-        <RestaurantMap
-          restaurants={results}
-          center={location.position}
-          userPosition={location.isDefault ? null : location.position}
-          activeId={activeId}
-          onSelect={selectFromMap}
+      <header className="topbar">
+        <span className="brand">
+          <span className="brand__dot" />
+          <span className="brand__name">MoodBite</span>
+        </span>
+
+        <SearchForm
+          queryText={search.queryText}
+          onQueryTextChange={search.setQueryText}
+          loading={search.loading}
+          onSubmit={() => runSearch()}
+        />
+
+        {search.context.length > 0 && (
+          <span className="topbar__ctx">{search.context.join(' · ')}</span>
+        )}
+      </header>
+
+      <div className="filterbar">
+        <SearchForm.Filters
+          maxDistanceKm={search.maxDistanceKm}
+          onMaxDistanceChange={search.setMaxDistanceKm}
+          openNow={openNow}
+          onOpenNowChange={setOpenNow}
+          locationIsDefault={location.isDefault}
+          locationLoading={location.loading}
+          onRequestLocation={location.request}
+          onPickMood={(mood) => runSearch({ mood })}
+          onPickExample={pickExample}
+          showExamples={!search.queryText}
         />
       </div>
 
-      <div className="brand">
-        <span className="brand__dot" />
-        MoodBite
-      </div>
-
-      <section className={expanded ? 'panel panel--expanded' : 'panel'}>
-        {/* Chỉ hiện trên điện thoại (CSS ẩn ở máy tính). */}
-        <button
-          className="panel__handle"
-          onClick={() => setExpanded((open) => !open)}
-          aria-expanded={expanded}
-        >
-          {expanded ? 'Thu gọn' : 'Kéo lên để xem danh sách'}
-        </button>
-
-        <div className="panel__head">
-          <SearchForm
-            queryText={search.queryText}
-            onQueryTextChange={search.setQueryText}
-            maxDistanceKm={search.maxDistanceKm}
-            onMaxDistanceChange={search.setMaxDistanceKm}
-            openNow={openNow}
-            onOpenNowChange={setOpenNow}
-            loading={search.loading}
-            locationIsDefault={location.isDefault}
-            locationLoading={location.loading}
-            onRequestLocation={location.request}
-            onSubmit={() => runSearch()}
-            onPickExample={pickExample}
-            onPickMood={(mood) => runSearch({ mood })}
+      <div className="main">
+        <div className="map-pane">
+          <RestaurantMap
+            restaurants={results}
+            center={location.position}
+            userPosition={location.isDefault ? null : location.position}
+            activeId={activeId}
+            onSelect={(restaurant) => setActiveId(restaurant.restaurant_id ?? null)}
           />
         </div>
 
-        <div className="panel__body" ref={listRef}>
-          {location.error && <p className="notice notice--warn">{location.error}</p>}
-          {search.error && <p className="notice notice--error">{search.error}</p>}
+        <section className="rail">
+          <div className="rail__head">
+            <span className="rail__count">
+              {search.loading
+                ? 'Đang tìm…'
+                : hasResults
+                  ? `${results.length} quán phù hợp`
+                  : 'Kết quả đề xuất'}
+            </span>
+            {location.isDefault && (
+              <span className="muted small">Trung tâm Hà Nội</span>
+            )}
+          </div>
 
-          {search.context.length > 0 && (
-            <p className="notice notice--info">
-              Đang xét: {search.context.join(' · ')}
-            </p>
-          )}
+          <div className="rail__body" ref={listRef}>
+            {location.error && <p className="notice notice--warn">{location.error}</p>}
+            {search.error && <p className="notice notice--error">{search.error}</p>}
 
-          {/* Điều server KHÔNG làm được — hiện lên thay vì im lặng bỏ qua. */}
-          {search.warnings.map((warning, index) => (
-            <p key={index} className="notice notice--warn">
-              {warning}
-            </p>
-          ))}
+            {/* Điều server KHÔNG làm được — hiện lên thay vì im lặng bỏ qua. */}
+            {search.warnings.map((warning, index) => (
+              <p key={index} className="notice notice--warn">
+                {warning}
+              </p>
+            ))}
 
-          {search.loading && <LoadingSkeleton />}
+            {search.loading && <LoadingSkeleton />}
 
-          {!search.loading && search.results && !hasResults && (
-            <div className="state">
-              <p className="state__title">Không tìm thấy quán nào</p>
-              <p>Thử mở rộng bán kính trong Bộ lọc, hoặc gõ nhu cầu khác.</p>
-            </div>
-          )}
+            {!search.loading && search.results && !hasResults && (
+              <div className="state">
+                <p className="state__title">Không tìm thấy quán nào</p>
+                <p>Thử nới điều kiện xem sao.</p>
+                <div className="state__fixes">
+                  <button className="chip" onClick={widenRadius}>
+                    Mở rộng 20 km
+                  </button>
+                  {openNow && (
+                    <button
+                      className="chip"
+                      onClick={() => {
+                        setOpenNow(false);
+                        void search.run({ openNow: false });
+                      }}
+                    >
+                      Bỏ lọc "đang mở"
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
 
-          {!search.loading && !search.results && (
-            <div className="state">
-              <p className="state__title">Bạn đang muốn ăn gì?</p>
-              <p>Gõ một câu bất kỳ, hoặc chọn nhanh một gợi ý ở trên.</p>
-            </div>
-          )}
+            {!search.loading && !search.results && !search.error && (
+              <div className="state">
+                <p className="state__title">Bạn đang muốn ăn gì?</p>
+                <p>Gõ một câu bất kỳ — VD "quán lẩu ấm cúng gần đây".</p>
+              </div>
+            )}
 
-          {hasResults && (
-            <RestaurantList
-              restaurants={results}
-              searchQueryId={search.searchQueryId}
-              activeId={activeId}
-              onActivate={(id) => setActiveId(id)}
-            />
-          )}
-        </div>
-      </section>
+            {hasResults && (
+              <RestaurantList
+                restaurants={results}
+                searchQueryId={search.searchQueryId}
+                queryText={search.queryText}
+                activeId={activeId}
+                onActivate={(id) => setActiveId(id)}
+              />
+            )}
+          </div>
+        </section>
+      </div>
     </div>
   );
 }
 
-/** Vệt xương lúc đang tải — báo "sắp có nội dung" thay vì để panel trống trơn. */
+/** Vệt xương lúc đang tải — báo "sắp có nội dung" thay vì để rail trống trơn. */
 function LoadingSkeleton() {
   return (
     <div aria-busy="true" aria-label="Đang tìm quán">

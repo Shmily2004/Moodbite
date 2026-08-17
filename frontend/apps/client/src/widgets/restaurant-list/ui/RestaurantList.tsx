@@ -13,6 +13,8 @@ import { useInteractionLogger } from '@/features/log-interaction';
 interface RestaurantListProps {
   restaurants: SearchResultItem[];
   searchQueryId: string | null;
+  /** Câu người dùng gõ - thẻ dùng để nói "Hợp với ..." bằng chính lời của họ. */
+  queryText?: string | null;
   /** placeId quán đang chọn trên bản đồ - thẻ tương ứng được tô sáng. */
   activeId?: string | null;
   /** Báo lên trên khi người dùng bấm một thẻ, để bản đồ làm nổi ghim tương ứng. */
@@ -22,6 +24,7 @@ interface RestaurantListProps {
 export function RestaurantList({
   restaurants,
   searchQueryId,
+  queryText,
   activeId,
   onActivate,
 }: RestaurantListProps) {
@@ -53,6 +56,7 @@ export function RestaurantList({
         <RestaurantCard
           key={restaurant.restaurant_id ?? restaurant.rank_position}
           restaurant={restaurant}
+          queryText={queryText}
           active={activeId != null && restaurant.restaurant_id === activeId}
           onOpenDetail={openId === restaurant.restaurant_id ? undefined : open}
         >

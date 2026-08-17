@@ -19,7 +19,8 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Frontend Client | ✅ **TypeScript + FSD** | 21 test, có bản đồ, steiger trong CI |
 | Bản đồ | ✅ **Xong** | Leaflet + OpenStreetMap, miễn phí, không cần key |
 | Kiến trúc | ✅ Sạch | Clean Architecture + checker tự động trong CI |
-| Test | ✅ 234 backend + 35 frontend | tổng 269, chạy hết 15 giây |
+| Test | ✅ 234 backend + 47 frontend | tổng 281, chạy hết 15 giây |
+| Giao diện | ✅ Theo bản duyệt | thanh trên + bản đồ + rail đề xuất; mức phù hợp là nhãn chữ |
 | Router + layout | ✅ Xong | react-router v6, khung dùng chung, `RequireAuth` cho admin |
 | Chạy xem giao diện | ✅ **một lệnh** | `python scripts/run_dev.py --admin` |
 | Kho lưu trữ | ✅ CSV (mặc định) · ✅ SQLite (chọn được) | `MOODBITE_STORAGE=sqlite`, kết quả GIỐNG HỆT |
@@ -239,6 +240,32 @@ admin hiện form đăng nhập. Code không hỏng. Hỏng là ở CÁCH HƯỚ
       FSD cấm import ngược lên. `steiger` đã chặn đúng lúc viết sai chỗ này.
 - [x] Kiểm bằng TRÌNH DUYỆT THẬT: 4 đường dẫn (client `/`, client 404, admin `/login`,
       admin `/` chưa đăng nhập → đá về login) đều render đúng. Deep-link không 404.
+
+### Giao diện theo bản duyệt của chủ dự án (2026-08-17)
+
+Chủ dự án nhận xét giao diện xấu và chưa đúng ý. Đã dựng **bản đặc tả 12 màn hình để
+DUYỆT TRƯỚC**, chốt xong mới code — không tự ý redesign nữa.
+
+- [x] **Bố cục: thanh trên + bản đồ + rail đề xuất.** Bản đồ KHÔNG còn chiếm cả màn hình.
+      MoodBite không phải Google Maps clone — gõ "quán lẩu ấm cúng gần đây" thì thứ cần
+      thấy trước là QUÁN NÀO PHÙ HỢP, không phải bản đồ.
+- [x] **Mức phù hợp lên vị trí thứ hai trong thẻ**, ngay dưới tên quán.
+- [x] **`match_source` dịch sang câu người đọc hiểu**: 😌 Hợp với "..." · 🔎 Khớp tên quán,
+      đánh giá · 🍽 món + mức tin cậy.
+- [x] Trạng thái thiếu: không kết quả (kèm nút "Mở rộng 20 km" / "Bỏ lọc đang mở"), lỗi
+      mạng, đang tải (vệt xương).
+- [x] **Admin dùng CHUNG hệ token với client**, chỉ khác màu nhấn (xanh dương) và chấm
+      thương hiệu vuông thay vì tròn — cố ý, để không nhầm màn hình khi sửa dữ liệu thật.
+- [x] `thumbnail_url` vào kết quả tìm kiếm (entity → 2 repository → cột SQLite → schema
+      → router). Đo được: **chỉ 1064/4938 quán (21.5%) có ảnh**, nên quán không ảnh dùng
+      ô màu sinh từ tên + biểu tượng theo loại hình — trông có chủ đích, không phải ảnh vỡ.
+
+**⚠️ KHÔNG hiện `predicted_score × 100` thành "% phù hợp".** Đo 40 kết quả của 4 câu tìm:
+điểm cao nhất 0.721, trung vị 0.613, thấp nhất 0.576. Hiện "61% phù hợp" khiến người dùng
+tưởng máy gợi ý kém, trong khi đó lại là quán khớp nhất — vì `predicted_score` là điểm
+XẾP HẠNG, không phải xác suất. Dùng nhãn định tính (Rất phù hợp / Phù hợp / Có thể hợp)
++ thanh so sánh tương đối. Ngưỡng và lý do ghi đầy đủ ở
+`entities/restaurant/model/format.ts`, có 10 test khoá.
 
 ### Dọn dẹp phụ thuộc (2026-08-17)
 - [x] Chuyển toàn bộ floorplan/3D vào `archive/spatial-3d/` (11 file)

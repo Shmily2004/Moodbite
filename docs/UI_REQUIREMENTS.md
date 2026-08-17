@@ -33,7 +33,10 @@ trong bộ lọc cứng. Kết quả trả về đã xếp hạng, kèm **lý do
 
 | Ràng buộc | Chi tiết |
 |---|---|
-| **Không có tài khoản người dùng** | `rules/api.md`: *"Không áp dụng hệ thống tài khoản cá nhân đăng nhập ở Giai đoạn MVP"*. Không có Profile, không có đăng ký, không có dữ liệu cá nhân. Client dùng `session_id` sinh ngẫu nhiên. |
+| **BẮT BUỘC đăng nhập** | Đổi ngày 2026-08-17 (trước đó là "không có tài khoản"). Khách **phải đăng nhập** mới dùng được app — không có chế độ xem thử. Cần thiết kế: Đăng nhập · Đăng ký · Hồ sơ. Backend đã xong: `/api/v1/auth/register`, `/login`, `/me`. |
+| **Đăng nhập bằng tên, KHÔNG bằng email** | Hệ thống không lưu email. Hệ quả cho thiết kế: **không có "Quên mật khẩu?"** — không có gì để gửi link đặt lại. Đừng vẽ nút đó. Đăng nhập Google/Facebook là giai đoạn sau. |
+| **Tên đăng nhập chỉ ASCII** | 3–32 ký tự, chỉ `a-z 0-9 _ -`. Tiếng Việt có dấu bị TỪ CHỐI (chống giả mạo bằng ký tự nhìn giống nhau). Tên hiển thị thì được dùng tiếng Việt thoải mái. Mật khẩu tối thiểu **8** ký tự. |
+| **Hai vai: `user` và `admin`** | `GET /auth/me` trả `role`. Giao diện phải hiện đúng phần được phép — nhưng chốt chặn thật nằm ở server, giao diện chỉ là lớp lịch sự. |
 | **Không dịch vụ trả phí** | Chủ dự án không có thẻ thanh toán. Bản đồ dùng **Leaflet + OpenStreetMap** (không cần API key). Không Google Maps. |
 | **Tiếng Việt** | Toàn bộ giao diện. Font phải hiển thị đủ dấu (ă â đ ê ô ơ ư + thanh điệu). |
 | **Chế độ tối** | Bắt buộc cho cả hai app. |

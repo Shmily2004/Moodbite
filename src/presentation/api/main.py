@@ -14,7 +14,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.infrastructure.config.settings import Settings
 from src.presentation.api.dependencies import build_container
 from src.presentation.api.error_handlers import register_error_handlers
-from src.presentation.api.routers import admin, interactions, meta, restaurants, search
+from src.presentation.api.routers import (
+    admin,
+    auth,
+    interactions,
+    meta,
+    restaurants,
+    search,
+)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -66,6 +73,9 @@ def create_app(
     app.include_router(restaurants.router, prefix=API_PREFIX)
     app.include_router(interactions.router, prefix=API_PREFIX)
     app.include_router(meta.router, prefix=API_PREFIX)
+    # Tài khoản người dùng. `/register` và `/login` công khai (chúng là nơi phát token),
+    # `/me` tự yêu cầu token qua `Depends(get_current_user)`.
+    app.include_router(auth.router, prefix=API_PREFIX)
     # Quản trị: `public_router` chỉ có /login (nơi phát token), `router` yêu cầu token.
     app.include_router(admin.public_router, prefix=API_PREFIX)
     app.include_router(admin.router, prefix=API_PREFIX)

@@ -28,6 +28,11 @@ MIN_USERNAME_LENGTH = 3
 MAX_USERNAME_LENGTH = 32
 MIN_PASSWORD_LENGTH = 8
 
+# Chặn trên cho mật khẩu. KHÔNG phải để "bảo mật hơn" — dài hơn luôn mạnh hơn. Đây là
+# chặn TÀI NGUYÊN: băm PBKDF2 600k vòng một chuỗi vài megabyte tốn CPU thật, và endpoint
+# đăng ký/đăng nhập là công khai nên ai cũng gửi được. 128 ký tự thừa sức cho một câu dài.
+MAX_PASSWORD_LENGTH = 128
+
 
 class InvalidCredentialsFormat(ValueError):
     """Tên đăng nhập/mật khẩu sai định dạng -> HTTP 400, KHÔNG phải 401.
@@ -72,6 +77,10 @@ def validate_password(password: str) -> str:
         raise InvalidCredentialsFormat(
             f"Mật khẩu phải có ít nhất {MIN_PASSWORD_LENGTH} ký tự."
         )
+    if len(password) > MAX_PASSWORD_LENGTH:
+        raise InvalidCredentialsFormat(
+            f"Mật khẩu không được dài quá {MAX_PASSWORD_LENGTH} ký tự."
+        )
     return password
 
 
@@ -111,4 +120,5 @@ __all__ = [
     "MIN_USERNAME_LENGTH",
     "MAX_USERNAME_LENGTH",
     "MIN_PASSWORD_LENGTH",
+    "MAX_PASSWORD_LENGTH",
 ]

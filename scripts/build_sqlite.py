@@ -93,6 +93,34 @@ def _hidden_place_ids(db_path: Path) -> set[str]:
         return set()
 
 
+def _refuse_if_user_database(db_path: Path) -> str | None:
+    """Chan viec ghi de len kho TAI KHOAN. Tra ly do neu phai dung, None neu an toan.
+
+    VI SAO CAN CHOT NAY: hai file .db nam CUNG mot thu muc va chi khac ten. CSDL quan la
+    DU LIEU DAN XUAT - tai lieu con khuyen khich xoa di dung lai. CSDL tai khoan la DU
+    LIEU GOC - mat la mat han. Chi can go nham `--out` mot lan, hoac copy nham lenh, la
+    script nay se DELETE sach bang trong file tai khoan.
+
+    Kiem theo NOI DUNG (co bang `users` khong) chu khong chi theo ten file: doi ten file
+    van phai duoc bao ve.
+    """
+    settings = Settings.from_env()
+    if db_path.resolve() == settings.users_db.resolve():
+        return f"{db_path} la kho TAI KHOAN (MOODBITE_USERS_DB), khong phai kho quan"
+    if not db_path.exists():
+        return None
+    try:
+        with sqlite3.connect(db_path) as conn:
+            has_users = conn.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='users'"
+            ).fetchone()
+    except sqlite3.Error:
+        return None
+    if has_users:
+        return f"{db_path} dang chua bang `users` (tai khoan nguoi dung)"
+    return None
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Dung CSDL SQLite tu dataset CSV")
     parser.add_argument(
@@ -106,9 +134,19 @@ def main() -> int:
     args = parser.parse_args()
 
     settings = Settings.from_env()
-    db_path = Path(args.out) if args.out else (
-        settings.restaurants_csv.parent / "moodbite.db"
-    )
+    # Lay tu settings chu KHONG tu ghep duong dan: truoc day cho nay tu tinh
+    # `restaurants_csv.parent / "moodbite.db"`, nen khi doi MOODBITE_RESTAURANTS_CSV thi
+    # script ghi mot noi con backend doc mot noi khac - dung nhu loi hardcode duong dan
+    # ma CLAUDE.md muc 6 cam.
+    db_path = Path(args.out) if args.out else settings.restaurants_db
+
+    ly_do = _refuse_if_user_database(db_path)
+    if ly_do:
+        print(f"[TU CHOI] {ly_do}.")
+        print("          Script nay XOA SACH bang roi ghi lai tu CSV. Kho tai khoan")
+        print("          khong dung lai duoc tu bat ky nguon nao - mat la mat han.")
+        print(f"          Kho quan mac dinh: {settings.restaurants_db}")
+        return 1
 
     if not settings.restaurants_csv.exists():
         print(f"[LOI] Khong tim thay CSV: {settings.restaurants_csv}")

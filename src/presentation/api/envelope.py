@@ -24,8 +24,12 @@ class ErrorCode(str, Enum):
     EXTERNAL_SERVICE_UNAVAILABLE = "EXTERNAL_SERVICE_UNAVAILABLE"
     DATA_NOT_READY = "DATA_NOT_READY"
     INTERNAL_ERROR = "INTERNAL_ERROR"
-    # Chỉ dùng cho /api/v1/admin/* - luồng người dùng cuối không có đăng nhập.
+    # Chưa chứng minh được mình là ai: thiếu token, token hỏng/hết hạn, sai mật khẩu.
     UNAUTHORIZED = "UNAUTHORIZED"
+    # Đã đăng nhập nhưng không đủ quyền. KHÁC UNAUTHORIZED - xem `PermissionDeniedError`.
+    FORBIDDEN = "FORBIDDEN"
+    # Đăng ký trùng tên đăng nhập -> 409.
+    USERNAME_TAKEN = "USERNAME_TAKEN"
 
 
 def success(data: Any, status_code: int = 200) -> JSONResponse:
@@ -37,7 +41,11 @@ def error(
     message: str,
     status_code: int,
     details: Optional[dict] = None,
+    headers: Optional[dict] = None,
 ) -> JSONResponse:
+    """`headers` dùng cho những header thuộc về CHUẨN HTTP chứ không thuộc envelope —
+    hiện chỉ có `Retry-After` của 429. Để trong body thôi là chưa đủ: trình duyệt và
+    proxy chỉ hiểu header."""
     return JSONResponse(
         status_code=status_code,
         content={
@@ -47,4 +55,5 @@ def error(
                 "details": details or {},
             }
         },
+        headers=headers,
     )

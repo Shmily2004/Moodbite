@@ -15,9 +15,13 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from src.application.errors import (
     AdminNotConfiguredError,
+    AuthNotConfiguredError,
     DataNotReadyError,
     InvalidCredentialsError,
+    PermissionDeniedError,
+    RateLimitExceeded,
 )
+from src.application.ports.user_repository import UsernameAlreadyExists
 from src.application.use_cases.log_interaction import (
     InvalidInteractionError,
     RestaurantNotFoundError,
@@ -88,9 +92,44 @@ def register_error_handlers(app: FastAPI) -> None:
         # 401 chứ KHÔNG phải 403: client chưa chứng minh được mình là ai.
         return error(ErrorCode.UNAUTHORIZED, str(exc), status_code=401)
 
+    @app.exception_handler(PermissionDeniedError)
+    async def _forbidden(request: Request, exc: PermissionDeniedError):
+        # 403 chứ KHÔNG phải 401: token tốt, người này chỉ không đủ quyền. Trả nhầm 401
+        # khiến client đá người dùng về màn hình đăng nhập, đăng nhập lại vẫn hỏng.
+        return error(ErrorCode.FORBIDDEN, str(exc), status_code=403)
+
+    @app.exception_handler(UsernameAlreadyExists)
+    async def _username_taken(request: Request, exc: UsernameAlreadyExists):
+        # 409 CONFLICT: request hợp lệ về cú pháp, chỉ xung đột với trạng thái hiện có.
+        # Đây là chỗ DUY NHẤT được phép tiết lộ "tên này đã có người dùng" — không tránh
+        # được, vì người đăng ký buộc phải biết để đổi tên khác. Bù lại, luồng ĐĂNG NHẬP
+        # tuyệt đối không lộ điều đó (xem `LoginUseCase`).
+        return error(
+            ErrorCode.USERNAME_TAKEN,
+            "Tên đăng nhập này đã có người dùng. Hãy chọn tên khác.",
+            status_code=409,
+        )
+
+    @app.exception_handler(RateLimitExceeded)
+    async def _rate_limited(request: Request, exc: RateLimitExceeded):
+        return error(
+            ErrorCode.RATE_LIMITED,
+            str(exc),
+            status_code=429,
+            details={"retry_after_seconds": exc.retry_after_seconds},
+            # Header chuẩn HTTP: client và proxy hiểu được mà không cần đọc body.
+            headers={"Retry-After": str(exc.retry_after_seconds)},
+        )
+
     @app.exception_handler(AdminNotConfiguredError)
     async def _admin_not_configured(request: Request, exc: AdminNotConfiguredError):
         # Chưa cấu hình admin -> 503 kèm CÁCH KHẮC PHỤC, đúng quy ước DATA_NOT_READY.
+        return error(ErrorCode.DATA_NOT_READY, str(exc), status_code=503)
+
+    @app.exception_handler(AuthNotConfiguredError)
+    async def _auth_not_configured(request: Request, exc: AuthNotConfiguredError):
+        # Chưa cấu hình xác thực người dùng. Cùng quy ước với admin ở trên; đăng ký riêng
+        # vì thông báo khác nhau (biến môi trường khác nhau).
         return error(ErrorCode.DATA_NOT_READY, str(exc), status_code=503)
 
     @app.exception_handler(ValueError)

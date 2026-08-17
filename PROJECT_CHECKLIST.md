@@ -33,7 +33,17 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | **Lớp 1 — Phân cụm trải nghiệm** | ✅ **Xong** | KMeans k=7, Silhouette 0.318 |
 | **Lớp 2 — Tìm kiếm ngữ nghĩa** | ✅ **Xong** | TF-IDF cosine, 4938 quán |
 | Lớp 4 — Tóm tắt review | 🟡 Chưa làm, nhưng ĐÃ KHẢ THI | đo lại: gộp theo quán TB 666 ký tự, 592 quán đủ điều kiện |
-| Đăng nhập / tài khoản | ⬜ Ngoài phạm vi | SRS mục 8, Won't-have |
+| Đăng nhập / tài khoản | 🟡 **Backend xong, chưa có UI** | `/api/v1/auth/*`: đăng ký · đăng nhập · `/me`. Đổi phạm vi có chủ đích so với SRS mục 8 — xem ghi chú dưới bảng |
+| Phân quyền (`role`) | 🟡 Có `user`/`admin` + guard 403 | admin VẪN dùng biến môi trường, chưa chuyển sang bảng `users` |
+
+> **Ghi chú — tài khoản người dùng là ĐỔI PHẠM VI CÓ CHỦ ĐÍCH (2026-08-17).**
+> SRS mục 8 và `docs/extracted/MoodBite_Dac_Ta_API.md` xếp tài khoản vào *Won't-have*.
+> Chủ dự án quyết định đưa vào vì phân quyền và cá nhân hoá là phần làm đề tài có giá trị
+> hơn. Hai tài liệu trong `docs/extracted/` **cố ý giữ nguyên** — chúng là bản gốc đã nộp,
+> sửa lại là làm sai lịch sử. Chỗ nào mâu thuẫn thì **code + dòng này thắng**.
+>
+> Chưa làm: đăng xuất có thu hồi token, `user_id` trong `POST /interactions`, lưu quán yêu
+> thích ở server, và toàn bộ giao diện Login/Register/Profile.
 
 **Tự kiểm toàn bộ bằng MỘT lệnh** (chạy được ở PowerShell, CMD, bash, macOS, Linux):
 

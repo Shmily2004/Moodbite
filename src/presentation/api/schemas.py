@@ -13,6 +13,12 @@ from typing import List, Optional
 from pydantic import BaseModel, Field
 
 from src.domain.entities.interaction import ActionType
+from src.domain.entities.user import (
+    MAX_PASSWORD_LENGTH,
+    MAX_USERNAME_LENGTH,
+    MIN_PASSWORD_LENGTH,
+    MIN_USERNAME_LENGTH,
+)
 from src.domain.services.search_ranking import DEFAULT_MAX_DISTANCE_KM
 from src.domain.value_objects.location import HANOI_CENTER_LAT, HANOI_CENTER_LNG
 from src.domain.value_objects.mood import SUPPORTED_MOODS
@@ -23,8 +29,10 @@ from src.domain.value_objects.mood import SUPPORTED_MOODS
 class SearchRequest(BaseModel):
     session_id: str = Field(
         ...,
-        description="UUID v4 do client tự sinh và lưu ở localStorage. Không có tài khoản "
-                    "người dùng (SRS mục 8, Won't-have).",
+        description="UUID v4 do client tự sinh và lưu ở localStorage. VẪN BẮT BUỘC dù đã "
+                    "có tài khoản (2026-08-17): nó định danh một LƯỢT DÙNG, còn tài khoản "
+                    "định danh một NGƯỜI. Việc gắn `user_id` vào tương tác là bước riêng, "
+                    "chưa làm.",
     )
     latitude: float = Field(default=HANOI_CENTER_LAT, ge=-90, le=90)
     longitude: float = Field(default=HANOI_CENTER_LNG, ge=-180, le=180)
@@ -199,6 +207,72 @@ class HealthResponse(BaseModel):
 
 class MoodsResponse(BaseModel):
     data: MoodsData
+
+
+# --- Tài khoản người dùng: /api/v1/auth/* -------------------------------------
+#
+# ⚠️ QUY TẮC ĐẶT TÊN/MẬT KHẨU KHÔNG ĐƯỢC VIẾT LẠI Ở ĐÂY.
+# Chúng là quy tắc NGHIỆP VỤ, nằm ở `domain/entities/user.py`, và use case gọi chúng.
+# Ở tầng schema chỉ đặt chặn TRÊN về độ dài — mục đích khác hẳn: chặn body khổng lồ
+# trước khi nó kịp chạm vào hàm băm PBKDF2 tốn CPU. Hằng số vẫn lấy từ domain để không
+# có hai con số cần đồng bộ bằng tay.
+
+
+class RegisterRequest(BaseModel):
+    username: str = Field(
+        ...,
+        min_length=1,
+        max_length=MAX_USERNAME_LENGTH,
+        description=(
+            f"{MIN_USERNAME_LENGTH}-{MAX_USERNAME_LENGTH} ký tự, chỉ chữ thường không dấu "
+            "(a-z), số, gạch dưới, gạch ngang. Tự chuẩn hoá về chữ thường."
+        ),
+    )
+    password: str = Field(
+        ...,
+        min_length=1,
+        max_length=MAX_PASSWORD_LENGTH,
+        description=f"Tối thiểu {MIN_PASSWORD_LENGTH} ký tự. Không bắt buộc hoa/số/ký tự "
+                    "đặc biệt — độ dài quan trọng hơn (NIST SP 800-63B).",
+    )
+    display_name: Optional[str] = Field(
+        default=None,
+        max_length=64,
+        description="Tên hiển thị, ĐƯỢC dùng tiếng Việt có dấu. Không dùng để đăng nhập.",
+    )
+
+
+class LoginRequest(BaseModel):
+    # KHÔNG áp `min_length` theo quy tắc domain ở đây: sai mật khẩu lúc ĐĂNG NHẬP phải
+    # luôn trả 401 với một câu chung chung. Nếu schema chặn trước ở 400 kèm "mật khẩu
+    # phải >= 8 ký tự" thì kẻ tấn công biết được độ dài tối thiểu và phân biệt được
+    # hai tình huống khác nhau.
+    username: str = Field(..., min_length=1, max_length=MAX_USERNAME_LENGTH)
+    password: str = Field(..., min_length=1, max_length=MAX_PASSWORD_LENGTH)
+
+
+class UserPublic(BaseModel):
+    """Bản công khai của một tài khoản. KHÔNG BAO GIỜ chứa `password_hash`."""
+
+    user_id: str
+    username: str
+    role: str = Field(..., description="user | admin")
+    display_name: Optional[str] = None
+
+
+class AuthData(BaseModel):
+    user: UserPublic
+    token: str
+    token_type: str = "bearer"
+    expires_in: int = Field(..., description="Số giây token còn hiệu lực")
+
+
+class AuthResponse(BaseModel):
+    data: AuthData
+
+
+class MeResponse(BaseModel):
+    data: UserPublic
 
 
 # --- Quản trị ---------------------------------------------------------------

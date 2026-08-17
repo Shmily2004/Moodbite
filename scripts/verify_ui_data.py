@@ -25,6 +25,13 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 ROOT = Path(__file__).resolve().parent.parent
+
+# PowerShell tren Windows mac dinh dung bang ma cp1252, khong in duoc chu Viet co dau:
+# chay `python scripts/verify_ui_data.py` truc tiep se vo giua chung voi UnicodeEncodeError.
+# Chay qua `scripts/verify.py` thi khong sao vi ben do da dat PYTHONIOENCODING=utf-8 -
+# nghia la loi chi lo ra khi nguoi dung tu chay tay, dung luc kho doan nhat.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 sys.path.insert(0, str(ROOT))
 
 FIXTURE = ROOT / "frontend" / "fixtures" / "restaurants.json"

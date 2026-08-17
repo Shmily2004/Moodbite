@@ -247,13 +247,36 @@ Mọi màn hình của app người dùng đều nằm sau `RequireAuth`. Chưa 
 hình đầu tiên hội đồng nhìn thấy là form đăng nhập chứ không phải sản phẩm. Cách giảm
 thiểu: chuẩn bị sẵn tài khoản demo và đăng nhập trước khi trình bày.
 
-### 5.7. Thứ tự triển khai đề xuất
+### 5.7. Thứ tự triển khai — tiến độ thật
 
-1. Chốt câu hỏi 5.6 + phương án email ở 5.3.A
-2. Sửa `rules/api.md` và `PROJECT_CHECKLIST.md` — bỏ "Won't-have"
-3. **Backend trước:** bảng `users`, đăng ký/đăng nhập, `role`, rate limiting, sửa `build_sqlite`
-4. Chuyển admin sang dùng bảng `users`
-5. Gắn `user_id` vào interaction + favorites
+| # | Việc | Trạng thái |
+|---|---|---|
+| 1 | Chốt phương án email → **tài khoản nội bộ trước, Google sau** | ✅ đã chốt |
+| 2 | Sửa `rules/api.md` + `PROJECT_CHECKLIST.md` — bỏ "Won't-have" | ✅ xong 2026-08-17 |
+| 3 | **Backend:** bảng `users`, đăng ký/đăng nhập, `role`, rate limiting, `build_sqlite` | ✅ xong 2026-08-17 |
+| 4 | Chuyển admin sang dùng bảng `users` | ⬜ chưa — admin vẫn dùng biến môi trường |
+| 5 | Gắn `user_id` vào interaction + quán yêu thích | ⬜ chưa |
+| 6 | Giao diện Login / Register / Profile | ⬜ chờ bộ asset thiết kế |
+
+### 5.8. QUYẾT ĐỊNH CÒN TREO — đăng xuất có thu hồi token
+
+**Hiện trạng:** KHÔNG có `POST /auth/logout`. Token ký bằng HMAC là *stateless* — server
+không giữ danh sách token đang sống nên không có gì để xoá. Một endpoint chỉ trả 200 rồi
+không làm gì là **ảo giác an toàn**, tệ hơn là không có. Đăng xuất hiện tại = client tự
+xoá token; thiệt hại khi token bị lộ bị chặn trên bởi thời hạn **24 giờ**.
+
+Ba cách làm thật, phải chọn một:
+
+| Cách | Ưu | Nhược |
+|---|---|---|
+| **A. Cột `token_version` ở bảng `users`** | Thu hồi thật, bền qua khởi động lại, rẻ (đang đọc sẵn dòng user rồi) | Đăng xuất **giết mọi thiết bị** cùng lúc. Thêm cột = đổi data model |
+| **B. Bảng danh sách token bị thu hồi** | Đăng xuất từng thiết bị | Thêm bảng + phải dọn định kỳ. Nặng hơn hẳn cho nhu cầu hiện tại |
+| **C. Giữ nguyên, rút hạn còn 1-2 giờ** | Không đổi gì | Người dùng bị đăng xuất liên tục — đổi bảo mật lấy phiền toái |
+
+Khuyến nghị: **A**. Cần chủ dự án đồng ý vì nó ĐỔI DATA MODEL (bảng `users` thêm cột).
+
+⚠️ Danh sách thu hồi để trong BỘ NHỚ tiến trình là phương án **SAI** — khởi động lại là
+token đã thu hồi sống lại, và chạy nhiều worker thì mỗi worker giữ một danh sách riêng.
 6. **Sau đó mới** thiết kế UI Login/Register/Profile
 
 > Làm ngược thứ tự này là lặp lại đúng lỗi đã audit: vẽ giao diện trước rồi phát hiện

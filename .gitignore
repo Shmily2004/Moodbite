@@ -185,7 +185,15 @@ data_pipeline/data_raw/.osm_cache/
 # Log chay thu thap du lieu
 harvest.log
 
-# CSDL SQLite dung tu CSV bang `python scripts/build_sqlite.py` - SINH LAI DUOC,
-# khong commit (4MB va se lech voi CSV moi lan pipeline chay lai).
+# CSDL SQLite. Khong commit - nhung HAI FILE NAY KHAC NHAU VE BAN CHAT:
+#
+#   moodbite.db       DU LIEU DAN XUAT. Dung lai bang `python scripts/build_sqlite.py`
+#                     bat cu luc nao. Xoa di khong mat gi.
+#   moodbite_users.db DU LIEU GOC - TAI KHOAN NGUOI DUNG. KHONG dung lai duoc tu bat ky
+#                     nguon nao. XOA LA MAT HAN. Khong commit vi chua hash mat khau,
+#                     nhung PHAI TU SAO LUU neu co tai khoan that.
+#
+# Dung `del *.db` cho ca thu muc nay la mat sach tai khoan. `scripts/build_sqlite.py` da
+# co chot chan tu choi ghi de len kho tai khoan, nhung xoa bang tay thi khong ai chan duoc.
 data_pipeline/data_cleaned/*.db
 

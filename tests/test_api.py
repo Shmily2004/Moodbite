@@ -22,6 +22,7 @@ from tests.fakes import (
     FakeRestaurantRepo,
     FixedContextProvider,
     UnavailablePredictor,
+    attach_disabled_auth,
     make_restaurant,
 )
 
@@ -76,6 +77,9 @@ def _container(restaurants=None, details=None, restaurants_ready=True):
     c.list_restaurants_for_admin = None
     c.update_restaurant = None
     c.set_restaurant_visibility = None
+    # Tài khoản cũng TẮT ở bộ test này, cùng lý do với admin: đây là test luồng tìm kiếm.
+    # Luồng tài khoản có file riêng (`tests/test_auth_api.py`).
+    attach_disabled_auth(c)
     return c
 
 

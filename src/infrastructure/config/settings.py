@@ -9,6 +9,10 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 
+# Cùng tầng infrastructure nên import được. Lấy hằng số từ nơi ĐỊNH NGHĨA nó thay vì chép
+# lại số 86400 vào đây - chép là có ngày hai chỗ lệch nhau.
+from src.infrastructure.auth.user_auth import DEFAULT_USER_TOKEN_TTL_SECONDS
+
 # Gốc repo = thư mục chứa src/ (file này ở src/infrastructure/config/settings.py).
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
@@ -49,6 +53,14 @@ class Settings:
     admin_password_hash: str
     admin_token_secret: str
     admin_token_ttl_seconds: int
+    # --- Tài khoản người dùng cuối --------------------------------------------
+    # File CSDL RIÊNG, không chung với `restaurants_db`: kho quán dựng lại được từ CSV,
+    # kho tài khoản thì mất là mất hẳn. Xem `sqlite_user_repository.py`.
+    users_db: Path
+    # FAIL-CLOSED giống admin: thiếu secret -> tính năng tài khoản TẮT, /auth/* trả 503.
+    # Phải KHÁC `admin_token_secret` để chữ ký hai bên không dùng lẫn được.
+    user_token_secret: str
+    user_token_ttl_seconds: int
 
     @staticmethod
     def from_env() -> "Settings":
@@ -89,5 +101,13 @@ class Settings:
             admin_token_secret=os.getenv("MOODBITE_ADMIN_SECRET", "").strip(),
             admin_token_ttl_seconds=int(
                 os.getenv("MOODBITE_ADMIN_TOKEN_TTL", "3600") or 3600
+            ),
+            users_db=_path_from_env(
+                "MOODBITE_USERS_DB", "data_pipeline/data_cleaned/moodbite_users.db"
+            ),
+            user_token_secret=os.getenv("MOODBITE_AUTH_SECRET", "").strip(),
+            user_token_ttl_seconds=int(
+                os.getenv("MOODBITE_AUTH_TOKEN_TTL", str(DEFAULT_USER_TOKEN_TTL_SECONDS))
+                or DEFAULT_USER_TOKEN_TTL_SECONDS
             ),
         )

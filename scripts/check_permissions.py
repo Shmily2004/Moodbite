@@ -53,9 +53,24 @@ def main() -> int:
     co_db = settings.restaurants_db.exists()
     print(f"  {OK if co_db else MISSING} CSDL SQLite: {settings.restaurants_db}")
 
-    print(f"\n-- Token --")
+    print(f"\n-- Token quan tri --")
     print(f"  Thoi han: {settings.admin_token_ttl_seconds}s "
           f"({settings.admin_token_ttl_seconds / 3600:.1f} gio)")
+
+    # --- Tai khoan nguoi dung cuoi -------------------------------------------
+    # Doc lap hoan toan voi phan admin o tren: mot ben tat khong lam ben kia tat theo.
+    print("\n-- Tai khoan nguoi dung cuoi (/api/v1/auth/*) --")
+    co_auth = bool(settings.user_token_secret)
+    print(f"  {OK if co_auth else MISSING} MOODBITE_AUTH_SECRET"
+          f"  ({'da dat' if co_auth else 'rong - /api/v1/auth/* dang tra 503'})")
+    print(f"  {OK} Kho tai khoan: {settings.users_db}"
+          f"  ({'da co' if settings.users_db.exists() else 'chua co - se tu tao'})")
+    print(f"  Thoi han token: {settings.user_token_ttl_seconds}s "
+          f"({settings.user_token_ttl_seconds / 3600:.1f} gio)")
+    if co_auth and settings.user_token_secret == settings.admin_token_secret:
+        # Dung chung khoa ky = mat lop ngan cach cuoi cung giua hai loai quyen.
+        print("  [CANH BAO] MOODBITE_AUTH_SECRET TRUNG voi MOODBITE_ADMIN_SECRET.")
+        print("             Phai dat hai gia tri KHAC NHAU.")
 
     print("\n" + "=" * 70)
     if not thieu and ghi_duoc and co_db:
@@ -77,6 +92,11 @@ def main() -> int:
     if not ghi_duoc:
         print(f"  {buoc}. Bat kho SQLite (PowerShell):")
         print('       $env:MOODBITE_STORAGE = "sqlite"')
+        buoc += 1
+    if not co_auth:
+        print(f"  {buoc}. Bat tinh nang tai khoan nguoi dung (PowerShell):")
+        print('       $env:MOODBITE_AUTH_SECRET = '
+              '(python -c "import secrets; print(secrets.token_hex(32))")')
         buoc += 1
     print(f"  {buoc}. Khoi dong lai backend roi chay lai script nay de kiem.")
     print("\nXem them: .env.example")

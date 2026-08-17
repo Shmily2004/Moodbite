@@ -123,6 +123,53 @@ def make_restaurant(name, lat=21.03, lng=105.85, category="Nhà hàng", **kwargs
     )
 
 
+class UnavailableUserRepo:
+    """Kho tài khoản KHÔNG mở được. Dùng cho các bộ test có tính năng tài khoản tắt hẳn."""
+
+    is_ready = False
+
+    def get_by_username(self, username):
+        return None
+
+    def get_by_id(self, user_id):
+        return None
+
+    def create(self, user):
+        raise AssertionError("Bộ test này không được tạo tài khoản")
+
+    def count(self):
+        return 0
+
+    def status(self):
+        return {"ready": False, "error": "tat trong test"}
+
+
+def attach_disabled_auth(container):
+    """Gắn phần tài khoản ở trạng thái TẮT vào một container test.
+
+    Cần thiết vì các test dựng container bằng `Container.__new__` (bỏ qua `__init__` để
+    khỏi nạp dataset thật), nên trường mới thêm vào Container sẽ không tự có. Thà gắn
+    tường minh ở đây còn hơn để `health()` dùng `getattr(..., None)` — cách đó biến lỗi
+    quên lắp dây thành im lặng.
+    """
+    from src.application.use_cases.manage_account import (
+        LoginUseCase,
+        RegisterUserUseCase,
+    )
+    from src.infrastructure.auth.rate_limit import SlidingWindowRateLimiter
+    from src.infrastructure.auth.user_auth import UserTokenService
+
+    users = UnavailableUserRepo()
+    tokens = UserTokenService(token_secret="")   # rỗng = chưa cấu hình
+    container.users = users
+    container.user_tokens = tokens
+    container.register_user = RegisterUserUseCase(users, lambda p: "x", tokens.issue)
+    container.login_user = LoginUseCase(users, lambda p, h: False, tokens.issue)
+    container.login_rate_limiter = SlidingWindowRateLimiter(5, 300)
+    container.register_rate_limiter = SlidingWindowRateLimiter(3, 3600)
+    return container
+
+
 PHO_RULE = DishRule(
     id="pho",
     confidence="specific",

@@ -58,7 +58,7 @@ GET    /health                             probe hạ tầng
 | Chất lượng gợi ý | ✅ | `predicted_score` + `match_source` giải thích được vì sao |
 | Gợi ý món | ✅ | Lồng sẵn trong từng kết quả, kèm `confidence` |
 | Ghi nhận tương tác | ✅ | `POST /interactions` đã chạy |
-| Xác thực | ✅ Không cần | SRS mục 8: tài khoản người dùng là Won't-have |
+| Xác thực | ✅ Backend xong | `/auth/register`, `/auth/login`, `/auth/me`. Bắt buộc đăng nhập (đổi 2026-08-17, khác SRS mục 8) |
 | Test | ✅ | 129+ test, có test HTTP thật |
 
 **Client có thể bắt đầu NGAY.** Không có gì chặn.

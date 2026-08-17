@@ -16,8 +16,15 @@ Mọi phản hồi phải được bọc trong một Envelope nhất quán, giú
 - **Lỗi:** Bọc trong trường `error` với cấu trúc chuẩn: `{ "error": { "code": "...", "message": "...", "details": { } } }`[cite: 2].
 
 ## 4. QUẢN LÝ PHIÊN & BẢO MẬT
-- **Không xác thực người dùng (Auth):** Không áp dụng hệ thống tài khoản cá nhân đăng nhập ở Giai đoạn MVP[cite: 2].
+- ~~**Không xác thực người dùng (Auth):** Không áp dụng hệ thống tài khoản cá nhân đăng nhập ở Giai đoạn MVP[cite: 2].~~
+  **ĐÃ THAY ĐỔI 2026-08-17 — quyết định của chủ dự án.** Có tài khoản và phân quyền:
+  `POST /api/v1/auth/register`, `POST /api/v1/auth/login`, `GET /api/v1/auth/me`.
+  Hai vai: `user` và `admin`. Token HMAC gửi qua `Authorization: Bearer <token>`, hạn 24 giờ.
+  Câu gạch ngang ở trên giữ lại để thấy được điều gì đã đổi so với đặc tả gốc.
+  Chưa làm: đăng xuất có thu hồi token (token stateless nên chỉ hết hạn theo thời gian).
 - **Định danh phiên (Session):** Sử dụng `session_id` (UUID v4) do client tự sinh, lưu cục bộ và gửi kèm trong mọi request có ghi dữ liệu. Dữ liệu này là ẩn danh và không gắn với thông tin định danh cá nhân[cite: 2].
+  `session_id` **vẫn giữ** sau khi có tài khoản: khách chưa đăng nhập vẫn cần định danh
+  để ghi tương tác, và việc gắn `user_id` vào tương tác là bước riêng chưa làm.
 
 ## 5. MÃ LỖI (ERROR CODES) CHUẨN
 Bắt buộc sử dụng các HTTP Status và `error.code` dùng chung sau[cite: 2]:

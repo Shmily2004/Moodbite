@@ -34,6 +34,13 @@ ROOT = Path(__file__).resolve().parent.parent
 # Dùng ký tự ASCII cho chắc chắn chạy được ở mọi terminal.
 PASS, FAIL, SKIP = "[ OK ]", "[FAIL]", "[SKIP]"
 
+# Nhãn của chính file này thì ASCII, NHƯNG output của lệnh con (pytest, checker...) có
+# tiếng Việt có dấu, và mục hỏng nào cũng in lại output đó. Hậu quả đã xảy ra thật: gặp
+# lỗi thật thì verify.py CHẾT ngay ở dòng print, che mất chính cái lỗi cần đọc — hỏng
+# đúng lúc cần nó nhất. `errors="replace"` để không bao giờ chết vì một ký tự.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 
 def run(cmd: list[str], cwd: Path = ROOT) -> tuple[int, str]:
     """Chạy lệnh, trả (mã thoát, output). Không ném exception."""

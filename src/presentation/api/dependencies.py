@@ -21,9 +21,28 @@ from src.application.use_cases.manage_restaurants import (
     SetRestaurantVisibilityUseCase,
     UpdateRestaurantUseCase,
 )
+from src.application.use_cases.manage_account import (
+    LoginUseCase,
+    RegisterUserUseCase,
+)
 from src.application.use_cases.search_restaurants import SearchRestaurantsUseCase
-from src.application.errors import InvalidCredentialsError
+from src.application.errors import (
+    DataNotReadyError,
+    InvalidCredentialsError,
+    PermissionDeniedError,
+)
+from src.domain.entities.user import User, UserRole
 from src.infrastructure.auth.admin_auth import AdminAuthService
+from src.infrastructure.auth.crypto import hash_password, verify_password
+from src.infrastructure.auth.rate_limit import (
+    LOGIN_MAX_ATTEMPTS,
+    LOGIN_WINDOW_SECONDS,
+    REGISTER_MAX_ATTEMPTS,
+    REGISTER_WINDOW_SECONDS,
+    SlidingWindowRateLimiter,
+)
+from src.infrastructure.auth.user_auth import UserTokenService
+from src.infrastructure.repositories.sqlite_user_repository import SqliteUserRepository
 from src.infrastructure.adapters.ml_rule_predictor import MlRulePredictor
 from src.infrastructure.adapters.open_meteo_context_provider import (
     ClockOnlyContextProvider,
@@ -78,6 +97,15 @@ class Container:
     list_restaurants_for_admin: Optional[ListRestaurantsForAdminUseCase]
     update_restaurant: Optional[UpdateRestaurantUseCase]
     set_restaurant_visibility: Optional[SetRestaurantVisibilityUseCase]
+    # --- Tài khoản người dùng cuối --------------------------------------------
+    users: object
+    user_tokens: UserTokenService
+    register_user: RegisterUserUseCase
+    login_user: LoginUseCase
+    # Hai bộ đếm RIÊNG BIỆT. Dùng chung một bộ thì người đăng ký hụt vài lần sẽ ăn hết
+    # hạn mức đăng nhập của chính mình — hai hành vi khác nhau, ngưỡng khác nhau.
+    login_rate_limiter: SlidingWindowRateLimiter
+    register_rate_limiter: SlidingWindowRateLimiter
 
     def health(self) -> dict:
         """Trạng thái từng nguồn dữ liệu, kèm LÝ DO khi chưa sẵn sàng.
@@ -100,6 +128,8 @@ class Container:
                 if self.admin_restaurants is not None
                 else "kho hiện tại không ghi được - cần MOODBITE_STORAGE=sqlite",
             },
+            "users": _status_of(self.users),
+            "user_auth": _status_of(self.user_tokens),
         }
 
 
@@ -166,6 +196,14 @@ def build_container(settings: Optional[Settings] = None) -> Container:
         else None
     )
 
+    # Kho tài khoản luôn được dựng, kể cả khi chưa đặt MOODBITE_AUTH_SECRET: mở file
+    # SQLite rỗng gần như không tốn gì, và nhờ vậy /health nói được "kho sẵn sàng nhưng
+    # chưa có secret" thay vì gộp hai vấn đề khác nhau vào một thông báo.
+    users = SqliteUserRepository(settings.users_db)
+    user_tokens = UserTokenService(
+        settings.user_token_secret, settings.user_token_ttl_seconds
+    )
+
     return Container(
         settings=settings,
         admin_auth=admin_auth,
@@ -200,6 +238,16 @@ def build_container(settings: Optional[Settings] = None) -> Container:
             interactions=interaction_repository,
             restaurants=restaurant_repository,
         ),
+        users=users,
+        user_tokens=user_tokens,
+        register_user=RegisterUserUseCase(users, hash_password, user_tokens.issue),
+        login_user=LoginUseCase(users, verify_password, user_tokens.issue),
+        login_rate_limiter=SlidingWindowRateLimiter(
+            LOGIN_MAX_ATTEMPTS, LOGIN_WINDOW_SECONDS
+        ),
+        register_rate_limiter=SlidingWindowRateLimiter(
+            REGISTER_MAX_ATTEMPTS, REGISTER_WINDOW_SECONDS
+        ),
     )
 
 
@@ -225,6 +273,82 @@ def get_log_interaction(
     return container.log_interaction
 
 
+def _bearer_token(request: Request) -> str:
+    """Lấy token từ header `Authorization: Bearer <token>`.
+
+    Dùng chung cho cả admin lẫn người dùng để hai bên không lệch nhau về cách đọc header.
+    `partition` chịu được cả chuỗi rỗng lẫn thiếu dấu cách, không cần try/except.
+    """
+    scheme, _, token = request.headers.get("Authorization", "").partition(" ")
+    if scheme.lower() != "bearer" or not token.strip():
+        raise InvalidCredentialsError(
+            "Thiếu header 'Authorization: Bearer <token>'. Hãy đăng nhập trước."
+        )
+    return token.strip()
+
+
+def client_key(request: Request) -> str:
+    """Khoá đếm cho giới hạn tần suất: địa chỉ IP của client.
+
+    VÌ SAO KHÔNG ĐẾM THEO TÊN ĐĂNG NHẬP: làm vậy thì bất kỳ ai cũng khoá được tài khoản
+    người khác chỉ bằng cách nhập sai mật khẩu vài lần — biến chính cơ chế bảo vệ thành
+    công cụ tấn công từ chối dịch vụ.
+
+    ⚠️ Chạy sau reverse proxy thì `request.client.host` là IP của PROXY, tức mọi người
+    dùng chung một bộ đếm và sẽ khoá lẫn nhau. Cách khắc phục ĐÚNG là bật
+    `uvicorn --proxy-headers --forwarded-allow-ips=<ip proxy>`, KHÔNG PHẢI tự đọc header
+    `X-Forwarded-For` ở đây: header đó client tự đặt được, tin nó là mở cửa cho việc lách
+    giới hạn bằng cách bịa IP.
+    """
+    return request.client.host if request.client else "unknown"
+
+
+def get_current_user(
+    request: Request,
+    container: Container = Depends(get_container),
+) -> User:
+    """Chốt chặn ĐĂNG NHẬP cho mọi endpoint cần biết người dùng là ai.
+
+    Ném `InvalidCredentialsError` -> 401. Chưa bật tính năng tài khoản -> 503 kèm hướng dẫn.
+    """
+    # Kiểm CẤU HÌNH trước khi kiểm token, cùng lý do như `require_admin`: chưa đặt secret
+    # thì không token nào chạy được, trả 401 sẽ khiến người ta đi mò sai chỗ.
+    container.user_tokens.ensure_configured()
+    if not container.users.is_ready:
+        raise DataNotReadyError(
+            "kho tài khoản không mở được",
+            "Kiểm tra quyền ghi ở đường dẫn MOODBITE_USERS_DB.",
+        )
+
+    user_id = container.user_tokens.subject_of(_bearer_token(request))
+
+    # Đọc LẠI tài khoản từ kho ở mỗi request thay vì tin nội dung token. Nhờ vậy đổi vai
+    # hay xoá tài khoản có hiệu lực NGAY, không phải đợi token hết hạn.
+    user = container.users.get_by_id(user_id)
+    if user is None:
+        raise InvalidCredentialsError(
+            "Tài khoản không còn tồn tại. Hãy đăng nhập lại."
+        )
+    return user
+
+
+def require_role(role: UserRole):
+    """Sinh ra một guard chỉ cho qua đúng một vai. Ném `PermissionDeniedError` -> 403.
+
+    Trả về HÀM chứ không phải giá trị, để dùng được dưới dạng
+    `Depends(require_role(UserRole.ADMIN))` ở từng router.
+    """
+
+    def guard(user: User = Depends(get_current_user)) -> User:
+        if user.role != role:
+            raise PermissionDeniedError(
+                f"Chức năng này chỉ dành cho vai '{role.value}'."
+            )
+        return user
+
+    return guard
+
+
 def require_admin(
     request: Request,
     container: Container = Depends(get_container),
@@ -239,12 +363,4 @@ def require_admin(
     # token nào chạy được cả, vấn đề nằm ở việc chưa đặt biến môi trường. Phải là 503
     # kèm hướng dẫn.
     container.admin_auth.ensure_configured()
-
-    header = request.headers.get("Authorization", "")
-    # `partition` chịu được cả chuỗi rỗng lẫn thiếu dấu cách, không cần try/except.
-    scheme, _, token = header.partition(" ")
-    if scheme.lower() != "bearer" or not token:
-        raise InvalidCredentialsError(
-            "Thiếu header 'Authorization: Bearer <token>'. Gọi POST /api/v1/admin/login trước."
-        )
-    return container.admin_auth.verify(token.strip())
+    return container.admin_auth.verify(_bearer_token(request))

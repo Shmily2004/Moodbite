@@ -35,8 +35,37 @@ class InvalidCredentialsError(ApplicationError):
     """Sai tài khoản/mật khẩu, hoặc token hỏng/hết hạn. -> HTTP 401 UNAUTHORIZED."""
 
 
-class AdminNotConfiguredError(ApplicationError):
-    """Chưa đặt biến môi trường cho admin. -> HTTP 503 kèm hướng dẫn.
+class PermissionDeniedError(ApplicationError):
+    """Đã đăng nhập nhưng KHÔNG đủ quyền. -> HTTP 403 FORBIDDEN.
+
+    Khác hẳn 401. Trả nhầm 401 ở đây khiến client tưởng token hỏng nên đá người dùng ra
+    màn hình đăng nhập, đăng nhập lại vẫn hỏng - vòng lặp vô tận. 403 nói đúng sự thật:
+    token tốt, người này không được phép.
+    """
+
+
+class AuthNotConfiguredError(ApplicationError):
+    """Chưa đặt biến môi trường cho xác thực. -> HTTP 503 kèm hướng dẫn.
 
     Fail-closed: chưa cấu hình thì TẮT, không bao giờ mặc định thành cho qua.
     """
+
+
+class AdminNotConfiguredError(AuthNotConfiguredError):
+    """Riêng cho trang quản trị. Kế thừa để `error_handlers` chỉ cần một quy tắc chung,
+    nhưng vẫn giữ được thông báo riêng (biến môi trường của admin khác của người dùng)."""
+
+
+class RateLimitExceeded(ApplicationError):
+    """Thao tác quá nhanh -> HTTP 429 RATE_LIMITED, kèm header `Retry-After`.
+
+    Định nghĩa ở TẦNG APPLICATION dù nơi ném ra là `infrastructure/auth/rate_limit.py`.
+    Lý do y hệt `InvalidCredentialsError` ở trên: `presentation/error_handlers.py` phải
+    bắt được lỗi này, mà presentation KHÔNG được import infrastructure (CLAUDE.md mục 2).
+    """
+
+    def __init__(self, retry_after_seconds: int) -> None:
+        self.retry_after_seconds = retry_after_seconds
+        super().__init__(
+            f"Bạn thao tác quá nhanh. Thử lại sau {retry_after_seconds} giây."
+        )

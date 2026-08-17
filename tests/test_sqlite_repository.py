@@ -224,3 +224,44 @@ def test_mood_scores_du_cot_va_thieu_thi_bang_0(tmp_path):
     assert quan.mood_score(cot_dau) == pytest.approx(0.75)
     for col in MOOD_SCORE_COLUMNS[1:]:
         assert quan.mood_score(col) == 0.0, "thiếu cột phải là 0.0 trung lập"
+
+
+# ==========================================================================
+# CHỐT CHẶN: `build_sqlite.py` KHÔNG được ghi đè lên kho tài khoản
+# ==========================================================================
+#
+# VÌ SAO CÓ NHÓM TEST NÀY: hai file .db nằm CÙNG thư mục và chỉ khác tên. Kho quán dựng
+# lại được từ CSV; kho tài khoản thì mất là mất hẳn. Script dựng CSDL chạy
+# `DELETE FROM restaurants` rồi ghi lại — gõ nhầm `--out` một lần là xong đời tài khoản.
+
+
+def _refuse(path):
+    from scripts.build_sqlite import _refuse_if_user_database
+
+    return _refuse_if_user_database(path)
+
+
+def test_tu_choi_ghi_de_len_file_co_bang_users(tmp_path):
+    """Nhận diện theo NỘI DUNG file, nên đổi tên file vẫn được bảo vệ."""
+    from src.infrastructure.repositories.sqlite_user_repository import (
+        SqliteUserRepository,
+    )
+
+    db = tmp_path / "ten-gi-do-khong-goi-nho.db"
+    SqliteUserRepository(db)   # tạo bảng `users`
+
+    assert _refuse(db) is not None
+
+
+def test_tu_choi_ghi_de_len_duong_dan_MOODBITE_USERS_DB(tmp_path, monkeypatch):
+    """Chặn cả khi file CHƯA tồn tại — lần chạy đầu tiên cũng phải được bảo vệ."""
+    chua_ton_tai = tmp_path / "users.db"
+    monkeypatch.setenv("MOODBITE_USERS_DB", str(chua_ton_tai))
+
+    assert _refuse(chua_ton_tai) is not None
+
+
+def test_cho_qua_kho_quan_binh_thuong(tmp_path):
+    """Chốt chặn không được chặn nhầm việc dựng lại kho quán - đó là việc hằng ngày."""
+    assert _refuse(make_db(tmp_path, {})) is None
+    assert _refuse(tmp_path / "chua-co-file-nao.db") is None

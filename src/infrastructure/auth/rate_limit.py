@@ -22,15 +22,10 @@ import time
 from collections import defaultdict, deque
 from typing import Deque, Dict
 
-
-class RateLimitExceeded(Exception):
-    """Vượt giới hạn -> HTTP 429. Kèm số giây phải chờ."""
-
-    def __init__(self, retry_after_seconds: int) -> None:
-        self.retry_after_seconds = retry_after_seconds
-        super().__init__(
-            f"Bạn thao tác quá nhanh. Thử lại sau {retry_after_seconds} giây."
-        )
+# Lỗi định nghĩa ở `application/errors.py` chứ không phải ở đây, để `presentation` bắt
+# được nó mà không phải import `infrastructure` (CLAUDE.md mục 2). Re-export để chỗ nào
+# quan tâm tới giới hạn tần suất thì import ngay tại file này, khỏi phải nhớ nó nằm đâu.
+from src.application.errors import RateLimitExceeded
 
 
 class SlidingWindowRateLimiter:

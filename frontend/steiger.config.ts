@@ -10,9 +10,12 @@ import fsd from '@feature-sliced/steiger-plugin';
 export default defineConfig([
   ...fsd.configs.recommended,
   {
-    files: ['./apps/client/src/**'],
+    // Áp dụng cho CẢ HAI app. Thêm app mới vào `apps/` là tự động được kiểm - không
+    // phải nhớ sửa file này.
+    files: ['./apps/*/src/**'],
     rules: {
-      // Dự án còn nhỏ nên nhiều slice mới chỉ có 1 file - chưa cần tách thêm.
+      // Dự án còn nhỏ nên nhiều slice mới chỉ có 1 file và mới được 1 nơi dùng.
+      // Tách nhỏ thêm lúc này chỉ tạo thư mục rỗng, chưa mang lại lợi ích gì.
       'fsd/insignificant-slice': 'off',
       'fsd/public-api': 'off',
     },

@@ -21,3 +21,22 @@ class DataNotReadyError(ApplicationError):
             message += f" Cách khắc phục: {how_to_fix}"
         super().__init__(message)
         self.source = source
+
+
+# --- Lỗi xác thực quản trị ---------------------------------------------------
+#
+# Đặt ở application chứ KHÔNG ở infrastructure/auth, dù bên đó mới là nơi ném ra.
+# Lý do là hướng phụ thuộc: `presentation/error_handlers.py` phải bắt được các lỗi này
+# để đổi thành mã HTTP, mà presentation KHÔNG được import infrastructure (CLAUDE.md
+# mục 2). Cả hai bên cùng import từ application thì hướng phụ thuộc vẫn đúng.
+
+
+class InvalidCredentialsError(ApplicationError):
+    """Sai tài khoản/mật khẩu, hoặc token hỏng/hết hạn. -> HTTP 401 UNAUTHORIZED."""
+
+
+class AdminNotConfiguredError(ApplicationError):
+    """Chưa đặt biến môi trường cho admin. -> HTTP 503 kèm hướng dẫn.
+
+    Fail-closed: chưa cấu hình thì TẮT, không bao giờ mặc định thành cho qua.
+    """

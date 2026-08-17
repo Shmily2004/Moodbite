@@ -1,16 +1,18 @@
 {
   "name": "moodbite-frontend",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.3.0",
   "workspaces": [
     "packages/*",
     "apps/*"
   ],
   "scripts": {
     "dev": "npm run dev --workspace @moodbite/client",
-    "build": "npm run build --workspace @moodbite/client",
-    "typecheck": "tsc -p tsconfig.json && npm run typecheck --workspace @moodbite/client",
-    "lint:arch": "steiger ./apps/client/src",
+    "dev:admin": "npm run dev --workspace @moodbite/admin",
+    "build": "npm run build --workspace @moodbite/client && npm run build --workspace @moodbite/admin",
+    "typecheck": "tsc -p tsconfig.json && npm run typecheck --workspace @moodbite/client && npm run typecheck --workspace @moodbite/admin",
+    "test": "npm run test --workspace @moodbite/client",
+    "lint:arch": "steiger ./apps/client/src && steiger ./apps/admin/src",
     "gen:api": "openapi-typescript ./openapi.json -o ./packages/api-client/src/schema.d.ts"
   },
   "devDependencies": {

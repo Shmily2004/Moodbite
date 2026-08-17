@@ -177,11 +177,16 @@ def check_frontend_architecture() -> tuple[bool, str] | tuple[None, str]:
     if not (frontend / "node_modules").exists() or not npx:
         return None, "bo qua - chua cai node_modules"
 
-    code, out = run([npx, "steiger", "./apps/client/src", "--no-watch"], cwd=frontend)
-    if code == 0:
-        return True, "FSD OK: khong vi pham luat import"
-    problems = [ln.strip() for ln in out.splitlines() if "✘" in ln or "Found" in ln]
-    return False, "\n".join(problems[-6:]) or out.strip()[-500:]
+    # Kiểm CẢ HAI app. Bỏ sót app admin nghĩa là kiến trúc chỉ được canh một nửa.
+    problems: list[str] = []
+    for app in ("client", "admin"):
+        code, out = run([npx, "steiger", f"./apps/{app}/src", "--no-watch"], cwd=frontend)
+        if code != 0:
+            found = [ln.strip() for ln in out.splitlines() if "×" in ln or "Found" in ln]
+            problems.append(f"apps/{app}: " + ("; ".join(found[-4:]) or out.strip()[-300:]))
+    if problems:
+        return False, "\n        ".join(problems)
+    return True, "FSD OK (client + admin): khong vi pham luat import"
 
 
 def check_ci_installable() -> tuple[bool, str]:

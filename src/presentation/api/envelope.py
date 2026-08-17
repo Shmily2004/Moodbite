@@ -24,6 +24,8 @@ class ErrorCode(str, Enum):
     EXTERNAL_SERVICE_UNAVAILABLE = "EXTERNAL_SERVICE_UNAVAILABLE"
     DATA_NOT_READY = "DATA_NOT_READY"
     INTERNAL_ERROR = "INTERNAL_ERROR"
+    # Chỉ dùng cho /api/v1/admin/* - luồng người dùng cuối không có đăng nhập.
+    UNAUTHORIZED = "UNAUTHORIZED"
 
 
 def success(data: Any, status_code: int = 200) -> JSONResponse:

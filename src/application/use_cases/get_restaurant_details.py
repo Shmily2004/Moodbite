@@ -8,6 +8,8 @@ from src.application.errors import DataNotReadyError
 from src.application.ports.restaurant_details_repository import (
     RestaurantDetailsRepository,
 )
+from src.application.ports.restaurant_repository import RestaurantRepository
+from src.application.use_cases.log_interaction import RestaurantNotFoundError
 
 # Lý do trả về khi quán tồn tại nhưng chưa cào được phần chi tiết.
 NO_DETAILS_REASON = (
@@ -32,8 +34,21 @@ class RestaurantDetails:
 
 
 class GetRestaurantDetailsUseCase:
-    def __init__(self, details: RestaurantDetailsRepository) -> None:
+    def __init__(
+        self,
+        details: RestaurantDetailsRepository,
+        restaurants: Optional[RestaurantRepository] = None,
+    ) -> None:
+        """`restaurants` để kiểm quán CÓ TỒN TẠI và CÓ ĐANG HIỆN hay không.
+
+        VÌ SAO CẦN THÊM (bug thật, phát hiện 2026-08-17 bằng test end-to-end):
+        use case này trước đây chỉ biết kho CHI TIẾT, mà kho đó không có khái niệm
+        `is_active`. Hậu quả: admin ẩn một quán, quán biến mất khỏi /search đúng như
+        mong đợi, NHƯNG `GET /restaurants/{id}` vẫn trả 200 — quán bị ẩn vẫn xem được
+        nếu biết link. Test đơn vị không bắt được vì chúng chỉ kiểm ở tầng repository.
+        """
         self._details = details
+        self._restaurants = restaurants
 
     def execute(self, place_id: str) -> RestaurantDetails:
         if not self._details.is_ready:
@@ -41,6 +56,14 @@ class GetRestaurantDetailsUseCase:
                 "dữ liệu chi tiết quán",
                 "chạy python -m data_pipeline.feature_engineering",
             )
+
+        # Không tồn tại HOẶC đã bị ẩn (is_active=false) -> 404, theo bảng mã lỗi ở
+        # CLAUDE.md mục 5. `get_by_place_id()` đã tự lọc quán bị ẩn.
+        # Kho quán chưa sẵn sàng thì BỎ QUA phép kiểm này thay vì trả 404 cho tất cả:
+        # thiếu một nguồn dữ liệu không được biến thành "mọi quán đều không tồn tại".
+        if self._restaurants is not None and self._restaurants.is_ready:
+            if self._restaurants.get_by_place_id(place_id) is None:
+                raise RestaurantNotFoundError(f"Không tìm thấy quán: {place_id}")
 
         raw = self._details.get(place_id)
         if raw is None:

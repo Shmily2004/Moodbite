@@ -114,6 +114,114 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Login
+         * @description Đổi tài khoản/mật khẩu lấy token ngắn hạn.
+         *
+         *     Sai thông tin -> 401 UNAUTHORIZED. Chưa cấu hình admin -> 503 kèm hướng dẫn.
+         */
+        post: operations["login_api_v1_admin_login_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/restaurants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Restaurants
+         * @description Danh sách quán cho trang quản trị.
+         *
+         *     MẶC ĐỊNH có cả quán đã ẩn — khác với `/search` của người dùng cuối. Không có nó thì
+         *     ẩn xong sẽ không còn cách nào tìm lại để bỏ ẩn.
+         */
+        get: operations["list_restaurants_api_v1_admin_restaurants_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/restaurants/{restaurant_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update Restaurant
+         * @description Sửa các trường mô tả của một quán.
+         *
+         *     `exclude_unset=True`: chỉ gửi trường nào thì sửa trường đó. Nhờ vậy client phân biệt
+         *     được "không đụng tới trường này" với "xoá giá trị của trường này" (gửi `null`).
+         */
+        patch: operations["update_restaurant_api_v1_admin_restaurants__restaurant_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/admin/restaurants/{restaurant_id}/hide": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Hide Restaurant
+         * @description Ẩn quán (soft-delete). Dữ liệu KHÔNG bị xoá, chỉ biến mất khỏi luồng người dùng.
+         */
+        post: operations["hide_restaurant_api_v1_admin_restaurants__restaurant_id__hide_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/restaurants/{restaurant_id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Restore Restaurant
+         * @description Bỏ ẩn quán đã ẩn.
+         */
+        post: operations["restore_restaurant_api_v1_admin_restaurants__restaurant_id__restore_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -140,6 +248,113 @@ export interface components {
          * @enum {string}
          */
         ActionType: "view_detail" | "get_directions" | "save" | "explicit_positive" | "explicit_negative";
+        /** AdminLoginData */
+        AdminLoginData: {
+            /** Token */
+            token: string;
+            /**
+             * Token Type
+             * @default bearer
+             */
+            token_type: string;
+            /**
+             * Expires In
+             * @description Số giây token còn hiệu lực
+             */
+            expires_in: number;
+        };
+        /** AdminLoginRequest */
+        AdminLoginRequest: {
+            /** Username */
+            username: string;
+            /** Password */
+            password: string;
+        };
+        /** AdminLoginResponse */
+        AdminLoginResponse: {
+            data: components["schemas"]["AdminLoginData"];
+        };
+        /** AdminRestaurantListData */
+        AdminRestaurantListData: {
+            /** Total */
+            total: number;
+            /** Results */
+            results: components["schemas"]["AdminRestaurantSummary"][];
+        };
+        /** AdminRestaurantListResponse */
+        AdminRestaurantListResponse: {
+            data: components["schemas"]["AdminRestaurantListData"];
+        };
+        /** AdminRestaurantResponse */
+        AdminRestaurantResponse: {
+            data: components["schemas"]["AdminRestaurantSummary"];
+        };
+        /**
+         * AdminRestaurantSummary
+         * @description Một quán nhìn từ phía quản trị.
+         *
+         *     `rating`/`reviews_count`/`price` để None khi CHƯA CÓ DỮ LIỆU — không đổi thành 0
+         *     hay chuỗi rỗng, vì admin cần phân biệt "thiếu dữ liệu" với "giá trị bằng 0".
+         */
+        AdminRestaurantSummary: {
+            /** Restaurant Id */
+            restaurant_id: string | null;
+            /** Name */
+            name: string;
+            /** Category */
+            category?: string | null;
+            /** Cuisine */
+            cuisine?: string | null;
+            /** Address */
+            address?: string | null;
+            /** District */
+            district?: string | null;
+            /**
+             * Price
+             * @description Chuỗi khoảng giá, VD "1-100.000 ₫"
+             */
+            price?: string | null;
+            /** Phone */
+            phone?: string | null;
+            /** Website */
+            website?: string | null;
+            /** Rating */
+            rating?: number | null;
+            /** Reviews Count */
+            reviews_count?: number | null;
+            /** Is Active */
+            is_active: boolean;
+            /** Source */
+            source?: string | null;
+        };
+        /**
+         * AdminUpdateRestaurantRequest
+         * @description Chỉ những trường được gửi lên mới bị sửa (`exclude_unset=True` ở router).
+         *
+         *     Gửi `null` = XOÁ giá trị. Không gửi trường = giữ nguyên. Đây là hai ý định khác
+         *     nhau nên không được gộp làm một.
+         */
+        AdminUpdateRestaurantRequest: {
+            /** Name */
+            name?: string | null;
+            /** Category */
+            category?: string | null;
+            /** Cuisine */
+            cuisine?: string | null;
+            /** Address */
+            address?: string | null;
+            /** District */
+            district?: string | null;
+            /**
+             * Price
+             * @description CHUỖI, không phải số
+             */
+            price?: string | null;
+            /** Phone */
+            phone?: string | null;
+            /** Website */
+            website?: string | null;
+        };
         /** ErrorDetail */
         ErrorDetail: {
             /** Code */
@@ -655,6 +870,171 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MoodsResponse"];
+                };
+            };
+        };
+    };
+    login_api_v1_admin_login_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminLoginRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminLoginResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_restaurants_api_v1_admin_restaurants_get: {
+        parameters: {
+            query?: {
+                /** @description Lọc theo tên, địa chỉ hoặc placeId */
+                q?: string | null;
+                limit?: number;
+                /** @description Có kèm quán đã ẩn hay không */
+                include_hidden?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminRestaurantListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_restaurant_api_v1_admin_restaurants__restaurant_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                restaurant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminUpdateRestaurantRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminRestaurantResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    hide_restaurant_api_v1_admin_restaurants__restaurant_id__hide_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                restaurant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminRestaurantResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    restore_restaurant_api_v1_admin_restaurants__restaurant_id__restore_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                restaurant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminRestaurantResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

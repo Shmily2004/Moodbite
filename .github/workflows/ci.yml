@@ -68,5 +68,6 @@ jobs:
         run: npm run test --workspace @moodbite/client
 
       # Chốt chặn kiến trúc frontend - bản tương đương check_architecture.py của backend.
-      - name: Kiểm tra luật import Feature-Sliced Design
-        run: npx steiger ./apps/client/src --no-watch
+      # Kiểm CẢ HAI app: bỏ sót admin nghĩa là chỉ canh được một nửa kiến trúc.
+      - name: Kiểm tra luật import Feature-Sliced Design (client + admin)
+        run: npm run lint:arch

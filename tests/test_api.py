@@ -10,6 +10,7 @@ from fastapi.testclient import TestClient
 from src.application.use_cases.get_restaurant_details import GetRestaurantDetailsUseCase
 from src.application.use_cases.log_interaction import LogInteractionUseCase
 from src.application.use_cases.search_restaurants import SearchRestaurantsUseCase
+from src.infrastructure.auth.admin_auth import AdminAuthService
 from src.presentation.api.dependencies import Container
 from src.presentation.api.main import create_app
 from tests.fakes import (
@@ -65,14 +66,23 @@ def _container(restaurants=None, details=None, restaurants_ready=True):
     c.context_provider = context
     c.semantic_search = NullSemanticSearch()
     c.search_restaurants = SearchRestaurantsUseCase(repo, knowledge, context, predictor)
-    c.get_restaurant_details = GetRestaurantDetailsUseCase(details_repo)
+    c.get_restaurant_details = GetRestaurantDetailsUseCase(details_repo, repo)
     c.log_interaction = LogInteractionUseCase(interactions, repo)
+    # Quản trị TẮT trong bộ test này: đây là test cho luồng NGƯỜI DÙNG CUỐI. Trạng thái
+    # "chưa cấu hình" cũng đúng là mặc định khi chạy thật. Luồng admin có file riêng
+    # (`tests/test_admin_api.py`).
+    c.admin_auth = AdminAuthService(username="", password_hash="", token_secret="")
+    c.admin_restaurants = None
+    c.list_restaurants_for_admin = None
+    c.update_restaurant = None
+    c.set_restaurant_visibility = None
     return c
 
 
 def make_client(**kwargs):
-    app = create_app()
-    app.state.container = _container(**kwargs)
+    # Tiêm container giả: create_app() tự lắp sẽ đọc cả dataset thật (~1.5s) rồi bị
+    # ghi đè ngay sau đó.
+    app = create_app(container=_container(**kwargs))
     return TestClient(app, raise_server_exceptions=False)
 
 
@@ -217,12 +227,27 @@ def test_log_interaction_rejects_unknown_action(client):
 
 
 def test_restaurant_detail_missing_is_200_not_404(client):
-    """Quán chưa cào được chi tiết vẫn trả 200 kèm has_details=false."""
-    resp = client.get(f"{API}/restaurants/unknown-id")
+    """Quán CÓ TỒN TẠI nhưng chưa cào được chi tiết -> 200 kèm has_details=false.
+
+    Bản cũ của test này dùng id `unknown-id` (không hề tồn tại) rồi khẳng định phải trả
+    200. Nhưng bảng mã lỗi ở CLAUDE.md mục 5 nói rõ: "Không tìm thấy quán -> 404", còn
+    quy tắc 200 chỉ áp dụng cho quán "vẫn tồn tại". Test cũ vì thế đang khoá SAI hành vi.
+    Nay dùng đúng id có trong kho quán nhưng không có bản ghi chi tiết.
+    """
+    resp = client.get(f"{API}/restaurants/id-Quan Pho")
+
     assert resp.status_code == 200
     data = resp.json()["data"]
     assert data["has_details"] is False
-    assert data["restaurant_id"] == "unknown-id"
+    assert data["restaurant_id"] == "id-Quan Pho"
+
+
+def test_restaurant_detail_unknown_id_is_404(client):
+    """Quán KHÔNG tồn tại -> 404 RESTAURANT_NOT_FOUND (CLAUDE.md mục 5)."""
+    resp = client.get(f"{API}/restaurants/khong-he-ton-tai")
+
+    assert resp.status_code == 404
+    assert resp.json()["error"]["code"] == "RESTAURANT_NOT_FOUND"
 
 
 # --- meta --------------------------------------------------------------------

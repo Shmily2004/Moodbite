@@ -198,6 +198,80 @@ class MoodsResponse(BaseModel):
     data: MoodsData
 
 
+# --- Quản trị ---------------------------------------------------------------
+#
+# Tách hẳn khỏi schema của người dùng cuối: đây là hợp đồng của MỘT ỨNG DỤNG KHÁC
+# (`apps/admin`), có nhu cầu khác — nó cần thấy cả quán đã ẩn và cả trường `is_active`,
+# những thứ luồng người dùng cuối không bao giờ được thấy.
+
+
+class AdminLoginRequest(BaseModel):
+    username: str = Field(..., min_length=1, max_length=100)
+    password: str = Field(..., min_length=1, max_length=200)
+
+
+class AdminLoginData(BaseModel):
+    token: str
+    token_type: str = "bearer"
+    expires_in: int = Field(..., description="Số giây token còn hiệu lực")
+
+
+class AdminLoginResponse(BaseModel):
+    data: AdminLoginData
+
+
+class AdminRestaurantSummary(BaseModel):
+    """Một quán nhìn từ phía quản trị.
+
+    `rating`/`reviews_count`/`price` để None khi CHƯA CÓ DỮ LIỆU — không đổi thành 0
+    hay chuỗi rỗng, vì admin cần phân biệt "thiếu dữ liệu" với "giá trị bằng 0".
+    """
+
+    restaurant_id: Optional[str]
+    name: str
+    category: Optional[str] = None
+    cuisine: Optional[str] = None
+    address: Optional[str] = None
+    district: Optional[str] = None
+    price: Optional[str] = Field(None, description='Chuỗi khoảng giá, VD "1-100.000 ₫"')
+    phone: Optional[str] = None
+    website: Optional[str] = None
+    rating: Optional[float] = None
+    reviews_count: Optional[int] = None
+    is_active: bool
+    source: Optional[str] = None
+
+
+class AdminRestaurantListData(BaseModel):
+    total: int
+    results: List[AdminRestaurantSummary]
+
+
+class AdminRestaurantListResponse(BaseModel):
+    data: AdminRestaurantListData
+
+
+class AdminRestaurantResponse(BaseModel):
+    data: AdminRestaurantSummary
+
+
+class AdminUpdateRestaurantRequest(BaseModel):
+    """Chỉ những trường được gửi lên mới bị sửa (`exclude_unset=True` ở router).
+
+    Gửi `null` = XOÁ giá trị. Không gửi trường = giữ nguyên. Đây là hai ý định khác
+    nhau nên không được gộp làm một.
+    """
+
+    name: Optional[str] = None
+    category: Optional[str] = None
+    cuisine: Optional[str] = None
+    address: Optional[str] = None
+    district: Optional[str] = None
+    price: Optional[str] = Field(None, description="CHUỖI, không phải số")
+    phone: Optional[str] = None
+    website: Optional[str] = None
+
+
 # Mô tả lỗi dùng chung cho mọi endpoint, để OpenAPI ghi rõ hình dạng lỗi.
 ERROR_RESPONSES = {
     400: {"model": ErrorEnvelope, "description": "INVALID_REQUEST"},

@@ -13,7 +13,11 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError, ResponseValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from src.application.errors import DataNotReadyError
+from src.application.errors import (
+    AdminNotConfiguredError,
+    DataNotReadyError,
+    InvalidCredentialsError,
+)
 from src.application.use_cases.log_interaction import (
     InvalidInteractionError,
     RestaurantNotFoundError,
@@ -78,6 +82,16 @@ def register_error_handlers(app: FastAPI) -> None:
             else ErrorCode.INTERNAL_ERROR
         )
         return error(code, str(exc.detail), status_code=exc.status_code)
+
+    @app.exception_handler(InvalidCredentialsError)
+    async def _unauthorized(request: Request, exc: InvalidCredentialsError):
+        # 401 chứ KHÔNG phải 403: client chưa chứng minh được mình là ai.
+        return error(ErrorCode.UNAUTHORIZED, str(exc), status_code=401)
+
+    @app.exception_handler(AdminNotConfiguredError)
+    async def _admin_not_configured(request: Request, exc: AdminNotConfiguredError):
+        # Chưa cấu hình admin -> 503 kèm CÁCH KHẮC PHỤC, đúng quy ước DATA_NOT_READY.
+        return error(ErrorCode.DATA_NOT_READY, str(exc), status_code=503)
 
     @app.exception_handler(ValueError)
     async def _value_error(request: Request, exc: ValueError):

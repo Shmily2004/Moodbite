@@ -46,18 +46,15 @@ COMPOSITION_ROOT = {
     "src/presentation/api/main.py",
 }
 
-# Tầng ai/ là script train độc lập, không nằm trong luồng request - bỏ qua.
-SKIPPED = ("src/infrastructure/ai/",)
+SKIPPED: tuple[str, ...] = ()
 
 # NỢ KỸ THUẬT ĐÃ BIẾT: được phép tồn tại nhưng LUÔN được in ra, không bị giấu.
 # Mỗi mục phải có lý do và điều kiện để xoá.
-KNOWN_DEBT = {
-    "src/presentation/api/routers/spatial.py": (
-        "Tính năng floorplan/3D đang TẠM DỪNG và chỉ bật khi MOODBITE_ENABLE_SPATIAL=1. "
-        "Chưa tách port vì chưa chắc còn làm tiếp. Nếu khởi động lại tính năng này, "
-        "phải tạo port DepthEstimator ở application/ports trước khi viết thêm code."
-    ),
-}
+#
+# Mục `routers/spatial.py` đã được GỠ khỏi đây ngày 2026-08-17: toàn bộ tính năng
+# floorplan/3D chuyển vào `archive/spatial-3d/`. Khôi phục thì thêm lại mục này TRƯỚC,
+# kèm port `DepthEstimator` ở `application/ports/`.
+KNOWN_DEBT: dict[str, str] = {}
 
 
 def layer_of(path: Path) -> str | None:

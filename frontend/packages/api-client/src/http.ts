@@ -18,6 +18,7 @@ export type ApiErrorCode =
   | 'EXTERNAL_SERVICE_UNAVAILABLE'
   | 'DATA_NOT_READY'
   | 'INTERNAL_ERROR'
+  | 'UNAUTHORIZED'
   | 'NETWORK';
 
 export class ApiError extends Error {
@@ -42,6 +43,8 @@ export class ApiError extends Error {
         return 'Dịch vụ bên ngoài đang lỗi. Kết quả có thể thiếu thông tin.';
       case 'RATE_LIMITED':
         return 'Bạn thao tác hơi nhanh. Chờ một chút rồi thử lại.';
+      case 'UNAUTHORIZED':
+        return 'Phiên đăng nhập đã hết hạn. Hãy đăng nhập lại.';
       case 'NETWORK':
         return 'Không kết nối được tới server. Kiểm tra backend đã chạy chưa.';
       default:
@@ -61,6 +64,14 @@ interface ErrorEnvelope {
 
 export interface HttpClientOptions {
   baseUrl: string;
+  /**
+   * Trả token cho header `Authorization: Bearer …`, hoặc `null` khi chưa đăng nhập.
+   *
+   * Là HÀM chứ không phải chuỗi, vì token đổi theo thời gian (đăng nhập, hết hạn,
+   * đăng xuất). Truyền chuỗi thì client sẽ giữ mãi token của lần dựng đầu tiên.
+   * App client KHÔNG truyền tham số này - luồng người dùng cuối không có đăng nhập.
+   */
+  getAuthToken?: () => string | null;
 }
 
 export interface RequestOptions {
@@ -82,11 +93,16 @@ export class HttpClient {
   async request<T>(path: string, options: RequestOptions = {}): Promise<T> {
     const { method = 'GET', body, signal } = options;
 
+    const headers: Record<string, string> = {};
+    if (body) headers['Content-Type'] = 'application/json';
+    const token = this.options.getAuthToken?.();
+    if (token) headers.Authorization = `Bearer ${token}`;
+
     let response: Response;
     try {
       response = await fetch(`${this.options.baseUrl}${path}`, {
         method,
-        headers: body ? { 'Content-Type': 'application/json' } : undefined,
+        headers,
         body: body ? JSON.stringify(body) : undefined,
         signal,
       });

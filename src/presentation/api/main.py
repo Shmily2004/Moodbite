@@ -14,7 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.infrastructure.config.settings import Settings
 from src.presentation.api.dependencies import build_container
 from src.presentation.api.error_handlers import register_error_handlers
-from src.presentation.api.routers import interactions, meta, restaurants, search
+from src.presentation.api.routers import admin, interactions, meta, restaurants, search
 
 logging.basicConfig(
     level=logging.INFO,
@@ -27,7 +27,16 @@ logger = logging.getLogger("moodbite")
 API_PREFIX = "/api/v1"
 
 
-def create_app(settings: Optional[Settings] = None) -> FastAPI:
+def create_app(
+    settings: Optional[Settings] = None, container: Optional[object] = None
+) -> FastAPI:
+    """Dựng app.
+
+    `container` cho phép TIÊM sẵn bộ phụ thuộc thay vì tự lắp. Chỉ dùng trong test:
+    `build_container()` đọc cả dataset (4938 quán) và dựng chỉ mục TF-IDF, mất ~1.5s.
+    Test dựng app hàng chục lần rồi ghi đè container ngay sau đó, nên nếu không có
+    tham số này thì mỗi test phải trả 1.5s cho công việc bị vứt đi.
+    """
     settings = settings or Settings.from_env()
 
     app = FastAPI(
@@ -49,7 +58,7 @@ def create_app(settings: Optional[Settings] = None) -> FastAPI:
     )
 
     # Lắp dependency MỘT LẦN lúc khởi động - không đọc lại file ở mỗi request.
-    app.state.container = build_container(settings)
+    app.state.container = container if container is not None else build_container(settings)
 
     register_error_handlers(app)
 
@@ -57,19 +66,18 @@ def create_app(settings: Optional[Settings] = None) -> FastAPI:
     app.include_router(restaurants.router, prefix=API_PREFIX)
     app.include_router(interactions.router, prefix=API_PREFIX)
     app.include_router(meta.router, prefix=API_PREFIX)
+    # Quản trị: `public_router` chỉ có /login (nơi phát token), `router` yêu cầu token.
+    app.include_router(admin.public_router, prefix=API_PREFIX)
+    app.include_router(admin.router, prefix=API_PREFIX)
 
     # /health không prefix để hạ tầng (Railway/Heroku) probe được theo mặc định.
     # Chỉ health, không nhân bản cả router meta.
     app.add_api_route("/health", meta.health, methods=["GET"], tags=["meta"])
 
-    if settings.enable_spatial_features:
-        # Tính năng floorplan -> 3D đang TẠM DỪNG (xem docs/architecture_decisions.md).
-        # Chỉ bật khi MOODBITE_ENABLE_SPATIAL=1 để không bắt mọi lần khởi động phải nạp
-        # torch/ultralytics (nặng và hay lỗi môi trường).
-        from src.presentation.api.routers import spatial
-
-        app.include_router(spatial.router, prefix=API_PREFIX)
-        logger.info("Đã bật tính năng spatial (floorplan/depth) - đang ở trạng thái thử nghiệm.")
+    # Tính năng floorplan -> 3D đã chuyển vào `archive/spatial-3d/` (2026-08-17).
+    # Nó kéo theo torch + ultralytics + transformers + opencv (~2GB) mà CI phải cài ở
+    # MỌI lần chạy, trong khi tính năng đã tạm dừng và tắt mặc định. Cách khôi phục ghi
+    # ở `archive/spatial-3d/README.md`.
 
     health = app.state.container.health()
     logger.info(

@@ -19,8 +19,11 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Frontend Client | ✅ **TypeScript + FSD** | 21 test, có bản đồ, steiger trong CI |
 | Bản đồ | ✅ **Xong** | Leaflet + OpenStreetMap, miễn phí, không cần key |
 | Kiến trúc | ✅ Sạch | Clean Architecture + checker tự động trong CI |
-| Test | ✅ 201 backend + 21 frontend | tổng 222 |
+| Test | ✅ 234 backend + 21 frontend | tổng 255, chạy hết 15 giây |
 | Kho lưu trữ | ✅ CSV (mặc định) · ✅ SQLite (chọn được) | `MOODBITE_STORAGE=sqlite`, kết quả GIỐNG HỆT |
+| **Frontend Admin** | ✅ **Xong** | `apps/admin`, cổng 5174, đăng nhập + sửa + ẩn/bỏ ẩn |
+| Xác thực admin | ✅ Xong | 1 tài khoản, token HMAC 1 giờ, fail-closed |
+| Phụ thuộc Python | ✅ 15 → **7** gói | gỡ torch/ultralytics/transformers/opencv (~2GB) khỏi CI |
 | Dữ liệu | ✅ 4938 quán · 142 đơn vị HC | provenance 100%, trùng lặp 0% |
 | Thu thập dữ liệu đa nguồn | ✅ Xong | kiến trúc `SourceAdapter`, thêm nguồn không sửa pipeline |
 | Lọc giờ mở cửa / chế độ ăn / quận | ✅ Xong | thiếu dữ liệu KHÔNG bị loại |
@@ -250,8 +253,13 @@ Cách miễn phí, theo thứ tự đáng làm:
 - [ ] **Apify free tier mỗi tháng** — credit miễn phí được cấp lại theo chu kỳ. Mỗi đợt
       ~500 quán. Chạy 3-4 tháng là phủ xong trung tâm Hà Nội. Cấu hình + toạ độ vùng đã
       có sẵn ở mục "Vì sao đánh giá vẫn chỉ 23.2%" bên trên.
-- [ ] **Tự nhập tay quán trọng điểm** — 50-100 quán nổi tiếng ở Hoàn Kiếm, nhập bằng
-      Admin sau khi có. Chậm nhưng miễn phí và chất lượng cao.
+- [ ] **Tự nhập tay quán trọng điểm** — 50-100 quán nổi tiếng ở Hoàn Kiếm. Chậm nhưng
+      miễn phí và chất lượng cao.
+      ✅ **KHÔNG CÒN BỊ CHẶN** từ 2026-08-17: trang Admin đã chạy (`npm run dev:admin`),
+      sửa được tên/loại hình/địa chỉ/giá/điện thoại/website. Đây giờ là việc NHẬP LIỆU
+      thủ công, không phải việc lập trình.
+      ⚠️ Admin CHƯA thêm mới được quán, mới chỉ SỬA quán đã có. Cần thêm `POST
+      /api/v1/admin/restaurants` nếu muốn nhập quán hoàn toàn mới.
 - [ ] ⏸️ Google Places API — **để sau**, chỉ làm nếu có thẻ thanh toán. Chỗ cắm adapter
       đã sẵn sàng (`data_pipeline/sources/`), viết thêm 1 file là chạy.
 
@@ -265,16 +273,31 @@ Cách miễn phí, theo thứ tự đáng làm:
 - [x] Kiểm bằng mutation test: bỏ `except Exception` → 5 test đỏ ngay
 - [ ] Còn lại: bật `MOODBITE_ENABLE_WEATHER=1` trên môi trường deploy thật (chưa deploy)
 
-### 3. Frontend Admin — vẫn CHẶN, nhưng đã đi được 1/3
+### 3. ✅ Frontend Admin — ĐÃ XONG (2026-08-17)
 - [x] **Chuyển lưu trữ sang SQLite** — `SqliteRestaurantRepository`, use case KHÔNG đổi
       một dòng nào. Bật bằng `MOODBITE_STORAGE=sqlite`, mặc định vẫn là CSV.
       - Dựng CSDL: `python scripts/build_sqlite.py` → 4938 quán, 4.0 MB
       - **Đối chiếu từng trường của 4938 quán: KHỚP HOÀN TOÀN với bản CSV**
       - Gọi API thật trên cả hai kho: 10 kết quả, `predicted_score` giống hệt tới 6 chữ số
-      - Có sẵn cột `is_active` (soft-delete) — thứ bản CSV không lưu được
-- [ ] Thêm xác thực (1 tài khoản admin + JWT ngắn hạn)
-- [ ] Endpoint `/api/v1/admin/*` (CRUD + soft-delete)
-- [ ] Chỉ khi đó mới dựng `apps/admin`
+- [x] **Xác thực** — 1 tài khoản + token HMAC ngắn hạn (mặc định 1 giờ).
+      Dùng `hmac`/`hashlib`/`secrets` của thư viện chuẩn, KHÔNG thêm thư viện nào.
+      PBKDF2-SHA256 600k vòng. **Fail-closed**: chưa đặt đủ 3 biến môi trường → 503.
+      Sinh mật khẩu: `python scripts/make_admin_password.py`
+- [x] **Endpoint `/api/v1/admin/*`** — login · list · PATCH · hide · restore
+      - Trường sửa được do DOMAIN quyết định (`domain/value_objects/restaurant_edit.py`),
+        không phải router. Sửa `rating`/cụm → 400, vì chúng do pipeline sinh ra.
+      - Xác thực gắn ở CẤP ROUTER → thêm endpoint mới KHÔNG THỂ quên bảo vệ.
+- [x] **`apps/admin`** — React + TS, cùng cấu trúc FSD với client, cổng 5174.
+      `npm run dev:admin`
+- [x] **Ranh giới client/admin cưỡng chế bằng KIỂU**: `createApi()` trả lớp không hề có
+      method quản trị; `createAdminApi()` bắt buộc truyền hàm lấy token.
+
+**Bug thật do test end-to-end bắt được** (test đơn vị KHÔNG thấy): ẩn quán xong,
+`GET /restaurants/{id}` vẫn trả 200 — vì use case đó chỉ đọc kho CHI TIẾT, mà kho này
+không có khái niệm `is_active`. Ai biết link vẫn xem được quán đã ẩn. Đã sửa bằng cách
+kiểm kho quán trước. Nhân đó phát hiện `test_restaurant_detail_missing_is_200_not_404`
+đang khoá SAI hành vi: nó dùng id không tồn tại rồi khẳng định phải trả 200, trong khi
+bảng mã lỗi mục 5 nói id không tồn tại phải là 404.
 
 ### 3b. Lớp 4 — tóm tắt review: ĐÃ ĐO LẠI, KHẢ THI hơn tưởng
 
@@ -303,9 +326,10 @@ khi tóm tắt làm việc trên TOÀN BỘ review của một quán gộp lại
 
 ## ⏸️ TẠM DỪNG (đừng làm tiếp nếu chưa bàn lại)
 
-- **Floorplan → 3D (CubiCasa5K + YOLO/SegFormer):** đã bỏ hướng này. Code ở
-  `src/infrastructure/ai/`, router `routers/spatial.py`, **tắt mặc định**
-  (`MOODBITE_ENABLE_SPATIAL=1` để bật).
+- **Floorplan → 3D (CubiCasa5K + YOLO/SegFormer):** đã chuyển TOÀN BỘ vào
+  `archive/spatial-3d/` ngày 2026-08-17. Lý do: nó kéo theo 8 thư viện (~2GB) mà CI phải
+  cài ở MỌI lần chạy, cho code không endpoint nào gọi. `requirements.txt` từ 15 dòng còn 7.
+  Cách khôi phục ghi đầy đủ ở `archive/spatial-3d/README.md`.
 - **Depth Anything V2:** dừng vì lỗi môi trường.
 - **Model ML gợi ý món:** model cũ **rò rỉ nhãn** — học `rule_id` từ `categoryName` trong
   khi `categoryName` chính là input, nên đạt 98.56% một cách vô nghĩa. Đã gỡ.

@@ -1,0 +1,112 @@
+/* Giao diện quản trị: cố ý KHÁC hẳn app client về màu, để nhìn là biết đang ở đâu.
+   Client dùng tông ấm; admin dùng tông xám lạnh - tránh sửa nhầm dữ liệu thật vì
+   tưởng đang ở màn hình người dùng. */
+
+:root {
+  --bg: #f5f6f8;
+  --surface: #ffffff;
+  --ink: #1b1f27;
+  --muted: #6b7280;
+  --rule: #dfe3e8;
+  --accent: #1f5f8b;
+  --danger: #a33b2a;
+  --ok: #1a7f5a;
+  --warn-bg: #fdf3e7;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.shell { max-width: 1100px; margin: 0 auto; padding: 24px 20px 64px; }
+.shell--centered { display: flex; min-height: 100vh; align-items: center; justify-content: center; }
+
+h1 { font-size: 1.5rem; margin: 0 0 4px; }
+
+.muted { color: var(--muted); }
+.small { font-size: 0.86rem; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.login { width: min(380px, 92vw); display: flex; flex-direction: column; gap: 6px; }
+.login label { font-weight: 600; margin-top: 10px; font-size: 0.9rem; }
+
+input[type='text'], input[type='password'], input:not([type]) {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  font: inherit;
+  background: var(--surface);
+  color: var(--ink);
+}
+input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+button {
+  padding: 8px 14px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #fff;
+  border-radius: 5px;
+  font: inherit;
+  cursor: pointer;
+  margin-top: 12px;
+}
+button:disabled { opacity: 0.6; cursor: not-allowed; }
+button.ghost { background: transparent; color: var(--accent); margin-top: 0; }
+button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.toolbar { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+.toolbar input:not([type='checkbox']) { flex: 1 1 260px; }
+.check { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; white-space: nowrap; }
+.check input { width: auto; }
+
+.error { color: var(--danger); background: #fbece8; padding: 9px 12px; border-radius: 5px; }
+.notice { color: var(--ok); background: #e8f5ef; padding: 9px 12px; border-radius: 5px; }
+
+/* Bảng rộng cuộn trong khung riêng - trang không bao giờ cuộn ngang. */
+.table-scroll { overflow-x: auto; background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; }
+table { border-collapse: collapse; width: 100%; min-width: 720px; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+tbody tr:last-child td { border-bottom: none; }
+
+/* Quán đã ẩn phải NHÌN LÀ BIẾT, không chỉ khác chữ trong cột trạng thái. */
+.row--hidden { background: #fafafa; color: var(--muted); }
+.row--hidden b { text-decoration: line-through; }
+.row--editing { background: var(--warn-bg); }
+
+.pill { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 0.8rem; font-weight: 600; }
+.pill--on { background: #e8f5ef; color: var(--ok); }
+.pill--off { background: #f0f0f0; color: var(--muted); }
+
+td.actions, .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.edit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px 16px;
+  margin-bottom: 10px;
+}
+.edit-grid label { display: flex; flex-direction: column; gap: 3px; font-size: 0.85rem; font-weight: 600; }

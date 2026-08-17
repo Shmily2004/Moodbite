@@ -42,9 +42,13 @@ class Settings:
     # Gọi API thời tiết (Open-Meteo, miễn phí, không cần key). Tắt trong test/CI để
     # không phụ thuộc mạng.
     enable_weather: bool
-    # Các tính năng 3D/floorplan đang TẠM DỪNG (xem docs/architecture_decisions.md).
-    # Để bật lại: MOODBITE_ENABLE_SPATIAL=1
-    enable_spatial_features: bool
+    # --- Trang quản trị -------------------------------------------------------
+    # FAIL-CLOSED: thiếu bất kỳ giá trị nào trong 3 giá trị dưới -> admin TẮT hoàn toàn
+    # và /api/v1/admin/* trả 503. Không bao giờ được mặc định thành "cho qua".
+    admin_username: str
+    admin_password_hash: str
+    admin_token_secret: str
+    admin_token_ttl_seconds: int
 
     @staticmethod
     def from_env() -> "Settings":
@@ -80,5 +84,10 @@ class Settings:
             # Mặc định TẮT: bật thời tiết làm mọi lượt tìm kiếm phụ thuộc mạng.
             # Bật bằng MOODBITE_ENABLE_WEATHER=1 khi chạy thật.
             enable_weather=os.getenv("MOODBITE_ENABLE_WEATHER", "") == "1",
-            enable_spatial_features=os.getenv("MOODBITE_ENABLE_SPATIAL", "") == "1",
+            admin_username=os.getenv("MOODBITE_ADMIN_USER", "").strip(),
+            admin_password_hash=os.getenv("MOODBITE_ADMIN_PASSWORD_HASH", "").strip(),
+            admin_token_secret=os.getenv("MOODBITE_ADMIN_SECRET", "").strip(),
+            admin_token_ttl_seconds=int(
+                os.getenv("MOODBITE_ADMIN_TOKEN_TTL", "3600") or 3600
+            ),
         )

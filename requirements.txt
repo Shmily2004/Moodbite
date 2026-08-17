@@ -1,15 +1,14 @@
 fastapi==0.104.1
 uvicorn==0.24.0
-PyYAML
 pandas
 numpy
-opencv-python-headless
-torch
-transformers
-ultralytics
-jsonschema
-pytest
 scikit-learn
 requests
-Pillow
-python-multipart==0.0.6
+pytest
+
+# ĐÃ GỠ 2026-08-17 (xem archive/spatial-3d/README.md):
+#   opencv-python-headless, torch, transformers, ultralytics, Pillow,
+#   python-multipart, jsonschema, PyYAML
+# Cả 8 thư viện này CHỈ phục vụ tính năng floorplan -> 3D đã tạm dừng. Giữ lại nghĩa là
+# CI phải tải ~2GB ở mọi lần chạy cho code không ai gọi. Cần dùng lại thì khôi phục
+# cùng lúc với code trong archive/.

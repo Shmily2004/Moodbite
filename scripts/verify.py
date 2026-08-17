@@ -6,7 +6,7 @@ VÌ SAO CÓ FILE NÀY: tài liệu trước đây ghi 4 lệnh nối bằng `&&`
 bash/macOS/Linux. PowerShell 5.1 (mặc định trên Windows) KHÔNG hỗ trợ `&&`, cũng không có
 `grep`/`wc`. Viết bằng Python thì chạy được ở mọi nơi, không cần nhớ cú pháp shell nào.
 
-Kiểm 8 việc:
+Kiểm 9 việc:
   1. App FastAPI dựng được               (bug từng làm app không khởi động được)
   2. Toàn bộ test xanh
   3. Hướng phụ thuộc Clean Architecture đúng
@@ -15,6 +15,7 @@ Kiểm 8 việc:
   6. Frontend test xanh
   7. Luật import Feature-Sliced Design
   8. CI cài đặt được                      (lockfile + đường dẫn trong ci.yml)
+  9. Bộ dữ liệu mẫu frontend              (không được giàu hơn dữ liệu thật)
 
 Thoát mã 0 = tất cả đạt. Khác 0 = có mục hỏng, xem chi tiết ở output.
 """
@@ -239,6 +240,24 @@ def check_ci_installable() -> tuple[bool, str]:
     return True, "lockfile day du, moi duong dan trong ci.yml deu ton tai"
 
 
+def check_ui_fixture() -> tuple[bool, str] | tuple[None, str]:
+    """Bo du lieu mau cua frontend co phan anh dung do thua cua du lieu that khong.
+
+    VI SAO: fixture giau hon du lieu that -> giao dien dep luc demo roi vo khi cam API
+    that. Loi NAY DA XAY RA (fixture dau tien co 54% quan kem anh, thuc te 21.5%).
+    """
+    fixture = ROOT / "frontend" / "fixtures" / "restaurants.json"
+    if not fixture.exists():
+        return None, "chua co bo mau - chay: python scripts/make_fixture.py"
+
+    code, out = run([sys.executable, str(ROOT / "scripts" / "verify_ui_data.py")])
+    if code == 0:
+        lines = [ln for ln in out.splitlines() if "Doc duoc" in ln or "ty le" in ln.lower()]
+        return True, lines[0].strip() if lines else "bo mau dat"
+    problems = [ln.strip() for ln in out.splitlines() if ln.strip().startswith("- ")]
+    return False, "\n        ".join(problems[:4]) or out.strip()[-300:]
+
+
 CHECKS = [
     ("1. App FastAPI dung duoc", check_app_boots),
     ("2. Test", check_tests),
@@ -248,6 +267,7 @@ CHECKS = [
     ("6. Frontend test", check_frontend_tests),
     ("7. Frontend FSD", check_frontend_architecture),
     ("8. CI cai dat duoc", check_ci_installable),
+    ("9. Bo du lieu mau frontend", check_ui_fixture),
 ]
 
 

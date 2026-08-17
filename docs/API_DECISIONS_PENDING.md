@@ -120,3 +120,141 @@ làm xong endpoint thì trang thống kê vẫn trống.
 
 **Thứ tự đúng:** thêm nút phản hồi vào giao diện → có người dùng thật → có dữ liệu →
 lúc đó mới làm trang thống kê.
+
+---
+
+## 5. 🔴 TÀI KHOẢN NGƯỜI DÙNG + PHÂN QUYỀN — mở rộng phạm vi
+
+**Quyết định của chủ dự án 2026-08-17:** người dùng và admin **đều phải đăng nhập**, để
+có phân quyền rõ ràng và cá nhân hoá.
+
+**Trạng thái:** 🔴 chưa code. Cần chốt hợp đồng trước.
+
+### 5.1. ⚠️ Việc này MÂU THUẪN với tài liệu gốc — phải sửa tài liệu
+
+| Nguồn | Đang ghi |
+|---|---|
+| `rules/api.md:19` | *"**Không xác thực người dùng (Auth):** Không áp dụng hệ thống tài khoản cá nhân đăng nhập ở Giai đoạn MVP"* |
+| `PROJECT_CHECKLIST.md:36` | `Đăng nhập / tài khoản · ⬜ Ngoài phạm vi · SRS mục 8, Won't-have` |
+
+Nếu làm mà **không sửa hai chỗ này**, dự án sẽ có tài liệu nói một đằng, sản phẩm chạy một
+nẻo — đúng bệnh mà `CLAUDE.md` mục 0 cảnh báo. Hội đồng đọc SRS thấy "Won't-have" rồi mở
+app thấy có đăng nhập sẽ hỏi ngay.
+
+**➜ Phải cập nhật SRS/`rules/api.md` cùng lúc với việc code, không phải sau.**
+
+### 5.2. Hiện trạng: KHÔNG có gì cho người dùng
+
+Đếm trong `src/`: **0** file có `class User`, `user_id`, `role`, hay `UserRepository`.
+Tương tác hiện gắn với `session_id` (UUID client tự sinh), không gắn với người nào.
+
+Nghĩa là đây là xây mới hoàn toàn, không phải mở rộng cái có sẵn.
+
+### 5.3. Ba chốt chặn phải quyết TRƯỚC khi code
+
+#### ⛔ A. Không gửi được email
+
+`requirements.txt` không có thư viện email nào, và chủ dự án **không có thẻ thanh toán**
+để dùng dịch vụ gửi mail. Hệ quả trực tiếp:
+
+| Tính năng chuẩn | Làm được không |
+|---|---|
+| Xác thực email khi đăng ký | ❌ không |
+| Quên mật khẩu qua email | ❌ không |
+| Đăng nhập bằng magic link | ❌ không |
+
+**Phương án thay thế (cần chọn):**
+1. Đăng ký bằng **tên đăng nhập + mật khẩu**, không cần email, không xác thực
+2. Có nhập email nhưng **không xác thực** (chỉ để hiển thị)
+3. Quên mật khẩu → **admin đặt lại thủ công** qua trang quản trị
+
+#### ⛔ B. Bảo mật phải nâng cấp trước, không phải sau
+
+Audit ngày 2026-08-17 tìm thấy 5 lỗ hổng **khi mới chỉ có 1 tài khoản admin**. Mở đăng ký
+công khai thì mức độ nghiêm trọng tăng hẳn:
+
+| Lỗ hổng | Hiện tại | Khi có đăng ký công khai |
+|---|---|---|
+| Không giới hạn đăng nhập sai | Cao | **Nghiêm trọng** — dò mật khẩu hàng loạt |
+| Không giới hạn đăng ký | — | **Nghiêm trọng mới** — bot tạo tài khoản vô hạn |
+| Không thu hồi token khi đăng xuất | Trung bình | **Cao** — token của người dùng thật |
+| CORS `*` + `credentials: true` | Trung bình | **Cao** |
+| PBKDF2 600k vòng | ~0.4s, chấp nhận được với 1 tài khoản | **Tốn CPU** khi nhiều người đăng nhập cùng lúc |
+
+**➜ Rate limiting trở thành BẮT BUỘC, không còn là "nên có".**
+
+#### ⛔ C. `build_sqlite.py` sẽ XOÁ SẠCH người dùng
+
+Script đang chạy `DELETE FROM restaurants` rồi ghi lại từ CSV. Nếu bảng `users` nằm cùng
+CSDL mà không xử lý, thì **mỗi lần chạy lại pipeline là mất toàn bộ tài khoản**.
+
+Đây đúng vấn đề đã gặp ở mục 2 (`origin` cho quán thêm tay), nhưng hậu quả nặng hơn nhiều.
+
+### 5.4. Phân quyền — hai vai, không cần RBAC đầy đủ
+
+**Quyết định 2026-08-17: KHÁCH PHẢI ĐĂNG NHẬP.** Không có chế độ dùng thử.
+
+| Hành động | Chưa đăng nhập | `user` | `admin` |
+|---|---|---|---|
+| Tìm quán, xem bản đồ | ❌ **bị chặn** | ✅ | ✅ |
+| Xem chi tiết quán | ❌ **bị chặn** | ✅ | ✅ |
+| Lưu quán / thích / không thích | ❌ | ✅ | ✅ |
+| Xem lịch sử, gợi ý cá nhân hoá | ❌ | ✅ | ✅ |
+| Sửa / ẩn quán | ❌ | ❌ | ✅ |
+| Xem thống kê, chất lượng dữ liệu | ❌ | ❌ | ✅ |
+
+Chỉ **2 vai** nên dùng cột `role` đơn giản (`"user"` / `"admin"`), **không** cần bảng
+permission hay hệ RBAC đầy đủ — thêm vào chỉ tốn công mà không dùng tới.
+
+### 5.5. Hợp đồng API dự kiến *(ĐỀ XUẤT, chưa chốt)*
+
+```
+POST   /api/v1/auth/register     {username, password, display_name}  -> 201 {token}
+POST   /api/v1/auth/login        {username, password}                -> 200 {token, role}
+POST   /api/v1/auth/logout                                            -> 204
+GET    /api/v1/auth/me                                                -> {user_id, username, role}
+GET    /api/v1/me/favorites                                           -> danh sách quán đã lưu
+POST   /api/v1/me/favorites      {restaurant_id}                      -> 201
+DELETE /api/v1/me/favorites/{id}                                      -> 204
+GET    /api/v1/me/history                                             -> lịch sử xem
+```
+
+**Ảnh hưởng tới thứ đang chạy:**
+
+| Chỗ bị ảnh hưởng | Thay đổi |
+|---|---|
+| `POST /interactions` | thêm `user_id`; giữ `session_id` cho khách |
+| Đăng nhập admin | tài khoản admin thành **một dòng trong bảng `users`** với `role="admin"`, thay cho biến môi trường |
+| `Favorites` ở client | chuyển từ `localStorage` sang **server** — đổi máy vẫn còn |
+| `interactions.jsonl` | thêm cột `user_id` |
+| Bảng mới | `users` (id, username, password_hash, display_name, role, created_at) |
+
+### 5.6. ✅ ĐÃ CHỐT: khách phải đăng nhập
+
+Mọi màn hình của app người dùng đều nằm sau `RequireAuth`. Chưa đăng nhập → đá về `/login`.
+
+**Hệ quả tới thiết kế — phải xử lý ngay từ đầu:**
+
+| Việc | Chi tiết |
+|---|---|
+| Màn hình đầu tiên | `/login`, không phải trang tìm kiếm |
+| Route map client | giống admin: `AuthLayout` (login/register) + `AppLayout` (sau đăng nhập) |
+| Lúc demo bảo vệ | **phải có sẵn tài khoản demo** — không ai muốn xem thầy/cô gõ mật khẩu |
+| Token hết hạn giữa chừng | đang tìm kiếm mà 401 → về login, **giữ lại câu đang gõ** để quay lại không mất |
+| Trang chia sẻ được | link tới quán vẫn cần đăng nhập → sau khi đăng nhập phải **quay đúng link đó** |
+
+⚠️ **Rủi ro cần biết:** bắt đăng nhập ngay làm rào cản cao nhất, và lúc bảo vệ thì màn
+hình đầu tiên hội đồng nhìn thấy là form đăng nhập chứ không phải sản phẩm. Cách giảm
+thiểu: chuẩn bị sẵn tài khoản demo và đăng nhập trước khi trình bày.
+
+### 5.7. Thứ tự triển khai đề xuất
+
+1. Chốt câu hỏi 5.6 + phương án email ở 5.3.A
+2. Sửa `rules/api.md` và `PROJECT_CHECKLIST.md` — bỏ "Won't-have"
+3. **Backend trước:** bảng `users`, đăng ký/đăng nhập, `role`, rate limiting, sửa `build_sqlite`
+4. Chuyển admin sang dùng bảng `users`
+5. Gắn `user_id` vào interaction + favorites
+6. **Sau đó mới** thiết kế UI Login/Register/Profile
+
+> Làm ngược thứ tự này là lặp lại đúng lỗi đã audit: vẽ giao diện trước rồi phát hiện
+> backend không hỗ trợ.

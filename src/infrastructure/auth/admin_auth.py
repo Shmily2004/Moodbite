@@ -15,58 +15,26 @@ quản trị thành công khai.
 """
 from __future__ import annotations
 
-import base64
-import hashlib
 import hmac
-import json
 import logging
-import secrets
-import time
 from typing import Optional
 
 from src.application.errors import AdminNotConfiguredError, InvalidCredentialsError
+from src.infrastructure.auth.crypto import (
+    TokenInvalid,
+    hash_password,
+    sign_token,
+    verify_password,
+    verify_token,
+)
 
 logger = logging.getLogger("moodbite.auth")
 
-# 600k vòng PBKDF2-SHA256: mức OWASP khuyến nghị cho SHA-256 (2023). Đủ chậm để dò mật
-# khẩu tốn kém, vẫn dưới ~0.5s trên máy thường nên đăng nhập không bị ì.
-PBKDF2_ITERATIONS = 600_000
-_HASH_PREFIX = "pbkdf2_sha256"
-
+# Băm mật khẩu và ký token nay nằm ở `crypto.py` — NƠI DUY NHẤT làm hai việc đó.
+# Trước đây code nằm ngay file này; khi người dùng cũng cần đăng nhập, để nguyên sẽ thành
+# hai bản băm mật khẩu song song. Re-export để `scripts/make_admin_password.py` và các
+# import cũ không vỡ.
 DEFAULT_TOKEN_TTL_SECONDS = 3600  # 1 giờ - "ngắn hạn" theo PROJECT_CHECKLIST
-
-
-def hash_password(password: str, *, salt: Optional[bytes] = None) -> str:
-    """Sinh chuỗi hash để đặt vào biến môi trường MOODBITE_ADMIN_PASSWORD_HASH."""
-    salt = salt or secrets.token_bytes(16)
-    digest = hashlib.pbkdf2_hmac(
-        "sha256", password.encode("utf-8"), salt, PBKDF2_ITERATIONS
-    )
-    return f"{_HASH_PREFIX}${PBKDF2_ITERATIONS}${salt.hex()}${digest.hex()}"
-
-
-def verify_password(password: str, stored: str) -> bool:
-    """So khớp mật khẩu. Chuỗi hash sai định dạng -> False, KHÔNG ném lỗi."""
-    try:
-        prefix, iterations, salt_hex, digest_hex = stored.split("$")
-        if prefix != _HASH_PREFIX:
-            return False
-        digest = hashlib.pbkdf2_hmac(
-            "sha256", password.encode("utf-8"), bytes.fromhex(salt_hex), int(iterations)
-        )
-    except (ValueError, TypeError):
-        return False
-    # compare_digest: so sánh trong thời gian hằng định, không rò rỉ thông tin qua
-    # thời gian phản hồi.
-    return hmac.compare_digest(digest.hex(), digest_hex)
-
-
-def _b64encode(raw: bytes) -> str:
-    return base64.urlsafe_b64encode(raw).decode("ascii").rstrip("=")
-
-
-def _b64decode(text: str) -> bytes:
-    return base64.urlsafe_b64decode(text + "=" * (-len(text) % 4))
 
 
 class AdminAuthService:
@@ -108,33 +76,16 @@ class AdminAuthService:
         return self._issue_token(self.username)
 
     def _issue_token(self, subject: str) -> str:
-        payload = {"sub": subject, "exp": int(time.time()) + self.token_ttl_seconds}
-        body = _b64encode(json.dumps(payload, separators=(",", ":")).encode("utf-8"))
-        return f"{body}.{self._sign(body)}"
-
-    def _sign(self, body: str) -> str:
-        return _b64encode(hmac.new(self._secret, body.encode("ascii"), hashlib.sha256).digest())
+        return sign_token({"sub": subject, "role": "admin"}, self._secret,
+                          self.token_ttl_seconds)
 
     def verify(self, token: str) -> str:
         """Trả về tên tài khoản nếu token hợp lệ, ngược lại ném InvalidCredentialsError."""
         self.ensure_configured()
         try:
-            body, signature = (token or "").split(".")
-        except ValueError:
-            raise InvalidCredentialsError("Token không hợp lệ.")
-
-        # Kiểm CHỮ KÝ TRƯỚC khi đọc nội dung: chưa xác thực thì payload là dữ liệu do
-        # kẻ tấn công kiểm soát, không được tin.
-        if not hmac.compare_digest(signature, self._sign(body)):
-            raise InvalidCredentialsError("Token không hợp lệ.")
-
-        try:
-            payload = json.loads(_b64decode(body))
-        except (ValueError, TypeError):
-            raise InvalidCredentialsError("Token không hợp lệ.")
-
-        if int(payload.get("exp", 0)) < time.time():
-            raise InvalidCredentialsError("Token đã hết hạn, hãy đăng nhập lại.")
+            payload = verify_token(token, self._secret)
+        except TokenInvalid as exc:
+            raise InvalidCredentialsError(str(exc))
         return str(payload.get("sub", ""))
 
     def status(self) -> dict:

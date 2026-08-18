@@ -25,7 +25,12 @@ from src.application.use_cases.manage_account import (
     LoginUseCase,
     RegisterUserUseCase,
 )
+from src.application.use_cases.find_restaurants_for_dish import (
+    FindRestaurantsForDishUseCase,
+)
 from src.application.use_cases.search_restaurants import SearchRestaurantsUseCase
+from src.application.use_cases.suggest_dishes import SuggestDishesUseCase
+from src.domain.services.dish_matching import build_dish_restaurant_index
 from src.application.errors import (
     DataNotReadyError,
     InvalidCredentialsError,
@@ -51,6 +56,9 @@ from src.infrastructure.adapters.open_meteo_context_provider import (
 from src.infrastructure.config.settings import Settings
 from src.infrastructure.repositories.csv_restaurant_repository import (
     CsvRestaurantRepository,
+)
+from src.infrastructure.repositories.json_dish_catalog_repository import (
+    JsonDishCatalogRepository,
 )
 from src.infrastructure.repositories.json_dish_knowledge_repository import (
     JsonDishKnowledgeRepository,
@@ -82,6 +90,7 @@ class Container:
     restaurant_repository: object
     details_repository: object
     dish_knowledge_repository: object
+    dish_catalog_repository: object
     interaction_repository: object
     rule_predictor: object
     context_provider: object
@@ -89,6 +98,9 @@ class Container:
     search_restaurants: SearchRestaurantsUseCase
     get_restaurant_details: GetRestaurantDetailsUseCase
     log_interaction: LogInteractionUseCase
+    # --- Luồng "chọn món trước, tìm quán sau" ---------------------------------
+    suggest_dishes: SuggestDishesUseCase
+    find_restaurants_for_dish: FindRestaurantsForDishUseCase
     # --- Quản trị ------------------------------------------------------------
     # `None` khi kho lưu trữ không ghi được (CSV). Router admin phải kiểm và trả 503,
     # KHÔNG được để nổ AttributeError.
@@ -117,6 +129,7 @@ class Container:
             "restaurants": _status_of(self.restaurant_repository),
             "restaurant_details": _status_of(self.details_repository),
             "dish_knowledge": _status_of(self.dish_knowledge_repository),
+            "dish_catalog": _status_of(self.dish_catalog_repository),
             "interactions": _status_of(self.interaction_repository),
             "ml_rule_predictor": _status_of(self.rule_predictor),
             "context_provider": _status_of(self.context_provider),
@@ -166,6 +179,20 @@ def build_container(settings: Optional[Settings] = None) -> Container:
         )
     dish_knowledge_repository = JsonDishKnowledgeRepository(
         settings.dish_knowledge_json
+    )
+    dish_catalog_repository = JsonDishCatalogRepository(settings.dish_catalog_json)
+
+    # Chỉ mục món -> quán dựng MỘT LẦN lúc khởi động (đo được: 0.05 giây cho 79 món x
+    # 4938 quán). Dựng lại ở mỗi yêu cầu mất ~11 giây - xem `domain/services/dish_matching.py`.
+    #
+    # Danh mục món hoặc kho quán chưa sẵn sàng -> chỉ mục RỖNG chứ không nổ. Endpoint món
+    # sẽ tự trả 503 kèm hướng dẫn, các endpoint khác vẫn chạy bình thường.
+    dish_restaurant_index = (
+        build_dish_restaurant_index(
+            dish_catalog_repository.list_dishes(), restaurant_repository.list_all()
+        )
+        if dish_catalog_repository.is_ready and restaurant_repository.is_ready
+        else {}
     )
     interaction_repository = JsonlInteractionRepository(settings.interactions_path)
     rule_predictor = MlRulePredictor(
@@ -220,6 +247,7 @@ def build_container(settings: Optional[Settings] = None) -> Container:
         restaurant_repository=restaurant_repository,
         details_repository=details_repository,
         dish_knowledge_repository=dish_knowledge_repository,
+        dish_catalog_repository=dish_catalog_repository,
         interaction_repository=interaction_repository,
         rule_predictor=rule_predictor,
         context_provider=context_provider,
@@ -237,6 +265,16 @@ def build_container(settings: Optional[Settings] = None) -> Container:
         log_interaction=LogInteractionUseCase(
             interactions=interaction_repository,
             restaurants=restaurant_repository,
+        ),
+        suggest_dishes=SuggestDishesUseCase(
+            catalog=dish_catalog_repository,
+            dish_restaurant_index=dish_restaurant_index,
+            context_provider=context_provider,
+        ),
+        find_restaurants_for_dish=FindRestaurantsForDishUseCase(
+            catalog=dish_catalog_repository,
+            dish_restaurant_index=dish_restaurant_index,
+            context_provider=context_provider,
         ),
         users=users,
         user_tokens=user_tokens,
@@ -259,6 +297,18 @@ def get_search_restaurants(
     container: Container = Depends(get_container),
 ) -> SearchRestaurantsUseCase:
     return container.search_restaurants
+
+
+def get_suggest_dishes(
+    container: Container = Depends(get_container),
+) -> SuggestDishesUseCase:
+    return container.suggest_dishes
+
+
+def get_find_restaurants_for_dish(
+    container: Container = Depends(get_container),
+) -> FindRestaurantsForDishUseCase:
+    return container.find_restaurants_for_dish
 
 
 def get_restaurant_details_use_case(

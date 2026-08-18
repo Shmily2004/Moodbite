@@ -13,6 +13,7 @@
 export type ApiErrorCode =
   | 'INVALID_REQUEST'
   | 'RESTAURANT_NOT_FOUND'
+  | 'DISH_NOT_FOUND'
   | 'SEARCH_RESULT_ITEM_NOT_FOUND'
   | 'RATE_LIMITED'
   | 'EXTERNAL_SERVICE_UNAVAILABLE'
@@ -39,6 +40,10 @@ export class ApiError extends Error {
         return 'Server chưa nạp xong dữ liệu quán ăn. Hãy thử lại sau.';
       case 'RESTAURANT_NOT_FOUND':
         return 'Không tìm thấy quán này.';
+      case 'DISH_NOT_FOUND':
+        // Khác RESTAURANT_NOT_FOUND: người dùng cần quay về trang chủ chọn món khác,
+        // chứ không phải chọn quán khác trong cùng trang.
+        return 'Món này không còn trong danh mục. Hãy chọn món khác.';
       case 'EXTERNAL_SERVICE_UNAVAILABLE':
         return 'Dịch vụ bên ngoài đang lỗi. Kết quả có thể thiếu thông tin.';
       case 'RATE_LIMITED':

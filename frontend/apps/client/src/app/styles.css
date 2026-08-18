@@ -547,3 +547,166 @@ body {
 .plain { max-width: 620px; margin: 0 auto; padding: 56px 20px; }
 .plain h2 { font-size: var(--step-2); margin: 0 0 6px; }
 .plain a { color: var(--accent); }
+
+/* =========================================================================
+   LUỒNG "CHỌN MÓN TRƯỚC, TÌM QUÁN SAU"  (chốt 2026-08-18)
+
+   Trang chủ giờ là LƯỚI MÓN, không phải bản đồ. Lý do: ở bước này người dùng
+   chưa chọn món nên chưa có gì để đặt lên bản đồ. Bản đồ quay lại ở trang chi
+   tiết món, khi đã có một tập quán cụ thể.
+
+   Dùng lại toàn bộ token màu/bóng ở đầu file - không đặt màu mới, để hai luồng
+   trông như một sản phẩm chứ không phải hai app dán cạnh nhau.
+   ========================================================================= */
+
+/* --- Trang chủ: khung ------------------------------------------------------ */
+
+.topbar--home { flex-direction: column; align-items: flex-start; gap: 4px; }
+.topbar__tagline { margin: 0; font-size: var(--step--1); color: var(--ink-soft); }
+
+.topbar--dish { gap: 10px; }
+
+/* Trang chủ và trang món CUỘN DỌC bình thường, khác layout bản đồ tràn màn hình
+   của trang tìm kiếm cũ (`.shell` mặc định khoá overflow). */
+.shell:has(.results-pane),
+.shell:has(.dish-detail),
+.shell:has(.dish-restaurants) {
+  height: auto;
+  min-height: 100dvh;
+  grid-template-rows: auto auto 1fr;
+  overflow: visible;
+}
+
+/* --- Hàng bộ lọc ----------------------------------------------------------- */
+
+.filters {
+  padding: 10px 16px 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--rule);
+  display: flex; flex-direction: column; gap: 8px;
+}
+
+.filters__row { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+
+.filters__label {
+  flex: none;
+  min-width: 108px;
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--muted);
+}
+
+/* Bộ lọc XUỐNG DÒNG thay vì cuộn ngang như `.chips` gốc: ở đây người dùng cần
+   thấy HẾT lựa chọn để quyết định, còn hàng chip cũ chỉ là lối tắt phụ. */
+.filters .chips {
+  flex-wrap: wrap;
+  overflow-x: visible;
+  margin-top: 0;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+.filters__foot {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+  padding-top: 4px;
+  font-size: var(--step--1); color: var(--ink-soft);
+}
+.filters__radius select { font: inherit; margin-left: 4px; }
+
+/* --- Lưới món -------------------------------------------------------------- */
+
+.results-pane { padding: 12px 16px 32px; overflow-y: auto; }
+.results-pane__count {
+  margin: 4px 0 10px;
+  font-size: var(--step--1); font-weight: 600; color: var(--ink-soft);
+}
+
+.dishes {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}
+
+.dish {
+  display: grid; grid-template-columns: 84px 1fr; gap: 12px;
+  height: 100%;
+  padding: 10px;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+}
+.dish:hover { border-color: var(--accent); box-shadow: var(--shadow-md); }
+
+/* Món không có quán nào gần: chỉ gặp khi mở từ liên kết chia sẻ (trang chủ đã ẩn).
+   Làm mờ để nói rõ đây là ngõ cụt, nhưng KHÔNG khoá - người dùng vẫn có quyền xem. */
+.dish--empty { opacity: .62; }
+
+.dish__thumb {
+  width: 84px; height: 84px;
+  object-fit: cover;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+}
+/* Món chưa có ảnh (ảnh lấy từ Wikipedia, không phải món nào cũng có bài) - hiện
+   chữ cái đầu trông CHỦ ĐÍCH, không để khung vỡ. */
+.dish__thumb--empty {
+  display: grid; place-items: center;
+  font-size: 30px; font-weight: 700;
+  color: var(--accent); background: var(--accent-soft);
+}
+
+.dish__body { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.dish__name { margin: 0; font-size: var(--step-0); font-weight: 700; color: var(--ink); }
+
+.dish__count { margin: 0; font-size: var(--step--1); color: var(--open); font-weight: 600; }
+.dish__count--empty { color: var(--muted); font-weight: 400; }
+
+.dish__tags { list-style: none; display: flex; flex-wrap: wrap; gap: 4px; margin: 2px 0 0; padding: 0; }
+.dish__why { margin: 2px 0 0; font-size: var(--step--1); color: var(--muted); }
+
+.dish--skeleton { cursor: default; }
+
+/* --- Trang chi tiết món ----------------------------------------------------- */
+
+.dish-detail {
+  display: grid; gap: 16px;
+  padding: 16px;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 800px) { .dish-detail { grid-template-columns: 280px 1fr; } }
+
+.dish-detail__image {
+  width: 100%; max-height: 260px; object-fit: cover;
+  border-radius: var(--r-md); box-shadow: var(--shadow-sm);
+}
+.dish-detail__name { margin: 0 0 8px; font-size: var(--step-2); color: var(--ink); }
+.dish-detail__desc { margin: 8px 0; color: var(--ink-soft); }
+.dish-detail__heading {
+  margin: 14px 0 6px; font-size: var(--step-0); font-weight: 700; color: var(--ink);
+}
+.dish-detail__source { margin-top: 10px; }
+
+.ingredients {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.ingredients__item {
+  padding: 5px 11px;
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+  background: var(--surface-2);
+  border-radius: var(--r-pill);
+}
+
+.dish-restaurants { padding: 0 16px 32px; }
+.dish-restaurants__body { display: grid; gap: 12px; }
+@media (min-width: 900px) {
+  .dish-restaurants__body { grid-template-columns: 1fr var(--rail-w); align-items: start; }
+  .dish-restaurants__body .map-pane { height: 420px; border-radius: var(--r-md); overflow: hidden; }
+}
+@media (max-width: 899px) {
+  .dish-restaurants__body .map-pane { height: 240px; border-radius: var(--r-md); overflow: hidden; }
+}

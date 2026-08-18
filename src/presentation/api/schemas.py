@@ -12,6 +12,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
+from src.domain.entities.dish import COOKING_METHODS, MEAL_TIMES
 from src.domain.entities.interaction import ActionType
 from src.domain.entities.user import (
     MAX_PASSWORD_LENGTH,
@@ -116,6 +117,89 @@ class SearchResponseData(BaseModel):
     context: List[str] = []
     # Điều server KHÔNG làm được với request này - hiện lên UI thay vì im lặng bỏ qua.
     warnings: List[str] = []
+
+
+# --- POST /api/v1/dishes/suggest ---------------------------------------------
+#
+# Bước 1 của luồng "chọn món trước, tìm quán sau". Trả về DANH SÁCH MÓN, không phải quán.
+
+
+class DishSuggestRequest(BaseModel):
+    session_id: str = Field(..., description="Giống SearchRequest - định danh một LƯỢT DÙNG.")
+    latitude: float = Field(default=HANOI_CENTER_LAT, ge=-90, le=90)
+    longitude: float = Field(default=HANOI_CENTER_LNG, ge=-180, le=180)
+    cooking_methods: List[str] = Field(
+        default_factory=list,
+        description=f"Cách chế biến. Hợp lệ: {list(COOKING_METHODS)}. "
+                    "Món CHƯA khai cách chế biến vẫn được giữ (chưa biết ≠ không phải).",
+    )
+    temperatures: List[str] = Field(
+        default_factory=list, description='"hot" | "cold" | "room".'
+    )
+    cuisines: List[str] = Field(
+        default_factory=list, description='VD ["Việt Nam", "Nhật Bản"].'
+    )
+    meal_times: List[str] = Field(
+        default_factory=list, description=f"Hợp lệ: {list(MEAL_TIMES)}."
+    )
+    max_spice_level: Optional[int] = Field(
+        default=None, ge=0, le=5, description="Mức cay TỐI ĐA chấp nhận được."
+    )
+    mood: Optional[str] = Field(
+        default=None, description=f"Hợp lệ: {list(SUPPORTED_MOODS)}"
+    )
+    weather: Optional[str] = Field(
+        default=None,
+        description='Người dùng TỰ khai ("rain"|"clear"|"cloudy"), ghi đè số đo tự động. '
+                    "Người đang đứng ngoài đường biết rõ hơn API thời tiết.",
+    )
+    max_distance_km: Optional[float] = Field(
+        default=DEFAULT_MAX_DISTANCE_KM, gt=0, le=100,
+        description="null = tắt lọc khoảng cách. Ảnh hưởng tới `restaurant_count`.",
+    )
+    limit: int = Field(default=20, ge=1, le=100)
+
+
+class DishItemSchema(BaseModel):
+    dish_id: str
+    name: str
+    cuisine: Optional[str] = None
+    spice_level: Optional[int] = None
+    temperature: Optional[str] = None
+    cooking_method: Optional[str] = None
+    meal_times: List[str] = []
+    # Thành phần cơ bản - thứ hiện ở TRANG CHI TIẾT MÓN.
+    ingredients: List[str] = []
+    # Tách riêng để UI KHÔNG phải đoán: rỗng nghĩa là chưa tra được nguồn nào, không phải
+    # "món này không có nguyên liệu". UI phải hiện "chưa có dữ liệu thành phần".
+    has_ingredients: bool = False
+    description: Optional[str] = None
+    image_url: Optional[str] = None
+    # ĐO ĐƯỢC trong bán kính đã chọn, không phải ước lượng.
+    restaurant_count: int
+    rank_position: int
+    score: float
+    reasons: List[str] = []
+    # Xuất xứ dữ liệu thành phần: "manual" | "wikipedia_vi" | "seed_kb" | "admin".
+    # Hiện ra để người đọc biết con số/nguyên liệu này ở đâu ra (CLAUDE.md mục 4b).
+    source: Optional[str] = None
+    source_url: Optional[str] = None
+    data_confidence: Optional[str] = None
+
+
+class DishSuggestResponseData(BaseModel):
+    search_query_id: str
+    results: List[DishItemSchema]
+    context: List[str] = []
+    warnings: List[str] = []
+
+
+class DishSuggestResponse(BaseModel):
+    data: DishSuggestResponseData
+
+
+class DishDetailResponse(BaseModel):
+    data: DishItemSchema
 
 
 # --- GET /api/v1/restaurants/{id} --------------------------------------------

@@ -17,4 +17,7 @@ export type {
   RestaurantDetailData,
   SuggestedDish,
   ActionType,
+  DishItem,
+  DishSuggestRequest,
+  DishSuggestResponseData,
 } from '@moodbite/api-client';

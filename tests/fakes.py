@@ -170,6 +170,61 @@ def attach_disabled_auth(container):
     return container
 
 
+class FakeDishCatalog:
+    """Danh mục món GIẢ. Mặc định rỗng nhưng SẴN SÀNG.
+
+    Rỗng-mà-sẵn-sàng khác hẳn chưa-sẵn-sàng: bộ test luồng tìm quán không quan tâm tới
+    món, nhưng `/health` vẫn phải báo được trạng thái, và endpoint món phải trả danh sách
+    rỗng chứ không phải 503.
+    """
+
+    def __init__(self, dishes=None, ready=True):
+        self._dishes = list(dishes or [])
+        self._ready = ready
+
+    @property
+    def is_ready(self):
+        return self._ready
+
+    def list_dishes(self):
+        return list(self._dishes)
+
+    def get_dish(self, dish_id):
+        return next((d for d in self._dishes if d.identifier == dish_id), None)
+
+    def status(self):
+        return {"ready": self._ready, "dishes": len(self._dishes)}
+
+
+def attach_dish_catalog(container, dishes=None, index=None, context_provider=None):
+    """Gắn phần MÓN ĂN vào một container test.
+
+    Cùng lý do tồn tại với `attach_disabled_auth`: container test dựng bằng
+    `Container.__new__` nên không tự có trường mới. Gắn tường minh để việc quên lắp dây
+    biến thành lỗi ồn ào, thay vì `getattr(..., None)` im lặng nuốt mất.
+    """
+    from src.application.use_cases.find_restaurants_for_dish import (
+        FindRestaurantsForDishUseCase,
+    )
+    from src.application.use_cases.suggest_dishes import SuggestDishesUseCase
+
+    catalog = dishes if hasattr(dishes, "list_dishes") else FakeDishCatalog(dishes)
+    dish_index = index if index is not None else {}
+
+    container.dish_catalog_repository = catalog
+    container.suggest_dishes = SuggestDishesUseCase(
+        catalog=catalog,
+        dish_restaurant_index=dish_index,
+        context_provider=context_provider,
+    )
+    container.find_restaurants_for_dish = FindRestaurantsForDishUseCase(
+        catalog=catalog,
+        dish_restaurant_index=dish_index,
+        context_provider=context_provider,
+    )
+    return container
+
+
 PHO_RULE = DishRule(
     id="pho",
     confidence="specific",

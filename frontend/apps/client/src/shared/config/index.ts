@@ -1,1 +1,2 @@
 export { API_BASE, HANOI_CENTER, DEFAULT_SEARCH_LIMIT, DEFAULT_RADIUS_KM } from './env';
+export { ROUTES, dishRoute } from './routes';

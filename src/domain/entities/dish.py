@@ -7,7 +7,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import List, Optional
 
-from src.domain.value_objects.text import contains_phrase
+from src.domain.value_objects.text import contains_phrase, normalize
 
 # Mức độ tin cậy của việc suy luận "quán này bán món gì".
 # Đây là suy luận HEURISTIC từ categoryName, KHÔNG phải menu thật của quán.
@@ -16,9 +16,69 @@ CONFIDENCE_GENERIC = "generic_fallback"   # suy luận rộng từ nhóm chung: 
 CONFIDENCE_UNKNOWN = "unknown"            # không khớp rule nào
 CONFIDENCE_ML = "ml"                      # rule do model ML gán
 
+# CÁCH CHẾ BIẾN. Đây là thứ bộ lọc "đồ nướng" thực sự cần: trước đây chỉ có
+# `temperature` (hot/cold) nên không có cách nào phân biệt "phở nóng" với "thịt nướng" -
+# cả hai đều hot. Danh sách đóng, vì để tự do nhập chữ thì "nướng"/"Nướng"/"nuong" sẽ
+# thành 3 giá trị khác nhau và bộ lọc trượt hết.
+METHOD_GRILLED = "nuong"     # nướng, quay
+METHOD_FRIED = "chien"       # chiên, rán
+METHOD_BOILED = "luoc"       # luộc, chần
+METHOD_STEAMED = "hap"       # hấp, đồ
+METHOD_STIR_FRIED = "xao"    # xào, rang
+METHOD_SOUP = "nuoc"         # món nước: phở, bún, miến, lẩu
+METHOD_RAW = "song"          # gỏi, sashimi, salad
+METHOD_MIXED = "tron"        # trộn, nộm
+METHOD_BAKED = "nuong_lo"    # bánh nướng lò: pizza, bánh mì
+
+COOKING_METHODS: tuple[str, ...] = (
+    METHOD_GRILLED, METHOD_FRIED, METHOD_BOILED, METHOD_STEAMED,
+    METHOD_STIR_FRIED, METHOD_SOUP, METHOD_RAW, METHOD_MIXED, METHOD_BAKED,
+)
+
+# Bữa trong ngày. Dùng để khớp với ngữ cảnh giờ (ContextSignal.meal_time).
+MEAL_BREAKFAST = "sang"
+MEAL_LUNCH = "trua"
+MEAL_DINNER = "toi"
+MEAL_LATE_NIGHT = "khuya"
+MEAL_SNACK = "an_vat"
+
+MEAL_TIMES: tuple[str, ...] = (
+    MEAL_BREAKFAST, MEAL_LUNCH, MEAL_DINNER, MEAL_LATE_NIGHT, MEAL_SNACK,
+)
+
+# Nguồn gốc dữ liệu THÀNH PHẦN món (CLAUDE.md mục 4b: mọi bản ghi phải truy được nguồn).
+DISH_SOURCE_WIKIPEDIA = "wikipedia_vi"
+DISH_SOURCE_MANUAL = "manual"
+DISH_SOURCE_SEED = "seed_kb"      # sinh từ dish_knowledge_base.json có sẵn
+DISH_SOURCE_ADMIN = "admin"       # admin tự thêm qua trang quản trị
+
+
+def slugify_dish(name: str) -> str:
+    """'Phở Bò' -> 'pho-bo'. Dùng làm `dish_id` ổn định trên URL.
+
+    Bỏ dấu trước khi tạo slug: id có dấu sẽ bị mã hoá phần trăm trên URL
+    (`ph%E1%BB%9F-b%C3%B2`), vừa xấu vừa khó đối chiếu khi đọc log.
+    """
+    cleaned = "".join(c if c.isalnum() else " " for c in normalize(name))
+    return "-".join(cleaned.split())
+
 
 @dataclass(frozen=True)
 class Dish:
+    """Một MÓN ĂN.
+
+    Trước đây món chỉ là nhãn gắn kèm quán (`suggested_dish`). Nay món là thực thể có
+    trang riêng - người dùng chọn món TRƯỚC rồi mới tìm quán - nên cần đủ thông tin để
+    (a) lọc được, (b) hiển thị được thành phần, (c) tìm ngược ra quán.
+
+    MỌI FIELD MỚI ĐỀU CÓ MẶC ĐỊNH: `dish_knowledge_base.json` cũ chưa có các field này,
+    và món cũ vẫn phải dựng được như thường.
+
+    `None`/rỗng nghĩa là CHƯA CÓ DỮ LIỆU, không phải "không có" (CLAUDE.md mục 4 quy tắc 1).
+    Món chưa tra được thành phần thì `ingredients` rỗng và UI phải nói "chưa có dữ liệu",
+    tuyệt đối không hiện danh sách rỗng như thể món đó không cần nguyên liệu gì.
+    """
+
     name: str
     cuisine: Optional[str] = None
     spice_level: Optional[int] = None
@@ -26,8 +86,66 @@ class Dish:
     portion_size: Optional[str] = None
     mood_keywords: List[str] = field(default_factory=list)
 
+    # --- định danh ---
+    # Để trống thì suy từ `name`. Có field riêng vì admin cần sửa TÊN món mà không làm
+    # gãy URL/liên kết đã chia sẻ.
+    dish_id: Optional[str] = None
+
+    # --- thuộc tính lọc (Phase 1: thứ bộ lọc trang chủ dựa vào) ---
+    cooking_method: Optional[str] = None      # một trong COOKING_METHODS
+    meal_times: List[str] = field(default_factory=list)
+
+    # --- nội dung hiển thị ở TRANG CHI TIẾT MÓN ---
+    # Thành phần cơ bản. Thứ tự có nghĩa: nguyên liệu chính đứng trước.
+    ingredients: List[str] = field(default_factory=list)
+    description: Optional[str] = None
+    image_url: Optional[str] = None
+
+    # --- tìm ngược ra QUÁN ---
+    # Từ khoá dùng để khớp TÊN QUÁN. Rỗng -> suy từ `name` lúc khớp (xem
+    # `restaurant_match_keywords`). Tách riêng để admin thêm biến thể ("bún bò Huế" nên
+    # khớp cả quán chỉ ghi "bún bò").
+    match_keywords: List[str] = field(default_factory=list)
+
+    # --- xuất xứ dữ liệu (CLAUDE.md mục 4b) ---
+    source: Optional[str] = None
+    source_url: Optional[str] = None
+    last_updated: Optional[str] = None
+    data_confidence: Optional[str] = None
+
+    @property
+    def identifier(self) -> str:
+        """`dish_id` đã đặt, hoặc slug suy từ tên."""
+        return self.dish_id or slugify_dish(self.name)
+
+    @property
+    def restaurant_match_keywords(self) -> List[str]:
+        """Từ khoá dùng để tìm quán bán món này.
+
+        Mặc định là chính TÊN MÓN. Đo trên dataset thật: tên quán mang tín hiệu món gấp
+        ~10 lần `categoryName` (144 quán có "phở" trong tên, chỉ 14 quán có trong
+        category) - nên khớp tên món vào tên quán là đường đi chính, không phải phương án dự phòng.
+        """
+        return self.match_keywords or [self.name]
+
+    @property
+    def has_ingredients(self) -> bool:
+        """Có dữ liệu thành phần chưa. UI dùng để chọn giữa hiện danh sách và hiện
+        "chưa có dữ liệu" - KHÔNG được im lặng hiện danh sách rỗng."""
+        return bool(self.ingredients)
+
     def matches_any_mood_keyword(self, keywords: List[str]) -> bool:
         return any(k in self.mood_keywords for k in keywords)
+
+    def matches_restaurant_text(self, text: Optional[str]) -> bool:
+        """Tên/loại hình quán `text` có gợi ý quán này bán món đó không.
+
+        Dùng `contains_phrase` (khớp TỪ NGUYÊN VẸN sau khi bỏ dấu) chứ không phải `in`:
+        đây đúng là chỗ bug "oc khớp Ngọc" từng xảy ra - xem `value_objects/text.py`.
+        """
+        return any(
+            contains_phrase(text, keyword) for keyword in self.restaurant_match_keywords
+        )
 
 
 @dataclass(frozen=True)

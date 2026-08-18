@@ -36,6 +36,10 @@ class Settings:
     storage_backend: str
     restaurant_details_json: Path
     dish_knowledge_json: Path
+    # Danh mục MÓN ĂN cho luồng "chọn món trước, tìm quán sau".
+    # Sinh bởi `python scripts/build_dish_catalog.py`. Khác `dish_knowledge_json`: file kia
+    # là RULE để đoán quán bán gì, file này là DANH MỤC món tra cứu được theo id.
+    dish_catalog_json: Path
     dish_model_path: Path
     # Nơi ghi sự kiện tương tác (nguồn nhãn cho mô hình xếp hạng sau này).
     interactions_path: Path
@@ -82,6 +86,10 @@ class Settings:
             dish_knowledge_json=_path_from_env(
                 "MOODBITE_DISH_KNOWLEDGE_JSON",
                 "data_pipeline/dish_knowledge_base.json",
+            ),
+            dish_catalog_json=_path_from_env(
+                "MOODBITE_DISH_CATALOG_JSON",
+                "data_pipeline/data_cleaned/dish_catalog.json",
             ),
             dish_model_path=_path_from_env(
                 "MOODBITE_DISH_MODEL", "models/dish_rule_classifier.joblib"

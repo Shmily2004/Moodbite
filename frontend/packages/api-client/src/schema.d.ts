@@ -27,6 +27,78 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/dishes/suggest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Gợi ý MÓN theo bộ lọc + ngữ cảnh
+         * @description Trang chủ: nhận bộ lọc, trả danh sách MÓN đã xếp hạng.
+         *
+         *     Món không có quán nào trong bán kính bị ẨN, và số món bị ẩn được nói rõ ở
+         *     `data.warnings` - im lặng bỏ bớt kết quả là lỗi `/suggest-dish` cũ từng mắc.
+         */
+        post: operations["suggest_dishes_api_v1_dishes_suggest_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dishes/{dish_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Chi tiết 1 món (thành phần cơ bản)
+         * @description Thành phần cơ bản + số quán bán món này gần bạn.
+         *
+         *     `ingredients` rỗng kèm `has_ingredients: false` nghĩa là CHƯA TRA ĐƯỢC nguồn nào, và
+         *     giao diện phải nói đúng như vậy - không được hiện danh sách rỗng như thể món này không
+         *     cần nguyên liệu gì (CLAUDE.md mục 4 quy tắc 1).
+         *
+         *     Nhận toạ độ vì `restaurant_count` phải tính theo bán kính của NGƯỜI ĐANG XEM: món có
+         *     1700 quán toàn thành phố nhưng 0 quán quanh đây vẫn là ngõ cụt.
+         */
+        get: operations["dish_detail_api_v1_dishes__dish_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dishes/{dish_id}/restaurants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Quán gần đây bán món này
+         * @description Danh sách quán bán món đã chọn, xếp hạng theo khoảng cách + đánh giá + ngữ cảnh.
+         *
+         *     Trả về ĐÚNG kiểu của `POST /search` để client dùng lại một component thẻ quán duy nhất.
+         */
+        get: operations["restaurants_for_dish_api_v1_dishes__dish_id__restaurants_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/restaurants/{restaurant_id}": {
         parameters: {
             query?: never;
@@ -106,6 +178,76 @@ export interface paths {
          *     Đề án ưu tiên tìm kiếm bằng câu tự do; danh sách này chỉ phục vụ nút bấm nhanh.
          */
         get: operations["moods_api_v1_moods_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/register": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Register
+         * @description Tạo tài khoản mới. Vai luôn là `user`.
+         *
+         *     201 CREATED chứ không phải 200: có tài nguyên mới được tạo ra.
+         *     Tên đã có người dùng -> 409 USERNAME_TAKEN. Sai định dạng -> 400 INVALID_REQUEST.
+         */
+        post: operations["register_api_v1_auth_register_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Login
+         * @description Đổi tài khoản/mật khẩu lấy token.
+         *
+         *     Sai tên HAY sai mật khẩu đều trả CÙNG MỘT câu 401 — không nói cái nào sai, nếu không
+         *     thì đây thành công cụ dò xem tên nào đã tồn tại.
+         */
+        post: operations["login_api_v1_auth_login_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Me
+         * @description Thông tin tài khoản đang đăng nhập, kèm VAI hiện tại.
+         *
+         *     Frontend gọi endpoint này lúc mở app để biết token còn sống không và được vào những
+         *     đâu. Vai đọc từ CSDL chứ không lấy trong token, nên admin vừa bị hạ quyền sẽ thấy
+         *     ngay ở lần gọi kế tiếp.
+         */
+        get: operations["me_api_v1_auth_me_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -355,6 +497,166 @@ export interface components {
             /** Website */
             website?: string | null;
         };
+        /** AuthData */
+        AuthData: {
+            user: components["schemas"]["UserPublic"];
+            /** Token */
+            token: string;
+            /**
+             * Token Type
+             * @default bearer
+             */
+            token_type: string;
+            /**
+             * Expires In
+             * @description Số giây token còn hiệu lực
+             */
+            expires_in: number;
+        };
+        /** AuthResponse */
+        AuthResponse: {
+            data: components["schemas"]["AuthData"];
+        };
+        /** DishDetailResponse */
+        DishDetailResponse: {
+            data: components["schemas"]["DishItemSchema"];
+        };
+        /** DishItemSchema */
+        DishItemSchema: {
+            /** Dish Id */
+            dish_id: string;
+            /** Name */
+            name: string;
+            /** Cuisine */
+            cuisine?: string | null;
+            /** Spice Level */
+            spice_level?: number | null;
+            /** Temperature */
+            temperature?: string | null;
+            /** Cooking Method */
+            cooking_method?: string | null;
+            /**
+             * Meal Times
+             * @default []
+             */
+            meal_times: string[];
+            /**
+             * Ingredients
+             * @default []
+             */
+            ingredients: string[];
+            /**
+             * Has Ingredients
+             * @default false
+             */
+            has_ingredients: boolean;
+            /** Description */
+            description?: string | null;
+            /** Image Url */
+            image_url?: string | null;
+            /** Restaurant Count */
+            restaurant_count: number;
+            /** Rank Position */
+            rank_position: number;
+            /** Score */
+            score: number;
+            /**
+             * Reasons
+             * @default []
+             */
+            reasons: string[];
+            /** Source */
+            source?: string | null;
+            /** Source Url */
+            source_url?: string | null;
+            /** Data Confidence */
+            data_confidence?: string | null;
+        };
+        /** DishSuggestRequest */
+        DishSuggestRequest: {
+            /**
+             * Session Id
+             * @description Giống SearchRequest - định danh một LƯỢT DÙNG.
+             */
+            session_id: string;
+            /**
+             * Latitude
+             * @default 21.0285
+             */
+            latitude: number;
+            /**
+             * Longitude
+             * @default 105.8542
+             */
+            longitude: number;
+            /**
+             * Cooking Methods
+             * @description Cách chế biến. Hợp lệ: ['nuong', 'chien', 'luoc', 'hap', 'xao', 'nuoc', 'song', 'tron', 'nuong_lo']. Món CHƯA khai cách chế biến vẫn được giữ (chưa biết ≠ không phải).
+             */
+            cooking_methods?: string[];
+            /**
+             * Temperatures
+             * @description "hot" | "cold" | "room".
+             */
+            temperatures?: string[];
+            /**
+             * Cuisines
+             * @description VD ["Việt Nam", "Nhật Bản"].
+             */
+            cuisines?: string[];
+            /**
+             * Meal Times
+             * @description Hợp lệ: ['sang', 'trua', 'toi', 'khuya', 'an_vat'].
+             */
+            meal_times?: string[];
+            /**
+             * Max Spice Level
+             * @description Mức cay TỐI ĐA chấp nhận được.
+             */
+            max_spice_level?: number | null;
+            /**
+             * Mood
+             * @description Hợp lệ: ['happy', 'sad', 'excited', 'relaxed']
+             */
+            mood?: string | null;
+            /**
+             * Weather
+             * @description Người dùng TỰ khai ("rain"|"clear"|"cloudy"), ghi đè số đo tự động. Người đang đứng ngoài đường biết rõ hơn API thời tiết.
+             */
+            weather?: string | null;
+            /**
+             * Max Distance Km
+             * @description null = tắt lọc khoảng cách. Ảnh hưởng tới `restaurant_count`.
+             * @default 10
+             */
+            max_distance_km: number | null;
+            /**
+             * Limit
+             * @default 20
+             */
+            limit: number;
+        };
+        /** DishSuggestResponse */
+        DishSuggestResponse: {
+            data: components["schemas"]["DishSuggestResponseData"];
+        };
+        /** DishSuggestResponseData */
+        DishSuggestResponseData: {
+            /** Search Query Id */
+            search_query_id: string;
+            /** Results */
+            results: components["schemas"]["DishItemSchema"][];
+            /**
+             * Context
+             * @default []
+             */
+            context: string[];
+            /**
+             * Warnings
+             * @default []
+             */
+            warnings: string[];
+        };
         /** ErrorDetail */
         ErrorDetail: {
             /** Code */
@@ -421,6 +723,17 @@ export interface components {
             /** Is Positive Signal */
             is_positive_signal: boolean;
         };
+        /** LoginRequest */
+        LoginRequest: {
+            /** Username */
+            username: string;
+            /** Password */
+            password: string;
+        };
+        /** MeResponse */
+        MeResponse: {
+            data: components["schemas"]["UserPublic"];
+        };
         /** MoodsData */
         MoodsData: {
             /** Supported Moods */
@@ -431,6 +744,24 @@ export interface components {
         /** MoodsResponse */
         MoodsResponse: {
             data: components["schemas"]["MoodsData"];
+        };
+        /** RegisterRequest */
+        RegisterRequest: {
+            /**
+             * Username
+             * @description 3-32 ký tự, chỉ chữ thường không dấu (a-z), số, gạch dưới, gạch ngang. Tự chuẩn hoá về chữ thường.
+             */
+            username: string;
+            /**
+             * Password
+             * @description Tối thiểu 8 ký tự. Không bắt buộc hoa/số/ký tự đặc biệt — độ dài quan trọng hơn (NIST SP 800-63B).
+             */
+            password: string;
+            /**
+             * Display Name
+             * @description Tên hiển thị, ĐƯỢC dùng tiếng Việt có dấu. Không dùng để đăng nhập.
+             */
+            display_name?: string | null;
         };
         /** RestaurantDetailData */
         RestaurantDetailData: {
@@ -475,7 +806,7 @@ export interface components {
         SearchRequest: {
             /**
              * Session Id
-             * @description UUID v4 do client tự sinh và lưu ở localStorage. Không có tài khoản người dùng (SRS mục 8, Won't-have).
+             * @description UUID v4 do client tự sinh và lưu ở localStorage. VẪN BẮT BUỘC dù đã có tài khoản (2026-08-17): nó định danh một LƯỢT DÙNG, còn tài khoản định danh một NGƯỜI. Việc gắn `user_id` vào tương tác là bước riêng, chưa làm.
              */
             session_id: string;
             /**
@@ -616,6 +947,23 @@ export interface components {
             /** Reason */
             reason?: string | null;
         };
+        /**
+         * UserPublic
+         * @description Bản công khai của một tài khoản. KHÔNG BAO GIỜ chứa `password_hash`.
+         */
+        UserPublic: {
+            /** User Id */
+            user_id: string;
+            /** Username */
+            username: string;
+            /**
+             * Role
+             * @description user | admin
+             */
+            role: string;
+            /** Display Name */
+            display_name?: string | null;
+        };
         /** ValidationError */
         ValidationError: {
             /** Location */
@@ -646,6 +994,220 @@ export interface operations {
                 "application/json": components["schemas"]["SearchRequest"];
             };
         };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchResponse"];
+                };
+            };
+            /** @description INVALID_REQUEST */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description RESTAURANT_NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description DATA_NOT_READY */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    suggest_dishes_api_v1_dishes_suggest_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DishSuggestRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DishSuggestResponse"];
+                };
+            };
+            /** @description INVALID_REQUEST */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description RESTAURANT_NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description DATA_NOT_READY */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    dish_detail_api_v1_dishes__dish_id__get: {
+        parameters: {
+            query?: {
+                latitude?: number;
+                longitude?: number;
+                max_distance_km?: number;
+            };
+            header?: never;
+            path: {
+                dish_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DishDetailResponse"];
+                };
+            };
+            /** @description INVALID_REQUEST */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description RESTAURANT_NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description DATA_NOT_READY */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    restaurants_for_dish_api_v1_dishes__dish_id__restaurants_get: {
+        parameters: {
+            query: {
+                session_id: string;
+                latitude?: number;
+                longitude?: number;
+                max_distance_km?: number;
+                mood?: string | null;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                dish_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             200: {
@@ -875,6 +1437,92 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MoodsResponse"];
+                };
+            };
+        };
+    };
+    register_api_v1_auth_register_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegisterRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    login_api_v1_auth_login_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoginRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    me_api_v1_auth_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeResponse"];
                 };
             };
         };

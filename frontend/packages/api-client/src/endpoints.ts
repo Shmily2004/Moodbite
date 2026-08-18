@@ -19,6 +19,35 @@ export type InteractionResponseData = components['schemas']['InteractionResponse
 export type HealthData = components['schemas']['HealthData'];
 export type MoodsData = components['schemas']['MoodsData'];
 export type ActionType = components['schemas']['ActionType'];
+/** Luồng "chọn món trước, tìm quán sau". */
+export type DishSuggestRequest = components['schemas']['DishSuggestRequest'];
+export type DishSuggestResponseData = components['schemas']['DishSuggestResponseData'];
+export type DishItem = components['schemas']['DishItemSchema'];
+
+/** Tham số chung cho hai endpoint tính theo vị trí người dùng. */
+export interface DishLocationParams {
+  latitude?: number;
+  longitude?: number;
+  max_distance_km?: number;
+}
+
+export interface RestaurantsForDishParams extends DishLocationParams {
+  session_id: string;
+  mood?: string | null;
+  limit?: number;
+}
+
+/** Bỏ tham số rỗng để URL không dính `?mood=undefined`. */
+function toQuery(params: Record<string, unknown>): string {
+  const search = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== null && value !== '') {
+      search.set(key, String(value));
+    }
+  }
+  const query = search.toString();
+  return query ? `?${query}` : '';
+}
 
 export class MoodbiteApi {
   constructor(private readonly http: HttpClient) {}
@@ -30,6 +59,52 @@ export class MoodbiteApi {
       method: 'POST',
       body,
     });
+  }
+
+  /**
+   * Bước 1 của luồng mới: bộ lọc -> danh sách MÓN (không phải quán).
+   *
+   * Món không có quán nào trong bán kính bị backend ẩn đi, và số món bị ẩn nằm ở
+   * `warnings` - UI phải hiện ra, đừng nuốt.
+   */
+  suggestDishes(
+    body: DishSuggestRequest,
+    options?: RequestOptions,
+  ): Promise<DishSuggestResponseData> {
+    return this.http.request<DishSuggestResponseData>('/dishes/suggest', {
+      ...options,
+      method: 'POST',
+      body,
+    });
+  }
+
+  /** Bước 2: chi tiết một món, kèm THÀNH PHẦN cơ bản. */
+  dishDetail(
+    dishId: string,
+    params: DishLocationParams = {},
+    options?: RequestOptions,
+  ): Promise<DishItem> {
+    return this.http.request<DishItem>(
+      `/dishes/${encodeURIComponent(dishId)}${toQuery({ ...params })}`,
+      options,
+    );
+  }
+
+  /**
+   * Bước 3: quán gần đây bán món đã chọn.
+   *
+   * Trả về ĐÚNG kiểu `SearchResponseData` của `/search`, nên `RestaurantList` dùng lại
+   * được nguyên vẹn - không cần component thẻ quán thứ hai.
+   */
+  restaurantsForDish(
+    dishId: string,
+    params: RestaurantsForDishParams,
+    options?: RequestOptions,
+  ): Promise<SearchResponseData> {
+    return this.http.request<SearchResponseData>(
+      `/dishes/${encodeURIComponent(dishId)}/restaurants${toQuery({ ...params })}`,
+      options,
+    );
   }
 
   restaurantDetail(

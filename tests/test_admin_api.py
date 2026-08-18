@@ -42,6 +42,7 @@ from tests.fakes import (
     FakeInteractionRepo,
     FixedContextProvider,
     UnavailablePredictor,
+    attach_dish_catalog,
     attach_disabled_auth,
 )
 from tests.test_sqlite_repository import make_db
@@ -118,6 +119,7 @@ def build_client(db_path, *, configured=True, writable=True):
     )
     # Tài khoản người dùng cuối TẮT: file này chỉ test luồng quản trị.
     attach_disabled_auth(c)
+    attach_dish_catalog(c)
 
     # Tiêm container thẳng vào: nếu để create_app() tự lắp, mỗi test sẽ nạp lại toàn
     # bộ dataset thật rồi bị ghi đè ngay - tốn ~1.5s mỗi test cho việc bị vứt đi.

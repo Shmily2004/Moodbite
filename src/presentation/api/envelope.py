@@ -19,6 +19,10 @@ class ErrorCode(str, Enum):
 
     INVALID_REQUEST = "INVALID_REQUEST"
     RESTAURANT_NOT_FOUND = "RESTAURANT_NOT_FOUND"
+    # Mã RIÊNG, không dùng chung với RESTAURANT_NOT_FOUND: client cần phân biệt "món này
+    # không còn" (quay về trang chủ chọn món khác) với "quán này không còn" (ở lại trang
+    # món, chọn quán khác). Gộp mã lại là ép client đoán bằng cách soi URL.
+    DISH_NOT_FOUND = "DISH_NOT_FOUND"
     SEARCH_RESULT_ITEM_NOT_FOUND = "SEARCH_RESULT_ITEM_NOT_FOUND"
     RATE_LIMITED = "RATE_LIMITED"
     EXTERNAL_SERVICE_UNAVAILABLE = "EXTERNAL_SERVICE_UNAVAILABLE"

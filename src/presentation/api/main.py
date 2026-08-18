@@ -17,6 +17,7 @@ from src.presentation.api.error_handlers import register_error_handlers
 from src.presentation.api.routers import (
     admin,
     auth,
+    dishes,
     interactions,
     meta,
     restaurants,
@@ -70,6 +71,9 @@ def create_app(
     register_error_handlers(app)
 
     app.include_router(search.router, prefix=API_PREFIX)
+    # Món ăn ĐỨNG TRƯỚC `restaurants`: `/dishes/{id}/restaurants` phải khớp router món,
+    # không được để router quán nuốt mất.
+    app.include_router(dishes.router, prefix=API_PREFIX)
     app.include_router(restaurants.router, prefix=API_PREFIX)
     app.include_router(interactions.router, prefix=API_PREFIX)
     app.include_router(meta.router, prefix=API_PREFIX)

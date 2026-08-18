@@ -55,13 +55,46 @@ def contains_phrase(haystack: Optional[str], needle: Optional[str]) -> bool:
 
     Giữ nguyên từ 1 ký tự ở CẢ HAI phía - xem giải thích ở `tokenize`.
     """
-    haystack_tokens = tokenize(haystack, min_length=1)
-    needle_tokens = tokenize(needle, min_length=1)
+    return contains_phrase_tokens(tokenize(haystack, min_length=1), needle)
+
+
+def contains_phrase_tokens(
+    haystack_tokens: List[str], needle: Optional[str]
+) -> bool:
+    """Như `contains_phrase` nhưng nhận SẴN danh sách từ của vế trái."""
+    return contains_token_sequence(haystack_tokens, tokenize(needle, min_length=1))
+
+
+def contains_token_sequence(
+    haystack_tokens: List[str], needle_tokens: List[str]
+) -> bool:
+    """Lõi của phép "khớp cụm từ nguyên vẹn": cả hai vế đều đã tách từ sẵn.
+
+    VÌ SAO CÓ BA LỚP BỌC QUANH MỘT PHÉP SO SÁNH: đối chiếu 79 món với 4938 quán gọi phép
+    này ~780.000 lần. Bản đầu tiên tách từ LẠI cả tên quán lẫn từ khoá món ở mỗi lần gọi
+    và mất 11 giây. Cho phép người gọi tách sẵn từng vế đưa xuống đây thì phần tách từ chỉ
+    còn chạy vài nghìn lần.
+
+    Chỉ có DUY NHẤT hàm này định nghĩa thế nào là khớp; `contains_phrase` và
+    `contains_phrase_tokens` đều gọi xuống đây. Chép logic ra thành bản thứ hai là cách
+    chắc chắn để bug "oc khớp Ngọc" quay lại ở cái bản không ai nhớ để sửa.
+    """
     if not haystack_tokens or not needle_tokens:
         return False
 
     span = len(needle_tokens)
     return any(
-        haystack_tokens[i : i + span] == needle_tokens
+        token_sequence_at(haystack_tokens, i, needle_tokens)
         for i in range(len(haystack_tokens) - span + 1)
     )
+
+
+def token_sequence_at(
+    haystack_tokens: List[str], start: int, needle_tokens: List[str]
+) -> bool:
+    """`needle_tokens` có nằm đúng tại vị trí `start` không.
+
+    Tách riêng để bên dựng chỉ mục (dish_matching) nhảy thẳng tới vị trí ứng viên thay vì
+    quét mọi vị trí - nhưng vẫn dùng CHUNG định nghĩa khớp với mọi nơi khác.
+    """
+    return haystack_tokens[start : start + len(needle_tokens)] == needle_tokens

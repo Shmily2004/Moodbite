@@ -34,6 +34,7 @@ from tests.fakes import (
     FakeInteractionRepo,
     FakeRestaurantRepo,
     FixedContextProvider,
+    attach_dish_catalog,
     UnavailablePredictor,
     make_restaurant,
 )
@@ -96,6 +97,7 @@ def build_client(tmp_path, *, secret=SECRET, login_limit=50, register_limit=50):
     c.login_user = LoginUseCase(users, verify_password, tokens.issue)
     c.login_rate_limiter = SlidingWindowRateLimiter(login_limit, 300)
     c.register_rate_limiter = SlidingWindowRateLimiter(register_limit, 3600)
+    attach_dish_catalog(c)
 
     app = create_app(container=c)
     return TestClient(app, raise_server_exceptions=False), users

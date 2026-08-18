@@ -22,6 +22,7 @@ from src.application.errors import (
     RateLimitExceeded,
 )
 from src.application.ports.user_repository import UsernameAlreadyExists
+from src.application.use_cases.find_restaurants_for_dish import DishNotFoundError
 from src.application.use_cases.log_interaction import (
     InvalidInteractionError,
     RestaurantNotFoundError,
@@ -58,6 +59,15 @@ def register_error_handlers(app: FastAPI) -> None:
             str(exc),
             status_code=404,
             details={"restaurant_id": exc.restaurant_id},
+        )
+
+    @app.exception_handler(DishNotFoundError)
+    async def _dish_not_found(request: Request, exc: DishNotFoundError):
+        return error(
+            ErrorCode.DISH_NOT_FOUND,
+            str(exc),
+            status_code=404,
+            details={"dish_id": exc.dish_id},
         )
 
     @app.exception_handler(DataNotReadyError)

@@ -88,6 +88,363 @@
         }
       }
     },
+    "/api/v1/dishes/suggest": {
+      "post": {
+        "tags": [
+          "dishes"
+        ],
+        "summary": "Gợi ý MÓN theo bộ lọc + ngữ cảnh",
+        "description": "Trang chủ: nhận bộ lọc, trả danh sách MÓN đã xếp hạng.\n\nMón không có quán nào trong bán kính bị ẨN, và số món bị ẩn được nói rõ ở\n`data.warnings` - im lặng bỏ bớt kết quả là lỗi `/suggest-dish` cũ từng mắc.",
+        "operationId": "suggest_dishes_api_v1_dishes_suggest_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DishSuggestRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DishSuggestResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "RESTAURANT_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "DATA_NOT_READY",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/dishes/{dish_id}": {
+      "get": {
+        "tags": [
+          "dishes"
+        ],
+        "summary": "Chi tiết 1 món (thành phần cơ bản)",
+        "description": "Thành phần cơ bản + số quán bán món này gần bạn.\n\n`ingredients` rỗng kèm `has_ingredients: false` nghĩa là CHƯA TRA ĐƯỢC nguồn nào, và\ngiao diện phải nói đúng như vậy - không được hiện danh sách rỗng như thể món này không\ncần nguyên liệu gì (CLAUDE.md mục 4 quy tắc 1).\n\nNhận toạ độ vì `restaurant_count` phải tính theo bán kính của NGƯỜI ĐANG XEM: món có\n1700 quán toàn thành phố nhưng 0 quán quanh đây vẫn là ngõ cụt.",
+        "operationId": "dish_detail_api_v1_dishes__dish_id__get",
+        "parameters": [
+          {
+            "name": "dish_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dish Id"
+            }
+          },
+          {
+            "name": "latitude",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 90,
+              "minimum": -90,
+              "default": 21.0285,
+              "title": "Latitude"
+            }
+          },
+          {
+            "name": "longitude",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 180,
+              "minimum": -180,
+              "default": 105.8542,
+              "title": "Longitude"
+            }
+          },
+          {
+            "name": "max_distance_km",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 100,
+              "exclusiveMinimum": 0,
+              "default": 10.0,
+              "title": "Max Distance Km"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DishDetailResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "RESTAURANT_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "DATA_NOT_READY",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/dishes/{dish_id}/restaurants": {
+      "get": {
+        "tags": [
+          "dishes"
+        ],
+        "summary": "Quán gần đây bán món này",
+        "description": "Danh sách quán bán món đã chọn, xếp hạng theo khoảng cách + đánh giá + ngữ cảnh.\n\nTrả về ĐÚNG kiểu của `POST /search` để client dùng lại một component thẻ quán duy nhất.",
+        "operationId": "restaurants_for_dish_api_v1_dishes__dish_id__restaurants_get",
+        "parameters": [
+          {
+            "name": "dish_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dish Id"
+            }
+          },
+          {
+            "name": "session_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          },
+          {
+            "name": "latitude",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 90,
+              "minimum": -90,
+              "default": 21.0285,
+              "title": "Latitude"
+            }
+          },
+          {
+            "name": "longitude",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 180,
+              "minimum": -180,
+              "default": 105.8542,
+              "title": "Longitude"
+            }
+          },
+          {
+            "name": "max_distance_km",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 100,
+              "exclusiveMinimum": 0,
+              "default": 10.0,
+              "title": "Max Distance Km"
+            }
+          },
+          {
+            "name": "mood",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Mood"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "RESTAURANT_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "DATA_NOT_READY",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/restaurants/{restaurant_id}": {
       "get": {
         "tags": [
@@ -289,6 +646,112 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/MoodsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/register": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Register",
+        "description": "Tạo tài khoản mới. Vai luôn là `user`.\n\n201 CREATED chứ không phải 200: có tài nguyên mới được tạo ra.\nTên đã có người dùng -> 409 USERNAME_TAKEN. Sai định dạng -> 400 INVALID_REQUEST.",
+        "operationId": "register_api_v1_auth_register_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Login",
+        "description": "Đổi tài khoản/mật khẩu lấy token.\n\nSai tên HAY sai mật khẩu đều trả CÙNG MỘT câu 401 — không nói cái nào sai, nếu không\nthì đây thành công cụ dò xem tên nào đã tồn tại.",
+        "operationId": "login_api_v1_auth_login_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Me",
+        "description": "Thông tin tài khoản đang đăng nhập, kèm VAI hiện tại.\n\nFrontend gọi endpoint này lúc mở app để biết token còn sống không và được vào những\nđâu. Vai đọc từ CSDL chứ không lấy trong token, nên admin vừa bị hạ quyền sẽ thấy\nngay ở lần gọi kế tiếp.",
+        "operationId": "me_api_v1_auth_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
                 }
               }
             }
@@ -927,6 +1390,388 @@
         "title": "AdminUpdateRestaurantRequest",
         "description": "Chỉ những trường được gửi lên mới bị sửa (`exclude_unset=True` ở router).\n\nGửi `null` = XOÁ giá trị. Không gửi trường = giữ nguyên. Đây là hai ý định khác\nnhau nên không được gộp làm một."
       },
+      "AuthData": {
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/UserPublic"
+          },
+          "token": {
+            "type": "string",
+            "title": "Token"
+          },
+          "token_type": {
+            "type": "string",
+            "title": "Token Type",
+            "default": "bearer"
+          },
+          "expires_in": {
+            "type": "integer",
+            "title": "Expires In",
+            "description": "Số giây token còn hiệu lực"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user",
+          "token",
+          "expires_in"
+        ],
+        "title": "AuthData"
+      },
+      "AuthResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/AuthData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "AuthResponse"
+      },
+      "DishDetailResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/DishItemSchema"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "DishDetailResponse"
+      },
+      "DishItemSchema": {
+        "properties": {
+          "dish_id": {
+            "type": "string",
+            "title": "Dish Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "cuisine": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cuisine"
+          },
+          "spice_level": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spice Level"
+          },
+          "temperature": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temperature"
+          },
+          "cooking_method": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cooking Method"
+          },
+          "meal_times": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Meal Times",
+            "default": []
+          },
+          "ingredients": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Ingredients",
+            "default": []
+          },
+          "has_ingredients": {
+            "type": "boolean",
+            "title": "Has Ingredients",
+            "default": false
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
+          },
+          "restaurant_count": {
+            "type": "integer",
+            "title": "Restaurant Count"
+          },
+          "rank_position": {
+            "type": "integer",
+            "title": "Rank Position"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reasons",
+            "default": []
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          },
+          "source_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Url"
+          },
+          "data_confidence": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Confidence"
+          }
+        },
+        "type": "object",
+        "required": [
+          "dish_id",
+          "name",
+          "restaurant_count",
+          "rank_position",
+          "score"
+        ],
+        "title": "DishItemSchema"
+      },
+      "DishSuggestRequest": {
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "title": "Session Id",
+            "description": "Giống SearchRequest - định danh một LƯỢT DÙNG."
+          },
+          "latitude": {
+            "type": "number",
+            "maximum": 90.0,
+            "minimum": -90.0,
+            "title": "Latitude",
+            "default": 21.0285
+          },
+          "longitude": {
+            "type": "number",
+            "maximum": 180.0,
+            "minimum": -180.0,
+            "title": "Longitude",
+            "default": 105.8542
+          },
+          "cooking_methods": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Cooking Methods",
+            "description": "Cách chế biến. Hợp lệ: ['nuong', 'chien', 'luoc', 'hap', 'xao', 'nuoc', 'song', 'tron', 'nuong_lo']. Món CHƯA khai cách chế biến vẫn được giữ (chưa biết ≠ không phải)."
+          },
+          "temperatures": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Temperatures",
+            "description": "\"hot\" | \"cold\" | \"room\"."
+          },
+          "cuisines": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Cuisines",
+            "description": "VD [\"Việt Nam\", \"Nhật Bản\"]."
+          },
+          "meal_times": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Meal Times",
+            "description": "Hợp lệ: ['sang', 'trua', 'toi', 'khuya', 'an_vat']."
+          },
+          "max_spice_level": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 5.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Spice Level",
+            "description": "Mức cay TỐI ĐA chấp nhận được."
+          },
+          "mood": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mood",
+            "description": "Hợp lệ: ['happy', 'sad', 'excited', 'relaxed']"
+          },
+          "weather": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weather",
+            "description": "Người dùng TỰ khai (\"rain\"|\"clear\"|\"cloudy\"), ghi đè số đo tự động. Người đang đứng ngoài đường biết rõ hơn API thời tiết."
+          },
+          "max_distance_km": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Distance Km",
+            "description": "null = tắt lọc khoảng cách. Ảnh hưởng tới `restaurant_count`.",
+            "default": 10.0
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "default": 20
+          }
+        },
+        "type": "object",
+        "required": [
+          "session_id"
+        ],
+        "title": "DishSuggestRequest"
+      },
+      "DishSuggestResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/DishSuggestResponseData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "DishSuggestResponse"
+      },
+      "DishSuggestResponseData": {
+        "properties": {
+          "search_query_id": {
+            "type": "string",
+            "title": "Search Query Id"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/DishItemSchema"
+            },
+            "type": "array",
+            "title": "Results"
+          },
+          "context": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Context",
+            "default": []
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "search_query_id",
+          "results"
+        ],
+        "title": "DishSuggestResponseData"
+      },
       "ErrorDetail": {
         "properties": {
           "code": {
@@ -1100,6 +1945,40 @@
         ],
         "title": "InteractionResponseData"
       },
+      "LoginRequest": {
+        "properties": {
+          "username": {
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1,
+            "title": "Username"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "username",
+          "password"
+        ],
+        "title": "LoginRequest"
+      },
+      "MeResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/UserPublic"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "MeResponse"
+      },
       "MoodsData": {
         "properties": {
           "supported_moods": {
@@ -1132,6 +2011,43 @@
           "data"
         ],
         "title": "MoodsResponse"
+      },
+      "RegisterRequest": {
+        "properties": {
+          "username": {
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1,
+            "title": "Username",
+            "description": "3-32 ký tự, chỉ chữ thường không dấu (a-z), số, gạch dưới, gạch ngang. Tự chuẩn hoá về chữ thường."
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Password",
+            "description": "Tối thiểu 8 ký tự. Không bắt buộc hoa/số/ký tự đặc biệt — độ dài quan trọng hơn (NIST SP 800-63B)."
+          },
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name",
+            "description": "Tên hiển thị, ĐƯỢC dùng tiếng Việt có dấu. Không dùng để đăng nhập."
+          }
+        },
+        "type": "object",
+        "required": [
+          "username",
+          "password"
+        ],
+        "title": "RegisterRequest"
       },
       "RestaurantDetailData": {
         "properties": {
@@ -1269,7 +2185,7 @@
           "session_id": {
             "type": "string",
             "title": "Session Id",
-            "description": "UUID v4 do client tự sinh và lưu ở localStorage. Không có tài khoản người dùng (SRS mục 8, Won't-have)."
+            "description": "UUID v4 do client tự sinh và lưu ở localStorage. VẪN BẮT BUỘC dù đã có tài khoản (2026-08-17): nó định danh một LƯỢT DÙNG, còn tài khoản định danh một NGƯỜI. Việc gắn `user_id` vào tương tác là bước riêng, chưa làm."
           },
           "latitude": {
             "type": "number",
@@ -1683,6 +2599,42 @@
           "confidence"
         ],
         "title": "SuggestedDishSchema"
+      },
+      "UserPublic": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "username": {
+            "type": "string",
+            "title": "Username"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role",
+            "description": "user | admin"
+          },
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_id",
+          "username",
+          "role"
+        ],
+        "title": "UserPublic",
+        "description": "Bản công khai của một tài khoản. KHÔNG BAO GIỜ chứa `password_hash`."
       },
       "ValidationError": {
         "properties": {

@@ -65,19 +65,30 @@ describe('App - smoke test', () => {
     expect(screen.getByText('MoodBite')).toBeInTheDocument();
   });
 
-  it('trang chu hien o tim kiem de nguoi dung go nhu cau', () => {
+  it('trang chu hien BO LOC MON - buoc 1 cua luong chon mon truoc', () => {
     renderAt('/');
 
-    expect(screen.getByRole('textbox')).toBeInTheDocument();
+    // Đúng ba ví dụ chủ dự án nêu: "nay trời mưa, muốn ăn đồ nướng, đồ nóng".
+    expect(screen.getByRole('button', { name: /Trời mưa/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Đồ nướng/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Đồ nóng/i })).toBeInTheDocument();
   });
 
   it('backend chet van render duoc phan khung', () => {
     renderAt('/');
 
-    // Chưa tìm gì -> phải có lời mời rõ ràng, không được để panel trống trơn.
+    // Bộ lọc vẫn bấm được kể cả khi API chết - khung không phụ thuộc dữ liệu.
+    expect(screen.getByText(/Hôm nay bạn muốn ăn gì/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Bữa sáng/i })).toBeInTheDocument();
+  });
+
+  it('luong tim kiem CU van vao duoc o /tim-kiem', () => {
+    // Giữ luồng cũ là quyết định có chủ đích (CLAUDE.md mục 8: không xoá code đang
+    // chạy được). Test này khoá lại để không ai lỡ tay gỡ mất.
+    renderAt('/tim-kiem');
+
+    expect(screen.getByRole('textbox')).toBeInTheDocument();
     expect(screen.getByText(/Bạn đang muốn ăn gì/i)).toBeInTheDocument();
-    // Chip gợi ý sẵn có nghĩa cây component dựng tới cuối, không đứt giữa chừng.
-    expect(screen.getByRole('button', { name: /phở bò gần đây/i })).toBeInTheDocument();
   });
 });
 

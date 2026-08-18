@@ -16,11 +16,16 @@ export type { ApiErrorCode, HttpClientOptions, RequestOptions } from './http';
 export { MoodbiteApi } from './endpoints';
 export type {
   ActionType,
+  DishItem,
+  DishLocationParams,
+  DishSuggestRequest,
+  DishSuggestResponseData,
   HealthData,
   InteractionRequest,
   InteractionResponseData,
   MoodsData,
   RestaurantDetailData,
+  RestaurantsForDishParams,
   SearchRequest,
   SearchResponseData,
   SearchResultItem,

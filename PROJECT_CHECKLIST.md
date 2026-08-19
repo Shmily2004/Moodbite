@@ -165,6 +165,29 @@ Kiểm lại (mục 4 của `python scripts/verify.py` đã tự kiểm việc n
 
 ### Bug đã sửa (đều kiểm chứng được)
 
+**Dọn DANH MỤC MÓN 2026-08-19** — chủ dự án: *"đừng cố tình kiếm những món rất khó
+kiếm quán hoặc thậm chí không có quán bán"*.
+
+- [x] **Món không quán nào bán → tự động TẮT.** `build_dish_catalog.py` nay đặt
+      `is_active = restaurant_count > 0`. Tắt chứ không xoá, và **tính lại mỗi lần dựng**
+      — mai có quán mở bán Aligot thì lần dựng sau tự bật lại.
+- **Đo được nguyên nhân:** 565/747 món không có quán, và **cả 565 đều đến từ
+  `wikipedia_vi`** (đợt quét tự động thể loại Wikipedia). Món Việt chỉ có **đúng 1** món
+  không tìm được quán — *Khoai deo Quảng Bình*, đặc sản vùng khác nên Hà Nội không có là
+  đúng. Nói cách khác: phần soạn tay rất tốt, phần quét tự động là chỗ sinh rác.
+- **Kiểm ngược lại có món phổ biến nào bị THIẾU không:** quét cụm từ xuất hiện ≥150 lần
+  trong tên quán rồi đối chiếu với danh mục — **không sót món phổ biến nào**.
+  Trà sữa (561) · Trà chanh (536) · Bún đậu mắm tôm (285) · Bún bò Huế (203) ·
+  Lẩu nướng (421) · Hải sản nướng (716) đều đã có.
+- Danh mục hoạt động: **182 món**, cảnh báo *"558 món chưa tìm được quán"* đã biến mất.
+
+> ⚠️ **Còn tồn đọng — top trang chủ đang là ĐỒ UỐNG và TÊN NHÓM.** Khi chưa bấm lọc gì,
+> 6 món đầu là *Cà phê sữa đá (10.080 quán) · Bia hơi · Đồ nhắm · Bún · Bún nước · Burger*.
+> Nguyên nhân: từ khoá quá rộng (`cà phê`/`coffee`/`cafe` khớp mọi quán cà phê;
+> `ăn nhanh`/`fast_food` khớp mọi quán ăn nhanh) nên chúng luôn thắng ở tín hiệu "dễ tìm".
+> **Chưa sửa** — cần chủ dự án quyết: siết từ khoá, hay hạ trọng số `W_AVAILABILITY`, hay
+> tách đồ uống thành nhóm riêng.
+
 **Đợt ĐỐI CHIẾU NHIỀU NGUỒN 2026-08-19**
 
 Phát hiện gốc: `last_updated` ghi 97,4% dữ liệu "cập nhật 3 ngày trước" — nhưng đó là

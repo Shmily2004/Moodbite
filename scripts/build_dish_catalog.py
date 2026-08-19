@@ -314,7 +314,17 @@ def to_record(dish: Dish, restaurant_count: int) -> dict:
         "source_url": dish.source_url,
         "last_updated": dish.last_updated,
         "data_confidence": dish.data_confidence,
-        "is_active": True,
+        # TẮT món KHÔNG QUÁN NÀO BÁN. Chủ dự án chốt 2026-08-19: "đừng cố tình kiếm
+        # những món rất khó kiếm quán hoặc thậm chí không có quán bán".
+        #
+        # Đo được: 565/747 món không có quán nào, và CẢ 565 đều đến từ đợt quét tự động
+        # thể loại Wikipedia (`discover_dishes.py`) - toàn món quốc tế như 'Nduja,
+        # Acarajé, Aligot mà Hà Nội không ai bán. Món Việt chỉ có đúng 1 món không tìm
+        # được quán (Khoai deo Quảng Bình - đặc sản vùng khác, đúng là Hà Nội không có).
+        #
+        # TẮT chứ KHÔNG XOÁ, và tính LẠI mỗi lần dựng: mai có quán mở bán Aligot thì lần
+        # dựng sau món đó tự bật lại. Xoá hẳn thì phải nhớ mà thêm vào bằng tay.
+        "is_active": restaurant_count > 0,
     }
 
 

@@ -19,7 +19,7 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Frontend Client | ✅ **TypeScript + FSD** | 61 test, có bản đồ, steiger trong CI |
 | Bản đồ | ✅ **Xong** | Leaflet + OpenStreetMap, miễn phí, không cần key |
 | Kiến trúc | ✅ Sạch | Clean Architecture + checker tự động trong CI |
-| Test | ✅ 359 backend + 69 frontend | tổng 428, chạy hết ~29 giây |
+| Test | ✅ **417 backend + 69 frontend** | tổng **486**, chạy hết ~52 giây |
 | Giao diện | ✅ Theo bản duyệt | trang chủ = LƯỚI MÓN + chips lọc; trang món = giới thiệu + bản đồ + danh sách quán; `/tim-kiem` giữ bố cục bản đồ + rail cũ |
 | Router + layout | ✅ Xong | react-router v6, khung dùng chung, `RequireAuth` cho admin |
 | Chạy xem giao diện | ✅ **một lệnh** | `python scripts/run_dev.py --admin` |
@@ -27,9 +27,15 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | **Frontend Admin** | ✅ **Code xong** · ⬜ **chưa bật** | `python scripts/check_permissions.py` để xem thiếu gì |
 | Xác thực admin | ✅ Code xong | 1 tài khoản, token HMAC 1 giờ, fail-closed |
 | Phụ thuộc Python | ✅ 15 → **7** gói | gỡ torch/ultralytics/transformers/opencv (~2GB) khỏi CI |
-| Dữ liệu | ✅ **40.720 quán** · 126 đơn vị HC | +36.176 quán từ **Overture Maps** (CDLA Permissive 2.0 — KHÔNG phải OSM/Google) |
+| Dữ liệu | ✅ **40.719 quán** · **747 món** | Overture 36.176 · OSM 3.135 · Apify 1.409. Đã loại 1 quán đóng hẳn |
 | Thu thập dữ liệu đa nguồn | ✅ Xong | kiến trúc `SourceAdapter`, thêm nguồn không sửa pipeline |
 | Lọc giờ mở cửa / chế độ ăn / quận | ✅ Xong | thiếu dữ liệu KHÔNG bị loại |
+| **Tuổi thật của dữ liệu** | ✅ **Mới xong** | 97,3% quán có ngày NGUỒN cập nhật (khác ngày ta cào). OSM: chỉ 28,5% thuộc 2026 |
+| **Đối chiếu đa nền tảng** | ✅ **Mới xong** | Meta · Microsoft · Foursquare · AllThePlaces · PinMeTo qua Overture. 337 quán được ≥2 nguồn xác nhận |
+| **Quán đã đóng cửa** | ✅ **Mới xong** | đóng hẳn → ẩn; đóng tạm → hiện + cờ cảnh báo |
+| **Người dùng báo đóng cửa** | ✅ Backend xong · ⬜ chưa có nút | đủ 3 phiên khác nhau thì ẩn |
+| **Tóm tắt review (Lớp 4)** | ✅ Xong | 851/1.310 quán, trích nguyên văn |
+| Kiểm tra định kỳ nguồn | ✅ Xong | `python scripts/refresh_check.py` — báo cáo quán mới/mất/đổi tên |
 | **Lớp 1 — Phân cụm trải nghiệm** | ✅ **Xong** | KMeans k=7, Silhouette 0.318 |
 | **Lớp 2 — Tìm kiếm ngữ nghĩa** | ✅ **Xong** | TF-IDF cosine, 40.720 quán |
 | **Luồng "chọn món trước, tìm quán sau"** | ✅ **Backend + Client xong** · ⬜ chưa có UI admin cho món | `/dishes/suggest` → `/dishes/{id}` → `/dishes/{id}/restaurants`; trang chủ là LƯỚI MÓN. Tài liệu đề án đã sửa cho khớp (2026-08-19) |

@@ -224,6 +224,9 @@ Bốn quy ước dưới đây phản ánh dữ liệu THẬT của dự án. Vi
 
 4. **Món ăn là SUY LUẬN, không phải menu thật.** Luôn trả kèm `confidence`
    (`specific` / `generic_fallback` / `unknown` / `ml`) và UI phải hiển thị nó.
+   Điều này áp cho CẢ hai chiều: chiều quán→món (`suggested_dish`) lẫn chiều món→quán
+   (`/dishes/{id}/restaurants`). Ta đối chiếu theo TÊN QUÁN, chưa bao giờ đọc thực đơn
+   thật, nên không được nói chắc là quán có bán.
 
 5. **So khớp chữ tiếng Việt: BỎ DẤU + khớp TỪ NGUYÊN VẸN.** Dùng
    `domain/value_objects/text.py`, đừng tự viết lại. Hai bug thật đã xảy ra vì làm sai:
@@ -313,7 +316,7 @@ merge_and_prepare_raw  →  data_cleaning  →  feature_engineering  →  cluste
 | 2. Tìm kiếm ngữ nghĩa | ✅ TF-IDF cosine | `infrastructure/adapters/tfidf_semantic_search.py` |
 | 3. Xếp hạng ngữ cảnh | 🟡 công thức trọng số | `domain/services/search_ranking.py` |
 | 4. Tóm tắt review | ❌ chưa làm | review TB 106 ký tự, quá ngắn |
-| 5. Gợi ý món | ✅ heuristic | `use_cases/search_restaurants.py` |
+| 5. Gợi ý món | ✅ **cửa vào chính** | `domain/services/dish_ranking.py` + `use_cases/suggest_dishes.py` |
 
 **Quy tắc bắt buộc khi động vào các lớp này:**
 
@@ -337,7 +340,13 @@ Nguồn sự thật: `docs/extracted/MoodBite_Dac_Ta_API.md`. Bốn quy ước K
 2. **Envelope:** thành công `{"data": …}`, lỗi `{"error": {"code","message","details"}}`.
    Router phải trả qua `envelope.success()` / `envelope.error()`.
 3. **Tên trường `snake_case`** (`restaurant_id`, `predicted_score`) — KHÔNG camelCase.
-4. **Gợi ý món nằm TRONG từng kết quả tìm kiếm** (`suggested_dish`), không tách endpoint riêng.
+4. **Có HAI lối vào, đừng nhầm** (chốt 2026-08-19):
+   - `POST /dishes/suggest` → `GET /dishes/{id}` → `GET /dishes/{id}/restaurants`
+     là **luồng chính**: chọn món trước, tìm quán sau.
+   - `POST /search` (tìm bằng câu tự nhiên) vẫn giữ, và `suggested_dish` vẫn nằm TRONG
+     từng kết quả của nó — KHÔNG tách thành endpoint riêng cho luồng đó.
+   Hai lối vào dùng CHUNG một bộ từ khoá món (`dish_seed_manual.json`) nên không thể
+   nói khác nhau. Đừng tạo bộ từ khoá thứ hai.
 
 | Tình huống | HTTP | `error.code` |
 |---|---|---|

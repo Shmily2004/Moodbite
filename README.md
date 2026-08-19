@@ -1,9 +1,23 @@
 # MoodBite
 
-Gợi ý quán ăn ở Hà Nội theo **nhu cầu diễn đạt tự do**, vị trí và thời điểm.
+Gợi ý **MÓN ĂN** rồi mới tới **QUÁN** ở Hà Nội, theo tâm trạng, thời tiết và vị trí.
 
-Gõ "quán lẩu ấm cúng gần đây" hoặc "chỗ yên tĩnh để làm việc" thay vì chọn trong bộ lọc
-cứng — kết quả kèm sẵn gợi ý món ăn cho từng quán.
+Luồng chính (chốt 2026-08-19) đi đúng thứ tự người ta vốn nghĩ:
+
+```
+trang chủ: chọn điều kiện        🌧️ trời mưa · 🔥 đồ nướng · 🍜 đồ nóng
+        ↓
+DANH SÁCH MÓN                    "Bún chả · hợp trời mưa · 86 quán gần bạn"
+        ↓  bấm vào một món
+GIỚI THIỆU NGẮN VỀ MÓN           món đó là gì, ăn thế nào
+        ↓
+DANH SÁCH QUÁN bán món đó        xếp theo khoảng cách + đánh giá + ngữ cảnh
+        ↓  bấm vào một quán
+REVIEW · ẢNH · GIÁ · CHỈ ĐƯỜNG
+```
+
+Vẫn còn **lối vào thứ hai** ở `/tim-kiem`: gõ thẳng "quán lẩu ấm cúng gần đây" để ra ngay
+danh sách quán, mỗi quán kèm sẵn gợi ý món.
 
 > 📍 **Không biết dự án đang ở đâu?** Đọc [`PROJECT_CHECKLIST.md`](PROJECT_CHECKLIST.md) —
 > đã làm gì, đang làm gì, làm gì tiếp theo.
@@ -36,7 +50,7 @@ Script tự kiểm điều kiện, khởi động mọi thứ, rồi in ra đị
 
 | Cái gì | Địa chỉ | Cần gì trước |
 |---|---|---|
-| **App người dùng** (tìm quán) | **http://localhost:5173** | backend chạy |
+| **App người dùng** (chọn món → tìm quán) | **http://localhost:5173** | backend chạy |
 | **App quản trị** (sửa/ẩn quán) | **http://localhost:5174** | backend chạy + [đã cấu hình quyền](#bật-trang-quản-trị) |
 | Swagger UI (thử API tay) | http://localhost:8001/docs | backend chạy |
 | Trạng thái hệ thống | http://localhost:8001/api/v1/health | backend chạy |
@@ -91,13 +105,29 @@ Base URL: `/api/v1`. Mọi response bọc trong `data` (thành công) hoặc `er
 
 | Method | Endpoint | Công dụng |
 |---|---|---|
-| POST | `/api/v1/search` | Tìm quán bằng **câu tự do** + vị trí, trả danh sách đã xếp hạng |
+| POST | `/api/v1/dishes/suggest` | **Luồng chính, bước 1** — bộ lọc → danh sách MÓN đã xếp hạng |
+| GET | `/api/v1/dishes/{id}` | **Bước 2** — giới thiệu ngắn về món + số quán gần bạn |
+| GET | `/api/v1/dishes/{id}/restaurants` | **Bước 3** — quán bán món đó, cùng kiểu trả về với `/search` |
+| POST | `/api/v1/search` | Lối vào thứ hai: tìm quán bằng **câu tự do** + vị trí |
 | GET | `/api/v1/restaurants/{id}` | Chi tiết quán (giá, review, ảnh) |
 | POST | `/api/v1/interactions` | Ghi tương tác — nhãn cho mô hình xếp hạng sau này |
 | GET | `/api/v1/moods` | 4 mood dùng cho nút bấm nhanh |
 | GET | `/health` | Trạng thái từng nguồn dữ liệu |
 
-Ví dụ:
+Ví dụ — luồng chính, "nay trời mưa, muốn ăn đồ nướng":
+
+```bash
+curl -X POST http://localhost:8001/api/v1/dishes/suggest   -H "Content-Type: application/json"   -d '{
+        "session_id": "3f9a0000-0000-4000-8000-000000000000",
+        "weather": "rain",
+        "cooking_methods": ["nuong"],
+        "latitude": 21.0285,
+        "longitude": 105.8542,
+        "max_distance_km": 5
+      }'
+```
+
+Ví dụ — lối vào thứ hai (tìm bằng câu tự do):
 
 ```bash
 curl -X POST http://localhost:8001/api/v1/search \
@@ -111,7 +141,10 @@ curl -X POST http://localhost:8001/api/v1/search \
       }'
 ```
 
-Mỗi kết quả kèm sẵn `suggested_dish` — không phải gọi thêm endpoint nào.
+Mỗi kết quả của `/search` kèm sẵn `suggested_dish` — không phải gọi thêm endpoint nào.
+
+`description` bằng `null` kèm `has_description: false` nghĩa là **chưa tra được giới
+thiệu**, không phải "món này không có gì để nói" — giao diện phải nói đúng như vậy.
 
 Bốn quy ước quan trọng khi đọc response:
 

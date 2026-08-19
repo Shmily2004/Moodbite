@@ -21,7 +21,6 @@
     "    python scripts/build_dish_catalog.py",
     "Script sẽ ĐO lại số quán khớp từng món và báo món nào không khớp quán nào."
   ],
-
   "dishes": [
     {
       "dish_id": "bun-ca",
@@ -30,11 +29,19 @@
       "temperature": "hot",
       "cooking_method": "nuoc",
       "spice_level": 1,
-      "meal_times": ["sang", "trua"],
-      "mood_keywords": ["comfort", "fresh"],
-      "ingredients": ["bún", "cá rán", "nước dùng cá", "thì là", "cà chua", "rau cần"],
-      "match_keywords": ["bún cá"],
-      "source": "manual"
+      "meal_times": [
+        "sang",
+        "trua"
+      ],
+      "mood_keywords": [
+        "comfort",
+        "fresh"
+      ],
+      "match_keywords": [
+        "bún cá"
+      ],
+      "source": "manual",
+      "description": "Bún cá là món bún chan nước dùng nấu từ xương và cá, ăn kèm cá rán vàng, thì là và rau cần. Vị thanh, chua nhẹ, hợp bữa sáng và bữa trưa."
     },
     {
       "dish_id": "bun-oc",
@@ -43,11 +50,19 @@
       "temperature": "hot",
       "cooking_method": "nuoc",
       "spice_level": 1,
-      "meal_times": ["sang", "trua"],
-      "mood_keywords": ["comfort", "fresh"],
-      "ingredients": ["bún", "ốc", "nước dùng chua", "cà chua", "tía tô", "giấm bỗng"],
-      "match_keywords": ["bún ốc"],
-      "source": "manual"
+      "meal_times": [
+        "sang",
+        "trua"
+      ],
+      "mood_keywords": [
+        "comfort",
+        "fresh"
+      ],
+      "match_keywords": [
+        "bún ốc"
+      ],
+      "source": "manual",
+      "description": "Bún ốc là món bún nước có vị chua đặc trưng từ giấm bỗng, ăn kèm ốc, cà chua và tía tô. Là món quà sáng quen thuộc của Hà Nội."
     },
     {
       "dish_id": "bun-thit-nuong",
@@ -56,11 +71,19 @@
       "temperature": "room",
       "cooking_method": "nuong",
       "spice_level": 1,
-      "meal_times": ["trua", "toi"],
-      "mood_keywords": ["fresh", "comfort"],
-      "ingredients": ["bún", "thịt lợn nướng", "rau sống", "lạc rang", "nước mắm chua ngọt"],
-      "match_keywords": ["bún thịt nướng"],
-      "source": "manual"
+      "meal_times": [
+        "trua",
+        "toi"
+      ],
+      "mood_keywords": [
+        "fresh",
+        "comfort"
+      ],
+      "match_keywords": [
+        "bún thịt nướng"
+      ],
+      "source": "manual",
+      "description": "Bún thịt nướng gồm bún tươi ăn cùng thịt lợn nướng than, rau sống, lạc rang và nước mắm chua ngọt chan lên trên. Ăn nguội, không chan nước dùng."
     },
     {
       "dish_id": "bun-mien-ngan",
@@ -69,11 +92,20 @@
       "temperature": "hot",
       "cooking_method": "nuoc",
       "spice_level": 0,
-      "meal_times": ["sang", "trua"],
-      "mood_keywords": ["comfort", "cozy"],
-      "ingredients": ["miến dong", "thịt ngan", "nước dùng ngan", "hành lá", "măng"],
-      "match_keywords": ["miến ngan", "bún ngan"],
-      "source": "manual"
+      "meal_times": [
+        "sang",
+        "trua"
+      ],
+      "mood_keywords": [
+        "comfort",
+        "cozy"
+      ],
+      "match_keywords": [
+        "miến ngan",
+        "bún ngan"
+      ],
+      "source": "manual",
+      "description": "Miến ngan là món miến dong chan nước dùng ninh từ xương ngan, ăn kèm thịt ngan và măng. Món nước ấm, hợp bữa sáng."
     },
     {
       "dish_id": "mien-luon",
@@ -82,11 +114,18 @@
       "temperature": "hot",
       "cooking_method": "nuoc",
       "spice_level": 1,
-      "meal_times": ["sang", "trua"],
-      "mood_keywords": ["comfort"],
-      "ingredients": ["miến dong", "lươn", "nước dùng xương", "hành phi", "rau răm"],
-      "match_keywords": ["miến lươn"],
-      "source": "manual"
+      "meal_times": [
+        "sang",
+        "trua"
+      ],
+      "mood_keywords": [
+        "comfort"
+      ],
+      "match_keywords": [
+        "miến lươn"
+      ],
+      "source": "manual",
+      "description": "Miến lươn là món miến nấu với lươn, có cả kiểu chan nước lẫn kiểu trộn với lươn chiên giòn, rắc hành phi và rau răm."
     },
     {
       "dish_id": "banh-da-cua",
@@ -95,11 +134,20 @@
       "temperature": "hot",
       "cooking_method": "nuoc",
       "spice_level": 1,
-      "meal_times": ["sang", "trua"],
-      "mood_keywords": ["comfort", "cozy"],
-      "ingredients": ["bánh đa đỏ", "gạch cua", "nước dùng cua", "chả lá lốt", "rau muống"],
-      "match_keywords": ["bánh đa cua", "bánh đa"],
-      "source": "manual"
+      "meal_times": [
+        "sang",
+        "trua"
+      ],
+      "mood_keywords": [
+        "comfort",
+        "cozy"
+      ],
+      "match_keywords": [
+        "bánh đa cua",
+        "bánh đa"
+      ],
+      "source": "manual",
+      "description": "Bánh đa cua là món nước đặc sản Hải Phòng, dùng sợi bánh đa đỏ chan nước nấu từ gạch cua đồng, ăn kèm chả lá lốt và rau muống."
     },
     {
       "dish_id": "cha-ca",
@@ -108,11 +156,19 @@
       "temperature": "hot",
       "cooking_method": "chien",
       "spice_level": 1,
-      "meal_times": ["trua", "toi"],
-      "mood_keywords": ["comfort", "cozy"],
-      "ingredients": ["cá lăng", "nghệ", "thì là", "hành lá", "bún", "mắm tôm", "lạc rang"],
-      "match_keywords": ["chả cá"],
-      "source": "manual"
+      "meal_times": [
+        "trua",
+        "toi"
+      ],
+      "mood_keywords": [
+        "comfort",
+        "cozy"
+      ],
+      "match_keywords": [
+        "chả cá"
+      ],
+      "source": "manual",
+      "description": "Chả cá Lã Vọng là đặc sản Hà Nội: cá tẩm nghệ nướng rồi rán lại với thì là và hành, ăn cùng bún và mắm tôm."
     },
     {
       "dish_id": "nem-nuong",
@@ -121,11 +177,20 @@
       "temperature": "hot",
       "cooking_method": "nuong",
       "spice_level": 1,
-      "meal_times": ["trua", "toi", "an_vat"],
-      "mood_keywords": ["comfort", "fresh"],
-      "ingredients": ["thịt lợn xay", "bánh tráng", "rau sống", "nước chấm"],
-      "match_keywords": ["nem nướng"],
-      "source": "manual"
+      "meal_times": [
+        "trua",
+        "toi",
+        "an_vat"
+      ],
+      "mood_keywords": [
+        "comfort",
+        "fresh"
+      ],
+      "match_keywords": [
+        "nem nướng"
+      ],
+      "source": "manual",
+      "description": "Nem nướng là thịt lợn xay ướp gia vị, nặn viên rồi nướng than, thường cuốn bánh tráng với rau sống và chấm nước sốt đậm vị."
     },
     {
       "dish_id": "banh-trang-tron",
@@ -134,11 +199,19 @@
       "temperature": "room",
       "cooking_method": "tron",
       "spice_level": 2,
-      "meal_times": ["an_vat"],
-      "mood_keywords": ["cheap", "quick", "spicy"],
-      "ingredients": ["bánh tráng", "khô bò", "trứng cút", "xoài xanh", "rau răm", "sa tế"],
-      "match_keywords": ["bánh tráng"],
-      "source": "manual"
+      "meal_times": [
+        "an_vat"
+      ],
+      "mood_keywords": [
+        "cheap",
+        "quick",
+        "spicy"
+      ],
+      "match_keywords": [
+        "bánh tráng"
+      ],
+      "source": "manual",
+      "description": "Bánh tráng trộn là món ăn vặt gồm bánh tráng cắt sợi trộn cùng khô bò, trứng cút, xoài xanh, rau răm và sa tế. Ăn nguội, vị chua cay mặn ngọt."
     },
     {
       "dish_id": "banh-duc-nong",
@@ -147,11 +220,19 @@
       "temperature": "hot",
       "cooking_method": "hap",
       "spice_level": 0,
-      "meal_times": ["an_vat", "trua"],
-      "mood_keywords": ["comfort", "cheap"],
-      "ingredients": ["bột gạo", "thịt băm", "mộc nhĩ", "hành phi", "nước mắm"],
-      "match_keywords": ["bánh đúc"],
-      "source": "manual"
+      "meal_times": [
+        "an_vat",
+        "trua"
+      ],
+      "mood_keywords": [
+        "comfort",
+        "cheap"
+      ],
+      "match_keywords": [
+        "bánh đúc"
+      ],
+      "source": "manual",
+      "description": "Bánh đúc nóng là bột gạo khuấy chín ăn khi còn nóng, chan nước mắm pha, rắc thịt băm xào mộc nhĩ và hành phi."
     },
     {
       "dish_id": "mi-cay",
@@ -160,11 +241,18 @@
       "temperature": "hot",
       "cooking_method": "nuoc",
       "spice_level": 3,
-      "meal_times": ["trua", "toi"],
-      "mood_keywords": ["spicy"],
-      "ingredients": ["mì", "kim chi", "hải sản", "xúc xích", "nước dùng cay"],
-      "match_keywords": ["mì cay"],
-      "source": "manual"
+      "meal_times": [
+        "trua",
+        "toi"
+      ],
+      "mood_keywords": [
+        "spicy"
+      ],
+      "match_keywords": [
+        "mì cay"
+      ],
+      "source": "manual",
+      "description": "Mì cay là món mì nước kiểu Hàn Quốc nấu với kim chi, hải sản và xúc xích, chia theo nhiều cấp độ cay để người ăn tự chọn."
     },
     {
       "dish_id": "tra-chanh",
@@ -173,11 +261,19 @@
       "temperature": "cold",
       "cooking_method": "tron",
       "spice_level": 0,
-      "meal_times": ["an_vat"],
-      "mood_keywords": ["fresh", "cheap", "quick"],
-      "ingredients": ["trà", "chanh", "đường", "đá"],
-      "match_keywords": ["trà chanh"],
-      "source": "manual"
+      "meal_times": [
+        "an_vat"
+      ],
+      "mood_keywords": [
+        "fresh",
+        "cheap",
+        "quick"
+      ],
+      "match_keywords": [
+        "trà chanh"
+      ],
+      "source": "manual",
+      "description": "Trà chanh là đồ uống pha từ trà, chanh tươi và đường, dùng lạnh. Phổ biến ở quán vỉa hè, hợp ngồi lâu trò chuyện."
     },
     {
       "dish_id": "sua-chua-tran-chau",
@@ -186,11 +282,18 @@
       "temperature": "cold",
       "cooking_method": "tron",
       "spice_level": 0,
-      "meal_times": ["an_vat"],
-      "mood_keywords": ["sweet", "fresh"],
-      "ingredients": ["sữa chua", "trân châu", "đường", "đá bào"],
-      "match_keywords": ["sữa chua"],
-      "source": "manual"
+      "meal_times": [
+        "an_vat"
+      ],
+      "mood_keywords": [
+        "sweet",
+        "fresh"
+      ],
+      "match_keywords": [
+        "sữa chua"
+      ],
+      "source": "manual",
+      "description": "Sữa chua trân châu là món tráng miệng lạnh gồm sữa chua ăn cùng trân châu dai và đá bào, vị chua ngọt mát."
     },
     {
       "dish_id": "bia-hoi",
@@ -199,11 +302,18 @@
       "temperature": "cold",
       "cooking_method": null,
       "spice_level": 0,
-      "meal_times": ["toi", "khuya"],
-      "mood_keywords": ["cheap"],
-      "ingredients": [],
-      "match_keywords": ["bia hơi"],
-      "source": "manual"
+      "meal_times": [
+        "toi",
+        "khuya"
+      ],
+      "mood_keywords": [
+        "cheap"
+      ],
+      "match_keywords": [
+        "bia hơi"
+      ],
+      "source": "manual",
+      "description": "Bia hơi là loại bia tươi không tiệt trùng, rót trực tiếp từ keg và uống trong ngày. Gắn liền với quán vỉa hè và các món nhắm bình dân."
     },
     {
       "dish_id": "lau-nuong",
@@ -212,11 +322,19 @@
       "temperature": "hot",
       "cooking_method": "nuong",
       "spice_level": 1,
-      "meal_times": ["toi", "khuya"],
-      "mood_keywords": ["comfort", "cozy"],
-      "ingredients": ["thịt bò", "thịt lợn", "hải sản", "rau nhúng", "nước lẩu"],
-      "match_keywords": ["lẩu nướng"],
-      "source": "manual"
+      "meal_times": [
+        "toi",
+        "khuya"
+      ],
+      "mood_keywords": [
+        "comfort",
+        "cozy"
+      ],
+      "match_keywords": [
+        "lẩu nướng"
+      ],
+      "source": "manual",
+      "description": "Lẩu nướng là kiểu ăn vừa nướng thịt trên vỉ vừa nhúng lẩu trên cùng một bàn, thường dành cho nhóm đông vào buổi tối."
     },
     {
       "dish_id": "banh-xeo",
@@ -225,11 +343,19 @@
       "temperature": "hot",
       "cooking_method": "chien",
       "spice_level": 1,
-      "meal_times": ["trua", "toi", "an_vat"],
-      "mood_keywords": ["comfort"],
-      "ingredients": ["bột gạo", "nghệ", "tôm", "thịt lợn", "giá đỗ", "rau sống"],
-      "match_keywords": ["bánh xèo"],
-      "source": "manual"
+      "meal_times": [
+        "trua",
+        "toi",
+        "an_vat"
+      ],
+      "mood_keywords": [
+        "comfort"
+      ],
+      "match_keywords": [
+        "bánh xèo"
+      ],
+      "source": "manual",
+      "description": "Bánh xèo là bánh bột gạo pha nghệ tráng mỏng, nhân tôm thịt và giá, cuốn rau sống chấm nước mắm chua ngọt."
     },
     {
       "dish_id": "goi-cuon",
@@ -238,11 +364,19 @@
       "temperature": "cold",
       "cooking_method": "song",
       "spice_level": 0,
-      "meal_times": ["trua", "an_vat"],
-      "mood_keywords": ["fresh"],
-      "ingredients": ["bánh tráng", "tôm", "thịt luộc", "bún", "rau thơm", "tương chấm"],
-      "match_keywords": ["gỏi cuốn", "nem cuốn"],
-      "source": "manual"
+      "meal_times": [
+        "trua",
+        "an_vat"
+      ],
+      "mood_keywords": [
+        "fresh"
+      ],
+      "match_keywords": [
+        "gỏi cuốn",
+        "nem cuốn"
+      ],
+      "source": "manual",
+      "description": "Gỏi cuốn là món cuốn bằng bánh tráng với tôm, thịt luộc, bún và rau thơm, ăn nguội, chấm tương hoặc nước mắm pha."
     },
     {
       "dish_id": "com-rang",
@@ -251,11 +385,20 @@
       "temperature": "hot",
       "cooking_method": "xao",
       "spice_level": 0,
-      "meal_times": ["trua", "toi"],
-      "mood_keywords": ["quick", "cheap", "comfort"],
-      "ingredients": ["cơm", "trứng", "hành lá", "lạp xưởng"],
-      "match_keywords": ["cơm rang"],
-      "source": "manual"
+      "meal_times": [
+        "trua",
+        "toi"
+      ],
+      "mood_keywords": [
+        "quick",
+        "cheap",
+        "comfort"
+      ],
+      "match_keywords": [
+        "cơm rang"
+      ],
+      "source": "manual",
+      "description": "Cơm rang là cơm đảo trên chảo nóng cùng trứng, hành và các loại nhân như lạp xưởng hoặc thịt. Món nhanh, no bụng."
     },
     {
       "dish_id": "chan-ga-nuong",
@@ -264,11 +407,20 @@
       "temperature": "hot",
       "cooking_method": "nuong",
       "spice_level": 2,
-      "meal_times": ["toi", "khuya", "an_vat"],
-      "mood_keywords": ["spicy", "cheap"],
-      "ingredients": ["chân gà", "sa tế", "mật ong", "sả"],
-      "match_keywords": ["chân gà"],
-      "source": "manual"
+      "meal_times": [
+        "toi",
+        "khuya",
+        "an_vat"
+      ],
+      "mood_keywords": [
+        "spicy",
+        "cheap"
+      ],
+      "match_keywords": [
+        "chân gà"
+      ],
+      "source": "manual",
+      "description": "Chân gà nướng là món ăn vặt buổi tối, chân gà ướp sa tế hoặc mật ong rồi nướng than, ăn nóng."
     },
     {
       "dish_id": "pho-cuon",
@@ -277,11 +429,18 @@
       "temperature": "cold",
       "cooking_method": "song",
       "spice_level": 0,
-      "meal_times": ["trua", "toi"],
-      "mood_keywords": ["fresh"],
-      "ingredients": ["bánh phở", "thịt bò xào", "rau thơm", "nước chấm"],
-      "match_keywords": ["phở cuốn"],
-      "source": "manual"
+      "meal_times": [
+        "trua",
+        "toi"
+      ],
+      "mood_keywords": [
+        "fresh"
+      ],
+      "match_keywords": [
+        "phở cuốn"
+      ],
+      "source": "manual",
+      "description": "Phở cuốn dùng bánh phở không thái sợi, cuốn cùng thịt bò xào và rau thơm, ăn nguội và chấm nước mắm pha. Món đặc trưng của Hà Nội."
     },
     {
       "dish_id": "banh-gio",
@@ -290,11 +449,20 @@
       "temperature": "hot",
       "cooking_method": "hap",
       "spice_level": 0,
-      "meal_times": ["sang", "an_vat"],
-      "mood_keywords": ["cheap", "quick", "comfort"],
-      "ingredients": ["bột gạo", "thịt băm", "mộc nhĩ", "lá chuối"],
-      "match_keywords": ["bánh giò"],
-      "source": "manual"
+      "meal_times": [
+        "sang",
+        "an_vat"
+      ],
+      "mood_keywords": [
+        "cheap",
+        "quick",
+        "comfort"
+      ],
+      "match_keywords": [
+        "bánh giò"
+      ],
+      "source": "manual",
+      "description": "Bánh giò là bánh bột gạo hấp trong lá chuối, nhân thịt băm và mộc nhĩ, ăn nóng. Món quà sáng rẻ và no."
     },
     {
       "dish_id": "ga-ran",
@@ -303,11 +471,20 @@
       "temperature": "hot",
       "cooking_method": "chien",
       "spice_level": 1,
-      "meal_times": ["trua", "toi", "an_vat"],
-      "mood_keywords": ["quick", "comfort"],
-      "ingredients": ["thịt gà", "bột chiên giòn", "dầu ăn"],
-      "match_keywords": ["gà rán"],
-      "source": "manual"
+      "meal_times": [
+        "trua",
+        "toi",
+        "an_vat"
+      ],
+      "mood_keywords": [
+        "quick",
+        "comfort"
+      ],
+      "match_keywords": [
+        "gà rán"
+      ],
+      "source": "manual",
+      "description": "Gà rán là thịt gà tẩm bột chiên giòn, thường ăn kèm khoai tây chiên và nước sốt. Phổ biến ở các chuỗi đồ ăn nhanh."
     },
     {
       "dish_id": "hamburger",
@@ -316,11 +493,19 @@
       "temperature": "hot",
       "cooking_method": "nuong",
       "spice_level": 0,
-      "meal_times": ["trua", "toi"],
-      "mood_keywords": ["quick"],
-      "ingredients": ["bánh mì tròn", "thịt bò băm", "phô mai", "rau xà lách", "sốt"],
-      "match_keywords": ["burger", "hamburger"],
-      "source": "manual"
+      "meal_times": [
+        "trua",
+        "toi"
+      ],
+      "mood_keywords": [
+        "quick"
+      ],
+      "match_keywords": [
+        "burger",
+        "hamburger"
+      ],
+      "source": "manual",
+      "description": "Hamburger là bánh mì tròn kẹp thịt bò nướng, phô mai và rau, ăn bằng tay."
     },
     {
       "dish_id": "mi-y",
@@ -329,11 +514,20 @@
       "temperature": "hot",
       "cooking_method": "luoc",
       "spice_level": 0,
-      "meal_times": ["trua", "toi"],
-      "mood_keywords": ["comfort"],
-      "ingredients": ["mì spaghetti", "sốt cà chua", "thịt bò băm", "phô mai"],
-      "match_keywords": ["mì ý", "spaghetti", "pasta"],
-      "source": "manual"
+      "meal_times": [
+        "trua",
+        "toi"
+      ],
+      "mood_keywords": [
+        "comfort"
+      ],
+      "match_keywords": [
+        "mì ý",
+        "spaghetti",
+        "pasta"
+      ],
+      "source": "manual",
+      "description": "Mì Ý là món mì sợi dài luộc chín, trộn cùng sốt cà chua hoặc sốt kem, thường rắc phô mai bào lên trên."
     },
     {
       "dish_id": "ramen",
@@ -342,11 +536,19 @@
       "temperature": "hot",
       "cooking_method": "nuoc",
       "spice_level": 1,
-      "meal_times": ["trua", "toi"],
-      "mood_keywords": ["comfort", "cozy"],
-      "ingredients": ["mì ramen", "nước dùng", "thịt lợn chashu", "trứng lòng đào", "rong biển"],
-      "match_keywords": ["ramen"],
-      "source": "manual"
+      "meal_times": [
+        "trua",
+        "toi"
+      ],
+      "mood_keywords": [
+        "comfort",
+        "cozy"
+      ],
+      "match_keywords": [
+        "ramen"
+      ],
+      "source": "manual",
+      "description": "Ramen là món mì nước Nhật Bản với nước dùng ninh kỹ, ăn kèm thịt lợn chashu, trứng lòng đào và rong biển."
     },
     {
       "dish_id": "kimbap",
@@ -355,11 +557,20 @@
       "temperature": "cold",
       "cooking_method": "song",
       "spice_level": 0,
-      "meal_times": ["trua", "an_vat"],
-      "mood_keywords": ["quick", "fresh"],
-      "ingredients": ["cơm", "rong biển", "cà rốt", "trứng", "xúc xích", "dưa muối"],
-      "match_keywords": ["kimbap", "gimbap"],
-      "source": "manual"
+      "meal_times": [
+        "trua",
+        "an_vat"
+      ],
+      "mood_keywords": [
+        "quick",
+        "fresh"
+      ],
+      "match_keywords": [
+        "kimbap",
+        "gimbap"
+      ],
+      "source": "manual",
+      "description": "Kimbap là món cơm cuộn rong biển kiểu Hàn Quốc với nhân rau củ, trứng và xúc xích, cắt khoanh ăn nguội."
     },
     {
       "dish_id": "tokbokki",
@@ -368,11 +579,19 @@
       "temperature": "hot",
       "cooking_method": "xao",
       "spice_level": 3,
-      "meal_times": ["an_vat", "toi"],
-      "mood_keywords": ["spicy"],
-      "ingredients": ["bánh gạo", "tương ớt gochujang", "chả cá", "hành lá"],
-      "match_keywords": ["tokbokki", "tteokbokki"],
-      "source": "manual"
+      "meal_times": [
+        "an_vat",
+        "toi"
+      ],
+      "mood_keywords": [
+        "spicy"
+      ],
+      "match_keywords": [
+        "tokbokki",
+        "tteokbokki"
+      ],
+      "source": "manual",
+      "description": "Tteokbokki là bánh gạo Hàn Quốc xào sốt ớt gochujang, vị cay ngọt, thường ăn kèm chả cá."
     },
     {
       "dish_id": "dimsum",
@@ -381,11 +600,20 @@
       "temperature": "hot",
       "cooking_method": "hap",
       "spice_level": 0,
-      "meal_times": ["sang", "trua"],
-      "mood_keywords": ["fresh", "comfort"],
-      "ingredients": ["bột mì", "tôm", "thịt lợn", "nấm"],
-      "match_keywords": ["dimsum", "dim sum"],
-      "source": "manual"
+      "meal_times": [
+        "sang",
+        "trua"
+      ],
+      "mood_keywords": [
+        "fresh",
+        "comfort"
+      ],
+      "match_keywords": [
+        "dimsum",
+        "dim sum"
+      ],
+      "source": "manual",
+      "description": "Dimsum là tập hợp các món điểm tâm Quảng Đông, phần lớn hấp trong xửng nhỏ, ăn vào bữa sáng hoặc trưa."
     },
     {
       "dish_id": "vit-quay",
@@ -394,11 +622,19 @@
       "temperature": "hot",
       "cooking_method": "nuong",
       "spice_level": 0,
-      "meal_times": ["trua", "toi"],
-      "mood_keywords": ["comfort"],
-      "ingredients": ["thịt vịt", "ngũ vị hương", "mật ong"],
-      "match_keywords": ["vịt quay", "vịt nướng"],
-      "source": "manual"
+      "meal_times": [
+        "trua",
+        "toi"
+      ],
+      "mood_keywords": [
+        "comfort"
+      ],
+      "match_keywords": [
+        "vịt quay",
+        "vịt nướng"
+      ],
+      "source": "manual",
+      "description": "Vịt quay là món vịt tẩm ngũ vị hương rồi quay đến khi da giòn, thường chặt miếng ăn kèm cơm hoặc bánh bao."
     },
     {
       "dish_id": "tom-yum",
@@ -407,11 +643,20 @@
       "temperature": "hot",
       "cooking_method": "nuoc",
       "spice_level": 3,
-      "meal_times": ["trua", "toi"],
-      "mood_keywords": ["spicy", "fresh"],
-      "ingredients": ["tôm", "sả", "lá chanh", "riềng", "ớt", "nấm"],
-      "match_keywords": ["tom yum", "tomyum"],
-      "source": "manual"
+      "meal_times": [
+        "trua",
+        "toi"
+      ],
+      "mood_keywords": [
+        "spicy",
+        "fresh"
+      ],
+      "match_keywords": [
+        "tom yum",
+        "tomyum"
+      ],
+      "source": "manual",
+      "description": "Tom Yum là món canh chua cay Thái Lan nấu với sả, lá chanh, riềng và ớt, thường dùng tôm hoặc hải sản."
     },
     {
       "dish_id": "salad",
@@ -420,11 +665,18 @@
       "temperature": "cold",
       "cooking_method": "tron",
       "spice_level": 0,
-      "meal_times": ["trua", "toi"],
-      "mood_keywords": ["fresh"],
-      "ingredients": ["rau xà lách", "cà chua", "dưa chuột", "sốt trộn"],
-      "match_keywords": ["salad"],
-      "source": "manual"
+      "meal_times": [
+        "trua",
+        "toi"
+      ],
+      "mood_keywords": [
+        "fresh"
+      ],
+      "match_keywords": [
+        "salad"
+      ],
+      "source": "manual",
+      "description": "Salad là món rau trộn ăn nguội cùng sốt, thường dùng làm món khai vị hoặc bữa nhẹ ít dầu mỡ."
     },
     {
       "dish_id": "banh-ngot",
@@ -433,13 +685,20 @@
       "temperature": "room",
       "cooking_method": "nuong_lo",
       "spice_level": 0,
-      "meal_times": ["an_vat"],
-      "mood_keywords": ["sweet"],
-      "ingredients": ["bột mì", "trứng", "đường", "bơ"],
-      "match_keywords": ["bánh ngọt", "bakery", "tiệm bánh"],
-      "source": "manual"
+      "meal_times": [
+        "an_vat"
+      ],
+      "mood_keywords": [
+        "sweet"
+      ],
+      "match_keywords": [
+        "bánh ngọt",
+        "bakery",
+        "tiệm bánh"
+      ],
+      "source": "manual",
+      "description": "Bánh ngọt là các loại bánh nướng lò có vị ngọt như bánh kem, bánh quy hay bánh mì ngọt, thường ăn kèm trà hoặc cà phê."
     },
-
     {
       "_note": [
         "ĐỒ UỐNG từ rule chung `ca_phe`. Ba món dưới đây từng bị ĐO RA 0 QUÁN vì rule chung",
@@ -454,11 +713,21 @@
       "temperature": "cold",
       "cooking_method": null,
       "spice_level": 0,
-      "meal_times": ["sang", "an_vat"],
-      "mood_keywords": ["sweet", "quick"],
-      "ingredients": ["cà phê", "sữa đặc", "đá"],
-      "match_keywords": ["cà phê", "coffee", "cafe"],
-      "source": "manual"
+      "meal_times": [
+        "sang",
+        "an_vat"
+      ],
+      "mood_keywords": [
+        "sweet",
+        "quick"
+      ],
+      "match_keywords": [
+        "cà phê",
+        "coffee",
+        "cafe"
+      ],
+      "source": "manual",
+      "description": "Cà phê sữa đá là cà phê pha phin trộn sữa đặc rồi thêm đá, vị đậm và ngọt. Thức uống phổ biến nhất ở quán cà phê Việt Nam."
     },
     {
       "dish_id": "tra-dao-cam-sa",
@@ -467,11 +736,19 @@
       "temperature": "cold",
       "cooking_method": null,
       "spice_level": 0,
-      "meal_times": ["an_vat"],
-      "mood_keywords": ["fresh", "sweet"],
-      "ingredients": ["trà", "đào ngâm", "cam", "sả", "đá"],
-      "match_keywords": ["trà đào", "tiệm trà"],
-      "source": "manual"
+      "meal_times": [
+        "an_vat"
+      ],
+      "mood_keywords": [
+        "fresh",
+        "sweet"
+      ],
+      "match_keywords": [
+        "trà đào",
+        "tiệm trà"
+      ],
+      "source": "manual",
+      "description": "Trà đào cam sả là đồ uống lạnh pha từ trà, đào ngâm, cam và sả, vị chua ngọt thơm, thường dùng giải nhiệt."
     },
     {
       "dish_id": "tra-sua-tran-chau",
@@ -480,13 +757,19 @@
       "temperature": "cold",
       "cooking_method": null,
       "spice_level": 0,
-      "meal_times": ["an_vat"],
-      "mood_keywords": ["sweet"],
-      "ingredients": ["trà", "sữa", "trân châu", "đường"],
-      "match_keywords": ["trà sữa", "milk tea"],
-      "source": "manual"
+      "meal_times": [
+        "an_vat"
+      ],
+      "mood_keywords": [
+        "sweet"
+      ],
+      "match_keywords": [
+        "trà sữa",
+        "milk tea"
+      ],
+      "source": "manual",
+      "description": "Trà sữa trân châu là trà pha sữa dùng lạnh, ăn kèm hạt trân châu dai."
     },
-
     {
       "_note": [
         "=== LỚP PHỦ THUỘC TÍNH cho món sinh ra từ dish_knowledge_base.json ===",
@@ -504,122 +787,937 @@
         "cơm chay) và đồ uống. Ép một giá trị cho chúng là bịa - thà để trống rồi bộ lọc cho",
         "điểm trung tính, đúng quy tắc 'chưa biết khác với biết là không phải'."
       ],
-      "dish_id": "pho-bo", "name": "Phở bò", "cooking_method": "nuoc",
-      "meal_times": ["sang", "trua", "toi"], "match_keywords": ["phở"], "source": "manual",
-      "ingredients": ["bánh phở", "thịt bò", "nước dùng xương bò", "hành lá", "quế", "hồi", "gừng"]
+      "dish_id": "pho-bo",
+      "name": "Phở bò",
+      "cooking_method": "nuoc",
+      "meal_times": [
+        "sang",
+        "trua",
+        "toi"
+      ],
+      "match_keywords": [
+        "phở"
+      ],
+      "source": "manual",
+      "description": "Phở bò là món phở dùng nước dùng ninh từ xương bò với quế, hồi và gừng nướng, ăn cùng bánh phở và thịt bò thái mỏng."
     },
-    { "dish_id": "pho-ga", "name": "Phở gà", "cooking_method": "nuoc",
-      "meal_times": ["sang", "trua", "toi"], "match_keywords": ["phở"], "source": "manual",
-      "ingredients": ["bánh phở", "thịt gà", "nước dùng xương gà", "hành lá", "rau mùi"] },
-    { "dish_id": "pho", "name": "Phở", "cooking_method": "nuoc",
-      "meal_times": ["sang", "trua", "toi"], "match_keywords": ["phở"], "source": "manual",
-      "ingredients": ["bánh phở", "nước dùng", "thịt bò hoặc thịt gà", "hành lá", "gia vị"] },
-    { "dish_id": "bun-cha", "name": "Bún chả", "cooking_method": "nuong",
-      "meal_times": ["trua"], "match_keywords": ["bún chả"], "source": "manual",
-      "ingredients": ["bún", "chả thịt lợn nướng", "nước mắm chua ngọt", "rau sống", "đu đủ xanh"] },
-    { "dish_id": "bun-nuoc", "name": "Bún nước", "cooking_method": "nuoc",
-      "meal_times": ["sang", "trua"], "match_keywords": ["bún"], "source": "manual",
-      "ingredients": ["bún", "nước dùng", "rau sống"] },
-    { "dish_id": "bun", "name": "Bún", "cooking_method": "nuoc",
-      "meal_times": ["sang", "trua"], "match_keywords": ["bún"], "source": "manual",
-      "ingredients": ["bún", "nước dùng", "rau sống"] },
-    { "dish_id": "mien", "name": "Miến", "cooking_method": "nuoc",
-      "meal_times": ["sang", "trua"], "match_keywords": ["miến"], "source": "manual",
-      "ingredients": ["miến dong", "nước dùng", "hành lá"] },
-    { "dish_id": "mien-tron", "name": "Miến trộn", "cooking_method": "tron",
-      "meal_times": ["trua"], "match_keywords": ["miến"], "source": "manual",
-      "ingredients": ["miến dong", "thịt", "rau thơm", "nước trộn chua ngọt"] },
-    { "dish_id": "bun-bo-hue", "name": "Bún bò Huế", "cooking_method": "nuoc",
-      "meal_times": ["sang", "trua"], "match_keywords": ["bún bò"], "source": "manual" },
-    { "dish_id": "bun-rieu-cua", "name": "Bún riêu cua", "cooking_method": "nuoc",
-      "meal_times": ["sang", "trua"], "match_keywords": ["bún riêu"], "source": "manual",
-      "ingredients": ["bún", "gạch cua", "cà chua", "đậu phụ", "giấm bỗng", "rau sống"] },
-    { "dish_id": "bun-dau-mam-tom", "name": "Bún đậu mắm tôm", "cooking_method": "chien",
-      "meal_times": ["trua"], "match_keywords": ["bún đậu"], "source": "manual",
-      "ingredients": ["bún lá", "đậu phụ rán", "mắm tôm", "chả cốm", "rau kinh giới"] },
-    { "dish_id": "nem-ran", "name": "Nem rán", "cooking_method": "chien",
-      "meal_times": ["trua", "toi"], "match_keywords": ["bún chả"], "source": "manual",
-      "ingredients": ["bánh đa nem", "thịt lợn xay", "miến", "mộc nhĩ", "trứng", "cà rốt"] },
-    { "dish_id": "nem-chua-ran", "name": "Nem chua rán", "cooking_method": "chien",
-      "meal_times": ["an_vat", "toi"], "match_keywords": ["nem"], "source": "manual",
-      "ingredients": ["nem chua", "bột chiên giòn", "tương ớt"] },
-    { "dish_id": "thit-nuong-vi", "name": "Thịt nướng vỉ", "cooking_method": "nuong",
-      "meal_times": ["toi"], "match_keywords": ["món nướng", "nướng"], "source": "manual",
-      "ingredients": ["thịt lợn hoặc thịt bò", "gia vị ướp", "rau sống", "nước chấm"] },
-    { "dish_id": "hai-san-nuong", "name": "Hải sản nướng", "cooking_method": "nuong",
-      "meal_times": ["toi"], "match_keywords": ["hải sản"], "source": "manual",
-      "ingredients": ["tôm", "mực", "sò", "mỡ hành", "muối ớt chanh"] },
-    { "dish_id": "lau-thai", "name": "Lẩu Thái", "cooking_method": "nuoc",
-      "meal_times": ["toi", "khuya"], "match_keywords": ["lẩu"], "source": "manual",
-      "ingredients": ["nước lẩu chua cay", "hải sản", "sả", "lá chanh", "riềng", "rau nhúng"] },
-    { "dish_id": "lau-ga-la-e", "name": "Lẩu gà lá é", "cooking_method": "nuoc",
-      "meal_times": ["toi", "khuya"], "match_keywords": ["lẩu"], "source": "manual",
-      "ingredients": ["thịt gà", "lá é", "măng", "nước lẩu", "bún"] },
-    { "dish_id": "lau-hai-san", "name": "Lẩu hải sản", "cooking_method": "nuoc",
-      "meal_times": ["toi", "khuya"], "match_keywords": ["hải sản"], "source": "manual",
-      "ingredients": ["tôm", "mực", "ngao", "nước lẩu", "rau nhúng", "bún"] },
-    { "dish_id": "oc-luoc", "name": "Ốc luộc", "cooking_method": "luoc",
-      "meal_times": ["toi", "an_vat"], "match_keywords": ["ốc"], "source": "manual",
-      "ingredients": ["ốc", "sả", "lá chanh", "nước chấm gừng ớt"] },
-    { "dish_id": "chao-nong", "name": "Cháo nóng", "cooking_method": "nuoc",
-      "meal_times": ["sang", "khuya"], "match_keywords": ["cháo"], "source": "manual",
-      "ingredients": ["gạo", "nước dùng", "hành lá", "quẩy"] },
-    { "dish_id": "com-hop", "name": "Cơm hộp", "meal_times": ["trua"],
-      "match_keywords": ["ăn nhanh", "mang về"], "source": "manual",
-      "ingredients": ["cơm", "thức ăn mặn", "canh", "rau"] },
-    { "dish_id": "do-nham", "name": "Đồ nhắm", "meal_times": ["toi", "khuya"],
-      "match_keywords": ["quán bia", "quán bar"], "source": "manual",
-      "ingredients": ["lạc rang", "nem chua", "khô bò", "dưa chuột"] },
-    { "dish_id": "com-chay", "name": "Cơm chay", "meal_times": ["trua"],
-      "match_keywords": ["ăn chay", "chay"], "source": "manual",
-      "ingredients": ["cơm", "đậu phụ", "rau củ", "nấm"] },
-    { "dish_id": "kem", "name": "Kem", "temperature": "cold", "meal_times": ["an_vat"],
-      "match_keywords": ["kem"], "source": "manual",
-      "ingredients": ["sữa", "kem tươi", "đường", "hương liệu"] },
-    { "dish_id": "che", "name": "Chè", "temperature": "cold", "meal_times": ["an_vat"],
-      "match_keywords": ["chè"], "source": "manual",
-      "ingredients": ["đậu", "thạch", "nước cốt dừa", "đường", "đá bào"] },
-    { "dish_id": "mi-xao-gion", "name": "Mì xào giòn", "cooking_method": "xao",
-      "meal_times": ["trua", "toi"], "match_keywords": ["quán mì"], "source": "manual",
-      "ingredients": ["mì trứng chiên giòn", "thịt", "rau cải", "sốt sánh"] },
-    { "dish_id": "pizza-pho-mai", "name": "Pizza phô mai", "cooking_method": "nuong_lo",
-      "meal_times": ["trua", "toi"], "match_keywords": ["pizza"], "source": "manual",
-      "ingredients": ["bột bánh", "sốt cà chua", "phô mai mozzarella"] },
-    { "dish_id": "banh-cuon-nong", "name": "Bánh cuốn nóng", "cooking_method": "hap",
-      "meal_times": ["sang"], "match_keywords": ["bánh cuốn"], "source": "manual" },
-    { "dish_id": "xoi-man", "name": "Xôi mặn", "cooking_method": "hap",
-      "meal_times": ["sang"], "match_keywords": ["xôi"], "source": "manual" },
-    { "dish_id": "xoi", "name": "Xôi", "cooking_method": "hap",
-      "meal_times": ["sang"], "match_keywords": ["xôi"], "source": "manual" },
-    { "dish_id": "banh-mi-thit", "name": "Bánh mì thịt", "cooking_method": "nuong_lo",
-      "meal_times": ["sang"], "match_keywords": ["bánh mì"], "source": "manual" },
-    { "dish_id": "banh-mi", "name": "Bánh mì", "cooking_method": "nuong_lo",
-      "meal_times": ["sang"], "match_keywords": ["bánh mì"], "source": "manual" },
-    { "dish_id": "pizza", "name": "Pizza", "cooking_method": "nuong_lo",
-      "meal_times": ["trua", "toi"], "match_keywords": ["pizza"], "source": "manual" },
-    { "dish_id": "pizza-hai-san", "name": "Pizza hải sản", "cooking_method": "nuong_lo",
-      "meal_times": ["trua", "toi"], "match_keywords": ["pizza"], "source": "manual" },
-    { "dish_id": "pizza-pho-mai", "name": "Pizza phô mai", "cooking_method": "nuong_lo",
-      "meal_times": ["trua", "toi"], "match_keywords": ["pizza"], "source": "manual" },
-    { "dish_id": "bit-tet", "name": "Bít tết", "cooking_method": "nuong",
-      "meal_times": ["trua", "toi"], "match_keywords": ["bít tết"], "source": "manual" },
-    { "dish_id": "com-suon", "name": "Cơm sườn", "cooking_method": "nuong",
-      "meal_times": ["trua"], "match_keywords": ["cơm bình dân", "nhà hàng cơm"], "source": "manual" },
-    { "dish_id": "com-tam-suon", "name": "Cơm tấm sườn", "cooking_method": "nuong",
-      "meal_times": ["trua"], "match_keywords": ["cơm tấm"], "source": "manual" },
-    { "dish_id": "com-ga", "name": "Cơm gà", "cooking_method": "luoc",
-      "meal_times": ["trua"], "match_keywords": ["cơm gà"], "source": "manual" },
-    { "dish_id": "mi-xao-gion", "name": "Mì xào giòn", "cooking_method": "xao",
-      "meal_times": ["trua", "toi"], "match_keywords": ["quán mì"], "source": "manual" },
-    { "dish_id": "mi-van-than", "name": "Mì vằn thắn", "cooking_method": "nuoc",
-      "meal_times": ["trua", "toi"], "match_keywords": ["quán mì"], "source": "manual" },
-    { "dish_id": "mi-y-sot-bo-bam", "name": "Mì Ý sốt bò bằm", "cooking_method": "luoc",
-      "meal_times": ["trua", "toi"], "match_keywords": ["nhà hàng ý"], "source": "manual" },
-    { "dish_id": "pad-thai", "name": "Pad Thái", "cooking_method": "xao",
-      "meal_times": ["trua", "toi"], "match_keywords": ["thái lan"], "source": "manual" },
-    { "dish_id": "sushi", "name": "Sushi", "cooking_method": "song",
-      "meal_times": ["trua", "toi"], "match_keywords": ["sushi"], "source": "manual" },
-    { "dish_id": "burger", "name": "Burger", "cooking_method": "nuong",
-      "meal_times": ["trua", "toi"], "match_keywords": ["ăn nhanh", "mang về"], "source": "manual" }
+    {
+      "dish_id": "pho-ga",
+      "name": "Phở gà",
+      "cooking_method": "nuoc",
+      "meal_times": [
+        "sang",
+        "trua",
+        "toi"
+      ],
+      "match_keywords": [
+        "phở"
+      ],
+      "source": "manual",
+      "description": "Phở gà là món phở dùng nước dùng ninh từ xương gà, ăn cùng thịt gà xé hoặc thái miếng, vị thanh nhẹ hơn phở bò."
+    },
+    {
+      "dish_id": "pho",
+      "name": "Phở",
+      "cooking_method": "nuoc",
+      "meal_times": [
+        "sang",
+        "trua",
+        "toi"
+      ],
+      "match_keywords": [
+        "phở"
+      ],
+      "source": "manual"
+    },
+    {
+      "dish_id": "bun-cha",
+      "name": "Bún chả",
+      "cooking_method": "nuong",
+      "meal_times": [
+        "trua"
+      ],
+      "match_keywords": [
+        "bún chả"
+      ],
+      "source": "manual",
+      "description": "Bún chả là món Hà Nội gồm chả thịt lợn nướng than thả trong bát nước mắm chua ngọt, ăn kèm bún và rau sống."
+    },
+    {
+      "dish_id": "bun-nuoc",
+      "name": "Bún nước",
+      "cooking_method": "nuoc",
+      "meal_times": [
+        "sang",
+        "trua"
+      ],
+      "match_keywords": [
+        "bún"
+      ],
+      "source": "manual",
+      "description": "Bún nước là cách gọi chung cho các món bún chan nước dùng nóng, ăn kèm rau sống. Nhóm món quen thuộc trong bữa sáng của người Việt."
+    },
+    {
+      "dish_id": "bun",
+      "name": "Bún",
+      "cooking_method": "nuoc",
+      "meal_times": [
+        "sang",
+        "trua"
+      ],
+      "match_keywords": [
+        "bún"
+      ],
+      "source": "manual",
+      "description": "Bún là sợi làm từ bột gạo, luộc chín, dùng làm nền cho rất nhiều món Việt như bún chả, bún cá, bún riêu.",
+      "skip_wikipedia": true
+    },
+    {
+      "dish_id": "mien",
+      "name": "Miến",
+      "cooking_method": "nuoc",
+      "meal_times": [
+        "sang",
+        "trua"
+      ],
+      "match_keywords": [
+        "miến"
+      ],
+      "source": "manual",
+      "description": "Miến là sợi khô làm từ tinh bột dong hoặc đậu xanh, khi nấu trở nên trong và dai, dùng cho cả món nước lẫn món trộn.",
+      "skip_wikipedia": true
+    },
+    {
+      "dish_id": "mien-tron",
+      "name": "Miến trộn",
+      "cooking_method": "tron",
+      "meal_times": [
+        "trua"
+      ],
+      "match_keywords": [
+        "miến"
+      ],
+      "source": "manual",
+      "description": "Miến trộn là món miến không chan nước dùng, trộn cùng thịt, rau thơm và nước trộn chua ngọt."
+    },
+    {
+      "dish_id": "bun-bo-hue",
+      "name": "Bún bò Huế",
+      "cooking_method": "nuoc",
+      "meal_times": [
+        "sang",
+        "trua"
+      ],
+      "match_keywords": [
+        "bún bò"
+      ],
+      "source": "manual",
+      "description": "Bún bò Huế là món bún nước cay đặc sản xứ Huế, nước dùng nấu với sả và mắm ruốc, ăn cùng bắp bò và giò heo."
+    },
+    {
+      "dish_id": "bun-rieu-cua",
+      "name": "Bún riêu cua",
+      "cooking_method": "nuoc",
+      "meal_times": [
+        "sang",
+        "trua"
+      ],
+      "match_keywords": [
+        "bún riêu"
+      ],
+      "source": "manual",
+      "description": "Bún riêu cua là món bún nước nấu từ gạch cua đồng với cà chua, vị chua dịu, ăn kèm rau sống."
+    },
+    {
+      "dish_id": "bun-dau-mam-tom",
+      "name": "Bún đậu mắm tôm",
+      "cooking_method": "chien",
+      "meal_times": [
+        "trua"
+      ],
+      "match_keywords": [
+        "bún đậu"
+      ],
+      "source": "manual",
+      "description": "Bún đậu mắm tôm gồm bún lá, đậu phụ rán vàng và các món ăn kèm, chấm mắm tôm vắt chanh đánh bông."
+    },
+    {
+      "dish_id": "nem-ran",
+      "name": "Nem rán",
+      "cooking_method": "chien",
+      "meal_times": [
+        "trua",
+        "toi"
+      ],
+      "match_keywords": [
+        "bún chả"
+      ],
+      "source": "manual",
+      "description": "Nem rán là món cuốn nhân thịt băm, miến và mộc nhĩ trong bánh đa nem rồi chiên giòn. Miền Nam gọi là chả giò."
+    },
+    {
+      "dish_id": "nem-chua-ran",
+      "name": "Nem chua rán",
+      "cooking_method": "chien",
+      "meal_times": [
+        "an_vat",
+        "toi"
+      ],
+      "match_keywords": [
+        "nem"
+      ],
+      "source": "manual",
+      "description": "Nem chua rán là nem chua tẩm bột chiên giòn, ăn nóng chấm tương ớt. Món ăn vặt phổ biến."
+    },
+    {
+      "dish_id": "thit-nuong-vi",
+      "name": "Thịt nướng vỉ",
+      "cooking_method": "nuong",
+      "meal_times": [
+        "toi"
+      ],
+      "match_keywords": [
+        "món nướng",
+        "nướng"
+      ],
+      "source": "manual",
+      "description": "Thịt nướng vỉ là thịt ướp gia vị rồi nướng trực tiếp trên vỉ than tại bàn, ăn kèm rau sống và nước chấm."
+    },
+    {
+      "dish_id": "hai-san-nuong",
+      "name": "Hải sản nướng",
+      "cooking_method": "nuong",
+      "meal_times": [
+        "toi"
+      ],
+      "match_keywords": [
+        "hải sản"
+      ],
+      "source": "manual",
+      "description": "Hải sản nướng gồm tôm, mực, sò nướng than, thường phết mỡ hành và chấm muối ớt chanh."
+    },
+    {
+      "dish_id": "lau-thai",
+      "name": "Lẩu Thái",
+      "cooking_method": "nuoc",
+      "meal_times": [
+        "toi",
+        "khuya"
+      ],
+      "match_keywords": [
+        "lẩu"
+      ],
+      "source": "manual",
+      "description": "Lẩu Thái là món lẩu nước chua cay nấu kiểu Thái với sả, lá chanh và riềng, nhúng hải sản và rau."
+    },
+    {
+      "dish_id": "lau-ga-la-e",
+      "name": "Lẩu gà lá é",
+      "cooking_method": "nuoc",
+      "meal_times": [
+        "toi",
+        "khuya"
+      ],
+      "match_keywords": [
+        "lẩu"
+      ],
+      "source": "manual",
+      "description": "Lẩu gà lá é là món lẩu nấu với thịt gà và lá é, có vị the đặc trưng."
+    },
+    {
+      "dish_id": "lau-hai-san",
+      "name": "Lẩu hải sản",
+      "cooking_method": "nuoc",
+      "meal_times": [
+        "toi",
+        "khuya"
+      ],
+      "match_keywords": [
+        "hải sản"
+      ],
+      "source": "manual",
+      "description": "Lẩu hải sản là món lẩu nhúng tôm, mực, ngao cùng rau, ăn kèm bún hoặc mì."
+    },
+    {
+      "dish_id": "oc-luoc",
+      "name": "Ốc luộc",
+      "cooking_method": "luoc",
+      "meal_times": [
+        "toi",
+        "an_vat"
+      ],
+      "match_keywords": [
+        "ốc"
+      ],
+      "source": "manual",
+      "description": "Ốc luộc là ốc luộc cùng sả và lá chanh, chấm nước mắm gừng ớt. Món ăn vặt buổi tối rất phổ biến ở Hà Nội.",
+      "skip_wikipedia": true
+    },
+    {
+      "dish_id": "chao-nong",
+      "name": "Cháo nóng",
+      "cooking_method": "nuoc",
+      "meal_times": [
+        "sang",
+        "khuya"
+      ],
+      "match_keywords": [
+        "cháo"
+      ],
+      "source": "manual",
+      "description": "Cháo nóng là gạo ninh nhừ với nước dùng, ăn nóng, dễ tiêu. Thường dùng cho bữa sáng hoặc bữa khuya."
+    },
+    {
+      "dish_id": "com-hop",
+      "name": "Cơm hộp",
+      "meal_times": [
+        "trua"
+      ],
+      "match_keywords": [
+        "ăn nhanh",
+        "mang về"
+      ],
+      "source": "manual",
+      "description": "Cơm hộp là suất cơm mang đi gồm cơm, món mặn, rau và canh, phục vụ nhanh cho bữa trưa."
+    },
+    {
+      "dish_id": "do-nham",
+      "name": "Đồ nhắm",
+      "meal_times": [
+        "toi",
+        "khuya"
+      ],
+      "match_keywords": [
+        "quán bia",
+        "quán bar"
+      ],
+      "source": "manual",
+      "description": "Đồ nhắm là các món ăn kèm khi uống bia rượu như lạc rang, nem chua, khô bò hay dưa chuột."
+    },
+    {
+      "dish_id": "com-chay",
+      "name": "Cơm chay",
+      "meal_times": [
+        "trua"
+      ],
+      "match_keywords": [
+        "ăn chay",
+        "chay"
+      ],
+      "source": "manual",
+      "description": "Cơm chay là suất cơm không dùng thịt cá, thay bằng đậu phụ, rau củ và nấm."
+    },
+    {
+      "dish_id": "kem",
+      "name": "Kem",
+      "temperature": "cold",
+      "meal_times": [
+        "an_vat"
+      ],
+      "match_keywords": [
+        "kem"
+      ],
+      "source": "manual",
+      "description": "Kem là món tráng miệng lạnh làm từ sữa và đường, có nhiều hương vị.",
+      "skip_wikipedia": true
+    },
+    {
+      "dish_id": "che",
+      "name": "Chè",
+      "temperature": "cold",
+      "meal_times": [
+        "an_vat"
+      ],
+      "match_keywords": [
+        "chè"
+      ],
+      "source": "manual",
+      "description": "Chè là món tráng miệng ngọt nấu từ đậu, bột và nước cốt dừa, ăn nóng hoặc thêm đá.",
+      "skip_wikipedia": true
+    },
+    {
+      "dish_id": "mi-xao-gion",
+      "name": "Mì xào giòn",
+      "cooking_method": "xao",
+      "meal_times": [
+        "trua",
+        "toi"
+      ],
+      "match_keywords": [
+        "quán mì"
+      ],
+      "source": "manual",
+      "description": "Mì xào giòn là mì trứng chiên giòn rồi rưới sốt sánh xào cùng thịt và rau cải."
+    },
+    {
+      "dish_id": "pizza-pho-mai",
+      "name": "Pizza phô mai",
+      "cooking_method": "nuong_lo",
+      "meal_times": [
+        "trua",
+        "toi"
+      ],
+      "match_keywords": [
+        "pizza"
+      ],
+      "source": "manual",
+      "description": "Pizza phô mai là loại pizza cơ bản nhất, chỉ có sốt cà chua và phô mai mozzarella."
+    },
+    {
+      "dish_id": "banh-cuon-nong",
+      "name": "Bánh cuốn nóng",
+      "cooking_method": "hap",
+      "meal_times": [
+        "sang"
+      ],
+      "match_keywords": [
+        "bánh cuốn"
+      ],
+      "source": "manual",
+      "description": "Bánh cuốn nóng là bột gạo tráng mỏng hấp chín, cuộn nhân thịt băm mộc nhĩ, chấm nước mắm pha."
+    },
+    {
+      "dish_id": "xoi-man",
+      "name": "Xôi mặn",
+      "cooking_method": "hap",
+      "meal_times": [
+        "sang"
+      ],
+      "match_keywords": [
+        "xôi"
+      ],
+      "source": "manual",
+      "description": "Xôi mặn là xôi nếp ăn kèm các món mặn như thịt, chả, trứng hoặc lạp xưởng. Bữa sáng no và tiện mang đi."
+    },
+    {
+      "dish_id": "xoi",
+      "name": "Xôi",
+      "cooking_method": "hap",
+      "meal_times": [
+        "sang"
+      ],
+      "match_keywords": [
+        "xôi"
+      ],
+      "source": "manual",
+      "description": "Xôi là gạo nếp đồ chín bằng hơi nước, có cả loại ngọt lẫn mặn, là món ăn sáng quen thuộc.",
+      "skip_wikipedia": true
+    },
+    {
+      "dish_id": "banh-mi-thit",
+      "name": "Bánh mì thịt",
+      "cooking_method": "nuong_lo",
+      "meal_times": [
+        "sang"
+      ],
+      "match_keywords": [
+        "bánh mì"
+      ],
+      "source": "manual",
+      "description": "Bánh mì thịt là bánh mì Việt kẹp thịt, pate, rau thơm và đồ chua. Ăn nhanh, cầm tay được."
+    },
+    {
+      "dish_id": "banh-mi",
+      "name": "Bánh mì",
+      "cooking_method": "nuong_lo",
+      "meal_times": [
+        "sang"
+      ],
+      "match_keywords": [
+        "bánh mì"
+      ],
+      "source": "manual",
+      "description": "Bánh mì là ổ bánh vỏ giòn ruột xốp, dùng để kẹp nhân làm món ăn nhanh đặc trưng của Việt Nam.",
+      "skip_wikipedia": true
+    },
+    {
+      "dish_id": "pizza",
+      "name": "Pizza",
+      "cooking_method": "nuong_lo",
+      "meal_times": [
+        "trua",
+        "toi"
+      ],
+      "match_keywords": [
+        "pizza"
+      ],
+      "source": "manual",
+      "description": "Pizza là bánh bột nướng lò phủ sốt cà chua, phô mai và các loại nhân, cắt miếng khi ăn."
+    },
+    {
+      "dish_id": "pizza-hai-san",
+      "name": "Pizza hải sản",
+      "cooking_method": "nuong_lo",
+      "meal_times": [
+        "trua",
+        "toi"
+      ],
+      "match_keywords": [
+        "pizza"
+      ],
+      "source": "manual",
+      "description": "Pizza hải sản là pizza phủ tôm, mực và các loại hải sản cùng phô mai."
+    },
+    {
+      "dish_id": "pizza-pho-mai",
+      "name": "Pizza phô mai",
+      "cooking_method": "nuong_lo",
+      "meal_times": [
+        "trua",
+        "toi"
+      ],
+      "match_keywords": [
+        "pizza"
+      ],
+      "source": "manual",
+      "description": "Pizza phô mai là loại pizza cơ bản nhất, chỉ có sốt cà chua và phô mai mozzarella."
+    },
+    {
+      "dish_id": "bit-tet",
+      "name": "Bít tết",
+      "cooking_method": "nuong",
+      "meal_times": [
+        "trua",
+        "toi"
+      ],
+      "match_keywords": [
+        "bít tết"
+      ],
+      "source": "manual",
+      "description": "Bít tết là miếng thịt bò áp chảo hoặc nướng, ăn kèm khoai tây và sốt. Ở Việt Nam thường dùng cùng bánh mì."
+    },
+    {
+      "dish_id": "com-suon",
+      "name": "Cơm sườn",
+      "cooking_method": "nuong",
+      "meal_times": [
+        "trua"
+      ],
+      "match_keywords": [
+        "cơm bình dân",
+        "nhà hàng cơm"
+      ],
+      "source": "manual",
+      "description": "Cơm sườn là suất cơm ăn kèm sườn lợn nướng hoặc rim, thường có thêm canh và dưa."
+    },
+    {
+      "dish_id": "com-tam-suon",
+      "name": "Cơm tấm sườn",
+      "cooking_method": "nuong",
+      "meal_times": [
+        "trua"
+      ],
+      "match_keywords": [
+        "cơm tấm"
+      ],
+      "source": "manual",
+      "description": "Cơm tấm sườn dùng gạo tấm, ăn kèm sườn nướng, bì, chả trứng và nước mắm chua ngọt. Món đặc trưng miền Nam."
+    },
+    {
+      "dish_id": "com-ga",
+      "name": "Cơm gà",
+      "cooking_method": "luoc",
+      "meal_times": [
+        "trua"
+      ],
+      "match_keywords": [
+        "cơm gà"
+      ],
+      "source": "manual",
+      "description": "Cơm gà là món cơm nấu cùng nước luộc gà, ăn kèm thịt gà và nước chấm gừng."
+    },
+    {
+      "dish_id": "mi-xao-gion",
+      "name": "Mì xào giòn",
+      "cooking_method": "xao",
+      "meal_times": [
+        "trua",
+        "toi"
+      ],
+      "match_keywords": [
+        "quán mì"
+      ],
+      "source": "manual",
+      "description": "Mì xào giòn là mì trứng chiên giòn rồi rưới sốt sánh xào cùng thịt và rau cải."
+    },
+    {
+      "dish_id": "mi-van-than",
+      "name": "Mì vằn thắn",
+      "cooking_method": "nuoc",
+      "meal_times": [
+        "trua",
+        "toi"
+      ],
+      "match_keywords": [
+        "quán mì"
+      ],
+      "source": "manual",
+      "description": "Mì vằn thắn là món mì nước gốc Hoa với sủi cảo, thịt xá xíu, trứng và rau cải."
+    },
+    {
+      "dish_id": "mi-y-sot-bo-bam",
+      "name": "Mì Ý sốt bò bằm",
+      "cooking_method": "luoc",
+      "meal_times": [
+        "trua",
+        "toi"
+      ],
+      "match_keywords": [
+        "nhà hàng ý"
+      ],
+      "source": "manual",
+      "description": "Mì Ý sốt bò bằm là mì spaghetti ăn cùng sốt cà chua nấu thịt bò băm."
+    },
+    {
+      "dish_id": "pad-thai",
+      "name": "Pad Thái",
+      "cooking_method": "xao",
+      "meal_times": [
+        "trua",
+        "toi"
+      ],
+      "match_keywords": [
+        "thái lan"
+      ],
+      "source": "manual",
+      "description": "Pad Thái là món phở xào kiểu Thái với trứng, đậu phộng và me, vị chua ngọt."
+    },
+    {
+      "dish_id": "sushi",
+      "name": "Sushi",
+      "cooking_method": "song",
+      "meal_times": [
+        "trua",
+        "toi"
+      ],
+      "match_keywords": [
+        "sushi"
+      ],
+      "source": "manual",
+      "description": "Sushi là món Nhật gồm cơm trộn giấm ăn kèm hải sản sống hoặc chín, nắn miếng hoặc cuộn rong biển."
+    },
+    {
+      "dish_id": "burger",
+      "name": "Burger",
+      "cooking_method": "nuong",
+      "meal_times": [
+        "trua",
+        "toi"
+      ],
+      "match_keywords": [
+        "ăn nhanh",
+        "mang về"
+      ],
+      "source": "manual",
+      "description": "Burger là bánh mì tròn kẹp thịt và rau, ăn bằng tay, phục vụ nhanh."
+    },
+    {
+      "dish_id": "kebab",
+      "name": "Kebab",
+      "description": "Kebab là món ăn sử dụng thịt cắt miếng rồi xiên vào que nướng trên than hồng phổ biến tại Trung Đông, Đông Địa Trung Hải, và Nam Á... Các món kebab rất đa dạng, thông thường sử dụng thịt cừu và bò, ngoài ra còn có gà, lợn, dê, và cả cá, tôm, cua.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Lula_kebab_2.jpg/330px-Lula_kebab_2.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "match_keywords": [
+        "Kebab"
+      ],
+      "source": "wikipedia_vi",
+      "source_url": "https://vi.wikipedia.org/wiki/Kebab"
+    },
+    {
+      "dish_id": "tao-pho",
+      "name": "Tào phớ",
+      "description": "Tào phớ là món ăn bắt nguồn từ Trung Quốc, được làm từ đậu tương. Tào phớ có màu trắng ngà, mềm và mát. Miếng tào phớ mịn tan như thạch rau câu là một trong những đồ ăn vặt ưa thích tại nhiều nước Châu Á. Tại Trung Quốc, một số nơi người dân ăn cơm chan tào phớ.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Dofuhua-lamma.jpg/330px-Dofuhua-lamma.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "match_keywords": [
+        "Tào phớ"
+      ],
+      "source": "wikipedia_vi",
+      "source_url": "https://vi.wikipedia.org/wiki/T%C3%A0o_ph%E1%BB%9B"
+    },
+    {
+      "dish_id": "nom",
+      "name": "Nộm",
+      "description": "Nộm hoặc gỏi, là tên gọi chung cho các món rau trộn chua ngọt trong ẩm thực Việt Nam.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Ph%E1%BB%93ng_t%C3%B4m.jpg/330px-Ph%E1%BB%93ng_t%C3%B4m.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "match_keywords": [
+        "Nộm"
+      ],
+      "source": "wikipedia_vi",
+      "source_url": "https://vi.wikipedia.org/wiki/N%E1%BB%99m"
+    },
+    {
+      "dish_id": "bo-kho",
+      "name": "Bò kho",
+      "description": "Bò kho là một món ăn chế biến từ thịt bò với phương pháp kho, có xuất xứ ở miền Nam Việt Nam. Món này được nhiều người ưa thích. Nguyên bản món Bò kho được người miền Nam Việt Nam dùng kèm với nhiều loại rau mùi, để tăng hương vị món ăn.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Bo_kho_mien_Bac.jpg/330px-Bo_kho_mien_Bac.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "match_keywords": [
+        "Bò kho"
+      ],
+      "source": "wikipedia_vi",
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%B2_kho"
+    },
+    {
+      "dish_id": "bun-bo-nam-bo",
+      "name": "Bún bò Nam Bộ",
+      "description": "Bún bò Nam Bộ là một món ăn Việt Nam phổ biến ở vùng Nam Bộ.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Bun_Bo_Nam_Bo.jpg/330px-Bun_Bo_Nam_Bo.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "match_keywords": [
+        "Bún bò Nam Bộ"
+      ],
+      "source": "wikipedia_vi",
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%BAn_b%C3%B2_Nam_B%E1%BB%99"
+    },
+    {
+      "dish_id": "ca-phe-trung",
+      "name": "Cà phê trứng",
+      "description": "Cà phê trứng là một loại thức uống có nguồn gốc từ Việt Nam được làm từ cà phê với trứng gà và sữa đặc có đường. \"Cà phê Giảng\" là quán cà phê lâu đời và nổi tiếng nhất Hà thành phục vụ thức uống này.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/C%C3%A0_ph%C3%AA_tr%E1%BB%A9ng.jpg/330px-C%C3%A0_ph%C3%AA_tr%E1%BB%A9ng.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "match_keywords": [
+        "Cà phê trứng"
+      ],
+      "source": "wikipedia_vi",
+      "source_url": "https://vi.wikipedia.org/wiki/C%C3%A0_ph%C3%AA_tr%E1%BB%A9ng"
+    },
+    {
+      "dish_id": "sui-cao",
+      "name": "Sủi cảo",
+      "description": "Sủi cảo, còn gọi là bánh tai hay bánh chẻo là một loại bánh hấp của Trung Quốc phổ biến ở khu vực Đông Á. Đây là một trong những món ăn chính trong dịp Tết nguyên đán cũng như là món ăn quanh năm tại các tỉnh phía Bắc Trung Quốc.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/China_IMG_3150_%2829736643975%29.jpg/330px-China_IMG_3150_%2829736643975%29.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "match_keywords": [
+        "Sủi cảo"
+      ],
+      "source": "wikipedia_vi",
+      "source_url": "https://vi.wikipedia.org/wiki/S%E1%BB%A7i_c%E1%BA%A3o"
+    },
+    {
+      "dish_id": "bun-thang",
+      "name": "Bún thang",
+      "description": "Bún thang là một đặc sản ẩm thực của người Hà Nội-Việt Nam.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/B%C3%BAn_thang.JPG/330px-B%C3%BAn_thang.JPG?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "match_keywords": [
+        "Bún thang"
+      ],
+      "source": "wikipedia_vi",
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%BAn_thang"
+    },
+    {
+      "dish_id": "doner-kebab",
+      "name": "Doner kebab",
+      "description": "Doner kebab hay còn gọi là bánh mỳ Thổ Nhĩ Kỳ hay bánh mì tam giác là một thể loại bánh mỳ có nguồn gốc từ Thổ Nhĩ Kỳ. Món ăn này thịnh hành tại Đức rồi lan rộng ra các châu lục khác và có mặt tại Việt Nam và được nhiều người Việt ưa chuộng.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/D%C3%B6ner_Kebab.jpg/330px-D%C3%B6ner_Kebab.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "match_keywords": [
+        "Doner kebab"
+      ],
+      "source": "wikipedia_vi",
+      "source_url": "https://vi.wikipedia.org/wiki/Doner_kebab"
+    },
+    {
+      "dish_id": "banh-mi-kep",
+      "name": "Bánh mì kẹp",
+      "description": "Bánh mì kẹp hoặc bánh mì lát là một món ăn thường bao gồm rau, pho mát hoặc thịt cắt lát được đặt bên trên hoặc giữa các lát bánh mì hoặc nói chung là bất kỳ món ăn nào trong đó bánh mì dùng để chứa hoặc bao bọc cho một loại thực phẩm khác.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Paycocke%27s_House_and_Garden%2C_Coggeshall%2C_tuna_sweetcorn_rocket_sandwich%2C_Essex%2C_England_01.jpg/330px-Paycocke%27s_House_and_Garden%2C_Coggeshall%2C_tuna_sweetcorn_rocket_sandwich%2C_Essex%2C_England_01.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "match_keywords": [
+        "Bánh mì kẹp"
+      ],
+      "source": "wikipedia_vi",
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_m%C3%AC_k%E1%BA%B9p"
+    },
+    {
+      "dish_id": "bun-be-be",
+      "name": "Bún bề bề",
+      "description": "Bún bề bề, hay còn được gọi là bún tôm tít ở miền Nam Việt Nam, là một món ăn phổ biến ở những tỉnh ven biển Việt Nam, có nguồn gốc từ các phường/xã tại thành phố Hạ Long cũ, nơi bề bề là loại hải sản phổ biến. Món này được xem là một biến thể của bún hải sản.",
+      "image_url": null,
+      "match_keywords": [
+        "Bún bề bề"
+      ],
+      "source": "wikipedia_vi",
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%BAn_b%E1%BB%81_b%E1%BB%81"
+    },
+    {
+      "dish_id": "com-ga-hai-nam",
+      "name": "Cơm gà Hải Nam",
+      "description": "Cơm gà Hải Nam là một món ăn có nguồn gốc từ Trung Quốc và là một món ăn phổ biến trong ẩm thực Trung Hoa, ẩm thực Malaysia và ẩm thực Singapore; ngoài ra nó cũng được bày bán thông dụng ở Thái Lan. Cơm gà Hải Nam được chế biến dựa theo một món ăn khác cũng của Hải Nam là món gà Văn Xương.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Hainanese_Chicken_Rice.jpg/330px-Hainanese_Chicken_Rice.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "match_keywords": [
+        "Cơm gà Hải Nam"
+      ],
+      "source": "wikipedia_vi",
+      "source_url": "https://vi.wikipedia.org/wiki/C%C6%A1m_g%C3%A0_H%E1%BA%A3i_Nam"
+    },
+    {
+      "dish_id": "tra-thai",
+      "name": "Trà Thái",
+      "description": "Trà Thái, hay còn gọi là trà đá Thái, là một đồ uống của Thái Lan nấu từ trà Ceylon. Tuy nhiên, do giá của trà Ceylon khá cao, một phiên bản trà Assam nội địa mang tên Bai Miang (ใบเมี่ยง) với phẩm màu thường được dùng.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Cha_yen.JPG/330px-Cha_yen.JPG?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "match_keywords": [
+        "Trà Thái"
+      ],
+      "source": "wikipedia_vi",
+      "source_url": "https://vi.wikipedia.org/wiki/Tr%C3%A0_Th%C3%A1i"
+    },
+    {
+      "dish_id": "top-mo",
+      "name": "Tóp mỡ",
+      "description": "Tóp mỡ là món ăn vặt dân dã được chế biến từ những miếng thịt, chủ yếu là thịt mỡ được thái nhỏ vụn từng miếng nhỏ, tóp mỡ hình thành từ mỡ lợn thái miếng chiên lên, thái nhỏ ra và thắng cho kiệt nước, phần nước mỡ cất vào lọ dùng dần để chế biến các món xào, nấu, phần tóp mỡ khô quắt còn lại thường được tận dụng làm m",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/M%C3%B3n_t%C3%B3p_m%E1%BB%A1.jpg/330px-M%C3%B3n_t%C3%B3p_m%E1%BB%A1.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "match_keywords": [
+        "Tóp mỡ"
+      ],
+      "source": "wikipedia_vi",
+      "source_url": "https://vi.wikipedia.org/wiki/T%C3%B3p_m%E1%BB%A1"
+    },
+    {
+      "dish_id": "banh-bot-loc",
+      "name": "Bánh bột lọc",
+      "description": "Bánh bột lọc là một món ăn truyền thống của Việt Nam, có nguồn gốc từ Huế. Món bánh này phổ biến ở Hà Nội, Ninh Bình, các tỉnh miền Trung như Nghệ An, Đà Nẵng, và đặc biệt là Huế. Đây không chỉ là một món ăn vặt mà còn mang đậm giá trị văn hóa và lịch sử của người Việt.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/B%C3%A1nh_b%C3%A8o%2C_b%E1%BB%99t_l%E1%BB%8Dc%2C_nem_chua.jpg/330px-B%C3%A1nh_b%C3%A8o%2C_b%E1%BB%99t_l%E1%BB%8Dc%2C_nem_chua.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "match_keywords": [
+        "Bánh bột lọc"
+      ],
+      "source": "wikipedia_vi",
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_b%E1%BB%99t_l%E1%BB%8Dc"
+    },
+    {
+      "dish_id": "banh-goi",
+      "name": "Bánh gối",
+      "description": "Bánh gối Bắc Bộ hay bánh xếp ở Nam Bộ là một loại bánh xuất xứ từ Hải Phòng, khi ăn bánh vẫn còn giòn tan như cái giòn của vỏ bánh và giàu hương vị.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Karipap_Chiang_Mai.jpg/330px-Karipap_Chiang_Mai.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "match_keywords": [
+        "Bánh gối"
+      ],
+      "source": "wikipedia_vi",
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_g%E1%BB%91i"
+    },
+    {
+      "dish_id": "banh-khuc",
+      "name": "Bánh khúc",
+      "description": "Bánh khúc, còn gọi là xôi khúc hoặc xôi cúc, là một loại bánh truyền thống có nguồn gốc từ đồng bằng Bắc Bộ của Việt Nam.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/B%C3%A1nh_kh%C3%BAc.JPG/330px-B%C3%A1nh_kh%C3%BAc.JPG?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "match_keywords": [
+        "Bánh khúc"
+      ],
+      "source": "wikipedia_vi",
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_kh%C3%BAc"
+    },
+    {
+      "dish_id": "banh-sinh-nhat",
+      "name": "Bánh sinh nhật",
+      "description": "Bánh sinh nhật là một loại bánh thường có ý nghĩa quan trọng và đặc biệt nhất trong dịp kỷ niệm sinh nhật của người dùng. Đây là một loại bánh ngọt dạng tháp như bánh bông lan xốp và được phủ lên một lớp kem dày hoặc mỏng vừa để trang trí vừa để tăng thêm hương vị cho bánh.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Birthday_cake.jpg/330px-Birthday_cake.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "match_keywords": [
+        "Bánh sinh nhật"
+      ],
+      "source": "wikipedia_vi",
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_sinh_nh%E1%BA%ADt"
+    },
+    {
+      "dish_id": "bun-cha-ca",
+      "name": "Bún chả cá",
+      "description": "Bún chả cá là một món ăn đặc trưng của khu vực MIền Trung Việt Nam. Cá sau khi được chế biến thành chả, cùng với bún và các nguyên phụ liệu khác là những thành phần của một tô bún chả cá.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/B%C3%BAn_ch%E1%BA%A3_c%C3%A1%2C_th%C3%A1ng_8_n%C4%83m_2018.JPG/330px-B%C3%BAn_ch%E1%BA%A3_c%C3%A1%2C_th%C3%A1ng_8_n%C4%83m_2018.JPG?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "match_keywords": [
+        "Bún chả cá"
+      ],
+      "source": "wikipedia_vi",
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%BAn_ch%E1%BA%A3_c%C3%A1"
+    },
+    {
+      "dish_id": "kem-tuoi",
+      "name": "Kem tươi",
+      "description": "Whipped cream hay whipping cream, heavy cream, double cream hay còn gọi trong tiếng Việt là kem sữa béo hay kem bông tuyết là một thực phẩm từ sữa được sử dụng nhiều trong các món tráng miệng. Nó là một dạng kem lạnh được làm với kem nặng, một loại kem có chứa một lượng lớn chất béo.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Cr%C3%A8me_Chantilly.jpg/330px-Cr%C3%A8me_Chantilly.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "match_keywords": [
+        "Kem tươi"
+      ],
+      "source": "wikipedia_vi",
+      "source_url": "https://vi.wikipedia.org/wiki/Kem_t%C6%B0%C6%A1i"
+    },
+    {
+      "dish_id": "lau-ca-keo",
+      "name": "Lẩu cá kèo",
+      "description": "Lẩu cá kèo là một món ăn dân dã phổ biến ở các tỉnh miền Nam Việt Nam. Ngày nay, trong quá trình giao lưu văn hóa lẩu cá kèo đã xuất hiện tại rất nhiều nhà hàng tại Hà Nội.",
+      "image_url": null,
+      "match_keywords": [
+        "Lẩu cá kèo"
+      ],
+      "source": "wikipedia_vi",
+      "source_url": "https://vi.wikipedia.org/wiki/L%E1%BA%A9u_c%C3%A1_k%C3%A8o"
+    },
+    {
+      "dish_id": "lau-cuu",
+      "name": "Lẩu cừu",
+      "description": "Lẩu cừu hay còn gọi là lẩu cừu non Mông Cổ là một món lẩu từ thịt cừu trong ẩm thực Trung Hoa có nguồn gốc từ Mông Cổ trong thời nhà Nguyên. Người Trung Quốc gọi món này là Shuàn Yángròu (涮羊肉). Món ăn này thông dụng ở Trung Quốc, Mông Cổ và được du nhập vào Việt Nam trong giai đoạn gần đây.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Instant-boiled_mutton.JPG/330px-Instant-boiled_mutton.JPG?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "match_keywords": [
+        "Lẩu cừu"
+      ],
+      "source": "wikipedia_vi",
+      "source_url": "https://vi.wikipedia.org/wiki/L%E1%BA%A9u_c%E1%BB%ABu"
+    },
+    {
+      "dish_id": "omakase",
+      "name": "Omakase",
+      "description": "Omakase ; phát âm tiếng Việt: Ồ-ma-ka-sề) là một cụm từ tiếng Nhật chỉ về phong cách phục vụ ẩm thực được sử dụng khi gọi đồ ăn ở nhà hàng kiểu Nhật, nó có nghĩa là: \"Tôi giao phó cho bạn\".",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Omakase_sushi_%E2%80%94_where_chef_brings_you_the_best_in_season%2C_piece_by_piece.jpg/330px-Omakase_sushi_%E2%80%94_where_chef_brings_you_the_best_in_season%2C_piece_by_piece.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "match_keywords": [
+        "Omakase"
+      ],
+      "source": "wikipedia_vi",
+      "source_url": "https://vi.wikipedia.org/wiki/Omakase"
+    },
+    {
+      "dish_id": "pha-lau",
+      "name": "Phá lấu",
+      "description": "Phá lấu là một món ăn khá quen thuộc xuất xứ Trung Quốc ở các tỉnh thành miền Nam Việt Nam, đặc biệt là ở Sài Gòn. Phá lấu được làm từ lưỡi, tai, ruột cho đến bao tử của heo, bò hay vịt. Phá lấu thường được ăn kèm với bánh mì, cơm, cháo...",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Ph%C3%A1_l%E1%BA%A5u_as_served_in_Vietnam.jpeg/330px-Ph%C3%A1_l%E1%BA%A5u_as_served_in_Vietnam.jpeg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "match_keywords": [
+        "Phá lấu"
+      ],
+      "source": "wikipedia_vi",
+      "source_url": "https://vi.wikipedia.org/wiki/Ph%C3%A1_l%E1%BA%A5u"
+    },
+    {
+      "dish_id": "shabu-shabu",
+      "name": "Shabu-shabu",
+      "description": "Shabu-shabu là một món lẩu nabemono Nhật Bản gồm thịt và rau thái lát mỏng luộc trong nước và ăn kèm với nước chấm. Thuật ngữ này là một từ tượng thanh, bắt nguồn từ âm thanh phát ra khi các thành phần được khuấy trong nồi nấu. Thức ăn được nấu từng miếng bởi thực khách tại bàn.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Shabu_Shabu_photo_Don_Ramey_Logan.jpg/330px-Shabu_Shabu_photo_Don_Ramey_Logan.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "match_keywords": [
+        "Shabu-shabu"
+      ],
+      "source": "wikipedia_vi",
+      "source_url": "https://vi.wikipedia.org/wiki/Shabu-shabu"
+    },
+    {
+      "dish_id": "vit-quay-bac-kinh",
+      "name": "Vịt quay Bắc Kinh",
+      "description": "Vịt quay Bắc Kinh là một món ăn từ Bắc Kinh được chế biến từ thời phong kiến. Đặc điểm của loại thịt này là lớp da mỏng và giòn, trong đó cách ăn truyền thống thường đi kèm với da và ít thịt, được người nấu thái lát trước mặt thực khách.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Roasted_Beijing_Duck_sliced.jpg/330px-Roasted_Beijing_Duck_sliced.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "match_keywords": [
+        "Vịt quay Bắc Kinh"
+      ],
+      "source": "wikipedia_vi",
+      "source_url": "https://vi.wikipedia.org/wiki/V%E1%BB%8Bt_quay_B%E1%BA%AFc_Kinh"
+    },
+    {
+      "dish_id": "yakitori",
+      "name": "Yakitori",
+      "description": "Yakitori là một món thịt gà nướng bằng xiên và xâu lại với nhau trên que trong ẩm thực Nhật Bản. Yakitori theo tiếng Nhật có nghĩa là thịt gà xiên nướng và cũng được sử dụng để nói tới các món ăn xiên que nói chung.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Yakitori_by_MShades_in_Kujo%2C_Kyoto.jpg/330px-Yakitori_by_MShades_in_Kujo%2C_Kyoto.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "match_keywords": [
+        "Yakitori"
+      ],
+      "source": "wikipedia_vi",
+      "source_url": "https://vi.wikipedia.org/wiki/Yakitori"
+    },
+    {
+      "dish_id": "yen-sao",
+      "name": "Yến sào",
+      "description": "Yến sào hay tổ yến là tên một loại thực-dược phẩm nổi tiếng được làm bằng tổ chim yến. Đây là món cao lương mỹ vị của các quốc gia Đông Á như Nhật Bản, Triều Tiên, Trung Quốc, Việt Nam, Malaysia, Indonesia và một số quốc gia khác. Ở Việt Nam, yến sào được xếp vào hàng Bát Trân.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/SwiftletBirdNests.jpg/330px-SwiftletBirdNests.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "match_keywords": [
+        "Yến sào"
+      ],
+      "source": "wikipedia_vi",
+      "source_url": "https://vi.wikipedia.org/wiki/Y%E1%BA%BFn_s%C3%A0o"
+    }
   ]
 }

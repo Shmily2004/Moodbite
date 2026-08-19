@@ -66,10 +66,9 @@ class SuggestedDishItem:
     temperature: Optional[str]
     cooking_method: Optional[str]
     meal_times: List[str]
-    ingredients: List[str]
-    # Tách riêng khỏi `ingredients` để giao diện không phải tự đoán: rỗng nghĩa là CHƯA CÓ
-    # DỮ LIỆU, không phải "món này không cần nguyên liệu".
-    has_ingredients: bool
+    # Tách cờ riêng khỏi `description` để giao diện không phải tự đoán từ chuỗi rỗng:
+    # rỗng nghĩa là CHƯA TRA ĐƯỢC, không phải "món này không có gì để nói".
+    has_description: bool
     description: Optional[str]
     image_url: Optional[str]
     restaurant_count: int
@@ -216,8 +215,7 @@ class SuggestDishesUseCase:
             temperature=dish.temperature,
             cooking_method=dish.cooking_method,
             meal_times=list(dish.meal_times),
-            ingredients=list(dish.ingredients),
-            has_ingredients=dish.has_ingredients,
+            has_description=dish.has_description,
             description=dish.description,
             image_url=dish.image_url,
             restaurant_count=ranked.restaurant_count,

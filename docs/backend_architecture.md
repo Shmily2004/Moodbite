@@ -80,7 +80,39 @@ Thuần Python. **Cấm** import `fastapi`, `pandas`, `torch`, `pydantic`.
 
 ---
 
-## 3. Một request đi qua đâu
+## 3. LUỒNG CHÍNH — chọn món trước, tìm quán sau *(chốt 2026-08-19)*
+
+Ba endpoint, đúng thứ tự người dùng đi qua:
+
+```
+POST /api/v1/dishes/suggest            bộ lọc  ->  danh sách MÓN
+  1. routers/dishes.py                 pydantic kiem body -> DishSuggestRequest
+  2. use_cases/suggest_dishes.py       kiem catalog.is_ready (chua co -> 503 + lenh can chay)
+                                       lay ngu canh (thoi tiet nguoi dung tu khai THANG so do)
+                                       dem quan trong ban kinh cho TUNG mon
+  3. domain/services/dish_ranking.py   <- QUY TAC NGHIEP VU
+                                       filter_dishes()  loc CUNG (bam "do nuong" -> pho bien mat)
+                                       rank_dishes()    W_FILTER .40 + W_CONTEXT .25
+                                                      + W_MOOD .20 + W_AVAILABILITY .15 = 1.0
+                                       mon 0 quan bi AN + noi ro da an bao nhieu
+GET  /api/v1/dishes/{id}               gioi thieu ngan ve mon + so quan gan ban
+GET  /api/v1/dishes/{id}/restaurants   quan ban mon do
+  1. use_cases/find_restaurants_for_dish.py
+                                       tra chi muc mon->quan (dung san luc khoi dong)
+  2. domain/services/search_ranking.py DUNG LAI cong thuc xep hang quan, khong viet lai
+                                       tra ve DUNG kieu SearchResponseData cua /search
+```
+
+**Chỉ mục món→quán dựng MỘT LẦN lúc khởi động** (`domain/services/dish_matching.py`).
+Đo được: 79 món × 4938 quán mất **0.05 giây** nhờ gom từ khoá theo từ đầu tiên. Bản ngây
+thơ (mỗi quán thử mọi món) mất **11 giây** — không thể chạy trong một request.
+
+Hai chiều món↔quán dùng CHUNG một phép so khớp (`contains_phrase_tokens`), nên không thể
+nói khác nhau: quán được gợi ý món "bún chả" thì chắc chắn nằm trong trang món Bún chả.
+
+---
+
+## 3b. LỐI VÀO THỨ HAI — tìm quán bằng câu tự do
 
 `POST /api/v1/search {"session_id": "...", "query_text": "quán lẩu ấm cúng"}`:
 

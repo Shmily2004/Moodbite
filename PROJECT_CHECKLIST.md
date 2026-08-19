@@ -1,6 +1,6 @@
 # MoodBite — Bảng theo dõi tiến độ
 
-**Cập nhật:** 2026-08-18
+**Cập nhật:** 2026-08-19
 **Nguyên tắc:** file này chỉ ghi thứ đã **chạy thật và kiểm chứng được**. Không ghi theo
 kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh để tự kiểm lại.
 
@@ -19,7 +19,7 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Frontend Client | ✅ **TypeScript + FSD** | 21 test, có bản đồ, steiger trong CI |
 | Bản đồ | ✅ **Xong** | Leaflet + OpenStreetMap, miễn phí, không cần key |
 | Kiến trúc | ✅ Sạch | Clean Architecture + checker tự động trong CI |
-| Test | ✅ 336 backend + 54 frontend | tổng 390, chạy hết ~22 giây |
+| Test | ✅ 337 backend + 54 frontend | tổng 391, chạy hết ~22 giây |
 | Giao diện | ✅ Theo bản duyệt | thanh trên + bản đồ + rail đề xuất; mức phù hợp là nhãn chữ |
 | Router + layout | ✅ Xong | react-router v6, khung dùng chung, `RequireAuth` cho admin |
 | Chạy xem giao diện | ✅ **một lệnh** | `python scripts/run_dev.py --admin` |
@@ -32,9 +32,13 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Lọc giờ mở cửa / chế độ ăn / quận | ✅ Xong | thiếu dữ liệu KHÔNG bị loại |
 | **Lớp 1 — Phân cụm trải nghiệm** | ✅ **Xong** | KMeans k=7, Silhouette 0.318 |
 | **Lớp 2 — Tìm kiếm ngữ nghĩa** | ✅ **Xong** | TF-IDF cosine, 4938 quán |
-| **Luồng "chọn món trước, tìm quán sau"** | ✅ **Backend + Client xong** · ⬜ chưa có UI admin cho món | `/dishes/suggest` → `/dishes/{id}` → `/dishes/{id}/restaurants`; trang chủ là LƯỚI MÓN |
-| **Danh mục món ăn** | ✅ 79 món · 78 có quán thật · 87.3% có thành phần | `python scripts/build_dish_catalog.py --enrich` |
-| Thành phần món (nguyên liệu) | ✅ Wikidata P186 + soạn tay | ĐÃ BỎ cách trích regex từ bài Wikipedia vì sinh dữ liệu sai (xem `sources/wikidata_dish.py`) |
+| **Luồng "chọn món trước, tìm quán sau"** | ✅ **Backend + Client xong** · ⬜ chưa có UI admin cho món | `/dishes/suggest` → `/dishes/{id}` → `/dishes/{id}/restaurants`; trang chủ là LƯỚI MÓN. Tài liệu đề án đã sửa cho khớp (2026-08-19) |
+| **Danh mục món ăn** | ✅ **107 món** · 106 có quán thật (99.1%) · **100% có giới thiệu** · 65.4% có ảnh | `python scripts/build_dish_catalog.py --enrich` |
+| Giới thiệu ngắn về món | ✅ Wikipedia REST summary + soạn tay | ĐÃ BỎ phần nguyên liệu (chốt 2026-08-19). ĐÃ BỎ trích regex vì sinh dữ liệu sai — xem `sources/wikipedia_dish.py` |
+| Ảnh món | ✅ 65.4% · **chỉ lưu URL, không tải file** | 1149 món cache = 790KB; tải ảnh về sẽ tốn ~230MB |
+| Tìm món mới tự động | ✅ Wikipedia category | `python scripts/discover_dishes.py` — lần chạy đầu thêm 28 món có quán thật |
+| Mở rộng quán ra ngoài Hà Nội | ✅ Có sẵn 8 thành phố | `python -m data_pipeline.harvest --source openstreetmap --city da_nang` |
+| Theo dõi dung lượng | ✅ Có công cụ | `python scripts/disk_report.py` |
 | Lớp 4 — Tóm tắt review | 🟡 Chưa làm, nhưng ĐÃ KHẢ THI | đo lại: gộp theo quán TB 666 ký tự, 592 quán đủ điều kiện |
 | Đăng nhập / tài khoản | 🟡 **Backend xong, chưa có UI** | `/api/v1/auth/*`: đăng ký · đăng nhập · `/me`. Đổi phạm vi có chủ đích so với SRS mục 8 — xem ghi chú dưới bảng |
 | Phân quyền (`role`) | 🟡 Có `user`/`admin` + guard 403 | admin VẪN dùng biến môi trường, chưa chuyển sang bảng `users` |

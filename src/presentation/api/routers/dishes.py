@@ -1,7 +1,7 @@
 """Router MÓN ĂN - luồng "chọn món trước, tìm quán sau".
 
     POST /api/v1/dishes/suggest          bộ lọc  -> danh sách MÓN
-    GET  /api/v1/dishes/{id}             chi tiết 1 món (THÀNH PHẦN cơ bản)
+    GET  /api/v1/dishes/{id}             chi tiết 1 món (GIỚI THIỆU NGẮN)
     GET  /api/v1/dishes/{id}/restaurants món     -> quán gần đây bán món đó
 
 Router MỎNG đúng CLAUDE.md mục 3: nhận HTTP, gọi use case, bọc envelope. Không có quy tắc
@@ -56,8 +56,7 @@ def _dish_item_dict(item) -> dict:
         "temperature": item.temperature,
         "cooking_method": item.cooking_method,
         "meal_times": list(item.meal_times),
-        "ingredients": list(item.ingredients),
-        "has_ingredients": item.has_ingredients,
+        "has_description": item.has_description,
         "description": item.description,
         "image_url": item.image_url,
         "restaurant_count": item.restaurant_count,
@@ -107,7 +106,7 @@ def suggest_dishes(
 
 
 @router.get("/dishes/{dish_id}", response_model=DishDetailResponse,
-            responses=ERROR_RESPONSES, summary="Chi tiết 1 món (thành phần cơ bản)")
+            responses=ERROR_RESPONSES, summary="Chi tiết 1 món (giới thiệu ngắn)")
 def dish_detail(
     dish_id: str,
     latitude: float = Query(default=HANOI_CENTER_LAT, ge=-90, le=90),
@@ -115,11 +114,11 @@ def dish_detail(
     max_distance_km: float = Query(default=DEFAULT_MAX_DISTANCE_KM, gt=0, le=100),
     use_case: SuggestDishesUseCase = Depends(get_suggest_dishes),
 ):
-    """Thành phần cơ bản + số quán bán món này gần bạn.
+    """Giới thiệu ngắn về món + số quán bán món này gần bạn.
 
-    `ingredients` rỗng kèm `has_ingredients: false` nghĩa là CHƯA TRA ĐƯỢC nguồn nào, và
-    giao diện phải nói đúng như vậy - không được hiện danh sách rỗng như thể món này không
-    cần nguyên liệu gì (CLAUDE.md mục 4 quy tắc 1).
+    `description` rỗng kèm `has_description: false` nghĩa là CHƯA TRA ĐƯỢC nguồn nào, và
+    giao diện phải nói đúng như vậy - không được để một khoảng trắng như thể món này không
+    có gì để giới thiệu (CLAUDE.md mục 4 quy tắc 1).
 
     Nhận toạ độ vì `restaurant_count` phải tính theo bán kính của NGƯỜI ĐANG XEM: món có
     1700 quán toàn thành phố nhưng 0 quán quanh đây vẫn là ngõ cụt.

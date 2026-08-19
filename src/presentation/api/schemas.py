@@ -168,11 +168,10 @@ class DishItemSchema(BaseModel):
     temperature: Optional[str] = None
     cooking_method: Optional[str] = None
     meal_times: List[str] = []
-    # Thành phần cơ bản - thứ hiện ở TRANG CHI TIẾT MÓN.
-    ingredients: List[str] = []
-    # Tách riêng để UI KHÔNG phải đoán: rỗng nghĩa là chưa tra được nguồn nào, không phải
-    # "món này không có nguyên liệu". UI phải hiện "chưa có dữ liệu thành phần".
-    has_ingredients: bool = False
+    # GIỚI THIỆU NGẮN - nội dung chính của TRANG CHI TIẾT MÓN.
+    # Tách cờ riêng để UI KHÔNG phải đoán từ chuỗi rỗng: rỗng nghĩa là chưa tra được nguồn
+    # nào, không phải "món này không có gì để nói".
+    has_description: bool = False
     description: Optional[str] = None
     image_url: Optional[str] = None
     # ĐO ĐƯỢC trong bán kính đã chọn, không phải ước lượng.
@@ -180,8 +179,8 @@ class DishItemSchema(BaseModel):
     rank_position: int
     score: float
     reasons: List[str] = []
-    # Xuất xứ dữ liệu thành phần: "manual" | "wikipedia_vi" | "seed_kb" | "admin".
-    # Hiện ra để người đọc biết con số/nguyên liệu này ở đâu ra (CLAUDE.md mục 4b).
+    # Xuất xứ dữ liệu giới thiệu: "manual" | "wikipedia_vi" | "seed_kb" | "admin".
+    # Hiện ra để người đọc biết đoạn giới thiệu này ở đâu ra (CLAUDE.md mục 4b).
     source: Optional[str] = None
     source_url: Optional[str] = None
     data_confidence: Optional[str] = None

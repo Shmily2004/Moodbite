@@ -175,8 +175,8 @@
         "tags": [
           "dishes"
         ],
-        "summary": "Chi tiết 1 món (thành phần cơ bản)",
-        "description": "Thành phần cơ bản + số quán bán món này gần bạn.\n\n`ingredients` rỗng kèm `has_ingredients: false` nghĩa là CHƯA TRA ĐƯỢC nguồn nào, và\ngiao diện phải nói đúng như vậy - không được hiện danh sách rỗng như thể món này không\ncần nguyên liệu gì (CLAUDE.md mục 4 quy tắc 1).\n\nNhận toạ độ vì `restaurant_count` phải tính theo bán kính của NGƯỜI ĐANG XEM: món có\n1700 quán toàn thành phố nhưng 0 quán quanh đây vẫn là ngõ cụt.",
+        "summary": "Chi tiết 1 món (giới thiệu ngắn)",
+        "description": "Giới thiệu ngắn về món + số quán bán món này gần bạn.\n\n`description` rỗng kèm `has_description: false` nghĩa là CHƯA TRA ĐƯỢC nguồn nào, và\ngiao diện phải nói đúng như vậy - không được để một khoảng trắng như thể món này không\ncó gì để giới thiệu (CLAUDE.md mục 4 quy tắc 1).\n\nNhận toạ độ vì `restaurant_count` phải tính theo bán kính của NGƯỜI ĐANG XEM: món có\n1700 quán toàn thành phố nhưng 0 quán quanh đây vẫn là ngõ cụt.",
         "operationId": "dish_detail_api_v1_dishes__dish_id__get",
         "parameters": [
           {
@@ -1504,17 +1504,9 @@
             "title": "Meal Times",
             "default": []
           },
-          "ingredients": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Ingredients",
-            "default": []
-          },
-          "has_ingredients": {
+          "has_description": {
             "type": "boolean",
-            "title": "Has Ingredients",
+            "title": "Has Description",
             "default": false
           },
           "description": {

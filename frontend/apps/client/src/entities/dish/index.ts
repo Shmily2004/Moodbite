@@ -2,7 +2,7 @@
 export { DishCard } from './ui/DishCard';
 export {
   describeCookingMethod,
-  describeIngredientsState,
+  describeIntroState,
   describeMealTimes,
   describeRestaurantCount,
   describeSource,

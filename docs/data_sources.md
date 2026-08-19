@@ -148,3 +148,83 @@ nhiều nguồn hơn là so khớp theo **khoảng cách địa lý + độ tư�
 **Kết luận trung thực:** dataset ĐỦ để làm bản đồ, tìm kiếm, lọc theo khu vực/tiện nghi/
 chế độ ăn/giờ mở cửa. CHƯA đủ để làm tính năng dựa trên **giá** hoặc **đánh giá**, và sẽ
 không đủ chừng nào chưa có Google Places API key.
+
+---
+
+## Nguồn dữ liệu MÓN ĂN (bổ sung 2026-08-19)
+
+Luồng "chọn món trước, tìm quán sau" cần một danh mục MÓN, không chỉ danh sách quán.
+Ba nguồn dưới đây đều **miễn phí, hợp pháp, không cần thẻ thanh toán**.
+
+| Nguồn | Cho ra cái gì | Lệnh |
+|---|---|---|
+| `dish_knowledge_base.json` | 38 rule cũ → 60 món, đã gắn với quán thật | có sẵn |
+| Khai thác **TÊN QUÁN** trong dataset | món có quán bán CHẮC CHẮN (đo được) | `scripts/build_dish_catalog.py` |
+| **Wikipedia tiếng Việt** (CC BY-SA) | giới thiệu ngắn + ảnh + món mới | `scripts/discover_dishes.py` |
+
+### Vì sao khai thác tên quán là nguồn tốt nhất
+
+Đo ngày 2026-08-18 trên 4938 quán: đếm cụm từ trong TÊN QUÁN lộ ra hàng loạt món phổ biến
+chưa có rule nào phủ — `bún cá` 39 quán, `trà chanh` 35, `nem nướng` 26, `bún ốc` 25,
+`chả cá` 11. Đây là nguồn **duy nhất** đảm bảo món thêm vào có quán thật bán, vì nó lấy
+chính từ dữ liệu quán mình đang có. Không tốn một lần gọi mạng nào.
+
+### Wikipedia: dùng cái gì và KHÔNG dùng cái gì
+
+| Lấy | Không lấy |
+|---|---|
+| ✅ Đoạn mở đầu (REST summary) làm GIỚI THIỆU NGẮN | ❌ Trích thành phần bằng regex trên thân bài |
+| ✅ `thumbnail` (~320px) làm ảnh minh hoạ | ❌ `originalimage` (có ảnh 8MB) |
+| ✅ Thể loại (category) để tìm món mới | ❌ Wikidata SPARQL lọc theo nước |
+
+**Hai thứ đã thử rồi BỎ, đừng làm lại:**
+
+1. **Regex bắt câu "Thành phần chính là..."** — đo trên 18 món, sinh dữ liệu SAI mà trông
+   hợp lệ: `Bánh mì` → *"chất độn để chèn vào răng sâu"*, `Cơm tấm` → *"nguyên liệu khác."*
+2. **Wikidata SPARQL lọc `P495 = Việt Nam`** — chạy được nhưng trả về cả bài hát, phim,
+   thơ ("Tiến quân ca", "Bước nhảy hoàn vũ"). Lọc theo nước KHÔNG phải lọc theo món ăn.
+   Truy vấn có duyệt cây `P279*` thì timeout 504.
+
+**Một lỗi kỹ thuật đáng nhớ:** MediaWiki `prop=extracts&exintro` chỉ trả đoạn mở đầu cho
+ĐÚNG MỘT trang mỗi request. Gộp 50 title vào một lần gọi thì 49 món về tay không — đây là
+lý do độ phủ mô tả từng đo được chỉ 51.9% dù mọi lần gọi mạng đều thành công. Chuyển sang
+REST summary (mỗi món một lần gọi, có cache) thì lên 100%.
+
+---
+
+## Nguồn dữ liệu QUÁN — mở rộng ra ngoài Hà Nội
+
+`OsmOverpassSource` đã nhận `bbox` làm tham số từ đầu, nên thêm thành phố = thêm một dòng
+vào `CITY_BBOXES` (`data_pipeline/sources/osm_overpass.py`), KHÔNG sửa pipeline:
+
+```powershell
+python -m data_pipeline.harvest --source openstreetmap --city da_nang
+python -m data_pipeline.harvest --source openstreetmap --city ho_chi_minh
+```
+
+Có sẵn: `ha_noi`, `ho_chi_minh`, `da_nang`, `hai_phong`, `can_tho`, `hue`, `nha_trang`,
+`da_lat`.
+
+Vẫn giữ nguyên các quy tắc Overpass đã trả giá để học: **chia ô** (hỏi cả thành phố một
+lần luôn 504), **nhiều mirror + thử lại nhiều vòng** (504 là lỗi TẠM THỜI), **cache theo ô**.
+
+---
+
+## Kiểm soát DUNG LƯỢNG (máy chủ là laptop cá nhân)
+
+```powershell
+python scripts/disk_report.py                # đo
+python scripts/disk_report.py --clean-cache  # xoá cache tra cứu (lấy lại được)
+```
+
+Ba quyết định giữ cho dữ liệu không phình:
+
+1. **Ảnh món chỉ lưu ĐƯỜNG DẪN, không tải file về.** Đo thật: cache 1149 món = **790 KB**.
+   Nếu tải ảnh về (~200KB/ảnh) thì cùng số món đó tốn khoảng **230 MB**.
+2. **Cache tra cứu xoá được** — mất thì chỉ tốn công gọi lại mạng, không mất dữ liệu gốc.
+3. **Mỗi nguồn một file thô riêng** — xoá được từng nguồn thay vì phải xoá cả cụm.
+
+> Đã đo 2026-08-19: `data_raw` chiếm 353 MB, trong đó **210 MB là `floorplans_yolo`** —
+> ảnh huấn luyện của tính năng floorplan→3D **đã tạm dừng** (code ở `archive/spatial-3d/`).
+> Đây là chỗ dọn được nhiều nhất, nhưng script KHÔNG tự xoá: xoá thứ đang tồn tại thì phải
+> hỏi chủ dự án trước (CLAUDE.md mục 8).

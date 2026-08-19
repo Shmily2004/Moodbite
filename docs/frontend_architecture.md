@@ -8,6 +8,29 @@
 
 ---
 
+## 0. LUỒNG MÀN HÌNH *(chốt 2026-08-19)*
+
+```
+/                 HomePage      chips loc -> LUOI MON        (widgets/dish-list)
+   |                            features/suggest-dishes
+   v  bam mot mon
+/mon/:dishId      DishPage      GIOI THIEU NGAN + ban do
+                                + danh sach QUAN ban mon do  (widgets/restaurant-list)
+                                features/view-dish-detail
+   |  bam mot quan
+   v
+                  panel chi tiet quan mo ngay trong danh sach: review, anh, chi duong
+
+/tim-kiem         SearchPage    LOI VAO THU HAI: go cau tu nhien -> thang danh sach quan
+```
+
+`DishPage` **dùng lại nguyên vẹn** `widgets/restaurant-list` của luồng tìm kiếm cũ, vì
+backend trả về đúng kiểu `SearchResponseData`. Không có component thẻ quán thứ hai —
+hai bản gần giống nhau là hai chỗ phải cùng sửa mỗi lần đổi cách hiển thị.
+
+Đường dẫn khai ở `shared/config/routes.ts` chứ không phải `app/routes.tsx`: luật import
+FSD chỉ cho đi XUỐNG, mà `pages` thì không được import từ `app`.
+
 ## 0. Trả lời trong 30 giây
 
 Câu hỏi hay gặp nhất: *"Frontend này có đủ Model — View — Controller không?"*

@@ -2,7 +2,7 @@
 
 Ba endpoint, đúng thứ tự người dùng đi qua:
     POST /api/v1/dishes/suggest            bộ lọc -> danh sách MÓN
-    GET  /api/v1/dishes/{id}               chi tiết món (THÀNH PHẦN)
+    GET  /api/v1/dishes/{id}               chi tiết món (GIỚI THIỆU NGẮN)
     GET  /api/v1/dishes/{id}/restaurants   món -> quán gần đây
 
 Dùng repository GIẢ, không đọc dataset thật: test phải chạy được kể cả trên máy chưa chạy
@@ -42,7 +42,7 @@ BUN_CHA = Dish(
     cuisine="Việt Nam",
     temperature="hot",
     cooking_method=METHOD_GRILLED,
-    ingredients=["bún", "chả thịt lợn nướng", "nước mắm chua ngọt"],
+    description="Bún chả là món Hà Nội gồm chả thịt lợn nướng than, ăn kèm bún và rau sống.",
     match_keywords=["bún chả"],
     source="manual",
 )
@@ -52,11 +52,11 @@ PHO_BO = Dish(
     cuisine="Việt Nam",
     temperature="hot",
     cooking_method=METHOD_SOUP,
-    ingredients=["bánh phở", "thịt bò"],
+    description="Phở bò là món nước dùng ninh từ xương bò, ăn cùng bánh phở và thịt bò.",
     match_keywords=["phở"],
     source="manual",
 )
-# Món CHƯA tra được thành phần - phải phân biệt được với "món không cần nguyên liệu".
+# Món CHƯA tra được giới thiệu - phải phân biệt được với "món không có gì để nói".
 MON_THIEU_DU_LIEU = Dish(
     name="Món chưa tra được",
     dish_id="mon-thieu",
@@ -197,28 +197,28 @@ def test_catalog_not_built_returns_503_with_fix_instruction():
 # --- GET /dishes/{id} --------------------------------------------------------
 
 
-def test_dish_detail_returns_basic_ingredients(client):
-    """Bước 2 của luồng: bấm vào món thì hiện THÀNH PHẦN CƠ BẢN."""
+def test_dish_detail_returns_short_intro(client):
+    """Bước 2 của luồng: bấm vào món thì hiện GIỚI THIỆU NGẮN về món đó."""
     data = client.get(f"{API}/dishes/bun-cha").json()["data"]
 
     assert data["name"] == "Bún chả"
-    assert data["has_ingredients"] is True
-    assert "bún" in data["ingredients"]
-    # Xuất xứ dữ liệu phải trả về để giao diện nói được nguyên liệu này ở đâu ra.
+    assert data["has_description"] is True
+    assert "Bún chả" in data["description"]
+    # Xuất xứ dữ liệu phải trả về để giao diện nói được đoạn giới thiệu này ở đâu ra.
     assert data["source"] == "manual"
 
 
-def test_dish_without_ingredients_says_so_instead_of_empty_list(client):
-    """Rỗng nghĩa là CHƯA CÓ DỮ LIỆU, không phải "món này không cần nguyên liệu".
+def test_dish_without_intro_says_so_instead_of_blank(client):
+    """Rỗng nghĩa là CHƯA TRA ĐƯỢC, không phải "món này không có gì để nói".
 
-    `has_ingredients` tồn tại để giao diện không phải tự đoán từ mảng rỗng.
+    `has_description` tồn tại để giao diện không phải tự đoán từ chuỗi rỗng.
     """
     client = make_client(dishes=[MON_THIEU_DU_LIEU], index={"mon-thieu": []})
 
     data = client.get(f"{API}/dishes/mon-thieu").json()["data"]
 
-    assert data["ingredients"] == []
-    assert data["has_ingredients"] is False
+    assert data["description"] is None
+    assert data["has_description"] is False
 
 
 def test_dish_detail_opens_even_when_no_restaurant_nearby(client):

@@ -88,12 +88,12 @@ export function describeRestaurantCount(count: number): string {
 }
 
 /**
- * Nhãn cho phần thành phần.
+ * Nhãn cho phần giới thiệu món.
  *
- * Rỗng nghĩa là CHƯA TRA ĐƯỢC, không phải "món này không cần nguyên liệu" - đây là quy
- * tắc 1 ở CLAUDE.md mục 4, và là lý do backend trả kèm cờ `has_ingredients` riêng thay
- * vì để frontend tự đoán từ mảng rỗng.
+ * Rỗng nghĩa là CHƯA TRA ĐƯỢC, không phải "món này không có gì để nói" - đây là quy tắc 1
+ * ở CLAUDE.md mục 4, và là lý do backend trả kèm cờ `has_description` riêng thay vì để
+ * frontend tự đoán từ chuỗi rỗng.
  */
-export function describeIngredientsState(hasIngredients: boolean): string | null {
-  return hasIngredients ? null : 'Chưa có dữ liệu thành phần cho món này.';
+export function describeIntroState(hasDescription: boolean): string | null {
+  return hasDescription ? null : 'Chưa có giới thiệu cho món này.';
 }

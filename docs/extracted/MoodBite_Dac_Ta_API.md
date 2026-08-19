@@ -432,3 +432,79 @@ Thêm dấu chấm (●) ở giao Module 1 × Application; cập nhật Hình 1 
 
 Đây là phát hiện cùng loại với module Interaction Logging đã bổ sung trước đó (Sơ đồ Kiến trúc mục 7) — cả hai đều lộ ra khi đặc tả ở mức đủ chi tiết (API, luồng gọi cụ thể) chứ không xuất hiện khi mô tả kiến trúc ở mức khái quát. Đây là lý do thực tế cho thấy việc viết Đặc tả API không chỉ là tài liệu hoá cái đã có, mà còn là một bước kiểm chứng kiến trúc.
 
+---
+
+# BỔ SUNG 2026-08-19 — Nhóm endpoint MÓN ĂN (luồng chính)
+
+> Đặc tả gốc chỉ có `/search` + `/restaurants/{id}`, với gợi ý món nằm lồng trong từng
+> kết quả tìm kiếm. Sau khi đảo luồng thành "chọn món trước, tìm quán sau"
+> (xem `docs/original/MoodBite_De_An_Y_Tuong.md`, phần SỬA ĐỔI PHẠM VI), có thêm ba
+> endpoint dưới đây. **Bốn quy ước gốc không đổi**: base `/api/v1`, envelope
+> `data`/`error`, tên trường `snake_case`, và `/search` vẫn trả `suggested_dish` lồng trong.
+
+## 3.4 `POST /api/v1/dishes/suggest` — bộ lọc → danh sách MÓN
+
+Bước 1 của luồng. Trả về MÓN, không phải quán.
+
+**Request** (mọi trường lọc đều tuỳ chọn; không gửi gì vẫn ra kết quả):
+
+| Trường | Kiểu | Ghi chú |
+|---|---|---|
+| `session_id` | string | BẮT BUỘC, giống `/search` |
+| `latitude`, `longitude` | float | mặc định trung tâm Hà Nội |
+| `cooking_methods` | string[] | `nuong` `chien` `luoc` `hap` `xao` `nuoc` `song` `tron` `nuong_lo` |
+| `temperatures` | string[] | `hot` `cold` `room` |
+| `meal_times` | string[] | `sang` `trua` `toi` `khuya` `an_vat` |
+| `cuisines` | string[] | VD `["Việt Nam"]` |
+| `max_spice_level` | int 0..5 | mức cay TỐI ĐA chấp nhận được |
+| `mood` | string | `happy` `sad` `excited` `relaxed` |
+| `weather` | string | `rain` `clear` `cloudy` — người dùng TỰ khai, **ghi đè** số đo tự động |
+| `max_distance_km` | float | ảnh hưởng tới `restaurant_count` |
+
+**Response `data`**: `search_query_id`, `results[]`, `context[]`, `warnings[]`.
+
+Mỗi phần tử `results[]`: `dish_id`, `name`, `cuisine`, `spice_level`, `temperature`,
+`cooking_method`, `meal_times[]`, `description`, `has_description`, `image_url`,
+`restaurant_count`, `rank_position`, `score`, `reasons[]`, `source`, `source_url`,
+`data_confidence`.
+
+**Ba quy ước riêng của nhóm này:**
+
+1. **Món không có quán nào trong bán kính bị ẨN**, và số món bị ẩn phải xuất hiện trong
+   `warnings` — im lặng bỏ bớt kết quả chính là lỗi `/suggest-dish` cũ từng mắc.
+2. **`description = null` kèm `has_description = false`** nghĩa là CHƯA TRA ĐƯỢC, không
+   phải "món này không có gì để nói". Có cờ riêng để client khỏi đoán từ chuỗi rỗng.
+3. **`image_url` luôn là ĐƯỜNG DẪN ngoài** (Wikimedia), không phải file server tự lưu.
+4. **Món thiếu dữ liệu KHÔNG bị loại** khỏi bộ lọc: món chưa khai `cooking_method` vẫn
+   qua được bộ lọc "đồ nướng", vì chưa biết KHÁC HẲN biết là không phải.
+
+## 3.5 `GET /api/v1/dishes/{dish_id}` — giới thiệu ngắn về món
+
+Nhận `latitude`, `longitude`, `max_distance_km` trên query string, vì `restaurant_count`
+phải tính theo bán kính của NGƯỜI ĐANG XEM.
+
+Món không tồn tại → **404 `DISH_NOT_FOUND`** (mã RIÊNG, không dùng chung
+`RESTAURANT_NOT_FOUND`: client cần phân biệt "món này không còn" với "quán này không còn").
+
+Món tồn tại nhưng 0 quán gần đó → **200** kèm `restaurant_count: 0`, KHÔNG phải 404.
+
+## 3.6 `GET /api/v1/dishes/{dish_id}/restaurants` — quán bán món đó
+
+Query: `session_id` (bắt buộc), `latitude`, `longitude`, `max_distance_km`, `mood`, `limit`.
+
+**Trả về ĐÚNG kiểu `SearchResponseData` của `/search`** — cố ý, để client dùng lại một
+component thẻ quán duy nhất. `suggested_dish` trong mỗi kết quả là món người dùng ĐÃ CHỌN
+(`confidence: "specific"`), không phải suy đoán từ loại hình quán.
+
+Không quán nào bán → **200** + `results: []` + lời giải thích trong `warnings`
+(không có quán là KẾT QUẢ THẬT, không phải lỗi).
+
+Quán duy nhất nằm ngoài bán kính → **vẫn hiện** (thà gợi ý quán xa còn hơn màn hình
+trắng) **nhưng phải nói ra** trong `warnings` — không được im lặng bỏ qua tham số client gửi.
+
+## Bảng mã lỗi — bổ sung
+
+| Tình huống | HTTP | `error.code` |
+|---|---|---|
+| `dish_id` không tồn tại / đã ẩn | 404 | `DISH_NOT_FOUND` |
+| Chưa dựng danh mục món | 503 | `DATA_NOT_READY` (kèm `python scripts/build_dish_catalog.py`) |

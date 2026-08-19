@@ -42,6 +42,26 @@ logger = logging.getLogger(__name__)
 # Bbox Hà Nội (nam, tây, bắc, đông).
 HANOI_BBOX = (20.85, 105.70, 21.40, 106.05)
 
+# CÁC THÀNH PHỐ KHÁC - để mở rộng dataset quán mà không phải sửa code.
+#
+#     python -m data_pipeline.harvest --source openstreetmap --city da_nang
+#
+# VÌ SAO CHỈ LÀ MỘT BẢNG BBOX: adapter đã nhận `bbox` làm tham số từ đầu, nên thêm thành
+# phố mới = thêm MỘT DÒNG ở đây, không đụng vào pipeline (đúng tinh thần `SourceAdapter`).
+#
+# CẢNH BÁO DUNG LƯỢNG: mỗi thành phố lớn thêm ~2-6MB JSON thô. Đừng bật hết một lượt trên
+# máy ít ổ trống - chạy từng thành phố rồi chạy `python scripts/disk_report.py` để xem.
+CITY_BBOXES: dict[str, tuple[float, float, float, float]] = {
+    "ha_noi": HANOI_BBOX,
+    "ho_chi_minh": (10.60, 106.50, 10.95, 106.90),
+    "da_nang": (15.95, 108.10, 16.15, 108.30),
+    "hai_phong": (20.75, 106.55, 20.95, 106.80),
+    "can_tho": (9.95, 105.65, 10.15, 105.85),
+    "hue": (16.40, 107.50, 16.55, 107.65),
+    "nha_trang": (12.18, 109.15, 12.32, 109.25),
+    "da_lat": (11.88, 108.40, 11.99, 108.50),
+}
+
 # Mirror xếp theo độ tin cậy đo được (2026-08): kumi.systems ổn định nhất,
 # overpass-api.de hay 504 vào giờ cao điểm.
 MIRRORS = [

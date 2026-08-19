@@ -12,14 +12,16 @@ BA NGUỒN, theo thứ tự ưu tiên giảm dần:
 
   1. `dish_knowledge_base.json`  - 38 rule sẵn có. Đã gắn với quán thật, đang chạy tốt.
   2. `dish_seed_manual.json`     - món soạn tay, lấy từ việc KHAI THÁC TÊN QUÁN thật.
-  3. Wikipedia + Wikidata        - làm giàu thành phần/mô tả/ảnh (tuỳ chọn `--enrich`).
+  3. Wikipedia tiếng Việt        - giới thiệu ngắn + đường dẫn ảnh (tuỳ chọn `--enrich`).
 
 VÌ SAO PHẢI ĐO SỐ QUÁN: người dùng chọn món trước rồi mới tìm quán. Món không khớp quán
 nào là NGÕ CỤT - bấm vào rồi nhận danh sách rỗng. Script này in ra đúng danh sách món
 đang bị ngõ cụt để còn sửa từ khoá, thay vì để người dùng phát hiện hộ.
 
-KHÔNG BỊA DỮ LIỆU: món tra không ra thành phần thì để mảng rỗng và `has_ingredients`
-bằng false. Giao diện nói "chưa có dữ liệu thành phần" chứ không hiện danh sách trống.
+KHÔNG BỊA DỮ LIỆU: món tra không ra giới thiệu thì để `description` bằng None và
+`has_description` bằng false. Giao diện nói "chưa có dữ liệu" chứ không để khoảng trắng.
+
+ẢNH: chỉ lưu ĐƯỜNG DẪN, không tải file về - máy chủ dự án là laptop cá nhân.
 """
 from __future__ import annotations
 
@@ -127,7 +129,6 @@ def load_manual_seed(path: Path) -> List[Dish]:
                 meal_times=list(entry.get("meal_times", [])),
                 portion_size=entry.get("portion_size"),
                 mood_keywords=list(entry.get("mood_keywords", [])),
-                ingredients=list(entry.get("ingredients", [])),
                 description=entry.get("description"),
                 match_keywords=list(entry.get("match_keywords", [])),
                 source=entry.get("source", DISH_SOURCE_MANUAL),
@@ -137,10 +138,27 @@ def load_manual_seed(path: Path) -> List[Dish]:
     return dishes
 
 
+def load_skip_wikipedia_ids(path: Path) -> set[str]:
+    """Món KHÔNG được để Wikipedia ghi đè giới thiệu.
+
+    Lý do có cờ này: bài Wikipedia trùng tên nhiều khi nói về NGUYÊN LIỆU hoặc CON VẬT
+    chứ không phải MÓN ĂN. Đã kiểm bằng tay: bài "Ốc" nói về lớp Chân bụng và minh hoạ
+    bằng ảnh con ốc sên - đưa lên trang món "Ốc luộc" thì vừa sai vừa mất ngon.
+    """
+    if not path.exists():
+        return set()
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    return {
+        entry["dish_id"]
+        for entry in raw.get("dishes", [])
+        if entry.get("skip_wikipedia") and entry.get("dish_id")
+    }
+
+
 def merge(seed: List[Dish], manual: List[Dish]) -> List[Dish]:
     """Gộp theo `dish_id`. MÓN SOẠN TAY THẮNG.
 
-    Vì sao soạn tay thắng: nó có thành phần, cách chế biến và bữa ăn - những thứ rule cũ
+    Vì sao soạn tay thắng: nó có giới thiệu, cách chế biến và bữa ăn - những thứ rule cũ
     hoàn toàn không có. Để rule cũ ghi đè lên thì công soạn tay thành vô ích.
     Từ khoá khớp quán thì GỘP CẢ HAI để không mất quán nào.
     """
@@ -165,7 +183,6 @@ def merge(seed: List[Dish], manual: List[Dish]) -> List[Dish]:
             meal_times=list(dish.meal_times),
             portion_size=dish.portion_size or existing.portion_size,
             mood_keywords=list(dish.mood_keywords or existing.mood_keywords),
-            ingredients=list(dish.ingredients),
             description=dish.description,
             match_keywords=merged_keywords,
             source=dish.source,
@@ -196,24 +213,32 @@ def count_restaurants(dishes: List[Dish], restaurants) -> Dict[str, int]:
     return counts
 
 
-def enrich(dishes: List[Dish]) -> tuple[List[Dish], int]:
-    """Tra Wikipedia/Wikidata cho món CHƯA có thành phần. Trả (danh sách mới, số món được bổ sung).
+def enrich(dishes: List[Dish], skip_ids: set[str]) -> tuple[List[Dish], int]:
+    """Tra Wikipedia lấy GIỚI THIỆU NGẮN + ẢNH. Trả (danh sách mới, số món được bổ sung).
 
-    CHỈ điền vào chỗ trống: món đã soạn tay thì giữ nguyên, vì bản soạn tay bám sát món
-    Việt hơn. Đo được: Wikidata trả về đúng 1 thành phần cho "Phở" ("mì gạo"), trong khi
-    bản soạn tay có đủ bánh phở/nước dùng/thịt bò/gia vị.
+    CHỈ ĐIỀN VÀO CHỖ TRỐNG: món đã có giới thiệu soạn tay thì giữ nguyên. Bản soạn tay
+    bám sát MÓN ĂN hơn, còn Wikipedia lắm khi nói về nguyên liệu.
+
+    `skip_ids`: món mà bài Wikipedia cùng tên nói về NGUYÊN LIỆU hoặc CON VẬT chứ không
+    phải món ăn. Kiểm bằng tay: bài "Ốc" nói về lớp Chân bụng (con ốc) và kèm ảnh con ốc
+    sên - đưa lên trang món "Ốc luộc" thì vừa sai vừa mất ngon. Với các món này chỉ dùng
+    bản soạn tay, KHÔNG để Wikipedia ghi đè.
     """
-    from data_pipeline.sources.wikidata_dish import WikidataDishSource
+    from data_pipeline.sources.wikipedia_dish import WikipediaDishSource
 
-    source = WikidataDishSource()
+    source = WikipediaDishSource()
     available, reason = source.is_available()
     if not available:
         # Không có mạng KHÔNG được làm hỏng cả lượt dựng danh mục.
-        logger.warning("Bỏ qua bước làm giàu: %s", reason)
+        logger.warning("Bo qua buoc lam giau: %s", reason)
         return dishes, 0
 
-    need = [d for d in dishes if not d.has_ingredients or not d.description]
-    logger.info("Tra Wikipedia/Wikidata cho %d món...", len(need))
+    # Chỉ tra món còn THIẾU - món đã đủ thì không tốn thêm lần gọi mạng nào.
+    need = [
+        d for d in dishes
+        if d.identifier not in skip_ids and (not d.has_description or not d.image_url)
+    ]
+    logger.info("Tra Wikipedia cho %d mon...", len(need))
     fetched = source.fetch_many([d.name for d in need])
 
     enriched_count = 0
@@ -224,9 +249,8 @@ def enrich(dishes: List[Dish]) -> tuple[List[Dish], int]:
             result.append(dish)
             continue
 
-        ingredients = dish.ingredients or list(data.ingredients)
         description = dish.description or data.description
-        if not dish.has_ingredients and data.ingredients:
+        if not dish.has_description and data.description:
             enriched_count += 1
 
         result.append(
@@ -240,16 +264,16 @@ def enrich(dishes: List[Dish]) -> tuple[List[Dish], int]:
                 meal_times=list(dish.meal_times),
                 portion_size=dish.portion_size,
                 mood_keywords=list(dish.mood_keywords),
-                ingredients=ingredients,
                 description=description,
+                # Ảnh: chỉ giữ ĐƯỜNG DẪN, không tải file về. Xem `sources/wikipedia_dish.py`.
                 image_url=dish.image_url or data.image_url,
                 match_keywords=list(dish.restaurant_match_keywords),
                 # Ghi đúng nguồn của phần VỪA điền thêm. Món tự soạn mà ghi là lấy từ
                 # Wikipedia là nói dối về xuất xứ dữ liệu.
                 source=(
                     dish.source
-                    if dish.has_ingredients
-                    else (DISH_SOURCE_WIKIPEDIA if data.ingredients else dish.source)
+                    if dish.has_description
+                    else (DISH_SOURCE_WIKIPEDIA if data.description else dish.source)
                 ),
                 source_url=data.source_url or dish.source_url,
                 last_updated=data.last_updated,
@@ -270,7 +294,6 @@ def to_record(dish: Dish, restaurant_count: int) -> dict:
         "meal_times": list(dish.meal_times),
         "portion_size": dish.portion_size,
         "mood_keywords": list(dish.mood_keywords),
-        "ingredients": list(dish.ingredients),
         "description": dish.description,
         "image_url": dish.image_url,
         "match_keywords": list(dish.restaurant_match_keywords),
@@ -287,7 +310,8 @@ def to_record(dish: Dish, restaurant_count: int) -> dict:
 def report(dishes: List[Dish], counts: Dict[str, int]) -> None:
     total = len(dishes)
     with_restaurants = sum(1 for d in dishes if counts.get(d.identifier, 0) > 0)
-    with_ingredients = sum(1 for d in dishes if d.has_ingredients)
+    with_description = sum(1 for d in dishes if d.has_description)
+    with_image = sum(1 for d in dishes if d.image_url)
     dead_ends = sorted(
         (d for d in dishes if counts.get(d.identifier, 0) == 0), key=lambda d: d.name
     )
@@ -302,8 +326,12 @@ def report(dishes: List[Dish], counts: Dict[str, int]) -> None:
         with_restaurants, 100 * with_restaurants / total if total else 0,
     )
     logger.info(
-        "Có dữ liệu thành phần  : %d (%.1f%%)",
-        with_ingredients, 100 * with_ingredients / total if total else 0,
+        "Co gioi thieu ngan     : %d (%.1f%%)",
+        with_description, 100 * with_description / total if total else 0,
+    )
+    logger.info(
+        "Co anh (chi luu URL)   : %d (%.1f%%)",
+        with_image, 100 * with_image / total if total else 0,
     )
     logger.info("")
     logger.info("--- 15 món nhiều quán nhất ---")
@@ -325,7 +353,7 @@ def report(dishes: List[Dish], counts: Dict[str, int]) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Dựng danh mục món ăn cho MoodBite")
     parser.add_argument("--enrich", action="store_true",
-                        help="Tra Wikipedia/Wikidata để bổ sung thành phần, mô tả, ảnh")
+                        help="Tra Wikipedia bo sung gioi thieu ngan + duong dan anh")
     parser.add_argument("--report-only", action="store_true",
                         help="Chỉ in báo cáo, KHÔNG ghi đè dish_catalog.json")
     parser.add_argument("--output", type=Path, default=OUTPUT_PATH)
@@ -340,14 +368,15 @@ def main() -> int:
     logger.info("Nguồn 2: %s", MANUAL_SEED_PATH.name)
     manual = load_manual_seed(MANUAL_SEED_PATH)
     logger.info("  -> %d món soạn tay", len(manual))
+    skip_ids = load_skip_wikipedia_ids(MANUAL_SEED_PATH)
 
     dishes = merge(seed, manual)
     logger.info("Gộp lại: %d món duy nhất", len(dishes))
 
     enriched_count = 0
     if args.enrich:
-        dishes, enriched_count = enrich(dishes)
-        logger.info("  -> bổ sung thành phần cho %d món", enriched_count)
+        dishes, enriched_count = enrich(dishes, skip_ids)
+        logger.info("  -> bo sung gioi thieu cho %d mon", enriched_count)
 
     repo = CsvRestaurantRepository(settings.restaurants_csv)
     if not repo.is_ready:
@@ -374,7 +403,7 @@ def main() -> int:
         "generated_from": [
             str(settings.dish_knowledge_json.name),
             MANUAL_SEED_PATH.name,
-        ] + (["wikipedia_vi + wikidata"] if args.enrich else []),
+        ] + (["wikipedia_vi"] if args.enrich else []),
         "dish_count": len(dishes),
         "dishes": [
             to_record(d, counts.get(d.identifier, 0))

@@ -1,8 +1,25 @@
 # MoodBite
-### Nền tảng Web Gợi ý Nhà hàng theo Ngữ cảnh Thời gian thực
-*(Real-time Context-Aware Restaurant Recommendation Platform)*
+### Nền tảng Web Gợi ý Món ăn & Nhà hàng theo Ngữ cảnh Thời gian thực
+*(Real-time Context-Aware Dish & Restaurant Recommendation Platform)*
 
 ---
+
+> **SỬA ĐỔI PHẠM VI — 2026-08-19: ĐẢO LUỒNG THÀNH "CHỌN MÓN TRƯỚC, TÌM QUÁN SAU".**
+>
+> Bản đề án gốc mô tả luồng LẤY QUÁN LÀM TRUNG TÂM: xếp hạng quán trước (Lớp 3), rồi gắn
+> món gợi ý vào từng quán như một nhãn phụ (Lớp 5). Nay đảo lại: **người dùng chọn điều
+> kiện → hệ thống gợi ý MÓN → chọn món → mới hiện quán bán món đó**.
+>
+> **Vì sao đổi:** chính bản gốc, ở mục 2 ý thứ năm, đã nhận xét rằng người dùng "thường có
+> tâm trạng hoặc nhu cầu rõ ràng về món ăn *trước khi nghĩ đến việc chọn quán*". Nhưng mục
+> 3 lại hiện thực ngược với nhận xét đó - món chỉ được xếp hạng *bên trong* tập quán đã
+> chọn. Sửa đổi này làm cho phần hiện thực khớp với chính nhận xét ban đầu.
+>
+> **Cái gì KHÔNG đổi:** bài toán vẫn là dự đoán/xếp hạng theo ngữ cảnh động; vẫn đủ 5 lớp
+> mô hình; vẫn dùng tín hiệu thời tiết/thời điểm; vẫn định vị bằng bản đồ. Chỉ đổi THỨ TỰ
+> người dùng đi qua, và do đó đổi vai trò của Lớp 5 từ "nhãn phụ" thành "cửa vào".
+>
+> Các đoạn đã sửa được đánh dấu bằng *(sửa 2026-08-19)*.
 
 ## 1. Bối cảnh và vấn đề
 
@@ -31,7 +48,7 @@ MoodBite được xây dựng dựa trên năm thay đổi tư duy so với các
 
 **Thứ tư**, vị trí không phải là một lựa chọn trong khảo sát ("dưới 1km", "dưới 3km") mà được lấy trực tiếp từ vị trí hiện tại của người dùng thông qua bản đồ, và toàn bộ trải nghiệm tìm kiếm — từ nhập nhu cầu đến xem kết quả — diễn ra trên nền một bản đồ tương tác, không phải một danh sách rời rạc.
 
-**Thứ năm**, hệ thống không dừng lại ở việc trả lời "nên đến quán nào", mà còn trả lời câu hỏi cụ thể hơn là "nên ăn món gì" — vì trong thực tế người dùng thường có tâm trạng hoặc nhu cầu rõ ràng về món ăn (ví dụ "trời lạnh muốn ăn gì đó nóng", "hôm nay mệt muốn ăn nhẹ") trước khi nghĩ đến việc chọn quán. Vì vậy, đề xuất món ăn (dish-level recommendation) được thiết kế như một lớp riêng, hoạt động song song và bổ trợ cho lớp đề xuất quán (mục 3.5).
+**Thứ năm** *(sửa 2026-08-19)*, hệ thống trả lời câu hỏi "nên ăn món gì" **trước**, rồi mới tới "nên đến quán nào" — vì trong thực tế người dùng thường có tâm trạng hoặc nhu cầu rõ ràng về món ăn (ví dụ "trời lạnh muốn ăn gì đó nóng", "hôm nay mệt muốn ăn nhẹ") trước khi nghĩ đến việc chọn quán. Vì vậy đề xuất món ăn (dish-level recommendation) là **cửa vào của sản phẩm**, không phải một nhãn phụ gắn kèm kết quả tìm quán: người dùng chọn điều kiện → nhận danh sách MÓN → chọn một món → xem giới thiệu ngắn về món → rồi mới thấy danh sách quán bán món đó gần mình.
 
 ---
 
@@ -51,11 +68,13 @@ Vì đây là bài toán dự đoán/xếp hạng chứ không đơn thuần là
 
 1. **Trích xuất đặc trưng món ăn (offline, thực hiện một lần khi thu thập dữ liệu ở mục 7):** mỗi món ăn trong thực đơn/menu được gán các thuộc tính (tag) như nhóm món (canh/nước, khô, tráng miệng...), mức độ cay, nóng/lạnh, độ "nặng bụng" (nhẹ/no), và các từ khoá cảm xúc thường xuất hiện trong review nhắc đến món đó (ví dụ "ấm bụng", "giải nhiệt", "an ủi tinh thần"). Việc gán nhãn này có thể thực hiện bán tự động: dùng mô hình ngôn ngữ để gợi ý nhãn từ mô tả/review, sau đó kiểm duyệt thủ công một phần để đảm bảo chất lượng.
 2. **Ánh xạ tâm trạng/ngữ cảnh sang đặc trưng món ăn (rule + semantic matching):** xây dựng một bảng ánh xạ nền (ví dụ trời mưa/lạnh → ưu tiên món nóng, nước; tâm trạng mệt/buồn → ưu tiên món "an ủi" quen thuộc; tâm trạng muốn ăn nhẹ → ưu tiên món ít dầu mỡ, khẩu phần nhỏ) kết hợp với việc so khớp ngữ nghĩa giữa câu mô tả tâm trạng của người dùng và các từ khoá cảm xúc đã gán ở bước 1, dùng cùng cơ chế embedding như Lớp 2 để không phải xây riêng một mô hình NLP khác.
-3. **Xếp hạng món ăn trong phạm vi các quán đã được Lớp 3 đề xuất:** món ăn chỉ được xếp hạng trong tập nhà hàng đã qua lọc theo vị trí/ngân sách, tránh đề xuất món ở quán quá xa. Điểm phù hợp của món = trọng số giữa (a) độ khớp ngữ cảnh/tâm trạng từ bước 2 và (b) mức độ phổ biến của món trong review (tần suất được nhắc đến tích cực). Ở giai đoạn đầu có thể dùng công thức trọng số đơn giản; khi có đủ dữ liệu tương tác (người dùng bấm chọn món nào), có thể nâng cấp thành một mô hình học nhẹ tương tự Lớp 3.
+3. **Xếp hạng món ăn theo ngữ cảnh, có ràng buộc "phải tìm được quán" *(sửa 2026-08-19)*:** món được xếp hạng TRƯỚC, trên toàn danh mục, chứ không nằm trong phạm vi một tập quán đã chọn. Điểm phù hợp của món = tổ hợp có trọng số của (a) độ khớp bộ lọc người dùng chủ động chọn, (b) độ hợp ngữ cảnh thời tiết/giờ ăn, (c) độ hợp tâm trạng, và (d) **số quán bán món đó trong bán kính người dùng** — thành phần (d) là ràng buộc thay thế cho việc "chỉ xếp hạng trong tập quán đã lọc" của bản gốc: món không có quán nào gần là ngõ cụt nên bị ẩn khỏi trang chủ, kèm thông báo rõ đã ẩn bao nhiêu món. Tổng trọng số bằng 1.0 để điểm luôn nằm trong [0,1]. Ở giai đoạn đầu dùng công thức trọng số cố định; khi có đủ dữ liệu tương tác (người dùng bấm chọn món nào), có thể nâng cấp thành một mô hình học nhẹ tương tự Lớp 3.
 
-Kết quả của Lớp 5 được hiển thị như một gợi ý bổ sung đi kèm mỗi quán trong danh sách kết quả (ví dụ: "Quán A — gợi ý: lẩu gà lá giang, phù hợp cho hôm nay trời mưa se lạnh"), chứ không thay thế việc đề xuất quán của Lớp 3.
+Kết quả của Lớp 5 là **màn hình đầu tiên người dùng nhìn thấy** *(sửa 2026-08-19)*: một danh sách MÓN, mỗi món kèm lý do được gợi ý và số quán bán món đó gần người dùng (ví dụ: "Bún chả — hợp trời mưa, món nướng nóng · 86 quán gần bạn"). Chọn một món sẽ mở trang giới thiệu ngắn về món, rồi tới danh sách quán do Lớp 3 xếp hạng. Như vậy Lớp 3 không bị thay thế mà được **gọi sau** Lớp 5, trên tập quán đã lọc theo món.
 
-Các lớp trên phối hợp theo trình tự: câu tìm kiếm/khảo sát của người dùng → tính độ tương đồng ngữ nghĩa và xác định cụm gần nhất (Lớp 1, 2) → lọc theo các ràng buộc cứng (ngân sách, dị ứng, giờ mở cửa) → đưa toàn bộ tín hiệu vào mô hình xếp hạng để tính điểm dự đoán mức độ phù hợp cho từng quán (Lớp 3) → trong phạm vi các quán được chọn, chạy đề xuất món ăn theo tâm trạng (Lớp 5) → hiển thị kết quả (quán + món gợi ý) kèm theo nhận xét tổng hợp từ Lớp 4.
+Các lớp phối hợp theo trình tự *(sửa 2026-08-19)*: người dùng chọn bộ lọc (thời tiết, cách chế biến, bữa ăn, tâm trạng) → **Lớp 5 xếp hạng MÓN** theo ngữ cảnh và số quán khả dụng gần đó → người dùng chọn một món → hệ thống lọc ra tập quán bán món đó (đối chiếu theo tên quán và loại hình) → **Lớp 3 xếp hạng QUÁN** trong tập đó bằng toàn bộ tín hiệu sẵn có (Lớp 1 cụm trải nghiệm, Lớp 2 tương đồng ngữ nghĩa, khoảng cách, đánh giá, ngữ cảnh) → hiển thị danh sách quán kèm nhận xét tổng hợp từ Lớp 4.
+
+Luồng tìm kiếm bằng **câu tự nhiên** của bản gốc vẫn được giữ nguyên như một lối vào thứ hai (gõ "quán lẩu ấm cúng gần đây" để ra thẳng danh sách quán), vì đó là một năng lực đã hiện thực xong và vẫn đúng với mục 2 ý thứ hai.
 
 ---
 
@@ -121,6 +140,6 @@ Vì hệ thống hiện có ba thành phần học máy riêng biệt, việc đ
 
 MoodBite không còn là một công cụ phân cụm đơn thuần, mà là một nền tảng dự đoán mức độ phù hợp giữa người dùng và nhà hàng (và xa hơn là món ăn cụ thể) tại một thời điểm cụ thể, kết hợp bốn năng lực: hiểu ngữ nghĩa nhu cầu diễn đạt tự do, cập nhật theo tín hiệu thời điểm thực (thời tiết, giao thông), định vị theo bản đồ thay vì khảo sát trừu tượng, và gợi ý món ăn theo tâm trạng chứ không chỉ dừng ở cấp độ quán. Cách tiếp cận này mang lại giá trị ở ba khía cạnh:
 
-- **Về sản phẩm:** người dùng tìm kiếm tự nhiên như đang hỏi một người bạn địa phương, thay vì điền một biểu mẫu, và nhận được gợi ý đủ cụ thể để hành động ngay ("đến quán A, gọi món B") thay vì chỉ một danh sách quán để tự chọn tiếp.
+- **Về sản phẩm:** người dùng đi đúng theo cách họ vốn nghĩ — "hôm nay trời mưa, muốn ăn gì đó nóng" → thấy MÓN trước, hiểu món đó là gì, rồi mới chọn quán *(sửa 2026-08-19)*. Kết quả đủ cụ thể để hành động ngay ("ăn bún chả, đến quán A cách 400m") thay vì chỉ một danh sách quán để tự chọn tiếp.
 - **Về khoa học dữ liệu:** bài toán được nhìn nhận đúng bản chất là dự đoán/xếp hạng theo ngữ cảnh động, sử dụng kết hợp học không giám sát, tìm kiếm ngữ nghĩa và học có giám sát — không gói gọn trong một thuật toán phân cụm duy nhất.
 - **Về kỹ thuật:** tách bạch rõ giữa dữ liệu tĩnh (thu thập một lần, xử lý theo đợt) và tín hiệu động (gọi thời gian thực), giúp hệ thống vừa nhanh khi phục vụ người dùng, vừa không tốn kém khi vận hành lâu dài.

@@ -95,7 +95,6 @@ class JsonDishCatalogRepository:
             meal_times=list(raw.get("meal_times") or []),
             portion_size=raw.get("portion_size"),
             mood_keywords=list(raw.get("mood_keywords") or []),
-            ingredients=list(raw.get("ingredients") or []),
             description=raw.get("description"),
             image_url=raw.get("image_url"),
             match_keywords=list(raw.get("match_keywords") or []),

@@ -276,7 +276,13 @@ def test_match_keywords_allow_admin_to_add_variants():
     assert dish.matches_restaurant_text("Bún Bò Gánh")
 
 
-def test_has_ingredients_distinguishes_missing_from_empty():
-    """UI phải nói "chưa có dữ liệu thành phần" chứ không hiện danh sách rỗng."""
-    assert not make_dish("Món mới").has_ingredients
-    assert make_dish("Phở bò", ingredients=["bánh phở", "thịt bò"]).has_ingredients
+def test_has_description_distinguishes_missing_from_empty():
+    """UI phải nói "chưa có dữ liệu" chứ không để một khoảng trắng."""
+    assert not make_dish("Món mới").has_description
+    assert make_dish("Phở bò", description="Phở bò là món nước.").has_description
+
+
+def test_blank_description_counts_as_missing():
+    """Chuỗi toàn khoảng trắng KHÔNG phải là có dữ liệu - nếu không UI sẽ hiện một vùng
+    trống trơn mà vẫn tưởng là đã có giới thiệu."""
+    assert not make_dish("Món mới", description="   ").has_description

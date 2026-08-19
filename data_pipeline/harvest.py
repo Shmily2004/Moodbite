@@ -23,6 +23,7 @@ from pathlib import Path
 from typing import List
 
 from data_pipeline.sources import AVAILABLE_SOURCES
+from data_pipeline.sources.osm_overpass import CITY_BBOXES
 from data_pipeline.sources.base import CONFIDENCE_DERIVED, RawPlace
 from data_pipeline.sources.districts import DistrictLocator, fetch_district_boundaries
 
@@ -97,6 +98,9 @@ def main(argv: List[str] | None = None) -> int:
     parser.add_argument("--source", action="append", help="Chi chay nguon nay (lap lai duoc)")
     parser.add_argument("--list", action="store_true", help="Liet ke nguon va trang thai")
     parser.add_argument("--no-districts", action="store_true", help="Bo qua buoc gan quan")
+    parser.add_argument("--city", default="ha_noi",
+                        help="Thanh pho can lay (chi ap dung cho openstreetmap). "
+                             "Xem CITY_BBOXES trong sources/osm_overpass.py")
     parser.add_argument("--tile-size", type=float, default=0.08,
                         help="Kich thuoc o luoi (do). Nho hon = nhieu request hon nhung it 504 hon")
     args = parser.parse_args(argv)
@@ -113,7 +117,16 @@ def main(argv: List[str] | None = None) -> int:
     total = 0
     for name in wanted:
         factory = AVAILABLE_SOURCES[name]
-        source = factory(tile_size_deg=args.tile_size) if name == "openstreetmap" else factory()
+        if name == "openstreetmap":
+            # Thanh pho khong co trong bang -> DUNG LAI va noi ro, khong am tham lay Ha Noi:
+            # chay 20 phut roi phat hien lay nham thanh pho la mat cong vo ich.
+            if args.city not in CITY_BBOXES:
+                logger.error("Khong co thanh pho '%s'. Co: %s",
+                             args.city, sorted(CITY_BBOXES))
+                return 2
+            source = factory(bbox=CITY_BBOXES[args.city], tile_size_deg=args.tile_size)
+        else:
+            source = factory()
 
         available, reason = source.is_available()
         if not available:

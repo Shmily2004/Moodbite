@@ -58,12 +58,12 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Chi tiết 1 món (thành phần cơ bản)
-         * @description Thành phần cơ bản + số quán bán món này gần bạn.
+         * Chi tiết 1 món (giới thiệu ngắn)
+         * @description Giới thiệu ngắn về món + số quán bán món này gần bạn.
          *
-         *     `ingredients` rỗng kèm `has_ingredients: false` nghĩa là CHƯA TRA ĐƯỢC nguồn nào, và
-         *     giao diện phải nói đúng như vậy - không được hiện danh sách rỗng như thể món này không
-         *     cần nguyên liệu gì (CLAUDE.md mục 4 quy tắc 1).
+         *     `description` rỗng kèm `has_description: false` nghĩa là CHƯA TRA ĐƯỢC nguồn nào, và
+         *     giao diện phải nói đúng như vậy - không được để một khoảng trắng như thể món này không
+         *     có gì để giới thiệu (CLAUDE.md mục 4 quy tắc 1).
          *
          *     Nhận toạ độ vì `restaurant_count` phải tính theo bán kính của NGƯỜI ĐANG XEM: món có
          *     1700 quán toàn thành phố nhưng 0 quán quanh đây vẫn là ngõ cụt.
@@ -541,15 +541,10 @@ export interface components {
              */
             meal_times: string[];
             /**
-             * Ingredients
-             * @default []
-             */
-            ingredients: string[];
-            /**
-             * Has Ingredients
+             * Has Description
              * @default false
              */
-            has_ingredients: boolean;
+            has_description: boolean;
             /** Description */
             description?: string | null;
             /** Image Url */

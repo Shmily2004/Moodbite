@@ -1,7 +1,7 @@
 /**
  * TRANG CHI TIẾT MÓN - bước 2 và 3 của luồng.
  *
- *   THÀNH PHẦN CƠ BẢN của món  ->  DANH SÁCH QUÁN gần bạn bán món đó  ->  bấm quán để xem
+ *   GIỚI THIỆU NGẮN về món  ->  DANH SÁCH QUÁN gần bạn bán món đó  ->  bấm quán để xem
  *   review/ảnh (panel chi tiết nằm sẵn trong `RestaurantList`).
  *
  * Dùng lại NGUYÊN VẸN `RestaurantList` của luồng tìm kiếm cũ: backend trả về đúng kiểu
@@ -15,7 +15,7 @@ import { useDishDetail } from '@/features/view-dish-detail';
 import { useUserLocation } from '@/features/pick-location';
 import {
   describeCookingMethod,
-  describeIngredientsState,
+  describeIntroState,
   describeMealTimes,
   describeRestaurantCount,
   describeSource,
@@ -80,25 +80,20 @@ export function DishPage() {
               )}
             </ul>
 
-            {dish.description && <p className="dish-detail__desc">{dish.description}</p>}
-
-            {/* THÀNH PHẦN CƠ BẢN - phần chính của bước 2 trong luồng. */}
-            <h2 className="dish-detail__heading">Thành phần cơ bản</h2>
-            {dish.has_ingredients ? (
-              <ul className="ingredients">
-                {dish.ingredients.map((item) => (
-                  <li className="ingredients__item" key={item}>
-                    {item}
-                  </li>
-                ))}
-              </ul>
+            {/* GIỚI THIỆU NGẮN - nội dung chính của bước 2 trong luồng.
+                Chốt 2026-08-19: thay cho danh sách nguyên liệu. Một đoạn văn nói món đó
+                là gì và ăn thế nào thì dễ đọc hơn, và phủ được 100% danh mục (đo được),
+                trong khi danh sách nguyên liệu chỉ phủ 87%. */}
+            <h2 className="dish-detail__heading">Món này là gì?</h2>
+            {dish.has_description ? (
+              <p className="dish-detail__intro">{dish.description}</p>
             ) : (
-              /* Rỗng nghĩa là CHƯA TRA ĐƯỢC, không phải "món này không cần nguyên liệu".
-                 Nói thẳng ra thay vì hiện danh sách trống (CLAUDE.md mục 4 quy tắc 1). */
-              <p className="muted">{describeIngredientsState(false)}</p>
+              /* Rỗng nghĩa là CHƯA TRA ĐƯỢC, không phải "món này không có gì để nói".
+                 Nói thẳng ra thay vì để một vùng trắng (CLAUDE.md mục 4 quy tắc 1). */
+              <p className="muted">{describeIntroState(false)}</p>
             )}
 
-            {/* Nguồn dữ liệu: người đọc phải biết nguyên liệu này ở đâu ra. */}
+            {/* Nguồn dữ liệu: người đọc phải biết đoạn giới thiệu này ở đâu ra. */}
             {describeSource(dish.source) && (
               <p className="dish-detail__source small muted">
                 Nguồn: {describeSource(dish.source)}

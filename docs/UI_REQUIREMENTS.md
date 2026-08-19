@@ -474,3 +474,48 @@ python scripts/verify.py           # mục 9 chạy tự động
 > Lỗi này **đã xảy ra**: bản fixture đầu tiên có 54% quán kèm ảnh (thật 21.5%) vì xếp hạng
 > ưu tiên quán giàu dữ liệu. Nếu thiết kế trên bộ đó, giao diện sẽ đẹp lúc demo và vỡ khi
 > cắm dữ liệu thật. Script mục 9 sinh ra chính là để chặn việc đó tái diễn.
+
+---
+
+# BỔ SUNG 2026-08-19 — Màn hình của luồng "chọn món trước"
+
+Tài liệu gốc mô tả giao diện LẤY QUÁN LÀM TRUNG TÂM (bản đồ + rail đề xuất quán). Phần đó
+vẫn đúng, nhưng nay nằm ở `/tim-kiem` (lối vào thứ hai). Trang chủ đổi thành lưới MÓN.
+
+## Trang chủ `/` — lưới món
+
+| Vùng | Nội dung | Quy tắc |
+|---|---|---|
+| Thanh trên | thương hiệu + câu mời + ngữ cảnh đang áp dụng | ngữ cảnh hiện dạng chữ ("đêm khuya · trời mưa") |
+| Hàng lọc | 3 nhóm chip: *Hôm nay thế nào* · *Muốn ăn gì* · *Bữa nào* | chip XUỐNG DÒNG, không cuộn ngang — người dùng cần thấy HẾT lựa chọn |
+| Lưới món | thẻ món dạng lưới tự co | tối thiểu 240px/thẻ |
+
+**Thứ tự thông tin trên THẺ MÓN** (khác thẻ quán, vì người dùng đang chọn món):
+
+1. ảnh món (chưa có ảnh → hiện chữ cái đầu, KHÔNG để khung vỡ)
+2. tên món
+3. **số quán gần bạn** ← đứng ngay dưới tên, vì nó quyết định người dùng có bấm hay không
+4. thẻ thuộc tính: nóng/mát · cách chế biến · độ cay
+5. vì sao được gợi ý ("trời mưa, món nóng ấm bụng")
+
+**Không bấm được thì đừng hiện**: món 0 quán bị backend ẩn khỏi trang chủ. Nếu vẫn lọt vào
+(mở từ liên kết chia sẻ) thì làm mờ thẻ (`.dish--empty`) chứ không khoá — người dùng vẫn
+có quyền xem.
+
+## Trang món `/mon/:dishId`
+
+1. Ảnh + tên món + thẻ thuộc tính
+2. **"Món này là gì?"** — đoạn giới thiệu ngắn. Chưa tra được thì hiện thẳng câu
+   *"Chưa có giới thiệu cho món này."*, TUYỆT ĐỐI không để một vùng trắng.
+3. Nguồn dữ liệu + liên kết "xem nguồn" — người đọc phải biết đoạn giới thiệu ở đâu ra.
+4. Bản đồ + danh sách quán bán món đó (dùng lại thẻ quán của luồng cũ, không làm bản thứ hai)
+
+Bề rộng đoạn giới thiệu giới hạn `62ch`: dòng dài hơn thì mắt khó bắt được đầu dòng kế
+tiếp — đây là lý do sách báo không in hết chiều ngang trang.
+
+## Quy tắc hiển thị vẫn giữ nguyên từ bản gốc
+
+- `null` là **chưa có dữ liệu**, không phải 0. Không bao giờ hiện "0 sao" hay "miễn phí".
+- Mức tin cậy của gợi ý món phải hiện **thành chữ**, không giấu trong tooltip (trên điện
+  thoại sẽ không bao giờ thấy).
+- Mọi `warnings` từ backend phải hiện lên, kể cả câu "đã ẩn N món không có quán nào".

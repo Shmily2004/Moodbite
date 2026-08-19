@@ -46,7 +46,7 @@ MEAL_TIMES: tuple[str, ...] = (
     MEAL_BREAKFAST, MEAL_LUNCH, MEAL_DINNER, MEAL_LATE_NIGHT, MEAL_SNACK,
 )
 
-# Nguồn gốc dữ liệu THÀNH PHẦN món (CLAUDE.md mục 4b: mọi bản ghi phải truy được nguồn).
+# Nguồn gốc dữ liệu GIỚI THIỆU món (CLAUDE.md mục 4b: mọi bản ghi phải truy được nguồn).
 DISH_SOURCE_WIKIPEDIA = "wikipedia_vi"
 DISH_SOURCE_MANUAL = "manual"
 DISH_SOURCE_SEED = "seed_kb"      # sinh từ dish_knowledge_base.json có sẵn
@@ -69,14 +69,14 @@ class Dish:
 
     Trước đây món chỉ là nhãn gắn kèm quán (`suggested_dish`). Nay món là thực thể có
     trang riêng - người dùng chọn món TRƯỚC rồi mới tìm quán - nên cần đủ thông tin để
-    (a) lọc được, (b) hiển thị được thành phần, (c) tìm ngược ra quán.
+    (a) lọc được, (b) giới thiệu được cho người đọc, (c) tìm ngược ra quán.
 
     MỌI FIELD MỚI ĐỀU CÓ MẶC ĐỊNH: `dish_knowledge_base.json` cũ chưa có các field này,
     và món cũ vẫn phải dựng được như thường.
 
     `None`/rỗng nghĩa là CHƯA CÓ DỮ LIỆU, không phải "không có" (CLAUDE.md mục 4 quy tắc 1).
-    Món chưa tra được thành phần thì `ingredients` rỗng và UI phải nói "chưa có dữ liệu",
-    tuyệt đối không hiện danh sách rỗng như thể món đó không cần nguyên liệu gì.
+    Món chưa tra được giới thiệu thì `description` để None và UI phải nói "chưa có dữ liệu",
+    tuyệt đối không để một khoảng trắng như thể món đó không có gì để nói.
     """
 
     name: str
@@ -96,9 +96,12 @@ class Dish:
     meal_times: List[str] = field(default_factory=list)
 
     # --- nội dung hiển thị ở TRANG CHI TIẾT MÓN ---
-    # Thành phần cơ bản. Thứ tự có nghĩa: nguyên liệu chính đứng trước.
-    ingredients: List[str] = field(default_factory=list)
+    # GIỚI THIỆU NGẮN: món này là gì, ăn thế nào. Chốt 2026-08-19 thay cho danh sách
+    # nguyên liệu. Lý do: đoạn mở đầu bài Wikipedia vốn đã kể luôn nguyên liệu chính
+    # ngay trong câu văn, vừa dễ đọc hơn danh sách rời rạc vừa phủ được nhiều món hơn.
     description: Optional[str] = None
+    # CHỈ LÀ ĐƯỜNG DẪN, không bao giờ là ảnh tải về: máy chủ dự án là laptop cá nhân.
+    # Lưu URL tốn ~100 byte/món thay vì ~200KB/món.
     image_url: Optional[str] = None
 
     # --- tìm ngược ra QUÁN ---
@@ -129,10 +132,14 @@ class Dish:
         return self.match_keywords or [self.name]
 
     @property
-    def has_ingredients(self) -> bool:
-        """Có dữ liệu thành phần chưa. UI dùng để chọn giữa hiện danh sách và hiện
-        "chưa có dữ liệu" - KHÔNG được im lặng hiện danh sách rỗng."""
-        return bool(self.ingredients)
+    def has_description(self) -> bool:
+        """Đã có giới thiệu chưa.
+
+        UI dùng cờ này để chọn giữa hiện đoạn giới thiệu và hiện "chưa có dữ liệu".
+        Có cờ riêng thay vì để UI tự đoán từ chuỗi rỗng, vì rỗng ở đây nghĩa là CHƯA TRA
+        ĐƯỢC chứ không phải "món này không có gì để nói" (CLAUDE.md mục 4 quy tắc 1).
+        """
+        return bool(self.description and self.description.strip())
 
     def matches_any_mood_keyword(self, keywords: List[str]) -> bool:
         return any(k in self.mood_keywords for k in keywords)

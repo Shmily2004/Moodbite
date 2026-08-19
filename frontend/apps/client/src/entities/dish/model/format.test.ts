@@ -8,7 +8,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   describeCookingMethod,
-  describeIngredientsState,
+  describeIntroState,
   describeMealTimes,
   describeRestaurantCount,
   describeSource,
@@ -32,13 +32,13 @@ describe('describeSpice - phan biet CHUA BIET voi KHONG CAY', () => {
   });
 });
 
-describe('describeIngredientsState', () => {
-  it('khong co thanh phan -> NOI RA, khong de danh sach rong', () => {
-    expect(describeIngredientsState(false)).toMatch(/Chưa có dữ liệu/i);
+describe('describeIntroState', () => {
+  it('khong co gioi thieu -> NOI RA, khong de vung trang', () => {
+    expect(describeIntroState(false)).toMatch(/Chưa có giới thiệu/i);
   });
 
-  it('co thanh phan -> khong can cau giai thich nao', () => {
-    expect(describeIngredientsState(true)).toBeNull();
+  it('co gioi thieu -> khong can cau giai thich nao', () => {
+    expect(describeIntroState(true)).toBeNull();
   });
 });
 

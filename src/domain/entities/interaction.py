@@ -20,6 +20,12 @@ class ActionType(str, Enum):
     SAVE = "save"
     EXPLICIT_POSITIVE = "explicit_positive"
     EXPLICIT_NEGATIVE = "explicit_negative"
+    # Người dùng báo quán ĐÃ ĐÓNG CỬA. Tách riêng khỏi `explicit_negative` vì hai chuyện
+    # khác hẳn nhau: "tôi không thích quán này" là ý kiến cá nhân và là nhãn huấn luyện
+    # hợp lệ; "quán này không còn tồn tại" là khẳng định về THỰC TẾ và phải làm quán biến
+    # mất với MỌI người. Gộp chung thì hoặc là chê một câu cũng xoá quán, hoặc là báo đóng
+    # cửa chẳng có tác dụng gì.
+    REPORT_CLOSED = "report_closed"
 
 
 # Ngưỡng coi là "xem thật" thay vì bấm nhầm rồi thoát ngay.
@@ -42,7 +48,7 @@ class InteractionEvent:
         Client tự suy luận sẽ dẫn tới nhiều cách hiểu khác nhau về cùng một hành vi, và
         nhãn huấn luyện sẽ nhiễu. Giữ đúng một nguồn sự thật (đặc tả API mục 3.4).
         """
-        if self.action_type == ActionType.EXPLICIT_NEGATIVE:
+        if self.action_type in (ActionType.EXPLICIT_NEGATIVE, ActionType.REPORT_CLOSED):
             return False
         if self.action_type in (
             ActionType.GET_DIRECTIONS,

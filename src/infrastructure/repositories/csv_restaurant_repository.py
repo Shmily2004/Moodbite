@@ -41,6 +41,9 @@ COL_WEBSITE = "website"
 COL_SOURCE = "source"
 COL_CLUSTER_ID = "experience_cluster_id"
 COL_CLUSTER_LABEL = "experience_cluster_label"
+# Trạng thái kinh doanh từ nguồn. Chỉ quán Apify/Google mới có -> thiếu là `None`.
+COL_PERMANENTLY_CLOSED = "permanentlyClosed"
+COL_TEMPORARILY_CLOSED = "temporarilyClosed"
 COL_CONFIDENCE = "data_confidence"
 
 REQUIRED_COLUMNS = (COL_NAME, COL_LAT, COL_LNG)
@@ -75,6 +78,25 @@ def _as_int(value) -> Optional[int]:
 def _as_str(value) -> Optional[str]:
     value = _clean(value)
     return None if value is None else str(value)
+
+
+def _as_optional_bool(value) -> Optional[bool]:
+    """BA trạng thái: True / False / None. `None` = nguồn không có trường này.
+
+    KHÔNG được rút về hai trạng thái. "Không biết quán còn mở không" khác hẳn "biết chắc
+    quán đang mở": 96,5% dataset (OSM + Overture) không có trường này, ép về `False` là
+    tự nhận đã xác minh 40.000 quán mà thực ra chưa kiểm quán nào.
+    """
+    if value is None or (isinstance(value, float) and value != value):   # NaN
+        return None
+    if isinstance(value, bool):
+        return value
+    text = str(value).strip().lower()
+    if text in ("true", "1", "1.0", "yes"):
+        return True
+    if text in ("false", "0", "0.0", "no"):
+        return False
+    return None
 
 
 def _as_tags(value) -> List[str]:
@@ -164,12 +186,27 @@ class CsvRestaurantRepository:
         return self._restaurants is not None
 
     def list_all(self) -> List[Restaurant]:
+        """Quán ĐANG HIỆN cho người dùng - quán đã đóng hẳn bị loại ngay từ đây.
+
+        Phải khớp hành vi của `SqliteRestaurantRepository.list_all` (nó lọc bằng SQL).
+        Hai kho trả số lượng khác nhau là loại lỗi tệ nhất: đổi `MOODBITE_STORAGE` xong
+        kết quả tìm kiếm đổi theo mà không ai hiểu vì sao.
+
+        Bộ lọc ở tầng xếp hạng (`is_visible`) vẫn giữ nguyên làm lớp chặn thứ hai - lọc
+        hai lần thì rẻ, còn lọt một lần là người dùng đi tới quán đã đóng cửa.
+        """
         self._ensure_loaded()
-        return list(self._restaurants or [])
+        return [r for r in (self._restaurants or []) if r.is_visible]
 
     def get_by_place_id(self, place_id: str) -> Optional[Restaurant]:
+        """Quán ĐANG HIỆN cho người dùng. Quán đã đóng hẳn coi như không tồn tại (404).
+
+        Trả cả quán đã đóng thì trang chi tiết vẫn mở được từ link cũ hoặc bookmark, và
+        người dùng đi tới nơi mới biết quán không còn.
+        """
         self._ensure_loaded()
-        return self._by_place_id.get(str(place_id))
+        found = self._by_place_id.get(str(place_id))
+        return found if found is not None and found.is_visible else None
 
     @property
     def load_error(self) -> Optional[str]:
@@ -258,4 +295,6 @@ class CsvRestaurantRepository:
             data_confidence=_as_str(row.get(COL_CONFIDENCE)),
             experience_cluster_id=_as_int(row.get(COL_CLUSTER_ID)),
             experience_cluster_label=_as_str(row.get(COL_CLUSTER_LABEL)),
+            permanently_closed=_as_optional_bool(row.get(COL_PERMANENTLY_CLOSED)),
+            temporarily_closed=_as_optional_bool(row.get(COL_TEMPORARILY_CLOSED)),
         )

@@ -134,6 +134,13 @@ def extract_features():
     # Chỉ quán từ Apify mới có (quán từ OSM không có giá/đánh giá) -> để trống là ĐÚNG,
     # không fillna(0), nhất quán với quy ước sẵn có của totalScore.
     enrichment_columns = [
+        # TRẠNG THÁI CÒN MỞ HAY ĐÃ ĐÓNG. Apify cào về sẵn từ Google nhưng bước này từng
+        # cắt mất, nên app vẫn gợi ý quán đã đóng cửa như quán bình thường. Đo 2026-08-19:
+        # 1 quán đóng hẳn + 15 quán đóng tạm vẫn nằm trong kết quả tìm kiếm.
+        # `None` = KHÔNG BIẾT (quán từ OSM/Overture không có trường này), khác hẳn `False`
+        # = biết chắc đang mở. Đừng fillna(False) - xem CLAUDE.md mục 4 quy tắc 1.
+        'permanentlyClosed',
+        'temporarilyClosed',
         'price',                        # VD: "100-200 N ₫"
         'reviewsCount',
         'reviewsDistribution/oneStar', 'reviewsDistribution/twoStar',

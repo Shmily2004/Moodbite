@@ -29,6 +29,7 @@ from src.application.use_cases.search_restaurants import (
 )
 from src.domain.entities.dish import Dish
 from src.domain.services import dish_matching, search_ranking
+from src.domain.services.closure_reports import ClosureReportTally
 from src.domain.services.search_ranking import DEFAULT_MAX_DISTANCE_KM
 from src.domain.value_objects.context_signal import NEUTRAL_CONTEXT, ContextSignal
 from src.domain.value_objects.location import (
@@ -73,10 +74,20 @@ class FindRestaurantsForDishUseCase:
         catalog: DishCatalogRepository,
         dish_restaurant_index: Mapping[str, Sequence],
         context_provider: Optional[ContextProvider] = None,
+        closure_tally: Optional[ClosureReportTally] = None,
     ) -> None:
         self._catalog = catalog
         self._index = dish_restaurant_index
         self._context_provider = context_provider
+        self._closure_tally = closure_tally
+
+    @property
+    def _bi_bao_dong(self):
+        """Vị từ "quán này đã bị báo đóng cửa chưa", đưa xuống tầng xếp hạng.
+
+        `None` khi chưa lắp bộ đếm, và `rank_restaurants` hiểu `None` là không lọc gì thêm.
+        """
+        return self._closure_tally.is_reported_closed if self._closure_tally else None
 
     def execute(self, query: RestaurantsForDishQuery) -> SearchResult:
         if not self._catalog.is_ready:
@@ -131,6 +142,7 @@ class FindRestaurantsForDishUseCase:
                 restaurants=theo_tang[strength], origin=origin,
                 mood_weights=mood_weights, context=context,
                 max_distance_km=query.max_distance_km, limit=limit - len(ranked),
+                is_reported_closed=self._bi_bao_dong,
             )
             if strength == dish_matching.MATCH_STRENGTH[dish_matching.MATCHED_BY_REVIEW]:
                 so_quan_yeu = len(phan)
@@ -229,6 +241,7 @@ class FindRestaurantsForDishUseCase:
             source=restaurant.source,
             experience_cluster_id=restaurant.experience_cluster_id,
             experience_cluster_label=restaurant.experience_cluster_label,
+            temporarily_closed=restaurant.temporarily_closed,
             suggested_dish=SuggestedDish(
                 dish_id=dish.identifier,
                 name=dish.name,

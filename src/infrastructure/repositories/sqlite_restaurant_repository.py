@@ -60,6 +60,11 @@ CREATE TABLE IF NOT EXISTS restaurants (
     thumbnail_url            TEXT,     -- chi 21.5% quan co anh
     opening_hours            TEXT,
     is_active                INTEGER NOT NULL DEFAULT 1,  -- soft-delete
+    -- Trạng thái kinh doanh từ NGUỒN DỮ LIỆU, khác hẳn `is_active` (admin tự tắt).
+    -- NULL = không biết (quán OSM/Overture không có trường này). Đừng NOT NULL DEFAULT 0:
+    -- như thế là tự nhận đã xác minh 40.000 quán còn mở trong khi chưa kiểm quán nào.
+    permanently_closed       INTEGER,
+    temporarily_closed       INTEGER,
     district                 TEXT,
     dietary                  TEXT,     -- JSON array
     amenities                TEXT,     -- JSON array
@@ -81,7 +86,8 @@ _COLUMNS = (
     "place_id, name, category, lat, lng, address, cuisine, price, rating, "
     "reviews_count, mood_scores, atmosphere_tags, review_text, thumbnail_url, "
     "opening_hours, "
-    "is_active, district, dietary, amenities, phone, website, source, "
+    "is_active, permanently_closed, temporarily_closed, "
+    "district, dietary, amenities, phone, website, source, "
     "data_confidence, experience_cluster_id, experience_cluster_label"
 )
 
@@ -112,6 +118,11 @@ def _json_scores(raw: Optional[str]) -> Dict[str, float]:
             if value is not None:
                 scores[col] = float(value)
     return scores
+
+
+def _bool_or_none(value) -> Optional[bool]:
+    """NULL trong SQLite -> None, không phải False. Xem comment ở phần khai báo bảng."""
+    return None if value is None else bool(value)
 
 
 class SqliteRestaurantRepository:
@@ -184,6 +195,8 @@ class SqliteRestaurantRepository:
         params: List[object] = []
         if not include_hidden:
             conditions.append("is_active = 1")
+            # Quán đã đóng HẲN không bao giờ trả cho người dùng (xem `Restaurant.is_visible`).
+            conditions.append("COALESCE(permanently_closed, 0) = 0")
         if query:
             # LIKE không phân biệt hoa thường cho ASCII; tiếng Việt có dấu vẫn khớp
             # được vì admin thường gõ đúng tên hiển thị. Tìm kiếm cho NGƯỜI DÙNG mới
@@ -289,7 +302,8 @@ class SqliteRestaurantRepository:
             with sqlite3.connect(uri, uri=True) as conn:
                 conn.row_factory = sqlite3.Row
                 rows = conn.execute(
-                    f"SELECT {_COLUMNS} FROM restaurants WHERE is_active = 1"
+                    f"SELECT {_COLUMNS} FROM restaurants WHERE is_active = 1 "
+                    "AND COALESCE(permanently_closed, 0) = 0"
                 ).fetchall()
         except sqlite3.Error as exc:
             self._load_error = f"Không đọc được {describe_path(self.db_path)}: {exc}"
@@ -330,6 +344,8 @@ class SqliteRestaurantRepository:
             thumbnail_url=row["thumbnail_url"],
             opening_hours=row["opening_hours"],
             is_active=bool(row["is_active"]),
+            permanently_closed=_bool_or_none(row["permanently_closed"]),
+            temporarily_closed=_bool_or_none(row["temporarily_closed"]),
             district=row["district"],
             dietary=_json_list(row["dietary"]),
             amenities=_json_list(row["amenities"]),

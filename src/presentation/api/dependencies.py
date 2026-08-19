@@ -18,6 +18,7 @@ from fastapi import Depends, Request
 from src.application.ports.admin_restaurant_repository import AdminRestaurantRepository
 from src.application.use_cases.get_restaurant_details import GetRestaurantDetailsUseCase
 from src.application.use_cases.log_interaction import LogInteractionUseCase
+from src.domain.services.closure_reports import ClosureReportTally
 from src.application.use_cases.manage_restaurants import (
     ListRestaurantsForAdminUseCase,
     SetRestaurantVisibilityUseCase,
@@ -103,6 +104,9 @@ class Container:
     search_restaurants: SearchRestaurantsUseCase
     get_restaurant_details: GetRestaurantDetailsUseCase
     log_interaction: LogInteractionUseCase
+    # Bộ đếm báo đóng cửa. Giữ trên Container để /health nói được trạng thái,
+    # và để trang quản trị sau này liệt kê được quán nào đang bị ẩn vì bị báo.
+    closure_tally: ClosureReportTally
     # --- Luồng "chọn món trước, tìm quán sau" ---------------------------------
     suggest_dishes: SuggestDishesUseCase
     find_restaurants_for_dish: FindRestaurantsForDishUseCase
@@ -136,6 +140,7 @@ class Container:
             "dish_knowledge": _status_of(self.dish_knowledge_repository),
             "dish_catalog": _status_of(self.dish_catalog_repository),
             "interactions": _status_of(self.interaction_repository),
+            "closure_reports": _status_of(self.closure_tally),
             "ml_rule_predictor": _status_of(self.rule_predictor),
             "context_provider": _status_of(self.context_provider),
             "semantic_search": _status_of(self.semantic_search),
@@ -216,6 +221,18 @@ def build_container(settings: Optional[Settings] = None) -> Container:
         else {}
     )
     interaction_repository = JsonlInteractionRepository(settings.interactions_path)
+
+    # Bộ đếm "người dùng báo quán đã đóng cửa", DỰNG LẠI TỪ NHẬT KÝ lúc khởi động.
+    # Giữ trong RAM vì nó nằm trên đường đi của mọi lượt tìm kiếm, nhưng nguồn sự thật vẫn
+    # là file nhật ký - khởi động lại không làm quán đã bị ẩn hiện lại.
+    closure_tally = ClosureReportTally()
+    for place_id, session_id in interaction_repository.replay_closure_reports():
+        closure_tally.record(place_id, session_id)
+    if closure_tally.hidden_place_ids():
+        logger.info(
+            "Có %d quán bị người dùng báo đã đóng cửa (ngưỡng %d phiên).",
+            len(closure_tally.hidden_place_ids()), closure_tally.threshold,
+        )
     rule_predictor = MlRulePredictor(
         settings.dish_model_path, mode=settings.dish_adapter_mode
     )
@@ -279,23 +296,28 @@ def build_container(settings: Optional[Settings] = None) -> Container:
             context_provider=context_provider,
             rule_predictor=rule_predictor,
             semantic_search=semantic_search,
+            closure_tally=closure_tally,
         ),
         get_restaurant_details=GetRestaurantDetailsUseCase(
             details_repository, restaurant_repository, review_summaries
         ),
+        closure_tally=closure_tally,
         log_interaction=LogInteractionUseCase(
             interactions=interaction_repository,
             restaurants=restaurant_repository,
+            closure_tally=closure_tally,
         ),
         suggest_dishes=SuggestDishesUseCase(
             catalog=dish_catalog_repository,
             dish_restaurant_index=dish_restaurant_index,
             context_provider=context_provider,
+            closure_tally=closure_tally,
         ),
         find_restaurants_for_dish=FindRestaurantsForDishUseCase(
             catalog=dish_catalog_repository,
             dish_restaurant_index=dish_restaurant_index,
             context_provider=context_provider,
+            closure_tally=closure_tally,
         ),
         users=users,
         user_tokens=user_tokens,

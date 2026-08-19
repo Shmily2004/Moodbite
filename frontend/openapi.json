@@ -1045,7 +1045,8 @@
           "get_directions",
           "save",
           "explicit_positive",
-          "explicit_negative"
+          "explicit_negative",
+          "report_closed"
         ],
         "title": "ActionType"
       },
@@ -2507,6 +2508,17 @@
               }
             ],
             "title": "Experience Cluster Label"
+          },
+          "temporarily_closed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temporarily Closed"
           },
           "suggested_dish": {
             "anyOf": [

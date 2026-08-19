@@ -27,15 +27,16 @@ from src.infrastructure.repositories.sqlite_user_repository import SqliteUserRep
 from src.presentation.api.dependencies import Container
 from src.presentation.api.main import create_app
 from tests.fakes import (
-    GENERIC_RULE,
-    PHO_RULE,
     FakeDetailsRepo,
     FakeDishKnowledge,
     FakeInteractionRepo,
     FakeRestaurantRepo,
     FixedContextProvider,
-    attach_dish_catalog,
+    GENERIC_RULE,
+    PHO_RULE,
     UnavailablePredictor,
+    attach_closure_tally,
+    attach_dish_catalog,
     make_restaurant,
 )
 
@@ -74,7 +75,7 @@ def build_client(tmp_path, *, secret=SECRET, login_limit=50, register_limit=50):
     users = SqliteUserRepository(tmp_path / "users.db")
     tokens = UserTokenService(secret, token_ttl_seconds=60)
 
-    c = Container.__new__(Container)
+    c = attach_closure_tally(Container.__new__(Container))
     c.settings = None
     c.restaurant_repository = repo
     c.details_repository = details_repo

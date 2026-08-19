@@ -16,9 +16,9 @@ import threading
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional, Tuple
 
-from src.domain.entities.interaction import InteractionEvent
+from src.domain.entities.interaction import ActionType, InteractionEvent
 from src.infrastructure.config.settings import describe_path
 
 logger = logging.getLogger("moodbite.interactions")
@@ -70,6 +70,44 @@ class JsonlInteractionRepository:
                 raise
 
         return event_id
+
+    def replay_closure_reports(self) -> List[Tuple[str, str]]:
+        """[(restaurant_id, session_id)] của các lượt BÁO ĐÓNG CỬA đã ghi.
+
+        Dùng để dựng lại bộ đếm lúc khởi động. Nhờ có hàm này, bộ đếm trong RAM luôn suy
+        được từ nhật ký trên đĩa - khởi động lại không làm quán đã bị ẩn hiện lại.
+
+        ĐỌC ĐÚNG MỘT LẦN lúc dựng container, không đọc ở mỗi request: nhật ký chỉ-ghi-thêm
+        nên sẽ dài mãi, đọc lại mỗi lượt tìm kiếm là hỏng dần theo thời gian.
+
+        Dòng JSON hỏng thì BỎ QUA dòng đó chứ không ném lỗi: một dòng ghi dở (mất điện
+        giữa chừng) không được phép làm app không khởi động nổi.
+        """
+        if not self.path.exists():
+            return []
+        out: List[Tuple[str, str]] = []
+        hong = 0
+        try:
+            with open(self.path, encoding="utf-8") as fh:
+                for line in fh:
+                    if not line.strip():
+                        continue
+                    try:
+                        rec = json.loads(line)
+                    except ValueError:
+                        hong += 1
+                        continue
+                    if rec.get("action_type") != ActionType.REPORT_CLOSED.value:
+                        continue
+                    rid, sid = rec.get("restaurant_id"), rec.get("session_id")
+                    if rid and sid:
+                        out.append((str(rid), str(sid)))
+        except OSError as exc:
+            logger.warning("Không đọc lại được nhật ký tương tác: %s", exc)
+            return out
+        if hong:
+            logger.warning("Bỏ qua %d dòng hỏng trong %s", hong, describe_path(self.path))
+        return out
 
     def count(self) -> int:
         if not self.path.exists():

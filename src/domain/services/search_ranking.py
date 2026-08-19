@@ -22,7 +22,7 @@ Thuần Python - KHÔNG import pandas/fastapi.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Sequence
+from typing import Callable, Dict, List, Optional, Sequence
 
 from src.domain.entities.restaurant import Restaurant
 from src.domain.services import text_relevance
@@ -176,6 +176,7 @@ def rank_restaurants(
     max_distance_km: Optional[float] = DEFAULT_MAX_DISTANCE_KM,
     limit: int = 10,
     semantic_scores: Optional[Dict[str, float]] = None,
+    is_reported_closed: Optional[Callable[[str], bool]] = None,
 ) -> List[RankedRestaurant]:
     """Xếp hạng nhà hàng theo toàn bộ tín hiệu hiện có.
 
@@ -183,7 +184,16 @@ def rank_restaurants(
     Đó là hành vi ĐÚNG cho một lượt tìm kiếm không nêu nhu cầu gì.
     """
     # Quán bị ẩn (soft-delete) không bao giờ được lộ ra ngoài - rules/rules.md mục 3.2.
-    active = [r for r in restaurants if r.is_active]
+    # `is_visible` chứ không phải `is_active`: gộp cả quán admin ẩn lẫn quán đã đóng hẳn.
+    #
+    # `is_reported_closed` là LÝ DO ẨN THỨ BA và cố ý truyền từ ngoài vào thay vì gắn lên
+    # entity: số lượt báo thay đổi liên tục theo hành vi người dùng, còn `Restaurant` là
+    # ảnh chụp dữ liệu. Nhét cái đếm động vào entity thì mỗi lần có người bấm báo lại phải
+    # dựng lại toàn bộ 40.720 entity.
+    active = [
+        r for r in restaurants
+        if r.is_visible and not (is_reported_closed and is_reported_closed(r.place_id))
+    ]
     if not active:
         return []
 

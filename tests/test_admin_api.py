@@ -35,15 +35,16 @@ from src.infrastructure.repositories.sqlite_restaurant_repository import (
 from src.presentation.api.dependencies import Container
 from src.presentation.api.main import create_app
 from tests.fakes import (
-    GENERIC_RULE,
-    PHO_RULE,
     FakeDetailsRepo,
     FakeDishKnowledge,
     FakeInteractionRepo,
     FixedContextProvider,
+    GENERIC_RULE,
+    PHO_RULE,
     UnavailablePredictor,
-    attach_dish_catalog,
+    attach_closure_tally,
     attach_disabled_auth,
+    attach_dish_catalog,
 )
 from tests.test_sqlite_repository import make_db
 
@@ -96,7 +97,7 @@ def build_client(db_path, *, configured=True, writable=True):
     )
     admin_repo = repo if writable else None
 
-    c = Container.__new__(Container)
+    c = attach_closure_tally(Container.__new__(Container))
     c.settings = None
     c.restaurant_repository = repo
     c.details_repository = details_repo

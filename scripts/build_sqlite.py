@@ -39,9 +39,10 @@ INSERT = """
 INSERT INTO restaurants (
     place_id, name, category, lat, lng, address, cuisine, price, rating,
     reviews_count, mood_scores, atmosphere_tags, review_text, thumbnail_url, opening_hours,
-    is_active, district, dietary, amenities, phone, website, source,
+    is_active, permanently_closed, temporarily_closed,
+    district, dietary, amenities, phone, website, source,
     data_confidence, experience_cluster_id, experience_cluster_label
-) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
 """
 
 
@@ -67,6 +68,9 @@ def _row(restaurant, is_active: bool = True) -> tuple:
         restaurant.thumbnail_url,
         restaurant.opening_hours,
         1 if is_active else 0,
+        # None giữ nguyên None -> NULL: 'không biết' phải khác 'biết chắc đang mở'.
+        None if restaurant.permanently_closed is None else int(restaurant.permanently_closed),
+        None if restaurant.temporarily_closed is None else int(restaurant.temporarily_closed),
         restaurant.district,
         json.dumps(restaurant.dietary, ensure_ascii=False),
         json.dumps(restaurant.amenities, ensure_ascii=False),

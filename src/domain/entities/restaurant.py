@@ -41,6 +41,13 @@ class Restaurant:
     thumbnail_url: Optional[str] = None
     opening_hours: Optional[str] = None                        # 25.6% quán có
     is_active: bool = True  # soft-delete: quán tắt không bao giờ được trả cho người dùng
+    # TRẠNG THÁI KINH DOANH, lấy từ nguồn dữ liệu - KHÁC HẲN `is_active` (admin tự tắt).
+    #
+    # `None` = KHÔNG BIẾT. Chỉ quán từ Apify/Google mới có trường này; quán từ OSM và
+    # Overture thì không, và "không biết" phải khác "biết chắc đang mở" - nếu không thì
+    # 96,5% dataset sẽ mang tiếng là đã xác minh còn mở, trong khi chưa ai kiểm.
+    permanently_closed: Optional[bool] = None
+    temporarily_closed: Optional[bool] = None
 
     # --- trường bổ sung từ bản thu thập OSM mới --------------------------------
     # Đơn vị hành chính (OSM admin_level=6). Từ 2025 Việt Nam bỏ cấp quận/huyện nên
@@ -59,6 +66,24 @@ class Restaurant:
     # LẬP toàn hệ thống cho quán chưa có cụm, TUYỆT ĐỐI không dùng 0 hay NULL.
     experience_cluster_id: Optional[int] = None
     experience_cluster_label: Optional[str] = None
+
+    @property
+    def is_visible(self) -> bool:
+        """Có được hiện cho NGƯỜI DÙNG CUỐI không.
+
+        Gộp hai lý do ẩn hoàn toàn khác nhau, và cố ý gộp ở ĐÂY thay vì ở từng use case:
+          - `is_active = False`      : admin chủ động ẩn (rules/rules.md mục 3.2)
+          - `permanently_closed`     : quán đã đóng hẳn theo dữ liệu nguồn
+
+        Trang quản trị vẫn phải nhìn thấy cả hai loại, nên admin dùng `is_active` trực
+        tiếp chứ KHÔNG dùng thuộc tính này - ẩn quán khỏi mắt admin thì chính admin cũng
+        không bỏ ẩn lại được.
+
+        Đóng TẠM thì vẫn hiện: quán nghỉ Tết hay sửa nhà vài tuần vẫn là quán có thật, và
+        giấu đi thì người dùng tưởng quán biến mất luôn. Nhưng phải gắn nhãn cảnh báo -
+        xem `temporarily_closed` trong response API.
+        """
+        return self.is_active and not self.permanently_closed
 
     @property
     def atmosphere_text(self) -> Optional[str]:

@@ -248,3 +248,19 @@ GENERIC_RULE = DishRule(
     match_category=["nhà hàng"],
     dishes=[Dish(name="Cơm rang", mood_keywords=["comfort", "cozy"])],
 )
+
+
+def attach_closure_tally(container, tally=None):
+    """Gắn bộ đếm BÁO ĐÓNG CỬA vào một container test.
+
+    Cùng lý do tồn tại với `attach_disabled_auth` và `attach_dish_catalog`: container test
+    dựng bằng `Container.__new__` nên không tự có trường mới thêm vào Container. Gắn tường
+    minh để việc quên lắp dây thành lỗi ồn ào, thay vì `getattr(..., None)` im lặng nuốt.
+
+    Mặc định là bộ đếm RỖNG - tức "chưa ai báo quán nào", đúng trạng thái của một hệ thống
+    vừa dựng lên, và các bộ test không quan tâm tới tính năng này sẽ chạy y như trước.
+    """
+    from src.domain.services.closure_reports import ClosureReportTally
+
+    container.closure_tally = tally or ClosureReportTally()
+    return container

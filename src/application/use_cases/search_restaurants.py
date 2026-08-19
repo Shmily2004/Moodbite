@@ -27,6 +27,7 @@ from src.application.ports.semantic_search import SemanticSearchPort
 from src.domain.entities.dish import CONFIDENCE_ML, Dish
 from src.domain.entities.restaurant import Restaurant
 from src.domain.services import search_ranking, text_relevance
+from src.domain.services.closure_reports import ClosureReportTally
 from src.domain.services.search_ranking import DEFAULT_MAX_DISTANCE_KM
 from src.domain.value_objects.opening_hours import parse_opening_hours
 from src.domain.value_objects.text import normalize
@@ -89,6 +90,11 @@ class SearchResultItem:
     source: Optional[str] = None
     experience_cluster_id: Optional[int] = None
     experience_cluster_label: Optional[str] = None
+    # Quán ĐANG đóng tạm (nghỉ Tết, sửa nhà...). Vẫn hiện trong danh sách vì quán có thật
+    # và sẽ mở lại, nhưng giao diện PHẢI gắn nhãn - để người dùng đi tới nơi mới biết là
+    # tệ hơn hẳn so với báo trước. `None` = nguồn không cho biết, khác `False` = biết chắc
+    # đang mở. Quán đóng HẲN không bao giờ xuất hiện ở đây nên không cần trường riêng.
+    temporarily_closed: Optional[bool] = None
     suggested_dish: Optional[SuggestedDish] = None
 
 
@@ -108,12 +114,23 @@ class SearchRestaurantsUseCase:
         context_provider: Optional[ContextProvider] = None,
         rule_predictor: Optional[RulePredictor] = None,
         semantic_search: Optional[SemanticSearchPort] = None,
+        closure_tally: Optional[ClosureReportTally] = None,
     ) -> None:
         self._restaurants = restaurants
         self._dish_knowledge = dish_knowledge
         self._context_provider = context_provider
         self._rule_predictor = rule_predictor
         self._semantic_search = semantic_search
+        self._closure_tally = closure_tally
+
+    @property
+    def _bi_bao_dong(self):
+        """Vị từ "quán này đã bị báo đóng cửa chưa", đưa xuống tầng xếp hạng.
+
+        Trả `None` khi chưa lắp bộ đếm, và `rank_restaurants` hiểu `None` là không lọc gì
+        thêm - nhờ vậy mọi bộ test cũ chạy y như trước mà không phải sửa.
+        """
+        return self._closure_tally.is_reported_closed if self._closure_tally else None
 
     def execute(self, query: SearchQuery) -> SearchResult:
         if not self._restaurants.is_ready:
@@ -141,6 +158,7 @@ class SearchRestaurantsUseCase:
             mood_weights=mood_weights,
             context=context,
             max_distance_km=query.max_distance_km,
+            is_reported_closed=self._bi_bao_dong,
             limit=max(1, min(query.limit, MAX_LIMIT)),
             semantic_scores=self._semantic_scores(query.query_text),
         )
@@ -340,6 +358,7 @@ class SearchRestaurantsUseCase:
             source=restaurant.source,
             experience_cluster_id=restaurant.experience_cluster_id,
             experience_cluster_label=restaurant.experience_cluster_label,
+            temporarily_closed=restaurant.temporarily_closed,
             suggested_dish=self._suggest_dish(restaurant),
         )
 

@@ -389,7 +389,7 @@ export interface components {
          * ActionType
          * @enum {string}
          */
-        ActionType: "view_detail" | "get_directions" | "save" | "explicit_positive" | "explicit_negative";
+        ActionType: "view_detail" | "get_directions" | "save" | "explicit_positive" | "explicit_negative" | "report_closed";
         /** AdminLoginData */
         AdminLoginData: {
             /** Token */
@@ -927,6 +927,8 @@ export interface components {
             experience_cluster_id?: number | null;
             /** Experience Cluster Label */
             experience_cluster_label?: string | null;
+            /** Temporarily Closed */
+            temporarily_closed?: boolean | null;
             suggested_dish?: components["schemas"]["SuggestedDishSchema"] | null;
         };
         /** SuggestedDishSchema */

@@ -107,6 +107,11 @@ class SearchResultItemSchema(BaseModel):
     # client nên hiện "Đang cập nhật" thay vì để trống hoặc báo lỗi.
     experience_cluster_id: Optional[int] = None
     experience_cluster_label: Optional[str] = None
+    # Quán ĐANG đóng tạm (nghỉ Tết, sửa nhà...). Vẫn hiện trong danh sách vì quán có thật
+    # và sẽ mở lại, nhưng giao diện PHẢI gắn nhãn - để người dùng đi tới nơi mới biết là
+    # tệ hơn hẳn so với báo trước. `None` = nguồn không cho biết, khác `False` = biết chắc
+    # đang mở. Quán đóng HẲN không bao giờ xuất hiện ở đây nên không cần trường riêng.
+    temporarily_closed: Optional[bool] = None
     suggested_dish: Optional[SuggestedDishSchema] = None
 
 

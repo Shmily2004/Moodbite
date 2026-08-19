@@ -19,17 +19,18 @@ from src.infrastructure.auth.admin_auth import AdminAuthService
 from src.presentation.api.dependencies import Container
 from src.presentation.api.main import create_app
 from tests.fakes import (
-    GENERIC_RULE,
-    PHO_RULE,
     FakeDetailsRepo,
     FakeDishCatalog,
     FakeDishKnowledge,
     FakeInteractionRepo,
     FakeRestaurantRepo,
     FixedContextProvider,
+    GENERIC_RULE,
+    PHO_RULE,
     UnavailablePredictor,
-    attach_dish_catalog,
+    attach_closure_tally,
     attach_disabled_auth,
+    attach_dish_catalog,
     make_restaurant,
 )
 
@@ -86,7 +87,7 @@ def make_client(dishes=None, index=None, catalog_ready=True):
     predictor = UnavailablePredictor()
     context = FixedContextProvider()
 
-    c = Container.__new__(Container)
+    c = attach_closure_tally(Container.__new__(Container))
     c.settings = None
     c.restaurant_repository = repo
     c.details_repository = details_repo

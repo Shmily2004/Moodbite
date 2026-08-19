@@ -24,6 +24,7 @@ from src.application.ports.context_provider import ContextProvider
 from src.application.ports.dish_catalog_repository import DishCatalogRepository
 from src.domain.entities.dish import Dish
 from src.domain.services import dish_ranking
+from src.domain.services.closure_reports import ClosureReportTally
 from src.domain.services.dish_ranking import DishFilter
 from src.domain.services.search_ranking import DEFAULT_MAX_DISTANCE_KM
 from src.domain.value_objects.context_signal import NEUTRAL_CONTEXT, ContextSignal
@@ -94,10 +95,12 @@ class SuggestDishesUseCase:
         catalog: DishCatalogRepository,
         dish_restaurant_index: Mapping[str, Sequence],
         context_provider: Optional[ContextProvider] = None,
+        closure_tally: Optional[ClosureReportTally] = None,
     ) -> None:
         self._catalog = catalog
         self._index = dish_restaurant_index
         self._context_provider = context_provider
+        self._closure_tally = closure_tally
 
     def execute(self, query: DishSuggestionQuery) -> DishSuggestionResult:
         if not self._catalog.is_ready:
@@ -171,7 +174,13 @@ class SuggestDishesUseCase:
             nearby = 0
             for match in self._index.get(dish.identifier, ()):
                 restaurant = match.restaurant
-                if not restaurant.is_active:
+                if not restaurant.is_visible:
+                    continue
+                # Quán bị báo đóng cửa cũng không được tính vào số quán của món: đếm cả
+                # chúng thì món hiện lên trang chủ với "12 quán gần đây", bấm vào chỉ còn 9.
+                if self._closure_tally and self._closure_tally.is_reported_closed(
+                    restaurant.place_id
+                ):
                     continue
                 if max_distance_km is None:
                     nearby += 1

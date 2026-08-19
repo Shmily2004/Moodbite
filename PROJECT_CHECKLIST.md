@@ -159,6 +159,32 @@ Kiểm lại (mục 4 của `python scripts/verify.py` đã tự kiểm việc n
 
 ### Bug đã sửa (đều kiểm chứng được)
 
+**Đợt CẬP NHẬT DỮ LIỆU 2026-08-19** (chủ dự án chọn 3 hạng mục):
+
+- [x] **Ẩn quán đã đóng cửa.** `permanentlyClosed`/`temporarilyClosed` do Apify cào về sẵn
+      nhưng pipeline cắt mất -> 1 quán đóng hẳn + 15 quán đóng tạm vẫn được gợi ý.
+      Nay: đóng hẳn -> biến mất hoàn toàn; đóng tạm -> vẫn hiện, có cờ `temporarily_closed`
+      trong response để giao diện gắn nhãn. Ba trạng thái True/False/**None** (96,5% quán
+      OSM+Overture không có trường này — "không biết" phải khác "biết chắc đang mở").
+- [x] **Backend cho nút "quán này đã đóng cửa".** `ClosureReportTally` + action type
+      `report_closed`. Đủ **3 PHIÊN KHÁC NHAU** báo thì ẩn quán. Đếm theo phiên chứ không
+      theo lượt bấm — kiểm chứng: bấm 50 lần từ một phiên vẫn chỉ tính 1 phiếu. Bộ đếm
+      dựng lại từ `interactions.jsonl` lúc khởi động nên khởi động lại không mất.
+      ⬜ **Nút bấm ở giao diện CHƯA làm** — chờ thiết kế của chủ dự án.
+- [x] **`scripts/refresh_check.py`** — cào lại OSM rồi báo cáo khác biệt. Chạy thật:
+      769 quán mới · 39 quán biến mất · 1 đổi tên · 3.095 không đổi.
+      **CHỈ BÁO CÁO, KHÔNG TỰ SỬA** — một ô Overpass lỗi là vài chục quán "biến mất".
+
+> 🔍 **Số đo bác bỏ một giả thuyết sai.** Ban đầu tưởng các quán trùng tên ở cả hai phía
+> (Highlands, KFC, Starbucks) chỉ là node bị vẽ lại với ID mới. Đo khoảng cách thật: 73
+> cặp đều cách nhau **1,1 – 22,3 km** — là CHI NHÁNH KHÁC NHAU của cùng chuỗi. Ghép theo
+> tên sẽ giấu mất 10 quán thật sự đã biến mất. Nay bắt buộc cùng tên **và** dưới 150 m.
+
+> ⚠️ **Tuổi thật của dữ liệu — ĐÃ ĐO, CHƯA LÀM.** Đo 981 quán khu trung tâm: chỉ **34,9%**
+> bản ghi OSM được sửa trong năm 2026, cũ nhất là **2010**. Trường `last_updated` hiện chỉ
+> là NGÀY TA CÀO, nên đang tạo cảm giác dữ liệu tươi hơn thực tế. Overpass có trả ngày sửa
+> thật (`out meta`) nhưng adapter chưa lấy về. Chủ dự án chưa chọn làm phần này.
+
 **Đợt rà soát chuyên sâu 2026-08-19** (tất cả đều đo được trước/sau):
 
 > ⏳ **Còn dở, chạy lại là xong:** `python scripts/backfill_dish_cuisine.py --apply`

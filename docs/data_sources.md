@@ -199,12 +199,13 @@ REST summary (mỗi món một lần gọi, có cache) thì lên 100%.
 vào `CITY_BBOXES` (`data_pipeline/sources/osm_overpass.py`), KHÔNG sửa pipeline:
 
 ```powershell
-python -m data_pipeline.harvest --source openstreetmap --city da_nang
-python -m data_pipeline.harvest --source openstreetmap --city ho_chi_minh
+python -m data_pipeline.harvest --source openstreetmap --city ha_noi
+python -m data_pipeline.harvest --source overture      --city ha_noi
 ```
 
-Có sẵn: `ha_noi`, `ho_chi_minh`, `da_nang`, `hai_phong`, `can_tho`, `hue`, `nha_trang`,
-`da_lat`.
+> ⚠️ **CHỈ HÀ NỘI** (chốt 2026-08-19). Bảng `CITY_BBOXES` từng có 8 thành phố, nay chỉ còn
+> `ha_noi`; truyền `--city` khác sẽ bị từ chối kèm thông báo. Sản phẩm chỉ phục vụ Hà Nội —
+> thêm quán tỉnh khác làm loãng dữ liệu và khiến bộ lọc bán kính vô nghĩa.
 
 Vẫn giữ nguyên các quy tắc Overpass đã trả giá để học: **chia ô** (hỏi cả thành phố một
 lần luôn 504), **nhiều mirror + thử lại nhiều vòng** (504 là lỗi TẠM THỜI), **cache theo ô**.

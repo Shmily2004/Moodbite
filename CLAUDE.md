@@ -247,6 +247,10 @@ Bốn quy ước dưới đây phản ánh dữ liệu THẬT của dự án. Vi
 **Kiến trúc:** mọi nguồn tuân theo `SourceAdapter` ở `data_pipeline/sources/base.py`.
 Thêm nguồn mới = 1 adapter + 1 dòng đăng ký. **KHÔNG sửa pipeline, KHÔNG viết script rời.**
 
+**PHẠM VI ĐỊA LÝ: CHỈ HÀ NỘI** (chủ dự án chốt 2026-08-19). Không thu thập quán ở tỉnh
+/thành khác. `CITY_BBOXES` trong `sources/osm_overpass.py` chỉ có đúng một mục `ha_noi`,
+và `harvest.py` báo lỗi nếu truyền `--city` khác. Muốn mở rộng thì phải HỎI TRƯỚC.
+
 **CẤM thu thập từ:** ShopeeFood, GrabFood, Foody, TripAdvisor, Facebook — ToS của họ cấm
 truy cập tự động. Đồ án tốt nghiệp không được xây trên nền vi phạm ToS. Xem
 `docs/data_sources.md` để biết phương án thay thế hợp pháp cho từng nhu cầu.

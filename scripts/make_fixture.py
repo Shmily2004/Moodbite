@@ -101,12 +101,23 @@ def gom_ket_qua_that() -> List[Dict[str, Any]]:
 # fixture giàu gấp 2-4 lần thực tế (ảnh 54% trong khi thật chỉ 21.5%), vì xếp hạng vốn ưu
 # tiên quán CÓ dữ liệu nên pool lấy từ tìm kiếm đã lệch sẵn. Fixture giàu hơn thật chính là
 # cái bẫy khiến giao diện đẹp lúc demo rồi vỡ khi cắm dữ liệu thật.
-HAN_MUC = {
-    "thumbnail_url": 22,   # thật 21.5%
-    "rating": 23,          # thật 23.2%
-    "price_range": 13,     # thật 13.0%
-    "cluster": 24,         # thật 1197/4938 = 24.2%
-}
+# HẠN MỨC mỗi trường trong bộ mẫu 100 quán, TÍNH TỪ TẬP GỐC chứ không viết cứng.
+#
+# Bản cũ ghi thẳng {22, 23, 13, 24} kèm chú thích "thật 21.5%..." - đó là tỉ lệ của
+# dataset 4.938 quán. Sau khi nhập thêm 36.176 quán Overture, tập gốc đổi sang
+# 37.9%/40.7%/33.6%/41.0%, nhưng hạn mức vẫn chặn ở 22 nên bộ mẫu KHÔNG THỂ nào khớp
+# tỉ lệ thật - `verify.py` mục 9 đỏ mãi. Đây là bản sao thứ hai của cùng một hằng số cũ
+# (bản kia là `that = {...}` ở `main`), cùng một loại lỗi.
+#
+# Nay suy từ pool: hạn mức = tỉ lệ pool × 100. Dataset đổi thì hạn mức tự đổi theo.
+def han_muc_tu_pool(pool: List[Dict[str, Any]]) -> Dict[str, int]:
+    ty_le = do_ty_le(pool)
+    return {
+        "thumbnail_url": round(ty_le["thumbnail"] * TARGET_SIZE),
+        "rating": round(ty_le["rating"] * TARGET_SIZE),
+        "price_range": round(ty_le["price"] * TARGET_SIZE),
+        "cluster": round(ty_le["clustered"] * TARGET_SIZE),
+    }
 
 
 def _thuoc_tinh(r: Dict[str, Any]) -> Dict[str, bool]:
@@ -118,8 +129,11 @@ def _thuoc_tinh(r: Dict[str, Any]) -> Dict[str, bool]:
     }
 
 
-def chon_co_chu_dich(pool: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Chọn 100 quán: đủ mọi trạng thái khó VÀ giữ đúng tỉ lệ thưa của dữ liệu thật."""
+def chon_co_chu_dich(
+    pool: List[Dict[str, Any]], han_muc: Dict[str, int] | None = None
+) -> List[Dict[str, Any]]:
+    """Chọn 100 quán: đủ mọi trạng thái khó VÀ giữ đúng tỉ lệ của tập gốc."""
+    HAN_MUC = han_muc if han_muc is not None else han_muc_tu_pool(pool)
     chosen: List[Dict[str, Any]] = []
     seen: set = set()
     dem = {k: 0 for k in HAN_MUC}
@@ -159,7 +173,24 @@ def chon_co_chu_dich(pool: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         print(f"  [CANH BAO] buoc seed da VUOT han muc: {vuot}")
         print("             -> ty le se lech. Xem lai REQUIRED_CASES hoac HAN_MUC.")
 
-    # Bước 2: lấp cho đủ 100, nhưng CHỈ nhận bản ghi không làm vượt hạn mức.
+    # Bước 2a: lấp cho ĐỦ HẠN MỨC từng thuộc tính TRƯỚC.
+    #
+    # Vì sao phải có bước này: bản cũ nhảy thẳng sang "duyệt pool theo thứ tự cho đủ 100".
+    # Pool là kết quả tìm kiếm thật nên phần đầu chủ yếu là quán KHÔNG có ảnh/giá; duyệt
+    # tuần tự thì 100 chỗ đầy trước khi chạm hạn mức ảnh, và bộ mẫu nghèo hơn dữ liệu thật
+    # mà không có gì báo. Bug này lộ ra ngày 2026-08-19 khi sửa phép so khớp chữ làm đổi
+    # thứ tự kết quả tìm kiếm: ảnh tụt còn 23% trong khi thật là 28,2%.
+    #
+    # `them` vẫn kiểm hạn mức của MỌI thuộc tính khác, nên lấp chiều này không thể làm
+    # tràn chiều kia.
+    for thuoc_tinh in HAN_MUC:
+        for item in pool:
+            if len(chosen) >= TARGET_SIZE or dem[thuoc_tinh] >= HAN_MUC[thuoc_tinh]:
+                break
+            if _thuoc_tinh(item)[thuoc_tinh]:
+                them(item)
+
+    # Bước 2b: lấp nốt cho đủ 100, CHỈ nhận bản ghi không làm vượt hạn mức.
     for item in pool:
         if len(chosen) >= TARGET_SIZE:
             break
@@ -193,7 +224,9 @@ def main() -> int:
         return 1
     print(f"  Gom duoc {len(pool)} quan duy nhat tu {len(QUERIES)} luot tim")
 
-    records = chon_co_chu_dich(pool)
+    han_muc = han_muc_tu_pool(pool)
+    print(f"  Han muc suy tu pool: {han_muc}")
+    records = chon_co_chu_dich(pool, han_muc)
 
     print("\n-- Cac truong hop bat buoc --")
     thieu = []

@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import List, Optional
 
 from src.domain.entities.dish import CONFIDENCE_UNKNOWN, Dish, DishRule
+from src.infrastructure.config.settings import describe_path
 
 
 class JsonDishKnowledgeRepository:
@@ -33,7 +34,7 @@ class JsonDishKnowledgeRepository:
     def status(self) -> dict:
         return {
             "ready": self.is_ready,
-            "source": str(self.json_path),
+            "source": describe_path(self.json_path),
             "rules": len(self._rules or []),
             "error": self._load_error,
         }
@@ -54,13 +55,13 @@ class JsonDishKnowledgeRepository:
         if self._rules is not None or self._load_error is not None:
             return
         if not self.json_path.exists():
-            self._load_error = f"Không tìm thấy knowledge base: {self.json_path}"
+            self._load_error = f"Không tìm thấy knowledge base: {describe_path(self.json_path)}"
             return
         try:
             with open(self.json_path, encoding="utf-8") as fh:
                 raw = json.load(fh)
         except (OSError, json.JSONDecodeError) as exc:
-            self._load_error = f"Không đọc được {self.json_path}: {exc}"
+            self._load_error = f"Không đọc được {describe_path(self.json_path)}: {exc}"
             return
 
         self._rules = [self._to_rule(r) for r in raw.get("rules", [])]

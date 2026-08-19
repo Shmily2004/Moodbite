@@ -1,6 +1,93 @@
+import sys
+from pathlib import Path
+
 import pandas as pd
 import numpy as np
-from pathlib import Path
+
+# Dùng lại phép so khớp chữ tiếng Việt của domain thay vì tự viết bản thứ hai.
+# CLAUDE.md mục 4 quy tắc 5 nói thẳng: "dùng domain/value_objects/text.py, đừng tự viết
+# lại". Bản cũ ở đây dùng `text.count(tu_khoa)` - so CHUỖI CON, nên "rẻ" đếm luôn trong
+# "trẻ em", "trà" đếm trong "trách". Đã có tiền lệ import như thế này ở
+# `merge_and_prepare_raw.py`.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from src.domain.value_objects.text import PhraseLookup  # noqa: E402
+
+# TỪ ĐIỂN CẢM XÚC. Đưa ra ngoài hàm để đo được bằng script mà không phải chạy cả pipeline.
+MOOD_LEXICON = {
+    'comfort_cozy': [
+        'chill', 'thư giãn', 'yên tĩnh', 'thoải mái', 'ấm cúng', 'tâm tình', 'nhẹ nhàng',
+        'view đẹp', 'cà phê', 'coffee', 'trà', 'gia đình', 'ấm bụng',
+        'japanese', 'korean', 'cake',
+    ],
+    'spicy_hot': [
+        'cay', 'nóng', 'tê', 'đậm đà', 'xuýt xoa', 'sa tế', 'ớt',
+        'lẩu', 'nướng', 'cà ri', 'curry',
+        # "phở" CÓ DẤU: từ khoá không dấu "pho" sẽ khớp cả "Phố" lẫn "Tào Phớ" vì luật
+        # so khớp cố tình bao dung khi một vế không có dấu (xem `tokens_match`).
+        'phở', 'cha_ca', 'thai', 'chinese',
+    ],
+    'fresh_healthy': [
+        'tươi', 'thanh mát', 'sạch', 'healthy', 'rau', 'ngọt tự nhiên',
+        'chay', 'hải sản', 'salad', 'organic', 'hữu cơ',
+        'seafood', 'vietnamese',
+    ],
+    'cheap_budget': [
+        'rẻ', 'bình dân', 'sinh viên', 'hợp lý', 'phải chăng', 'vỉa hè',
+        'quán ăn nhỏ', 'ăn nhanh',
+        'banh_mi', 'street',
+    ],
+    'quick_fast': [
+        'nhanh', 'vội', 'tiện', 'lấy luôn', 'không phải đợi', 'ăn liền',
+        'ăn nhanh', 'fast food', 'giao đồ ăn', 'mang về', 'lưu động',
+        'pizza', 'burger',
+    ],
+}
+
+# Số từ khoá RIÊNG BIỆT để một quán đạt điểm 0.5 ở một chiều cảm xúc.
+#
+# CHỌN BẰNG SỐ ĐO, không bằng cảm tính (CLAUDE.md mục 4c). Đo trên mẫu 2.000 quán ngẫu
+# nhiên ngày 2026-08-19, phân phối số từ khoá khớp (0 / 1 / 2 / >=3 từ):
+#
+#     comfort_cozy    61,9%  23,8%  12,7%   1,7%   (nhiều nhất - ai cũng nhắc "cà phê")
+#     spicy_hot       83,7%  13,1%   2,1%   1,1%
+#     fresh_healthy   92,0%   6,2%   0,9%   0,9%
+#     cheap_budget    93,2%   5,3%   0,6%   0,9%
+#     quick_fast      93,3%   1,9%   4,1%   0,7%
+#
+# Trường hợp có bằng chứng thì PHỔ BIẾN NHẤT là đúng 1 từ khoá. Vậy K phải đủ nhỏ để 1 từ
+# đã tách khỏi nhóm 0 từ, nhưng không lớn tới mức 1 từ đã là "rất hợp":
+#     K=1 -> 1 từ = 0,50 (một chữ "cà phê" mà thành nửa điểm là quá mạnh)
+#     K=2 -> 1 từ = 0,33 · 2 từ = 0,50 · 4 từ = 0,67   <- chọn cái này
+#     K=3 -> 1 từ = 0,25 (gần như không tách khỏi 0)
+# Từ thứ năm trở đi gần như không thêm gì - đúng thực tế: nhắc "ấm cúng" 1 lần hay 5 lần
+# thì quán vẫn chỉ là ấm cúng.
+MOOD_SATURATION = 2
+
+
+def mood_scores_for_text(text):
+    """{tên_chiều: điểm [0,1]} cho MỘT quán. Hàm thuần - test và đo được độc lập.
+
+    HAI THỨ ĐÃ SỬA SO VỚI BẢN CŨ, cả hai đều làm hỏng thứ hạng trên dữ liệu thật:
+
+    1. ĐẾM SỐ TỪ KHOÁ RIÊNG BIỆT, không đếm số lần xuất hiện. Bản cũ cộng dồn
+       `text.count(tu_khoa)`, nên quán có review (trung bình ~670 ký tự/review, tối đa 10
+       review) luôn cộng được điểm cao hơn quán chỉ có tên + loại hình. Kết quả là điểm
+       mood đo LƯỢNG CHỮ CÀO ĐƯỢC chứ không đo tính chất của quán.
+
+    2. BỎ CHUẨN HOÁ THEO GIÁ TRỊ LỚN NHẤT TOÀN BỘ (`df[col] / df[col].max()`).
+       Cách đó buộc điểm của một quán phụ thuộc vào quán "ồn ào" nhất trong dataset: chỉ
+       cần thêm một quán có nhiều review là điểm của 40.719 quán còn lại tụt xuống. Đo
+       được hậu quả ngày 2026-08-19: chỉ 460/40.720 quán (1,1%) có điểm > 0,1, trung vị
+       bằng 0 - trong khi mood là trọng số NẶNG NHẤT của bảng xếp hạng (W_MOOD = 0,26).
+       Đường cong bão hoà n/(n+K) cho điểm nằm gọn trong [0,1] mà không cần biết gì về
+       các quán khác, nên thêm dữ liệu mới không làm xáo trộn điểm của dữ liệu cũ.
+    """
+    lookup = PhraseLookup(text)
+    return {
+        mood: (lambda n: n / (n + MOOD_SATURATION))(lookup.count_present(keywords))
+        for mood, keywords in MOOD_LEXICON.items()
+    }
+
 
 def extract_features():
     """
@@ -17,54 +104,27 @@ def extract_features():
     df = pd.read_csv(cleaned_file)
 
     # Lấy TẤT CẢ chữ trong mỗi dòng ghép lại thành 1 đoạn văn bản lớn.
+    # Gộp toàn bộ chữ của một dòng thành một đoạn để dò từ khoá cảm xúc.
     df['all_text'] = df.apply(lambda row: ' '.join(row.values.astype(str)).lower(), axis=1)
 
-    # 2. Xây dựng Bộ từ điển Cảm xúc (Mood Lexicon)
-    mood_dictionaries = {
-        'comfort_cozy': [
-            'chill', 'thư giãn', 'yên tĩnh', 'thoải mái', 'ấm cúng', 'tâm tình', 'nhẹ nhàng', 'view đẹp',
-            'cà phê', 'coffee', 'trà', 'gia đình', 'ấm bụng',
-            'japanese', 'korean', 'cake',
-        ],
-        'spicy_hot': [
-            'cay', 'nóng', 'tê', 'đậm đà', 'xuýt xoa', 'sa tế', 'ớt',
-            'lẩu', 'nướng', 'cà ri', 'curry',
-            'pho', 'cha_ca', 'thai', 'chinese',
-        ],
-        'fresh_healthy': [
-            'tươi', 'thanh mát', 'sạch', 'healthy', 'rau', 'ngọt tự nhiên',
-            'chay', 'hải sản', 'salad', 'organic', 'hữu cơ',
-            'seafood', 'vietnamese',
-        ],
-        'cheap_budget': [
-            'rẻ', 'bình dân', 'sinh viên', 'hợp lý', 'phải chăng', 'vỉa hè',
-            'quán ăn nhỏ', 'ăn nhanh',
-            'banh_mi', 'street',
-        ],
-        'quick_fast': [
-            'nhanh', 'vội', 'tiện', 'lấy luôn', 'không phải đợi', 'ăn liền',
-            'ăn nhanh', 'fast food', 'giao đồ ăn', 'mang về', 'lưu động',
-            'pizza', 'burger',
-        ]
-    }
+    # 2-4. Chấm điểm cảm xúc. Từ điển + công thức nằm ở đầu file (`MOOD_LEXICON`,
+    # `mood_scores_for_text`) để đo và test được mà không phải chạy cả pipeline.
+    #
+    # KHÔNG còn bước "chuẩn hoá theo max" ở đây: `mood_scores_for_text` đã trả về [0,1]
+    # cho từng quán một cách độc lập. Xem docstring của nó để biết vì sao bước cũ có hại.
+    diem = df['all_text'].apply(mood_scores_for_text)
+    for mood in MOOD_LEXICON:
+        df[f'{mood}_score'] = diem.apply(lambda d, m=mood: d[m])
 
-    # 3. Hàm tính điểm Cảm xúc (Scoring Function)
-    def calculate_mood_score(text, keywords):
-        score = 0
-        for word in keywords:
-            score += text.count(word)
-        return score
+    mood_columns = [f'{mood}_score' for mood in MOOD_LEXICON]
 
-    # 4. Áp dụng chấm điểm cho từng quán
-    for mood, keywords in mood_dictionaries.items():
-        df[f'{mood}_score'] = df['all_text'].apply(lambda x: calculate_mood_score(x, keywords))
-
-    # 5. Chuẩn hóa dữ liệu (Normalization)
-    mood_columns = [f'{mood}_score' for mood in mood_dictionaries.keys()]
+    # Báo cáo ngay tại chỗ: không có số đo thì không được nói "dữ liệu đã cải thiện"
+    # (CLAUDE.md mục 4b).
+    khong_bang_chung = (df[mood_columns].sum(axis=1) == 0).mean()
+    print(f"  Diem mood: {100*(1-khong_bang_chung):.1f}% quan co it nhat 1 tu khoa khop")
     for col in mood_columns:
-        max_val = df[col].max()
-        if max_val > 0:
-            df[col] = df[col] / max_val
+        print(f"    {col:22s} trung vi={df[col].median():.3f}  >0.3: {100*(df[col]>0.3).mean():.1f}%")
+
 
     # 6. Lọc lại các cột cần thiết
     #

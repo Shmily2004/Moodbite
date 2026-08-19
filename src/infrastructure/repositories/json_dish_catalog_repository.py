@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 from src.domain.entities.dish import Dish
+from src.infrastructure.config.settings import describe_path
 
 logger = logging.getLogger("moodbite.repository")
 
@@ -39,7 +40,7 @@ class JsonDishCatalogRepository:
     def status(self) -> dict:
         return {
             "ready": self.is_ready,
-            "source": str(self.json_path),
+            "source": describe_path(self.json_path),
             "dishes": len(self._dishes or []),
             "error": self._load_error,
         }
@@ -57,14 +58,14 @@ class JsonDishCatalogRepository:
             return
         if not self.json_path.exists():
             self._load_error = (
-                f"Không tìm thấy danh mục món: {self.json_path}. "
+                f"Không tìm thấy danh mục món: {describe_path(self.json_path)}. "
                 "Chạy: python scripts/build_dish_catalog.py"
             )
             return
         try:
             raw = json.loads(self.json_path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError) as exc:
-            self._load_error = f"Không đọc được {self.json_path}: {exc}"
+            self._load_error = f"Không đọc được {describe_path(self.json_path)}: {exc}"
             return
 
         dishes = [

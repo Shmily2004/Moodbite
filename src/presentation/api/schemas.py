@@ -216,6 +216,12 @@ class RestaurantDetailData(BaseModel):
     menu_url: Optional[str] = None
     website: Optional[str] = None
     google_maps_url: Optional[str] = None
+    # LỚP 4 đề án — nhận xét tổng hợp từ review, TÍNH SẴN offline.
+    #   {summary: [...], positive: [...], negative: [...], review_count, average_stars,
+    #    method: "extractive_tfidf"}
+    # `null` = quán chưa đủ review (dưới 3) để tóm tắt, KHÔNG phải "quán không có gì".
+    # Mọi câu là TRÍCH NGUYÊN VĂN từ review thật - UI phải nói rõ điều đó.
+    review_summary: Optional[dict] = None
 
 
 # --- POST /api/v1/interactions -----------------------------------------------

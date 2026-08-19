@@ -66,9 +66,30 @@ class Restaurant:
         return " ".join(self.atmosphere_tags) if self.atmosphere_tags else None
 
     def mood_score(self, column: str) -> float:
-        """Điểm mood theo 1 cột. Thiếu dữ liệu -> 0.0 (trung lập, không phải điểm trừ)."""
+        """Điểm mood theo 1 cột. Thiếu dữ liệu -> 0.0.
+
+        ⚠️ 0.0 ở đây KHÔNG phải "trung lập" - nó là giá trị THẤP NHẤT có thể. Docstring cũ
+        ghi là "trung lập" và chính chữ đó đã che mất một lỗi thật suốt thời gian dài:
+        quán không có chữ nào để dò (chỉ có tên + loại hình) bị chấm 0 ở cả 5 chiều, tức
+        là bị phạt vì TA thiếu dữ liệu về nó, chứ không phải vì nó dở. Xem
+        `has_mood_evidence` - nơi phân biệt "biết là không hợp" với "chưa biết gì".
+        """
         value = self.mood_scores.get(column)
         return 0.0 if value is None else float(value)
+
+    @property
+    def has_mood_evidence(self) -> bool:
+        """Có dò được BẤT KỲ tín hiệu cảm xúc nào không.
+
+        Phân biệt hai chuyện mà điểm 0 gộp làm một:
+          - Có chữ để dò, dò xong không thấy "ấm cúng"  -> quán này thật sự không ấm cúng.
+          - Chẳng có chữ nào để dò                      -> ta CHƯA BIẾT.
+
+        Đo ngày 2026-08-19: 40% quán rơi vào vế thứ hai (phần lớn từ Overture, chỉ có tên
+        + loại hình, không review). Gộp chúng vào vế thứ nhất là đẩy 40% dataset xuống đáy
+        bảng xếp hạng ở tín hiệu NẶNG NHẤT (W_MOOD = 0.26).
+        """
+        return any(v for v in self.mood_scores.values() if v)
 
     def weighted_mood_score(self, weights: Dict[str, float]) -> float:
         """Tổng có trọng số của nhiều cột mood-score. Xem domain/value_objects/mood.py."""

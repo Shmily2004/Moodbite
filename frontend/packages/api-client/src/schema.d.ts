@@ -792,6 +792,10 @@ export interface components {
             website?: string | null;
             /** Google Maps Url */
             google_maps_url?: string | null;
+            /** Review Summary */
+            review_summary?: {
+                [key: string]: unknown;
+            } | null;
         };
         /** RestaurantDetailResponse */
         RestaurantDetailResponse: {

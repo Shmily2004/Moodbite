@@ -132,10 +132,30 @@ def compute_cluster_quality(restaurants: Sequence[Restaurant]) -> Dict[int, floa
     }
 
 
-def _normalize_mood(raw_score: float) -> float:
-    """Điểm mood thô có thể âm (trọng số âm) hoặc > 1. Ép về [0, 1] để cộng được với
-    các tín hiệu khác mà không có tín hiệu nào lấn át chỉ vì thang đo khác nhau."""
-    return max(0.0, min(raw_score, 1.0))
+# Giá trị TRUNG LẬP cho quán chưa dò được tín hiệu cảm xúc nào (Cold Start cho mood).
+# Cùng lý lẽ với `NEUTRAL_CLUSTER_SCORE` ở trên, chỉ khác chiều dữ liệu: quán chưa biết
+# gì KHÔNG phải quán dở. Dùng chung một hằng số để hai chỗ không bao giờ nói hai kiểu.
+NEUTRAL_MOOD_SCORE = NEUTRAL_CLUSTER_SCORE
+
+
+def _mood_score(restaurant: Restaurant, weights: Dict[str, float]) -> float:
+    """Điểm hợp tâm trạng, chuẩn hoá [0, 1].
+
+    BA nhánh, đừng gộp:
+      - Người dùng không nêu tâm trạng   -> 0.0, và đó là đúng: không ai hỏi thì tín hiệu
+        này không được phép đẩy quán nào lên. (`W_MOOD` khi đó thành chỗ trống cho các
+        tín hiệu khác, giống hệt hành vi cũ.)
+      - Quán CHƯA dò được tín hiệu nào   -> TRUNG LẬP. Xem `Restaurant.has_mood_evidence`:
+        40% dataset không có chữ nào để dò, phạt chúng bằng điểm 0 là phạt vì ta thiếu dữ
+        liệu chứ không phải vì quán không hợp.
+      - Quán CÓ tín hiệu                 -> dùng điểm thật, ép về [0, 1] vì trọng số có
+        thể âm (mood_bias của ngữ cảnh) hoặc tổng vượt 1.
+    """
+    if not weights:
+        return 0.0
+    if not restaurant.has_mood_evidence:
+        return NEUTRAL_MOOD_SCORE
+    return max(0.0, min(restaurant.weighted_mood_score(weights), 1.0))
 
 
 def _merge_weights(
@@ -171,17 +191,14 @@ def rank_restaurants(
     # Chất lượng cụm tính MỘT LẦN cho cả lượt tìm kiếm, không tính lại cho từng quán.
     cluster_quality = compute_cluster_quality(active)
 
-    scored: List[tuple[Restaurant, float, float, float, List[str], float, float]] = []
+    scored: List[
+        tuple[Restaurant, float, float, float, List[str], float, float, float]
+    ] = []
     for restaurant in active:
         distance_km = origin.distance_km(restaurant.location)
 
         relevance = text_relevance.relevance(restaurant, query_text)
-        mood_raw = (
-            restaurant.weighted_mood_score(effective_weights)
-            if effective_weights
-            else 0.0
-        )
-        mood_norm = _normalize_mood(mood_raw)
+        mood_norm = _mood_score(restaurant, effective_weights)
         cluster = _cluster_score(restaurant, cluster_quality)
         semantic = (
             semantic_scores.get(restaurant.place_id, 0.0)
@@ -200,7 +217,8 @@ def rank_restaurants(
         if semantic >= 0.15 and "semantic" not in sources:
             sources.append("semantic")
         scored.append(
-            (restaurant, predicted, distance_km, relevance.score, sources, cluster, semantic)
+            (restaurant, predicted, distance_km, relevance.score, sources, cluster,
+             semantic, mood_norm)
         )
 
     # Lọc bán kính TRƯỚC khi cắt top. Nếu bán kính làm rỗng kết quả thì bỏ lọc -
@@ -214,11 +232,12 @@ def rank_restaurants(
     scored.sort(key=lambda s: (-s[1], s[2]))
 
     ranked: List[RankedRestaurant] = []
+    # `mood_norm` được MANG THEO từ vòng lặp trên chứ không tính lại. Bản cũ tính lại bằng
+    # `weighted_mood_score` thô, nên con số báo ra cho giao diện KHÁC con số thật đã dùng
+    # để xếp hạng (thiếu bước ép [0,1] và thiếu cả luật Cold Start). Hai nguồn sự thật cho
+    # cùng một đại lượng - đúng thứ dự án đã trả giá nhiều lần.
     for position, (restaurant, predicted, distance_km, text_score, sources, cluster,
-                   semantic) in enumerate(scored[:limit], start=1):
-        mood_value = (
-            restaurant.weighted_mood_score(effective_weights) if effective_weights else 0.0
-        )
+                   semantic, mood_value) in enumerate(scored[:limit], start=1):
         ranked.append(
             RankedRestaurant(
                 restaurant=restaurant,
@@ -236,4 +255,4 @@ def rank_restaurants(
 
 
 __all__ = ["RankedRestaurant", "rank_restaurants", "compute_cluster_quality",
-           "DEFAULT_MAX_DISTANCE_KM", "NEUTRAL_CLUSTER_SCORE"]
+           "DEFAULT_MAX_DISTANCE_KM", "NEUTRAL_CLUSTER_SCORE", "NEUTRAL_MOOD_SCORE"]

@@ -885,7 +885,8 @@
       ],
       "source": "manual",
       "description": "Miến là sợi khô làm từ tinh bột dong hoặc đậu xanh, khi nấu trở nên trong và dai, dùng cho cả món nước lẫn món trộn.",
-      "skip_wikipedia": true
+      "skip_wikipedia": true,
+      "cuisine": "Philippines"
     },
     {
       "dish_id": "mien-tron",
@@ -1008,7 +1009,8 @@
         "lẩu"
       ],
       "source": "manual",
-      "description": "Lẩu Thái là món lẩu nước chua cay nấu kiểu Thái với sả, lá chanh và riềng, nhúng hải sản và rau."
+      "description": "Lẩu Thái là món lẩu nước chua cay nấu kiểu Thái với sả, lá chanh và riềng, nhúng hải sản và rau.",
+      "cuisine": "Thái Lan"
     },
     {
       "dish_id": "lau-ga-la-e",
@@ -1201,7 +1203,8 @@
       ],
       "source": "manual",
       "description": "Xôi là gạo nếp đồ chín bằng hơi nước, có cả loại ngọt lẫn mặn, là món ăn sáng quen thuộc.",
-      "skip_wikipedia": true
+      "skip_wikipedia": true,
+      "cuisine": "Thái Lan"
     },
     {
       "dish_id": "banh-mi-thit",
@@ -1242,7 +1245,8 @@
         "pizza"
       ],
       "source": "manual",
-      "description": "Pizza là bánh bột nướng lò phủ sốt cà chua, phô mai và các loại nhân, cắt miếng khi ăn."
+      "description": "Pizza là bánh bột nướng lò phủ sốt cà chua, phô mai và các loại nhân, cắt miếng khi ăn.",
+      "cuisine": "Ý"
     },
     {
       "dish_id": "pizza-hai-san",
@@ -1284,7 +1288,11 @@
         "bít tết"
       ],
       "source": "manual",
-      "description": "Bít tết là miếng thịt bò áp chảo hoặc nướng, ăn kèm khoai tây và sốt. Ở Việt Nam thường dùng cùng bánh mì."
+      "description": "Bít tết là miếng thịt bò áp chảo hoặc nướng, ăn kèm khoai tây và sốt. Ở Việt Nam thường dùng cùng bánh mì.",
+      "cuisine": "Ý",
+      "cuisine_also": [
+        "Pháp"
+      ]
     },
     {
       "dish_id": "com-suon",
@@ -1324,7 +1332,8 @@
         "cơm gà"
       ],
       "source": "manual",
-      "description": "Cơm gà là món cơm nấu cùng nước luộc gà, ăn kèm thịt gà và nước chấm gừng."
+      "description": "Cơm gà là món cơm nấu cùng nước luộc gà, ăn kèm thịt gà và nước chấm gừng.",
+      "cuisine": "Tây Ban Nha"
     },
     {
       "dish_id": "mi-xao-gion",
@@ -1420,7 +1429,8 @@
         "Kebab"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Kebab"
+      "source_url": "https://vi.wikipedia.org/wiki/Kebab",
+      "cuisine": "Thổ Nhĩ Kỳ"
     },
     {
       "dish_id": "tao-pho",
@@ -1431,7 +1441,13 @@
         "Tào phớ"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/T%C3%A0o_ph%E1%BB%9B"
+      "source_url": "https://vi.wikipedia.org/wiki/T%C3%A0o_ph%E1%BB%9B",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Đài Loan",
+        "Hồng Kông",
+        "Singapore"
+      ]
     },
     {
       "dish_id": "nom",
@@ -1486,7 +1502,12 @@
         "Sủi cảo"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/S%E1%BB%A7i_c%E1%BA%A3o"
+      "source_url": "https://vi.wikipedia.org/wiki/S%E1%BB%A7i_c%E1%BA%A3o",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Đài Loan",
+        "Hồng Kông"
+      ]
     },
     {
       "dish_id": "bun-thang",
@@ -1508,7 +1529,8 @@
         "Doner kebab"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Doner_kebab"
+      "source_url": "https://vi.wikipedia.org/wiki/Doner_kebab",
+      "cuisine": "Thổ Nhĩ Kỳ"
     },
     {
       "dish_id": "banh-mi-kep",
@@ -1541,7 +1563,13 @@
         "Cơm gà Hải Nam"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/C%C6%A1m_g%C3%A0_H%E1%BA%A3i_Nam"
+      "source_url": "https://vi.wikipedia.org/wiki/C%C6%A1m_g%C3%A0_H%E1%BA%A3i_Nam",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Thái Lan",
+        "Malaysia",
+        "Singapore"
+      ]
     },
     {
       "dish_id": "tra-thai",
@@ -1552,7 +1580,8 @@
         "Trà Thái"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Tr%C3%A0_Th%C3%A1i"
+      "source_url": "https://vi.wikipedia.org/wiki/Tr%C3%A0_Th%C3%A1i",
+      "cuisine": "Thái Lan"
     },
     {
       "dish_id": "top-mo",
@@ -1563,7 +1592,11 @@
         "Tóp mỡ"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/T%C3%B3p_m%E1%BB%A1"
+      "source_url": "https://vi.wikipedia.org/wiki/T%C3%B3p_m%E1%BB%A1",
+      "cuisine": "Thái Lan",
+      "cuisine_also": [
+        "Philippines"
+      ]
     },
     {
       "dish_id": "banh-bot-loc",
@@ -1596,7 +1629,8 @@
         "Bánh khúc"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_kh%C3%BAc"
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_kh%C3%BAc",
+      "cuisine": "Thái Lan"
     },
     {
       "dish_id": "banh-sinh-nhat",
@@ -1651,7 +1685,8 @@
         "Lẩu cừu"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/L%E1%BA%A9u_c%E1%BB%ABu"
+      "source_url": "https://vi.wikipedia.org/wiki/L%E1%BA%A9u_c%E1%BB%ABu",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "omakase",
@@ -1684,7 +1719,11 @@
         "Shabu-shabu"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Shabu-shabu"
+      "source_url": "https://vi.wikipedia.org/wiki/Shabu-shabu",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Đài Loan"
+      ]
     },
     {
       "dish_id": "vit-quay-bac-kinh",
@@ -1695,7 +1734,11 @@
         "Vịt quay Bắc Kinh"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/V%E1%BB%8Bt_quay_B%E1%BA%AFc_Kinh"
+      "source_url": "https://vi.wikipedia.org/wiki/V%E1%BB%8Bt_quay_B%E1%BA%AFc_Kinh",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Đài Loan"
+      ]
     },
     {
       "dish_id": "yakitori",
@@ -1717,7 +1760,11 @@
         "Yến sào"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Y%E1%BA%BFn_s%C3%A0o"
+      "source_url": "https://vi.wikipedia.org/wiki/Y%E1%BA%BFn_s%C3%A0o",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Hồng Kông"
+      ]
     },
     {
       "dish_id": "gelato",
@@ -1739,7 +1786,8 @@
         "'Nduja"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/'Nduja"
+      "source_url": "https://vi.wikipedia.org/wiki/'Nduja",
+      "cuisine": "Ý"
     },
     {
       "dish_id": "aburaage",
@@ -1750,7 +1798,8 @@
         "Aburaage"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Aburaage"
+      "source_url": "https://vi.wikipedia.org/wiki/Aburaage",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "acaraje",
@@ -1772,7 +1821,8 @@
         "Acquacotta"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Acquacotta"
+      "source_url": "https://vi.wikipedia.org/wiki/Acquacotta",
+      "cuisine": "Ý"
     },
     {
       "dish_id": "adobo-kieu-philippines",
@@ -1783,7 +1833,8 @@
         "Adobo kiểu Philippines"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Adobo_ki%E1%BB%83u_Philippines"
+      "source_url": "https://vi.wikipedia.org/wiki/Adobo_ki%E1%BB%83u_Philippines",
+      "cuisine": "Philippines"
     },
     {
       "dish_id": "agedashi-dofu",
@@ -1794,7 +1845,8 @@
         "Agedashi dōfu"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Agedashi_d%C5%8Dfu"
+      "source_url": "https://vi.wikipedia.org/wiki/Agedashi_d%C5%8Dfu",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "agwi-jjim",
@@ -1805,7 +1857,8 @@
         "Agwi-jjim"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Agwi-jjim"
+      "source_url": "https://vi.wikipedia.org/wiki/Agwi-jjim",
+      "cuisine": "Hàn Quốc"
     },
     {
       "dish_id": "aioli",
@@ -1816,7 +1869,12 @@
         "Aioli"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Aioli"
+      "source_url": "https://vi.wikipedia.org/wiki/Aioli",
+      "cuisine": "Ý",
+      "cuisine_also": [
+        "Pháp",
+        "Tây Ban Nha"
+      ]
     },
     {
       "dish_id": "akumaki",
@@ -1838,7 +1896,8 @@
         "Aligot"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Aligot"
+      "source_url": "https://vi.wikipedia.org/wiki/Aligot",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "almojabana",
@@ -1860,7 +1919,8 @@
         "Aloo gosht"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Aloo_gosht"
+      "source_url": "https://vi.wikipedia.org/wiki/Aloo_gosht",
+      "cuisine": "Ấn Độ"
     },
     {
       "dish_id": "amanatto",
@@ -1915,7 +1975,8 @@
         "Arroz con pollo"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Arroz_con_pollo"
+      "source_url": "https://vi.wikipedia.org/wiki/Arroz_con_pollo",
+      "cuisine": "Tây Ban Nha"
     },
     {
       "dish_id": "atchara",
@@ -1926,7 +1987,8 @@
         "Atchara"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Atchara"
+      "source_url": "https://vi.wikipedia.org/wiki/Atchara",
+      "cuisine": "Philippines"
     },
     {
       "dish_id": "ayam-kecap",
@@ -1937,7 +1999,8 @@
         "Ayam kecap"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Ayam_kecap"
+      "source_url": "https://vi.wikipedia.org/wiki/Ayam_kecap",
+      "cuisine": "Indonesia"
     },
     {
       "dish_id": "baked-ziti",
@@ -1948,7 +2011,8 @@
         "Baked ziti"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Baked_ziti"
+      "source_url": "https://vi.wikipedia.org/wiki/Baked_ziti",
+      "cuisine": "Ý"
     },
     {
       "dish_id": "banchan",
@@ -1970,7 +2034,8 @@
         "Batchoy"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Batchoy"
+      "source_url": "https://vi.wikipedia.org/wiki/Batchoy",
+      "cuisine": "Philippines"
     },
     {
       "dish_id": "baumkuchen",
@@ -2003,7 +2068,8 @@
         "Beondegi"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Beondegi"
+      "source_url": "https://vi.wikipedia.org/wiki/Beondegi",
+      "cuisine": "Hàn Quốc"
     },
     {
       "dish_id": "berliner-banh-donut",
@@ -2025,7 +2091,8 @@
         "Bhaji"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Bhaji"
+      "source_url": "https://vi.wikipedia.org/wiki/Bhaji",
+      "cuisine": "Ấn Độ"
     },
     {
       "dish_id": "bibimbap",
@@ -2146,7 +2213,8 @@
         "Bosintang"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Bosintang"
+      "source_url": "https://vi.wikipedia.org/wiki/Bosintang",
+      "cuisine": "Hàn Quốc"
     },
     {
       "dish_id": "bremer-klaben",
@@ -2179,7 +2247,11 @@
         "Brezel"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Brezel"
+      "source_url": "https://vi.wikipedia.org/wiki/Brezel",
+      "cuisine": "Ý",
+      "cuisine_also": [
+        "Pháp"
+      ]
     },
     {
       "dish_id": "brioche",
@@ -2190,7 +2262,8 @@
         "Brioche"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Brioche"
+      "source_url": "https://vi.wikipedia.org/wiki/Brioche",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "brownie-nong-hoi",
@@ -2201,7 +2274,8 @@
         "Brownie nóng hổi"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Brownie_n%C3%B3ng_h%E1%BB%95i"
+      "source_url": "https://vi.wikipedia.org/wiki/Brownie_n%C3%B3ng_h%E1%BB%95i",
+      "cuisine": "Ấn Độ"
     },
     {
       "dish_id": "bryndzove-halusky",
@@ -2223,7 +2297,8 @@
         "Brési"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Br%C3%A9si"
+      "source_url": "https://vi.wikipedia.org/wiki/Br%C3%A9si",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "bustrengo",
@@ -2234,7 +2309,8 @@
         "Bustrengo"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Bustrengo"
+      "source_url": "https://vi.wikipedia.org/wiki/Bustrengo",
+      "cuisine": "Ý"
     },
     {
       "dish_id": "butter-brickle",
@@ -2300,7 +2376,8 @@
         "Bánh Opera"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_Opera"
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_Opera",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "banh-thiem-tay",
@@ -2311,7 +2388,8 @@
         "Bánh Thiểm Tây"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_Thi%E1%BB%83m_T%C3%A2y"
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_Thi%E1%BB%83m_T%C3%A2y",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "banh-vuong-mien-frankfurt",
@@ -2366,7 +2444,8 @@
         "Bánh bột chiên"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_b%E1%BB%99t_chi%C3%AAn"
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_b%E1%BB%99t_chi%C3%AAn",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "banh-canh-ca-loc",
@@ -2465,7 +2544,11 @@
         "Bánh dẻo lạnh"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_d%E1%BA%BBo_l%E1%BA%A1nh"
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_d%E1%BA%BBo_l%E1%BA%A1nh",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Hồng Kông"
+      ]
     },
     {
       "dish_id": "banh-dua",
@@ -2476,7 +2559,11 @@
         "Bánh dứa"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_d%E1%BB%A9a"
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_d%E1%BB%A9a",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Đài Loan"
+      ]
     },
     {
       "dish_id": "banh-gia",
@@ -2608,7 +2695,8 @@
         "Bánh mì Altamura"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_m%C3%AC_Altamura"
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_m%C3%AC_Altamura",
+      "cuisine": "Ý"
     },
     {
       "dish_id": "banh-mi-kaiser",
@@ -2630,7 +2718,8 @@
         "Bánh mì Pháp"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_m%C3%AC_Ph%C3%A1p"
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_m%C3%AC_Ph%C3%A1p",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "banh-mi-phuc-sinh",
@@ -2729,7 +2818,8 @@
         "Bánh mì gối"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_m%C3%AC_g%E1%BB%91i"
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_m%C3%AC_g%E1%BB%91i",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "banh-mi-gung",
@@ -2762,7 +2852,8 @@
         "Bánh mì nướng kiểu Pháp"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_m%C3%AC_n%C6%B0%E1%BB%9Bng_ki%E1%BB%83u_Ph%C3%A1p"
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_m%C3%AC_n%C6%B0%E1%BB%9Bng_ki%E1%BB%83u_Ph%C3%A1p",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "banh-mi-nuong-mat-ong",
@@ -2817,7 +2908,8 @@
         "Bánh mì và muối"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_m%C3%AC_v%C3%A0_mu%E1%BB%91i"
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_m%C3%AC_v%C3%A0_mu%E1%BB%91i",
+      "cuisine": "Nga"
     },
     {
       "dish_id": "banh-mi-va-rap-xiec",
@@ -2872,7 +2964,8 @@
         "Bánh nướng"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_n%C6%B0%E1%BB%9Bng"
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_n%C6%B0%E1%BB%9Bng",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "banh-nuong-alaska",
@@ -2883,7 +2976,8 @@
         "Bánh nướng Alaska"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_n%C6%B0%E1%BB%9Bng_Alaska"
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_n%C6%B0%E1%BB%9Bng_Alaska",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "banh-nuong-chao",
@@ -2949,7 +3043,15 @@
         "Bánh phồng tôm"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_ph%E1%BB%93ng_t%C3%B4m"
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_ph%E1%BB%93ng_t%C3%B4m",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Thái Lan",
+        "Indonesia",
+        "Malaysia",
+        "Philippines",
+        "Hồng Kông"
+      ]
     },
     {
       "dish_id": "banh-pudding",
@@ -2971,7 +3073,8 @@
         "Bánh pía"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_p%C3%ADa"
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_p%C3%ADa",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "banh-quai-vac",
@@ -3015,7 +3118,8 @@
         "Bánh quy Tortoni"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_quy_Tortoni"
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_quy_Tortoni",
+      "cuisine": "Ý"
     },
     {
       "dish_id": "banh-quy-hanh-nhan",
@@ -3026,7 +3130,11 @@
         "Bánh quy hạnh nhân"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_quy_h%E1%BA%A1nh_nh%C3%A2n"
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_quy_h%E1%BA%A1nh_nh%C3%A2n",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Hồng Kông"
+      ]
     },
     {
       "dish_id": "banh-quy-kep",
@@ -3059,7 +3167,11 @@
         "Bánh quẩy thừng"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_qu%E1%BA%A9y_th%E1%BB%ABng"
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_qu%E1%BA%A9y_th%E1%BB%ABng",
+      "cuisine": "Hàn Quốc",
+      "cuisine_also": [
+        "Ý"
+      ]
     },
     {
       "dish_id": "banh-que-hoa",
@@ -3070,7 +3182,8 @@
         "Bánh quế hoa"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_qu%E1%BA%BF_hoa"
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_qu%E1%BA%BF_hoa",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "banh-re",
@@ -3092,7 +3205,8 @@
         "Bánh sò"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_s%C3%B2"
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_s%C3%B2",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "banh-so-co-la",
@@ -3114,7 +3228,8 @@
         "Bánh sừng bò"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_s%E1%BB%ABng_b%C3%B2"
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_s%E1%BB%ABng_b%C3%B2",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "banh-torte-sacher",
@@ -3136,7 +3251,12 @@
         "Bánh trung thu"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_trung_thu"
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_trung_thu",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Thái Lan",
+        "Singapore"
+      ]
     },
     {
       "dish_id": "banh-troi-banh-chay",
@@ -3191,7 +3311,8 @@
         "Bánh vua"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_vua"
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_vua",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "banh-xeo-tom-nhay",
@@ -3224,7 +3345,12 @@
         "Bánh ú"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_%C3%BA"
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_%C3%BA",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Malaysia",
+        "Singapore"
+      ]
     },
     {
       "dish_id": "banh-duong",
@@ -3235,7 +3361,8 @@
         "Bánh đường"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_%C4%91%C6%B0%E1%BB%9Dng"
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_%C4%91%C6%B0%E1%BB%9Dng",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "banh-dap",
@@ -3323,7 +3450,8 @@
         "Bò Stroganoff"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/B%C3%B2_Stroganoff"
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%B2_Stroganoff",
+      "cuisine": "Nga"
     },
     {
       "dish_id": "bo-wellington",
@@ -3356,7 +3484,8 @@
         "Bò hầm kiểu Pháp"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/B%C3%B2_h%E1%BA%A7m_ki%E1%BB%83u_Ph%C3%A1p"
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%B2_h%E1%BA%A7m_ki%E1%BB%83u_Ph%C3%A1p",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "bo-ne",
@@ -3378,7 +3507,14 @@
         "Bò pía"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/B%C3%B2_p%C3%ADa"
+      "source_url": "https://vi.wikipedia.org/wiki/B%C3%B2_p%C3%ADa",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Thái Lan",
+        "Malaysia",
+        "Đài Loan",
+        "Singapore"
+      ]
     },
     {
       "dish_id": "bun-mach-trang",
@@ -3455,7 +3591,8 @@
         "Bữa ăn tối mười hai món đêm Giáng sinh"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/B%E1%BB%AFa_%C4%83n_t%E1%BB%91i_m%C6%B0%E1%BB%9Di_hai_m%C3%B3n_%C4%91%C3%AAm_Gi%C3%A1ng_sinh"
+      "source_url": "https://vi.wikipedia.org/wiki/B%E1%BB%AFa_%C4%83n_t%E1%BB%91i_m%C6%B0%E1%BB%9Di_hai_m%C3%B3n_%C4%91%C3%AAm_Gi%C3%A1ng_sinh",
+      "cuisine": "Nga"
     },
     {
       "dish_id": "ca-la-thau",
@@ -3466,7 +3603,8 @@
         "Ca la thầu"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Ca_la_th%E1%BA%A7u"
+      "source_url": "https://vi.wikipedia.org/wiki/Ca_la_th%E1%BA%A7u",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "cabecou",
@@ -3477,7 +3615,8 @@
         "Cabécou"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Cab%C3%A9cou"
+      "source_url": "https://vi.wikipedia.org/wiki/Cab%C3%A9cou",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "cachupa",
@@ -3499,7 +3638,8 @@
         "Caffè crema"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Caff%C3%A8_crema"
+      "source_url": "https://vi.wikipedia.org/wiki/Caff%C3%A8_crema",
+      "cuisine": "Ý"
     },
     {
       "dish_id": "cafe-liegeois",
@@ -3521,7 +3661,8 @@
         "Camaron rebosado"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Camaron_rebosado"
+      "source_url": "https://vi.wikipedia.org/wiki/Camaron_rebosado",
+      "cuisine": "Philippines"
     },
     {
       "dish_id": "canard-a-la-presse",
@@ -3532,7 +3673,8 @@
         "Canard à la presse"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Canard_%C3%A0_la_presse"
+      "source_url": "https://vi.wikipedia.org/wiki/Canard_%C3%A0_la_presse",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "canh-bun",
@@ -3587,7 +3729,8 @@
         "Cappuccino"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Cappuccino"
+      "source_url": "https://vi.wikipedia.org/wiki/Cappuccino",
+      "cuisine": "Ý"
     },
     {
       "dish_id": "caramel",
@@ -3620,7 +3763,8 @@
         "Carpaccio"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Carpaccio"
+      "source_url": "https://vi.wikipedia.org/wiki/Carpaccio",
+      "cuisine": "Ý"
     },
     {
       "dish_id": "castella",
@@ -3642,7 +3786,11 @@
         "Cha chaan teng"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Cha_chaan_teng"
+      "source_url": "https://vi.wikipedia.org/wiki/Cha_chaan_teng",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Hồng Kông"
+      ]
     },
     {
       "dish_id": "chal",
@@ -3653,7 +3801,8 @@
         "Chal"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Chal"
+      "source_url": "https://vi.wikipedia.org/wiki/Chal",
+      "cuisine": "Thổ Nhĩ Kỳ"
     },
     {
       "dish_id": "champon",
@@ -3664,7 +3813,8 @@
         "Champon"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Champon"
+      "source_url": "https://vi.wikipedia.org/wiki/Champon",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "chapati",
@@ -3675,7 +3825,13 @@
         "Chapati"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Chapati"
+      "source_url": "https://vi.wikipedia.org/wiki/Chapati",
+      "cuisine": "Ấn Độ",
+      "cuisine_also": [
+        "Indonesia",
+        "Malaysia",
+        "Singapore"
+      ]
     },
     {
       "dish_id": "chicharron",
@@ -3719,7 +3875,8 @@
         "Choucroute vùng Alsace"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Choucroute_v%C3%B9ng_Alsace"
+      "source_url": "https://vi.wikipedia.org/wiki/Choucroute_v%C3%B9ng_Alsace",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "churro",
@@ -3730,7 +3887,8 @@
         "Churro"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Churro"
+      "source_url": "https://vi.wikipedia.org/wiki/Churro",
+      "cuisine": "Tây Ban Nha"
     },
     {
       "dish_id": "chuoi-nuong",
@@ -3785,7 +3943,13 @@
         "Chè bánh lọt"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Ch%C3%A8_b%C3%A1nh_l%E1%BB%8Dt"
+      "source_url": "https://vi.wikipedia.org/wiki/Ch%C3%A8_b%C3%A1nh_l%E1%BB%8Dt",
+      "cuisine": "Thái Lan",
+      "cuisine_also": [
+        "Indonesia",
+        "Malaysia",
+        "Singapore"
+      ]
     },
     {
       "dish_id": "che-hot-ga-nau-duong",
@@ -3796,7 +3960,8 @@
         "Chè hột gà nấu đường"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Ch%C3%A8_h%E1%BB%99t_g%C3%A0_n%E1%BA%A5u_%C4%91%C6%B0%E1%BB%9Dng"
+      "source_url": "https://vi.wikipedia.org/wiki/Ch%C3%A8_h%E1%BB%99t_g%C3%A0_n%E1%BA%A5u_%C4%91%C6%B0%E1%BB%9Dng",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "che-kho",
@@ -3818,7 +3983,8 @@
         "Chè mè đen"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Ch%C3%A8_m%C3%A8_%C4%91en"
+      "source_url": "https://vi.wikipedia.org/wiki/Ch%C3%A8_m%C3%A8_%C4%91en",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "che-tuyet-suoi-giang",
@@ -3862,7 +4028,8 @@
         "Chè đậu đỏ"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Ch%C3%A8_%C4%91%E1%BA%ADu_%C4%91%E1%BB%8F"
+      "source_url": "https://vi.wikipedia.org/wiki/Ch%C3%A8_%C4%91%E1%BA%ADu_%C4%91%E1%BB%8F",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "chukadon",
@@ -3939,7 +4106,8 @@
         "Cordon bleu"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Cordon_bleu"
+      "source_url": "https://vi.wikipedia.org/wiki/Cordon_bleu",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "creme-de-papaya",
@@ -3961,7 +4129,8 @@
         "Crespéou"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Cresp%C3%A9ou"
+      "source_url": "https://vi.wikipedia.org/wiki/Cresp%C3%A9ou",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "croque-monsieur",
@@ -3972,7 +4141,8 @@
         "Croque monsieur"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Croque_monsieur"
+      "source_url": "https://vi.wikipedia.org/wiki/Croque_monsieur",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "creme-brulee",
@@ -3983,7 +4153,8 @@
         "Crème brûlée"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Cr%C3%A8me_br%C3%BBl%C3%A9e"
+      "source_url": "https://vi.wikipedia.org/wiki/Cr%C3%A8me_br%C3%BBl%C3%A9e",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "cua-sot-ot",
@@ -3994,7 +4165,11 @@
         "Cua sốt ớt"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Cua_s%E1%BB%91t_%E1%BB%9Bt"
+      "source_url": "https://vi.wikipedia.org/wiki/Cua_s%E1%BB%91t_%E1%BB%9Bt",
+      "cuisine": "Malaysia",
+      "cuisine_also": [
+        "Singapore"
+      ]
     },
     {
       "dish_id": "currywurst",
@@ -4027,7 +4202,15 @@
         "Cà ri"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/C%C3%A0_ri"
+      "source_url": "https://vi.wikipedia.org/wiki/C%C3%A0_ri",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Thái Lan",
+        "Ấn Độ",
+        "Indonesia",
+        "Malaysia",
+        "Philippines"
+      ]
     },
     {
       "dish_id": "ca-ri-nhat-ban",
@@ -4049,7 +4232,8 @@
         "Cà ri dê"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/C%C3%A0_ri_d%C3%AA"
+      "source_url": "https://vi.wikipedia.org/wiki/C%C3%A0_ri_d%C3%AA",
+      "cuisine": "Indonesia"
     },
     {
       "dish_id": "ca-ri-vang",
@@ -4060,7 +4244,8 @@
         "Cà ri vàng"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/C%C3%A0_ri_v%C3%A0ng"
+      "source_url": "https://vi.wikipedia.org/wiki/C%C3%A0_ri_v%C3%A0ng",
+      "cuisine": "Thái Lan"
     },
     {
       "dish_id": "ca-ri-xanh",
@@ -4071,7 +4256,8 @@
         "Cà ri xanh"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/C%C3%A0_ri_xanh"
+      "source_url": "https://vi.wikipedia.org/wiki/C%C3%A0_ri_xanh",
+      "cuisine": "Thái Lan"
     },
     {
       "dish_id": "ca-ri-do",
@@ -4082,7 +4268,8 @@
         "Cà ri đỏ"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/C%C3%A0_ri_%C4%91%E1%BB%8F"
+      "source_url": "https://vi.wikipedia.org/wiki/C%C3%A0_ri_%C4%91%E1%BB%8F",
+      "cuisine": "Thái Lan"
     },
     {
       "dish_id": "ca-chep-giang-sinh",
@@ -4104,7 +4291,8 @@
         "Cá chình đông"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/C%C3%A1_ch%C3%ACnh_%C4%91%C3%B4ng"
+      "source_url": "https://vi.wikipedia.org/wiki/C%C3%A1_ch%C3%ACnh_%C4%91%C3%B4ng",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "ca-gefilte",
@@ -4148,7 +4336,11 @@
         "Cá âm dương"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/C%C3%A1_%C3%A2m_d%C6%B0%C6%A1ng"
+      "source_url": "https://vi.wikipedia.org/wiki/C%C3%A1_%C3%A2m_d%C6%B0%C6%A1ng",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Đài Loan"
+      ]
     },
     {
       "dish_id": "cac-mon-an-tu-hai-san",
@@ -4203,7 +4395,8 @@
         "Cơm chiên"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/C%C6%A1m_chi%C3%AAn"
+      "source_url": "https://vi.wikipedia.org/wiki/C%C6%A1m_chi%C3%AAn",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "com-chien-duong-chau",
@@ -4214,7 +4407,11 @@
         "Cơm chiên Dương Châu"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/C%C6%A1m_chi%C3%AAn_D%C6%B0%C6%A1ng_Ch%C3%A2u"
+      "source_url": "https://vi.wikipedia.org/wiki/C%C6%A1m_chi%C3%AAn_D%C6%B0%C6%A1ng_Ch%C3%A2u",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Hồng Kông"
+      ]
     },
     {
       "dish_id": "cai-meo",
@@ -4258,7 +4455,8 @@
         "Dal makhani"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Dal_makhani"
+      "source_url": "https://vi.wikipedia.org/wiki/Dal_makhani",
+      "cuisine": "Ấn Độ"
     },
     {
       "dish_id": "dalgona",
@@ -4269,7 +4467,8 @@
         "Dalgona"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Dalgona"
+      "source_url": "https://vi.wikipedia.org/wiki/Dalgona",
+      "cuisine": "Hàn Quốc"
     },
     {
       "dish_id": "dame-blanche-trang-mieng",
@@ -4302,7 +4501,8 @@
         "Dapanji"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Dapanji"
+      "source_url": "https://vi.wikipedia.org/wiki/Dapanji",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "dashi",
@@ -4357,7 +4557,8 @@
         "Doodh pati chai"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Doodh_pati_chai"
+      "source_url": "https://vi.wikipedia.org/wiki/Doodh_pati_chai",
+      "cuisine": "Ấn Độ"
     },
     {
       "dish_id": "dorayaki",
@@ -4379,7 +4580,8 @@
         "Du miến"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Du_mi%E1%BA%BFn"
+      "source_url": "https://vi.wikipedia.org/wiki/Du_mi%E1%BA%BFn",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "dulce-de-leche",
@@ -4478,7 +4680,8 @@
         "Focaccia"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Focaccia"
+      "source_url": "https://vi.wikipedia.org/wiki/Focaccia",
+      "cuisine": "Ý"
     },
     {
       "dish_id": "fondant",
@@ -4500,7 +4703,11 @@
         "Fondue"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Fondue"
+      "source_url": "https://vi.wikipedia.org/wiki/Fondue",
+      "cuisine": "Ý",
+      "cuisine_also": [
+        "Pháp"
+      ]
     },
     {
       "dish_id": "freedom-fries",
@@ -4522,7 +4729,8 @@
         "Frico"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Frico"
+      "source_url": "https://vi.wikipedia.org/wiki/Frico",
+      "cuisine": "Ý"
     },
     {
       "dish_id": "frikadelle",
@@ -4577,7 +4785,8 @@
         "Gan béo"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Gan_b%C3%A9o"
+      "source_url": "https://vi.wikipedia.org/wiki/Gan_b%C3%A9o",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "gari-mon-an",
@@ -4599,7 +4808,8 @@
         "Gejang"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Gejang"
+      "source_url": "https://vi.wikipedia.org/wiki/Gejang",
+      "cuisine": "Hàn Quốc"
     },
     {
       "dish_id": "gian-hang-do-an",
@@ -4643,7 +4853,8 @@
         "Granita"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Granita"
+      "source_url": "https://vi.wikipedia.org/wiki/Granita",
+      "cuisine": "Ý"
     },
     {
       "dish_id": "griot-mon-an",
@@ -4698,7 +4909,8 @@
         "Gà Tikka"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/G%C3%A0_Tikka"
+      "source_url": "https://vi.wikipedia.org/wiki/G%C3%A0_Tikka",
+      "cuisine": "Ấn Độ"
     },
     {
       "dish_id": "ga-cay-trung-khanh",
@@ -4709,7 +4921,8 @@
         "Gà cay Trùng Khánh"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/G%C3%A0_cay_Tr%C3%B9ng_Kh%C3%A1nh"
+      "source_url": "https://vi.wikipedia.org/wiki/G%C3%A0_cay_Tr%C3%B9ng_Kh%C3%A1nh",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "ga-hong-gio",
@@ -4720,7 +4933,8 @@
         "Gà hong gió"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/G%C3%A0_hong_gi%C3%B3"
+      "source_url": "https://vi.wikipedia.org/wiki/G%C3%A0_hong_gi%C3%B3",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "ga-luoc",
@@ -4731,7 +4945,11 @@
         "Gà luộc"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/G%C3%A0_lu%E1%BB%99c"
+      "source_url": "https://vi.wikipedia.org/wiki/G%C3%A0_lu%E1%BB%99c",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Hồng Kông"
+      ]
     },
     {
       "dish_id": "ga-nuong-lo-dat-tandoori",
@@ -4742,7 +4960,8 @@
         "Gà nướng lò đất Tandoori"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/G%C3%A0_n%C6%B0%E1%BB%9Bng_l%C3%B2_%C4%91%E1%BA%A5t_Tandoori"
+      "source_url": "https://vi.wikipedia.org/wiki/G%C3%A0_n%C6%B0%E1%BB%9Bng_l%C3%B2_%C4%91%E1%BA%A5t_Tandoori",
+      "cuisine": "Ấn Độ"
     },
     {
       "dish_id": "ga-ran-han-quoc",
@@ -4753,7 +4972,8 @@
         "Gà rán Hàn Quốc"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/G%C3%A0_r%C3%A1n_H%C3%A0n_Qu%E1%BB%91c"
+      "source_url": "https://vi.wikipedia.org/wiki/G%C3%A0_r%C3%A1n_H%C3%A0n_Qu%E1%BB%91c",
+      "cuisine": "Hàn Quốc"
     },
     {
       "dish_id": "ga-ro-ti",
@@ -4764,7 +4984,8 @@
         "Gà rô ti"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/G%C3%A0_r%C3%B4_ti"
+      "source_url": "https://vi.wikipedia.org/wiki/G%C3%A0_r%C3%B4_ti",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "ga-sa-lua",
@@ -4819,7 +5040,8 @@
         "Gỏi măng"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/G%E1%BB%8Fi_m%C4%83ng"
+      "source_url": "https://vi.wikipedia.org/wiki/G%E1%BB%8Fi_m%C4%83ng",
+      "cuisine": "Thái Lan"
     },
     {
       "dish_id": "goi-nhech",
@@ -4852,7 +5074,11 @@
         "Haleem"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Haleem"
+      "source_url": "https://vi.wikipedia.org/wiki/Haleem",
+      "cuisine": "Ấn Độ",
+      "cuisine_also": [
+        "Thổ Nhĩ Kỳ"
+      ]
     },
     {
       "dish_id": "haliva",
@@ -4874,7 +5100,8 @@
         "Halo-halo"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Halo-halo"
+      "source_url": "https://vi.wikipedia.org/wiki/Halo-halo",
+      "cuisine": "Philippines"
     },
     {
       "dish_id": "handkase",
@@ -4962,7 +5189,8 @@
         "Hotteok"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Hotteok"
+      "source_url": "https://vi.wikipedia.org/wiki/Hotteok",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "hoanh-thanh",
@@ -4973,7 +5201,14 @@
         "Hoành thánh"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Ho%C3%A0nh_th%C3%A1nh"
+      "source_url": "https://vi.wikipedia.org/wiki/Ho%C3%A0nh_th%C3%A1nh",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Malaysia",
+        "Philippines",
+        "Hồng Kông",
+        "Singapore"
+      ]
     },
     {
       "dish_id": "hummus",
@@ -4984,7 +5219,8 @@
         "Hummus"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Hummus"
+      "source_url": "https://vi.wikipedia.org/wiki/Hummus",
+      "cuisine": "Thổ Nhĩ Kỳ"
     },
     {
       "dish_id": "huyet-heo",
@@ -4995,7 +5231,12 @@
         "Huyết heo"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Huy%E1%BA%BFt_heo"
+      "source_url": "https://vi.wikipedia.org/wiki/Huy%E1%BA%BFt_heo",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Đài Loan",
+        "Hồng Kông"
+      ]
     },
     {
       "dish_id": "hanh-tay-chien-gion",
@@ -5017,7 +5258,14 @@
         "Hàu ốp lết"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/H%C3%A0u_%E1%BB%91p_l%E1%BA%BFt"
+      "source_url": "https://vi.wikipedia.org/wiki/H%C3%A0u_%E1%BB%91p_l%E1%BA%BFt",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Thái Lan",
+        "Malaysia",
+        "Đài Loan",
+        "Singapore"
+      ]
     },
     {
       "dish_id": "ha-cao",
@@ -5028,7 +5276,8 @@
         "Há cảo"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/H%C3%A1_c%E1%BA%A3o"
+      "source_url": "https://vi.wikipedia.org/wiki/H%C3%A1_c%E1%BA%A3o",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "hoi-khoa-hoc-cong-nghe-che-viet-nam",
@@ -5050,7 +5299,8 @@
         "Hủ tiếu Hồ"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/H%E1%BB%A7_ti%E1%BA%BFu_H%E1%BB%93"
+      "source_url": "https://vi.wikipedia.org/wiki/H%E1%BB%A7_ti%E1%BA%BFu_H%E1%BB%93",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "hu-tieu-sa-te",
@@ -5061,7 +5311,8 @@
         "Hủ tiếu sa tế"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/H%E1%BB%A7_ti%E1%BA%BFu_sa_t%E1%BA%BF"
+      "source_url": "https://vi.wikipedia.org/wiki/H%E1%BB%A7_ti%E1%BA%BFu_sa_t%E1%BA%BF",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "hu-tieu-sa-te-nai",
@@ -5094,7 +5345,11 @@
         "Ikan bakar"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Ikan_bakar"
+      "source_url": "https://vi.wikipedia.org/wiki/Ikan_bakar",
+      "cuisine": "Indonesia",
+      "cuisine_also": [
+        "Malaysia"
+      ]
     },
     {
       "dish_id": "ikan-goreng",
@@ -5105,7 +5360,11 @@
         "Ikan goreng"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Ikan_goreng"
+      "source_url": "https://vi.wikipedia.org/wiki/Ikan_goreng",
+      "cuisine": "Indonesia",
+      "cuisine_also": [
+        "Malaysia"
+      ]
     },
     {
       "dish_id": "imagawayaki",
@@ -5127,7 +5386,8 @@
         "Institut Paul Bocuse"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Institut_Paul_Bocuse"
+      "source_url": "https://vi.wikipedia.org/wiki/Institut_Paul_Bocuse",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "jalebi",
@@ -5138,7 +5398,8 @@
         "Jalebi"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Jalebi"
+      "source_url": "https://vi.wikipedia.org/wiki/Jalebi",
+      "cuisine": "Ấn Độ"
     },
     {
       "dish_id": "jambon-beurre",
@@ -5149,7 +5410,8 @@
         "Jambon-beurre"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Jambon-beurre"
+      "source_url": "https://vi.wikipedia.org/wiki/Jambon-beurre",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "jamon",
@@ -5160,7 +5422,8 @@
         "Jamón"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Jam%C3%B3n"
+      "source_url": "https://vi.wikipedia.org/wiki/Jam%C3%B3n",
+      "cuisine": "Tây Ban Nha"
     },
     {
       "dish_id": "jamon-iberico",
@@ -5171,7 +5434,8 @@
         "Jamón Ibérico"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Jam%C3%B3n_Ib%C3%A9rico"
+      "source_url": "https://vi.wikipedia.org/wiki/Jam%C3%B3n_Ib%C3%A9rico",
+      "cuisine": "Tây Ban Nha"
     },
     {
       "dish_id": "jingisukan",
@@ -5226,7 +5490,8 @@
         "Kadaif"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Kadaif"
+      "source_url": "https://vi.wikipedia.org/wiki/Kadaif",
+      "cuisine": "Thổ Nhĩ Kỳ"
     },
     {
       "dish_id": "kaeng-pa",
@@ -5237,7 +5502,8 @@
         "Kaeng pa"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Kaeng_pa"
+      "source_url": "https://vi.wikipedia.org/wiki/Kaeng_pa",
+      "cuisine": "Thái Lan"
     },
     {
       "dish_id": "kaeng-som",
@@ -5248,7 +5514,8 @@
         "Kaeng som"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Kaeng_som"
+      "source_url": "https://vi.wikipedia.org/wiki/Kaeng_som",
+      "cuisine": "Thái Lan"
     },
     {
       "dish_id": "kaiseki",
@@ -5380,7 +5647,8 @@
         "Kem chiên"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Kem_chi%C3%AAn"
+      "source_url": "https://vi.wikipedia.org/wiki/Kem_chi%C3%AAn",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "kem-cuon",
@@ -5391,7 +5659,8 @@
         "Kem cuộn"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Kem_cu%E1%BB%99n"
+      "source_url": "https://vi.wikipedia.org/wiki/Kem_cu%E1%BB%99n",
+      "cuisine": "Thái Lan"
     },
     {
       "dish_id": "kem-cuon-bac-cuc",
@@ -5413,7 +5682,8 @@
         "Kem lạnh"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Kem_l%E1%BA%A1nh"
+      "source_url": "https://vi.wikipedia.org/wiki/Kem_l%E1%BA%A1nh",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "kem-nho",
@@ -5490,7 +5760,8 @@
         "Kem xoài"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Kem_xo%C3%A0i"
+      "source_url": "https://vi.wikipedia.org/wiki/Kem_xo%C3%A0i",
+      "cuisine": "Philippines"
     },
     {
       "dish_id": "kem-dong-kho",
@@ -5567,7 +5838,8 @@
         "Khoai deo Quảng Bình"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Khoai_deo_Qu%E1%BA%A3ng_B%C3%ACnh"
+      "source_url": "https://vi.wikipedia.org/wiki/Khoai_deo_Qu%E1%BA%A3ng_B%C3%ACnh",
+      "cuisine": "Việt Nam"
     },
     {
       "dish_id": "khoai-lang-nuong",
@@ -5578,7 +5850,8 @@
         "Khoai lang nướng"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Khoai_lang_n%C6%B0%E1%BB%9Bng"
+      "source_url": "https://vi.wikipedia.org/wiki/Khoai_lang_n%C6%B0%E1%BB%9Bng",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "khoai-tay-kem",
@@ -5633,7 +5906,8 @@
         "Khâu nhục"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Kh%C3%A2u_nh%E1%BB%A5c"
+      "source_url": "https://vi.wikipedia.org/wiki/Kh%C3%A2u_nh%E1%BB%A5c",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "kifli",
@@ -5688,7 +5962,8 @@
         "Koi (món ăn)"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Koi_(m%C3%B3n_%C4%83n)"
+      "source_url": "https://vi.wikipedia.org/wiki/Koi_(m%C3%B3n_%C4%83n)",
+      "cuisine": "Thái Lan"
     },
     {
       "dish_id": "kommissbrot",
@@ -5710,7 +5985,8 @@
         "Kompot"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Kompot"
+      "source_url": "https://vi.wikipedia.org/wiki/Kompot",
+      "cuisine": "Nga"
     },
     {
       "dish_id": "korokke",
@@ -5743,7 +6019,8 @@
         "Kulfi"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Kulfi"
+      "source_url": "https://vi.wikipedia.org/wiki/Kulfi",
+      "cuisine": "Ấn Độ"
     },
     {
       "dish_id": "kumis",
@@ -5754,7 +6031,8 @@
         "Kumis"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Kumis"
+      "source_url": "https://vi.wikipedia.org/wiki/Kumis",
+      "cuisine": "Nga"
     },
     {
       "dish_id": "kushikatsu",
@@ -5798,7 +6076,8 @@
         "La tiang"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/La_tiang"
+      "source_url": "https://vi.wikipedia.org/wiki/La_tiang",
+      "cuisine": "Thái Lan"
     },
     {
       "dish_id": "laksa",
@@ -5809,7 +6088,12 @@
         "Laksa"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Laksa"
+      "source_url": "https://vi.wikipedia.org/wiki/Laksa",
+      "cuisine": "Indonesia",
+      "cuisine_also": [
+        "Malaysia",
+        "Singapore"
+      ]
     },
     {
       "dish_id": "landjager",
@@ -5831,7 +6115,8 @@
         "Lasagna"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Lasagna"
+      "source_url": "https://vi.wikipedia.org/wiki/Lasagna",
+      "cuisine": "Ý"
     },
     {
       "dish_id": "lassi",
@@ -5842,7 +6127,8 @@
         "Lassi"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Lassi"
+      "source_url": "https://vi.wikipedia.org/wiki/Lassi",
+      "cuisine": "Ấn Độ"
     },
     {
       "dish_id": "latte-macchiato",
@@ -5853,7 +6139,8 @@
         "Latte macchiato"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Latte_macchiato"
+      "source_url": "https://vi.wikipedia.org/wiki/Latte_macchiato",
+      "cuisine": "Ý"
     },
     {
       "dish_id": "leberknodel",
@@ -5908,7 +6195,8 @@
         "Luk chup"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Luk_chup"
+      "source_url": "https://vi.wikipedia.org/wiki/Luk_chup",
+      "cuisine": "Thái Lan"
     },
     {
       "dish_id": "lon-ban",
@@ -5930,7 +6218,13 @@
         "Lợn sữa"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/L%E1%BB%A3n_s%E1%BB%AFa"
+      "source_url": "https://vi.wikipedia.org/wiki/L%E1%BB%A3n_s%E1%BB%AFa",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Philippines",
+        "Hồng Kông",
+        "Tây Ban Nha"
+      ]
     },
     {
       "dish_id": "ma-lat-thang",
@@ -5941,7 +6235,8 @@
         "Ma lạt thang"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Ma_l%E1%BA%A1t_thang"
+      "source_url": "https://vi.wikipedia.org/wiki/Ma_l%E1%BA%A1t_thang",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "macaron",
@@ -5952,7 +6247,8 @@
         "Macaron"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Macaron"
+      "source_url": "https://vi.wikipedia.org/wiki/Macaron",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "magenbrot",
@@ -5974,7 +6270,8 @@
         "Mahua (bánh)"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Mahua_(b%C3%A1nh)"
+      "source_url": "https://vi.wikipedia.org/wiki/Mahua_(b%C3%A1nh)",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "makiyakinabe",
@@ -6007,7 +6304,11 @@
         "Mayonnaise"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Mayonnaise"
+      "source_url": "https://vi.wikipedia.org/wiki/Mayonnaise",
+      "cuisine": "Pháp",
+      "cuisine_also": [
+        "Tây Ban Nha"
+      ]
     },
     {
       "dish_id": "men-icing",
@@ -6040,7 +6341,12 @@
         "Mille-feuille"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Mille-feuille"
+      "source_url": "https://vi.wikipedia.org/wiki/Mille-feuille",
+      "cuisine": "Ý",
+      "cuisine_also": [
+        "Pháp",
+        "Nga"
+      ]
     },
     {
       "dish_id": "mitarashi-dango",
@@ -6073,7 +6379,8 @@
         "Modak (món ăn)"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Modak_(m%C3%B3n_%C4%83n)"
+      "source_url": "https://vi.wikipedia.org/wiki/Modak_(m%C3%B3n_%C4%83n)",
+      "cuisine": "Ấn Độ"
     },
     {
       "dish_id": "mohinga",
@@ -6117,7 +6424,8 @@
         "Moules-frites"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Moules-frites"
+      "source_url": "https://vi.wikipedia.org/wiki/Moules-frites",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "moussaka",
@@ -6128,7 +6436,8 @@
         "Moussaka"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Moussaka"
+      "source_url": "https://vi.wikipedia.org/wiki/Moussaka",
+      "cuisine": "Thổ Nhĩ Kỳ"
     },
     {
       "dish_id": "mousse",
@@ -6139,7 +6448,8 @@
         "Mousse"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Mousse"
+      "source_url": "https://vi.wikipedia.org/wiki/Mousse",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "muffin",
@@ -6172,7 +6482,8 @@
         "Màn thầu"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/M%C3%A0n_th%E1%BA%A7u"
+      "source_url": "https://vi.wikipedia.org/wiki/M%C3%A0n_th%E1%BA%A7u",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "man-han-toan-tich",
@@ -6183,7 +6494,8 @@
         "Mãn Hán Toàn Tịch"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/M%C3%A3n_H%C3%A1n_To%C3%A0n_T%E1%BB%8Bch"
+      "source_url": "https://vi.wikipedia.org/wiki/M%C3%A3n_H%C3%A1n_To%C3%A0n_T%E1%BB%8Bch",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "mi-nhat-ban",
@@ -6216,7 +6528,8 @@
         "Mì sợi Trung Quốc"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/M%C3%AC_s%E1%BB%A3i_Trung_Qu%E1%BB%91c"
+      "source_url": "https://vi.wikipedia.org/wiki/M%C3%AC_s%E1%BB%A3i_Trung_Qu%E1%BB%91c",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "mit-tron",
@@ -6238,7 +6551,12 @@
         "Món cuốn"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/M%C3%B3n_cu%E1%BB%91n"
+      "source_url": "https://vi.wikipedia.org/wiki/M%C3%B3n_cu%E1%BB%91n",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Đài Loan",
+        "Hồng Kông"
+      ]
     },
     {
       "dish_id": "mam-cay",
@@ -6293,7 +6611,8 @@
         "Mỡ muối"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/M%E1%BB%A1_mu%E1%BB%91i"
+      "source_url": "https://vi.wikipedia.org/wiki/M%E1%BB%A1_mu%E1%BB%91i",
+      "cuisine": "Nga"
     },
     {
       "dish_id": "mut-gung",
@@ -6304,7 +6623,8 @@
         "Mứt gừng"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/M%E1%BB%A9t_g%E1%BB%ABng"
+      "source_url": "https://vi.wikipedia.org/wiki/M%E1%BB%A9t_g%E1%BB%ABng",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "muc-mot-nang",
@@ -6348,7 +6668,8 @@
         "Naan"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Naan"
+      "source_url": "https://vi.wikipedia.org/wiki/Naan",
+      "cuisine": "Ấn Độ"
     },
     {
       "dish_id": "nabemono",
@@ -6370,7 +6691,8 @@
         "Naem"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Naem"
+      "source_url": "https://vi.wikipedia.org/wiki/Naem",
+      "cuisine": "Thái Lan"
     },
     {
       "dish_id": "nam-khao",
@@ -6392,7 +6714,8 @@
         "Nam ngiao"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Nam_ngiao"
+      "source_url": "https://vi.wikipedia.org/wiki/Nam_ngiao",
+      "cuisine": "Thái Lan"
     },
     {
       "dish_id": "nam-tok-mon-an",
@@ -6425,7 +6748,8 @@
         "Natillas"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Natillas"
+      "source_url": "https://vi.wikipedia.org/wiki/Natillas",
+      "cuisine": "Tây Ban Nha"
     },
     {
       "dish_id": "nattokinase",
@@ -6469,7 +6793,14 @@
         "Nhục can"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Nh%E1%BB%A5c_can"
+      "source_url": "https://vi.wikipedia.org/wiki/Nh%E1%BB%A5c_can",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Malaysia",
+        "Đài Loan",
+        "Hồng Kông",
+        "Singapore"
+      ]
     },
     {
       "dish_id": "nhuc-vien",
@@ -6480,7 +6811,11 @@
         "Nhục viên"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Nh%E1%BB%A5c_vi%C3%AAn"
+      "source_url": "https://vi.wikipedia.org/wiki/Nh%E1%BB%A5c_vi%C3%AAn",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Đài Loan"
+      ]
     },
     {
       "dish_id": "nieheimer",
@@ -6502,7 +6837,11 @@
         "Nihari"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Nihari"
+      "source_url": "https://vi.wikipedia.org/wiki/Nihari",
+      "cuisine": "Ấn Độ",
+      "cuisine_also": [
+        "Thổ Nhĩ Kỳ"
+      ]
     },
     {
       "dish_id": "nihonryori-ryugin",
@@ -6535,7 +6874,8 @@
         "Nom yen"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Nom_yen"
+      "source_url": "https://vi.wikipedia.org/wiki/Nom_yen",
+      "cuisine": "Thái Lan"
     },
     {
       "dish_id": "nuoc-sot-polonaise",
@@ -6546,7 +6886,8 @@
         "Nước sốt Polonaise"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/N%C6%B0%E1%BB%9Bc_s%E1%BB%91t_Polonaise"
+      "source_url": "https://vi.wikipedia.org/wiki/N%C6%B0%E1%BB%9Bc_s%E1%BB%91t_Polonaise",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "nuoc-thit-nam",
@@ -6601,7 +6942,8 @@
         "Okroshka"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Okroshka"
+      "source_url": "https://vi.wikipedia.org/wiki/Okroshka",
+      "cuisine": "Nga"
     },
     {
       "dish_id": "omurice",
@@ -6623,7 +6965,8 @@
         "Pa pỉnh tộp"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Pa_p%E1%BB%89nh_t%E1%BB%99p"
+      "source_url": "https://vi.wikipedia.org/wiki/Pa_p%E1%BB%89nh_t%E1%BB%99p",
+      "cuisine": "Thái Lan"
     },
     {
       "dish_id": "pa-te-so",
@@ -6645,7 +6988,8 @@
         "Paella"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Paella"
+      "source_url": "https://vi.wikipedia.org/wiki/Paella",
+      "cuisine": "Tây Ban Nha"
     },
     {
       "dish_id": "pakora",
@@ -6656,7 +7000,8 @@
         "Pakora"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Pakora"
+      "source_url": "https://vi.wikipedia.org/wiki/Pakora",
+      "cuisine": "Ấn Độ"
     },
     {
       "dish_id": "panipuri",
@@ -6678,7 +7023,8 @@
         "Panna cotta"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Panna_cotta"
+      "source_url": "https://vi.wikipedia.org/wiki/Panna_cotta",
+      "cuisine": "Ý"
     },
     {
       "dish_id": "paratha",
@@ -6689,7 +7035,8 @@
         "Paratha"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Paratha"
+      "source_url": "https://vi.wikipedia.org/wiki/Paratha",
+      "cuisine": "Ấn Độ"
     },
     {
       "dish_id": "parfait",
@@ -6700,7 +7047,8 @@
         "Parfait"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Parfait"
+      "source_url": "https://vi.wikipedia.org/wiki/Parfait",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "pastel-de-nata",
@@ -6711,7 +7059,12 @@
         "Pastel de nata"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Pastel_de_nata"
+      "source_url": "https://vi.wikipedia.org/wiki/Pastel_de_nata",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Indonesia",
+        "Hồng Kông"
+      ]
     },
     {
       "dish_id": "pata-gion",
@@ -6722,7 +7075,8 @@
         "Pata giòn"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Pata_gi%C3%B2n"
+      "source_url": "https://vi.wikipedia.org/wiki/Pata_gi%C3%B2n",
+      "cuisine": "Philippines"
     },
     {
       "dish_id": "patty-melt",
@@ -6744,7 +7098,8 @@
         "Pav bhaji"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Pav_bhaji"
+      "source_url": "https://vi.wikipedia.org/wiki/Pav_bhaji",
+      "cuisine": "Ấn Độ"
     },
     {
       "dish_id": "pavlova-banh-ngot",
@@ -6766,7 +7121,8 @@
         "Pelmeni"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Pelmeni"
+      "source_url": "https://vi.wikipedia.org/wiki/Pelmeni",
+      "cuisine": "Nga"
     },
     {
       "dish_id": "phat-kaphrao",
@@ -6777,7 +7133,8 @@
         "Phat kaphrao"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Phat_kaphrao"
+      "source_url": "https://vi.wikipedia.org/wiki/Phat_kaphrao",
+      "cuisine": "Thái Lan"
     },
     {
       "dish_id": "pho-mat-pizza",
@@ -6788,7 +7145,8 @@
         "Pho mát pizza"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Pho_m%C3%A1t_pizza"
+      "source_url": "https://vi.wikipedia.org/wiki/Pho_m%C3%A1t_pizza",
+      "cuisine": "Ý"
     },
     {
       "dish_id": "pho-mai-que",
@@ -6810,7 +7168,8 @@
         "Phật nhảy tường"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Ph%E1%BA%ADt_nh%E1%BA%A3y_t%C6%B0%E1%BB%9Dng"
+      "source_url": "https://vi.wikipedia.org/wiki/Ph%E1%BA%ADt_nh%E1%BA%A3y_t%C6%B0%E1%BB%9Dng",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "pho-khong-nguoi-lai",
@@ -6854,7 +7213,8 @@
         "Pierogi"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Pierogi"
+      "source_url": "https://vi.wikipedia.org/wiki/Pierogi",
+      "cuisine": "Nga"
     },
     {
       "dish_id": "pinca",
@@ -6865,7 +7225,8 @@
         "Pinca"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Pinca"
+      "source_url": "https://vi.wikipedia.org/wiki/Pinca",
+      "cuisine": "Ý"
     },
     {
       "dish_id": "pirozhki",
@@ -6876,7 +7237,8 @@
         "Pirozhki"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Pirozhki"
+      "source_url": "https://vi.wikipedia.org/wiki/Pirozhki",
+      "cuisine": "Nga"
     },
     {
       "dish_id": "pizza-sicilia",
@@ -6887,7 +7249,8 @@
         "Pizza Sicilia"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Pizza_Sicilia"
+      "source_url": "https://vi.wikipedia.org/wiki/Pizza_Sicilia",
+      "cuisine": "Ý"
     },
     {
       "dish_id": "pizza-quattro-formaggi",
@@ -6898,7 +7261,8 @@
         "Pizza quattro formaggi"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Pizza_quattro_formaggi"
+      "source_url": "https://vi.wikipedia.org/wiki/Pizza_quattro_formaggi",
+      "cuisine": "Ý"
     },
     {
       "dish_id": "ploatz",
@@ -6920,7 +7284,8 @@
         "Plombir"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Plombir"
+      "source_url": "https://vi.wikipedia.org/wiki/Plombir",
+      "cuisine": "Nga"
     },
     {
       "dish_id": "ponzu",
@@ -6953,7 +7318,8 @@
         "Profiterole"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Profiterole"
+      "source_url": "https://vi.wikipedia.org/wiki/Profiterole",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "queso",
@@ -6975,7 +7341,8 @@
         "Quiche"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Quiche"
+      "source_url": "https://vi.wikipedia.org/wiki/Quiche",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "raclette",
@@ -6986,7 +7353,8 @@
         "Raclette"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Raclette"
+      "source_url": "https://vi.wikipedia.org/wiki/Raclette",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "ragout-fin",
@@ -7008,7 +7376,8 @@
         "Ragù"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Rag%C3%B9"
+      "source_url": "https://vi.wikipedia.org/wiki/Rag%C3%B9",
+      "cuisine": "Ý"
     },
     {
       "dish_id": "ras-malai",
@@ -7019,7 +7388,8 @@
         "Ras malai"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Ras_malai"
+      "source_url": "https://vi.wikipedia.org/wiki/Ras_malai",
+      "cuisine": "Ấn Độ"
     },
     {
       "dish_id": "rassolnik",
@@ -7030,7 +7400,8 @@
         "Rassolnik"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Rassolnik"
+      "source_url": "https://vi.wikipedia.org/wiki/Rassolnik",
+      "cuisine": "Nga"
     },
     {
       "dish_id": "ratatouille",
@@ -7041,7 +7412,8 @@
         "Ratatouille"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Ratatouille"
+      "source_url": "https://vi.wikipedia.org/wiki/Ratatouille",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "rau-cau",
@@ -7063,7 +7435,11 @@
         "Rau mầm"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Rau_m%E1%BA%A7m"
+      "source_url": "https://vi.wikipedia.org/wiki/Rau_m%E1%BA%A7m",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Thái Lan"
+      ]
     },
     {
       "dish_id": "red-velvet-banh-ngot",
@@ -7096,7 +7472,8 @@
         "Risotto"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Risotto"
+      "source_url": "https://vi.wikipedia.org/wiki/Risotto",
+      "cuisine": "Ý"
     },
     {
       "dish_id": "rojak",
@@ -7107,7 +7484,8 @@
         "Rojak"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Rojak"
+      "source_url": "https://vi.wikipedia.org/wiki/Rojak",
+      "cuisine": "Singapore"
     },
     {
       "dish_id": "rosoł",
@@ -7129,7 +7507,8 @@
         "Roti"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Roti"
+      "source_url": "https://vi.wikipedia.org/wiki/Roti",
+      "cuisine": "Ấn Độ"
     },
     {
       "dish_id": "rundstuck-warm",
@@ -7151,7 +7530,8 @@
         "Rêu đá (món ăn)"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/R%C3%AAu_%C4%91%C3%A1_(m%C3%B3n_%C4%83n)"
+      "source_url": "https://vi.wikipedia.org/wiki/R%C3%AAu_%C4%91%C3%A1_(m%C3%B3n_%C4%83n)",
+      "cuisine": "Thái Lan"
     },
     {
       "dish_id": "roggelchen",
@@ -7206,7 +7586,8 @@
         "Sai ua"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Sai_ua"
+      "source_url": "https://vi.wikipedia.org/wiki/Sai_ua",
+      "cuisine": "Thái Lan"
     },
     {
       "dish_id": "sakurayu",
@@ -7228,7 +7609,11 @@
         "Sashimi"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Sashimi"
+      "source_url": "https://vi.wikipedia.org/wiki/Sashimi",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Đài Loan"
+      ]
     },
     {
       "dish_id": "satsuma-age",
@@ -7239,7 +7624,11 @@
         "Satsuma-age"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Satsuma-age"
+      "source_url": "https://vi.wikipedia.org/wiki/Satsuma-age",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Đài Loan"
+      ]
     },
     {
       "dish_id": "sauerbraten",
@@ -7283,7 +7672,8 @@
         "Semmelknödel"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Semmelkn%C3%B6del"
+      "source_url": "https://vi.wikipedia.org/wiki/Semmelkn%C3%B6del",
+      "cuisine": "Ý"
     },
     {
       "dish_id": "shashlik",
@@ -7294,7 +7684,11 @@
         "Shashlik"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Shashlik"
+      "source_url": "https://vi.wikipedia.org/wiki/Shashlik",
+      "cuisine": "Thổ Nhĩ Kỳ",
+      "cuisine_also": [
+        "Nga"
+      ]
     },
     {
       "dish_id": "shawarma",
@@ -7305,7 +7699,8 @@
         "Shawarma"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Shawarma"
+      "source_url": "https://vi.wikipedia.org/wiki/Shawarma",
+      "cuisine": "Thổ Nhĩ Kỳ"
     },
     {
       "dish_id": "shimotsukare",
@@ -7338,7 +7733,8 @@
         "Sinangag"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Sinangag"
+      "source_url": "https://vi.wikipedia.org/wiki/Sinangag",
+      "cuisine": "Philippines"
     },
     {
       "dish_id": "siru",
@@ -7349,7 +7745,8 @@
         "Siru"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Siru"
+      "source_url": "https://vi.wikipedia.org/wiki/Siru",
+      "cuisine": "Hàn Quốc"
     },
     {
       "dish_id": "slushy",
@@ -7404,7 +7801,8 @@
         "Sorbet"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Sorbet"
+      "source_url": "https://vi.wikipedia.org/wiki/Sorbet",
+      "cuisine": "Ý"
     },
     {
       "dish_id": "spaghetti",
@@ -7415,7 +7813,8 @@
         "Spaghetti"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Spaghetti"
+      "source_url": "https://vi.wikipedia.org/wiki/Spaghetti",
+      "cuisine": "Ý"
     },
     {
       "dish_id": "spaghetti-all-assassina",
@@ -7426,7 +7825,8 @@
         "Spaghetti all'assassina"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Spaghetti_all'assassina"
+      "source_url": "https://vi.wikipedia.org/wiki/Spaghetti_all'assassina",
+      "cuisine": "Ý"
     },
     {
       "dish_id": "spaghettieis",
@@ -7459,7 +7859,8 @@
         "Sriracha"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Sriracha"
+      "source_url": "https://vi.wikipedia.org/wiki/Sriracha",
+      "cuisine": "Thái Lan"
     },
     {
       "dish_id": "steak-frites",
@@ -7470,7 +7871,8 @@
         "Steak frites"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Steak_frites"
+      "source_url": "https://vi.wikipedia.org/wiki/Steak_frites",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "steckrubeneintopf",
@@ -7514,7 +7916,11 @@
         "Strudel"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Strudel"
+      "source_url": "https://vi.wikipedia.org/wiki/Strudel",
+      "cuisine": "Ý",
+      "cuisine_also": [
+        "Pháp"
+      ]
     },
     {
       "dish_id": "sukiyaki",
@@ -7536,7 +7942,8 @@
         "Sâm bổ lượng"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/S%C3%A2m_b%E1%BB%95_l%C6%B0%E1%BB%A3ng"
+      "source_url": "https://vi.wikipedia.org/wiki/S%C3%A2m_b%E1%BB%95_l%C6%B0%E1%BB%A3ng",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "so-co-la-thoi",
@@ -7558,7 +7965,8 @@
         "Sơn dương trùng"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/S%C6%A1n_d%C6%B0%C6%A1ng_tr%C3%B9ng"
+      "source_url": "https://vi.wikipedia.org/wiki/S%C6%A1n_d%C6%B0%C6%A1ng_tr%C3%B9ng",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "suong-sa",
@@ -7624,7 +8032,8 @@
         "Taralli"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Taralli"
+      "source_url": "https://vi.wikipedia.org/wiki/Taralli",
+      "cuisine": "Ý"
     },
     {
       "dish_id": "tart-neenish",
@@ -7646,7 +8055,12 @@
         "Tart trứng"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Tart_tr%E1%BB%A9ng"
+      "source_url": "https://vi.wikipedia.org/wiki/Tart_tr%E1%BB%A9ng",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Hồng Kông",
+        "Singapore"
+      ]
     },
     {
       "dish_id": "tart-trung-sua",
@@ -7657,7 +8071,11 @@
         "Tart trứng sữa"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Tart_tr%E1%BB%A9ng_s%E1%BB%AFa"
+      "source_url": "https://vi.wikipedia.org/wiki/Tart_tr%E1%BB%A9ng_s%E1%BB%AFa",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Hồng Kông"
+      ]
     },
     {
       "dish_id": "tarte-tropezienne",
@@ -7668,7 +8086,8 @@
         "Tarte tropézienne"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Tarte_trop%C3%A9zienne"
+      "source_url": "https://vi.wikipedia.org/wiki/Tarte_trop%C3%A9zienne",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "tataki",
@@ -7690,7 +8109,8 @@
         "Tatar böreği"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Tatar_b%C3%B6re%C4%9Fi"
+      "source_url": "https://vi.wikipedia.org/wiki/Tatar_b%C3%B6re%C4%9Fi",
+      "cuisine": "Thổ Nhĩ Kỳ"
     },
     {
       "dish_id": "tempeh",
@@ -7701,7 +8121,8 @@
         "Tempeh"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Tempeh"
+      "source_url": "https://vi.wikipedia.org/wiki/Tempeh",
+      "cuisine": "Indonesia"
     },
     {
       "dish_id": "tenmusu",
@@ -7767,7 +8188,11 @@
         "Thô miến"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Th%C3%B4_mi%E1%BA%BFn"
+      "source_url": "https://vi.wikipedia.org/wiki/Th%C3%B4_mi%E1%BA%BFn",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Hồng Kông"
+      ]
     },
     {
       "dish_id": "that-thai",
@@ -7789,7 +8214,11 @@
         "Thần ăn"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Th%E1%BA%A7n_%C4%83n"
+      "source_url": "https://vi.wikipedia.org/wiki/Th%E1%BA%A7n_%C4%83n",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Hồng Kông"
+      ]
     },
     {
       "dish_id": "thang-co",
@@ -7800,7 +8229,8 @@
         "Thắng cố"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Th%E1%BA%AFng_c%E1%BB%91"
+      "source_url": "https://vi.wikipedia.org/wiki/Th%E1%BA%AFng_c%E1%BB%91",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "thit-ba-chi",
@@ -7811,7 +8241,11 @@
         "Thịt ba chỉ"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Th%E1%BB%8Bt_ba_ch%E1%BB%89"
+      "source_url": "https://vi.wikipedia.org/wiki/Th%E1%BB%8Bt_ba_ch%E1%BB%89",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Philippines"
+      ]
     },
     {
       "dish_id": "thit-bo-bourguignon",
@@ -7822,7 +8256,8 @@
         "Thịt bò Bourguignon"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Th%E1%BB%8Bt_b%C3%B2_Bourguignon"
+      "source_url": "https://vi.wikipedia.org/wiki/Th%E1%BB%8Bt_b%C3%B2_Bourguignon",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "thit-bo-tartare",
@@ -7833,7 +8268,8 @@
         "Thịt bò Tartare"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Th%E1%BB%8Bt_b%C3%B2_Tartare"
+      "source_url": "https://vi.wikipedia.org/wiki/Th%E1%BB%8Bt_b%C3%B2_Tartare",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "thit-bo-vien",
@@ -7844,7 +8280,11 @@
         "Thịt bò viên"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Th%E1%BB%8Bt_b%C3%B2_vi%C3%AAn"
+      "source_url": "https://vi.wikipedia.org/wiki/Th%E1%BB%8Bt_b%C3%B2_vi%C3%AAn",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Hồng Kông"
+      ]
     },
     {
       "dish_id": "thit-chuot",
@@ -7866,7 +8306,8 @@
         "Thịt gác bếp"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Th%E1%BB%8Bt_g%C3%A1c_b%E1%BA%BFp"
+      "source_url": "https://vi.wikipedia.org/wiki/Th%E1%BB%8Bt_g%C3%A1c_b%E1%BA%BFp",
+      "cuisine": "Thái Lan"
     },
     {
       "dish_id": "thit-lon-kho",
@@ -7899,7 +8340,11 @@
         "Thịt nướng Mông Cổ"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Th%E1%BB%8Bt_n%C6%B0%E1%BB%9Bng_M%C3%B4ng_C%E1%BB%95"
+      "source_url": "https://vi.wikipedia.org/wiki/Th%E1%BB%8Bt_n%C6%B0%E1%BB%9Bng_M%C3%B4ng_C%E1%BB%95",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Đài Loan"
+      ]
     },
     {
       "dish_id": "thit-nuong-xau",
@@ -7910,7 +8355,13 @@
         "Thịt nướng xâu"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Th%E1%BB%8Bt_n%C6%B0%E1%BB%9Bng_x%C3%A2u"
+      "source_url": "https://vi.wikipedia.org/wiki/Th%E1%BB%8Bt_n%C6%B0%E1%BB%9Bng_x%C3%A2u",
+      "cuisine": "Indonesia",
+      "cuisine_also": [
+        "Malaysia",
+        "Philippines",
+        "Singapore"
+      ]
     },
     {
       "dish_id": "thuc-don-ket-hop",
@@ -7932,7 +8383,8 @@
         "Timballo"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Timballo"
+      "source_url": "https://vi.wikipedia.org/wiki/Timballo",
+      "cuisine": "Ý"
     },
     {
       "dish_id": "tiramisu",
@@ -7943,7 +8395,8 @@
         "Tiramisu"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Tiramisu"
+      "source_url": "https://vi.wikipedia.org/wiki/Tiramisu",
+      "cuisine": "Ý"
     },
     {
       "dish_id": "tiropita",
@@ -7965,7 +8418,12 @@
         "Tiểu long bao"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Ti%E1%BB%83u_long_bao"
+      "source_url": "https://vi.wikipedia.org/wiki/Ti%E1%BB%83u_long_bao",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Đài Loan",
+        "Hồng Kông"
+      ]
     },
     {
       "dish_id": "tiec-kem",
@@ -7987,7 +8445,8 @@
         "Tiệc pizza"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Ti%E1%BB%87c_pizza"
+      "source_url": "https://vi.wikipedia.org/wiki/Ti%E1%BB%87c_pizza",
+      "cuisine": "Ý"
     },
     {
       "dish_id": "toan-mai-thang",
@@ -7998,7 +8457,8 @@
         "Toan mai thang"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Toan_mai_thang"
+      "source_url": "https://vi.wikipedia.org/wiki/Toan_mai_thang",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "tobiko",
@@ -8031,7 +8491,8 @@
         "Tom kha kai"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Tom_kha_kai"
+      "source_url": "https://vi.wikipedia.org/wiki/Tom_kha_kai",
+      "cuisine": "Thái Lan"
     },
     {
       "dish_id": "tonkatsu",
@@ -8064,7 +8525,8 @@
         "Tranh cãi về gan ngỗng béo"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Tranh_c%C3%A3i_v%E1%BB%81_gan_ng%E1%BB%97ng_b%C3%A9o"
+      "source_url": "https://vi.wikipedia.org/wiki/Tranh_c%C3%A3i_v%E1%BB%81_gan_ng%E1%BB%97ng_b%C3%A9o",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "tra-bo",
@@ -8075,7 +8537,11 @@
         "Trà bơ"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Tr%C3%A0_b%C6%A1"
+      "source_url": "https://vi.wikipedia.org/wiki/Tr%C3%A0_b%C6%A1",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Ấn Độ"
+      ]
     },
     {
       "dish_id": "tra-sen",
@@ -8097,7 +8563,11 @@
         "Trà sữa Hồng Kông"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Tr%C3%A0_s%E1%BB%AFa_H%E1%BB%93ng_K%C3%B4ng"
+      "source_url": "https://vi.wikipedia.org/wiki/Tr%C3%A0_s%E1%BB%AFa_H%E1%BB%93ng_K%C3%B4ng",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Hồng Kông"
+      ]
     },
     {
       "dish_id": "trac-tuong-mien",
@@ -8108,7 +8578,8 @@
         "Trác tương miến"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Tr%C3%A1c_t%C6%B0%C6%A1ng_mi%E1%BA%BFn"
+      "source_url": "https://vi.wikipedia.org/wiki/Tr%C3%A1c_t%C6%B0%C6%A1ng_mi%E1%BA%BFn",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "tru-vuong",
@@ -8119,7 +8590,8 @@
         "Trư vương"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Tr%C6%B0_v%C6%B0%C6%A1ng"
+      "source_url": "https://vi.wikipedia.org/wiki/Tr%C6%B0_v%C6%B0%C6%A1ng",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "trung-cong",
@@ -8130,7 +8602,8 @@
         "Trứng công"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Tr%E1%BB%A9ng_c%C3%B4ng"
+      "source_url": "https://vi.wikipedia.org/wiki/Tr%E1%BB%A9ng_c%C3%B4ng",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "trung-vit-bac-thao",
@@ -8141,7 +8614,13 @@
         "Trứng vịt bắc thảo"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Tr%E1%BB%A9ng_v%E1%BB%8Bt_b%E1%BA%AFc_th%E1%BA%A3o"
+      "source_url": "https://vi.wikipedia.org/wiki/Tr%E1%BB%A9ng_v%E1%BB%8Bt_b%E1%BA%AFc_th%E1%BA%A3o",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Thái Lan",
+        "Philippines",
+        "Đài Loan"
+      ]
     },
     {
       "dish_id": "trung-op-la",
@@ -8152,7 +8631,8 @@
         "Trứng ốp la"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Tr%E1%BB%A9ng_%E1%BB%91p_la"
+      "source_url": "https://vi.wikipedia.org/wiki/Tr%E1%BB%A9ng_%E1%BB%91p_la",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "tsukemen",
@@ -8185,7 +8665,8 @@
         "Táo caramel"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/T%C3%A1o_caramel"
+      "source_url": "https://vi.wikipedia.org/wiki/T%C3%A1o_caramel",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "tuong-ban",
@@ -8207,7 +8688,8 @@
         "Tương đen"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/T%C6%B0%C6%A1ng_%C4%91en"
+      "source_url": "https://vi.wikipedia.org/wiki/T%C6%B0%C6%A1ng_%C4%91en",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "unadon",
@@ -8229,7 +8711,11 @@
         "Uyên ương (thức uống)"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Uy%C3%AAn_%C6%B0%C6%A1ng_(th%E1%BB%A9c_u%E1%BB%91ng)"
+      "source_url": "https://vi.wikipedia.org/wiki/Uy%C3%AAn_%C6%B0%C6%A1ng_(th%E1%BB%A9c_u%E1%BB%91ng)",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Hồng Kông"
+      ]
     },
     {
       "dish_id": "vi-ca-map",
@@ -8240,7 +8726,8 @@
         "Vi cá mập"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Vi_c%C3%A1_m%E1%BA%ADp"
+      "source_url": "https://vi.wikipedia.org/wiki/Vi_c%C3%A1_m%E1%BA%ADp",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "vindaloo",
@@ -8251,7 +8738,8 @@
         "Vindaloo"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Vindaloo"
+      "source_url": "https://vi.wikipedia.org/wiki/Vindaloo",
+      "cuisine": "Ấn Độ"
     },
     {
       "dish_id": "vlaai",
@@ -8284,7 +8772,8 @@
         "Vịt ép hạnh nhân"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/V%E1%BB%8Bt_%C3%A9p_h%E1%BA%A1nh_nh%C3%A2n"
+      "source_url": "https://vi.wikipedia.org/wiki/V%E1%BB%8Bt_%C3%A9p_h%E1%BA%A1nh_nh%C3%A2n",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "vo-kem-oc-que",
@@ -8295,7 +8784,8 @@
         "Vỏ kem ốc quế"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/V%E1%BB%8F_kem_%E1%BB%91c_qu%E1%BA%BF"
+      "source_url": "https://vi.wikipedia.org/wiki/V%E1%BB%8F_kem_%E1%BB%91c_qu%E1%BA%BF",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "wiener-schnitzel",
@@ -8339,7 +8829,8 @@
         "Xa lát kiểu Nice"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Xa_l%C3%A1t_ki%E1%BB%83u_Nice"
+      "source_url": "https://vi.wikipedia.org/wiki/Xa_l%C3%A1t_ki%E1%BB%83u_Nice",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "xe-ban-do-an",
@@ -8383,7 +8874,8 @@
         "Xíu mại"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/X%C3%ADu_m%E1%BA%A1i"
+      "source_url": "https://vi.wikipedia.org/wiki/X%C3%ADu_m%E1%BA%A1i",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "xoi-gac",
@@ -8394,7 +8886,8 @@
         "Xôi gấc"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/X%C3%B4i_g%E1%BA%A5c"
+      "source_url": "https://vi.wikipedia.org/wiki/X%C3%B4i_g%E1%BA%A5c",
+      "cuisine": "Thái Lan"
     },
     {
       "dish_id": "xuc-xich-bo-frankfurt",
@@ -8438,7 +8931,8 @@
         "Xúp bắp cải"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/X%C3%BAp_b%E1%BA%AFp_c%E1%BA%A3i"
+      "source_url": "https://vi.wikipedia.org/wiki/X%C3%BAp_b%E1%BA%AFp_c%E1%BA%A3i",
+      "cuisine": "Nga"
     },
     {
       "dish_id": "xup-miso",
@@ -8460,7 +8954,8 @@
         "Xúp vi cá mập"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/X%C3%BAp_vi_c%C3%A1_m%E1%BA%ADp"
+      "source_url": "https://vi.wikipedia.org/wiki/X%C3%BAp_vi_c%C3%A1_m%E1%BA%ADp",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "xup-dau-ha-lan",
@@ -8548,7 +9043,11 @@
         "Yau gok"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Yau_gok"
+      "source_url": "https://vi.wikipedia.org/wiki/Yau_gok",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Hồng Kông"
+      ]
     },
     {
       "dish_id": "yayık-ayranı",
@@ -8559,7 +9058,8 @@
         "Yayık ayranı"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Yay%C4%B1k_ayran%C4%B1"
+      "source_url": "https://vi.wikipedia.org/wiki/Yay%C4%B1k_ayran%C4%B1",
+      "cuisine": "Thổ Nhĩ Kỳ"
     },
     {
       "dish_id": "yum-sen-lon",
@@ -8581,7 +9081,8 @@
         "Yōkan"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/Y%C5%8Dkan"
+      "source_url": "https://vi.wikipedia.org/wiki/Y%C5%8Dkan",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "yoshoku",
@@ -8636,7 +9137,8 @@
         "Éclair"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/%C3%89clair"
+      "source_url": "https://vi.wikipedia.org/wiki/%C3%89clair",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "dau-dau-khi-an-kem",
@@ -8658,7 +9160,8 @@
         "Đào Melba"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/%C4%90%C3%A0o_Melba"
+      "source_url": "https://vi.wikipedia.org/wiki/%C4%90%C3%A0o_Melba",
+      "cuisine": "Pháp"
     },
     {
       "dish_id": "dau-hu-ca-chach",
@@ -8680,7 +9183,8 @@
         "Đậu hủ Tứ Xuyên"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/%C4%90%E1%BA%ADu_h%E1%BB%A7_T%E1%BB%A9_Xuy%C3%AAn"
+      "source_url": "https://vi.wikipedia.org/wiki/%C4%90%E1%BA%ADu_h%E1%BB%A7_T%E1%BB%A9_Xuy%C3%AAn",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "dau-phu",
@@ -8691,7 +9195,8 @@
         "Đậu phụ"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/%C4%90%E1%BA%ADu_ph%E1%BB%A5"
+      "source_url": "https://vi.wikipedia.org/wiki/%C4%90%E1%BA%ADu_ph%E1%BB%A5",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "dau-phu-mo",
@@ -8702,7 +9207,8 @@
         "Đậu phụ Mơ"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/%C4%90%E1%BA%ADu_ph%E1%BB%A5_M%C6%A1"
+      "source_url": "https://vi.wikipedia.org/wiki/%C4%90%E1%BA%ADu_ph%E1%BB%A5_M%C6%A1",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "dau-phu-thoi",
@@ -8713,7 +9219,12 @@
         "Đậu phụ thối"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/%C4%90%E1%BA%ADu_ph%E1%BB%A5_th%E1%BB%91i"
+      "source_url": "https://vi.wikipedia.org/wiki/%C4%90%E1%BA%ADu_ph%E1%BB%A5_th%E1%BB%91i",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Đài Loan",
+        "Hồng Kông"
+      ]
     },
     {
       "dish_id": "dia-tam-tien",
@@ -8724,7 +9235,8 @@
         "Địa Tam Tiên"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/%C4%90%E1%BB%8Ba_Tam_Ti%C3%AAn"
+      "source_url": "https://vi.wikipedia.org/wiki/%C4%90%E1%BB%8Ba_Tam_Ti%C3%AAn",
+      "cuisine": "Trung Quốc"
     },
     {
       "dish_id": "au-mien",
@@ -8735,7 +9247,11 @@
         "Ấu miến"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/%E1%BA%A4u_mi%E1%BA%BFn"
+      "source_url": "https://vi.wikipedia.org/wiki/%E1%BA%A4u_mi%E1%BA%BFn",
+      "cuisine": "Trung Quốc",
+      "cuisine_also": [
+        "Hồng Kông"
+      ]
     },
     {
       "dish_id": "oc-nau-chuoi-dau",

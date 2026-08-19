@@ -13,14 +13,14 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | **Một backend duy nhất** | ✅ Xong | 1 app FastAPI, 0 file TypeScript ngoài `archive/` |
 | API khớp đặc tả | ✅ Xong | `/api/v1`, envelope `data`/`error`, snake_case |
 | Tìm kiếm bằng câu tự do | ✅ Chạy được | đúng ý đề án, thay cho dropdown mood |
-| Gợi ý món trong kết quả | ✅ Xong | lồng trong từng quán, không còn endpoint riêng |
+| Gợi ý món trong kết quả `/search` | ✅ Xong | lồng trong từng quán. Đây là LỐI VÀO THỨ HAI — luồng chính nay là chọn món trước |
 | Ghi nhận tương tác | ✅ Xong | `POST /interactions` → nhãn cho mô hình sau này |
 | Ngữ cảnh thời điểm | ✅ Giờ ăn · ✅ thời tiết (tắt mặc định) | đã gọi thật Open-Meteo: 27.2°C, 0.94s; 17 test suy biến |
-| Frontend Client | ✅ **TypeScript + FSD** | 21 test, có bản đồ, steiger trong CI |
+| Frontend Client | ✅ **TypeScript + FSD** | 61 test, có bản đồ, steiger trong CI |
 | Bản đồ | ✅ **Xong** | Leaflet + OpenStreetMap, miễn phí, không cần key |
 | Kiến trúc | ✅ Sạch | Clean Architecture + checker tự động trong CI |
-| Test | ✅ 345 backend + 69 frontend | tổng 414, chạy hết ~41 giây |
-| Giao diện | ✅ Theo bản duyệt | thanh trên + bản đồ + rail đề xuất; mức phù hợp là nhãn chữ |
+| Test | ✅ 359 backend + 69 frontend | tổng 428, chạy hết ~29 giây |
+| Giao diện | ✅ Theo bản duyệt | trang chủ = LƯỚI MÓN + chips lọc; trang món = giới thiệu + bản đồ + danh sách quán; `/tim-kiem` giữ bố cục bản đồ + rail cũ |
 | Router + layout | ✅ Xong | react-router v6, khung dùng chung, `RequireAuth` cho admin |
 | Chạy xem giao diện | ✅ **một lệnh** | `python scripts/run_dev.py --admin` |
 | Kho lưu trữ | ✅ CSV (mặc định) · ✅ SQLite (chọn được) | `MOODBITE_STORAGE=sqlite`, kết quả GIỐNG HỆT |
@@ -31,21 +31,21 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Thu thập dữ liệu đa nguồn | ✅ Xong | kiến trúc `SourceAdapter`, thêm nguồn không sửa pipeline |
 | Lọc giờ mở cửa / chế độ ăn / quận | ✅ Xong | thiếu dữ liệu KHÔNG bị loại |
 | **Lớp 1 — Phân cụm trải nghiệm** | ✅ **Xong** | KMeans k=7, Silhouette 0.318 |
-| **Lớp 2 — Tìm kiếm ngữ nghĩa** | ✅ **Xong** | TF-IDF cosine, 4938 quán |
+| **Lớp 2 — Tìm kiếm ngữ nghĩa** | ✅ **Xong** | TF-IDF cosine, 40.720 quán |
 | **Luồng "chọn món trước, tìm quán sau"** | ✅ **Backend + Client xong** · ⬜ chưa có UI admin cho món | `/dishes/suggest` → `/dishes/{id}` → `/dishes/{id}/restaurants`; trang chủ là LƯỚI MÓN. Tài liệu đề án đã sửa cho khớp (2026-08-19) |
 | **Danh mục món ăn** | ✅ **747 món** · **100% có giới thiệu** · 87.1% có ảnh | `python scripts/build_dish_catalog.py --enrich` |
 | ↳ trong đó tìm được quán ở Hà Nội | 🟡 **189 món (25.3%)** | 610 món còn lại là món quốc tế chưa quán nào ở HN bán. Trang chủ **tự ẩn** và nói rõ lý do; chúng sẽ tự hiện khi có thêm dữ liệu quán |
 | Giới thiệu ngắn về món | ✅ Wikipedia REST summary + soạn tay | ĐÃ BỎ phần nguyên liệu (chốt 2026-08-19). ĐÃ BỎ trích regex vì sinh dữ liệu sai — xem `sources/wikipedia_dish.py` |
 | Ảnh món | ✅ 87.1% · **chỉ lưu URL, không tải file** | ~2000 món cache ≈ 1.4MB; tải ảnh về sẽ tốn ~400MB |
 | Tìm món mới tự động | ✅ 37 thể loại Wikipedia | `python scripts/discover_dishes.py` — quét 1959 trang, thêm 640 món |
-| Mở rộng quán ra ngoài Hà Nội | ✅ Có sẵn 8 thành phố | `python -m data_pipeline.harvest --source openstreetmap --city da_nang` |
+| Phạm vi địa lý | 🔒 **CHỈ HÀ NỘI** (chốt 2026-08-19) | `CITY_BBOXES` chỉ còn `ha_noi`; truyền `--city` khác bị từ chối. Dữ liệu hiện tại 100% trong Hà Nội (lat 20.729–21.400, lng 105.416–106.050) |
 | Theo dõi dung lượng | ✅ Có công cụ | `python scripts/disk_report.py` |
 | Nguồn quán ngoài OSM/Google | ✅ **Overture Maps** | `python -m data_pipeline.harvest --source overture --city ha_noi`. Wikidata đã thử và LOẠI (chỉ 5 quán toàn VN) |
 | Xếp hạng 2 tầng cho trang món | ✅ Xong | quán có TÊN chứa tên món luôn trên quán chỉ được review nhắc |
-| **Bộ mẫu frontend** | ❌ **ĐANG HỎNG** | `verify.py` mục 9 đỏ. Bộ mẫu cố tình lấy nhiều ca biên (21% có ảnh) trong khi tập gốc là 37.9% → `chon_co_chu_dich` cần lấy mẫu phân tầng. **KHÔNG được sửa bằng cách nới ngưỡng checker** |
+| **Bộ mẫu frontend** | ✅ **Đã sửa 2026-08-19** | Nguyên nhân: `HAN_MUC` viết cứng tỉ lệ của dataset 4.938 quán nên bộ mẫu không thể khớp tập gốc mới. Nay hạn mức SUY TỪ POOL. Không nới ngưỡng checker |
 | Trích món từ review (đề án mục 7) | ✅ Xong | 1076 quán có review; bún chả 86 → 94 quán |
 | Ma trận truy vết | ✅ Viết lại 2026-08-19 | bản cũ có 9/10 đường dẫn KHÔNG tồn tại — xem `traceability.md` |
-| Lớp 4 — Tóm tắt review | 🟡 Chưa làm, nhưng ĐÃ KHẢ THI | đo lại: gộp theo quán TB 666 ký tự, 592 quán đủ điều kiện |
+| **Lớp 4 — Tóm tắt review** | ✅ **XONG 2026-08-19** | Trích rút TF-IDF centroid, **851/1310 quán** có nhận xét tổng hợp (339 quán có cả điểm yếu). Mọi câu TRÍCH NGUYÊN VĂN, không sinh chữ. `python -m data_pipeline.review_summary` |
 | Đăng nhập / tài khoản | 🟡 **Backend xong, chưa có UI** | `/api/v1/auth/*`: đăng ký · đăng nhập · `/me`. Đổi phạm vi có chủ đích so với SRS mục 8 — xem ghi chú dưới bảng |
 | Phân quyền (`role`) | 🟡 Có `user`/`admin` + guard 403 | admin VẪN dùng biến môi trường, chưa chuyển sang bảng `users` |
 
@@ -158,6 +158,56 @@ Kiểm lại (mục 4 của `python scripts/verify.py` đã tự kiểm việc n
 - [x] Khớp không dấu: "Pho Bo", "O Bun Cha", "Banh mi" nay đều nhận đúng món
 
 ### Bug đã sửa (đều kiểm chứng được)
+
+**Đợt rà soát chuyên sâu 2026-08-19** (tất cả đều đo được trước/sau):
+
+> ⏳ **Còn dở, chạy lại là xong:** `python scripts/backfill_dish_cuisine.py --apply`
+> Wikipedia chặn tốc độ nên 4/22 thể loại chưa hỏi xong (trong đó có *Ẩm thực Việt Nam*).
+> `cuisine` hiện **47,3%** (trước 10,4%). Script có cache theo từng thể loại nên chạy lại
+> chỉ hỏi phần còn thiếu — chạy vài lần cách nhau vài phút là đủ.
+
+
+- [x] **Đụng độ dấu: 39,2% kết quả trang món Phở là quán SAI.** `phở`/`phố`/`phớ` bỏ dấu
+      đều thành `"pho"`, mà cả ba đều là từ nguyên vẹn nên luật cũ không chặn được.
+      Trang "Phở gà" xếp *Vua Tào Phớ* và *Nhà Hàng Hải Sản Phố* ở hạng 2-4.
+      → Thêm quy tắc **dấu là bằng chứng** vào `text.py` (chỉ loại khi CẢ HAI vế có dấu).
+      **1948 → 1135 kết quả, còn 0 quán sai**, và 147 quán ghi biển không dấu vẫn giữ.
+- [x] **Điểm mood gần như vô dụng ở tín hiệu NẶNG NHẤT (W_MOOD = 0,26).**
+      Chuẩn hoá theo `max` toàn dataset khiến chỉ **460/40.720 quán (1,1%)** có điểm > 0,1,
+      trung vị = 0. → Đếm SỐ TỪ KHOÁ RIÊNG BIỆT + đường cong bão hoà `n/(n+2)`.
+      **Điểm > 0,3: 0,4% → 38,3%**; độ lệch chuẩn của nhóm Overture **0,011 → 0,193**.
+- [x] **100% quán OSM bị chấm nhầm là "quán rẻ".** Từ khoá `street` khớp CHUỖI CON vào
+      chữ `openstreetmap` ở cột nguồn. Tự viết `str.count` thay vì dùng `text.py` —
+      đúng thứ mục 4 quy tắc 5 đã cấm. → Số thật: **9,3%**.
+- [x] **Quán chưa có dữ liệu bị phạt như quán dở.** 40% quán không dò được từ khoá cảm xúc
+      nào bị chấm 0 ở cả 5 chiều. `rules.md` mục 3.3 đã cấm đúng chuyện này cho *cụm*.
+      → Thêm `NEUTRAL_MOOD_SCORE`, phân biệt "chưa biết" với "biết là không hợp".
+- [x] **`mood_score` báo ra ngoài KHÁC giá trị thật dùng để xếp hạng** — bị tính lại lần
+      thứ hai bằng công thức thô (thiếu ép [0,1], thiếu Cold Start). → Mang theo 1 giá trị.
+- [x] **Phở bò / Phở gà / Phở trả về danh sách Y HỆT NHAU** (cùng từ khoá "phở") — chọn
+      món xong không đổi gì thì luồng "chọn món trước" mất ý nghĩa. → Thêm **tầng tin cậy
+      thứ ba** (tên quán ghi đúng tên món). Đo được 178 quán ghi rõ "phở bò", 202 ghi rõ
+      "phở gà". Hai trang món nay khác hẳn nhau.
+- [x] **Món có từ khoá 1 chữ không bao giờ dò được review** — ngưỡng 2 chữ loại sạch
+      "phở", "bún". → Dò review dùng cả TÊN MÓN.
+- [x] **`/health` (không cần đăng nhập) rò đường dẫn tuyệt đối** kèm tên người dùng máy.
+      → `describe_path()` trả đường dẫn tương đối so với gốc dự án. 16 chỗ.
+- [x] **Wikipedia trả 429 bị nuốt thành "thể loại rỗng"** — 13/22 nền ẩm thực ra 0 món;
+      ghi thẳng thì đã xoá dữ liệu bằng một lỗi mạng thoáng qua. Đúng bài học Overpass ở
+      mục 4b. → Thử lại có lùi thời gian + **từ chối ghi** nếu còn thể loại nào hỏng.
+- [x] **Danh mục món không dựng lại được khi offline** — `load_manual_seed` đọc
+      `description` nhưng quên `image_url`, nên ảnh chỉ có khi chạy kèm `--enrich` (gọi
+      mạng). Dựng lại lúc không mạng: ảnh **87,1% → 0%**, không có gì báo. Seed vẫn giữ
+      sẵn 607 đường dẫn ảnh, chỉ là không ai đọc lên. → Đọc cả `image_url`/`source_url`;
+      nay **81,3%** và không cần mạng. Có test khoá.
+- [x] **`cuisine` trống 89,6% khiến bộ lọc ẩm thực vô dụng** — → điền từ chính thể loại
+      Wikipedia đã dùng để tìm ra món (nguồn thật, không suy đoán). **10,4% → 47,3%**.
+- [x] **`DtypeWarning` in ra ở mọi lần khởi động** — 14 cột trộn kiểu. Tiếng ồn cỡ đó là
+      chỗ tốt nhất để một cảnh báo thật lẩn vào. → `low_memory=False`.
+- [x] **Bộ mẫu frontend nghèo hơn dữ liệu thật** — bước lấp đầy duyệt pool theo thứ tự nên
+      đủ 100 quán trước khi chạm hạn mức ảnh (23% vs 28,2% thật). → Lấp đủ hạn mức từng
+      thuộc tính trước. Không nới ngưỡng checker.
+
 - [x] **App không khởi động được** — `@app.exception_handler` dùng trước khi `app` tồn tại
 - [x] **`/recommend`, `/suggest-dish` luôn lỗi** — đọc `request.mood` trên object `Request`
 - [x] **`price` sai kiểu** — schema khai `float`, dữ liệu thật là chuỗi (`"1-100.000 ₫"`)
@@ -365,14 +415,20 @@ tự động trong ToS** → không dùng. Phân tích đầy đủ: `docs/data_
 |---|---|---|
 | Bản đồ, khoảng cách | ✅ | 100% quán có toạ độ |
 | Tìm bằng câu tự do | ✅ | tên + loại hình phủ 100% |
-| Lọc theo khu vực | ✅ **mới** | 96.9% có `district` |
-| Lọc theo giờ mở cửa | ✅ **mới** | 32.6% có dữ liệu, thiếu thì giữ lại |
-| Lọc chay/thuần chay | 🟡 **mới** | chỉ 2.3% khai báo |
-| Gợi ý món | ✅ | suy luận từ tên quán + `cuisine` |
-| Xếp hạng theo đánh giá | 🟡 | 23.2% có rating (tập trung ở trung tâm) |
-| Lọc theo giá | 🟡 | 13.0% có giá |
-| Tìm kiếm ngữ nghĩa (embedding) | 🟡 | 23.2% có review — gần ngưỡng đáng làm |
-| Phân cụm trải nghiệm | ❌ | thuộc tính không gian chỉ 8.6% |
+| Lọc theo khu vực | ✅ | **99.6%** có `district` |
+| Lọc theo giờ mở cửa | 🟡 | **3.9%** có dữ liệu, thiếu thì giữ lại |
+| Lọc chay/thuần chay | 🟡 | chỉ **0.3%** khai báo |
+| Gợi ý món | ✅ | suy luận từ tên quán + `cuisine` + **nội dung review** |
+| Xếp hạng theo đánh giá | 🟡 | **2.8%** có rating |
+| Lọc theo giá | 🟡 | **1.6%** có giá |
+| Tóm tắt review (Lớp 4) | ✅ | 851 quán có nhận xét tổng hợp |
+| Phân cụm trải nghiệm | 🟡 | **2.9%** đã phân cụm; quán chưa phân cụm dùng điểm TRUNG TÍNH 0.5 (Cold Start), không phải 0 |
+
+> ⚠️ **Vì sao mấy tỉ lệ trên TỤT so với bản trước** (đo lại 2026-08-19): dataset tăng từ
+> 4.938 lên **40.720 quán**, trong đó 36.176 quán từ Overture Maps — nguồn này rất mạnh về
+> ĐỊNH DANH (100% có địa chỉ, 80.9% có điện thoại) nhưng KHÔNG có rating/review/giá.
+> Tổng số quán có rating gần như không đổi, chỉ là mẫu số lớn hơn 8 lần. Đây là ĐÁNH ĐỔI
+> CÓ CHỦ ĐÍCH: nhiều quán hơn nhưng mỗi quán ít tín hiệu hơn.
 
 ---
 

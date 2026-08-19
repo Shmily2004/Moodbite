@@ -15,6 +15,7 @@ Chạy lại nhiều lần được: mặc định ghi đè bảng cũ (--keep-h
 from __future__ import annotations
 
 import argparse
+import re
 import json
 import sqlite3
 import sys
@@ -76,6 +77,22 @@ def _row(restaurant, is_active: bool = True) -> tuple:
         restaurant.experience_cluster_id,
         restaurant.experience_cluster_label,
     )
+
+
+def _schema_khac(conn) -> bool:
+    """Bảng hiện có thiếu cột nào so với `SCHEMA` không?
+
+    So theo TÊN CỘT chứ không so chuỗi SQL: chuỗi có khoảng trắng/chú thích khác nhau vẫn
+    là cùng một lược đồ.
+    """
+    existing = {
+        row[1]
+        for row in conn.execute("PRAGMA table_info(restaurants)").fetchall()
+    }
+    if not existing:
+        return False        # bảng chưa tồn tại -> cứ tạo mới, không cần drop
+    mong_doi = set(re.findall(r"^\s{4}(\w+)\s+(?:TEXT|INTEGER|REAL)", SCHEMA, re.M))
+    return not mong_doi.issubset(existing)
 
 
 def _hidden_place_ids(db_path: Path) -> set[str]:
@@ -175,6 +192,15 @@ def main() -> int:
 
     db_path.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(db_path) as conn:
+        # CSDL cũ có thể thiếu cột mới thêm về sau (`CREATE TABLE IF NOT EXISTS` KHÔNG
+        # thêm cột vào bảng đã tồn tại). Bug thật 2026-08-19: file .db dựng từ trước khi
+        # có cột `thumbnail_url`, chạy lại script thì nổ
+        # "table restaurants has no column named thumbnail_url".
+        # Lược đồ lệch -> XOÁ BẢNG rồi dựng lại. An toàn vì mọi dữ liệu đều dựng lại được
+        # từ CSV; riêng danh sách quán đã ẩn thì đã đọc ra trước đó (`--keep-hidden`).
+        if _schema_khac(conn):
+            print("Luoc do CSDL cu da lech -> dung lai bang restaurants")
+            conn.execute("DROP TABLE IF EXISTS restaurants")
         conn.executescript(SCHEMA)
         # Dựng lại từ đầu: dataset là snapshot do pipeline sinh ra, không phải nguồn
         # ghi tay, nên hợp nhất từng dòng sẽ phức tạp mà không được lợi gì.

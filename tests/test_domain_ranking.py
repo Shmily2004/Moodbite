@@ -340,3 +340,60 @@ def test_ranking_weights_sum_to_one():
     total = (sr.W_TEXT + sr.W_SEMANTIC + sr.W_MOOD + sr.W_DISTANCE
              + sr.W_RATING + sr.W_CLUSTER)
     assert total == pytest.approx(1.0)
+
+
+# --- Cold Start cho MOOD (thêm 2026-08-19) -----------------------------------
+#
+# Bug thật: 40% quán (chủ yếu từ Overture, chỉ có tên + loại hình, không review) không dò
+# được từ khoá cảm xúc nào nên bị chấm 0 ở cả 5 chiều. W_MOOD = 0.26 là trọng số NẶNG
+# NHẤT, nên toàn bộ nhóm đó bị đẩy xuống đáy vì DỰ ÁN thiếu dữ liệu, chứ không phải vì
+# quán không hợp. rules/rules.md mục 3.3 đã cấm đúng chuyện này cho cụm - nay áp cho mood.
+
+from src.domain.services.search_ranking import NEUTRAL_MOOD_SCORE, rank_restaurants
+from src.domain.value_objects.location import Location
+from src.domain.value_objects.mood import weights_for
+from tests.fakes import make_restaurant
+
+
+def _diem_mood(quan, mood="sad"):   # "sad" -> comfort_cozy 1.0 (xem MOOD_PROFILES)
+    ranked = rank_restaurants(
+        restaurants=[quan],
+        origin=Location(lat=21.03, lng=105.85),
+        mood_weights=weights_for(mood),
+        limit=1,
+    )
+    return ranked[0].mood_score
+
+
+def test_quan_KHONG_co_bang_chung_mood_duoc_diem_TRUNG_LAP():
+    """Chưa biết gì != biết là không hợp."""
+    chua_biet = make_restaurant("Quan Overture khong review")
+    assert chua_biet.has_mood_evidence is False
+    assert _diem_mood(chua_biet) == NEUTRAL_MOOD_SCORE
+
+
+def test_quan_CO_bang_chung_nhung_khac_chieu_thi_diem_THAP():
+    """Quán dò ra "cay nóng" mà người dùng muốn "ấm cúng" -> đúng là không hợp,
+    và điểm phải THẤP HƠN quán chưa biết gì. Nếu không, chỉ cần thiếu dữ liệu là được
+    ưu ái hơn quán có dữ liệu - hệ thống sẽ tự thưởng cho việc cào thiếu."""
+    co_bang_chung = make_restaurant("Quan lau cay", spicy_hot_score=0.67)
+    assert co_bang_chung.has_mood_evidence is True
+    assert _diem_mood(co_bang_chung, "sad") < NEUTRAL_MOOD_SCORE
+
+
+def test_quan_hop_dung_chieu_thi_diem_CAO_hon_trung_lap():
+    hop = make_restaurant("Ca phe am cung", comfort_cozy_score=0.67)
+    assert _diem_mood(hop, "sad") > NEUTRAL_MOOD_SCORE
+
+
+def test_khong_chon_mood_thi_tin_hieu_nay_KHONG_day_quan_nao_len():
+    """Không ai hỏi tâm trạng thì mood phải im lặng, kể cả với quán chưa biết gì -
+    nếu không, 40% dataset được cộng 0.5 * 0.26 miễn phí ở MỌI lượt tìm kiếm."""
+    chua_biet = make_restaurant("Quan chua biet gi")
+    ranked = rank_restaurants(
+        restaurants=[chua_biet],
+        origin=Location(lat=21.03, lng=105.85),
+        mood_weights=None,
+        limit=1,
+    )
+    assert ranked[0].mood_score == 0.0

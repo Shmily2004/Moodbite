@@ -23,6 +23,7 @@ from typing import Optional
 
 from src.application.ports.user_repository import UsernameAlreadyExists
 from src.domain.entities.user import User, UserRole
+from src.infrastructure.config.settings import describe_path
 
 logger = logging.getLogger("moodbite.users")
 
@@ -64,7 +65,7 @@ class SqliteUserRepository:
             with sqlite3.connect(self.db_path) as conn:
                 conn.executescript(SCHEMA)
         except (sqlite3.Error, OSError) as exc:
-            self._error = f"Không mở được kho tài khoản {self.db_path}: {exc}"
+            self._error = f"Không mở được kho tài khoản {describe_path(self.db_path)}: {exc}"
             logger.error(self._error)
 
     # -- Port UserRepository --------------------------------------------------
@@ -146,7 +147,7 @@ class SqliteUserRepository:
     def status(self) -> dict:
         return {
             "ready": self.is_ready,
-            "source": str(self.db_path),
+            "source": describe_path(self.db_path),
             "count": self.count(),
             "error": self._error,
         }

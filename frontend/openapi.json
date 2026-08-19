@@ -2151,6 +2151,18 @@
               }
             ],
             "title": "Google Maps Url"
+          },
+          "review_summary": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review Summary"
           }
         },
         "type": "object",

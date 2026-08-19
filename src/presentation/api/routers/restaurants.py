@@ -44,5 +44,6 @@ def restaurant_detail(
         menu_url=d.menu_url,
         website=d.website,
         google_maps_url=d.google_maps_url,
+        review_summary=d.review_summary,
     )
     return success(payload.model_dump())

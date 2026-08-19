@@ -17,6 +17,24 @@ from src.infrastructure.auth.user_auth import DEFAULT_USER_TOKEN_TTL_SECONDS
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
 
+def describe_path(path) -> str:
+    """Đường dẫn AN TOÀN để đưa ra ngoài (`/health`, thông báo lỗi).
+
+    VÌ SAO KHÔNG DÙNG `str(path)`: `/health` là endpoint CÔNG KHAI, không cần đăng nhập.
+    Trả đường dẫn tuyệt đối là để lộ tên người dùng hệ điều hành và cấu trúc thư mục máy
+    chủ (kiểu "C:/Users/<tên>/..."). Đó là thông tin trinh sát miễn phí cho người muốn
+    tấn công, mà chẳng giúp gì thêm cho người vận hành.
+
+    Trả đường dẫn TƯƠNG ĐỐI so với gốc dự án: vẫn đủ để biết thiếu file nào và sửa ở đâu,
+    nhưng không nói gì về máy đang chạy. File nằm ngoài gốc dự án thì chỉ trả tên file.
+    """
+    resolved = Path(path)
+    try:
+        return resolved.resolve().relative_to(PROJECT_ROOT).as_posix()
+    except (ValueError, OSError):
+        return resolved.name
+
+
 def _path_from_env(env_key: str, default_relative: str) -> Path:
     raw = os.getenv(env_key)
     if raw:
@@ -40,6 +58,8 @@ class Settings:
     # Sinh bởi `python scripts/build_dish_catalog.py`. Khác `dish_knowledge_json`: file kia
     # là RULE để đoán quán bán gì, file này là DANH MỤC món tra cứu được theo id.
     dish_catalog_json: Path
+    # Tóm tắt review (Lớp 4). Sinh bởi `python -m data_pipeline.review_summary`.
+    review_summaries_json: Path
     dish_model_path: Path
     # Nơi ghi sự kiện tương tác (nguồn nhãn cho mô hình xếp hạng sau này).
     interactions_path: Path
@@ -90,6 +110,10 @@ class Settings:
             dish_catalog_json=_path_from_env(
                 "MOODBITE_DISH_CATALOG_JSON",
                 "data_pipeline/data_cleaned/dish_catalog.json",
+            ),
+            review_summaries_json=_path_from_env(
+                "MOODBITE_REVIEW_SUMMARIES_JSON",
+                "data_pipeline/data_cleaned/review_summaries.json",
             ),
             dish_model_path=_path_from_env(
                 "MOODBITE_DISH_MODEL", "models/dish_rule_classifier.joblib"

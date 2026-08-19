@@ -720,3 +720,29 @@ body {
 @media (max-width: 899px) {
   .dish-restaurants__body .map-pane { height: 240px; border-radius: var(--r-md); overflow: hidden; }
 }
+
+/* --- Lớp 4: nhận xét tổng hợp từ review ---------------------------------- */
+
+.rsum {
+  margin: 10px 0;
+  padding: 10px 12px;
+  background: var(--surface-2);
+  border-radius: var(--r-sm);
+}
+.rsum__head {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
+  margin-bottom: 6px;
+}
+.rsum__line {
+  margin: 0 0 4px;
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+.rsum__points { margin: 6px 0 0; padding-left: 18px; font-size: var(--step--1); }
+.rsum__points li { margin-bottom: 2px; }
+/* Xanh = điểm mạnh, đỏ = điểm yếu. Dùng lại đúng hai màu ngữ nghĩa đã có, không thêm màu
+   mới - bảng màu càng nhiều màu thì càng khó đọc. */
+.rsum__points--good { color: var(--open); }
+.rsum__points--bad  { color: var(--error); }
+.rsum__note { margin: 8px 0 0; font-style: italic; }

@@ -164,12 +164,36 @@ SINGLE_WORD_INGREDIENTS = {
 }
 
 
+# Mã lỗi TẠM THỜI - phải thử lại, không được bỏ qua.
+# 429 = bị chặn tốc độ. 5xx = phía Wikipedia trục trặc.
+TRANSIENT_STATUS = frozenset({429, 500, 502, 503, 504})
+
+# Số vòng thử lại và thời gian chờ ban đầu (giây), tăng gấp đôi mỗi vòng.
+MAX_RETRIES = 5
+BACKOFF_SECONDS = 2.0
+
+# Nghỉ giữa hai lần gọi. 0.15s từng đủ khi chỉ có `discover_dishes` chạy, nhưng khi gọi
+# liên tiếp vài chục thể loại thì Wikipedia trả 429 hàng loạt (đã gặp thật 2026-08-19).
+POLITE_DELAY_SECONDS = 0.4
+
+
+class WikipediaUnavailable(RuntimeError):
+    """Hỏi lại đủ số vòng vẫn không xong. Người gọi PHẢI xử lý, không được coi là rỗng."""
+
+
 def fetch_category_members(
     session: requests.Session, category: str, member_type: str
 ) -> List[dict]:
     """Thành viên của một thể loại. `member_type` = 'page' hoặc 'subcat'.
 
     Có phân trang: thể loại lớn trả về nhiều hơn 500 mục.
+
+    ⚠️ THỬ LẠI KHI GẶP LỖI TẠM THỜI, và NÉM LỖI nếu hết vòng thử.
+    Bản cũ bắt mọi lỗi rồi `return members` - tức là 429 (bị chặn tốc độ) biến thành
+    "thể loại này rỗng". Ngày 2026-08-19, script điền `cuisine` bị chặn và ghi nhận 13 nền
+    ẩm thực có 0 món; nếu lúc đó ghi thẳng vào file thì đã xoá sạch dữ liệu đúng bằng một
+    lỗi mạng thoáng qua. Đây đúng bài học đã ghi trong CLAUDE.md mục 4b cho Overpass:
+    "504 là lỗi TẠM THỜI... Bỏ ô = mất vĩnh viễn toàn bộ quán khu vực đó".
     """
     members: List[dict] = []
     cont: Optional[str] = None
@@ -185,17 +209,30 @@ def fetch_category_members(
         }
         if cont:
             params["cmcontinue"] = cont
-        try:
-            response = session.get(WIKIPEDIA_API, params=params, timeout=30)
-            response.raise_for_status()
-            payload = response.json()
-        except (requests.RequestException, ValueError) as exc:
-            # Một thể loại hỏng KHÔNG được làm hỏng cả lượt tìm.
-            logger.warning("Bo qua the loai %s: %s", category, exc)
-            return members
+
+        payload = None
+        cho = BACKOFF_SECONDS
+        for lan in range(1, MAX_RETRIES + 1):
+            try:
+                response = session.get(WIKIPEDIA_API, params=params, timeout=30)
+                if response.status_code in TRANSIENT_STATUS:
+                    raise requests.HTTPError(f"HTTP {response.status_code}")
+                response.raise_for_status()
+                payload = response.json()
+                break
+            except (requests.RequestException, ValueError) as exc:
+                if lan == MAX_RETRIES:
+                    raise WikipediaUnavailable(
+                        f"{category} ({member_type}): thu {MAX_RETRIES} lan van loi - {exc}"
+                    ) from exc
+                logger.warning("  %s: %s -> cho %.0fs roi thu lai (lan %d/%d)",
+                               category, exc, cho, lan, MAX_RETRIES)
+                time.sleep(cho)
+                cho *= 2
+
         members.extend(payload.get("query", {}).get("categorymembers", []))
         cont = payload.get("continue", {}).get("cmcontinue")
-        time.sleep(0.15)
+        time.sleep(POLITE_DELAY_SECONDS)
         if not cont:
             return members
 

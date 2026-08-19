@@ -228,10 +228,19 @@ Bốn quy ước dưới đây phản ánh dữ liệu THẬT của dự án. Vi
    (`/dishes/{id}/restaurants`). Ta đối chiếu theo TÊN QUÁN, chưa bao giờ đọc thực đơn
    thật, nên không được nói chắc là quán có bán.
 
-5. **So khớp chữ tiếng Việt: BỎ DẤU + khớp TỪ NGUYÊN VẸN.** Dùng
-   `domain/value_objects/text.py`, đừng tự viết lại. Hai bug thật đã xảy ra vì làm sai:
+5. **So khớp chữ tiếng Việt: BỎ DẤU + khớp TỪ NGUYÊN VẸN + DẤU LÀ BẰNG CHỨNG.** Dùng
+   `domain/value_objects/text.py`, đừng tự viết lại. **Ba** bug thật đã xảy ra vì làm sai:
    - Khớp chuỗi con: `"bo"` khớp `"bột"` → tìm "phở bò" ra quán bánh tráng.
    - Không bỏ dấu: quán tên `"Pho Bo"`, `"O Bun Cha"` không bao giờ khớp được.
+   - **Đụng độ sau khi bỏ dấu** (2026-08-19): `phở` / `phố` / `phớ` đều thành `"pho"`, và
+     cả ba đều là TỪ NGUYÊN VẸN nên hai quy tắc trên không cứu được. Đo thật: **763/1948
+     (39,2%)** quán ở trang món Phở là quán *Tào Phớ* hoặc có chữ *Phố* trong tên. Luật:
+     **chỉ loại khi CẢ HAI vế đều có dấu** — một vế không dấu là không đủ bằng chứng, và
+     bao dung ở đó chính là thứ giữ cho quy tắc "bỏ dấu" còn tác dụng.
+     Cặp đụng độ đã biết: `phở/phố/phớ` · `cơm/cốm` · `cháo/chao/chảo` · `chè/chê`.
+   - ⚠️ Ba quy tắc này chỉ đúng khi đi qua `contains_phrase` / `PhraseLookup`. Bug thật
+     do tự viết lại bằng `str.count`: từ khoá `"street"` khớp vào chữ `openstreetmap` ở
+     cột nguồn → **100%** quán OSM bị chấm là "quán rẻ" (số thật: 9,3%).
 
 6. **Suy luận món thì ưu tiên TÊN QUÁN hơn `categoryName`.** Đo được: 144 quán có "phở"
    trong tên nhưng chỉ 14 quán có trong `categoryName`. Quán "Bún Chả - Nem Cua Bê" bị

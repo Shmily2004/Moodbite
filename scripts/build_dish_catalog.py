@@ -137,8 +137,17 @@ def load_manual_seed(path: Path) -> List[Dish]:
                 portion_size=entry.get("portion_size"),
                 mood_keywords=list(entry.get("mood_keywords", [])),
                 description=entry.get("description"),
+                # ĐỌC CẢ `image_url` TỪ SEED.
+                # Bản cũ chỉ đọc `description` mà bỏ qua `image_url`, nên ảnh chỉ tồn tại
+                # khi chạy kèm `--enrich` (có gọi mạng). Hệ quả: dựng lại danh mục lúc
+                # không có mạng làm ảnh tụt từ 87,1% xuống 0% mà không có gì báo -
+                # pipeline không tự dựng lại nổi kết quả của chính nó. Seed đang giữ sẵn
+                # 607 đường dẫn ảnh, chỉ là chưa ai đọc lên.
+                image_url=entry.get("image_url"),
                 match_keywords=list(entry.get("match_keywords", [])),
                 source=entry.get("source", DISH_SOURCE_MANUAL),
+                source_url=entry.get("source_url"),
+                last_updated=entry.get("last_updated"),
                 data_confidence="manual",
             )
         )

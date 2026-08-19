@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Optional
 
 from src.domain.entities.interaction import InteractionEvent
+from src.infrastructure.config.settings import describe_path
 
 logger = logging.getLogger("moodbite.interactions")
 
@@ -64,7 +65,7 @@ class JsonlInteractionRepository:
                 with open(self.path, "a", encoding="utf-8") as fh:
                     fh.write(line + "\n")
             except OSError as exc:
-                self._error = f"Không ghi được {self.path}: {exc}"
+                self._error = f"Không ghi được {describe_path(self.path)}: {exc}"
                 logger.error("Ghi tương tác thất bại: %s", exc)
                 raise
 
@@ -82,7 +83,7 @@ class JsonlInteractionRepository:
     def status(self) -> dict:
         return {
             "ready": self.is_ready,
-            "source": str(self.path),
+            "source": describe_path(self.path),
             "count": self.count(),
             "error": self._error,
         }

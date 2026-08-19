@@ -27,6 +27,7 @@ from typing import Dict, List, Mapping, Optional
 from src.domain.entities.restaurant import Restaurant
 from src.domain.value_objects.location import Location
 from src.domain.value_objects.mood import MOOD_SCORE_COLUMNS
+from src.infrastructure.config.settings import describe_path
 
 logger = logging.getLogger("moodbite.repository")
 
@@ -164,7 +165,7 @@ class SqliteRestaurantRepository:
         ready = self.is_ready
         return {
             "ready": ready,
-            "source": str(self.db_path),
+            "source": describe_path(self.db_path),
             "count": len(self._restaurants or []),
             "error": self._load_error,
         }
@@ -276,7 +277,7 @@ class SqliteRestaurantRepository:
             return
         if not self.db_path.exists():
             self._load_error = (
-                f"Không tìm thấy CSDL: {self.db_path}. "
+                f"Không tìm thấy CSDL: {describe_path(self.db_path)}. "
                 "Chạy: python scripts/build_sqlite.py"
             )
             return
@@ -291,7 +292,7 @@ class SqliteRestaurantRepository:
                     f"SELECT {_COLUMNS} FROM restaurants WHERE is_active = 1"
                 ).fetchall()
         except sqlite3.Error as exc:
-            self._load_error = f"Không đọc được {self.db_path}: {exc}"
+            self._load_error = f"Không đọc được {describe_path(self.db_path)}: {exc}"
             return
 
         restaurants = [r for r in (self._to_entity(row) for row in rows) if r]

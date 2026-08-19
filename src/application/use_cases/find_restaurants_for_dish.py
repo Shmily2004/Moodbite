@@ -28,7 +28,7 @@ from src.application.use_cases.search_restaurants import (
     SuggestedDish,
 )
 from src.domain.entities.dish import Dish
-from src.domain.services import search_ranking
+from src.domain.services import dish_matching, search_ranking
 from src.domain.services.search_ranking import DEFAULT_MAX_DISTANCE_KM
 from src.domain.value_objects.context_signal import NEUTRAL_CONTEXT, ContextSignal
 from src.domain.value_objects.location import (
@@ -112,29 +112,39 @@ class FindRestaurantsForDishUseCase:
         limit = max(1, min(query.limit, MAX_LIMIT))
         mood_weights = self._mood_weights(query.mood, warnings)
 
-        strong = [m.restaurant for m in matches if m.is_strong]
-        weak = [m.restaurant for m in matches if not m.is_strong]
+        # BA TẦNG, xếp lần lượt: tên quán ghi ĐÚNG TÊN MÓN -> khớp từ khoá chung ->
+        # chỉ được review nhắc tới. Tầng dưới chỉ được dùng khi tầng trên chưa đủ `limit`.
+        #
+        # Tầng 1 tồn tại vì Phở bò / Phở gà / Phở dùng chung từ khoá "phở", nên nếu chỉ có
+        # hai tầng thì ba trang món trả về danh sách hệt nhau và việc "chọn món" thành vô
+        # nghĩa. Có tầng 1 thì trang Phở gà đẩy 202 quán ghi rõ "phở gà" lên trước.
+        theo_tang: dict = {}
+        for m in matches:
+            theo_tang.setdefault(m.strength, []).append(m.restaurant)
 
-        ranked = search_ranking.rank_restaurants(
-            restaurants=strong, origin=origin, mood_weights=mood_weights,
-            context=context, max_distance_km=query.max_distance_km, limit=limit,
-        )
-        if len(ranked) < limit and weak:
-            extra = search_ranking.rank_restaurants(
-                restaurants=weak, origin=origin, mood_weights=mood_weights,
-                context=context, max_distance_km=query.max_distance_km,
-                limit=limit - len(ranked),
+        ranked: List = []
+        so_quan_yeu = 0
+        for strength in sorted(theo_tang, reverse=True):
+            if len(ranked) >= limit:
+                break
+            phan = search_ranking.rank_restaurants(
+                restaurants=theo_tang[strength], origin=origin,
+                mood_weights=mood_weights, context=context,
+                max_distance_km=query.max_distance_km, limit=limit - len(ranked),
             )
-            # Đánh lại số thứ tự cho liền mạch sau khi ghép hai tầng.
+            if strength == dish_matching.MATCH_STRENGTH[dish_matching.MATCHED_BY_REVIEW]:
+                so_quan_yeu = len(phan)
+            # Đánh lại số thứ tự cho liền mạch sau khi ghép các tầng.
             ranked = ranked + [
                 replace(item, rank_position=len(ranked) + i + 1)
-                for i, item in enumerate(extra)
+                for i, item in enumerate(phan)
             ]
-            if extra:
-                warnings.append(
-                    f"{len(extra)} quán ở cuối danh sách chỉ được NHẮC TỚI trong review "
-                    f"là có '{dish.name}', chưa chắc chắn bằng quán ghi rõ tên món."
-                )
+
+        if so_quan_yeu:
+            warnings.append(
+                f"{so_quan_yeu} quán ở cuối danh sách chỉ được NHẮC TỚI trong review "
+                f"là có '{dish.name}', chưa chắc chắn bằng quán ghi rõ tên món."
+            )
 
         self._warn_if_radius_was_widened(ranked, query, dish, warnings)
 

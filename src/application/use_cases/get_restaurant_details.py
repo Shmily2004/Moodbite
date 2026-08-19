@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import List, Mapping, Optional
 
 from src.application.errors import DataNotReadyError
 from src.application.ports.restaurant_details_repository import (
@@ -31,6 +31,9 @@ class RestaurantDetails:
     menu_url: Optional[str] = None
     website: Optional[str] = None
     google_maps_url: Optional[str] = None
+    # LỚP 4 đề án: nhận xét tổng hợp từ review. `None` = quán chưa đủ review để tóm tắt
+    # (dưới 3 review), KHÔNG phải "quán không có gì để nói".
+    review_summary: Optional[dict] = None
 
 
 class GetRestaurantDetailsUseCase:
@@ -38,6 +41,7 @@ class GetRestaurantDetailsUseCase:
         self,
         details: RestaurantDetailsRepository,
         restaurants: Optional[RestaurantRepository] = None,
+        review_summaries: Optional[Mapping[str, dict]] = None,
     ) -> None:
         """`restaurants` để kiểm quán CÓ TỒN TẠI và CÓ ĐANG HIỆN hay không.
 
@@ -46,8 +50,15 @@ class GetRestaurantDetailsUseCase:
         `is_active`. Hậu quả: admin ẩn một quán, quán biến mất khỏi /search đúng như
         mong đợi, NHƯNG `GET /restaurants/{id}` vẫn trả 200 — quán bị ẩn vẫn xem được
         nếu biết link. Test đơn vị không bắt được vì chúng chỉ kiểm ở tầng repository.
+
+        `review_summaries` là kết quả LỚP 4 đã tính sẵn offline
+        (`python -m data_pipeline.review_summary`). Nhận qua tham số thay vì tự đọc file:
+        use case không được biết đường dẫn file nào cả - việc lắp dây là của
+        `dependencies.py`. Không truyền -> phần nhận xét tổng hợp đơn giản là vắng mặt,
+        các thứ khác vẫn chạy.
         """
         self._details = details
+        self._review_summaries = review_summaries or {}
         self._restaurants = restaurants
 
     def execute(self, place_id: str) -> RestaurantDetails:
@@ -87,4 +98,6 @@ class GetRestaurantDetailsUseCase:
             menu_url=raw.get("menu"),
             website=raw.get("website"),
             google_maps_url=raw.get("url"),
+            # LỚP 4: nhận xét tổng hợp đã tính sẵn. Quán chưa đủ review thì vắng mặt.
+            review_summary=self._review_summaries.get(place_id),
         )

@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Optional
+from src.infrastructure.config.settings import describe_path
 
 
 class MlRulePredictor:
@@ -55,7 +56,7 @@ class MlRulePredictor:
     def _load(self) -> None:
         if not self.model_path.exists():
             self._reason = (
-                f"Không có model tại {self.model_path} - dùng khớp từ khoá "
+                f"Không có model tại {describe_path(self.model_path)} - dùng khớp từ khoá "
                 "(đây là trạng thái mặc định bình thường)"
             )
             return
@@ -64,5 +65,5 @@ class MlRulePredictor:
 
             self._model = joblib.load(self.model_path)
         except Exception as exc:
-            self._reason = f"Không nạp được model {self.model_path}: {exc}"
+            self._reason = f"Không nạp được model {describe_path(self.model_path)}: {exc}"
             self._model = None

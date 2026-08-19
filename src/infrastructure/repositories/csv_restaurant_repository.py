@@ -18,6 +18,7 @@ import pandas as pd
 from src.domain.entities.restaurant import Restaurant
 from src.domain.value_objects.location import Location
 from src.domain.value_objects.mood import MOOD_SCORE_COLUMNS
+from src.infrastructure.config.settings import describe_path
 
 # Tên cột trong CSV -> ý nghĩa. Đổi tên cột ở data_pipeline thì sửa DUY NHẤT ở đây.
 COL_PLACE_ID = "placeId"
@@ -180,7 +181,7 @@ class CsvRestaurantRepository:
         ready = self.is_ready
         return {
             "ready": ready,
-            "source": str(self.csv_path),
+            "source": describe_path(self.csv_path),
             "count": len(self._restaurants or []),
             "error": self._load_error,
         }
@@ -191,18 +192,23 @@ class CsvRestaurantRepository:
         if self._restaurants is not None or self._load_error is not None:
             return
         if not self.csv_path.exists():
-            self._load_error = f"Không tìm thấy dataset: {self.csv_path}"
+            self._load_error = f"Không tìm thấy dataset: {describe_path(self.csv_path)}"
             return
         try:
-            df = pd.read_csv(self.csv_path)
+            # `low_memory=False`: đọc cả cột một lần thay vì theo từng khối, nên pandas
+            # không phải đoán kiểu hai lần rồi cảnh báo `DtypeWarning` cho 14 cột trộn
+            # kiểu (giá là chuỗi, giờ mở cửa là JSON...). Cảnh báo đó in ra ở MỌI lần khởi
+            # động và mọi lần chạy test - tiếng ồn cỡ đó là chỗ tốt nhất để một cảnh báo
+            # thật lẩn vào mà không ai thấy.
+            df = pd.read_csv(self.csv_path, low_memory=False)
         except Exception as exc:  # file hỏng, thiếu quyền đọc...
-            self._load_error = f"Không đọc được {self.csv_path}: {exc}"
+            self._load_error = f"Không đọc được {describe_path(self.csv_path)}: {exc}"
             return
 
         missing = [c for c in REQUIRED_COLUMNS if c not in df.columns]
         if missing:
             self._load_error = (
-                f"{self.csv_path} thiếu cột bắt buộc: {missing}. "
+                f"{describe_path(self.csv_path)} thiếu cột bắt buộc: {missing}. "
                 "Chạy lại python -m data_pipeline.feature_engineering"
             )
             return

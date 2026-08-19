@@ -8,6 +8,8 @@ Depends(...) chứ không tự khởi tạo gì.
 """
 from __future__ import annotations
 
+import json
+import logging
 from dataclasses import dataclass
 from typing import Optional
 
@@ -73,6 +75,9 @@ from src.infrastructure.repositories.jsonl_interaction_repository import (
 from src.infrastructure.repositories.sqlite_restaurant_repository import (
     SqliteRestaurantRepository,
 )
+
+
+logger = logging.getLogger("moodbite.dependencies")
 
 
 def _status_of(adapter: object) -> dict:
@@ -182,6 +187,22 @@ def build_container(settings: Optional[Settings] = None) -> Container:
     )
     dish_catalog_repository = JsonDishCatalogRepository(settings.dish_catalog_json)
 
+    # LỚP 4 - nhận xét tổng hợp từ review, ĐÃ TÍNH SẴN offline bởi
+    # `python -m data_pipeline.review_summary`. Đọc ở composition root rồi truyền vào use
+    # case, đúng lối đã dùng cho `review_texts`/`thumbnail_urls`: use case không được biết
+    # đường dẫn file nào.
+    #
+    # CHƯA CHẠY SCRIPT thì file không tồn tại -> dict rỗng, phần nhận xét vắng mặt còn mọi
+    # thứ khác vẫn chạy. Thiếu file KHÔNG được làm sập app (CLAUDE.md mục 4 quy tắc 3).
+    review_summaries: dict = {}
+    if settings.review_summaries_json.exists():
+        try:
+            review_summaries = json.loads(
+                settings.review_summaries_json.read_text(encoding="utf-8")
+            ).get("summaries", {})
+        except (OSError, ValueError) as exc:
+            logger.warning("Khong doc duoc tom tat review: %s", exc)
+
     # Chỉ mục món -> quán dựng MỘT LẦN lúc khởi động (đo được: 0.05 giây cho 79 món x
     # 4938 quán). Dựng lại ở mỗi yêu cầu mất ~11 giây - xem `domain/services/dish_matching.py`.
     #
@@ -260,7 +281,7 @@ def build_container(settings: Optional[Settings] = None) -> Container:
             semantic_search=semantic_search,
         ),
         get_restaurant_details=GetRestaurantDetailsUseCase(
-            details_repository, restaurant_repository
+            details_repository, restaurant_repository, review_summaries
         ),
         log_interaction=LogInteractionUseCase(
             interactions=interaction_repository,

@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from typing import Dict, Optional
+from src.infrastructure.config.settings import describe_path
 
 
 class JsonRestaurantDetailsRepository:
@@ -74,7 +75,7 @@ class JsonRestaurantDetailsRepository:
     def status(self) -> dict:
         return {
             "ready": self.is_ready,
-            "source": str(self.json_path),
+            "source": describe_path(self.json_path),
             "count": self.count,
             "error": self._load_error,
         }
@@ -91,17 +92,17 @@ class JsonRestaurantDetailsRepository:
         if self._details is not None or self._load_error is not None:
             return
         if not self.json_path.exists():
-            self._load_error = f"Không tìm thấy file chi tiết: {self.json_path}"
+            self._load_error = f"Không tìm thấy file chi tiết: {describe_path(self.json_path)}"
             return
         try:
             with open(self.json_path, encoding="utf-8") as fh:
                 data = json.load(fh)
         except (OSError, json.JSONDecodeError) as exc:
-            self._load_error = f"Không đọc được {self.json_path}: {exc}"
+            self._load_error = f"Không đọc được {describe_path(self.json_path)}: {exc}"
             return
         if not isinstance(data, dict):
             self._load_error = (
-                f"{self.json_path} phải là object dạng {{placeId: chi tiết}}, "
+                f"{describe_path(self.json_path)} phải là object dạng {{placeId: chi tiết}}, "
                 f"nhận được {type(data).__name__}"
             )
             return

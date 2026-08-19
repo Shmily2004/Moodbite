@@ -42,6 +42,10 @@ COL_SOURCE = "source"
 COL_CLUSTER_ID = "experience_cluster_id"
 COL_CLUSTER_LABEL = "experience_cluster_label"
 # Trạng thái kinh doanh từ nguồn. Chỉ quán Apify/Google mới có -> thiếu là `None`.
+COL_SOURCE_UPDATED_AT = "source_updated_at"
+COL_SOURCE_DATASETS = "source_datasets"
+COL_SURVEYED_AT = "surveyed_at"
+COL_SOCIALS = "socials"
 COL_PERMANENTLY_CLOSED = "permanentlyClosed"
 COL_TEMPORARILY_CLOSED = "temporarilyClosed"
 COL_CONFIDENCE = "data_confidence"
@@ -295,6 +299,10 @@ class CsvRestaurantRepository:
             data_confidence=_as_str(row.get(COL_CONFIDENCE)),
             experience_cluster_id=_as_int(row.get(COL_CLUSTER_ID)),
             experience_cluster_label=_as_str(row.get(COL_CLUSTER_LABEL)),
+            source_updated_at=_as_str(row.get(COL_SOURCE_UPDATED_AT)),
+            source_datasets=_as_list(row.get(COL_SOURCE_DATASETS)),
+            surveyed_at=_as_str(row.get(COL_SURVEYED_AT)),
+            socials=_as_list(row.get(COL_SOCIALS)),
             permanently_closed=_as_optional_bool(row.get(COL_PERMANENTLY_CLOSED)),
             temporarily_closed=_as_optional_bool(row.get(COL_TEMPORARILY_CLOSED)),
         )

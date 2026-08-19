@@ -163,6 +163,17 @@ def extract_features():
     # phân biệt, nên không thể đánh giá chất lượng dữ liệu hay ưu tiên nguồn tốt hơn.
     provenance_columns = [
         'source', 'source_url', 'last_updated', 'data_confidence',
+        # TUỔI THẬT + BẰNG CHỨNG XÁC NHẬN. Phải nằm trong danh sách GIỮ LẠI, nếu không
+        # lần chạy pipeline sau sẽ xoá sạch - đúng bài học `ENRICHMENT_COLUMNS` ở trên,
+        # dự án đã mất một lần rồi.
+        #
+        # KHÁC `last_updated`: cột kia là ngày TA CÀO, mấy cột này là ngày NGUỒN cập nhật
+        # và ngày người ta đi xác minh tận nơi. Xem `data_pipeline/sources/base.py`.
+        'source_updated_at',    # ngày nguồn sửa bản ghi lần cuối
+        'source_datasets',      # nền tảng nào cùng ghi nhận (meta, Microsoft, Foursquare...)
+        'source_confidence',    # điểm tin cậy do nguồn chấm [0,1]
+        'surveyed_at',          # ngày có người đi xác minh TẬN NƠI (OSM check_date)
+        'socials',              # link Facebook/Instagram do Meta đóng góp hợp pháp
     ]
 
     # DISCOVERY_COLUMNS: các trường phục vụ tìm kiếm / lọc / hiển thị mà bản cào mới

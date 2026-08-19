@@ -2520,6 +2520,35 @@
             ],
             "title": "Temporarily Closed"
           },
+          "source_updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Updated At"
+          },
+          "source_datasets": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Source Datasets"
+          },
+          "surveyed_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Surveyed At"
+          },
           "suggested_dish": {
             "anyOf": [
               {

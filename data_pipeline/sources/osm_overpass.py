@@ -195,7 +195,11 @@ class OsmOverpassSource:
             f"[out:json][timeout:{self.timeout_seconds}];"
             f"(nwr[amenity~'^({AMENITY_VALUES})$']({bbox});"
             f"nwr[shop~'^({SHOP_VALUES})$']({bbox}););"
-            "out center tags;"
+            # `meta` thêm timestamp/version/user của lần sửa cuối. Không có nó thì không
+            # biết bản ghi cũ hay mới - và đo 2026-08-19 cho thấy chuyện đó rất đáng biết:
+            # chỉ 34,9% quán OSM Hà Nội được sửa trong năm 2026, cũ nhất là năm 2010.
+            # Chi phí: gói tin nặng thêm chút ít, không thêm lần gọi mạng nào.
+            "out center tags meta;"
         )
 
     def _fetch_tile(self, tile: tuple[float, float, float, float]) -> List[Dict[str, Any]]:
@@ -307,6 +311,13 @@ class OsmOverpassSource:
             source=self.name,
             source_url=f"https://www.openstreetmap.org/{osm_type}/{osm_id}",
             last_updated=utc_now_iso(),
+            # NGÀY SỬA THẬT trên OSM, khác hẳn `last_updated` (ngày ta cào).
+            source_updated_at=element.get("timestamp"),
+            source_datasets=["openstreetmap"],
+            # `check_date` = ngày một người thật đi tới tận nơi xác minh. Bằng chứng mạnh
+            # nhất có thể có, nhưng chỉ 4,3% quán có (đo 2026-08-19).
+            # `survey:date` là tag cũ cùng nghĩa, vẫn còn dùng ở một số nơi.
+            surveyed_at=tags.get("check_date") or tags.get("survey:date"),
             data_confidence=CONFIDENCE_COMMUNITY,
             categoryName=self._category(tags),
             cuisine=cuisine,

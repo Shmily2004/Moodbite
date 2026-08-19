@@ -49,6 +49,22 @@ class Restaurant:
     permanently_closed: Optional[bool] = None
     temporarily_closed: Optional[bool] = None
 
+    # --- TUỔI THẬT & BẰNG CHỨNG XÁC NHẬN ---------------------------------------
+    #
+    # ⚠️ ĐỪNG NHẦM VỚI `last_updated` của bản ghi (ngày TA CÀO). Đo 2026-08-19: cột kia
+    # ghi 97,4% dữ liệu "cập nhật 3 ngày trước", trong khi 71,5% bản ghi OSM thật ra được
+    # sửa lần cuối từ 2025 trở về trước, cũ nhất là năm 2010.
+    #
+    # Ngày NGUỒN cập nhật bản ghi lần cuối (ISO-8601). Sinh bởi `scripts/enrich_freshness.py`.
+    source_updated_at: Optional[str] = None
+    # Nền tảng ĐỘC LẬP cùng ghi nhận quán này (meta, Microsoft, Foursquare, openstreetmap).
+    source_datasets: List[str] = field(default_factory=list)
+    # Ngày có người đi XÁC MINH TẬN NƠI (tag `check_date` của OSM) - bằng chứng mạnh nhất.
+    surveyed_at: Optional[str] = None
+    # Link mạng xã hội do NGUỒN cung cấp (Meta đóng góp vào Overture, giấy phép
+    # CDLA-Permissive-2.0). KHÔNG phải cào Facebook - xem `data_pipeline/sources/base.py`.
+    socials: List[str] = field(default_factory=list)
+
     # --- trường bổ sung từ bản thu thập OSM mới --------------------------------
     # Đơn vị hành chính (OSM admin_level=6). Từ 2025 Việt Nam bỏ cấp quận/huyện nên
     # giá trị thực tế là "Phường ..." chứ không phải "Quận ...".

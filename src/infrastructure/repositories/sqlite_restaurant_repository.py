@@ -65,6 +65,11 @@ CREATE TABLE IF NOT EXISTS restaurants (
     -- như thế là tự nhận đã xác minh 40.000 quán còn mở trong khi chưa kiểm quán nào.
     permanently_closed       INTEGER,
     temporarily_closed       INTEGER,
+    -- TUỔI THẬT: ngày NGUỒN cập nhật, khác hẳn `last_updated` (ngày ta cào).
+    source_updated_at        TEXT,
+    source_datasets          TEXT,     -- JSON: nền tảng nào cùng xác nhận
+    surveyed_at              TEXT,     -- ngày có người xác minh tận nơi (OSM check_date)
+    socials                  TEXT,     -- JSON: link Facebook/Instagram do nguồn cung cấp
     district                 TEXT,
     dietary                  TEXT,     -- JSON array
     amenities                TEXT,     -- JSON array
@@ -87,6 +92,7 @@ _COLUMNS = (
     "reviews_count, mood_scores, atmosphere_tags, review_text, thumbnail_url, "
     "opening_hours, "
     "is_active, permanently_closed, temporarily_closed, "
+    "source_updated_at, source_datasets, surveyed_at, socials, "
     "district, dietary, amenities, phone, website, source, "
     "data_confidence, experience_cluster_id, experience_cluster_label"
 )
@@ -346,6 +352,10 @@ class SqliteRestaurantRepository:
             is_active=bool(row["is_active"]),
             permanently_closed=_bool_or_none(row["permanently_closed"]),
             temporarily_closed=_bool_or_none(row["temporarily_closed"]),
+            source_updated_at=row["source_updated_at"],
+            source_datasets=_json_list(row["source_datasets"]),
+            surveyed_at=row["surveyed_at"],
+            socials=_json_list(row["socials"]),
             district=row["district"],
             dietary=_json_list(row["dietary"]),
             amenities=_json_list(row["amenities"]),

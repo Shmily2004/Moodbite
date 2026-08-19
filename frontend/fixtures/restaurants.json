@@ -30,6 +30,9 @@
       "experience_cluster_id": 6,
       "experience_cluster_label": "Cao cấp, không gian sang, đông khách",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "nha_hang_generic:com",
         "name": "Cơm",
@@ -62,6 +65,9 @@
       "experience_cluster_id": 0,
       "experience_cluster_label": "Tầm trung, không gian sang, đông khách",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "oc:oc-luoc",
         "name": "Ốc luộc",
@@ -94,6 +100,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -126,6 +135,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -158,6 +170,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "nha_hang_generic:com",
         "name": "Cơm",
@@ -190,6 +205,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -222,6 +240,9 @@
       "experience_cluster_id": 6,
       "experience_cluster_label": "Cao cấp, không gian sang, đông khách",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "trung_quoc:dimsum",
         "name": "Dimsum",
@@ -254,6 +275,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -286,6 +310,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -318,6 +345,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -350,6 +380,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -382,6 +415,9 @@
       "experience_cluster_id": 4,
       "experience_cluster_label": "Tầm trung",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "lau:lau-thai",
         "name": "Lẩu Thái",
@@ -416,6 +452,9 @@
       "experience_cluster_id": 3,
       "experience_cluster_label": "Tầm trung, không gian sang, đông khách, nhiều tiện nghi",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "nha_hang_generic:com",
         "name": "Cơm",
@@ -448,6 +487,9 @@
       "experience_cluster_id": 4,
       "experience_cluster_label": "Tầm trung",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "lau:lau-thai",
         "name": "Lẩu Thái",
@@ -480,6 +522,9 @@
       "experience_cluster_id": 0,
       "experience_cluster_label": "Tầm trung, không gian sang, đông khách",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "hai_san:hai-san-nuong",
         "name": "Hải sản nướng",
@@ -512,6 +557,9 @@
       "experience_cluster_id": 6,
       "experience_cluster_label": "Cao cấp, không gian sang, đông khách",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "nha_hang_generic:com",
         "name": "Cơm",
@@ -544,6 +592,9 @@
       "experience_cluster_id": 2,
       "experience_cluster_label": "Tầm trung, đánh giá cao, ít người biết",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "lau:lau-thai",
         "name": "Lẩu Thái",
@@ -576,6 +627,9 @@
       "experience_cluster_id": 6,
       "experience_cluster_label": "Cao cấp, không gian sang, đông khách",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "nuong:nem-nuong",
         "name": "Nem nướng",
@@ -608,6 +662,9 @@
       "experience_cluster_id": 4,
       "experience_cluster_label": "Tầm trung",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "nha_hang_generic:com",
         "name": "Cơm",
@@ -640,6 +697,9 @@
       "experience_cluster_id": 6,
       "experience_cluster_label": "Cao cấp, không gian sang, đông khách",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "nha_hang_generic:com",
         "name": "Cơm",
@@ -672,6 +732,9 @@
       "experience_cluster_id": 0,
       "experience_cluster_label": "Tầm trung, không gian sang, đông khách",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "nha_hang_generic:com",
         "name": "Cơm",
@@ -706,6 +769,9 @@
       "experience_cluster_id": 0,
       "experience_cluster_label": "Tầm trung, không gian sang, đông khách",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "chay:com-chay",
         "name": "Cơm chay",
@@ -738,6 +804,9 @@
       "experience_cluster_id": 6,
       "experience_cluster_label": "Cao cấp, không gian sang, đông khách",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "nha_hang_generic:com",
         "name": "Cơm",
@@ -772,6 +841,9 @@
       "experience_cluster_id": 3,
       "experience_cluster_label": "Tầm trung, không gian sang, đông khách, nhiều tiện nghi",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "nha_hang_generic:com",
         "name": "Cơm",
@@ -804,6 +876,9 @@
       "experience_cluster_id": 4,
       "experience_cluster_label": "Tầm trung",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "lau:lau-thai",
         "name": "Lẩu Thái",
@@ -836,6 +911,9 @@
       "experience_cluster_id": 0,
       "experience_cluster_label": "Tầm trung, không gian sang, đông khách",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "nha_hang_generic:com",
         "name": "Cơm",
@@ -868,6 +946,9 @@
       "experience_cluster_id": 0,
       "experience_cluster_label": "Tầm trung, không gian sang, đông khách",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "thai:tom-yum",
         "name": "Tom yum",
@@ -900,6 +981,9 @@
       "experience_cluster_id": 1,
       "experience_cluster_label": "Bình dân",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "ca_phe:ca-phe-sua-da",
         "name": "Cà phê sữa đá",
@@ -932,6 +1016,9 @@
       "experience_cluster_id": 1,
       "experience_cluster_label": "Bình dân",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "bun_generic:bun-nuoc",
         "name": "Bún nước",
@@ -964,6 +1051,9 @@
       "experience_cluster_id": 6,
       "experience_cluster_label": "Cao cấp, không gian sang, đông khách",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "nha_hang_generic:com",
         "name": "Cơm",
@@ -996,6 +1086,9 @@
       "experience_cluster_id": 6,
       "experience_cluster_label": "Cao cấp, không gian sang, đông khách",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "nha_hang_generic:com",
         "name": "Cơm",
@@ -1028,6 +1121,9 @@
       "experience_cluster_id": 6,
       "experience_cluster_label": "Cao cấp, không gian sang, đông khách",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "nha_hang_generic:com",
         "name": "Cơm",
@@ -1060,6 +1156,9 @@
       "experience_cluster_id": 0,
       "experience_cluster_label": "Tầm trung, không gian sang, đông khách",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "nha_hang_generic:com",
         "name": "Cơm",
@@ -1092,6 +1191,9 @@
       "experience_cluster_id": 0,
       "experience_cluster_label": "Tầm trung, không gian sang, đông khách",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "nhat:sushi",
         "name": "Sushi",
@@ -1124,6 +1226,9 @@
       "experience_cluster_id": 0,
       "experience_cluster_label": "Tầm trung, không gian sang, đông khách",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "nha_hang_generic:com",
         "name": "Cơm",
@@ -1156,6 +1261,9 @@
       "experience_cluster_id": 1,
       "experience_cluster_label": "Bình dân",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "nha_hang_generic:com",
         "name": "Cơm",
@@ -1188,6 +1296,9 @@
       "experience_cluster_id": 6,
       "experience_cluster_label": "Cao cấp, không gian sang, đông khách",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "nhat:sushi",
         "name": "Sushi",
@@ -1220,6 +1331,9 @@
       "experience_cluster_id": 0,
       "experience_cluster_label": "Tầm trung, không gian sang, đông khách",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "ca_phe:ca-phe-sua-da",
         "name": "Cà phê sữa đá",
@@ -1252,6 +1366,9 @@
       "experience_cluster_id": 0,
       "experience_cluster_label": "Tầm trung, không gian sang, đông khách",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "nha_hang_generic:com",
         "name": "Cơm",
@@ -1284,6 +1401,9 @@
       "experience_cluster_id": 0,
       "experience_cluster_label": "Tầm trung, không gian sang, đông khách",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "nha_hang_generic:com",
         "name": "Cơm",
@@ -1316,6 +1436,9 @@
       "experience_cluster_id": 2,
       "experience_cluster_label": "Tầm trung, đánh giá cao, ít người biết",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "ca_phe:ca-phe-sua-da",
         "name": "Cà phê sữa đá",
@@ -1348,6 +1471,9 @@
       "experience_cluster_id": 2,
       "experience_cluster_label": "Tầm trung, đánh giá cao, ít người biết",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "ca_phe:ca-phe-sua-da",
         "name": "Cà phê sữa đá",
@@ -1380,6 +1506,9 @@
       "experience_cluster_id": 2,
       "experience_cluster_label": "Tầm trung, đánh giá cao, ít người biết",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "ca_phe:ca-phe-sua-da",
         "name": "Cà phê sữa đá",
@@ -1412,6 +1541,9 @@
       "experience_cluster_id": 2,
       "experience_cluster_label": "Tầm trung, đánh giá cao, ít người biết",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "ca_phe:ca-phe-sua-da",
         "name": "Cà phê sữa đá",
@@ -1444,6 +1576,9 @@
       "experience_cluster_id": 4,
       "experience_cluster_label": "Tầm trung",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "sushi:sushi",
         "name": "Sushi",
@@ -1476,6 +1611,9 @@
       "experience_cluster_id": 2,
       "experience_cluster_label": "Tầm trung, đánh giá cao, ít người biết",
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "ca_phe:ca-phe-sua-da",
         "name": "Cà phê sữa đá",
@@ -1508,6 +1646,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -1540,6 +1681,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -1572,6 +1716,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -1604,6 +1751,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -1636,6 +1786,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -1668,6 +1821,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -1700,6 +1856,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -1732,6 +1891,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -1764,6 +1926,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -1796,6 +1961,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -1828,6 +1996,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -1860,6 +2031,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -1892,6 +2066,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -1924,6 +2101,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -1956,6 +2136,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -1988,6 +2171,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -2020,6 +2206,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -2052,6 +2241,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -2084,6 +2276,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -2116,6 +2311,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -2148,6 +2346,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -2180,6 +2381,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -2212,6 +2416,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -2244,6 +2451,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -2276,6 +2486,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -2308,6 +2521,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -2340,6 +2556,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -2372,6 +2591,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -2404,6 +2626,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -2436,6 +2661,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -2468,6 +2696,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -2500,6 +2731,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -2532,6 +2766,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -2566,6 +2803,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -2598,6 +2838,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -2630,6 +2873,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -2662,6 +2908,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -2694,6 +2943,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -2726,6 +2978,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -2758,6 +3013,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -2790,6 +3048,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -2822,6 +3083,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "pho:pho-bo",
         "name": "Phở bò",
@@ -2854,6 +3118,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "ca_phe:ca-phe-sua-da",
         "name": "Cà phê sữa đá",
@@ -2886,6 +3153,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "ca_phe:ca-phe-sua-da",
         "name": "Cà phê sữa đá",
@@ -2918,6 +3188,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "ca_phe:ca-phe-sua-da",
         "name": "Cà phê sữa đá",
@@ -2950,6 +3223,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "ca_phe:ca-phe-sua-da",
         "name": "Cà phê sữa đá",
@@ -2982,6 +3258,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "ca_phe:ca-phe-sua-da",
         "name": "Cà phê sữa đá",
@@ -3014,6 +3293,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "ca_phe:ca-phe-sua-da",
         "name": "Cà phê sữa đá",
@@ -3046,6 +3328,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "ca_phe:ca-phe-sua-da",
         "name": "Cà phê sữa đá",
@@ -3078,6 +3363,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "ca_phe:ca-phe-sua-da",
         "name": "Cà phê sữa đá",
@@ -3110,6 +3398,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "ca_phe:ca-phe-sua-da",
         "name": "Cà phê sữa đá",
@@ -3142,6 +3433,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "ca_phe:ca-phe-sua-da",
         "name": "Cà phê sữa đá",
@@ -3174,6 +3468,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "ca_phe:ca-phe-sua-da",
         "name": "Cà phê sữa đá",
@@ -3206,6 +3503,9 @@
       "experience_cluster_id": null,
       "experience_cluster_label": null,
       "temporarily_closed": null,
+      "source_updated_at": null,
+      "source_datasets": [],
+      "surveyed_at": null,
       "suggested_dish": {
         "dish_id": "ca_phe:ca-phe-sua-da",
         "name": "Cà phê sữa đá",

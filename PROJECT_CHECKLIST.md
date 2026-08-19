@@ -159,6 +159,43 @@ Kiểm lại (mục 4 của `python scripts/verify.py` đã tự kiểm việc n
 
 ### Bug đã sửa (đều kiểm chứng được)
 
+**Đợt ĐỐI CHIẾU NHIỀU NGUỒN 2026-08-19**
+
+Phát hiện gốc: `last_updated` ghi 97,4% dữ liệu "cập nhật 3 ngày trước" — nhưng đó là
+**ngày ta cào**, không phải ngày quán được xác minh. Sự thật sau khi lấy ngày thật về:
+
+| | Trước | Sau |
+|---|---|---|
+| Quán có ngày cập nhật **thật** | 0% | **97,3%** |
+| Quán OSM cập nhật trong 2026 | *không biết* | **28,5%** (71,5% từ 2025 trở về trước, cũ nhất 2010) |
+| Quán Overture cập nhật trong 2026 | *không biết* | **100%** |
+| Có người **xác minh tận nơi** | 0 | **106 quán** |
+| Được **≥2 nền tảng độc lập** xác nhận | 0 | **337 quán** |
+| Có link mạng xã hội | 0 | **35.938 (88,3%)** |
+
+- [x] **A — Lấy tuổi thật + xuất xứ từ Overture.** Cột `sources` **vốn đã nằm trong file
+      parquet ta tải về**, chỉ là câu `SELECT` không lấy ra. Không tốn thêm byte mạng nào.
+      Nền tảng đóng góp: **meta 287.839 · Microsoft 1.075 · Foursquare 514 ·
+      AllThePlaces 430 · PinMeTo 13**.
+- [x] **B — Đối chiếu chéo OSM ↔ Overture.** Overture Places dựng từ Meta/Microsoft/
+      Foursquare — **không có OSM** (kiểm bằng chính cột `sources`), nên hai bên là nguồn
+      thật sự độc lập. 663 quán được xác nhận thêm. Ghép theo tên **và** khoảng cách ≤150m.
+- [x] **C — Tag `check_date` của OSM.** Adapter nay gọi `out center tags meta` (thêm cả
+      timestamp lần sửa cuối). 106 quán có ngày người thật đi xác minh tận nơi.
+- [x] **D — `scripts/check_websites.py`.** Thử 250 tên miền: **60,4% sống · 35,6% chết**.
+      Tự động bỏ qua link nền tảng (facebook/shopeefood/maps.app.goo.gl) vì chúng luôn
+      sống nên không mang tín hiệu gì. **Chỉ báo cáo** — quán vỉa hè làm ăn tốt vẫn hay
+      để tên miền hết hạn.
+
+> ⚖️ **Facebook/Instagram — đường hợp pháp.** Cào trực tiếp thì mục 4b cấm và vi phạm ToS.
+> Nhưng chính **Meta đóng góp** dữ liệu doanh nghiệp vào Overture dưới giấy phép
+> **CDLA-Permissive-2.0**, nên lấy qua đường đó là hợp pháp hoàn toàn. 99,4% quán Overture
+> có sẵn link Facebook — ta vẫn tải về mỗi lần rồi vứt đi.
+
+> 🚫 **Vẫn KHÔNG làm được:** giờ mở cửa và trạng thái đóng/mở theo thời gian thực. Chỉ
+> Google Places có, mà nó bắt bật thanh toán. ShopeeFood/GrabFood/Foody cấm truy cập tự
+> động. Chỗ đó dựa vào nút người dùng báo đóng cửa.
+
 **Đợt CẬP NHẬT DỮ LIỆU 2026-08-19** (chủ dự án chọn 3 hạng mục):
 
 - [x] **Ẩn quán đã đóng cửa.** `permanentlyClosed`/`temporarilyClosed` do Apify cào về sẵn

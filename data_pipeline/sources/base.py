@@ -85,6 +85,42 @@ class RawPlace:
     dishes: List[str] = field(default_factory=list)
     menu: Optional[str] = None
 
+    # --- TUỔI THẬT & MỨC ĐỘ ĐƯỢC XÁC NHẬN --------------------------------------
+    #
+    # ⚠️ ĐỪNG NHẦM VỚI `last_updated`. `last_updated` là NGÀY TA CÀO VỀ - nó chỉ nói ta
+    # chạy script lúc nào, không nói gì về việc quán còn tồn tại hay không. Đo ngày
+    # 2026-08-19: `last_updated` ghi 97,4% dữ liệu "cập nhật 16-19/08/2026", nghe rất tươi,
+    # trong khi 65% bản ghi OSM thật ra chưa ai sửa trong hơn một năm (cũ nhất: 2010).
+    #
+    # Bốn trường dưới đây là TUỔI THẬT và BẰNG CHỨNG, do chính nguồn cung cấp.
+    # Nguồn không cho biết thì để `None` - tuyệt đối không suy đoán.
+
+    # Lần cuối NGUỒN cập nhật bản ghi này (ISO-8601). Overture có `sources[].update_time`,
+    # OSM có timestamp của node khi hỏi `out meta`.
+    source_updated_at: Optional[str] = None
+
+    # Các nền tảng ĐỘC LẬP cùng ghi nhận quán này: "meta", "Microsoft", "Foursquare",
+    # "AllThePlaces", "PinMeTo", "openstreetmap"...
+    # Càng nhiều nền tảng cùng nói một chuyện thì càng đáng tin - đây là thứ gần nhất với
+    # "đối chiếu chéo nhiều nền tảng" mà ta làm được hợp pháp và miễn phí.
+    source_datasets: List[str] = field(default_factory=list)
+
+    # Điểm tin cậy do nguồn chấm, [0,1]. Overture có sẵn; nguồn khác thường không.
+    source_confidence: Optional[float] = None
+
+    # Ngày người vẽ bản đồ đi XÁC MINH TẬN NƠI (tag `check_date` của OSM).
+    # Đây là bằng chứng MẠNH NHẤT có thể có: một con người đã thật sự tới trước cửa quán.
+    # Chỉ 4,3% quán OSM ở Hà Nội có tag này (đo 2026-08-19), nhưng có còn hơn không.
+    surveyed_at: Optional[str] = None
+
+    # Liên kết mạng xã hội (Facebook/Instagram...) do NGUỒN cung cấp.
+    #
+    # ⚠️ ĐÂY KHÔNG PHẢI CÀO FACEBOOK. Cào trực tiếp Facebook/Instagram/TikTok là vi phạm
+    # ToS và bị CLAUDE.md mục 4b cấm. Nhưng chính Meta ĐÓNG GÓP dữ liệu doanh nghiệp của
+    # họ vào Overture dưới giấy phép CDLA-Permissive-2.0, nên lấy qua đường này là hợp
+    # pháp hoàn toàn. Đo 2026-08-19: 99,4% quán Overture có sẵn link Facebook.
+    socials: List[str] = field(default_factory=list)
+
     def to_record(self) -> Dict[str, Any]:
         """Chuyển sang dict để ghi ra JSON cho pipeline đọc."""
         data = asdict(self)

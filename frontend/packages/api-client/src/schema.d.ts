@@ -929,6 +929,12 @@ export interface components {
             experience_cluster_label?: string | null;
             /** Temporarily Closed */
             temporarily_closed?: boolean | null;
+            /** Source Updated At */
+            source_updated_at?: string | null;
+            /** Source Datasets */
+            source_datasets?: string[];
+            /** Surveyed At */
+            surveyed_at?: string | null;
             suggested_dish?: components["schemas"]["SuggestedDishSchema"] | null;
         };
         /** SuggestedDishSchema */

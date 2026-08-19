@@ -242,6 +242,9 @@ class FindRestaurantsForDishUseCase:
             experience_cluster_id=restaurant.experience_cluster_id,
             experience_cluster_label=restaurant.experience_cluster_label,
             temporarily_closed=restaurant.temporarily_closed,
+            source_updated_at=restaurant.source_updated_at,
+            source_datasets=list(restaurant.source_datasets),
+            surveyed_at=restaurant.surveyed_at,
             suggested_dish=SuggestedDish(
                 dish_id=dish.identifier,
                 name=dish.name,

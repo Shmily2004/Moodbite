@@ -112,6 +112,15 @@ class SearchResultItemSchema(BaseModel):
     # tệ hơn hẳn so với báo trước. `None` = nguồn không cho biết, khác `False` = biết chắc
     # đang mở. Quán đóng HẲN không bao giờ xuất hiện ở đây nên không cần trường riêng.
     temporarily_closed: Optional[bool] = None
+    # TUỔI THẬT của bản ghi - ngày NGUỒN cập nhật, KHÁC HẲN ngày ta cào về.
+    # Giao diện nên hiện dạng "cập nhật 3 năm trước" thay vì im lặng để người dùng tưởng
+    # mọi quán đều vừa được kiểm hôm qua. Đo 2026-08-19: 71,5% quán OSM có ngày từ 2025
+    # trở về trước, cũ nhất là 2010.
+    source_updated_at: Optional[str] = None
+    # Nền tảng độc lập cùng ghi nhận quán này. Nhiều nền tảng = đáng tin hơn.
+    source_datasets: List[str] = Field(default_factory=list)
+    # Ngày có NGƯỜI đi xác minh tận nơi. Hiếm (0,3%) nhưng là bằng chứng mạnh nhất.
+    surveyed_at: Optional[str] = None
     suggested_dish: Optional[SuggestedDishSchema] = None
 
 

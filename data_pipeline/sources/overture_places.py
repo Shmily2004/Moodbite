@@ -201,7 +201,15 @@ class OverturePlacesSource:
                      confidence,
                      bbox.xmin AS lng,
                      bbox.ymin AS lat,
-                     addresses, websites, phones, socials
+                     addresses, websites, phones, socials,
+                     -- TUỔI THẬT + BẰNG CHỨNG. Cột `sources` vốn ĐÃ nằm trong parquet ta
+                     -- tải về, chỉ là trước đây không lấy ra. Không tốn thêm một byte
+                     -- mạng nào. Đo 2026-08-19: 99,7% bản ghi cập nhật trong năm 2026 -
+                     -- tươi hơn hẳn OSM (34,9%), nhưng ta không hề ghi lại nên không
+                     -- chứng minh được.
+                     list_transform(sources, x -> x.dataset)     AS src_datasets,
+                     list_max(list_transform(sources, x -> CAST(x.update_time AS VARCHAR)))
+                                                                AS src_updated_at
               FROM read_parquet('{source_path}')
               WHERE bbox.xmin BETWEEN {west} AND {east}
                 AND bbox.ymin BETWEEN {south} AND {north}
@@ -278,6 +286,15 @@ class OverturePlacesSource:
             address=_first_address(row.get("addresses")),
             phone=_first_of(row.get("phones")),
             website=_first_of(row.get("websites")),
+            source_updated_at=_as_text(row.get("src_updated_at")),
+            # Bỏ "Overture" khỏi danh sách: bản ghi nào cũng có nên nó không phân biệt
+            # được gì. Cái đáng giữ là nền tảng ĐÓNG GÓP (meta, Microsoft, Foursquare...).
+            source_datasets=[
+                str(d) for d in (row.get("src_datasets") or [])
+                if d and str(d).lower() != "overture"
+            ],
+            source_confidence=confidence,
+            socials=[str(x) for x in (row.get("socials") or []) if x],
         )
 
 
@@ -310,6 +327,14 @@ def _label_for(category: str) -> str:
         if hint in normalized:
             return label
     return "Nhà hàng"
+
+
+def _as_text(value: Any) -> Optional[str]:
+    """Chuỗi hoặc None. DuckDB trả về NaN/NaT cho ô trống, không phải None."""
+    if value is None or (isinstance(value, float) and value != value):
+        return None
+    text = str(value).strip()
+    return text or None
 
 
 def _first_of(value: Any) -> Optional[str]:

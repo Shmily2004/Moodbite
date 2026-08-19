@@ -171,7 +171,23 @@ def test_dish_without_nearby_restaurant_is_hidden_and_announced(client):
     data = suggest(client).json()["data"]
 
     assert [item["name"] for item in data["results"]] == ["Bún chả"]
-    assert any("ẩn 1 món" in w for w in data["warnings"])
+    # Món này không có quán ở ĐÂU CẢ -> phải nói đúng lý do, KHÔNG khuyên nới bán kính.
+    assert any("chưa tìm được quán nào" in w for w in data["warnings"])
+    assert not any("Mở rộng bán kính" in w for w in data["warnings"])
+
+
+def test_dish_hidden_because_too_far_suggests_widening(client):
+    """Món CÓ quán nhưng ở xa -> lời khuyên "mở rộng bán kính" là hữu ích và đúng.
+
+    Phân biệt với ca trên: khuyên nới bán kính cho món mà cả kho không có quán nào bán là
+    nói dối - mở tới đâu cũng không thấy.
+    """
+    xa = make_restaurant("Bún Chả Xa Tít", lat=21.5000, lng=106.5000)
+    client = make_client(dishes=[BUN_CHA], index={"bun-cha": [xa]})
+
+    data = suggest(client, max_distance_km=2).json()["data"]
+
+    assert any("Mở rộng bán kính" in w for w in data["warnings"])
 
 
 def test_invalid_weather_does_not_break_the_search(client):
@@ -326,3 +342,64 @@ def test_nearby_restaurant_does_not_trigger_the_radius_warning(client):
 
     assert data["results"]
     assert not any("bán kính" in w for w in data["warnings"])
+
+
+def test_name_matched_restaurant_outranks_review_only_match(client):
+    """Quán có TÊN chứa tên món phải đứng TRÊN quán chỉ được review nhắc tới.
+
+    Bug thật trên dữ liệu 40.720 quán: trang món "Bún chả" xếp "Nhà Hàng Hoàng" (870m,
+    chỉ có review nhắc, nhưng CÓ điểm đánh giá) lên trên "Bun Cha Nem Cua Be" (310m, tên
+    quán ghi rõ nhưng CHƯA có đánh giá). Hai tín hiệu này không đáng tin như nhau, nên
+    không được để điểm xếp hạng trộn chúng vào nhau.
+    """
+    from src.domain.services.dish_matching import (
+        MATCHED_BY_NAME,
+        MATCHED_BY_REVIEW,
+        DishMatch,
+    )
+
+    # Quán chỉ được review nhắc: GẦN HƠN và CÓ đánh giá -> mọi tín hiệu đều thắng...
+    review_only = make_restaurant("Nhà Hàng Hoàng", lat=21.0286, lng=105.8543, rating=4.8)
+    # ...còn quán ghi rõ tên món thì xa hơn và chưa có đánh giá.
+    named = make_restaurant("Bún Chả Nem Cua Bể", lat=21.0350, lng=105.8600, rating=None)
+
+    client = make_client(
+        dishes=[BUN_CHA],
+        index={"bun-cha": [
+            DishMatch(review_only, MATCHED_BY_REVIEW),
+            DishMatch(named, MATCHED_BY_NAME),
+        ]},
+    )
+
+    data = client.get(
+        f"{API}/dishes/bun-cha/restaurants", params={"session_id": SESSION}
+    ).json()["data"]
+
+    names = [r["name"] for r in data["results"]]
+    assert names[0] == "Bún Chả Nem Cua Bể", f"tin hieu ten quan phai thang: {names}"
+    # Và phải NÓI RA rằng phần đuôi danh sách yếu hơn.
+    assert any("NHẮC TỚI trong review" in w for w in data["warnings"])
+
+
+def test_rank_positions_stay_continuous_across_the_two_tiers(client):
+    """Ghép hai tầng xong thì số thứ tự phải liền mạch 1,2,3 - không được nhảy cóc."""
+    from src.domain.services.dish_matching import (
+        MATCHED_BY_NAME,
+        MATCHED_BY_REVIEW,
+        DishMatch,
+    )
+
+    client = make_client(
+        dishes=[BUN_CHA],
+        index={"bun-cha": [
+            DishMatch(make_restaurant("Bún Chả A"), MATCHED_BY_NAME),
+            DishMatch(make_restaurant("Quán B"), MATCHED_BY_REVIEW),
+            DishMatch(make_restaurant("Quán C"), MATCHED_BY_REVIEW),
+        ]},
+    )
+
+    data = client.get(
+        f"{API}/dishes/bun-cha/restaurants", params={"session_id": SESSION}
+    ).json()["data"]
+
+    assert [r["rank_position"] for r in data["results"]] == [1, 2, 3]

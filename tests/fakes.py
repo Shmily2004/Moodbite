@@ -208,8 +208,18 @@ def attach_dish_catalog(container, dishes=None, index=None, context_provider=Non
     )
     from src.application.use_cases.suggest_dishes import SuggestDishesUseCase
 
+    from src.domain.services.dish_matching import MATCHED_BY_NAME, DishMatch
+
     catalog = dishes if hasattr(dishes, "list_dishes") else FakeDishCatalog(dishes)
-    dish_index = index if index is not None else {}
+    # Test viết chỉ mục cho gọn dạng {dish_id: [quán]}. Bọc thành `DishMatch` ở đây để
+    # từng test khỏi phải nhắc lại "khớp bằng tên" - mặc định là tín hiệu mạnh.
+    dish_index = {
+        dish_id: [
+            item if isinstance(item, DishMatch) else DishMatch(item, MATCHED_BY_NAME)
+            for item in items
+        ]
+        for dish_id, items in (index or {}).items()
+    }
 
     container.dish_catalog_repository = catalog
     container.suggest_dishes = SuggestDishesUseCase(

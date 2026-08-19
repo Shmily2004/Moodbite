@@ -1,6 +1,6 @@
 # MoodBite — Bảng theo dõi tiến độ
 
-**Cập nhật:** 2026-08-19
+**Cập nhật:** 2026-08-19 (lần 2)
 **Nguyên tắc:** file này chỉ ghi thứ đã **chạy thật và kiểm chứng được**. Không ghi theo
 kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh để tự kiểm lại.
 
@@ -19,7 +19,7 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Frontend Client | ✅ **TypeScript + FSD** | 21 test, có bản đồ, steiger trong CI |
 | Bản đồ | ✅ **Xong** | Leaflet + OpenStreetMap, miễn phí, không cần key |
 | Kiến trúc | ✅ Sạch | Clean Architecture + checker tự động trong CI |
-| Test | ✅ 337 backend + 54 frontend | tổng 391, chạy hết ~22 giây |
+| Test | ✅ 345 backend + 69 frontend | tổng 414, chạy hết ~41 giây |
 | Giao diện | ✅ Theo bản duyệt | thanh trên + bản đồ + rail đề xuất; mức phù hợp là nhãn chữ |
 | Router + layout | ✅ Xong | react-router v6, khung dùng chung, `RequireAuth` cho admin |
 | Chạy xem giao diện | ✅ **một lệnh** | `python scripts/run_dev.py --admin` |
@@ -27,18 +27,24 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | **Frontend Admin** | ✅ **Code xong** · ⬜ **chưa bật** | `python scripts/check_permissions.py` để xem thiếu gì |
 | Xác thực admin | ✅ Code xong | 1 tài khoản, token HMAC 1 giờ, fail-closed |
 | Phụ thuộc Python | ✅ 15 → **7** gói | gỡ torch/ultralytics/transformers/opencv (~2GB) khỏi CI |
-| Dữ liệu | ✅ 4938 quán · 142 đơn vị HC | provenance 100%, trùng lặp 0% |
+| Dữ liệu | ✅ **40.720 quán** · 126 đơn vị HC | +36.176 quán từ **Overture Maps** (CDLA Permissive 2.0 — KHÔNG phải OSM/Google) |
 | Thu thập dữ liệu đa nguồn | ✅ Xong | kiến trúc `SourceAdapter`, thêm nguồn không sửa pipeline |
 | Lọc giờ mở cửa / chế độ ăn / quận | ✅ Xong | thiếu dữ liệu KHÔNG bị loại |
 | **Lớp 1 — Phân cụm trải nghiệm** | ✅ **Xong** | KMeans k=7, Silhouette 0.318 |
 | **Lớp 2 — Tìm kiếm ngữ nghĩa** | ✅ **Xong** | TF-IDF cosine, 4938 quán |
 | **Luồng "chọn món trước, tìm quán sau"** | ✅ **Backend + Client xong** · ⬜ chưa có UI admin cho món | `/dishes/suggest` → `/dishes/{id}` → `/dishes/{id}/restaurants`; trang chủ là LƯỚI MÓN. Tài liệu đề án đã sửa cho khớp (2026-08-19) |
-| **Danh mục món ăn** | ✅ **107 món** · 106 có quán thật (99.1%) · **100% có giới thiệu** · 65.4% có ảnh | `python scripts/build_dish_catalog.py --enrich` |
+| **Danh mục món ăn** | ✅ **747 món** · **100% có giới thiệu** · 87.1% có ảnh | `python scripts/build_dish_catalog.py --enrich` |
+| ↳ trong đó tìm được quán ở Hà Nội | 🟡 **189 món (25.3%)** | 610 món còn lại là món quốc tế chưa quán nào ở HN bán. Trang chủ **tự ẩn** và nói rõ lý do; chúng sẽ tự hiện khi có thêm dữ liệu quán |
 | Giới thiệu ngắn về món | ✅ Wikipedia REST summary + soạn tay | ĐÃ BỎ phần nguyên liệu (chốt 2026-08-19). ĐÃ BỎ trích regex vì sinh dữ liệu sai — xem `sources/wikipedia_dish.py` |
-| Ảnh món | ✅ 65.4% · **chỉ lưu URL, không tải file** | 1149 món cache = 790KB; tải ảnh về sẽ tốn ~230MB |
-| Tìm món mới tự động | ✅ Wikipedia category | `python scripts/discover_dishes.py` — lần chạy đầu thêm 28 món có quán thật |
+| Ảnh món | ✅ 87.1% · **chỉ lưu URL, không tải file** | ~2000 món cache ≈ 1.4MB; tải ảnh về sẽ tốn ~400MB |
+| Tìm món mới tự động | ✅ 37 thể loại Wikipedia | `python scripts/discover_dishes.py` — quét 1959 trang, thêm 640 món |
 | Mở rộng quán ra ngoài Hà Nội | ✅ Có sẵn 8 thành phố | `python -m data_pipeline.harvest --source openstreetmap --city da_nang` |
 | Theo dõi dung lượng | ✅ Có công cụ | `python scripts/disk_report.py` |
+| Nguồn quán ngoài OSM/Google | ✅ **Overture Maps** | `python -m data_pipeline.harvest --source overture --city ha_noi`. Wikidata đã thử và LOẠI (chỉ 5 quán toàn VN) |
+| Xếp hạng 2 tầng cho trang món | ✅ Xong | quán có TÊN chứa tên món luôn trên quán chỉ được review nhắc |
+| **Bộ mẫu frontend** | ❌ **ĐANG HỎNG** | `verify.py` mục 9 đỏ. Bộ mẫu cố tình lấy nhiều ca biên (21% có ảnh) trong khi tập gốc là 37.9% → `chon_co_chu_dich` cần lấy mẫu phân tầng. **KHÔNG được sửa bằng cách nới ngưỡng checker** |
+| Trích món từ review (đề án mục 7) | ✅ Xong | 1076 quán có review; bún chả 86 → 94 quán |
+| Ma trận truy vết | ✅ Viết lại 2026-08-19 | bản cũ có 9/10 đường dẫn KHÔNG tồn tại — xem `traceability.md` |
 | Lớp 4 — Tóm tắt review | 🟡 Chưa làm, nhưng ĐÃ KHẢ THI | đo lại: gộp theo quán TB 666 ký tự, 592 quán đủ điều kiện |
 | Đăng nhập / tài khoản | 🟡 **Backend xong, chưa có UI** | `/api/v1/auth/*`: đăng ký · đăng nhập · `/me`. Đổi phạm vi có chủ đích so với SRS mục 8 — xem ghi chú dưới bảng |
 | Phân quyền (`role`) | 🟡 Có `user`/`admin` + guard 403 | admin VẪN dùng biến môi trường, chưa chuyển sang bảng `users` |

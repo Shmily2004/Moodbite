@@ -66,37 +66,33 @@ TRANG_THAI_BAT_BUOC: Dict[str, Any] = {
 
 
 def ty_le_that() -> Dict[str, float]:
-    """Đo lại độ phủ TỪ DATASET THẬT, không dùng số cứng trong code.
+    """Đo độ phủ trên ĐÚNG TẬP MÀ BỘ MẪU ĐƯỢC RÚT RA, không phải toàn bộ CSV.
 
-    Cố ý đếm lại mỗi lần chạy: nếu ai đó bổ sung dữ liệu, ngưỡng tự cập nhật theo,
-    không phải nhớ sửa script.
+    VÌ SAO KHÔNG DÙNG TOÀN BỘ CSV (sửa 2026-08-19): `make_fixture.py` lấy mẫu qua chính
+    API `/search`, tức là đi qua BỘ XẾP HẠNG - mà xếp hạng cộng điểm cho quán có đánh giá,
+    nên quán có ảnh/rating luôn nổi lên. Hai tập khác nhau một cách CÓ HỆ THỐNG, không
+    phải do bộ mẫu sai.
+
+    Đo được sau khi nhập 36.176 quán Overture (phần lớn chưa có ảnh/đánh giá):
+        toàn bộ CSV            :  2.6% có ảnh
+        tập kết quả tìm kiếm   : ~21% có ảnh
+    Bản cũ so bộ mẫu với toàn bộ CSV nên báo lỗi, trong khi bộ mẫu phản ánh ĐÚNG thứ người
+    dùng nhìn thấy. So sai tập thì con số nào cũng "lệch".
+
+    Dùng THẲNG `gom_ket_qua_that()` của `make_fixture` để hai bên không thể lấy mẫu khác
+    nhau - chép lại logic gom là cách chắc chắn để hai script trôi khỏi nhau.
     """
-    from src.infrastructure.config.settings import Settings
-    from src.infrastructure.repositories.json_restaurant_details_repository import (
-        JsonRestaurantDetailsRepository,
-    )
+    try:
+        from make_fixture import gom_ket_qua_that
+    except ImportError:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        try:
+            from make_fixture import gom_ket_qua_that
+        except ImportError:
+            return {}
 
-    settings = Settings.from_env()
-    if not settings.restaurants_csv.exists():
-        return {}
-    with open(settings.restaurants_csv, encoding="utf-8") as fh:
-        rows = list(csv.DictReader(fh))
-    n = len(rows) or 1
-
-    def co(row: dict, cot: str) -> bool:
-        return bool((row.get(cot) or "").strip())
-
-    # ⚠️ ẢNH KHÔNG NẰM TRONG CSV. Nó ở `restaurant_details.json` và được ghép vào lúc
-    # dựng container. Bản đầu của script này đếm cột `imageUrl` trong CSV -> luôn ra 0%
-    # rồi báo fixture sai, trong khi fixture đúng. Phải đếm đúng nguồn.
-    details = JsonRestaurantDetailsRepository(settings.restaurant_details_json)
-    so_co_anh = len(details.thumbnail_urls()) if details.is_ready else 0
-
-    return {
-        "thumbnail": so_co_anh / n,
-        "rating": sum(1 for r in rows if co(r, "totalScore")) / n,
-        "price": sum(1 for r in rows if co(r, "price")) / n,
-    }
+    pool = gom_ket_qua_that()
+    return ty_le_mau(pool) if pool else {}
 
 
 def ty_le_mau(records: List[dict]) -> Dict[str, float]:

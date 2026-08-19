@@ -59,6 +59,13 @@ export function DishCard({ dish, onOpen }: DishCardProps) {
             {dish.cuisine && <li className="tag tag--muted">{dish.cuisine}</li>}
           </ul>
 
+          {/* Một dòng giới thiệu ngay trên thẻ: người dùng biết món đó là gì mà chưa
+              cần bấm vào. Cắt bằng CSS (-webkit-line-clamp) chứ KHÔNG cắt chuỗi trong JS -
+              cắt trong JS sẽ sinh câu cụt kiểu "Bún chả là món Hà N…". */}
+          {dish.has_description && dish.description && (
+            <p className="dish__intro">{dish.description}</p>
+          )}
+
           {dish.reasons.length > 0 && (
             <p className="dish__why">{dish.reasons.join(' · ')}</p>
           )}

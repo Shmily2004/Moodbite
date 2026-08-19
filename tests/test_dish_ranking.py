@@ -286,3 +286,83 @@ def test_blank_description_counts_as_missing():
     """Chuỗi toàn khoảng trắng KHÔNG phải là có dữ liệu - nếu không UI sẽ hiện một vùng
     trống trơn mà vẫn tưởng là đã có giới thiệu."""
     assert not make_dish("Món mới", description="   ").has_description
+
+
+# --- Đối chiếu MÓN <-> QUÁN (dish_matching) ----------------------------------
+
+
+def test_review_mention_links_dish_to_restaurant():
+    """Đề án mục 7: quán không ghi tên món lên biển hiệu thì trích từ NỘI DUNG REVIEW.
+
+    Đây là cách duy nhất tìm ra quán bán "bún thang" mà lại tên là "Quán Ăn Ngon".
+    """
+    from src.domain.services.dish_matching import build_dish_restaurant_index
+    from tests.fakes import make_restaurant
+
+    quan = make_restaurant(
+        "Quán Ăn Ngon", review_text="Bún thang ở đây ngon, nước dùng thanh."
+    )
+    dish = Dish(name="Bún thang", dish_id="bun-thang", match_keywords=["bún thang"])
+
+    index = build_dish_restaurant_index([dish], [quan])
+
+    assert [m.restaurant for m in index["bun-thang"]] == [quan]
+
+
+def test_single_word_dish_never_matches_review():
+    """Tên MỘT TỪ không được khớp vào review.
+
+    Review dài trung bình 670 ký tự và nhắc "cơm", "bún", "trà" ở khắp nơi - cho khớp thì
+    món đó bị gán cho hàng nghìn quán không liên quan. Chỉ tên từ 2 từ trở lên mới đủ đặc
+    trưng để tin.
+    """
+    from src.domain.services.dish_matching import build_dish_restaurant_index
+    from tests.fakes import make_restaurant
+
+    quan = make_restaurant("Quán Bia Hải", review_text="Ăn cơm ở đây cũng được.")
+    com = Dish(name="Cơm", dish_id="com", match_keywords=["cơm"])
+
+    index = build_dish_restaurant_index([com], [quan])
+
+    assert index["com"] == []
+
+
+def test_restaurant_without_review_is_not_penalised():
+    """Quán chưa cào được review KHÔNG bị coi là "không bán món nào" - nó chỉ là thiếu
+    dữ liệu, và vẫn phải khớp được qua TÊN QUÁN như thường."""
+    from src.domain.services.dish_matching import build_dish_restaurant_index
+    from tests.fakes import make_restaurant
+
+    quan = make_restaurant("Bún Thang Bà Đức", review_text=None)
+    dish = Dish(name="Bún thang", dish_id="bun-thang", match_keywords=["bún thang"])
+
+    index = build_dish_restaurant_index([dish], [quan])
+
+    assert [m.restaurant for m in index["bun-thang"]] == [quan]
+
+
+def test_reviews_can_be_turned_off():
+    """Tắt được để so sánh tín hiệu tên quán với tín hiệu review khi đo đạc."""
+    from src.domain.services.dish_matching import build_dish_restaurant_index
+    from tests.fakes import make_restaurant
+
+    quan = make_restaurant("Quán Ăn Ngon", review_text="Bún thang ở đây ngon.")
+    dish = Dish(name="Bún thang", dish_id="bun-thang", match_keywords=["bún thang"])
+
+    assert build_dish_restaurant_index([dish], [quan], use_reviews=False)["bun-thang"] == []
+
+
+def test_phrase_does_not_span_name_and_category_boundary():
+    """Tên quán kết thúc bằng "bún" + loại hình mở đầu bằng "chả" KHÔNG được khớp "bún chả".
+
+    Nối hai chuỗi lại rồi khớp là cách tạo ra dương tính giả kiểu này.
+    """
+    from src.domain.services.dish_matching import build_dish_restaurant_index
+    from tests.fakes import make_restaurant
+
+    quan = make_restaurant("Quán Bún", category="Chả cá nướng")
+    dish = Dish(name="Bún chả", dish_id="bun-cha", match_keywords=["bún chả"])
+
+    index = build_dish_restaurant_index([dish], [quan], use_reviews=False)
+
+    assert index["bun-cha"] == []

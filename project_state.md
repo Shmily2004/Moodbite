@@ -26,3 +26,19 @@ Nội dung cũ vẫn xem lại được trong lịch sử git:
 ```bash
 git log --follow -p project_state.md
 ```
+
+---
+
+## Cập nhật 2026-08-19 — luồng chính là CHỌN MÓN TRƯỚC
+
+Trang chủ nay là **lưới MÓN**, không phải ô tìm quán:
+
+```
+bộ lọc (trời mưa · đồ nướng · đồ nóng) → DANH SÁCH MÓN → giới thiệu món → QUÁN bán món đó
+```
+
+- Đề án gốc đã được sửa cho khớp — xem phần **SỬA ĐỔI PHẠM VI** ở đầu
+  `docs/original/MoodBite_De_An_Y_Tuong.md`.
+- Lối vào cũ (gõ câu tự nhiên) vẫn còn ở `/tim-kiem`, không bị xoá.
+- Các mục `/api/recommend`, `/api/suggest-dish` nhắc ở trên là **lịch sử bug đã sửa** của
+  backend TypeScript cũ, không phải endpoint hiện tại.

@@ -70,13 +70,47 @@ CANDIDATES_PATH = ROOT / "data_pipeline" / "data_cleaned" / "dish_candidates.jso
 # Thể loại gốc. Mỗi thể loại được duyệt thêm MỘT cấp con (đủ để bắt "Bánh Việt Nam",
 # "Bún", "Chè"... mà không lạc sang "Đầu bếp Việt Nam").
 ROOT_CATEGORIES = [
+    # --- Việt Nam (nguồn chính) ---
     "Thể loại:Ẩm thực Việt Nam",
+    "Thể loại:Món ăn Việt Nam",
+    "Thể loại:Đặc sản Việt Nam",
+    # --- Châu Á ---
     "Thể loại:Ẩm thực Nhật Bản",
     "Thể loại:Ẩm thực Hàn Quốc",
     "Thể loại:Ẩm thực Trung Quốc",
     "Thể loại:Ẩm thực Thái Lan",
+    "Thể loại:Ẩm thực Ấn Độ",
+    "Thể loại:Ẩm thực Indonesia",
+    "Thể loại:Ẩm thực Malaysia",
+    "Thể loại:Ẩm thực Philippines",
+    "Thể loại:Ẩm thực Đài Loan",
+    "Thể loại:Ẩm thực Hồng Kông",
+    "Thể loại:Ẩm thực Singapore",
+    "Thể loại:Ẩm thực Thổ Nhĩ Kỳ",
+    # --- Âu Mỹ ---
     "Thể loại:Ẩm thực Ý",
+    "Thể loại:Ẩm thực Pháp",
+    "Thể loại:Ẩm thực Mỹ",
+    "Thể loại:Ẩm thực Mexico",
+    "Thể loại:Ẩm thực Tây Ban Nha",
+    "Thể loại:Ẩm thực Đức",
+    "Thể loại:Ẩm thực Nga",
+    # --- Theo LOẠI món, không theo nước ---
     "Thể loại:Món ăn",
+    "Thể loại:Món tráng miệng",
+    "Thể loại:Món khai vị",
+    "Thể loại:Súp",
+    "Thể loại:Món mì",
+    "Thể loại:Món cơm",
+    "Thể loại:Món hải sản",
+    "Thể loại:Món thịt",
+    "Thể loại:Món rau",
+    "Thể loại:Bánh",
+    "Thể loại:Bánh ngọt",
+    "Thể loại:Đồ uống",
+    "Thể loại:Món chay",
+    "Thể loại:Đồ ăn nhanh",
+    "Thể loại:Thức ăn đường phố",
 ]
 
 # Thể loại con CHẮC CHẮN không chứa món ăn - bỏ sớm để khỏi tốn lần gọi mạng nào.
@@ -94,6 +128,10 @@ DISH_DESCRIPTION_HINTS = (
 # Trang tổng quan/khái niệm, KHÔNG phải một món cụ thể.
 TITLE_BLOCKLIST_HINTS = (
     "ẩm thực", "văn hóa", "lễ hội", "danh sách", "lịch sử", "công nghiệp",
+    # Nhóm/khái niệm chứ không phải một món cụ thể. Lọt vào từ các thể loại theo LOẠI món.
+    "món chính", "món khai vị", "món tráng miệng", "món ăn nhanh", "món hầm",
+    "món nướng", "món xào", "món chay", "đồ uống", "thức ăn", "thực phẩm",
+    "nhà hàng", "quán ăn", "đầu bếp",
 )
 
 # Dấu hiệu trong `description` cho biết đây là NGUYÊN LIỆU / LOÀI SINH VẬT / THƯƠNG HIỆU

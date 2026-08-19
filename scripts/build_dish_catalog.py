@@ -44,12 +44,19 @@ from src.domain.entities.dish import (  # noqa: E402
     Dish,
     slugify_dish,
 )
+from src.domain.services.dish_matching import (  # noqa: E402
+    build_dish_restaurant_index,
+    count_by_dish,
+)
 from src.infrastructure.config.settings import Settings  # noqa: E402
 from src.infrastructure.repositories.csv_restaurant_repository import (  # noqa: E402
     CsvRestaurantRepository,
 )
 from src.infrastructure.repositories.json_dish_knowledge_repository import (  # noqa: E402
     JsonDishKnowledgeRepository,
+)
+from src.infrastructure.repositories.json_restaurant_details_repository import (  # noqa: E402
+    JsonRestaurantDetailsRepository,
 )
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -194,22 +201,17 @@ def merge(seed: List[Dish], manual: List[Dish]) -> List[Dish]:
 def count_restaurants(dishes: List[Dish], restaurants) -> Dict[str, int]:
     """Đếm số quán khớp từng món.
 
-    Dùng THẲNG `Dish.matches_restaurant_text` - chính hàm mà lúc chạy thật sẽ dùng - thay
-    vì viết lại phép so khớp nhanh hơn ở đây. Viết lại nghĩa là có hai bản so khớp, và
-    đến một ngày nào đó số đo ở đây sẽ không còn khớp với thứ người dùng nhìn thấy.
+    Dùng THẲNG `build_dish_restaurant_index` - chính hàm mà lúc chạy thật sẽ dùng - thay vì
+    viết lại phép so khớp ở đây. Viết lại nghĩa là có hai bản, và đến một ngày nào đó số đo
+    trong báo cáo sẽ không còn khớp với thứ người dùng nhìn thấy.
+
+    Bản đầu tiên của hàm này lặp `for quán: for món:` và mất 11 giây với 79 món. Với danh
+    mục đã mở rộng (hàng trăm món) thì cách đó là hàng phút - đó là lý do phải dùng chỉ mục.
     """
-    counts: Dict[str, int] = {d.identifier: 0 for d in dishes}
     started = time.time()
-
-    for restaurant in restaurants:
-        for dish in dishes:
-            # Tên quán TRƯỚC, loại hình sau - tên quán mang tín hiệu món gấp ~10 lần.
-            if dish.matches_restaurant_text(restaurant.name) or dish.matches_restaurant_text(
-                restaurant.category
-            ):
-                counts[dish.identifier] += 1
-
-    logger.info("Đo xong trong %.1fs", time.time() - started)
+    index = build_dish_restaurant_index(dishes, restaurants)
+    counts = count_by_dish(index)
+    logger.info("Do xong trong %.1fs", time.time() - started)
     return counts
 
 
@@ -378,7 +380,11 @@ def main() -> int:
         dishes, enriched_count = enrich(dishes, skip_ids)
         logger.info("  -> bo sung gioi thieu cho %d mon", enriched_count)
 
-    repo = CsvRestaurantRepository(settings.restaurants_csv)
+    # Ghép review vào giống hệt lúc chạy thật (`dependencies.py`), nếu không số đo ở đây
+    # sẽ thấp hơn thực tế: chỉ mục lúc chạy có dò cả nội dung review.
+    details = JsonRestaurantDetailsRepository(settings.restaurant_details_json)
+    review_texts = details.review_texts() if details.is_ready else {}
+    repo = CsvRestaurantRepository(settings.restaurants_csv, review_texts=review_texts)
     if not repo.is_ready:
         raise SystemExit(
             f"Chưa có dataset quán: {repo.load_error}\n"

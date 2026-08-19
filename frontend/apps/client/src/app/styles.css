@@ -665,6 +665,19 @@ body {
 .dish__count--empty { color: var(--muted); font-weight: 400; }
 
 .dish__tags { list-style: none; display: flex; flex-wrap: wrap; gap: 4px; margin: 2px 0 0; padding: 0; }
+/* Giới thiệu ngắn trên thẻ món: gói gọn 2 dòng. Cắt bằng CSS để không bao giờ sinh ra
+   câu cụt giữa từ - nếu cắt bằng JS thì "Bún chả là món Hà N…" sẽ lọt ra. */
+.dish__intro {
+  margin: 2px 0 0;
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 .dish__why { margin: 2px 0 0; font-size: var(--step--1); color: var(--muted); }
 
 .dish--skeleton { cursor: default; }

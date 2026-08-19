@@ -56,7 +56,7 @@ GET    /health                             probe hạ tầng
 | Dữ liệu cho tìm kiếm | ✅ | 100% quán có tên + toạ độ + loại hình |
 | Dữ liệu cho bản đồ | ✅ | 100% quán có lat/lng |
 | Chất lượng gợi ý | ✅ | `predicted_score` + `match_source` giải thích được vì sao |
-| Gợi ý món | ✅ | Lồng sẵn trong từng kết quả, kèm `confidence` |
+| Gợi ý món | ✅ | **Luồng chính**: `/dishes/suggest` → `/dishes/{id}` → `/dishes/{id}/restaurants`. Ở lối vào `/search` thì vẫn lồng sẵn trong từng kết quả kèm `confidence` |
 | Ghi nhận tương tác | ✅ | `POST /interactions` đã chạy |
 | Xác thực | ✅ Backend xong | `/auth/register`, `/auth/login`, `/auth/me`. Bắt buộc đăng nhập (đổi 2026-08-17, khác SRS mục 8) |
 | Test | ✅ | 129+ test, có test HTTP thật |

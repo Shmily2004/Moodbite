@@ -35,6 +35,7 @@ RAW_DIR = Path("data_pipeline/data_raw")
 # Số thứ tự file để thứ tự gộp ổn định. Nguồn mới thêm số mới.
 SOURCE_FILE_PREFIX = {
     "openstreetmap": "05",
+    "overture": "11",
 }
 
 
@@ -117,7 +118,13 @@ def main(argv: List[str] | None = None) -> int:
     total = 0
     for name in wanted:
         factory = AVAILABLE_SOURCES[name]
-        if name == "openstreetmap":
+        if name == "overture":
+            if args.city not in CITY_BBOXES:
+                logger.error("Khong co thanh pho '%s'. Co: %s",
+                             args.city, sorted(CITY_BBOXES))
+                return 2
+            source = factory(bbox=CITY_BBOXES[args.city], city=args.city)
+        elif name == "openstreetmap":
             # Thanh pho khong co trong bang -> DUNG LAI va noi ro, khong am tham lay Ha Noi:
             # chay 20 phut roi phat hien lay nham thanh pho la mat cong vo ich.
             if args.city not in CITY_BBOXES:

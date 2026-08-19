@@ -160,7 +160,8 @@ Ba nguồn dưới đây đều **miễn phí, hợp pháp, không cần thẻ t
 |---|---|---|
 | `dish_knowledge_base.json` | 38 rule cũ → 60 món, đã gắn với quán thật | có sẵn |
 | Khai thác **TÊN QUÁN** trong dataset | món có quán bán CHẮC CHẮN (đo được) | `scripts/build_dish_catalog.py` |
-| **Wikipedia tiếng Việt** (CC BY-SA) | giới thiệu ngắn + ảnh + món mới | `scripts/discover_dishes.py` |
+| **Nội dung REVIEW** (đề án mục 7) | quán bán món nhưng không ghi lên biển hiệu | tự động trong `dish_matching.py` |
+| **Wikipedia tiếng Việt** (CC BY-SA) | giới thiệu ngắn + ảnh + món mới (37 thể loại, quét 1959 trang) | `scripts/discover_dishes.py` |
 
 ### Vì sao khai thác tên quán là nguồn tốt nhất
 

@@ -205,7 +205,11 @@ def main() -> int:
 
     ty_le = do_ty_le(records)
     print("\n-- Ty le trong bo mau (so voi du lieu that) --")
-    that = {"thumbnail": 0.215, "rating": 0.232, "price": 0.130}
+    # DO LAI TU POOL, khong dung so cung. Ban cu ghi thang
+    # {0.215, 0.232, 0.130} vao code - do la so cua dataset 4.938 quan. Sau khi nhap
+    # them 36.176 quan Overture thi so that doi han, nhung script van in so cu nen
+    # khong ai biet bo mau da lech.
+    that = do_ty_le(pool)
     for truong, gia_tri in ty_le.items():
         goc = that.get(truong)
         them = f"  (that: {goc:.1%})" if goc else ""

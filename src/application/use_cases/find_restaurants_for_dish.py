@@ -16,7 +16,7 @@ dùng ĐÃ CHỌN chứ không phải suy đoán.
 from __future__ import annotations
 
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import List, Mapping, Optional, Sequence
 
 from src.application.errors import ApplicationError, DataNotReadyError
@@ -92,7 +92,8 @@ class FindRestaurantsForDishUseCase:
         origin = Location(lat=query.latitude, lng=query.longitude)
         context = self._resolve_context(origin)
 
-        candidates = list(self._index.get(dish.identifier, ()))
+        matches = list(self._index.get(dish.identifier, ()))
+        candidates = [m.restaurant for m in matches]
         if not candidates:
             # Không có quán nào là kết quả THẬT, không phải lỗi. Nói rõ thay vì trả 404:
             # món vẫn tồn tại, chỉ là chưa quán nào trong dataset khớp.
@@ -102,14 +103,38 @@ class FindRestaurantsForDishUseCase:
                 "ghi tên món thì không tìm ra được."
             )
 
+        # XẾP HAI TẦNG. Quán có TÊN chứa tên món luôn đứng trên quán chỉ được review nhắc
+        # tới, bất kể điểm xếp hạng - vì hai tín hiệu này khác hẳn nhau về độ tin cậy.
+        #
+        # Bug thật khi trộn chung (đo trên 40.720 quán): trang món "Bún chả" xếp
+        # "Nhà Hàng Hoàng" (870m, chỉ có review nhắc) TRÊN "Bun Cha Nem Cua Be" (310m,
+        # tên quán ghi rõ) chỉ vì quán trước có điểm đánh giá còn quán sau chưa có.
+        limit = max(1, min(query.limit, MAX_LIMIT))
+        mood_weights = self._mood_weights(query.mood, warnings)
+
+        strong = [m.restaurant for m in matches if m.is_strong]
+        weak = [m.restaurant for m in matches if not m.is_strong]
+
         ranked = search_ranking.rank_restaurants(
-            restaurants=candidates,
-            origin=origin,
-            mood_weights=self._mood_weights(query.mood, warnings),
-            context=context,
-            max_distance_km=query.max_distance_km,
-            limit=max(1, min(query.limit, MAX_LIMIT)),
+            restaurants=strong, origin=origin, mood_weights=mood_weights,
+            context=context, max_distance_km=query.max_distance_km, limit=limit,
         )
+        if len(ranked) < limit and weak:
+            extra = search_ranking.rank_restaurants(
+                restaurants=weak, origin=origin, mood_weights=mood_weights,
+                context=context, max_distance_km=query.max_distance_km,
+                limit=limit - len(ranked),
+            )
+            # Đánh lại số thứ tự cho liền mạch sau khi ghép hai tầng.
+            ranked = ranked + [
+                replace(item, rank_position=len(ranked) + i + 1)
+                for i, item in enumerate(extra)
+            ]
+            if extra:
+                warnings.append(
+                    f"{len(extra)} quán ở cuối danh sách chỉ được NHẮC TỚI trong review "
+                    f"là có '{dish.name}', chưa chắc chắn bằng quán ghi rõ tên món."
+                )
 
         self._warn_if_radius_was_widened(ranked, query, dish, warnings)
 

@@ -112,8 +112,11 @@ class SuggestDishesUseCase:
 
         dishes = self._catalog.list_dishes()
         counts = self._count_nearby(dishes, origin, query.max_distance_km)
+        # Đếm KHÔNG giới hạn bán kính, để phân biệt "quán ở xa" với "cả kho không có quán
+        # nào bán món này" - hai chuyện đó cần hai lời khuyên khác hẳn nhau.
+        counts_anywhere = self._count_nearby(dishes, origin, None)
 
-        available = self._drop_dead_ends(dishes, counts, query, warnings)
+        available = self._drop_dead_ends(dishes, counts, counts_anywhere, query, warnings)
         dish_filter = self._to_filter(query)
         candidates = dish_ranking.filter_dishes(available, dish_filter)
 
@@ -166,7 +169,8 @@ class SuggestDishesUseCase:
         counts: Dict[str, int] = {}
         for dish in dishes:
             nearby = 0
-            for restaurant in self._index.get(dish.identifier, ()):
+            for match in self._index.get(dish.identifier, ()):
+                restaurant = match.restaurant
                 if not restaurant.is_active:
                     continue
                 if max_distance_km is None:
@@ -180,6 +184,7 @@ class SuggestDishesUseCase:
     def _drop_dead_ends(
         dishes: Sequence[Dish],
         counts: Mapping[str, int],
+        counts_anywhere: Mapping[str, int],
         query: DishSuggestionQuery,
         warnings: List[str],
     ) -> List[Dish]:
@@ -188,18 +193,34 @@ class SuggestDishesUseCase:
         Bấm vào một món rồi nhận danh sách quán rỗng là trải nghiệm tệ nhất của luồng này -
         người dùng đã bỏ công chọn mà không đi tới đâu. Thà đừng hiện món đó.
 
-        Nhưng phải NÓI RA đã giấu bao nhiêu món, kèm cách nới điều kiện: im lặng bỏ bớt
-        kết quả là đúng cái lỗi `/suggest-dish` cũ từng mắc (CLAUDE.md mục 5).
+        Nhưng phải NÓI RA đã giấu bao nhiêu món: im lặng bỏ bớt kết quả là đúng cái lỗi
+        `/suggest-dish` cũ từng mắc (CLAUDE.md mục 5).
+
+        TÁCH LÀM HAI LÝ DO, vì hai chuyện này cần hai lời khuyên khác hẳn nhau:
+          - Có quán nhưng Ở XA        -> khuyên mở rộng bán kính (làm được gì đó)
+          - Cả kho KHÔNG có quán nào  -> đừng khuyên mở bán kính, mở tới đâu cũng vô ích.
+            Danh mục có nhiều món quốc tế chưa quán nào ở Hà Nội bán (VD Acarajé, Aligot);
+            bảo người dùng nới bán kính để tìm chúng là nói dối.
         """
         if query.include_unavailable:
             return list(dishes)
 
         available = [d for d in dishes if counts.get(d.identifier, 0) > 0]
-        hidden = len(dishes) - len(available)
-        if hidden:
+        hidden_far = sum(
+            1 for d in dishes
+            if counts.get(d.identifier, 0) == 0 and counts_anywhere.get(d.identifier, 0) > 0
+        )
+        hidden_nowhere = (len(dishes) - len(available)) - hidden_far
+
+        if hidden_far:
             warnings.append(
-                f"Đã ẩn {hidden} món không có quán nào trong bán kính "
+                f"Đã ẩn {hidden_far} món có quán bán nhưng nằm ngoài bán kính "
                 f"{query.max_distance_km} km. Mở rộng bán kính để thấy thêm."
+            )
+        if hidden_nowhere:
+            warnings.append(
+                f"Danh mục còn {hidden_nowhere} món chưa tìm được quán nào bán ở khu vực "
+                "này - mở rộng bán kính cũng không thấy."
             )
         # Ẩn hết thì trả lại nguyên danh sách: màn hình trắng còn tệ hơn món ở xa.
         return available or list(dishes)

@@ -14,10 +14,14 @@ from data_pipeline.sources.base import (
     dedupe_places,
 )
 from data_pipeline.sources.osm_overpass import OsmOverpassSource
+from data_pipeline.sources.overture_places import OverturePlacesSource
 
 # {tên nguồn: hàm khởi tạo}. Dùng lambda để chỉ khởi tạo khi thực sự cần.
 AVAILABLE_SOURCES = {
     "openstreetmap": OsmOverpassSource,
+    # Overture Maps (CDLA Permissive 2.0) - dữ liệu POI của Meta/Microsoft, KHÔNG phải
+    # OSM và KHÔNG phải Google. Cần `pip install duckdb`.
+    "overture": OverturePlacesSource,
 }
 
 __all__ = [
@@ -25,6 +29,7 @@ __all__ = [
     "RawPlace",
     "SourceAdapter",
     "OsmOverpassSource",
+    "OverturePlacesSource",
     "dedupe_places",
     "CONFIDENCE_COMMUNITY",
     "CONFIDENCE_DERIVED",

@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MoodBite — BẢN MẪU GIAO DIỆN (dán UI vào đây)</title>
+
+<!--
+  ==========================================================================
+  FILE NÀY ĐỂ LÀM GÌ
+
+  Đây là TỜ GIẤY NHÁP của giao diện. Chủ dự án dán HTML/CSS của bản thiết kế
+  vào đây; Claude đọc file này rồi dịch sang React + FSD trong `apps/client`.
+
+  File ĐỘC LẬP hoàn toàn: mở bằng cách bấm đúp chuột vào nó, KHÔNG cần chạy
+  `npm`, KHÔNG cần backend, KHÔNG nằm trong `npm run build` của app thật.
+  Sửa sai ở đây không thể làm hỏng app đang chạy.
+
+  --------------------------------------------------------------------------
+  CÁCH DÙNG (chủ dự án)
+
+  1. Tìm khu vực có `data-man="..."` ứng với màn hình muốn đổi.
+  2. Dán HTML vào GIỮA hai dòng `DÁN VÀO ĐÂY` / `HẾT PHẦN DÁN`.
+     Dán được mọi thứ: xuất từ Figma, chép từ web mẫu, tự gõ tay, ảnh chụp
+     màn hình kèm mô tả bằng chữ cũng được.
+  3. Muốn dặn thêm gì thì viết thẳng bằng tiếng Việt vào thẻ
+     `<p class="ghi-chu">` ngay trên phần dán. Càng nói rõ càng đỡ đoán.
+  4. Mở file bằng trình duyệt để xem thử, rồi bảo Claude "code theo ui-mau".
+
+  KHÔNG cần dán đủ mọi màn hình. Khu nào để trống thì giữ nguyên như đang có.
+
+  --------------------------------------------------------------------------
+  CÁCH ĐỌC (Claude)
+
+  - Bản dán là Ý ĐỒ BỐ CỤC, không phải mã sẽ chép nguyên vào app. Dịch sang
+    component FSD đúng tầng, dùng lại class có sẵn trong `styles.css`, chỉ
+    thêm class mới khi thật sự cần.
+  - CSS của app THẬT được nạp ngay bên dưới, nên bản dán trông thế nào thì
+    app sẽ trông gần như thế. Sửa `styles.css` cũng thấy đổi ở đây ngay -
+    một nguồn sự thật duy nhất cho phần nhìn, không có bản sao thứ hai.
+  - Bản dán đè lên "SÁU ĐIỀU KHÔNG ĐƯỢC MẤT" ở cuối file thì KHÔNG tự ý làm
+    theo: hỏi lại chủ dự án trước.
+  ==========================================================================
+-->
+
+<!-- CSS THẬT của app. Cố ý link thẳng tới file gốc thay vì chép lại: bản sao
+     sẽ lệch dần và bản mẫu sẽ nói dối về diện mạo thật của app. -->
+<link rel="stylesheet" href="../apps/client/src/app/styles.css" />
+
+<style>
+  /* Chỉ trang trí riêng cho tờ nháp này. KHÔNG có gì ở đây đi vào app thật. */
+  body { margin: 0; padding: 0 0 80px; background: var(--bg); color: var(--ink);
+         font-family: var(--font); }
+  .nhap-header { padding: 22px 20px; background: var(--surface); border-bottom: 1px solid var(--rule); }
+  .nhap-header h1 { margin: 0 0 4px; font-size: 1.3rem; }
+  .nhap-header p { margin: 0; color: var(--muted); font-size: .86rem; max-width: 62ch; }
+  .khu { margin: 26px 18px; background: var(--surface); border: 1px solid var(--rule);
+         border-radius: var(--r-lg); overflow: hidden; }
+  .khu__head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+               padding: 12px 16px; background: var(--surface-2); border-bottom: 1px solid var(--rule); }
+  .khu__head h2 { margin: 0; font-size: 1rem; }
+  .khu__ma { font-size: .72rem; color: var(--muted); font-family: ui-monospace, monospace; }
+  .khu__than { padding: 16px; }
+  .ghi-chu { margin: 0 0 12px; padding: 9px 11px; border-left: 3px solid var(--accent);
+             background: var(--accent-soft); color: var(--ink-soft); font-size: .84rem; }
+  .cho-trong { padding: 26px; border: 2px dashed var(--rule); border-radius: var(--r-md);
+               text-align: center; color: var(--muted); font-size: .86rem; }
+  .bang-mau { display: flex; flex-wrap: wrap; gap: 10px; }
+  .o-mau { width: 108px; font-size: .68rem; color: var(--muted); }
+  .o-mau i { display: block; height: 40px; border-radius: var(--r-sm);
+             border: 1px solid var(--rule); margin-bottom: 3px; }
+  .luat { margin: 26px 18px; padding: 16px 18px; border-radius: var(--r-lg);
+          background: var(--warn-soft); color: var(--warn); }
+  .luat h2 { margin: 0 0 8px; font-size: 1rem; }
+  .luat li { margin-bottom: 7px; font-size: .86rem; line-height: 1.5; }
+  .luat code { background: rgba(0,0,0,.06); padding: 1px 4px; border-radius: 3px; }
+</style>
+</head>
+
+<body>
+
+<header class="nhap-header">
+  <h1>MoodBite — bản mẫu giao diện</h1>
+  <p>
+    Dán HTML của bản thiết kế vào khu tương ứng bên dưới, giữa hai dòng
+    <strong>DÁN VÀO ĐÂY</strong> và <strong>HẾT PHẦN DÁN</strong>. Khu nào để trống thì
+    màn hình đó giữ nguyên như app đang chạy. Xong thì bảo Claude “code theo ui-mau”.
+  </p>
+</header>
+
+
+<!-- ======================================================================
+     BẢNG MÀU ĐANG DÙNG — để bản dán không phải bịa màu mới
+     Đây là biến thật trong `styles.css`; dùng `var(--ten-bien)` là khớp app.
+     ====================================================================== -->
+<section class="khu">
+  <div class="khu__head">
+    <h2>Bảng màu &amp; biến đang có sẵn</h2>
+    <span class="khu__ma">chỉ để tham khảo — không phải chỗ dán</span>
+  </div>
+  <div class="khu__than">
+    <div class="bang-mau">
+      <span class="o-mau"><i style="background:var(--bg)"></i>--bg</span>
+      <span class="o-mau"><i style="background:var(--surface)"></i>--surface</span>
+      <span class="o-mau"><i style="background:var(--surface-2)"></i>--surface-2</span>
+      <span class="o-mau"><i style="background:var(--ink)"></i>--ink</span>
+      <span class="o-mau"><i style="background:var(--ink-soft)"></i>--ink-soft</span>
+      <span class="o-mau"><i style="background:var(--muted)"></i>--muted</span>
+      <span class="o-mau"><i style="background:var(--accent)"></i>--accent (nhấn)</span>
+      <span class="o-mau"><i style="background:var(--open)"></i>--open (đang mở)</span>
+      <span class="o-mau"><i style="background:var(--warn)"></i>--warn (cảnh báo)</span>
+      <span class="o-mau"><i style="background:var(--error)"></i>--error (lỗi)</span>
+    </div>
+    <p style="margin:14px 0 0;font-size:.82rem;color:var(--muted)">
+      Class dùng lại được ngay: <code>.card</code> · <code>.dish</code> · <code>.tag</code> ·
+      <code>.chip</code> · <code>.btn</code> <code>.btn--primary</code> <code>.btn--link</code> ·
+      <code>.fit</code> · <code>.why</code> · <code>.results</code> · <code>.state</code>.
+      Có <strong>nền tối tự động</strong> theo cài đặt máy — đừng viết cứng mã màu như
+      <code>#fff</code>, dùng biến để nền tối không vỡ.
+    </p>
+  </div>
+</section>
+
+
+<!-- ======================================================================
+     KHU 1 — TRANG CHỦ: LƯỚI MÓN + BỘ LỌC
+     App thật: apps/client/src/pages/home/ui/HomePage.tsx
+               + widgets/dish-list + features/suggest-dishes
+     ====================================================================== -->
+<section class="khu" data-man="trang-chu">
+  <div class="khu__head">
+    <h2>1. Trang chủ — lưới MÓN ăn + chips lọc</h2>
+    <span class="khu__ma">data-man="trang-chu"</span>
+  </div>
+  <div class="khu__than">
+    <p class="ghi-chu">
+      Ghi chú của chủ dự án: (viết yêu cầu vào đây — VD “bỏ chips lọc lên trên cùng”,
+      “mỗi hàng 3 món trên máy tính”, “thêm ảnh nền ở đầu trang”)
+    </p>
+
+    <!-- ↓↓↓ DÁN VÀO ĐÂY ↓↓↓ -->
+
+    <div class="cho-trong">Chưa dán gì — trang chủ giữ nguyên như hiện tại.</div>
+
+    <!-- ↑↑↑ HẾT PHẦN DÁN ↑↑↑ -->
+  </div>
+</section>
+
+
+<!-- ======================================================================
+     KHU 2 — THẺ MỘT MÓN ĂN
+     App thật: apps/client/src/entities/dish/ui/DishCard.tsx
+     ====================================================================== -->
+<section class="khu" data-man="the-mon">
+  <div class="khu__head">
+    <h2>2. Thẻ một MÓN ăn</h2>
+    <span class="khu__ma">data-man="the-mon"</span>
+  </div>
+  <div class="khu__than">
+    <p class="ghi-chu">Ghi chú của chủ dự án:</p>
+
+    <!-- ↓↓↓ DÁN VÀO ĐÂY ↓↓↓ -->
+
+    <div class="cho-trong">Chưa dán gì — thẻ món giữ nguyên như hiện tại.</div>
+
+    <!-- ↑↑↑ HẾT PHẦN DÁN ↑↑↑ -->
+  </div>
+</section>
+
+
+<!-- ======================================================================
+     KHU 3 — THẺ MỘT QUÁN (kết quả tìm kiếm)
+     App thật: apps/client/src/entities/restaurant/ui/RestaurantCard.tsx
+
+     ĐÂY LÀ THẺ QUAN TRỌNG NHẤT. Bên dưới đã dựng sẵn một thẻ THẬT bằng chính
+     class của app để làm mẫu: dán đè lên nó, hoặc sửa trực tiếp trên nó.
+     ====================================================================== -->
+<section class="khu" data-man="the-quan">
+  <div class="khu__head">
+    <h2>3. Thẻ một QUÁN — có sẵn ví dụ thật để sửa đè</h2>
+    <span class="khu__ma">data-man="the-quan"</span>
+  </div>
+  <div class="khu__than">
+    <p class="ghi-chu">Ghi chú của chủ dự án:</p>
+
+    <!-- ↓↓↓ DÁN VÀO ĐÂY ↓↓↓ -->
+
+    <ul class="results" style="max-width:420px">
+      <li>
+        <div class="card">
+          <div class="thumb thumb--generated" style="--tile-h:25" aria-hidden="true">
+            <span class="thumb__glyph">🍜</span>
+          </div>
+          <div class="card__body">
+            <h3 class="card__title">
+              <span class="card__name">Phở Thìn Bờ Hồ</span>
+              <span class="card__rank tnum">#1</span>
+            </h3>
+
+            <!-- Nhãn quán đang nghỉ. Chỉ hiện khi backend nói CHẮC CHẮN đang nghỉ. -->
+            <p class="card__alert"><span aria-hidden="true">⚠</span> Đang tạm đóng cửa</p>
+
+            <div class="fit fit--high">
+              <span class="fit__label">Rất phù hợp</span>
+              <span class="fit__bar"><i style="width:78%"></i></span>
+            </div>
+
+            <div class="card__stats tnum">
+              <span class="card__rating"><span class="card__star">★</span> 4.5
+                <span class="muted"> (120)</span></span>
+              <span>320 m</span>
+              <span>100-200 N ₫</span>
+            </div>
+
+            <p class="card__address">13 Lò Đúc, Hai Bà Trưng</p>
+
+            <ul class="why">
+              <li class="why__row"><span>😌</span><span>Hợp với "quán ấm cúng"</span></li>
+              <li class="why__row"><span>🔎</span><span>Khớp tên quán, đánh giá</span></li>
+              <li class="why__row">
+                <span>🍽</span>
+                <span>
+                  <span class="tag tag--dish">Phở bò</span>
+                  <span class="muted">khớp loại hình cụ thể của quán</span>
+                </span>
+              </li>
+            </ul>
+
+            <p class="card__meta-foot">Tầm trung, đánh giá cao · Nhà hàng phở</p>
+            <p class="card__origin card__origin--stale">
+              nguồn cập nhật 7 năm trước · 2 nguồn xác nhận: Meta, Microsoft
+            </p>
+          </div>
+        </div>
+      </li>
+    </ul>
+
+    <!-- ↑↑↑ HẾT PHẦN DÁN ↑↑↑ -->
+  </div>
+</section>
+
+
+<!-- ======================================================================
+     KHU 4 — TRANG CHI TIẾT MÓN (giới thiệu + bản đồ + danh sách quán)
+     App thật: apps/client/src/pages/dish/ui/DishPage.tsx
+     ====================================================================== -->
+<section class="khu" data-man="trang-mon">
+  <div class="khu__head">
+    <h2>4. Trang chi tiết MÓN</h2>
+    <span class="khu__ma">data-man="trang-mon"</span>
+  </div>
+  <div class="khu__than">
+    <p class="ghi-chu">Ghi chú của chủ dự án:</p>
+
+    <!-- ↓↓↓ DÁN VÀO ĐÂY ↓↓↓ -->
+
+    <div class="cho-trong">Chưa dán gì — trang món giữ nguyên như hiện tại.</div>
+
+    <!-- ↑↑↑ HẾT PHẦN DÁN ↑↑↑ -->
+  </div>
+</section>
+
+
+<!-- ======================================================================
+     KHU 5 — TRANG TÌM KIẾM (bản đồ nền + rail kết quả)
+     App thật: apps/client/src/pages/search/ui/SearchPage.tsx
+     ====================================================================== -->
+<section class="khu" data-man="trang-tim-kiem">
+  <div class="khu__head">
+    <h2>5. Trang tìm kiếm — bản đồ + danh sách</h2>
+    <span class="khu__ma">data-man="trang-tim-kiem"</span>
+  </div>
+  <div class="khu__than">
+    <p class="ghi-chu">Ghi chú của chủ dự án:</p>
+
+    <!-- ↓↓↓ DÁN VÀO ĐÂY ↓↓↓ -->
+
+    <div class="cho-trong">Chưa dán gì — trang tìm kiếm giữ nguyên như hiện tại.</div>
+
+    <!-- ↑↑↑ HẾT PHẦN DÁN ↑↑↑ -->
+  </div>
+</section>
+
+
+<!-- ======================================================================
+     KHU 6 — KHUNG CHUNG: header, nav, footer
+     App thật: apps/client/src/app/layout/RootLayout.tsx
+     ====================================================================== -->
+<section class="khu" data-man="khung-chung">
+  <div class="khu__head">
+    <h2>6. Khung chung — header / nav / footer</h2>
+    <span class="khu__ma">data-man="khung-chung"</span>
+  </div>
+  <div class="khu__than">
+    <p class="ghi-chu">Ghi chú của chủ dự án:</p>
+
+    <!-- ↓↓↓ DÁN VÀO ĐÂY ↓↓↓ -->
+
+    <div class="cho-trong">Chưa dán gì — khung chung giữ nguyên như hiện tại.</div>
+
+    <!-- ↑↑↑ HẾT PHẦN DÁN ↑↑↑ -->
+  </div>
+</section>
+
+
+<!-- ======================================================================
+     KHU 7 — MÀN HÌNH TRỐNG / ĐANG TẢI / LỖI
+     Ba trạng thái này chiếm phần lớn thời gian người dùng nhìn thấy khi mạng
+     chậm hoặc không có kết quả, nhưng hay bị quên khi thiết kế.
+     ====================================================================== -->
+<section class="khu" data-man="trang-thai">
+  <div class="khu__head">
+    <h2>7. Trạng thái trống / đang tải / lỗi</h2>
+    <span class="khu__ma">data-man="trang-thai"</span>
+  </div>
+  <div class="khu__than">
+    <p class="ghi-chu">Ghi chú của chủ dự án:</p>
+
+    <!-- ↓↓↓ DÁN VÀO ĐÂY ↓↓↓ -->
+
+    <div class="cho-trong">Chưa dán gì — giữ nguyên như hiện tại.</div>
+
+    <!-- ↑↑↑ HẾT PHẦN DÁN ↑↑↑ -->
+  </div>
+</section>
+
+
+<!-- ======================================================================
+     KHU 8 — MÀN HÌNH MỚI CHƯA CÓ TÊN
+     Dán bất cứ thứ gì không thuộc bảy khu trên (VD đăng nhập, trang cá nhân,
+     quán yêu thích). Nhớ viết rõ đây là màn hình gì ở phần ghi chú.
+     ====================================================================== -->
+<section class="khu" data-man="man-hinh-moi">
+  <div class="khu__head">
+    <h2>8. Màn hình mới (tự đặt tên ở ghi chú)</h2>
+    <span class="khu__ma">data-man="man-hinh-moi"</span>
+  </div>
+  <div class="khu__than">
+    <p class="ghi-chu">Đây là màn hình: (viết tên vào đây)</p>
+
+    <!-- ↓↓↓ DÁN VÀO ĐÂY ↓↓↓ -->
+
+    <div class="cho-trong">Chưa dán gì.</div>
+
+    <!-- ↑↑↑ HẾT PHẦN DÁN ↑↑↑ -->
+  </div>
+</section>
+
+
+<!-- ======================================================================
+     SÁU ĐIỀU KHÔNG ĐƯỢC MẤT KHI ĐỔI GIAO DIỆN
+
+     Đây không phải ý thích về thẩm mỹ. Mỗi dòng dưới đây là một BUG CÓ THẬT
+     đã xảy ra trong dự án, hoặc một quy tắc ở `CLAUDE.md` mục 4.
+     Bản dán mâu thuẫn với các dòng này thì phải HỎI LẠI, không tự làm theo.
+     ====================================================================== -->
+<section class="luat">
+  <h2>⚠ Sáu điều không được mất khi đổi giao diện</h2>
+  <ol>
+    <li>
+      <strong>Thiếu dữ liệu phải nói là thiếu, không được hiện số 0.</strong>
+      Chỉ ~30% quán có đánh giá, ~24% có giá. Hiện “0 sao” hay “miễn phí” cho quán
+      thiếu dữ liệu là nói dối người dùng. Bản mẫu phải có chỗ cho chữ
+      <em>“chưa có đánh giá”</em>.
+    </li>
+    <li>
+      <strong>Mức tin cậy của MÓN phải hiện ra CHỮ.</strong> Món ăn là SUY LUẬN từ tên
+      quán, ta chưa bao giờ đọc thực đơn thật. Nhét mức tin cậy vào tooltip là mất hẳn
+      trên điện thoại — nó phải nằm cạnh tên món.
+    </li>
+    <li>
+      <strong>Giá là CHUỖI, không phải số.</strong> Giá trị thật:
+      <code>"1-100.000 ₫"</code>, <code>"70 US$"</code>, <code>"Trên 1 Tr ₫"</code>.
+      Thiết kế nào giả định “giá là số để so sánh” sẽ vỡ.
+    </li>
+    <li>
+      <strong>Không hiện <code>predicted_score</code> dưới dạng phần trăm.</strong>
+      Điểm thật dồn quanh 0.6, nên “61% phù hợp” làm người dùng tưởng máy gợi ý kém
+      trong khi đó đúng là quán khớp nhất. Dùng nhãn chữ (<em>Rất phù hợp</em> /
+      <em>Phù hợp</em> / <em>Có thể hợp</em>).
+    </li>
+    <li>
+      <strong>Nhãn “đang tạm đóng cửa” và dòng tuổi dữ liệu phải còn chỗ.</strong>
+      Ba trạng thái đóng/mở/không-biết là ba thứ khác nhau; im lặng bị người dùng đọc
+      thành “vừa kiểm hôm qua”, trong khi 71,5% bản ghi OSM sửa lần cuối từ 2025 trở về trước.
+    </li>
+    <li>
+      <strong>Không có quy tắc nghiệp vụ nào trong giao diện.</strong> Công thức xếp
+      hạng, bảng điểm mood, ngưỡng lọc, ngưỡng ẩn quán — tất cả nằm ở backend. Giao diện
+      chỉ TRÌNH BÀY thứ backend trả về.
+    </li>
+  </ol>
+</section>
+
+</body>
+</html>

@@ -13,6 +13,7 @@ from src.application.use_cases.search_restaurants import (
 )
 from src.presentation.api.dependencies import get_search_restaurants
 from src.presentation.api.envelope import success
+from src.presentation.api.result_mapping import search_result_to_dict
 from src.presentation.api.schemas import (
     ERROR_RESPONSES,
     SearchRequest,
@@ -21,20 +22,6 @@ from src.presentation.api.schemas import (
 )
 
 router = APIRouter(tags=["search"])
-
-
-def _dish_to_dict(dish) -> dict | None:
-    if dish is None:
-        return None
-    return {
-        "dish_id": dish.dish_id,
-        "name": dish.name,
-        "cuisine": dish.cuisine,
-        "spice_level": dish.spice_level,
-        "temperature": dish.temperature,
-        "confidence": dish.confidence,
-        "reason": dish.reason,
-    }
 
 
 @router.post("/search", response_model=SearchResponse, responses=ERROR_RESPONSES,
@@ -65,32 +52,7 @@ def search(
 
     payload = SearchResponseData(
         search_query_id=result.search_query_id,
-        results=[
-            {
-                "restaurant_id": item.restaurant_id,
-                "name": item.name,
-                "category": item.category,
-                "address": item.address,
-                "latitude": item.latitude,
-                "longitude": item.longitude,
-                "distance_m": item.distance_m,
-                "price_range": item.price_range,
-                "rating": item.rating,
-                "user_ratings_total": item.user_ratings_total,
-                "rank_position": item.rank_position,
-                "predicted_score": item.predicted_score,
-                "match_source": item.match_source,
-                "thumbnail_url": item.thumbnail_url,
-                "district": item.district,
-                "dietary": item.dietary,
-                "amenities": item.amenities,
-                "source": item.source,
-                "experience_cluster_id": item.experience_cluster_id,
-                "experience_cluster_label": item.experience_cluster_label,
-                "suggested_dish": _dish_to_dict(item.suggested_dish),
-            }
-            for item in result.results
-        ],
+        results=[search_result_to_dict(item) for item in result.results],
         context=result.context,
         warnings=result.warnings,
     )

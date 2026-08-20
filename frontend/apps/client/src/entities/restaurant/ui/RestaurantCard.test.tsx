@@ -115,4 +115,44 @@ describe('RestaurantCard', () => {
     const img = container.querySelector('.thumb img');
     expect(img).toHaveAttribute('src', 'https://example.test/a.jpg');
   });
+
+  it('quán ĐANG TẠM ĐÓNG phải được gắn nhãn cảnh báo', () => {
+    // Backend cào cờ này về từ 2026-08-19 nhưng giao diện chưa dùng, nên người dùng
+    // vẫn được gợi ý quán đang nghỉ và chỉ biết khi đã đi tới nơi.
+    render(<RestaurantCard restaurant={makeRestaurant({ temporarily_closed: true })} />);
+    expect(screen.getByText(/đang tạm đóng cửa/i)).toBeInTheDocument();
+  });
+
+  it('quán KHÔNG BIẾT trạng thái thì tuyệt đối không nói gì về đóng/mở', () => {
+    // 96,5% dataset rơi vào đây. Nói "đang mở" cho nhóm này là bịa.
+    render(<RestaurantCard restaurant={makeRestaurant({ temporarily_closed: null })} />);
+    expect(screen.queryByText(/đóng cửa/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/đang mở/i)).not.toBeInTheDocument();
+  });
+
+  it('hiện TUỔI THẬT của dữ liệu và các nguồn cùng xác nhận', () => {
+    render(
+      <RestaurantCard
+        restaurant={makeRestaurant({
+          source_updated_at: '2019-05-06T11:19:02Z',
+          source_datasets: ['meta', 'msft'],
+        })}
+      />,
+    );
+    expect(screen.getByText(/nguồn cập nhật \d+ năm trước/)).toBeInTheDocument();
+    expect(screen.getByText(/2 nguồn xác nhận: Meta, Microsoft/)).toBeInTheDocument();
+  });
+
+  it('không có dữ liệu tuổi thì im lặng, không hiện dòng trống', () => {
+    const { container } = render(
+      <RestaurantCard
+        restaurant={makeRestaurant({
+          source_updated_at: null,
+          source_datasets: [],
+          surveyed_at: null,
+        })}
+      />,
+    );
+    expect(container.querySelector('.card__origin')).toBeNull();
+  });
 });

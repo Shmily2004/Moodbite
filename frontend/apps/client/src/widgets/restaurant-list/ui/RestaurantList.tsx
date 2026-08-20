@@ -9,6 +9,7 @@ import type { SearchResultItem } from '@moodbite/api-client';
 import { RestaurantCard } from '@/entities/restaurant';
 import { useRestaurantDetail } from '@/features/view-restaurant-detail';
 import { useInteractionLogger } from '@/features/log-interaction';
+import { ReportClosureButton } from '@/features/report-closure';
 
 interface RestaurantListProps {
   restaurants: SearchResultItem[];
@@ -65,6 +66,8 @@ export function RestaurantList({
               detail={detail}
               loading={loading}
               error={error}
+              restaurantId={restaurant.restaurant_id}
+              restaurantName={restaurant.name}
               onClose={close}
               onDirections={() =>
                 restaurant.restaurant_id &&
@@ -87,11 +90,22 @@ interface DetailPanelProps {
   detail: ReturnType<typeof useRestaurantDetail>['detail'];
   loading: boolean;
   error: string | null;
+  /** Cần cho nút báo đóng cửa - `null` thì không báo được (quán chưa có placeId). */
+  restaurantId: string | null;
+  restaurantName: string;
   onClose: () => void;
   onDirections: () => void;
 }
 
-function DetailPanel({ detail, loading, error, onClose, onDirections }: DetailPanelProps) {
+function DetailPanel({
+  detail,
+  loading,
+  error,
+  restaurantId,
+  restaurantName,
+  onClose,
+  onDirections,
+}: DetailPanelProps) {
   if (loading) return <div className="detail">Đang tải…</div>;
   if (error) return <div className="detail error">{error}</div>;
   if (!detail) return null;
@@ -101,6 +115,11 @@ function DetailPanel({ detail, loading, error, onClose, onDirections }: DetailPa
     return (
       <div className="detail">
         <p className="muted">{detail.reason}</p>
+        {/* Quán CHƯA cào được chi tiết vẫn phải báo đóng cửa được - đây đúng là nhóm
+            dữ liệu mỏng nhất, tức là nhóm dễ đã đóng mà ta không biết nhất. */}
+        {restaurantId && (
+          <ReportClosureButton restaurantId={restaurantId} restaurantName={restaurantName} />
+        )}
         <button className="btn btn--link" onClick={onClose}>
           Đóng
         </button>
@@ -180,6 +199,12 @@ function DetailPanel({ detail, loading, error, onClose, onDirections }: DetailPa
           </a>
         )}
       </div>
+
+      {/* BÁO ĐÓNG CỬA - backend đã đếm theo phiên từ 2026-08-19, đây là cái nút còn
+          thiếu. Đặt CUỐI và nhạt màu: nó là lối thoát hiểm, không phải hành động chính. */}
+      {restaurantId && (
+        <ReportClosureButton restaurantId={restaurantId} restaurantName={restaurantName} />
+      )}
 
       <button className="btn btn--link" onClick={onClose}>
         Đóng

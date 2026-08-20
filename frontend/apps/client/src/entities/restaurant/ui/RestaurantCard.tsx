@@ -18,7 +18,11 @@ import {
   describeCluster,
   describeDishConfidence,
   describeFit,
+  describeFreshness,
   describeReasons,
+  describeSurvey,
+  describeTemporaryClosure,
+  describeVerification,
   formatDistance,
   formatPrice,
 } from '../model/format';
@@ -46,6 +50,12 @@ export function RestaurantCard({
   const distance = formatDistance(restaurant.distance_m);
   const fit = describeFit(restaurant.predicted_score);
   const reasons = describeReasons(restaurant.match_source, queryText);
+  // TRẠNG THÁI & TUỔI THẬT - backend cào về từ 2026-08-19 nhưng giao diện chưa dùng,
+  // nên người dùng vẫn bị gợi ý quán đang nghỉ mà không hề được báo trước.
+  const closure = describeTemporaryClosure(restaurant.temporarily_closed);
+  const freshness = describeFreshness(restaurant.source_updated_at);
+  const verification = describeVerification(restaurant.source_datasets);
+  const survey = describeSurvey(restaurant.surveyed_at);
 
   return (
     <li data-id={restaurant.restaurant_id ?? undefined}>
@@ -72,6 +82,14 @@ export function RestaurantCard({
             <span className="card__name">{restaurant.name}</span>
             <span className="card__rank tnum">#{restaurant.rank_position}</span>
           </h3>
+
+          {/* ĐANG TẠM ĐÓNG - phải nằm TRƯỚC mức phù hợp: quán đang nghỉ thì "Rất phù
+              hợp" là thông tin vô nghĩa, và người đọc lướt thẻ từ trên xuống. */}
+          {closure && (
+            <p className="card__alert" role="status">
+              <span aria-hidden="true">⚠</span> {closure}
+            </p>
+          )}
 
           {/* MỨC PHÙ HỢP. Nhãn chữ là phần nói thật; thanh chỉ để so tương đối giữa
               các quán. KHÔNG hiện `predicted_score × 100` - xem giải thích dài ở
@@ -134,6 +152,16 @@ export function RestaurantCard({
             {describeCluster(restaurant.experience_cluster_label)}
             {restaurant.category && ` · ${restaurant.category}`}
           </p>
+
+          {/* TUỔI THẬT & BẰNG CHỨNG. Cố ý để ở dòng cuối, chữ nhỏ: đây là phần MINH BẠCH
+              về nguồn, không phải thứ người dùng đọc đầu tiên. Nhưng im lặng hoàn toàn
+              thì người dùng mặc định cho rằng dữ liệu vừa được kiểm hôm qua - trong khi
+              71,5% bản ghi OSM được sửa lần cuối từ 2025 trở về trước. */}
+          {(freshness || verification || survey) && (
+            <p className={freshness?.stale ? 'card__origin card__origin--stale' : 'card__origin'}>
+              {[freshness?.text, verification, survey].filter(Boolean).join(' · ')}
+            </p>
+          )}
         </div>
       </div>
 

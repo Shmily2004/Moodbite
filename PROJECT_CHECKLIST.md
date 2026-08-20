@@ -1,6 +1,6 @@
 # MoodBite — Bảng theo dõi tiến độ
 
-**Cập nhật:** 2026-08-19 (lần 2)
+**Cập nhật:** 2026-08-20
 **Nguyên tắc:** file này chỉ ghi thứ đã **chạy thật và kiểm chứng được**. Không ghi theo
 kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh để tự kiểm lại.
 
@@ -16,10 +16,10 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Gợi ý món trong kết quả `/search` | ✅ Xong | lồng trong từng quán. Đây là LỐI VÀO THỨ HAI — luồng chính nay là chọn món trước |
 | Ghi nhận tương tác | ✅ Xong | `POST /interactions` → nhãn cho mô hình sau này |
 | Ngữ cảnh thời điểm | ✅ Giờ ăn · ✅ thời tiết (tắt mặc định) | đã gọi thật Open-Meteo: 27.2°C, 0.94s; 17 test suy biến |
-| Frontend Client | ✅ **TypeScript + FSD** | 61 test, có bản đồ, steiger trong CI |
+| Frontend Client | ✅ **TypeScript + FSD** | 86 test, có bản đồ, steiger trong CI |
 | Bản đồ | ✅ **Xong** | Leaflet + OpenStreetMap, miễn phí, không cần key |
 | Kiến trúc | ✅ Sạch | Clean Architecture + checker tự động trong CI |
-| Test | ✅ **417 backend + 69 frontend** | tổng **486**, chạy hết ~52 giây |
+| Test | ✅ **422 backend + 94 frontend** | tổng **516**, chạy hết ~52 giây |
 | Giao diện | ✅ Theo bản duyệt | trang chủ = LƯỚI MÓN + chips lọc; trang món = giới thiệu + bản đồ + danh sách quán; `/tim-kiem` giữ bố cục bản đồ + rail cũ |
 | Router + layout | ✅ Xong | react-router v6, khung dùng chung, `RequireAuth` cho admin |
 | Chạy xem giao diện | ✅ **một lệnh** | `python scripts/run_dev.py --admin` |
@@ -30,10 +30,10 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Dữ liệu | ✅ **40.719 quán** · **747 món** | Overture 36.176 · OSM 3.135 · Apify 1.409. Đã loại 1 quán đóng hẳn |
 | Thu thập dữ liệu đa nguồn | ✅ Xong | kiến trúc `SourceAdapter`, thêm nguồn không sửa pipeline |
 | Lọc giờ mở cửa / chế độ ăn / quận | ✅ Xong | thiếu dữ liệu KHÔNG bị loại |
-| **Tuổi thật của dữ liệu** | ✅ **Mới xong** | 97,3% quán có ngày NGUỒN cập nhật (khác ngày ta cào). OSM: chỉ 28,5% thuộc 2026 |
-| **Đối chiếu đa nền tảng** | ✅ **Mới xong** | Meta · Microsoft · Foursquare · AllThePlaces · PinMeTo qua Overture. 337 quán được ≥2 nguồn xác nhận |
-| **Quán đã đóng cửa** | ✅ **Mới xong** | đóng hẳn → ẩn; đóng tạm → hiện + cờ cảnh báo |
-| **Người dùng báo đóng cửa** | ✅ Backend xong · ⬜ chưa có nút | đủ 3 phiên khác nhau thì ẩn |
+| **Tuổi thật của dữ liệu** | ✅ **Xong, ĐÃ HIỆN RA UI 2026-08-20** | 97,3% quán có ngày NGUỒN cập nhật (khác ngày ta cào). OSM: chỉ 28,5% thuộc 2026. Thẻ quán hiện "nguồn cập nhật N năm trước" |
+| **Đối chiếu đa nền tảng** | ✅ **Xong, ĐÃ HIỆN RA UI 2026-08-20** | Meta · Microsoft · Foursquare · AllThePlaces · PinMeTo qua Overture. 337 quán được ≥2 nguồn xác nhận |
+| **Quán đã đóng cửa** | ✅ **Xong, ĐÃ HIỆN RA UI 2026-08-20** | đóng hẳn → ẩn; đóng tạm → hiện + nhãn ⚠ trên thẻ |
+| **Người dùng báo đóng cửa** | ✅ **Xong 2026-08-20** | đủ 3 phiên khác nhau thì ẩn. Nút ở panel chi tiết, hỏi lại trước khi gửi |
 | **Tóm tắt review (Lớp 4)** | ✅ Xong | 851/1.310 quán, trích nguyên văn |
 | Kiểm tra định kỳ nguồn | ✅ Xong | `python scripts/refresh_check.py` — báo cáo quán mới/mất/đổi tên |
 | **Lớp 1 — Phân cụm trải nghiệm** | ✅ **Xong** | KMeans k=7, Silhouette 0.318 |
@@ -52,7 +52,7 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Trích món từ review (đề án mục 7) | ✅ Xong | 1076 quán có review; bún chả 86 → 94 quán |
 | Ma trận truy vết | ✅ Viết lại 2026-08-19 | bản cũ có 9/10 đường dẫn KHÔNG tồn tại — xem `traceability.md` |
 | **Lớp 4 — Tóm tắt review** | ✅ **XONG 2026-08-19** | Trích rút TF-IDF centroid, **851/1310 quán** có nhận xét tổng hợp (339 quán có cả điểm yếu). Mọi câu TRÍCH NGUYÊN VĂN, không sinh chữ. `python -m data_pipeline.review_summary` |
-| Đăng nhập / tài khoản | 🟡 **Backend xong, chưa có UI** | `/api/v1/auth/*`: đăng ký · đăng nhập · `/me`. Đổi phạm vi có chủ đích so với SRS mục 8 — xem ghi chú dưới bảng |
+| Đăng nhập / tài khoản | 🟡 **Backend xong, chưa có UI** | `/api/v1/auth/*`: đăng ký · đăng nhập · `/me`. `packages/api-client` cũng CHƯA có method auth. Đổi phạm vi có chủ đích so với SRS mục 8 — xem ghi chú dưới bảng |
 | Phân quyền (`role`) | 🟡 Có `user`/`admin` + guard 403 | admin VẪN dùng biến môi trường, chưa chuyển sang bảng `users` |
 
 > **Ghi chú — tài khoản người dùng là ĐỔI PHẠM VI CÓ CHỦ ĐÍCH (2026-08-17).**
@@ -165,6 +165,23 @@ Kiểm lại (mục 4 của `python scripts/verify.py` đã tự kiểm việc n
 
 ### Bug đã sửa (đều kiểm chứng được)
 
+**HAI ROUTER LÀM RƠI 4 TRƯỜNG — sửa 2026-08-20.** Bug im lặng nhất từ trước tới nay.
+
+`temporarily_closed` · `source_updated_at` · `source_datasets` · `surveyed_at` có đủ
+trong CSV (39.613/40.720 bản ghi), repository đọc đúng, use case gán đúng, schema khai
+đúng — nhưng `search.py` và `dishes.py` mỗi bên **tự tay liệt kê lại** danh sách trường
+để dựng dict, và cả hai đều quên bốn trường này. Pydantic có giá trị mặc định nên
+response vẫn hợp lệ: API trả `null` cho 100% quán, không ai thấy lỗi.
+
+- **Đo được:** trước khi sửa `0/10` kết quả có `source_updated_at`; sau khi sửa `10/10`.
+- **Nguyên nhân gốc:** hai nơi cùng mô tả một hợp đồng — đúng sai lầm đã suýt giết dự án
+  ở phía backend. Nay gộp về `presentation/api/result_mapping.py`, thêm trường chỉ sửa
+  MỘT chỗ.
+- **Vì sao test cũ không bắt được:** `test_closed_restaurants.py` dừng ở tầng domain và
+  chỉ GHI CHÚ rằng "phải gắn nhãn cảnh báo ở tầng API". Ghi chú không phải là test.
+  Nay có `tests/test_search_result_contract.py` khoá cả hai endpoint, kèm một test bắt
+  hai endpoint phải trả **cùng bộ trường**.
+
 **Dọn DANH MỤC MÓN 2026-08-19** — chủ dự án: *"đừng cố tình kiếm những món rất khó
 kiếm quán hoặc thậm chí không có quán bán"*.
 
@@ -236,7 +253,9 @@ Phát hiện gốc: `last_updated` ghi 97,4% dữ liệu "cập nhật 3 ngày t
       `report_closed`. Đủ **3 PHIÊN KHÁC NHAU** báo thì ẩn quán. Đếm theo phiên chứ không
       theo lượt bấm — kiểm chứng: bấm 50 lần từ một phiên vẫn chỉ tính 1 phiếu. Bộ đếm
       dựng lại từ `interactions.jsonl` lúc khởi động nên khởi động lại không mất.
-      ⬜ **Nút bấm ở giao diện CHƯA làm** — chờ thiết kế của chủ dự án.
+      ✅ **Nút bấm ở giao diện XONG 2026-08-20** (`features/report-closure`): hai bước
+      bấm → hỏi lại → gửi, vì một phiếu báo góp phần làm quán biến mất với MỌI người.
+      Câu cảm ơn cố ý KHÔNG nhắc con số ngưỡng — ngưỡng là nghiệp vụ, chỉ nằm ở backend.
 - [x] **`scripts/refresh_check.py`** — cào lại OSM rồi báo cáo khác biệt. Chạy thật:
       769 quán mới · 39 quán biến mất · 1 đổi tên · 3.095 không đổi.
       **CHỈ BÁO CÁO, KHÔNG TỰ SỬA** — một ô Overpass lỗi là vài chục quán "biến mất".

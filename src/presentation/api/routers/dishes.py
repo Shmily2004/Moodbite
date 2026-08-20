@@ -32,6 +32,7 @@ from src.presentation.api.dependencies import (
     get_suggest_dishes,
 )
 from src.presentation.api.envelope import success
+from src.presentation.api.result_mapping import search_result_to_dict
 from src.presentation.api.schemas import (
     ERROR_RESPONSES,
     DishDetailResponse,
@@ -99,6 +100,78 @@ def suggest_dishes(
     payload = DishSuggestResponseData(
         search_query_id=result.search_query_id,
         results=[_dish_item_dict(item) for item in result.results],
+        context=result.context,
+        warnings=result.warnings,
+    )
+    return success(payload.model_dump())
+
+
+@router.get("/dishes/{dish_id}", response_model=DishDetailResponse,
+            responses=ERROR_RESPONSES, summary="Chi tiết 1 món (giới thiệu ngắn)")
+def dish_detail(
+    dish_id: str,
+    latitude: float = Query(default=HANOI_CENTER_LAT, ge=-90, le=90),
+    longitude: float = Query(default=HANOI_CENTER_LNG, ge=-180, le=180),
+    max_distance_km: float = Query(default=DEFAULT_MAX_DISTANCE_KM, gt=0, le=100),
+    use_case: SuggestDishesUseCase = Depends(get_suggest_dishes),
+):
+    """Giới thiệu ngắn về món + số quán bán món này gần bạn.
+
+    `description` rỗng kèm `has_description: false` nghĩa là CHƯA TRA ĐƯỢC nguồn nào, và
+    giao diện phải nói đúng như vậy - không được để một khoảng trắng như thể món này không
+    có gì để giới thiệu (CLAUDE.md mục 4 quy tắc 1).
+
+    Nhận toạ độ vì `restaurant_count` phải tính theo bán kính của NGƯỜI ĐANG XEM: món có
+    1700 quán toàn thành phố nhưng 0 quán quanh đây vẫn là ngõ cụt.
+    """
+    # Dùng lại use case gợi ý với `include_unavailable=True`: trang chi tiết phải mở được
+    # kể cả khi món không có quán nào gần (người dùng có thể vào từ liên kết đã chia sẻ).
+    result = use_case.execute(
+        DishSuggestionQuery(
+            session_id=f"dish-detail:{dish_id}",
+            latitude=latitude,
+            longitude=longitude,
+            max_distance_km=max_distance_km,
+            include_unavailable=True,
+            limit=100,
+        )
+    )
+    item = next((r for r in result.results if r.dish_id == dish_id), None)
+    if item is None:
+        raise DishNotFoundError(dish_id)
+    return success(DishItemSchema(**_dish_item_dict(item)).model_dump())
+
+
+@router.get("/dishes/{dish_id}/restaurants", response_model=SearchResponse,
+            responses=ERROR_RESPONSES, summary="Quán gần đây bán món này")
+def restaurants_for_dish(
+    dish_id: str,
+    session_id: str = Query(...),
+    latitude: float = Query(default=HANOI_CENTER_LAT, ge=-90, le=90),
+    longitude: float = Query(default=HANOI_CENTER_LNG, ge=-180, le=180),
+    max_distance_km: float = Query(default=DEFAULT_MAX_DISTANCE_KM, gt=0, le=100),
+    mood: str | None = Query(default=None),
+    limit: int = Query(default=20, ge=1, le=50),
+    use_case: FindRestaurantsForDishUseCase = Depends(get_find_restaurants_for_dish),
+):
+    """Danh sách quán bán món đã chọn, xếp hạng theo khoảng cách + đánh giá + ngữ cảnh.
+
+    Trả về ĐÚNG kiểu của `POST /search` để client dùng lại một component thẻ quán duy nhất.
+    """
+    result = use_case.execute(
+        RestaurantsForDishQuery(
+            session_id=session_id,
+            dish_id=dish_id,
+            latitude=latitude,
+            longitude=longitude,
+            max_distance_km=max_distance_km,
+            mood=mood,
+            limit=limit,
+        )
+    )
+    payload = SearchResponseData(
+        search_query_id=result.search_query_id,
+        results=[search_result_to_dict(item) for item in result.results],
         context=result.context,
         warnings=result.warnings,
     )

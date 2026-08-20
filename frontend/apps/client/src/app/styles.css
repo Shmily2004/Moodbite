@@ -429,6 +429,57 @@ body {
   color: var(--muted);
 }
 
+/* --- TRẠNG THÁI & NGUỒN GỐC ----------------------------------------------
+   Hai thứ đối lập nhau về độ ồn, cố ý:
+     .card__alert  = quán đang nghỉ -> PHẢI đập vào mắt, người dùng sắp đi tới nơi.
+     .card__origin = tuổi thật của dữ liệu -> nói thật nhưng ở chữ nhỏ, nếu không thì
+                     mọi thẻ đều trông như đang báo động. */
+
+.card__alert {
+  display: flex; align-items: center; gap: 6px;
+  margin: 4px 0 2px;
+  padding: 3px 8px;
+  border-radius: var(--r-sm);
+  background: var(--warn-soft);
+  color: var(--warn);
+  font-size: var(--step--1); font-weight: 700;
+}
+
+.card__origin {
+  margin: 2px 0 0;
+  font-size: var(--step--2);
+  color: var(--muted);
+}
+/* Bản ghi cũ >= 2 năm: đổi màu nhưng KHÔNG dùng màu lỗi - dữ liệu cũ không phải là sai,
+   chỉ là chưa ai kiểm lại. */
+.card__origin--stale { color: var(--warn); }
+
+/* --- BÁO QUÁN ĐÃ ĐÓNG CỬA -------------------------------------------------
+   Lối thoát hiểm, không phải hành động chính -> nhạt, nằm cuối panel chi tiết. */
+
+.closure {
+  margin: 8px 0 0;
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+}
+.closure--confirm {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px;
+  padding: 7px 9px;
+  border-radius: var(--r-sm);
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+.closure__actions { display: flex; gap: 10px; }
+/* Nút xác nhận mang màu LỖI: nó góp phần làm quán biến mất khỏi kết quả của mọi người. */
+.closure__yes { color: var(--error); font-weight: 700; }
+.closure--sent { color: var(--open); }
+.closure--failed { color: var(--error); }
+.closure__open {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: var(--step--2);
+}
+
 /* =========================================================================
    TRẠNG THÁI
    ========================================================================= */

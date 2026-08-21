@@ -1,0 +1,124 @@
+/* =========================================================================
+   NHẬN DIỆN THƯƠNG HIỆU — màu và các mảnh giao diện DÙNG LẠI ở mọi layout.
+
+   Màu lấy trực tiếp từ bản thiết kế (`frontend/design/Login - register.png`),
+   đo bằng cách đọc pixel chứ không ước lượng bằng mắt:
+     xanh navy #021D48 · cam #F39206 · nền kem #FCF4EA
+
+   VÌ SAO TÁCH KHỎI `styles.css`: `styles.css` là hệ màu của MÀN HÌNH BẢN ĐỒ (xám ấm,
+   cố tình im lặng để không đánh nhau với bản đồ nhiều màu). Còn đây là màu THƯƠNG HIỆU
+   dùng ở các trang tĩnh (đăng nhập, đăng ký, giới thiệu…). Hai bảng màu phục vụ hai
+   việc khác nhau, trộn chung sẽ hỏng cả hai.
+   ========================================================================= */
+
+:root {
+  --brand-navy:        #021D48;
+  --brand-navy-2:      #0B2E68;   /* trạng thái hover của nút chính */
+  --brand-orange:      #F39206;
+  --brand-orange-2:    #D97C04;
+  --brand-cream:       #FCF4EA;
+  --brand-cream-hi:    #FEFBF6;   /* đỉnh gradient nền, sáng hơn kem một chút */
+
+  /* Màu chữ và mặt phẳng của các trang thương hiệu. */
+  --auth-page:         var(--brand-cream);
+  --auth-card:         #FFFFFF;
+  --auth-ink:          #10203C;
+  --auth-ink-soft:     #4A5769;
+  --auth-muted:        #8792A5;
+  --auth-line:         #E2E7F0;
+  --auth-line-soft:    #EDF1F7;
+  --auth-field:        #FFFFFF;
+  --auth-link:         #2563C9;
+  --auth-error:        #A32A1E;
+  --auth-error-soft:   #FBEAE7;
+  --auth-primary:      var(--brand-navy);
+  --auth-primary-2:    var(--brand-navy-2);
+  --auth-primary-ink:  #FFFFFF;
+
+  --auth-shadow: 0 24px 60px rgba(2, 29, 72, .13), 0 2px 6px rgba(2, 29, 72, .06);
+}
+
+/* Nền tối: KHÔNG đảo đen trắng máy móc. Nền là navy rất sẫm (cùng họ với logo), và nút
+   chính phải sáng lên — navy #021D48 đặt trên nền tối thì gần như biến mất. */
+:root[data-theme='dark'] {
+  --auth-page:         #0D1526;
+  --auth-card:         #162032;
+  --auth-ink:          #E9EEF7;
+  --auth-ink-soft:     #B4BECE;
+  --auth-muted:        #8593A8;
+  --auth-line:         #2A3548;
+  --auth-line-soft:    #212B3C;
+  --auth-field:        #1B2739;
+  --auth-link:         #82B1FF;
+  --auth-error:        #E58A7C;
+  --auth-error-soft:   #331A16;
+  --auth-primary:      #2E5CA8;
+  --auth-primary-2:    #3A6DC0;
+  --auth-primary-ink:  #FFFFFF;
+
+  --brand-cream:       #0D1526;
+  --brand-cream-hi:    #131E33;
+
+  --auth-shadow: 0 24px 60px rgba(0, 0, 0, .5), 0 2px 6px rgba(0, 0, 0, .35);
+}
+
+/* --- Logo ---------------------------------------------------------------- */
+
+.brand-logo {
+  display: block;
+  flex: none;
+  object-fit: contain;
+}
+
+/*
+  Chữ trong logo màu navy nên chìm hẳn trên nền tối. Bộ nhận diện CHỈ CÓ MỘT bản logo
+  (chủ dự án chốt 2026-08-21), nên cách xử lý là đặt nó lên một tấm nền sáng — không
+  phải đổi màu hay tự vẽ lại bản khác.
+*/
+:root[data-theme='dark'] img.brand-logo {
+  background: rgba(255, 255, 255, .93);
+  border-radius: 10px;
+  padding: 5px 10px;
+}
+
+/* Bản thay thế bằng chữ, dùng khi thiếu file ảnh. */
+.brand-logo--text {
+  font-weight: 800;
+  letter-spacing: -.02em;
+  color: var(--auth-ink);
+}
+.brand-logo__accent { color: var(--brand-orange); }
+
+/* --- Nút đổi nền sáng/tối + ô chọn ngôn ngữ ------------------------------- */
+
+.theme-toggle,
+.lang-select {
+  height: 36px;
+  border: 1px solid var(--auth-line);
+  border-radius: 10px;
+  background: var(--auth-card);
+  color: var(--auth-ink);
+  font: inherit;
+  font-size: .85rem;
+  cursor: pointer;
+}
+
+.theme-toggle {
+  width: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.lang-select { padding: 0 8px; }
+
+.theme-toggle:hover,
+.lang-select:hover { border-color: var(--brand-orange); }
+
+.theme-toggle:focus-visible,
+.lang-select:focus-visible {
+  outline: 2px solid var(--brand-orange);
+  outline-offset: 2px;
+}

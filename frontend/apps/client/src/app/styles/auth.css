@@ -1,0 +1,421 @@
+/* =========================================================================
+   TRANG TÀI KHOẢN — đăng nhập (và sau này là đăng ký).
+
+   ƯU TIÊN MÁY TÍNH, đúng yêu cầu của chủ dự án 2026-08-21: bố cục hai cột bám theo
+   `frontend/design/Login - register.png`. Phần màn hình hẹp ở cuối file mới chỉ là bản
+   XẾP DỌC cho dùng được, CHƯA phải bản mobile hoàn chỉnh trong thiết kế.
+
+     ┌──────────────────────────────────────────────┐
+     │ [logo]                             VI ▾  🌙  │
+     │  Ăn gì ở Hà Nội,          ┌────────────────┐ │
+     │  tùy mood của bạn.        │   .auth-card   │ │
+     │  <giới thiệu>             └────────────────┘ │
+     │ 📍 Made for Hà Nội   (tranh Hà Nội, nền dưới)│
+     └──────────────────────────────────────────────┘
+
+   Màu lấy từ `brand.css`, KHÔNG khai lại mã màu ở đây.
+   ========================================================================= */
+
+.auth {
+  position: relative;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(16px, 2vw, 28px) clamp(20px, 4vw, 64px) 0;
+  /* Kem đậm dần xuống dưới: tranh nằm ở đáy nên phần đáy cần đậm hơn để nối vào tranh. */
+  background: linear-gradient(180deg, var(--brand-cream-hi) 0%, var(--brand-cream) 62%);
+  color: var(--auth-ink);
+  overflow: hidden;
+}
+
+/* --- Thanh trên ---------------------------------------------------------- */
+
+.auth__bar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.auth__tools { display: flex; align-items: center; gap: 10px; }
+
+/* --- Thân: giới thiệu | thẻ form ----------------------------------------- */
+
+.auth__body {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  display: grid;
+  /* Cột phải KHÔNG co giãn tự do: form rộng quá ~430px thì một dòng nhãn phải rê mắt
+     ngang mới đọc hết, còn hẹp dưới 360px thì ô nhập bắt đầu chật. */
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 430px);
+  gap: clamp(24px, 5vw, 72px);
+  align-items: center;
+  padding: clamp(12px, 4vh, 48px) 0 clamp(72px, 12vh, 120px);
+}
+
+.auth__hero {
+  /* Bám mép trên: phần dưới của cột trái dành cho tranh. */
+  align-self: start;
+  padding-top: clamp(8px, 5vh, 56px);
+  /* 30rem đo theo dòng dài nhất của tiêu đề ("Ăn gì ở Hà Nội,"). Hẹp hơn thì dòng đó
+     gãy làm đôi ngay giữa cụm "Hà Nội" - đã thấy tận mắt lúc chụp màn hình thử. */
+  max-width: 30rem;
+}
+
+.auth__heading {
+  margin: 0 0 16px;
+  /* Chia đều chữ cho các dòng thay vì nhồi đầy dòng trên rồi bỏ lại một chữ ở dòng dưới.
+     Trình duyệt chưa hỗ trợ thì bỏ qua thuộc tính này, không hỏng gì. */
+  text-wrap: balance;
+  font-size: clamp(1.9rem, 3.2vw, 3rem);
+  line-height: 1.16;
+  letter-spacing: -.02em;
+  font-weight: 800;
+}
+
+/* Chữ "mood" — điểm nhấn DUY NHẤT của tiêu đề: chữ nghiêng + màu cam thương hiệu. */
+.auth__accent {
+  color: var(--brand-orange);
+  font-style: italic;
+}
+
+.auth__intro {
+  margin: 0;
+  max-width: 36ch;
+  color: var(--auth-ink-soft);
+  font-size: clamp(.94rem, 1vw, 1.02rem);
+  line-height: 1.65;
+}
+
+/*
+  Nhãn "Made for Hà Nội" neo ở ĐÁY TRANG chứ không chảy theo nội dung: trong thiết kế nó
+  nằm trên tranh, mà tranh thì luôn ở đáy. Để nó trong luồng thì mỗi lần sửa độ dài đoạn
+  giới thiệu là nó lại nhảy chỗ.
+*/
+.auth__badge {
+  /*
+    `fixed` chứ không `absolute`: thẻ form của trang đăng ký cao hơn màn hình một chút,
+    nên neo theo TRANG sẽ đẩy nhãn này xuống dưới nếp gấp và không ai thấy nữa. Neo theo
+    MÀN HÌNH thì trang nào cũng thấy. (`overflow: hidden` của `.auth` không cắt được nó
+    vì phần tử `fixed` lấy khung nhìn làm gốc.)
+  */
+  position: fixed;
+  z-index: 3;
+  left: clamp(20px, 4vw, 64px);
+  bottom: clamp(18px, 3vh, 36px);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--auth-line);
+  background: var(--auth-card);
+  color: var(--auth-ink-soft);
+  font-size: .82rem;
+  font-weight: 600;
+  box-shadow: 0 6px 20px rgba(2, 29, 72, .10);
+}
+.auth__badge svg { color: var(--brand-orange); }
+
+/* --- Tranh Hà Nội -------------------------------------------------------- */
+
+.auth__scene {
+  position: absolute;
+  /* TRÀN CẢ BỀ NGANG màn hình, đúng bản thiết kế: tranh chạy suốt từ mép trái sang mép
+     phải và luồn xuống DƯỚI thẻ form (góc phải bản thiết kế là nét vẽ cầu Long Biên nằm
+     sau thẻ). Bản đầu chỉ để tranh rộng 46vw nên nó dừng giữa trang - đó là chỗ sai. */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  width: 100%;
+  /*
+    Chiều cao: 54vh, tức mép trên của tranh nằm đúng khoảng NỬA màn hình — đo từ bản
+    thiết kế (tranh bắt đầu ở 50% chiều cao khung 725×600).
+
+    Đã thử 76vh rồi chụp màn hình: tranh dâng lên tận đoạn giới thiệu, chữ đọc không ra
+    vì nằm đè lên tán cây. Chữ phải luôn nằm trên nền kem sạch.
+
+    56.3vw ≈ 100/1.776 là chiều cao "tự nhiên" theo tỉ lệ ảnh; lấy `min` để trên màn hình
+    rất hẹp thì tranh co lại chứ không bị phóng to quá đà.
+  */
+  height: min(54vh, 56.3vw);
+  /* `cover` chứ không `contain`: bị chặn chiều cao thì phải CẮT bớt phần trời (vốn trong
+     suốt, cắt đi không mất gì) chứ không được để hở hai bên. */
+  object-fit: cover;
+  object-position: center bottom;
+  /*
+    Bị cắt bớt phần trên nên tranh có một MÉP CẮT THẲNG chạy ngang qua tán cây. Tan dần
+    14% phía trên để mép đó hoà vào nền kem thay vì như bị kéo lê bằng dao.
+    `-webkit-` cho Safari — nó vẫn cần tiền tố cho `mask-image`.
+  */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 14%);
+  pointer-events: none;
+  user-select: none;
+}
+
+/*
+  Trang ĐĂNG KÝ không có tiêu đề bên trái (đúng bản thiết kế), nên không có chữ nào cần
+  giữ chỗ — để tranh cao hơn cho khỏi trống hoác nửa trang.
+  66vw ≈ 100/1.50, đúng tỉ lệ của `Register background.png` (404×269).
+*/
+.auth[data-scene='nen_dang_ky'] .auth__scene { height: min(72vh, 66vw); }
+
+/* Nền tối: tranh vẽ tông sáng, để nguyên sẽ chói. Làm mờ và giảm sáng để nó về đúng vai
+   trang trí, không tranh chỗ với nội dung. */
+:root[data-theme='dark'] .auth__scene {
+  opacity: .38;
+  filter: saturate(.75) brightness(.8);
+}
+
+/* =========================================================================
+   THẺ FORM — dùng chung cho đăng nhập và đăng ký
+   ========================================================================= */
+
+.auth-card {
+  display: flex;
+  flex-direction: column;
+  padding: clamp(22px, 2vw, 32px);
+  border: 1px solid var(--auth-line-soft);
+  border-radius: 20px;
+  background: var(--auth-card);
+  box-shadow: var(--auth-shadow);
+}
+
+.auth-card__title {
+  margin: 0 0 8px;
+  text-align: center;
+  font-size: 1.42rem;
+  font-weight: 800;
+  letter-spacing: -.01em;
+}
+
+.auth-card__sub {
+  margin: 0 0 22px;
+  text-align: center;
+  color: var(--auth-ink-soft);
+  font-size: .9rem;
+  line-height: 1.55;
+}
+
+/* --- Ô nhập -------------------------------------------------------------- */
+
+.field__label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: .84rem;
+  font-weight: 700;
+}
+
+.field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+/* Ô có dòng gợi ý ngay dưới -> bớt khoảng cách để chữ gợi ý dính vào đúng ô của nó,
+   không lửng lơ giữa hai ô. */
+.field--tight { margin-bottom: 6px; }
+
+.field__hint {
+  margin: 0 0 14px;
+  color: var(--auth-muted);
+  font-size: .78rem;
+  line-height: 1.45;
+}
+
+.field__icon {
+  position: absolute;
+  left: 12px;
+  color: var(--auth-muted);
+  /* Bấm trúng biểu tượng thì vẫn rơi vào ô nhập, không "trúng" cái hình. */
+  pointer-events: none;
+}
+
+.field__input {
+  width: 100%;
+  /* Chừa 40px bên trái cho biểu tượng, 42px bên phải cho nút con mắt. */
+  padding: 12px 42px 12px 40px;
+  border: 1px solid var(--auth-line);
+  border-radius: 12px;
+  background: var(--auth-field);
+  color: var(--auth-ink);
+  font: inherit;
+  font-size: .94rem;
+}
+.field__input::placeholder { color: var(--auth-muted); }
+
+.field__input:focus-visible {
+  outline: none;
+  border-color: var(--brand-orange);
+  /* Viền cam + quầng nhạt: thấy rõ đang ở ô nào mà ô không bị "nhảy" kích thước. */
+  box-shadow: 0 0 0 3px rgba(243, 146, 6, .18);
+}
+
+.field__eye {
+  position: absolute;
+  right: 6px;
+  display: inline-flex;
+  padding: 6px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--auth-muted);
+  cursor: pointer;
+}
+.field__eye:hover { color: var(--auth-ink); }
+
+/* --- Hàng "ghi nhớ / quên mật khẩu" -------------------------------------- */
+
+.auth-card__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 2px 0 18px;
+  font-size: .85rem;
+}
+
+/* Hàng chỉ có một ô tick dài (điều khoản sử dụng): căn TRÁI và cho chữ xuống dòng, thay
+   vì đẩy hai đầu như hàng "ghi nhớ / quên mật khẩu". */
+.auth-card__row--start { align-items: flex-start; justify-content: flex-start; }
+.auth-card__row--start .checkbox { align-items: flex-start; }
+
+.checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--auth-ink-soft);
+  cursor: pointer;
+}
+.checkbox input {
+  /* `flex: none` + `margin-top`: khi chữ dài xuống hai dòng, ô tick phải đứng yên cạnh
+     DÒNG ĐẦU chứ không bị kéo giãn hay trôi xuống giữa. */
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+  accent-color: var(--brand-orange);
+  cursor: pointer;
+}
+
+/* Nút trông như link. Dùng cho hành động KHÔNG chuyển trang - xem `LoginForm`. */
+.linkish {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--auth-link);
+  font: inherit;
+  font-size: inherit;
+  cursor: pointer;
+}
+.linkish:hover { text-decoration: underline; }
+
+.auth-card__note {
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--auth-line-soft);
+  color: var(--auth-ink-soft);
+  font-size: .84rem;
+  line-height: 1.5;
+}
+
+.auth-card__error {
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--auth-error-soft);
+  color: var(--auth-error);
+  font-size: .86rem;
+  line-height: 1.5;
+}
+
+/* --- Nút ----------------------------------------------------------------- */
+
+.btn {
+  padding: 13px 18px;
+  border: 0;
+  border-radius: 12px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn--primary {
+  background: var(--auth-primary);
+  color: var(--auth-primary-ink);
+}
+.btn--primary:hover:not(:disabled) { background: var(--auth-primary-2); }
+.btn--primary:disabled { opacity: .65; cursor: progress; }
+
+.btn:focus-visible {
+  outline: 2px solid var(--brand-orange);
+  outline-offset: 2px;
+}
+
+/* Nút CAM dành cho hành động "tạo mới" (nút Tạo tài khoản trong thiết kế). Khai sẵn ở
+   đây để trang đăng ký không phải tự chế màu riêng. */
+.btn--accent {
+  background: var(--brand-orange);
+  color: #FFFFFF;
+}
+.btn--accent:hover:not(:disabled) { background: var(--brand-orange-2); }
+
+/* --- Đường kẻ "hoặc" + chân thẻ ------------------------------------------ */
+
+.auth-card__or {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0 12px;
+  color: var(--auth-muted);
+  font-size: .82rem;
+}
+.auth-card__or::before,
+.auth-card__or::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--auth-line);
+}
+
+.auth-card__footer {
+  margin: 0;
+  text-align: center;
+  font-size: .88rem;
+  color: var(--auth-ink-soft);
+}
+.auth-card__footer a {
+  color: var(--auth-link);
+  font-weight: 600;
+  text-decoration: none;
+}
+.auth-card__footer a:hover { text-decoration: underline; }
+
+/* =========================================================================
+   MÀN HÌNH HẸP — bản XẾP DỌC tối thiểu.
+
+   ⚠️ CHƯA phải bản mobile trong thiết kế (bản đó có thêm nút menu ☰ và tiêu đề đè lên
+   tranh). Ở đây chỉ đảm bảo trang vẫn dùng được khi thu nhỏ cửa sổ.
+   ========================================================================= */
+
+@media (max-width: 900px) {
+  .auth__body {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    padding-bottom: clamp(96px, 22vh, 160px);
+  }
+  .auth__hero { max-width: none; padding-top: 8px; }
+  /* Thẻ form KHÔNG được kéo dài hết bề ngang: ô nhập rộng 800px trông như thanh tìm
+     kiếm chứ không ra form đăng nhập nữa. */
+  .auth__panel { justify-self: center; width: 100%; max-width: 460px; }
+  /* Tranh lùi xuống làm nền cho khỏi che form. */
+  .auth__scene { height: min(34vh, 60vw); opacity: .55; }
+  :root[data-theme='dark'] .auth__scene { opacity: .25; }
+}

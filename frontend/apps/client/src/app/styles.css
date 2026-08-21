@@ -52,33 +52,47 @@
   --step-2:  1.35rem;
 
   --font: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+
+  /* Báo cho trình duyệt biết đang ở nền nào, để thanh cuộn và ô tick do CHÍNH trình
+     duyệt vẽ cũng đổi màu theo - không thì chúng nằm trắng lốp giữa trang tối. */
+  color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    --bg:          #14140F;
-    --surface:     #1D1C18;
-    --surface-2:   #262420;
-    --ink:         #EDE9E1;
-    --ink-soft:    #BDB7AC;
-    --muted:       #8C877D;
-    --rule:        #35322C;
-    --rule-soft:   #2B2924;
+/*
+  NỀN TỐI.
 
-    --accent:      #E08B5A;
-    --accent-ink:  #241008;
-    --accent-soft: #33200F;
-    --open:        #6FBE95;
-    --open-soft:   #16281F;
-    --warn:        #D9A24B;
-    --warn-soft:   #2C2312;
-    --error:       #E58A7C;
-    --error-soft:  #2E1714;
+  Điều kiện là `[data-theme='dark']` chứ KHÔNG phải `@media (prefers-color-scheme: dark)`
+  nữa: từ 2026-08-21 người dùng tự bấm chọn được (nút 🌙 ở trang đăng nhập). CSS thuần
+  không gộp được hai điều kiện "máy đang tối" và "người dùng chọn tối" vào một khối, nên
+  quyết định để MỘT nơi chọn: đoạn script nhỏ trong `index.html` đọc cài đặt máy +
+  localStorage rồi dán sẵn `data-theme` lên <html> TRƯỚC khi trang vẽ (dán sau sẽ thấy
+  một nháy trắng). React sau đó cập nhật tiếp qua `features/switch-theme`.
+*/
+:root[data-theme='dark'] {
+  color-scheme: dark;
 
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, .4);
-    --shadow-md: 0 2px 8px rgba(0, 0, 0, .45);
-    --shadow-lg: 0 8px 32px rgba(0, 0, 0, .55);
-  }
+  --bg:          #14140F;
+  --surface:     #1D1C18;
+  --surface-2:   #262420;
+  --ink:         #EDE9E1;
+  --ink-soft:    #BDB7AC;
+  --muted:       #8C877D;
+  --rule:        #35322C;
+  --rule-soft:   #2B2924;
+
+  --accent:      #E08B5A;
+  --accent-ink:  #241008;
+  --accent-soft: #33200F;
+  --open:        #6FBE95;
+  --open-soft:   #16281F;
+  --warn:        #D9A24B;
+  --warn-soft:   #2C2312;
+  --error:       #E58A7C;
+  --error-soft:  #2E1714;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, .4);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, .45);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, .55);
 }
 
 * { box-sizing: border-box; }

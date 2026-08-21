@@ -1,6 +1,6 @@
 # MoodBite — Bảng theo dõi tiến độ
 
-**Cập nhật:** 2026-08-20
+**Cập nhật:** 2026-08-22
 **Nguyên tắc:** file này chỉ ghi thứ đã **chạy thật và kiểm chứng được**. Không ghi theo
 kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh để tự kiểm lại.
 
@@ -19,7 +19,7 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Frontend Client | ✅ **TypeScript + FSD** | 86 test, có bản đồ, steiger trong CI |
 | Bản đồ | ✅ **Xong** | Leaflet + OpenStreetMap, miễn phí, không cần key |
 | Kiến trúc | ✅ Sạch | Clean Architecture + checker tự động trong CI |
-| Test | ✅ **422 backend + 94 frontend** | tổng **516**, chạy hết ~52 giây |
+| Test | ✅ **422 backend + 115 frontend** | tổng **537** (client 107 · admin 8), chạy hết ~40 giây |
 | Giao diện | ✅ Theo bản duyệt | trang chủ = LƯỚI MÓN + chips lọc; trang món = giới thiệu + bản đồ + danh sách quán; `/tim-kiem` giữ bố cục bản đồ + rail cũ |
 | Router + layout | ✅ Xong | react-router v6, khung dùng chung, `RequireAuth` cho admin |
 | Chạy xem giao diện | ✅ **một lệnh** | `python scripts/run_dev.py --admin` |
@@ -52,7 +52,7 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Trích món từ review (đề án mục 7) | ✅ Xong | 1076 quán có review; bún chả 86 → 94 quán |
 | Ma trận truy vết | ✅ Viết lại 2026-08-19 | bản cũ có 9/10 đường dẫn KHÔNG tồn tại — xem `traceability.md` |
 | **Lớp 4 — Tóm tắt review** | ✅ **XONG 2026-08-19** | Trích rút TF-IDF centroid, **851/1310 quán** có nhận xét tổng hợp (339 quán có cả điểm yếu). Mọi câu TRÍCH NGUYÊN VĂN, không sinh chữ. `python -m data_pipeline.review_summary` |
-| Đăng nhập / tài khoản | 🟡 **Backend xong, chưa có UI** | `/api/v1/auth/*`: đăng ký · đăng nhập · `/me`. `packages/api-client` cũng CHƯA có method auth. Đổi phạm vi có chủ đích so với SRS mục 8 — xem ghi chú dưới bảng |
+| Đăng nhập / tài khoản | ✅ **Đăng nhập + đăng ký xong (2026-08-22)** | `/api/v1/auth/*` đủ 3 endpoint. Client: `/dang-nhap` và `/dang-ky` chạy thật qua `createAuthApi()`. CHƯA làm: trang hồ sơ, chỗ hiện "đang đăng nhập là ai", đăng xuất trên giao diện. Đổi phạm vi có chủ đích so với SRS mục 8 — xem ghi chú dưới bảng |
 | Phân quyền (`role`) | 🟡 Có `user`/`admin` + guard 403 | admin VẪN dùng biến môi trường, chưa chuyển sang bảng `users` |
 
 > **Ghi chú — tài khoản người dùng là ĐỔI PHẠM VI CÓ CHỦ ĐÍCH (2026-08-17).**
@@ -62,7 +62,8 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 > sửa lại là làm sai lịch sử. Chỗ nào mâu thuẫn thì **code + dòng này thắng**.
 >
 > Chưa làm: đăng xuất có thu hồi token, `user_id` trong `POST /interactions`, lưu quán yêu
-> thích ở server, và toàn bộ giao diện Login/Register/Profile.
+> thích ở server, giao diện Profile, và chỗ hiển thị "đang đăng nhập là ai" (kèm nút đăng
+> xuất). Giao diện Login + Register đã xong 2026-08-22 (xem mục dưới).
 
 **Tự kiểm toàn bộ bằng MỘT lệnh** (chạy được ở PowerShell, CMD, bash, macOS, Linux):
 
@@ -450,6 +451,52 @@ tưởng máy gợi ý kém, trong khi đó lại là quán khớp nhất — v�
 XẾP HẠNG, không phải xác suất. Dùng nhãn định tính (Rất phù hợp / Phù hợp / Có thể hợp)
 + thanh so sánh tương đối. Ngưỡng và lý do ghi đầy đủ ở
 `entities/restaurant/model/format.ts`, có 10 test khoá.
+
+### Trang đăng nhập + đăng ký cho máy tính (2026-08-21 → 22)
+
+Dựng theo bản thiết kế `frontend/design/Login - register.png`. **Logo lấy từ
+`frontend/design/attribute/Logo.png`** — chủ dự án chốt: logo vẽ trong ảnh mẫu là bản CŨ,
+bản trong `attribute/` mới đúng, và luật này áp cho MỌI layout về sau.
+
+- [x] `/dang-nhap` — bố cục hai cột: tiêu đề + tranh Hà Nội bên trái, thẻ form bên phải.
+      Kiểm chứng: chụp màn hình thật ở 1440×900 bằng Edge headless, khớp bản thiết kế.
+- [x] **Nối THẬT vào `POST /api/v1/auth/login`**, không phải form giả: token vào
+      `sessionStorage`, hoặc `localStorage` nếu tick "Ghi nhớ đăng nhập". 5 test đi qua
+      đúng lớp `HttpClient` (giả lập `fetch`, không mock module).
+- [x] **Câu lỗi lấy từ backend**, không dùng `userMessage` soạn sẵn — nếu không thì sai
+      mật khẩu lại hiện "Phiên đăng nhập đã hết hạn". Có test khoá.
+- [x] **Nền sáng/tối bấm được** (`features/switch-theme`, 4 test). `styles.css` đổi từ
+      `@media (prefers-color-scheme)` sang `[data-theme]`; script nhỏ trong `index.html`
+      dán sẵn thuộc tính trước khi trang vẽ để không nháy trắng.
+- [x] Ảnh khai ở `shared/config/images.ts` (`logo`, `nen_dang_nhap`), file đặt ở
+      `public/anh/`. Thiếu file thì hiện bản thay thế, không để ô ảnh vỡ.
+- [x] Chỗ để layout sau: `widgets/auth-layout` (khung dùng chung), `app/styles/brand.css`
+      (màu thương hiệu), `shared/ui` (logo, icon, ô ngôn ngữ).
+- [x] **`/dang-ky` (2026-08-22)** — dùng LẠI đúng khung của trang đăng nhập, chỉ đổi tranh
+      nền (`Register background.png`). Nối thật vào `POST /auth/register`, đăng ký xong
+      vào thẳng app vì backend trả luôn token. 5 test.
+- [x] **Phiên tài khoản chuyển sang `entities/user` (2026-08-22).** Lý do: đăng nhập và
+      đăng ký là HAI feature mà FSD cấm feature này import feature kia — để state ở
+      `features/auth-login` thì đăng ký xong app vẫn tưởng chưa đăng nhập cho tới khi tải
+      lại trang. Khái niệm dùng chung phải nằm ở tầng dùng chung.
+- [x] **Sửa theo nhận xét của chủ dự án (2026-08-22):** logo 46 → 64px; tranh nền TRÀN CẢ
+      BỀ NGANG màn hình (bản đầu chỉ rộng 46vw nên dừng giữa trang, sai bản thiết kế).
+
+**Ghi chú số liệu — bản thiết kế ghi khác backend, và BACKEND THẮNG:**
+mẫu ghi mật khẩu "Ít nhất 6 ký tự" và tên đăng nhập "3–30 ký tự"; luật thật ở
+`src/domain/entities/user.py` là **≥ 8 ký tự** và **3–32 ký tự**. Giao diện hiển thị theo
+luật thật, nếu không thì người dùng gõ 6 ký tự rồi bị server từ chối mà không hiểu vì sao.
+
+**CHƯA làm, cố ý:**
+- **Quên mật khẩu** — không có dịch vụ gửi email, nên nút đó chỉ nói thẳng là chưa có
+  chứ không dẫn đi đâu.
+- **Điều khoản sử dụng** — chưa có trang điều khoản, nên chữ đó chỉ mở ra một dòng giải
+  thích chứ không dẫn đi đâu.
+- **Đa ngôn ngữ** — ô "VI" chỉ có đúng một lựa chọn; làm i18n thật là việc riêng.
+- **Bản mobile trong thiết kế** — hiện mới xếp dọc cho dùng được, chưa có thanh ☰.
+- **Ảnh nền trang đăng ký chỉ 404×269 px** (trang đăng nhập là 1672×941). Phóng lên cả bề
+  ngang màn hình thì nét vẽ hơi nhoè. Có bản xuất lớn hơn thì chép đè
+  `public/anh/nen-dang-ky.png`, không phải sửa code.
 
 ### Dọn dẹp phụ thuộc (2026-08-17)
 - [x] Chuyển toàn bộ floorplan/3D vào `archive/spatial-3d/` (11 file)

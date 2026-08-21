@@ -10,6 +10,8 @@ export const ROUTES = {
   home: '/',
   /** Chi tiết món. Tiếng Việt không dấu trên URL cho dễ đọc và dễ chia sẻ. */
   dish: '/mon/:dishId',
+  login: '/dang-nhap',
+  register: '/dang-ky',
 } as const;
 
 /** Dựng đường dẫn tới một món cụ thể. Dùng hàm thay vì nối chuỗi tay để khỏi gõ sai. */

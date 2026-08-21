@@ -7,6 +7,11 @@
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { routes } from './routes';
 import './styles.css';
+// Tách theo VIỆC chứ không theo trang: `brand.css` là màu + mảnh dùng lại ở mọi layout,
+// `auth.css` là bố cục riêng của nhóm trang tài khoản. Thêm layout mới thì thêm một file
+// ở `app/styles/` và một dòng import ở đây - đừng nhồi tiếp vào `styles.css`.
+import './styles/brand.css';
+import './styles/auth.css';
 
 const router = createBrowserRouter(routes);
 

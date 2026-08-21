@@ -8,7 +8,15 @@
  * Trang phụ (404) tự dựng khung riêng bằng class `.plain`.
  */
 import { Outlet } from 'react-router-dom';
+import { UserSessionProvider } from '@/entities/user';
 
 export function RootLayout() {
-  return <Outlet />;
+  // Provider bọc TOÀN BỘ route: trang đăng nhập và các trang khác là route ANH EM, không
+  // có cha chung nào khác để chia sẻ state phiên. Nó chỉ đọc token trong storage lúc dựng
+  // - không gọi mạng, nên trang chưa cần tài khoản cũng không tốn gì.
+  return (
+    <UserSessionProvider>
+      <Outlet />
+    </UserSessionProvider>
+  );
 }

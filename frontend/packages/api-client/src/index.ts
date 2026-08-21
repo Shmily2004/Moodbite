@@ -32,6 +32,9 @@ export type {
   SuggestedDish,
 } from './endpoints';
 
+export { MoodbiteAuthApi } from './auth';
+export type { AuthData, LoginRequest, RegisterRequest, UserPublic } from './auth';
+
 export { MoodbiteAdminApi } from './admin';
 export type {
   AdminListParams,
@@ -46,18 +49,33 @@ export type { components, paths } from './schema';
 
 import { HttpClient } from './http';
 import { MoodbiteApi } from './endpoints';
+import { MoodbiteAuthApi } from './auth';
 import { MoodbiteAdminApi } from './admin';
 
 export const DEFAULT_API_BASE = 'http://localhost:8001/api/v1';
 
 /**
- * Client cho app NGƯỜI DÙNG CUỐI (`apps/client`).
+ * Client cho app NGƯỜI DÙNG CUỐI (`apps/client`) — phần KHÔNG cần đăng nhập.
  *
- * Cố tình KHÔNG nhận token: luồng người dùng cuối không có đăng nhập, và lớp trả về
- * không hề có method quản trị nào.
+ * Cố tình KHÔNG nhận token: tìm quán, xem món, gợi ý theo tâm trạng đều dùng được khi
+ * chưa có tài khoản, và lớp trả về không hề có method quản trị nào. Phần cần tài khoản
+ * đi qua `createAuthApi()` bên dưới.
  */
 export function createApi(baseUrl: string = DEFAULT_API_BASE): MoodbiteApi {
   return new MoodbiteApi(new HttpClient({ baseUrl }));
+}
+
+/**
+ * Client cho TÀI KHOẢN NGƯỜI DÙNG (`apps/client`) — đăng nhập, đăng ký.
+ *
+ * `getAuthToken` là TUỲ CHỌN: `/auth/login` không cần token (chưa đăng nhập thì lấy
+ * đâu ra). Truyền vào khi app đã giữ token và cần gọi endpoint yêu cầu đăng nhập.
+ */
+export function createAuthApi(
+  baseUrl: string = DEFAULT_API_BASE,
+  getAuthToken?: () => string | null,
+): MoodbiteAuthApi {
+  return new MoodbiteAuthApi(new HttpClient({ baseUrl, getAuthToken }));
 }
 
 /**

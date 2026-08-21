@@ -76,8 +76,25 @@ export interface AnhUI {
  * có ảnh rồi hiện ô vỡ — tệ hơn hẳn.
  */
 export const ANH_GIAO_DIEN: Record<string, AnhUI | null> = {
-  /** Logo ở góc trái header. */
-  logo: null,
+  /**
+   * Logo chính thức. NGUỒN DUY NHẤT: `frontend/design/attribute/Logo.png`.
+   *
+   * ⚠️ Bản logo trong các file ảnh MẪU THIẾT KẾ (`design/*.png`) là bản CŨ, vẽ khác.
+   * Chủ dự án đã chốt 2026-08-21: logo trong `design/attribute/` mới là bản đúng, và
+   * luật này áp cho MỌI layout về sau. Vì vậy mọi nơi phải lấy logo từ đây, đừng vẽ
+   * lại bằng CSS/SVG theo ảnh mẫu.
+   *
+   * Không khai `srcDark`: chữ trong logo màu xanh navy nên chìm trên nền tối. Cách xử
+   * lý là đặt logo lên một tấm nền sáng (xem `.brand-logo` trong `app/styles/brand.css`),
+   * chứ không phải đổi màu logo — bộ nhận diện chỉ có một bản.
+   */
+  logo: {
+    src: '/anh/logo.png',
+    alt: 'MoodBite',
+    width: 226,
+    height: 114,
+    fit: 'contain',
+  },
 
   /** Ảnh bìa đầu trang chủ, phía trên lưới món. */
   bia_trang_chu: null,
@@ -88,8 +105,39 @@ export const ANH_GIAO_DIEN: Record<string, AnhUI | null> = {
   /** Hình minh hoạ khi mất mạng / backend không trả lời. */
   loi_ket_noi: null,
 
-  /** Ảnh nền trang đăng nhập (nếu sau này làm giao diện tài khoản). */
-  nen_dang_nhap: null,
+  /**
+   * Tranh Hà Nội ở nửa trái trang đăng nhập/đăng ký.
+   *
+   * Ảnh có NỀN TRONG SUỐT ở phần trời (đã kiểm: alpha = 0 ở toàn bộ mép trên), nên nó
+   * hoà thẳng vào màu kem của trang mà không cần cắt thêm. Đặt ở đáy, tràn mép trái.
+   *
+   * `alt` để RỖNG có chủ đích: đây là ảnh trang trí, người dùng trình đọc màn hình
+   * không mất thông tin gì khi bỏ qua — nội dung thật nằm ở tiêu đề bên cạnh.
+   */
+  nen_dang_nhap: {
+    src: '/anh/nen-dang-nhap.png',
+    alt: '',
+    width: 1672,
+    height: 941,
+    fit: 'cover',
+    position: 'center bottom',
+  },
+
+  /**
+   * Tranh phố Hà Nội ở trang ĐĂNG KÝ. Cùng cách dùng với `nen_dang_nhap`.
+   *
+   * ⚠️ File gốc chỉ 404×269 px — nhỏ hơn hẳn tranh trang đăng nhập (1672×941). Phóng to
+   * lên cả bề ngang màn hình thì nét vẽ sẽ hơi nhoè. Chấp nhận được vì đây là tranh màu
+   * nước, nhưng có bản xuất lớn hơn thì nên thay: chỉ cần chép đè file, không phải sửa code.
+   */
+  nen_dang_ky: {
+    src: '/anh/nen-dang-ky.png',
+    alt: '',
+    width: 404,
+    height: 269,
+    fit: 'cover',
+    position: 'center bottom',
+  },
 };
 
 /**

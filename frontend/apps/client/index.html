@@ -4,6 +4,32 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MoodBite — Gợi ý quán ăn Hà Nội</title>
+    <script>
+      /*
+        Chọn nền sáng/tối TRƯỚC khi trang vẽ khung hình đầu tiên.
+
+        VÌ SAO PHẢI Ở ĐÂY, KHÔNG ĐỂ REACT LÀM: React chỉ chạy sau khi tải xong bundle JS.
+        Trong khoảng đó trình duyệt đã vẽ nền sáng rồi, nên người chọn nền tối sẽ thấy
+        một nháy TRẮNG loá mắt mỗi lần mở trang.
+
+        ⚠️ Khoá 'moodbite.theme' phải KHỚP với `features/switch-theme/model/useTheme.ts`.
+        Đoạn này không import module được (chạy trước bundle), nên đây là chỗ DUY NHẤT
+        trong dự án buộc phải chép lại một hằng số - sửa bên kia thì sửa cả bên này.
+      */
+      (function () {
+        try {
+          var luu = localStorage.getItem('moodbite.theme');
+          var theoMay =
+            window.matchMedia &&
+            window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var toi = luu === 'dark' || (luu !== 'light' && theoMay);
+          document.documentElement.dataset.theme = toi ? 'dark' : 'light';
+        } catch (e) {
+          // Trình duyệt chặn storage -> nền sáng. Không được để lỗi ở đây chặn cả trang.
+          document.documentElement.dataset.theme = 'light';
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

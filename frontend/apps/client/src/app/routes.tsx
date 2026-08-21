@@ -22,6 +22,8 @@ import type { RouteObject } from 'react-router-dom';
 import { HomePage } from '@/pages/home';
 import { DishPage } from '@/pages/dish';
 import { SearchPage } from '@/pages/search';
+import { LoginPage } from '@/pages/login';
+import { RegisterPage } from '@/pages/register';
 import { NotFoundPage } from '@/pages/not-found';
 import { ROUTES } from '@/shared/config';
 import { RootLayout } from './layout/RootLayout';
@@ -36,6 +38,9 @@ export const routes: RouteObject[] = [
     children: [
       { index: true, element: <HomePage /> },
       { path: ROUTES.dish, element: <DishPage /> },
+      // Đăng nhập/đăng ký là TUỲ CHỌN: không có route guard nào bắt qua đây trước.
+      { path: ROUTES.login, element: <LoginPage /> },
+      { path: ROUTES.register, element: <RegisterPage /> },
       // Luồng cũ: tìm quán bằng câu tự nhiên.
       { path: '/tim-kiem', element: <SearchPage /> },
       // '*' phải nằm CUỐI: react-router chọn route khớp nhất, nhưng để nhầm thứ tự

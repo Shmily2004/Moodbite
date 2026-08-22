@@ -152,15 +152,14 @@ export const ANH_GIAO_DIEN: Record<string, AnhUI | null> = {
   /**
    * Tranh phố Hà Nội ở trang ĐĂNG KÝ. Cùng cách dùng với `nen_dang_nhap`.
    *
-   * ⚠️ File gốc chỉ 404×269 px — nhỏ hơn hẳn tranh trang đăng nhập (1672×941). Phóng to
-   * lên cả bề ngang màn hình thì nét vẽ sẽ hơi nhoè. Chấp nhận được vì đây là tranh màu
-   * nước, nhưng có bản xuất lớn hơn thì nên thay: chỉ cần chép đè file, không phải sửa code.
+   * Bản 2026-08-22 đã được chủ dự án xuất lại ở 1536×1024 (bản đầu chỉ 404×269, phóng lên
+   * cả màn hình thì nhoè). Đổi file thì chạy `python scripts/prepare_design_assets.py`.
    */
   nen_dang_ky: {
     src: '/anh/nen-dang-ky.png',
     alt: '',
-    width: 404,
-    height: 269,
+    width: 1536,
+    height: 1024,
     fit: 'cover',
     position: 'center bottom',
   },

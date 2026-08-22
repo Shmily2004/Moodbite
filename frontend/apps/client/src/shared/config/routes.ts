@@ -12,6 +12,13 @@ export const ROUTES = {
   dish: '/mon/:dishId',
   login: '/dang-nhap',
   register: '/dang-ky',
+  forgotPassword: '/quen-mat-khau',
+  /**
+   * Trang đặt mật khẩu mới. Đường dẫn này nằm TRONG THƯ gửi cho người dùng, do backend
+   * dựng từ biến môi trường `MOODBITE_APP_URL` — xem `RequestPasswordResetUseCase`.
+   * ⚠️ Đổi đường dẫn ở đây thì phải đổi cả bên đó, nếu không link trong thư sẽ ra 404.
+   */
+  resetPassword: '/dat-lai-mat-khau',
 } as const;
 
 /** Dựng đường dẫn tới một món cụ thể. Dùng hàm thay vì nối chuỗi tay để khỏi gõ sai. */

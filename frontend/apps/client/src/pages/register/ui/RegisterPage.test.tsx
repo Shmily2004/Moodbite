@@ -50,12 +50,14 @@ function renderRegister() {
 
 interface DienOptions {
   displayName?: string;
+  email?: string;
   password?: string;
   confirm?: string;
 }
 
 function dienForm({
   displayName = 'Mừng',
+  email = 'mung@vidu.com',
   password = 'matkhaudai123',
   confirm = 'matkhaudai123',
 }: DienOptions = {}) {
@@ -65,6 +67,7 @@ function dienForm({
   fireEvent.change(screen.getByLabelText('Tên hiển thị'), {
     target: { value: displayName },
   });
+  fireEvent.change(screen.getByLabelText(/^Email/), { target: { value: email } });
   fireEvent.change(screen.getByLabelText('Mật khẩu'), { target: { value: password } });
   fireEvent.change(screen.getByLabelText('Xác nhận mật khẩu'), {
     target: { value: confirm },
@@ -97,6 +100,7 @@ describe('RegisterPage', () => {
       username: 'mung',
       password: 'matkhaudai123',
       display_name: 'Mừng',
+      email: 'mung@vidu.com',
     });
 
     await waitFor(() => {
@@ -104,15 +108,18 @@ describe('RegisterPage', () => {
     });
   });
 
-  it('bỏ trống tên hiển thị thì gửi null, KHÔNG gửi chuỗi rỗng', async () => {
+  it('bỏ trống tên hiển thị và email thì gửi null, KHÔNG gửi chuỗi rỗng', async () => {
     const fetchMock = mockRegisterOk();
     vi.stubGlobal('fetch', fetchMock);
     renderRegister();
 
-    dienForm({ displayName: '   ' });
+    dienForm({ displayName: '   ', email: '' });
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalled());
-    expect(JSON.parse(fetchMock.mock.calls[0][1].body).display_name).toBeNull();
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+    expect(body.display_name).toBeNull();
+    // Chuỗi rỗng sẽ bị backend coi là "có khai email" rồi báo sai định dạng.
+    expect(body.email).toBeNull();
   });
 
   it('hai ô mật khẩu lệch nhau thì KHÔNG gọi API', async () => {

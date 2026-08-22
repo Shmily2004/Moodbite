@@ -15,6 +15,7 @@ from pydantic import BaseModel, Field
 from src.domain.entities.dish import COOKING_METHODS, MEAL_TIMES
 from src.domain.entities.interaction import ActionType
 from src.domain.entities.user import (
+    MAX_EMAIL_LENGTH,
     MAX_PASSWORD_LENGTH,
     MAX_USERNAME_LENGTH,
     MIN_PASSWORD_LENGTH,
@@ -343,6 +344,43 @@ class RegisterRequest(BaseModel):
         max_length=64,
         description="Tên hiển thị, ĐƯỢC dùng tiếng Việt có dấu. Không dùng để đăng nhập.",
     )
+    email: Optional[str] = Field(
+        default=None,
+        max_length=MAX_EMAIL_LENGTH,
+        description=(
+            "TUỲ CHỌN. Chỉ dùng để gửi thư đặt lại mật khẩu. Không khai thì tài khoản vẫn "
+            "dùng bình thường, chỉ là sau này không tự lấy lại mật khẩu được."
+        ),
+    )
+
+
+class ForgotPasswordRequest(BaseModel):
+    identifier: str = Field(
+        ...,
+        min_length=1,
+        max_length=MAX_EMAIL_LENGTH,
+        description="Email HOẶC tên đăng nhập. Người dùng thường chỉ nhớ một trong hai.",
+    )
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str = Field(..., min_length=1, description="Token lấy từ đường dẫn trong thư.")
+    new_password: str = Field(
+        ...,
+        min_length=1,
+        max_length=MAX_PASSWORD_LENGTH,
+        description=f"Mật khẩu mới, tối thiểu {MIN_PASSWORD_LENGTH} ký tự.",
+    )
+
+
+class MessageData(BaseModel):
+    """Kết quả cho các thao tác không trả về tài nguyên nào."""
+
+    message: str = Field(..., description="Câu thông báo hiển thị thẳng cho người dùng.")
+
+
+class MessageResponse(BaseModel):
+    data: MessageData
 
 
 class LoginRequest(BaseModel):

@@ -737,6 +737,90 @@
         }
       }
     },
+    "/api/v1/auth/forgot-password": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Forgot Password",
+        "description": "Gửi thư kèm đường dẫn đặt lại mật khẩu.\n\n⚠️ LUÔN TRẢ CÙNG MỘT CÂU, dù tài khoản có tồn tại hay không, dù có email hay không.\nTrả lời khác nhau là biến endpoint này thành công cụ dò xem email/tên nào đã đăng ký —\nđúng thứ mà `/login` đã cẩn thận tránh.\n\nGiới hạn tần suất CHẶT hơn đăng nhập: mỗi lần gọi là một lá thư thật bay đi, và hạn\nmức SMTP miễn phí của Gmail chỉ khoảng 500 thư/ngày. Không chặn thì một người bấm liên\ntục là đủ làm tính năng chết cả ngày cho mọi người.",
+        "operationId": "forgot_password_api_v1_auth_forgot_password_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/reset-password": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Reset Password",
+        "description": "Đổi mật khẩu bằng token trong thư.\n\nToken hỏng/hết hạn/đã dùng -> 401. Mật khẩu mới sai định dạng -> 400.\nĐổi xong KHÔNG tự đăng nhập: client phải chuyển sang trang đăng nhập.",
+        "operationId": "reset_password_api_v1_auth_reset_password_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/auth/me": {
       "get": {
         "tags": [
@@ -1801,6 +1885,22 @@
         ],
         "title": "ErrorEnvelope"
       },
+      "ForgotPasswordRequest": {
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "maxLength": 254,
+            "minLength": 1,
+            "title": "Identifier",
+            "description": "Email HOẶC tên đăng nhập. Người dùng thường chỉ nhớ một trong hai."
+          }
+        },
+        "type": "object",
+        "required": [
+          "identifier"
+        ],
+        "title": "ForgotPasswordRequest"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -1972,6 +2072,33 @@
         ],
         "title": "MeResponse"
       },
+      "MessageData": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Câu thông báo hiển thị thẳng cho người dùng."
+          }
+        },
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "title": "MessageData",
+        "description": "Kết quả cho các thao tác không trả về tài nguyên nào."
+      },
+      "MessageResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/MessageData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "MessageResponse"
+      },
       "MoodsData": {
         "properties": {
           "supported_moods": {
@@ -2033,6 +2160,19 @@
             ],
             "title": "Display Name",
             "description": "Tên hiển thị, ĐƯỢC dùng tiếng Việt có dấu. Không dùng để đăng nhập."
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 254
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email",
+            "description": "TUỲ CHỌN. Chỉ dùng để gửi thư đặt lại mật khẩu. Không khai thì tài khoản vẫn dùng bình thường, chỉ là sau này không tự lấy lại mật khẩu được."
           }
         },
         "type": "object",
@@ -2041,6 +2181,29 @@
           "password"
         ],
         "title": "RegisterRequest"
+      },
+      "ResetPasswordRequest": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Token",
+            "description": "Token lấy từ đường dẫn trong thư."
+          },
+          "new_password": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "New Password",
+            "description": "Mật khẩu mới, tối thiểu 8 ký tự."
+          }
+        },
+        "type": "object",
+        "required": [
+          "token",
+          "new_password"
+        ],
+        "title": "ResetPasswordRequest"
       },
       "RestaurantDetailData": {
         "properties": {

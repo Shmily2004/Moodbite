@@ -77,6 +77,16 @@ export function IconEyeOff(props: IconProps) {
   );
 }
 
+/** Phong bì thư — đặt trong ô "Email". */
+export function IconMail(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect x="3" y="5.5" width="18" height="13" rx="2.5" />
+      <path d="m3.6 7 7.3 5.4a2 2 0 0 0 2.2 0L20.4 7" />
+    </Icon>
+  );
+}
+
 /** Trái tim — vế phải của nhãn "Made for Hà Nội!". */
 export function IconHeart(props: IconProps) {
   return (

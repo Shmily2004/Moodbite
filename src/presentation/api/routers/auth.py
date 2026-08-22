@@ -3,6 +3,9 @@
 MỎNG theo đúng CLAUDE.md mục 3: nhận HTTP, gọi use case, trả envelope. Quy tắc đặt tên
 và mật khẩu nằm ở `domain/entities/user.py`; băm và ký token nằm ở `infrastructure/auth/`.
 
+QUÊN MẬT KHẨU (thêm 2026-08-22): `/forgot-password` gửi thư, `/reset-password` đổi mật
+khẩu bằng token trong thư. Token KHÔNG lưu vào CSDL — xem `infrastructure/auth/password_reset.py`.
+
 BA CHỐT CHẶN, độc lập nhau:
   1. Chưa đặt MOODBITE_AUTH_SECRET -> 503 kèm hướng dẫn. Fail-closed.
   2. Giới hạn tần suất theo IP trên cả `/register` lẫn `/login`.
@@ -29,9 +32,12 @@ from src.presentation.api.dependencies import (
 from src.presentation.api.envelope import success
 from src.presentation.api.schemas import (
     AuthResponse,
+    ForgotPasswordRequest,
     LoginRequest,
     MeResponse,
+    MessageResponse,
     RegisterRequest,
+    ResetPasswordRequest,
 )
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -71,7 +77,7 @@ def register(
     container.register_rate_limiter.check(client_key(request))
 
     user, token = container.register_user.execute(
-        payload.username, payload.password, payload.display_name
+        payload.username, payload.password, payload.display_name, payload.email
     )
     return success(
         _auth_payload(user, token, container.user_tokens.token_ttl_seconds),
@@ -100,6 +106,57 @@ def login(
     # bị chặn oan ở lần đăng nhập sau.
     container.login_rate_limiter.reset(key)
     return success(_auth_payload(user, token, container.user_tokens.token_ttl_seconds))
+
+
+@router.post("/forgot-password", response_model=MessageResponse)
+def forgot_password(
+    payload: ForgotPasswordRequest,
+    request: Request,
+    container: Container = Depends(get_container),
+):
+    """Gửi thư kèm đường dẫn đặt lại mật khẩu.
+
+    ⚠️ LUÔN TRẢ CÙNG MỘT CÂU, dù tài khoản có tồn tại hay không, dù có email hay không.
+    Trả lời khác nhau là biến endpoint này thành công cụ dò xem email/tên nào đã đăng ký —
+    đúng thứ mà `/login` đã cẩn thận tránh.
+
+    Giới hạn tần suất CHẶT hơn đăng nhập: mỗi lần gọi là một lá thư thật bay đi, và hạn
+    mức SMTP miễn phí của Gmail chỉ khoảng 500 thư/ngày. Không chặn thì một người bấm liên
+    tục là đủ làm tính năng chết cả ngày cho mọi người.
+    """
+    container.reset_tokens.ensure_configured()
+    container.forgot_password_rate_limiter.check(client_key(request))
+
+    # Lỗi máy chủ thư thì VẪN ném ra ngoài (503): đó không phải thông tin về tài khoản,
+    # và giấu đi thì người dùng ngồi đợi mãi một lá thư không bao giờ tới.
+    container.request_password_reset.execute(payload.identifier)
+
+    return success(
+        {
+            "message": (
+                "Nếu tài khoản tồn tại và đã khai email, thư hướng dẫn đặt lại mật khẩu "
+                "đã được gửi. Hãy kiểm tra cả hộp thư rác."
+            )
+        }
+    )
+
+
+@router.post("/reset-password", response_model=MessageResponse)
+def reset_password(
+    payload: ResetPasswordRequest,
+    request: Request,
+    container: Container = Depends(get_container),
+):
+    """Đổi mật khẩu bằng token trong thư.
+
+    Token hỏng/hết hạn/đã dùng -> 401. Mật khẩu mới sai định dạng -> 400.
+    Đổi xong KHÔNG tự đăng nhập: client phải chuyển sang trang đăng nhập.
+    """
+    container.reset_tokens.ensure_configured()
+    container.login_rate_limiter.check(client_key(request))
+
+    container.reset_password.execute(payload.token, payload.new_password)
+    return success({"message": "Đã đổi mật khẩu. Hãy đăng nhập bằng mật khẩu mới."})
 
 
 @router.get("/me", response_model=MeResponse)

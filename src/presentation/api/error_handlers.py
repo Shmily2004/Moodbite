@@ -21,6 +21,7 @@ from src.application.errors import (
     PermissionDeniedError,
     RateLimitExceeded,
 )
+from src.application.ports.email_sender import EmailSendFailed
 from src.application.ports.user_repository import UsernameAlreadyExists
 from src.application.use_cases.find_restaurants_for_dish import DishNotFoundError
 from src.application.use_cases.log_interaction import (
@@ -141,6 +142,14 @@ def register_error_handlers(app: FastAPI) -> None:
         # Chưa cấu hình xác thực người dùng. Cùng quy ước với admin ở trên; đăng ký riêng
         # vì thông báo khác nhau (biến môi trường khác nhau).
         return error(ErrorCode.DATA_NOT_READY, str(exc), status_code=503)
+
+    @app.exception_handler(EmailSendFailed)
+    async def _email_send_failed(request: Request, exc: EmailSendFailed):
+        # Máy chủ thư là DỊCH VỤ BÊN NGOÀI và luồng quên mật khẩu KHÔNG có phương án dự
+        # phòng nào — không gửi được thư thì đúng nghĩa là không làm được việc. Trả 503
+        # theo đúng quy ước ở CLAUDE.md mục 5, KHÔNG nuốt lỗi rồi báo "đã gửi": người dùng
+        # sẽ ngồi đợi mãi một lá thư không bao giờ tới.
+        return error(ErrorCode.EXTERNAL_SERVICE_UNAVAILABLE, str(exc), status_code=503)
 
     @app.exception_handler(ValueError)
     async def _value_error(request: Request, exc: ValueError):

@@ -86,6 +86,12 @@ LOGIN_WINDOW_SECONDS = 300
 REGISTER_MAX_ATTEMPTS = 3
 REGISTER_WINDOW_SECONDS = 3600
 
+# QUÊN MẬT KHẨU: 3 lần/giờ. Chặt hơn cả đăng nhập vì mỗi lần gọi là một LÁ THƯ THẬT bay
+# đi: hạn mức SMTP miễn phí của Gmail chỉ ~500 thư/ngày, và người nhận bị dội thư liên tục
+# thì tài khoản gửi rất dễ bị đánh dấu spam. Người quên thật cũng chỉ cần bấm 1-2 lần.
+FORGOT_PASSWORD_MAX_ATTEMPTS = 3
+FORGOT_PASSWORD_WINDOW_SECONDS = 3600
+
 
 __all__ = [
     "SlidingWindowRateLimiter",
@@ -94,4 +100,6 @@ __all__ = [
     "LOGIN_WINDOW_SECONDS",
     "REGISTER_MAX_ATTEMPTS",
     "REGISTER_WINDOW_SECONDS",
+    "FORGOT_PASSWORD_MAX_ATTEMPTS",
+    "FORGOT_PASSWORD_WINDOW_SECONDS",
 ]

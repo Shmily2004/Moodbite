@@ -25,6 +25,7 @@ export interface UseUserSessionResult {
     username: string,
     password: string,
     displayName: string,
+    email: string,
   ) => Promise<void>;
   logout: () => void;
   /** Xoá câu báo lỗi cũ khi người dùng chuyển sang trang khác. */
@@ -79,14 +80,23 @@ export function useUserSession(): UseUserSessionResult {
   );
 
   const register = useCallback(
-    async (username: string, password: string, displayName: string) => {
+    async (
+      username: string,
+      password: string,
+      displayName: string,
+      email: string,
+    ) => {
       setLoading(true);
       setError(null);
       try {
         const ten = displayName.trim();
+        const hopThu = email.trim();
         const data = await authApi.register({
           username: username.trim(),
           password,
+          // Bỏ trống -> gửi `null`. Chuỗi rỗng sẽ được backend hiểu là "có khai email"
+          // rồi ném lỗi định dạng, dù người dùng cố tình không muốn khai.
+          email: hopThu === '' ? null : hopThu,
           // Bỏ trống thì gửi `null` chứ không gửi chuỗi rỗng: backend hiểu `null` là
           // "không có tên hiển thị" và sẽ dùng tên đăng nhập, còn chuỗi rỗng sẽ thành
           // một cái tên trống rỗng hiện ra màn hình.

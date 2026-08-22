@@ -134,6 +134,12 @@ class UnavailableUserRepo:
     def get_by_id(self, user_id):
         return None
 
+    def get_by_email(self, email):
+        return None
+
+    def update_password(self, user_id, password_hash):
+        raise AssertionError("Bộ test này không được đổi mật khẩu")
+
     def create(self, user):
         raise AssertionError("Bộ test này không được tạo tài khoản")
 
@@ -142,6 +148,32 @@ class UnavailableUserRepo:
 
     def status(self):
         return {"ready": False, "error": "tat trong test"}
+
+
+class FakeEmailSender:
+    """Máy gửi thư GIẢ — giữ lại thư trong bộ nhớ thay vì gửi thật.
+
+    Bắt buộc phải có: không ai được để bộ test bắn thư thật vào hộp thư của ai đó, và
+    kiểm nội dung thư (có đúng đường dẫn không, có lộ mật khẩu không) là một phần của
+    tính năng quên mật khẩu.
+    """
+
+    def __init__(self, *, configured=True, loi=None):
+        self.da_gui = []          # danh sách dict(to, subject, body)
+        self._configured = configured
+        self._loi = loi           # đặt một Exception vào đây để giả lập máy chủ thư hỏng
+
+    @property
+    def is_configured(self):
+        return self._configured
+
+    def send(self, *, to, subject, body):
+        if self._loi is not None:
+            raise self._loi
+        self.da_gui.append({"to": to, "subject": subject, "body": body})
+
+    def status(self):
+        return {"ready": self._configured, "source": "gia-lap", "error": None}
 
 
 def attach_disabled_auth(container):
@@ -155,18 +187,34 @@ def attach_disabled_auth(container):
     from src.application.use_cases.manage_account import (
         LoginUseCase,
         RegisterUserUseCase,
+        RequestPasswordResetUseCase,
+        ResetPasswordUseCase,
     )
+    from src.infrastructure.auth.password_reset import PasswordResetTokenService
     from src.infrastructure.auth.rate_limit import SlidingWindowRateLimiter
     from src.infrastructure.auth.user_auth import UserTokenService
 
     users = UnavailableUserRepo()
     tokens = UserTokenService(token_secret="")   # rỗng = chưa cấu hình
+    reset_tokens = PasswordResetTokenService(token_secret="")
+    emails = FakeEmailSender(configured=False)
     container.users = users
     container.user_tokens = tokens
+    container.reset_tokens = reset_tokens
+    container.emails = emails
     container.register_user = RegisterUserUseCase(users, lambda p: "x", tokens.issue)
     container.login_user = LoginUseCase(users, lambda p, h: False, tokens.issue)
+    container.request_password_reset = RequestPasswordResetUseCase(
+        users=users,
+        emails=emails,
+        issue_reset_token=reset_tokens.issue,
+        app_base_url="http://localhost:5173",
+        token_ttl_seconds=reset_tokens.token_ttl_seconds,
+    )
+    container.reset_password = ResetPasswordUseCase(users, lambda p: "x", reset_tokens)
     container.login_rate_limiter = SlidingWindowRateLimiter(5, 300)
     container.register_rate_limiter = SlidingWindowRateLimiter(3, 3600)
+    container.forgot_password_rate_limiter = SlidingWindowRateLimiter(3, 3600)
     return container
 
 

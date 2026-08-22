@@ -36,12 +36,19 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash TEXT NOT NULL,
     role          TEXT NOT NULL DEFAULT 'user',
     display_name  TEXT,
-    created_at    TEXT NOT NULL
+    created_at    TEXT NOT NULL,
+    -- TUỲ CHỌN và cố ý KHÔNG UNIQUE: chỉ dùng để gửi thư đặt lại mật khẩu, và đây là đồ
+    -- án nên một người hoàn toàn có thể tạo vài tài khoản thử bằng cùng một hộp thư.
+    email         TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
 """
+# ⚠️ Index trên `email` KHÔNG nằm trong SCHEMA ở trên mà tạo trong `_them_cot_email`.
+# Lý do: `CREATE TABLE IF NOT EXISTS` không sửa bảng đã có, nên trên CSDL cũ (chưa có cột
+# email) câu `CREATE INDEX ... ON users(email)` sẽ nổ "no such column: email" và làm hỏng
+# cả bước dựng lược đồ. Phải thêm CỘT xong mới được tạo INDEX. Lỗi này đã xảy ra thật.
 
-_COLUMNS = "user_id, username, password_hash, role, display_name, created_at"
+_COLUMNS = "user_id, username, password_hash, role, display_name, created_at, email"
 
 
 class SqliteUserRepository:
@@ -64,9 +71,28 @@ class SqliteUserRepository:
             self.db_path.parent.mkdir(parents=True, exist_ok=True)
             with sqlite3.connect(self.db_path) as conn:
                 conn.executescript(SCHEMA)
+                self._them_cot_email(conn)
         except (sqlite3.Error, OSError) as exc:
             self._error = f"Không mở được kho tài khoản {describe_path(self.db_path)}: {exc}"
             logger.error(self._error)
+
+    @staticmethod
+    def _them_cot_email(conn: sqlite3.Connection) -> None:
+        """Thêm cột `email` cho CSDL tạo từ TRƯỚC khi có tính năng quên mật khẩu.
+
+        `CREATE TABLE IF NOT EXISTS` ở trên KHÔNG sửa bảng đã tồn tại, nên máy nào đã chạy
+        bản cũ sẽ có bảng thiếu cột và mọi câu SELECT sau đó đều nổ. Đây là bước NÂNG CẤP
+        tại chỗ, chạy mỗi lần khởi động và không làm gì nếu cột đã có.
+
+        KHÔNG dùng thư viện migration: cả dự án chỉ có đúng một lần đổi lược đồ, thêm một
+        phụ thuộc kèm thư mục versions/ cho việc này là quá tay.
+        """
+        cot = {row[1] for row in conn.execute("PRAGMA table_info(users)")}
+        if cot and "email" not in cot:
+            logger.info("Nâng cấp kho tài khoản: thêm cột email.")
+            conn.execute("ALTER TABLE users ADD COLUMN email TEXT")
+        # Tạo index SAU khi chắc chắn đã có cột. `IF NOT EXISTS` nên chạy lại vô hại.
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)")
 
     # -- Port UserRepository --------------------------------------------------
 
@@ -80,6 +106,29 @@ class SqliteUserRepository:
     def get_by_id(self, user_id: str) -> Optional[User]:
         return self._one("WHERE user_id = ?", [str(user_id)])
 
+    def get_by_email(self, email: str) -> Optional[User]:
+        # `ORDER BY created_at` để email trùng luôn ra tài khoản TẠO TRƯỚC — kết quả ổn
+        # định, không phụ thuộc thứ tự SQLite trả về.
+        return self._one(
+            "WHERE email = ? ORDER BY created_at LIMIT 1",
+            [(email or "").strip().lower()],
+        )
+
+    def update_password(self, user_id: str, password_hash: str) -> bool:
+        if self._error is not None:
+            return False
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                cur = conn.execute(
+                    "UPDATE users SET password_hash = ? WHERE user_id = ?",
+                    (password_hash, str(user_id)),
+                )
+                conn.commit()
+                return cur.rowcount > 0
+        except sqlite3.Error as exc:
+            logger.error("Lỗi đổi mật khẩu: %s", exc)
+            return False
+
     def create(self, user: User) -> User:
         record = User(
             user_id=user.user_id or f"u-{uuid.uuid4()}",
@@ -88,11 +137,12 @@ class SqliteUserRepository:
             role=user.role,
             display_name=user.display_name,
             created_at=user.created_at or datetime.now(timezone.utc),
+            email=user.email,
         )
         try:
             with sqlite3.connect(self.db_path) as conn:
                 conn.execute(
-                    f"INSERT INTO users ({_COLUMNS}) VALUES (?,?,?,?,?,?)",
+                    f"INSERT INTO users ({_COLUMNS}) VALUES (?,?,?,?,?,?,?)",
                     (
                         record.user_id,
                         record.username,
@@ -100,6 +150,7 @@ class SqliteUserRepository:
                         record.role.value,
                         record.display_name,
                         record.created_at.isoformat(),
+                        record.email,
                     ),
                 )
                 conn.commit()
@@ -142,6 +193,7 @@ class SqliteUserRepository:
                  (r.value for r in UserRole) else UserRole.USER,
             display_name=row["display_name"],
             created_at=datetime.fromisoformat(created) if created else None,
+            email=row["email"],
         )
 
     def status(self) -> dict:

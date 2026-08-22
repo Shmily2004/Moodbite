@@ -6,7 +6,9 @@
  */
 import { useId, useState } from 'react';
 import type { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import { IconEye, IconEyeOff, IconLock, IconUser } from '@/shared/ui';
+import { ROUTES } from '@/shared/config';
 
 export interface LoginFormProps {
   loading: boolean;
@@ -21,7 +23,6 @@ export function LoginForm({ loading, error, onSubmit, footer }: LoginFormProps) 
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
   const [hienMatKhau, setHienMatKhau] = useState(false);
-  const [hienGhiChuQuenMK, setHienGhiChuQuenMK] = useState(false);
 
   // `useId` thay vì id gõ tay: trang đăng ký sau này có thể đặt hai form trên cùng một
   // trang, id trùng thì click vào nhãn sẽ nhảy nhầm ô.
@@ -105,26 +106,12 @@ export function LoginForm({ loading, error, onSubmit, footer }: LoginFormProps) 
           <span>Ghi nhớ đăng nhập</span>
         </label>
 
-        {/*
-          KHÔNG phải thẻ <a>: backend chưa có chức năng đặt lại mật khẩu (cần gửi email,
-          mà dự án không có dịch vụ mail). Link trỏ vào hư vô còn tệ hơn là nói thẳng ra.
-        */}
-        <button
-          type="button"
-          className="linkish"
-          onClick={() => setHienGhiChuQuenMK((cu) => !cu)}
-          aria-expanded={hienGhiChuQuenMK}
-        >
+        {/* Từ 2026-08-22 đây là LINK THẬT: tính năng gửi thư đặt lại mật khẩu đã làm
+            xong (`/auth/forgot-password`). Trước đó nó chỉ mở ra một dòng giải thích. */}
+        <Link className="linkish" to={ROUTES.forgotPassword}>
           Quên mật khẩu?
-        </button>
+        </Link>
       </div>
-
-      {hienGhiChuQuenMK && (
-        <p className="auth-card__note">
-          Hệ thống chưa tự đặt lại mật khẩu được (chưa có dịch vụ gửi email). Hãy liên hệ
-          quản trị viên để được cấp lại.
-        </p>
-      )}
 
       {error && (
         <p className="auth-card__error" id={idLoi} role="alert">

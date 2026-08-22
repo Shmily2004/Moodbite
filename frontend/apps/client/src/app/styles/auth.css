@@ -288,6 +288,12 @@
 
 /* 14px: đủ tách bạch giữa hai ô mà thẻ đăng ký (4 ô + 2 dòng gợi ý + điều khoản) vẫn
    vừa một màn hình cao 900px, không bắt người dùng cuộn xuống mới thấy nút. */
+/* "(không bắt buộc)" — nhẹ hơn nhãn để mắt đọc nhãn trước, đọc chú thích sau. */
+.field__label-note {
+  font-weight: 400;
+  color: var(--auth-muted);
+}
+
 .field {
   position: relative;
   display: flex;

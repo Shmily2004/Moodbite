@@ -22,12 +22,19 @@ export function RegisterPage() {
   }
 
   return (
-    <AuthLayout scene="nen_dang_ky">
+    <AuthLayout
+      // Bản thiết kế `design/Register.png` (2026-08-22) có tiêu đề ở nửa trái, khác bản
+      // đầu chỉ có tranh. Đây là CHỮ THẬT chứ không phải ảnh như khẩu hiệu trang đăng
+      // nhập — câu này dùng font thường, không có nét viết tay nào cần giữ.
+      heading="Tạo tài khoản mới"
+      intro="Bắt đầu hành trình khám phá ẩm thực Hà Nội."
+      scene="nen_dang_ky"
+    >
       <RegisterForm
         loading={session.loading}
         error={session.error}
-        onSubmit={(username, password, displayName) =>
-          void session.register(username, password, displayName)
+        onSubmit={(username, password, displayName, email) =>
+          void session.register(username, password, displayName, email)
         }
         footer={
           <>

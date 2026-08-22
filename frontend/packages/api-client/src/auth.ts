@@ -18,6 +18,10 @@ import type { HttpClient, RequestOptions } from './http';
 /** Kiểu lấy TRỰC TIẾP từ OpenAPI - không gõ tay, không lệch được với backend. */
 export type LoginRequest = components['schemas']['LoginRequest'];
 export type RegisterRequest = components['schemas']['RegisterRequest'];
+export type ForgotPasswordRequest = components['schemas']['ForgotPasswordRequest'];
+export type ResetPasswordRequest = components['schemas']['ResetPasswordRequest'];
+/** Kết quả của các thao tác không trả về tài nguyên nào — chỉ một câu cho người dùng đọc. */
+export type MessageData = components['schemas']['MessageData'];
 export type AuthData = components['schemas']['AuthData'];
 export type UserPublic = components['schemas']['UserPublic'];
 
@@ -49,6 +53,41 @@ export class MoodbiteAuthApi {
    */
   register(body: RegisterRequest, options?: RequestOptions): Promise<AuthData> {
     return this.http.request<AuthData>('/auth/register', {
+      ...options,
+      method: 'POST',
+      body,
+    });
+  }
+
+  /**
+   * Xin thư đặt lại mật khẩu. `identifier` là email HOẶC tên đăng nhập.
+   *
+   * ⚠️ LUÔN trả về cùng một câu, kể cả khi tài khoản không tồn tại — backend cố tình như
+   * vậy để trang này không thành công cụ dò xem ai đã đăng ký. ĐỪNG "cải thiện" bằng cách
+   * hiện thông báo khác nhau ở frontend.
+   */
+  forgotPassword(
+    body: ForgotPasswordRequest,
+    options?: RequestOptions,
+  ): Promise<MessageData> {
+    return this.http.request<MessageData>('/auth/forgot-password', {
+      ...options,
+      method: 'POST',
+      body,
+    });
+  }
+
+  /**
+   * Đổi mật khẩu bằng token lấy từ đường dẫn trong thư.
+   *
+   * Token hỏng / hết hạn / đã dùng -> 401. Đổi xong KHÔNG tự đăng nhập: người dùng phải
+   * gõ mật khẩu mới một lần ở trang đăng nhập.
+   */
+  resetPassword(
+    body: ResetPasswordRequest,
+    options?: RequestOptions,
+  ): Promise<MessageData> {
+    return this.http.request<MessageData>('/auth/reset-password', {
       ...options,
       method: 'POST',
       body,

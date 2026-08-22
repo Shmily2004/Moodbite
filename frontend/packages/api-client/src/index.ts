@@ -33,7 +33,15 @@ export type {
 } from './endpoints';
 
 export { MoodbiteAuthApi } from './auth';
-export type { AuthData, LoginRequest, RegisterRequest, UserPublic } from './auth';
+export type {
+  AuthData,
+  ForgotPasswordRequest,
+  LoginRequest,
+  MessageData,
+  RegisterRequest,
+  ResetPasswordRequest,
+  UserPublic,
+} from './auth';
 
 export { MoodbiteAdminApi } from './admin';
 export type {

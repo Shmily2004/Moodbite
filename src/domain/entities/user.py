@@ -84,6 +84,43 @@ def validate_password(password: str) -> str:
     return password
 
 
+# Chặn trên độ dài email. 254 là giới hạn của một địa chỉ thư theo RFC 5321 (kích thước
+# tối đa của đường "forward-path"). Đặt bằng đúng chuẩn để không tự nghĩ ra luật riêng.
+MAX_EMAIL_LENGTH = 254
+
+
+class InvalidEmailFormat(ValueError):
+    """Email sai định dạng -> HTTP 400."""
+
+
+def validate_email(email: str) -> str:
+    """Chuẩn hoá và kiểm email. Trả về bản đã chuẩn hoá (bỏ khoảng trắng, viết thường).
+
+    CỐ Ý KIỂM RẤT LỎNG — chỉ đòi có đúng một dấu `@`, hai bên đều khác rỗng, và phần miền
+    có ít nhất một dấu chấm. Vì sao không dùng biểu thức chính quy "chuẩn RFC 5322":
+
+      1. Không có regex nào đúng hoàn toàn với RFC — bản hay được chép trên mạng dài hơn
+         6000 ký tự và vẫn từ chối nhầm địa chỉ hợp lệ.
+      2. Cách DUY NHẤT biết chắc một email có thật là GỬI THƯ tới đó. Ta có làm việc đó:
+         đường dẫn đặt lại mật khẩu chỉ tới được hộp thư thật.
+
+    Nên phép kiểm này chỉ để bắt lỗi gõ nhầm rõ ràng ("quen@" hay "chua-co-a-cong").
+    """
+    value = (email or "").strip().lower()
+    if not value:
+        raise InvalidEmailFormat("Chưa nhập email.")
+    if len(value) > MAX_EMAIL_LENGTH:
+        raise InvalidEmailFormat(f"Email không được dài quá {MAX_EMAIL_LENGTH} ký tự.")
+    if value.count("@") != 1:
+        raise InvalidEmailFormat("Email phải có đúng một dấu @.")
+    ten, mien = value.split("@")
+    if not ten or not mien or "." not in mien or mien.startswith(".") or mien.endswith("."):
+        raise InvalidEmailFormat("Email chưa đúng dạng, ví dụ đúng: ten@vidu.com")
+    if any(c.isspace() for c in value):
+        raise InvalidEmailFormat("Email không được chứa khoảng trắng.")
+    return value
+
+
 @dataclass(frozen=True)
 class User:
     user_id: str
@@ -92,6 +129,10 @@ class User:
     role: UserRole = UserRole.USER
     display_name: Optional[str] = None
     created_at: Optional[datetime] = None
+    # TUỲ CHỌN. Chỉ dùng để gửi thư đặt lại mật khẩu — không dùng để đăng nhập, không hiện
+    # ra API công khai (xem `to_public`). Tài khoản không có email thì vẫn dùng bình thường,
+    # chỉ là không tự lấy lại mật khẩu được.
+    email: Optional[str] = None
 
     @property
     def is_admin(self) -> bool:
@@ -110,11 +151,18 @@ class User:
             "display_name": self.display_name,
         }
 
+    @property
+    def has_email(self) -> bool:
+        return bool(self.email)
+
 
 __all__ = [
     "User",
     "UserRole",
     "InvalidCredentialsFormat",
+    "InvalidEmailFormat",
+    "validate_email",
+    "MAX_EMAIL_LENGTH",
     "validate_username",
     "validate_password",
     "MIN_USERNAME_LENGTH",

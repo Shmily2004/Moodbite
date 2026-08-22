@@ -12,13 +12,18 @@
  */
 import { useId, useState } from 'react';
 import type { ReactNode } from 'react';
-import { IconEye, IconEyeOff, IconLock, IconUser } from '@/shared/ui';
+import { IconEye, IconEyeOff, IconLock, IconMail, IconUser } from '@/shared/ui';
 
 export interface RegisterFormProps {
   loading: boolean;
   /** Lỗi từ server (tên đã có người dùng, sai định dạng, mất mạng…). */
   error: string | null;
-  onSubmit: (username: string, password: string, displayName: string) => void;
+  onSubmit: (
+    username: string,
+    password: string,
+    displayName: string,
+    email: string,
+  ) => void;
   /** Nội dung xếp dưới đường kẻ "hoặc" — thường là link về trang đăng nhập. */
   footer?: ReactNode;
 }
@@ -26,6 +31,7 @@ export interface RegisterFormProps {
 export function RegisterForm({ loading, error, onSubmit, footer }: RegisterFormProps) {
   const [username, setUsername] = useState('');
   const [displayName, setDisplayName] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [hienMatKhau, setHienMatKhau] = useState(false);
@@ -35,6 +41,7 @@ export function RegisterForm({ loading, error, onSubmit, footer }: RegisterFormP
 
   const idTen = useId();
   const idHienThi = useId();
+  const idEmail = useId();
   const idMatKhau = useId();
   const idNhapLai = useId();
   const idDongY = useId();
@@ -52,7 +59,7 @@ export function RegisterForm({ loading, error, onSubmit, footer }: RegisterFormP
           return;
         }
         setLoiKhop(null);
-        onSubmit(username, password, displayName);
+        onSubmit(username, password, displayName, email);
       }}
     >
       <h1 className="auth-card__title">Tạo tài khoản mới</h1>
@@ -98,6 +105,36 @@ export function RegisterForm({ loading, error, onSubmit, footer }: RegisterFormP
       <p className="field__hint">
         Được dùng tiếng Việt có dấu. Bỏ trống cũng được — khi đó sẽ hiển thị theo tên
         đăng nhập.
+      </p>
+
+      {/*
+        Ô EMAIL — bản thiết kế KHÔNG có ô này, thêm vào có chủ đích (2026-08-22).
+
+        Lý do: chủ dự án yêu cầu tính năng quên mật khẩu gửi qua thư. Không có email thì
+        không có cách nào gửi, và người dùng mất mật khẩu là mất luôn tài khoản.
+
+        Để TUỲ CHỌN chứ không bắt buộc: bắt buộc thì làm rơi người đăng ký, mà phần lớn
+        người dùng thử một đồ án sẽ không muốn khai email. Bỏ trống vẫn dùng app bình
+        thường — chỉ là sau này phải nhờ quản trị viên nếu quên mật khẩu.
+      */}
+      <label className="field__label" htmlFor={idEmail}>
+        Email <span className="field__label-note">(không bắt buộc)</span>
+      </label>
+      <div className="field field--tight">
+        <IconMail className="field__icon" />
+        <input
+          id={idEmail}
+          className="field__input"
+          type="email"
+          value={email}
+          placeholder="email@cua-ban.com"
+          autoComplete="email"
+          onChange={(event) => setEmail(event.target.value)}
+        />
+      </div>
+      <p className="field__hint">
+        Chỉ dùng để gửi thư khi bạn quên mật khẩu. Bỏ trống cũng được, nhưng khi đó bạn sẽ
+        không tự lấy lại mật khẩu được.
       </p>
 
       <label className="field__label" htmlFor={idMatKhau}>

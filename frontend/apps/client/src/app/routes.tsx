@@ -24,6 +24,8 @@ import { DishPage } from '@/pages/dish';
 import { SearchPage } from '@/pages/search';
 import { LoginPage } from '@/pages/login';
 import { RegisterPage } from '@/pages/register';
+import { ForgotPasswordPage } from '@/pages/forgot-password';
+import { ResetPasswordPage } from '@/pages/reset-password';
 import { NotFoundPage } from '@/pages/not-found';
 import { ROUTES } from '@/shared/config';
 import { RootLayout } from './layout/RootLayout';
@@ -41,6 +43,8 @@ export const routes: RouteObject[] = [
       // Đăng nhập/đăng ký là TUỲ CHỌN: không có route guard nào bắt qua đây trước.
       { path: ROUTES.login, element: <LoginPage /> },
       { path: ROUTES.register, element: <RegisterPage /> },
+      { path: ROUTES.forgotPassword, element: <ForgotPasswordPage /> },
+      { path: ROUTES.resetPassword, element: <ResetPasswordPage /> },
       // Luồng cũ: tìm quán bằng câu tự nhiên.
       { path: '/tim-kiem', element: <SearchPage /> },
       // '*' phải nằm CUỐI: react-router chọn route khớp nhất, nhưng để nhầm thứ tự

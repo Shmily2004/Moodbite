@@ -27,6 +27,25 @@ class UserRepository(Protocol):
     def get_by_id(self, user_id: str) -> Optional[User]:
         ...
 
+    def get_by_email(self, email: str) -> Optional[User]:
+        """Tìm theo email (đã chuẩn hoá về chữ thường). None nếu không có.
+
+        Dùng cho luồng QUÊN MẬT KHẨU: người dùng thường nhớ email hơn là nhớ tên đăng nhập.
+
+        ⚠️ Email KHÔNG UNIQUE ở tầng CSDL, cố ý: đây là đồ án, một người có thể tạo vài
+        tài khoản thử bằng cùng một hộp thư. Trùng thì trả tài khoản TẠO TRƯỚC — ổn định
+        và đoán trước được, thay vì phụ thuộc thứ tự SQLite trả về.
+        """
+        ...
+
+    def update_password(self, user_id: str, password_hash: str) -> bool:
+        """Đổi chuỗi băm mật khẩu. Trả False nếu không có tài khoản đó.
+
+        Nhận CHUỖI BĂM chứ không nhận mật khẩu thô: tầng lưu trữ không bao giờ được nhìn
+        thấy mật khẩu gốc, và cũng không phải nơi quyết định băm bằng thuật toán nào.
+        """
+        ...
+
     def create(self, user: User) -> User:
         """Tạo tài khoản mới.
 

@@ -1,6 +1,6 @@
 # MoodBite — Bảng theo dõi tiến độ
 
-**Cập nhật:** 2026-08-22
+**Cập nhật:** 2026-08-22 (chiều)
 **Nguyên tắc:** file này chỉ ghi thứ đã **chạy thật và kiểm chứng được**. Không ghi theo
 kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh để tự kiểm lại.
 
@@ -19,7 +19,7 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Frontend Client | ✅ **TypeScript + FSD** | 86 test, có bản đồ, steiger trong CI |
 | Bản đồ | ✅ **Xong** | Leaflet + OpenStreetMap, miễn phí, không cần key |
 | Kiến trúc | ✅ Sạch | Clean Architecture + checker tự động trong CI |
-| Test | ✅ **422 backend + 115 frontend** | tổng **537** (client 107 · admin 8), chạy hết ~40 giây |
+| Test | ✅ **437 backend + 123 frontend** | tổng **560** (client 115 · admin 8) |
 | Giao diện | ✅ Theo bản duyệt | trang chủ = LƯỚI MÓN + chips lọc; trang món = giới thiệu + bản đồ + danh sách quán; `/tim-kiem` giữ bố cục bản đồ + rail cũ |
 | Router + layout | ✅ Xong | react-router v6, khung dùng chung, `RequireAuth` cho admin |
 | Chạy xem giao diện | ✅ **một lệnh** | `python scripts/run_dev.py --admin` |
@@ -52,7 +52,7 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Trích món từ review (đề án mục 7) | ✅ Xong | 1076 quán có review; bún chả 86 → 94 quán |
 | Ma trận truy vết | ✅ Viết lại 2026-08-19 | bản cũ có 9/10 đường dẫn KHÔNG tồn tại — xem `traceability.md` |
 | **Lớp 4 — Tóm tắt review** | ✅ **XONG 2026-08-19** | Trích rút TF-IDF centroid, **851/1310 quán** có nhận xét tổng hợp (339 quán có cả điểm yếu). Mọi câu TRÍCH NGUYÊN VĂN, không sinh chữ. `python -m data_pipeline.review_summary` |
-| Đăng nhập / tài khoản | ✅ **Đăng nhập + đăng ký xong (2026-08-22)** | `/api/v1/auth/*` đủ 3 endpoint. Client: `/dang-nhap` và `/dang-ky` chạy thật qua `createAuthApi()`. CHƯA làm: trang hồ sơ, chỗ hiện "đang đăng nhập là ai", đăng xuất trên giao diện. Đổi phạm vi có chủ đích so với SRS mục 8 — xem ghi chú dưới bảng |
+| Đăng nhập / tài khoản | ✅ **Đăng nhập + đăng ký + QUÊN MẬT KHẨU xong (2026-08-22)** | `/api/v1/auth/*` đủ 3 endpoint. Client: `/dang-nhap` và `/dang-ky` chạy thật qua `createAuthApi()`. CHƯA làm: trang hồ sơ, chỗ hiện "đang đăng nhập là ai", đăng xuất trên giao diện. Đổi phạm vi có chủ đích so với SRS mục 8 — xem ghi chú dưới bảng |
 | Phân quyền (`role`) | 🟡 Có `user`/`admin` + guard 403 | admin VẪN dùng biến môi trường, chưa chuyển sang bảng `users` |
 
 > **Ghi chú — tài khoản người dùng là ĐỔI PHẠM VI CÓ CHỦ ĐÍCH (2026-08-17).**
@@ -535,6 +535,36 @@ bản trong `attribute/` mới đúng, và luật này áp cho MỌI layout về
       Cần vì `slogan.png` xuất ra KHÔNG có kênh trong suốt (là ảnh phẳng, dính nguyên nền
       caro của công cụ thiết kế). Script tách nền, cắt sát, thu nhỏ: 1601×982 (912 KB) →
       1120×310 (179 KB). Thuần Python, không cần cài thêm thư viện.
+
+### Quên mật khẩu qua email (2026-08-22)
+
+Chủ dự án yêu cầu, làm bằng cách MIỄN PHÍ — không cần thẻ thanh toán (CLAUDE.md mục 1b).
+
+- [x] **SMTP của Gmail + `smtplib` (thư viện chuẩn)** — không thêm phụ thuộc, không cần
+      tên miền, không cần thẻ. Dùng **mật khẩu ứng dụng** chứ không phải mật khẩu Gmail
+      thật. Hạn mức ~500 thư/ngày, thừa cho demo. Cấu hình: xem `.env.example`.
+- [x] **`POST /auth/forgot-password`** — LUÔN trả cùng một câu dù tài khoản có tồn tại hay
+      không (nếu khác nhau thì đây thành công cụ dò xem ai đã đăng ký). Giới hạn 3 lần/giờ
+      mỗi IP vì mỗi lần gọi là một lá thư thật.
+- [x] **`POST /auth/reset-password`** — đổi mật khẩu bằng token trong thư.
+- [x] **Token CHỈ DÙNG MỘT LẦN mà KHÔNG thêm bảng nào.** Token mang theo "vân tay" của
+      chuỗi băm mật khẩu hiện tại; đổi mật khẩu xong thì băm đổi → vân tay lệch → chính
+      cái link vừa dùng chết ngay. Không phải thêm bảng `password_reset_tokens`, không
+      phải dọn token hết hạn (đổi lược đồ dữ liệu là việc phải chốt trước — xem
+      `docs/API_DECISIONS_PENDING.md`). Sống 30 phút.
+- [x] **Secret RIÊNG** `MOODBITE_RESET_SECRET` (bỏ trống thì lui về secret đăng nhập).
+      Token này nằm trong hộp thư — nơi dễ lộ hơn trình duyệt — nên chữ ký của nó không
+      được mở cửa đăng nhập. Có test khoá: token đăng nhập KHÔNG đổi được mật khẩu.
+- [x] **Cột `email` trong bảng `users`** — TUỲ CHỌN, không UNIQUE, không lộ ra `/auth/me`.
+      Có bước nâng cấp tại chỗ cho CSDL cũ (`ALTER TABLE` khi thiếu cột).
+      ⚠️ Lỗi đã gặp: tạo index trên cột email TRƯỚC khi thêm cột → "no such column".
+- [x] **Frontend:** `/quen-mat-khau` và `/dat-lai-mat-khau?token=...`, link "Quên mật
+      khẩu?" ở trang đăng nhập nay là link THẬT. Trang đăng ký có thêm ô Email (không bắt
+      buộc) — bản thiết kế không có ô này, thêm vì không có email thì không gửi thư được.
+- [x] 15 test backend + 8 test frontend, KHÔNG gửi thư thật (dùng `FakeEmailSender`).
+
+**Chưa làm:** đổi mật khẩu khi ĐANG đăng nhập (khác luồng quên mật khẩu), và xác minh email
+lúc đăng ký.
 
 **Ghi chú số liệu — bản thiết kế ghi khác backend, và BACKEND THẮNG:**
 mẫu ghi mật khẩu "Ít nhất 6 ký tự" và tên đăng nhập "3–30 ký tự"; luật thật ở

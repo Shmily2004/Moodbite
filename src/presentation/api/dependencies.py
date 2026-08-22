@@ -27,6 +27,8 @@ from src.application.use_cases.manage_restaurants import (
 from src.application.use_cases.manage_account import (
     LoginUseCase,
     RegisterUserUseCase,
+    RequestPasswordResetUseCase,
+    ResetPasswordUseCase,
 )
 from src.application.use_cases.find_restaurants_for_dish import (
     FindRestaurantsForDishUseCase,
@@ -43,6 +45,8 @@ from src.domain.entities.user import User, UserRole
 from src.infrastructure.auth.admin_auth import AdminAuthService
 from src.infrastructure.auth.crypto import hash_password, verify_password
 from src.infrastructure.auth.rate_limit import (
+    FORGOT_PASSWORD_MAX_ATTEMPTS,
+    FORGOT_PASSWORD_WINDOW_SECONDS,
     LOGIN_MAX_ATTEMPTS,
     LOGIN_WINDOW_SECONDS,
     REGISTER_MAX_ATTEMPTS,
@@ -50,6 +54,8 @@ from src.infrastructure.auth.rate_limit import (
     SlidingWindowRateLimiter,
 )
 from src.infrastructure.auth.user_auth import UserTokenService
+from src.infrastructure.notifications.smtp_email_sender import SmtpEmailSender
+from src.infrastructure.auth.password_reset import PasswordResetTokenService
 from src.infrastructure.repositories.sqlite_user_repository import SqliteUserRepository
 from src.infrastructure.adapters.ml_rule_predictor import MlRulePredictor
 from src.infrastructure.adapters.open_meteo_context_provider import (
@@ -121,12 +127,17 @@ class Container:
     # --- Tài khoản người dùng cuối --------------------------------------------
     users: object
     user_tokens: UserTokenService
+    reset_tokens: PasswordResetTokenService
+    emails: SmtpEmailSender
     register_user: RegisterUserUseCase
     login_user: LoginUseCase
+    request_password_reset: RequestPasswordResetUseCase
+    reset_password: ResetPasswordUseCase
     # Hai bộ đếm RIÊNG BIỆT. Dùng chung một bộ thì người đăng ký hụt vài lần sẽ ăn hết
     # hạn mức đăng nhập của chính mình — hai hành vi khác nhau, ngưỡng khác nhau.
     login_rate_limiter: SlidingWindowRateLimiter
     register_rate_limiter: SlidingWindowRateLimiter
+    forgot_password_rate_limiter: SlidingWindowRateLimiter
 
     def health(self) -> dict:
         """Trạng thái từng nguồn dữ liệu, kèm LÝ DO khi chưa sẵn sàng.
@@ -153,6 +164,7 @@ class Container:
             },
             "users": _status_of(self.users),
             "user_auth": _status_of(self.user_tokens),
+            "email": self.emails.status(),
         }
 
 
@@ -268,6 +280,19 @@ def build_container(settings: Optional[Settings] = None) -> Container:
     user_tokens = UserTokenService(
         settings.user_token_secret, settings.user_token_ttl_seconds
     )
+    # Chưa khai secret riêng thì lui về secret đăng nhập: thà tính năng chạy được với một
+    # secret còn hơn tắt hẳn ở một đồ án. Khai riêng vẫn tốt hơn — xem `password_reset.py`.
+    reset_tokens = PasswordResetTokenService(
+        settings.reset_token_secret or settings.user_token_secret,
+        settings.reset_token_ttl_seconds,
+    )
+    emails = SmtpEmailSender(
+        host=settings.smtp_host,
+        port=settings.smtp_port,
+        username=settings.smtp_username,
+        password=settings.smtp_password,
+        sender=settings.smtp_sender,
+    )
 
     return Container(
         settings=settings,
@@ -321,13 +346,26 @@ def build_container(settings: Optional[Settings] = None) -> Container:
         ),
         users=users,
         user_tokens=user_tokens,
+        reset_tokens=reset_tokens,
+        emails=emails,
         register_user=RegisterUserUseCase(users, hash_password, user_tokens.issue),
         login_user=LoginUseCase(users, verify_password, user_tokens.issue),
+        request_password_reset=RequestPasswordResetUseCase(
+            users=users,
+            emails=emails,
+            issue_reset_token=reset_tokens.issue,
+            app_base_url=settings.app_base_url,
+            token_ttl_seconds=reset_tokens.token_ttl_seconds,
+        ),
+        reset_password=ResetPasswordUseCase(users, hash_password, reset_tokens),
         login_rate_limiter=SlidingWindowRateLimiter(
             LOGIN_MAX_ATTEMPTS, LOGIN_WINDOW_SECONDS
         ),
         register_rate_limiter=SlidingWindowRateLimiter(
             REGISTER_MAX_ATTEMPTS, REGISTER_WINDOW_SECONDS
+        ),
+        forgot_password_rate_limiter=SlidingWindowRateLimiter(
+            FORGOT_PASSWORD_MAX_ATTEMPTS, FORGOT_PASSWORD_WINDOW_SECONDS
         ),
     )
 

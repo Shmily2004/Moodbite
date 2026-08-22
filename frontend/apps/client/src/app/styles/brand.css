@@ -76,14 +76,19 @@
 }
 
 /*
-  Chữ trong logo màu navy nên chìm hẳn trên nền tối. Bộ nhận diện CHỈ CÓ MỘT bản logo
-  (chủ dự án chốt 2026-08-21), nên cách xử lý là đặt nó lên một tấm nền sáng — không
-  phải đổi màu hay tự vẽ lại bản khác.
+  NỀN TỐI: KHÔNG đặt tấm nền trắng sau logo.
+
+  Bản trước dán một tấm kem sau logo vì sợ chữ navy chìm vào nền tối. Chủ dự án bác bỏ
+  (2026-08-22): logo là ảnh nền trong suốt, dán thêm khối màu sau lưng thì nhìn như miếng
+  giấy vá, phá luôn ý đồ của bộ nhận diện.
+
+  Thay bằng một quầng sáng rất nhẹ toả ra từ chính nét chữ (`drop-shadow`): không tạo hình
+  khối nào, chỉ tách logo khỏi nền sẫm vừa đủ để đọc được. Logo bản mới có viền trắng sẵn
+  quanh chữ nên chỉ cần chừng này.
 */
 :root[data-theme='dark'] img.brand-logo {
-  background: rgba(255, 255, 255, .93);
-  border-radius: 10px;
-  padding: 5px 10px;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, .3))
+          drop-shadow(0 1px 2px rgba(0, 0, 0, .4));
 }
 
 /* Bản thay thế bằng chữ, dùng khi thiếu file ảnh. */

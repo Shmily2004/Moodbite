@@ -16,18 +16,25 @@ from fastapi.testclient import TestClient
 
 from src.application.use_cases.get_restaurant_details import GetRestaurantDetailsUseCase
 from src.application.use_cases.log_interaction import LogInteractionUseCase
-from src.application.use_cases.manage_account import LoginUseCase, RegisterUserUseCase
+from src.application.use_cases.manage_account import (
+    LoginUseCase,
+    RegisterUserUseCase,
+    RequestPasswordResetUseCase,
+    ResetPasswordUseCase,
+)
 from src.application.use_cases.search_restaurants import SearchRestaurantsUseCase
 from src.domain.entities.user import User, UserRole
 from src.infrastructure.auth.admin_auth import AdminAuthService
 from src.infrastructure.auth.crypto import hash_password, verify_password
 from src.infrastructure.auth.rate_limit import SlidingWindowRateLimiter
+from src.infrastructure.auth.password_reset import PasswordResetTokenService
 from src.infrastructure.auth.user_auth import UserTokenService
 from src.infrastructure.repositories.sqlite_user_repository import SqliteUserRepository
 from src.presentation.api.dependencies import Container
 from src.presentation.api.main import create_app
 from tests.fakes import (
     FakeDetailsRepo,
+    FakeEmailSender,
     FakeDishKnowledge,
     FakeInteractionRepo,
     FakeRestaurantRepo,
@@ -55,7 +62,16 @@ class NullSemanticSearch:
         return {"ready": False, "reason": "tat trong test"}
 
 
-def build_client(tmp_path, *, secret=SECRET, login_limit=50, register_limit=50):
+def build_client(
+    tmp_path,
+    *,
+    secret=SECRET,
+    login_limit=50,
+    register_limit=50,
+    forgot_limit=50,
+    emails=None,
+    reset_secret=None,
+):
     """Dựng app với kho tài khoản thật (SQLite trong tmp_path) nhưng dataset giả.
 
     Kho tài khoản dùng bản THẬT chứ không giả: ràng buộc UNIQUE và cách chuẩn hoá tên là
@@ -74,6 +90,12 @@ def build_client(tmp_path, *, secret=SECRET, login_limit=50, register_limit=50):
 
     users = SqliteUserRepository(tmp_path / "users.db")
     tokens = UserTokenService(secret, token_ttl_seconds=60)
+    # Secret đặt lại mật khẩu mặc định KHÁC secret đăng nhập, đúng như lúc chạy thật.
+    reset_tokens = PasswordResetTokenService(
+        reset_secret if reset_secret is not None else (secret + "-reset" if secret else ""),
+        token_ttl_seconds=60,
+    )
+    emails = emails if emails is not None else FakeEmailSender()
 
     c = attach_closure_tally(Container.__new__(Container))
     c.settings = None
@@ -94,10 +116,21 @@ def build_client(tmp_path, *, secret=SECRET, login_limit=50, register_limit=50):
     c.set_restaurant_visibility = None
     c.users = users
     c.user_tokens = tokens
+    c.reset_tokens = reset_tokens
+    c.emails = emails
     c.register_user = RegisterUserUseCase(users, hash_password, tokens.issue)
     c.login_user = LoginUseCase(users, verify_password, tokens.issue)
+    c.request_password_reset = RequestPasswordResetUseCase(
+        users=users,
+        emails=emails,
+        issue_reset_token=reset_tokens.issue,
+        app_base_url="http://localhost:5173",
+        token_ttl_seconds=reset_tokens.token_ttl_seconds,
+    )
+    c.reset_password = ResetPasswordUseCase(users, hash_password, reset_tokens)
     c.login_rate_limiter = SlidingWindowRateLimiter(login_limit, 300)
     c.register_rate_limiter = SlidingWindowRateLimiter(register_limit, 3600)
+    c.forgot_password_rate_limiter = SlidingWindowRateLimiter(forgot_limit, 3600)
     attach_dish_catalog(c)
 
     app = create_app(container=c)

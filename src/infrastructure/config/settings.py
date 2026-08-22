@@ -12,6 +12,8 @@ from pathlib import Path
 # Cùng tầng infrastructure nên import được. Lấy hằng số từ nơi ĐỊNH NGHĨA nó thay vì chép
 # lại số 86400 vào đây - chép là có ngày hai chỗ lệch nhau.
 from src.infrastructure.auth.user_auth import DEFAULT_USER_TOKEN_TTL_SECONDS
+from src.infrastructure.config.dotenv import nap_env_local
+from src.infrastructure.auth.password_reset import DEFAULT_RESET_TTL_SECONDS
 
 # Gốc repo = thư mục chứa src/ (file này ở src/infrastructure/config/settings.py).
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
@@ -86,8 +88,28 @@ class Settings:
     user_token_secret: str
     user_token_ttl_seconds: int
 
+    # --- Quên mật khẩu: gửi thư qua SMTP -------------------------------------
+    # Thiếu bất kỳ thứ nào trong 4 dòng dưới thì tính năng TẮT hẳn và endpoint trả 503 kèm
+    # hướng dẫn — không giả vờ "đã gửi" rồi để người dùng ngồi đợi lá thư không tồn tại.
+    smtp_host: str
+    smtp_port: int
+    smtp_username: str
+    smtp_password: str
+    smtp_sender: str
+    # Secret RIÊNG cho token đặt lại mật khẩu. Bỏ trống thì lui về `user_token_secret`
+    # (xem `dependencies.py`) — chạy được vẫn hơn tắt hẳn, nhưng tách ra thì an toàn hơn.
+    reset_token_secret: str
+    reset_token_ttl_seconds: int
+    # Địa chỉ gốc của FRONTEND, dùng để dựng đường dẫn trong thư. Chạy máy mình thì là
+    # http://localhost:5173; deploy thật thì đổi bằng biến môi trường.
+    app_base_url: str
+
     @staticmethod
     def from_env() -> "Settings":
+        # Nạp `.env.local` TRƯỚC khi đọc biến môi trường. Không có file thì bỏ qua, và
+        # biến đã đặt sẵn trong shell luôn THẮNG file — xem `config/dotenv.py`.
+        nap_env_local()
+
         origins = os.getenv("MOODBITE_CORS_ORIGINS", "*")
         return Settings(
             restaurants_csv=_path_from_env(
@@ -142,4 +164,19 @@ class Settings:
                 os.getenv("MOODBITE_AUTH_TOKEN_TTL", str(DEFAULT_USER_TOKEN_TTL_SECONDS))
                 or DEFAULT_USER_TOKEN_TTL_SECONDS
             ),
+            smtp_host=os.getenv("MOODBITE_SMTP_HOST", "").strip(),
+            # 587 = cổng SMTP có STARTTLS, cổng Gmail khuyên dùng.
+            smtp_port=int(os.getenv("MOODBITE_SMTP_PORT", "587") or 587),
+            smtp_username=os.getenv("MOODBITE_SMTP_USER", "").strip(),
+            # KHÔNG `.strip()` mật khẩu: mật khẩu ứng dụng của Google hiển thị theo nhóm
+            # 4 ký tự có khoảng trắng, nhưng khoảng trắng đó KHÔNG thuộc mật khẩu. Xử lý
+            # đúng là bỏ MỌI khoảng trắng, không chỉ hai đầu.
+            smtp_password="".join(os.getenv("MOODBITE_SMTP_PASSWORD", "").split()),
+            smtp_sender=os.getenv("MOODBITE_SMTP_FROM", "").strip(),
+            reset_token_secret=os.getenv("MOODBITE_RESET_SECRET", "").strip(),
+            reset_token_ttl_seconds=int(
+                os.getenv("MOODBITE_RESET_TOKEN_TTL", str(DEFAULT_RESET_TTL_SECONDS))
+                or DEFAULT_RESET_TTL_SECONDS
+            ),
+            app_base_url=os.getenv("MOODBITE_APP_URL", "http://localhost:5173").strip(),
         )

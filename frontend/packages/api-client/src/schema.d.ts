@@ -232,6 +232,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/forgot-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Forgot Password
+         * @description Gửi thư kèm đường dẫn đặt lại mật khẩu.
+         *
+         *     ⚠️ LUÔN TRẢ CÙNG MỘT CÂU, dù tài khoản có tồn tại hay không, dù có email hay không.
+         *     Trả lời khác nhau là biến endpoint này thành công cụ dò xem email/tên nào đã đăng ký —
+         *     đúng thứ mà `/login` đã cẩn thận tránh.
+         *
+         *     Giới hạn tần suất CHẶT hơn đăng nhập: mỗi lần gọi là một lá thư thật bay đi, và hạn
+         *     mức SMTP miễn phí của Gmail chỉ khoảng 500 thư/ngày. Không chặn thì một người bấm liên
+         *     tục là đủ làm tính năng chết cả ngày cho mọi người.
+         */
+        post: operations["forgot_password_api_v1_auth_forgot_password_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/reset-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reset Password
+         * @description Đổi mật khẩu bằng token trong thư.
+         *
+         *     Token hỏng/hết hạn/đã dùng -> 401. Mật khẩu mới sai định dạng -> 400.
+         *     Đổi xong KHÔNG tự đăng nhập: client phải chuyển sang trang đăng nhập.
+         */
+        post: operations["reset_password_api_v1_auth_reset_password_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/me": {
         parameters: {
             query?: never;
@@ -670,6 +721,14 @@ export interface components {
         ErrorEnvelope: {
             error: components["schemas"]["ErrorDetail"];
         };
+        /** ForgotPasswordRequest */
+        ForgotPasswordRequest: {
+            /**
+             * Identifier
+             * @description Email HOẶC tên đăng nhập. Người dùng thường chỉ nhớ một trong hai.
+             */
+            identifier: string;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -729,6 +788,21 @@ export interface components {
         MeResponse: {
             data: components["schemas"]["UserPublic"];
         };
+        /**
+         * MessageData
+         * @description Kết quả cho các thao tác không trả về tài nguyên nào.
+         */
+        MessageData: {
+            /**
+             * Message
+             * @description Câu thông báo hiển thị thẳng cho người dùng.
+             */
+            message: string;
+        };
+        /** MessageResponse */
+        MessageResponse: {
+            data: components["schemas"]["MessageData"];
+        };
         /** MoodsData */
         MoodsData: {
             /** Supported Moods */
@@ -757,6 +831,24 @@ export interface components {
              * @description Tên hiển thị, ĐƯỢC dùng tiếng Việt có dấu. Không dùng để đăng nhập.
              */
             display_name?: string | null;
+            /**
+             * Email
+             * @description TUỲ CHỌN. Chỉ dùng để gửi thư đặt lại mật khẩu. Không khai thì tài khoản vẫn dùng bình thường, chỉ là sau này không tự lấy lại mật khẩu được.
+             */
+            email?: string | null;
+        };
+        /** ResetPasswordRequest */
+        ResetPasswordRequest: {
+            /**
+             * Token
+             * @description Token lấy từ đường dẫn trong thư.
+             */
+            token: string;
+            /**
+             * New Password
+             * @description Mật khẩu mới, tối thiểu 8 ký tự.
+             */
+            new_password: string;
         };
         /** RestaurantDetailData */
         RestaurantDetailData: {
@@ -1501,6 +1593,72 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AuthResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    forgot_password_api_v1_auth_forgot_password_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ForgotPasswordRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reset_password_api_v1_auth_reset_password_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResetPasswordRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageResponse"];
                 };
             };
             /** @description Validation Error */

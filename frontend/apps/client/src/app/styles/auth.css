@@ -17,49 +17,55 @@
    ========================================================================= */
 
 .auth {
+  /*
+    TRẢI KÍN MÀN HÌNH. Không có khung hẹp, không có lề kem hai bên.
+
+    Bản trước bó bố cục vào một khung gần vuông để giữ tỉ lệ của bản thiết kế; chủ dự án
+    bác bỏ (2026-08-22): trang đăng nhập phải chiếm trọn màn hình, tranh là NỀN của cả
+    trang chứ không phải một tấm hình dán vào giữa.
+  */
   position: relative;
   min-height: 100dvh;
   display: flex;
-  flex-direction: column;
-  padding: clamp(16px, 2vw, 28px) clamp(20px, 4vw, 64px) 0;
-  /* Kem đậm dần xuống dưới: tranh nằm ở đáy nên phần đáy cần đậm hơn để nối vào tranh. */
   background: linear-gradient(180deg, var(--brand-cream-hi) 0%, var(--brand-cream) 62%);
   color: var(--auth-ink);
   overflow: hidden;
 }
 
+.auth__frame {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(16px, 2.6vh, 34px) clamp(20px, 3.4vw, 64px) 0;
+}
+
 /*
-  MÀN SƯƠNG — lớp kem mờ nằm GIỮA tranh và chữ.
+  LỚP KEM PHỦ MỜ Ở ĐỈNH.
 
-  VÌ SAO CẦN: tranh nay hiện TRỌN VẸN (không cắt xén) nên tán cây dâng lên ngang đoạn
-  giới thiệu; chữ xám đặt trên nền lá lốm đốm thì đọc không ra. Hai cách khác đều tệ hơn:
-  cắt bớt tranh (chính là lỗi vừa phải sửa), hoặc bôi đậm chữ (nền vẫn rối).
+  Tranh nay phủ kín màn hình nên tán cây dâng lên tới tận góc trên bên trái — đúng chỗ
+  đặt logo và tiêu đề. Đổ một lớp kem đậm ở trên, nhạt dần xuống ~48% chiều cao: phần
+  trên trở lại sạch sẽ cho chữ, phần dưới vẫn thấy trọn tranh.
 
-  TRẢI KÍN MÀN HÌNH chứ không bọc riêng khối chữ: bản đầu bọc riêng thì lộ nguyên một
-  hình chữ nhật sáng trên tranh, vì dải màu bị cắt cụt ở mép khối. Phủ kín cả màn hình
-  thì dải màu tan hết bên trong, không còn mép nào để lộ.
+  `::after` chứ KHÔNG phải `::before`: cùng z-index thì thứ tự vẽ theo DOM, mà `::before`
+  đứng trước các phần tử con nên sẽ bị chính tấm tranh phủ lên.
 */
 .auth::after {
   content: '';
   position: fixed;
   inset: 0;
-  /*
-    `::after` chứ KHÔNG phải `::before`: cùng một lớp z-index thì thứ tự vẽ theo thứ tự
-    trong DOM, mà `::before` đứng TRƯỚC các phần tử con nên nó bị chính tấm tranh phủ lên
-    — đã thử và màn sương mất tác dụng hoàn toàn. `::after` đứng sau mọi phần tử con.
-  */
   z-index: 1;
-  background: radial-gradient(
-    58% 46% at 21% 36%,
-    var(--auth-veil) 0%,
-    var(--auth-veil) 34%,
-    transparent 72%
-  );
+  background:
+    /*
+      Lớp 1 — vệt sáng hình bầu dục ôm lấy KHỐI CHỮ bên trái (logo, tiêu đề, đoạn giới
+      thiệu). Chỉ dải phủ ngang ở trên thì không đủ: đoạn giới thiệu nằm thấp hơn, rơi
+      đúng vào tán cây và mặt hồ nên đọc không ra.
+    */
+    radial-gradient(46% 50% at 17% 34%, var(--auth-veil) 0%, var(--auth-veil) 34%, transparent 76%),
+    /* Lớp 2 — dải kem ngang ở đỉnh, giữ thanh trên (logo, ngôn ngữ, nút nền tối) sạch sẽ. */
+    linear-gradient(180deg, var(--brand-cream) 0%, var(--auth-veil) 14%, transparent 44%);
   pointer-events: none;
 }
-
-/* Trang đăng ký không có chữ ở nửa trái nên không cần che gì cả. */
-.auth[data-scene='nen_dang_ky']::after { content: none; }
 
 /* --- Thanh trên ---------------------------------------------------------- */
 
@@ -83,8 +89,11 @@
   display: grid;
   /* Cột phải KHÔNG co giãn tự do: form rộng quá ~430px thì một dòng nhãn phải rê mắt
      ngang mới đọc hết, còn hẹp dưới 360px thì ô nhập bắt đầu chật. */
-  grid-template-columns: minmax(0, 1fr) minmax(360px, 430px);
-  gap: clamp(24px, 5vw, 72px);
+  /* 460px — đo từ bản thiết kế chủ dự án gửi (thẻ form 465px trong khung 1456px). Đây là
+     kích thước TUYỆT ĐỐI chứ không phải phần trăm: form nhập liệu rộng quá thì khó đọc,
+     màn hình có to đến đâu cũng vậy. */
+  grid-template-columns: minmax(0, 1fr) minmax(340px, 460px);
+  gap: clamp(24px, 4vw, 80px);
   align-items: center;
   /*
     Lề dưới nhỏ (32px) chứ không còn 120px như bản đầu: hồi đó phải chừa chỗ cho nhãn
@@ -99,9 +108,9 @@
   /* Bám mép trên: phần dưới của cột trái dành cho tranh. */
   align-self: start;
   padding-top: clamp(4px, 2vh, 24px);
-  /* 30rem đo theo dòng dài nhất của tiêu đề ("Ăn gì ở Hà Nội,"). Hẹp hơn thì dòng đó
-     gãy làm đôi ngay giữa cụm "Hà Nội" - đã thấy tận mắt lúc chụp màn hình thử. */
-  max-width: 30rem;
+  /* Bằng bề ngang khẩu hiệu. Đoạn giới thiệu vì thế xuống 3 dòng đúng như bản thiết kế,
+     chứ không kéo thành 2 dòng dài. */
+  max-width: min(38vw, 42rem);
 }
 
 .auth__heading {
@@ -127,7 +136,8 @@
 
 .slogan {
   display: block;
-  width: min(100%, 34rem);
+  /* 38% bề ngang màn hình — đo từ bản thiết kế chủ dự án gửi (tiêu đề 560/1456). */
+  width: min(100%, 38vw, 42rem);
   height: auto;
   /* Khoảng cách xuống đoạn giới thiệu do thẻ <h1> bọc ngoài lo — để cả hai cùng đặt
      lề thì mỗi lần chỉnh phải cộng nhẩm hai số. */
@@ -160,21 +170,27 @@
 }
 
 /*
+  Thẻ form nhích LÊN một chút so với chính giữa (chủ dự án yêu cầu 2026-08-22).
+
+  Mắt người coi tâm quang học nằm hơi CAO hơn tâm hình học, nên một khối căn giữa tuyệt
+  đối luôn cho cảm giác hơi trĩu xuống. Đẩy lên ~5% chiều cao màn hình là vừa đủ để hết
+  cảm giác đó mà không thành lệch hẳn lên trên.
+*/
+.auth__panel {
+  margin-bottom: clamp(20px, 5vh, 56px);
+}
+
+/*
   Nhãn "Made for Hà Nội" neo ở ĐÁY TRANG chứ không chảy theo nội dung: trong thiết kế nó
   nằm trên tranh, mà tranh thì luôn ở đáy. Để nó trong luồng thì mỗi lần sửa độ dài đoạn
   giới thiệu là nó lại nhảy chỗ.
 */
 .auth__badge {
-  /*
-    `fixed` chứ không `absolute`: thẻ form của trang đăng ký cao hơn màn hình một chút,
-    nên neo theo TRANG sẽ đẩy nhãn này xuống dưới nếp gấp và không ai thấy nữa. Neo theo
-    MÀN HÌNH thì trang nào cũng thấy. (`overflow: hidden` của `.auth` không cắt được nó
-    vì phần tử `fixed` lấy khung nhìn làm gốc.)
-  */
+  /* Neo vào góc dưới bên trái MÀN HÌNH, đúng chỗ bản thiết kế đặt nó. */
   position: fixed;
   z-index: 3;
-  left: clamp(20px, 4vw, 64px);
-  bottom: clamp(18px, 3vh, 36px);
+  left: clamp(20px, 3.4vw, 64px);
+  bottom: clamp(16px, 2.6vh, 34px);
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -195,58 +211,32 @@
 
 .auth__scene {
   /*
-    ⚠ KHÔNG CẮT ẢNH. Bản trước dùng `object-fit: cover` + chặn chiều cao, và đo ra là nó
-    XÉN MẤT 396/810 pixel chiều cao (49% tấm tranh) ở màn hình 1440×900 — ngọn cây bên
-    trái và nóc các toà nhà bị cắt cụt. Chủ dự án phát hiện đúng chỗ này (2026-08-22).
+    NỀN CỦA CẢ TRANG — phủ kín màn hình, mép này sang mép kia, trên xuống dưới.
 
-    Nay ảnh giữ NGUYÊN TỈ LỆ và hiện TRỌN VẸN: rộng bằng bề ngang màn hình, cao thì tự
-    tính theo tỉ lệ 1672×941. Phần trên không bị cắt mà MỜ DẦN vào nền — nhìn vẫn thấy
-    đủ bố cục, chỉ là nó tan vào màu kem chứ không đứt ngang như bị kéo dao.
+    `cover` + neo ĐÁY: khi màn hình bẹt hơn tỉ lệ tranh (1,777) thì phần bị cắt là dải
+    TRỜI phía trên — đo được alpha = 0 ở toàn bộ 10% trên cùng, tức cắt vào chỗ trống,
+    không mất nét vẽ nào. Neo đáy để xe đạp, giỏ hoa và cốc cà phê luôn còn nguyên.
   */
   position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1;
-  width: 100%;
-  height: auto;
+  inset: 0;
+  z-index: 0;
+  background-repeat: no-repeat;
+  /* `cover` + neo ĐÁY: y hệt `object-fit: cover` của thẻ <img>, nhưng là thuộc tính nền
+     nên không có sự kiện lỗi nào để làm mất tranh. Đường dẫn ảnh do React gắn vào. */
+  background-size: cover;
+  background-position: center bottom;
 
   /*
-    Dải mờ: 0–16% trong suốt hẳn (vùng này của ảnh vốn đã trống trơn — đo được alpha = 0),
-    rồi đậm dần tới 50% là hiện đủ. Nhờ vậy chữ tiêu đề nằm trên một lớp màu rất nhạt chứ
-    không đè lên tán cây đậm.
-  */
-  -webkit-mask-image: linear-gradient(to bottom, transparent 16%, #000 50%);
-  mask-image: linear-gradient(to bottom, transparent 16%, #000 50%);
-
-  /*
-    ⚠ ĐÂY LÀ CHỖ SỬA LỖI "tranh với nền không ăn nhập gì với nhau" (chủ dự án, 2026-08-22).
-
-    Đo bằng `scripts/prepare_design_assets.py`: phần "giấy" trong hai tấm tranh là TRẮNG
-    TINH (255,255,255), còn trang thì màu kem #FCF4EA. Đặt thẳng lên nhau thì thành một
-    mảng trắng dán đè lên nền kem, nhìn rõ cả đường ranh.
-
-    `multiply` nhân màu tranh với màu nền: trắng × kem = ĐÚNG màu kem, nên phần giấy tan
-    hoàn toàn vào trang; nét vẽ chỉ ám thêm chút hơi ấm.
+    ⚠ CHỖ SỬA LỖI "tranh với nền không ăn nhập gì với nhau" (chủ dự án, 2026-08-22).
+    Đo được: phần "giấy" trong tranh là TRẮNG TINH (255,255,255) còn trang màu kem
+    #FCF4EA. `multiply` nhân màu tranh với nền: trắng × kem = ĐÚNG màu kem.
   */
   mix-blend-mode: multiply;
   pointer-events: none;
   user-select: none;
 }
 
-/*
-  Trang ĐĂNG KÝ khác trang đăng nhập ở CHỖ ĐẶT TRANH — đối chiếu lại bản thiết kế:
-  tranh phố nằm gọn ở NỬA TRÁI và KHÔNG luồn xuống dưới thẻ form như tranh Hồ Gươm.
-  Cũng giữ nguyên tỉ lệ, không cắt: rộng 52% thì cao tự tính theo tỉ lệ 404×269.
-*/
-.auth[data-scene='nen_dang_ky'] .auth__scene {
-  right: auto;
-  width: min(52%, 780px);
-  /* Mờ chéo về phía phải: tranh này không tràn hết bề ngang nên nó có mép dọc bên phải —
-     vỉa hè đang đi thì đứt ngang. */
-  -webkit-mask-image: linear-gradient(100deg, #000 55%, transparent 92%);
-  mask-image: linear-gradient(100deg, #000 55%, transparent 92%);
-}
+/* Trang ĐĂNG KÝ dùng tranh phố — cũng phủ kín màn hình, chỉ khác tấm tranh. */
 
 /* Nền tối: tranh vẽ tông sáng, để nguyên sẽ chói. Làm mờ và giảm sáng để nó về đúng vai
    trang trí, không tranh chỗ với nội dung. */

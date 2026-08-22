@@ -34,15 +34,23 @@ ROOT = Path(__file__).resolve().parent.parent
 NGUON = ROOT / "frontend" / "design" / "attribute"
 DICH = ROOT / "frontend" / "apps" / "client" / "public" / "anh"
 
-# Ảnh chép nguyên trạng: đã có kênh trong suốt đúng, không cần xử lý gì.
+# Ảnh chép nguyên trạng: đã có kênh trong suốt đúng, cũng không cần thu nhỏ vì chúng
+# trải kín màn hình.
 CHEP_NGUYEN = {
-    "Logo.png": "logo.png",
     "Background-login.png": "nen-dang-nhap.png",
     "Register background.png": "nen-dang-ky.png",
 }
 
-# Ảnh phải TÁCH NỀN trước khi dùng.
-TACH_NEN = {"slogan.png": "slogan.png"}
+# Ảnh cần XỬ LÝ trước khi dùng: {tên nguồn: (tên đích, tách nền?, bề ngang tối đa)}.
+#
+# Bề ngang tối đa đặt bằng ~3 lần cỡ hiển thị thật, đủ nét cho màn hình 2x–3x mà không
+# bắt người dùng tải về một tấm ảnh mấy megabyte cho một cái logo.
+XU_LY = {
+    # Logo hiển thị rộng ~310px trên máy tính. Bản gốc 2172px là quá dư.
+    "logo.png": ("logo.png", False, 930),
+    # Khẩu hiệu hiển thị rộng ~545px.
+    "slogan.png": ("slogan.png", True, 1120),
+}
 
 # Ngưỡng tách nền, chọn theo số đo thật của `slogan.png`:
 #   - ô caro sáng nhất 254, tối nhất 242  -> phải coi mọi mức >= 238 là nền
@@ -53,6 +61,23 @@ MUC_DEN = 180
 # Điểm có chênh lệch kênh màu lớn hơn mức này thì chắc chắn là MỰC (chữ cam), không phải
 # nền xám. Nếu không, chữ cam sáng sẽ bị tách nhầm thành trong suốt.
 NGUONG_MAU = 14
+
+
+def tim_file(ten: str) -> Path | None:
+    """Tìm file trong thư mục nguồn, KHÔNG phân biệt hoa/thường.
+
+    Chủ dự án vừa đổi `Logo.png` thành `logo.png` (2026-08-22). Windows coi hai tên đó là
+    một nên không ai thấy gì; Linux (máy chạy CI) thì coi là hai file khác nhau và script
+    sẽ lặng lẽ bỏ qua. Đây đúng kiểu lỗi chỉ nổ trên CI — chặn ngay từ đầu.
+    """
+    thang = NGUON / ten
+    if thang.exists():
+        return thang
+    thuong = ten.lower()
+    for f in NGUON.iterdir():
+        if f.name.lower() == thuong:
+            return f
+    return None
 
 
 def doc_png(duong_dan: Path) -> tuple[int, int, int, list[bytearray]]:
@@ -178,6 +203,21 @@ def tach_nen_trang(rong: int, cao: int, kenh: int, hang: list[bytearray]):
     return rong_moi, cao_moi, cat
 
 
+def sang_rgba(rong: int, cao: int, kenh: int, hang: list[bytearray]) -> tuple[int, int, bytearray]:
+    """Đưa ảnh về dạng RGBA phẳng, giữ nguyên mọi thứ. Dùng cho ảnh đã trong suốt sẵn."""
+    diem = bytearray(rong * cao * 4)
+    for y in range(cao):
+        dong = hang[y]
+        for x in range(rong):
+            g = x * kenh
+            d = (y * rong + x) * 4
+            diem[d] = dong[g]
+            diem[d + 1] = dong[g + 1] if kenh >= 3 else dong[g]
+            diem[d + 2] = dong[g + 2] if kenh >= 3 else dong[g]
+            diem[d + 3] = dong[g + 3] if kenh == 4 else 255
+    return rong, cao, diem
+
+
 # Bề ngang tối đa của ảnh chữ sau khi xử lý. Chữ hiển thị rộng khoảng 560px trên máy
 # tính, nên 1120px là vừa đủ nét cho màn hình 2x (Retina / 150% scaling của Windows).
 # Giữ nguyên 1454px chỉ để file nặng gấp đôi mà mắt thường không thấy khác.
@@ -261,8 +301,8 @@ def main() -> int:
     print(f"  đích : {DICH}\n")
 
     for ten_nguon, ten_dich in CHEP_NGUYEN.items():
-        f = NGUON / ten_nguon
-        if not f.exists():
+        f = tim_file(ten_nguon)
+        if f is None:
             print(f"  [BỎ QUA] {ten_nguon} — không có file")
             continue
         rong, cao, kenh, hang = doc_png(f)
@@ -272,21 +312,26 @@ def main() -> int:
             print("    ⚠ Ảnh KHÔNG có kênh trong suốt. Xuất lại dạng PNG-32 sẽ đẹp hơn.")
         kiem_giay_trang(ten_dich, rong, cao, kenh, hang)
 
-    for ten_nguon, ten_dich in TACH_NEN.items():
-        f = NGUON / ten_nguon
-        if not f.exists():
+    for ten_nguon, (ten_dich, tach_nen, be_ngang) in XU_LY.items():
+        f = tim_file(ten_nguon)
+        if f is None:
             print(f"  [BỎ QUA] {ten_nguon} — không có file")
             continue
         rong, cao, kenh, hang = doc_png(f)
-        r2, c2, diem = tach_nen_trang(rong, cao, kenh, hang)
-        r2, c2, diem = thu_nho(r2, c2, diem, BE_NGANG_TOI_DA)
+        if tach_nen:
+            r2, c2, diem = tach_nen_trang(rong, cao, kenh, hang)
+        else:
+            r2, c2, diem = sang_rgba(rong, cao, kenh, hang)
+        r2, c2, diem = thu_nho(r2, c2, diem, be_ngang)
         ghi_png_rgba(DICH / ten_dich, r2, c2, diem)
         kb_truoc = f.stat().st_size // 1024
         kb_sau = (DICH / ten_dich).stat().st_size // 1024
+        viec = "TÁCH NỀN" if tach_nen else "THU NHỎ"
         print(
-            f"  [TÁCH NỀN] {ten_nguon} -> {ten_dich}  "
+            f"  [{viec}] {f.name} -> {ten_dich}  "
             f"{rong}×{cao} ({kb_truoc} KB) -> {r2}×{c2} ({kb_sau} KB)"
         )
+        print(f"    -> khai ở images.ts: width: {r2}, height: {c2}")
 
     print("\nXong. Kích thước ảnh khai ở frontend/apps/client/src/shared/config/images.ts")
     print("— sửa file ảnh mà đổi kích thước thì nhớ sửa cả số ở đó.")

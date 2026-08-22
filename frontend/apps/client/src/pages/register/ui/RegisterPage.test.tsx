@@ -143,7 +143,8 @@ describe('RegisterPage', () => {
     vi.stubGlobal('fetch', vi.fn());
     const { container } = renderRegister();
 
-    const tranh = container.querySelector('.auth__scene');
-    expect(tranh).toHaveAttribute('src', '/anh/nen-dang-ky.png');
+    // Tranh nền là `background-image` chứ không phải thẻ <img> — xem AuthLayout.
+    const tranh = container.querySelector<HTMLElement>('.auth__scene');
+    expect(tranh?.style.backgroundImage).toContain('/anh/nen-dang-ky.png');
   });
 });

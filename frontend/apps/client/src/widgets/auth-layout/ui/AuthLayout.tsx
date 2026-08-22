@@ -20,8 +20,7 @@
  * LOGO lấy từ `shared/ui/BrandLogo` -> `shared/config/images.ts` -> `public/anh/logo.png`,
  * tức bản trong `design/attribute/`. Logo vẽ trong ảnh mẫu là bản CŨ, KHÔNG dùng.
  */
-import { useState } from 'react';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { BrandLogo, IconHeart, IconPin, LanguageSelect } from '@/shared/ui';
 import { ThemeToggle } from '@/features/switch-theme';
 import { ANH_GIAO_DIEN } from '@/shared/config';
@@ -48,47 +47,67 @@ export function AuthLayout({
   children,
 }: AuthLayoutProps) {
   const tranh = ANH_GIAO_DIEN[scene];
-  const [tranhHong, setTranhHong] = useState(false);
 
   return (
     // `data-scene` để CSS chỉnh riêng theo từng tranh (VD trang đăng ký không có tiêu đề
     // nên tranh được cao hơn). Dùng thuộc tính dữ liệu thay vì đẻ thêm class biến thể:
     // thêm tranh mới chỉ cần thêm một khối CSS, không phải sửa JSX.
     <div className="auth" data-scene={scene}>
-      <header className="auth__bar">
-        <BrandLogo />
-        <div className="auth__tools">
-          <LanguageSelect />
-          <ThemeToggle />
+      {/*
+        KHUNG. Mọi thứ nằm trong đây, và nó KHÔNG kéo dài hết bề ngang màn hình.
+
+        VÌ SAO: khung của bản thiết kế gần vuông (813×815). Trải bố cục ra hết một màn
+        hình 1920×887 thì mọi thứ đều teo lại theo tỉ lệ — logo còn 19% bề ngang thay vì
+        28%, thẻ form còn 28% thay vì 40%, tranh còn 54% thay vì 100%. Đó chính là chỗ
+        chủ dự án thấy "sai" (2026-08-22).
+
+        Bề ngang khung buộc theo CHIỀU CAO màn hình (xem `--khung` trong auth.css) nên
+        khung luôn gần vuông như bản thiết kế, và mọi tỉ lệ bên trong khớp theo.
+      */}
+      <div className="auth__frame">
+        <header className="auth__bar">
+          <BrandLogo />
+          <div className="auth__tools">
+            <LanguageSelect />
+            <ThemeToggle />
+          </div>
+        </header>
+
+        <div className="auth__body">
+          <section className="auth__hero">
+            {heading && <h1 className="auth__heading">{heading}</h1>}
+            {intro && <p className="auth__intro">{intro}</p>}
+          </section>
+
+          <section className="auth__panel">{children}</section>
         </div>
-      </header>
 
-      <div className="auth__body">
-        <section className="auth__hero">
-          {heading && <h1 className="auth__heading">{heading}</h1>}
-          {intro && <p className="auth__intro">{intro}</p>}
-          <span className="auth__badge">
-            <IconPin width={16} height={16} />
-            Made for Hà Nội!
-            <IconHeart className="auth__badge-heart" width={15} height={15} />
-          </span>
-        </section>
+        <span className="auth__badge">
+          <IconPin width={16} height={16} />
+          Made for Hà Nội!
+          <IconHeart className="auth__badge-heart" width={15} height={15} />
+        </span>
 
-        <section className="auth__panel">{children}</section>
+        {tranh && (
+          /*
+            Tranh nền vẽ bằng CSS `background-image`, KHÔNG dùng thẻ <img>.
+
+            VÌ SAO ĐỔI (2026-08-22): bản cũ dùng <img> kèm `onError` để ẩn ảnh khi tải
+            hỏng. Nhưng `onError` chỉ cần nổ MỘT lần — ví dụ đúng lúc script chuẩn bị ảnh
+            đang ghi đè file — là state nhớ luôn "ảnh hỏng" và trang MẤT NỀN cho tới khi
+            tải lại. Chủ dự án gặp đúng lỗi này.
+
+            Ảnh nền là thứ trang trí thuần tuý: `background-image` không có sự kiện lỗi,
+            không giữ state, hỏng thì đơn giản là không vẽ gì — nền kem vẫn đẹp. Ít thứ
+            hỏng được hơn thì tốt hơn.
+          */
+          <div
+            className="auth__scene"
+            style={{ backgroundImage: `url("${tranh.src}")` } as CSSProperties}
+            aria-hidden="true"
+          />
+        )}
       </div>
-
-      {tranh && !tranhHong && (
-        <img
-          className="auth__scene"
-          src={tranh.src}
-          alt={tranh.alt}
-          width={tranh.width}
-          height={tranh.height}
-          // Sai tên file thì trình duyệt hiện ô ảnh vỡ. Ẩn hẳn đi: trang vẫn đẹp vì nền
-          // kem và bố cục không phụ thuộc vào tấm tranh này.
-          onError={() => setTranhHong(true)}
-        />
-      )}
     </div>
   );
 }

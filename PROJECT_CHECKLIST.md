@@ -496,11 +496,41 @@ bản trong `attribute/` mới đúng, và luật này áp cho MỌI layout về
       File trong `public/anh/` vẫn nguyên vẹn (MD5 trùng khớp bản trong `design/attribute/`)
       — lỗi hoàn toàn nằm ở CSS. Nay tranh giữ NGUYÊN TỈ LỆ, hiện trọn vẹn, phần trên MỜ
       DẦN vào nền thay vì bị cắt ngang.
-- [x] **Màn sương (`.auth::after`)** — hệ quả của việc trên: tranh hiện trọn thì tán cây
-      dâng lên ngang đoạn giới thiệu, chữ đọc không ra. Phủ một lớp kem mờ dần TRẢI KÍN
-      màn hình (bọc riêng khối chữ thì lộ nguyên hình chữ nhật sáng trên tranh).
-      ⚠ Phải là `::after` chứ không phải `::before`: cùng z-index thì `::before` bị chính
-      tấm tranh phủ lên.
+- [x] **Logo bản mới 2026-08-22 (2172×724, tỉ lệ 3:1)** thay bản cũ 226×114 (tỉ lệ 2:1).
+      Bản cũ quá nhỏ nên phóng lên 300px là vỡ nét. Cỡ hiển thị tính lại theo tỉ lệ mới:
+      rộng ~305px thì cao ~102px (trước là 154px). Script thu nhỏ còn 930×310 (1422 → 370 KB).
+      ⚠ File đổi tên `Logo.png` → `logo.png`; script nay tìm file KHÔNG phân biệt hoa
+      thường, nếu không thì Linux/CI sẽ lặng lẽ bỏ qua.
+- [x] **Bố cục tranh tính lại theo hình học thật (2026-08-22, vòng 4).** Khung bản thiết
+      kế gần vuông (813×815) nên tranh vừa rộng hết khung vừa chỉ chiếm 56% chiều cao.
+      Cửa sổ trình duyệt bẹt hơn nhiều (1920×887 ≈ 2,2:1): trải tranh hết bề ngang thì
+      theo tỉ lệ 1,777 nó cao 1080px — CAO HƠN cả màn hình, chân trời rơi vào giữa trang,
+      đúng chỗ đặt chữ. Vì vậy khống chế theo CHIỀU CAO (66% màn hình) và để `contain` tự
+      tính bề ngang: không cắt, không méo, giữ đúng bố cục "trời quang trên, phố dưới".
+      Mép tranh tan bằng dải mờ toả từ góc dưới trái (xử lý cả mép ngang lẫn mép dọc).
+- [x] **TOÀN MÀN HÌNH (2026-08-22, vòng 6) — chốt cuối.** Chủ dự án bác bỏ hẳn phương án
+      khung hẹp: trang đăng nhập phải chiếm TRỌN màn hình, tranh là NỀN của cả trang.
+      Nay `.auth__scene` là `position: fixed; inset: 0; object-fit: cover` neo ĐÁY — phủ
+      kín mép này sang mép kia. Phần bị cắt chỉ là dải trời phía trên (đo được alpha = 0
+      ở 10% trên cùng), không mất nét vẽ nào. Chữ đọc được nhờ hai lớp kem mờ ở
+      `.auth::after`: một dải ngang ở đỉnh + một vệt bầu dục ôm khối chữ bên trái.
+      Cỡ các thành phần đo từ bản thiết kế chủ dự án gửi (khung 1456px): logo 23% bề ngang
+      (≈7,4vw), tiêu đề 38%, thẻ form 465px.
+- [x] ~~KHUNG BỐ CỤC buộc theo CHIỀU CAO màn hình (vòng 5) — `--khung`~~ ĐÃ BỎ ở vòng 6.
+      Giữ lại ghi chú để người sau khỏi làm lại: phương án đó giữ đúng tỉ lệ bản thiết kế
+      nhưng để lại lề kem hai bên trên màn hình rộng, và chủ dự án không chấp nhận.
+- [x] **Tranh nền vẽ bằng `background-image`, KHÔNG dùng thẻ `<img>` (2026-08-22).**
+      Bug thật: bản cũ dùng `<img onError>` để ẩn ảnh khi tải hỏng, nhưng `onError` chỉ
+      cần nổ MỘT lần — ví dụ đúng lúc `prepare_design_assets.py` đang ghi đè file — là
+      React nhớ luôn "ảnh hỏng" và trang MẤT SẠCH NỀN cho tới khi tải lại. Chủ dự án gặp
+      đúng lỗi này. Nền là thứ trang trí thuần tuý nên `background-image` hợp hơn: không
+      có sự kiện lỗi, không giữ state, hỏng thì chỉ là không vẽ gì.
+- [x] **Thẻ form nhích lên ~5% chiều cao màn hình** so với chính giữa (chủ dự án yêu cầu).
+- [x] **Hai lớp kem mờ (`.auth::after`)** — cần vì tranh phủ kín màn hình nên tán cây
+      dâng lên tận góc trên bên trái, đúng chỗ đặt logo và chữ.
+      ⚠ Phải là `::after` chứ không phải `::before`: cùng z-index thì thứ tự vẽ theo DOM,
+      mà `::before` đứng trước các phần tử con nên bị chính tấm tranh phủ lên — đã thử và
+      màn sương mất tác dụng hoàn toàn.
 - [x] **`python scripts/prepare_design_assets.py`** — xử lý ảnh thiết kế, chạy lại được.
       Cần vì `slogan.png` xuất ra KHÔNG có kênh trong suốt (là ảnh phẳng, dính nguyên nền
       caro của công cụ thiết kế). Script tách nền, cắt sát, thu nhỏ: 1601×982 (912 KB) →

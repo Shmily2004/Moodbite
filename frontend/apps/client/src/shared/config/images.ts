@@ -91,8 +91,11 @@ export const ANH_GIAO_DIEN: Record<string, AnhUI | null> = {
   logo: {
     src: '/anh/logo.png',
     alt: 'MoodBite',
-    width: 226,
-    height: 114,
+    // 930×310 (tỉ lệ 3:1) — bản chủ dự án xuất lại ngày 2026-08-22, thay bản cũ 226×114
+    // (tỉ lệ 2:1, quá nhỏ nên phóng to là vỡ nét). Số này do
+    // `python scripts/prepare_design_assets.py` in ra sau khi thu nhỏ, đừng gõ tay.
+    width: 930,
+    height: 310,
     fit: 'contain',
   },
 

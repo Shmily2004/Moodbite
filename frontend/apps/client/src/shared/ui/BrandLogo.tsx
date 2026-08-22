@@ -23,15 +23,17 @@ export interface BrandLogoProps {
 /**
  * KHÔNG phải một con số cố định — logo co theo bề ngang màn hình.
  *
- * Con số lấy từ chính bản thiết kế chứ không ước lượng: trong `design/Login - register.png`,
- * logo rộng bằng **0,74 lần bề ngang thẻ form**. Thẻ form của ta rộng tối đa 430px, nên
- * logo rộng ~318px, tức CAO ~160px (tỉ lệ ảnh 226×114 ≈ 1,98).
+ * Cỡ lấy từ chính bản thiết kế chứ không ước lượng: logo rộng bằng **0,71 lần bề ngang
+ * thẻ form**. Thẻ form rộng tối đa 430px -> logo rộng ~305px.
  *
- * Đã thử 34px → 46px → 64px, cả ba lần chủ dự án đều nói còn quá bé. Đây là logo có 3
- * tầng (mascot + tên + khẩu hiệu), nó đóng vai một khối hình chứ không phải cái nhãn nhỏ
- * ở góc. Muốn đổi thì đổi ở ĐÂY, đừng đặt chiều cao rải rác trong từng trang.
+ * ⚠ Chiều cao đổi theo TỈ LỆ của file logo. Bản 2026-08-22 là 3:1 (2172×724) chứ không
+ * còn 2:1 như bản cũ, nên cùng một bề ngang thì nay chỉ cao bằng 2/3 trước kia.
+ *
+ * Đo trên bản thiết kế chủ dự án gửi 2026-08-22: logo rộng 340/1456 ≈ 23% bề ngang màn
+ * hình. Tỉ lệ ảnh là 3:1 nên chiều cao ≈ 23vw / 3 ≈ 7,4vw. Chặn trên 148px để trên màn
+ * hình siêu rộng logo không nuốt mất nửa thanh trên.
  */
-const DEFAULT_HEIGHT = 'clamp(72px, 11vw, 158px)';
+const DEFAULT_HEIGHT = 'clamp(56px, 7.4vw, 148px)';
 
 export function BrandLogo({ height = DEFAULT_HEIGHT, className }: BrandLogoProps) {
   const anh = ANH_GIAO_DIEN.logo;

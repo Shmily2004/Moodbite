@@ -254,7 +254,7 @@
 .auth-card {
   display: flex;
   flex-direction: column;
-  padding: clamp(20px, 1.8vw, 28px);
+  padding: clamp(18px, 1.6vw, 26px);
   border: 1px solid var(--auth-line-soft);
   border-radius: 20px;
   background: var(--auth-card);
@@ -270,7 +270,7 @@
 }
 
 .auth-card__sub {
-  margin: 0 0 18px;
+  margin: 0 0 16px;
   text-align: center;
   color: var(--auth-ink-soft);
   font-size: .9rem;
@@ -298,7 +298,7 @@
   position: relative;
   display: flex;
   align-items: center;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 /* Ô có dòng gợi ý ngay dưới -> bớt khoảng cách để chữ gợi ý dính vào đúng ô của nó,
@@ -306,7 +306,7 @@
 .field--tight { margin-bottom: 5px; }
 
 .field__hint {
-  margin: 0 0 12px;
+  margin: 0 0 10px;
   color: var(--auth-muted);
   font-size: .78rem;
   line-height: 1.45;
@@ -360,7 +360,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin: 2px 0 18px;
+  margin: 2px 0 14px;
   font-size: .85rem;
 }
 
@@ -467,6 +467,9 @@
   height: 1px;
   background: var(--auth-line);
 }
+
+/* Không có đường kẻ "hoặc" ở trên thì tự chừa khoảng cách với nút. */
+.auth-card__footer--tight { margin-top: 14px; }
 
 .auth-card__footer {
   margin: 0;

@@ -12,6 +12,7 @@ import './styles.css';
 // ở `app/styles/` và một dòng import ở đây - đừng nhồi tiếp vào `styles.css`.
 import './styles/brand.css';
 import './styles/auth.css';
+import './styles/home.css';
 
 const router = createBrowserRouter(routes);
 

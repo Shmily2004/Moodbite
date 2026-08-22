@@ -93,10 +93,18 @@ export class MoodbiteAuthApi {
       body,
     });
   }
-}
 
-/*
- * CHƯA khai `me()`, dù backend đã có `/auth/me`: chưa trang nào hiển thị thông tin tài
- * khoản nên chưa ai gọi. Thêm method không ai dùng thì không cách nào biết nó còn chạy
- * đúng hay không. Làm trang hồ sơ thì thêm cùng lúc.
- */
+  /**
+   * Thông tin tài khoản đang đăng nhập. Cần `getAuthToken` khi tạo client.
+   *
+   * Dùng để biết mình là AI sau khi tải lại trang: token nằm trong storage nhưng tên hiển
+   * thị thì không. Trả 401 nghĩa là token hết hạn/bị thu hồi — người gọi phải xoá token
+   * chứ đừng thử lại.
+   *
+   * Vai (`role`) đọc từ CSDL ở mỗi lần gọi chứ không nằm trong token, nên admin vừa bị hạ
+   * quyền sẽ thấy ngay ở lần gọi kế tiếp.
+   */
+  me(options?: RequestOptions): Promise<UserPublic> {
+    return this.http.request<UserPublic>('/auth/me', options);
+  }
+}

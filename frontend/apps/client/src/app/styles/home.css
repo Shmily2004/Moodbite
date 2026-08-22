@@ -1,0 +1,327 @@
+/* =========================================================================
+   TRANG CHỦ — dựng theo `frontend/design/Home.jpg` (2026-08-22).
+
+   Khác hẳn màn hình bản đồ (`styles.css`): trang này CUỘN DỌC bình thường, nền kem
+   thương hiệu, nội dung nằm trong một cột giữa rộng tối đa 1240px.
+
+     ┌───────────────────────────────────────────────┐
+     │ [logo]  điều hướng        Hà Nội · 🌙 · tài khoản │  .site-header
+     ├───────────────────────────────────────────────┤
+     │  Chào buổi sáng, …                            │
+     │  <khẩu hiệu>            [tranh minh hoạ]      │  .hero
+     │  [chip ngữ cảnh]  [ô tìm ........] [Tìm ngay] │
+     │  Gợi ý nhanh theo mood: [🌶️][☕][😊]…          │  .quickpick
+     │  Lọc chi tiết                                 │  .filters-block
+     │  🔥 Món phù hợp với bạn hôm nay  → lưới món    │  .results
+     │  [dải mời đăng nhập]                          │  .cta
+     └───────────────────────────────────────────────┘
+
+   Màu lấy từ `brand.css`, KHÔNG khai lại mã màu ở đây.
+   ========================================================================= */
+
+.page {
+  min-height: 100dvh;
+  background: linear-gradient(180deg, var(--brand-cream-hi) 0%, var(--brand-cream) 420px);
+  color: var(--auth-ink);
+}
+
+/* Cột nội dung giữa. 1240px: rộng hơn thì một dòng chữ phải rê mắt quá xa mới đọc hết. */
+.page__body {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: clamp(16px, 2.4vw, 32px) clamp(16px, 3vw, 40px) 64px;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(28px, 3.4vw, 48px);
+}
+
+/* Chữ chỉ dành cho trình đọc màn hình. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* =========================================================================
+   THANH TRÊN
+   ========================================================================= */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: clamp(12px, 2vw, 28px);
+  padding: 10px clamp(16px, 3vw, 40px);
+  background: color-mix(in srgb, var(--auth-card) 88%, transparent);
+  border-bottom: 1px solid var(--auth-line-soft);
+  /* Dính trên cùng khi cuộn -> phải làm mờ nền, nếu không chữ phía dưới trôi qua sẽ
+     chồng lên chữ của thanh. */
+  backdrop-filter: blur(10px);
+}
+
+.site-header__brand { display: flex; flex: none; }
+
+.site-header__nav {
+  display: flex;
+  align-items: center;
+  gap: clamp(8px, 1.4vw, 20px);
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  /* Màn hình hẹp: cho trượt ngang thay vì xuống dòng làm cao gấp đôi thanh trên. */
+  scrollbar-width: none;
+}
+.site-header__nav::-webkit-scrollbar { display: none; }
+
+.site-header__link {
+  padding: 6px 2px;
+  border-bottom: 2px solid transparent;
+  color: var(--auth-ink-soft);
+  font-size: .92rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.site-header__link:hover { color: var(--auth-ink); }
+
+.site-header__link--active {
+  color: var(--auth-ink);
+  border-bottom-color: var(--brand-orange);
+}
+
+.site-header__tools {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+}
+
+.site-header__place {
+  display: none;
+  align-items: center;
+  gap: 5px;
+  color: var(--auth-ink-soft);
+  font-size: .86rem;
+  font-weight: 600;
+}
+.site-header__place svg { color: var(--brand-orange); }
+/* Ẩn trên màn hình hẹp: nó là thông tin phụ, nhường chỗ cho điều hướng. */
+@media (min-width: 900px) { .site-header__place { display: inline-flex; } }
+
+.site-header__account { display: flex; align-items: center; gap: 10px; }
+.site-header__user {
+  max-width: 14ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 700;
+  font-size: .9rem;
+}
+
+.btn--sm { padding: 8px 14px; font-size: .88rem; }
+
+/* =========================================================================
+   KHỐI MỞ ĐẦU
+   ========================================================================= */
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(16px, 2vw, 32px);
+  align-items: center;
+}
+/* Tranh minh hoạ chỉ xuất hiện khi còn chỗ — dưới 960px nó lấn hết phần chữ. */
+@media (min-width: 960px) {
+  .hero { grid-template-columns: minmax(0, 1fr) minmax(280px, 42%); }
+}
+
+.hero__greeting {
+  margin: 0 0 10px;
+  color: var(--auth-ink-soft);
+  font-size: .95rem;
+  font-weight: 600;
+}
+
+.hero__slogan { margin: 0 0 14px; }
+.hero__slogan .slogan { width: min(100%, 30rem); }
+
+.hero__intro {
+  margin: 0 0 18px;
+  max-width: 44ch;
+  color: var(--auth-ink-soft);
+  line-height: 1.6;
+}
+
+/* --- Chip ngữ cảnh (dữ liệu thật từ API) --------------------------------- */
+
+.hero__signals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 18px;
+  padding: 0;
+  list-style: none;
+}
+
+.signal {
+  padding: 8px 14px;
+  border: 1px solid var(--auth-line);
+  border-radius: 999px;
+  background: var(--auth-card);
+  color: var(--auth-ink-soft);
+  font-size: .86rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(2, 29, 72, .05);
+}
+
+/* --- Ô tìm --------------------------------------------------------------- */
+
+.hero__search {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  max-width: 640px;
+  padding: 8px;
+  border: 1px solid var(--auth-line);
+  border-radius: 999px;
+  background: var(--auth-card);
+  box-shadow: var(--auth-shadow);
+}
+
+.hero__search-input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 14px;
+  border: 0;
+  background: none;
+  color: var(--auth-ink);
+  font: inherit;
+}
+.hero__search-input::placeholder { color: var(--auth-muted); }
+.hero__search-input:focus { outline: none; }
+/* Vòng sáng đặt ở CẢ Ô chứ không ở riêng ô nhập: ô nhập không có viền, tự nó không cho
+   thấy đang được chọn. */
+.hero__search:focus-within {
+  border-color: var(--brand-orange);
+  box-shadow: 0 0 0 3px rgba(243, 146, 6, .18);
+}
+
+.hero__search .btn { flex: none; border-radius: 999px; }
+
+.hero__art {
+  width: 100%;
+  height: auto;
+  justify-self: end;
+}
+
+/* =========================================================================
+   MOOD NHANH
+   ========================================================================= */
+
+.section-title {
+  margin: 0;
+  font-size: clamp(1.05rem, 1.4vw, 1.25rem);
+  font-weight: 800;
+  letter-spacing: -.01em;
+}
+
+.quickpick__row {
+  display: grid;
+  /* Tự xuống dòng theo bề ngang, không cần điểm ngắt riêng. */
+  grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+  gap: 12px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.moodcard {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 8px;
+  border: 1px solid var(--auth-line);
+  border-radius: 16px;
+  background: var(--auth-card);
+  color: var(--auth-ink);
+  font: inherit;
+  font-size: .86rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform .12s ease, border-color .12s ease;
+}
+.moodcard:hover { transform: translateY(-2px); border-color: var(--brand-orange); }
+.moodcard__emoji { font-size: 1.5rem; line-height: 1; }
+
+.moodcard--on {
+  border-color: var(--brand-orange);
+  background: var(--accent-soft, #FBEDE4);
+  box-shadow: 0 0 0 2px rgba(243, 146, 6, .25);
+}
+
+.moodcard--more { color: var(--auth-muted); }
+
+.moodcard:focus-visible {
+  outline: 2px solid var(--brand-orange);
+  outline-offset: 2px;
+}
+
+/* =========================================================================
+   BỘ LỌC CHI TIẾT + KẾT QUẢ
+   ========================================================================= */
+
+.filters-block {
+  padding: 16px;
+  border: 1px solid var(--auth-line-soft);
+  border-radius: 18px;
+  background: var(--auth-card);
+}
+.filters-block .section-title { margin-bottom: 10px; }
+
+.results__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.results__count { margin: 0; color: var(--auth-muted); font-size: .88rem; }
+.results__sub {
+  margin: 4px 0 16px;
+  color: var(--auth-ink-soft);
+  font-size: .9rem;
+}
+
+/* =========================================================================
+   DẢI MỜI ĐĂNG NHẬP
+   ========================================================================= */
+
+.cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 24px;
+  border: 1px solid var(--auth-line);
+  border-radius: 18px;
+  background: var(--auth-card);
+  box-shadow: 0 6px 24px rgba(2, 29, 72, .06);
+}
+.cta__title { margin: 0 0 4px; font-weight: 800; }
+.cta__sub {
+  margin: 0;
+  max-width: 60ch;
+  color: var(--auth-ink-soft);
+  font-size: .9rem;
+  line-height: 1.55;
+}

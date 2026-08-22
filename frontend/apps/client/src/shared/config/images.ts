@@ -122,8 +122,19 @@ export const ANH_GIAO_DIEN: Record<string, AnhUI | null> = {
     fit: 'contain',
   },
 
-  /** Ảnh bìa đầu trang chủ, phía trên lưới món. */
-  bia_trang_chu: null,
+  /**
+   * Tranh minh hoạ ở khối mở đầu TRANG CHỦ (bên phải lời chào).
+   *
+   * 795×298 — nhỏ hơn hẳn hai tranh nền trang tài khoản vì nó chỉ chiếm một góc, không
+   * trải kín màn hình. Thay ảnh thì chạy `python scripts/prepare_design_assets.py`.
+   */
+  banner_trang_chu: {
+    src: '/anh/banner-trang-chu.png',
+    alt: '',
+    width: 795,
+    height: 298,
+    fit: 'contain',
+  },
 
   /** Hình minh hoạ khi tìm không ra quán nào. */
   khong_co_ket_qua: null,

@@ -144,7 +144,14 @@ export function useDishSuggestions(position: Coordinates): UseDishSuggestionsRes
         // 503 DATA_NOT_READY kèm sẵn lệnh cần chạy - hiện nguyên văn cho người dùng,
         // vì với đồ án thì người dùng cũng chính là người chạy được lệnh đó.
         setError(
-          err instanceof ApiError ? err.message : 'Không gọi được máy chủ MoodBite.',
+          // Lỗi MẠNG thì `message` là câu kỹ thuật của `fetch` ("Failed to fetch") — người
+          // dùng đọc không hiểu gì, mà đây lại là lỗi hay gặp nhất (quên bật backend).
+          // Các mã lỗi khác thì câu của backend đã viết cho người dùng đọc.
+          err instanceof ApiError
+            ? err.code === 'NETWORK'
+              ? err.userMessage
+              : err.message
+            : 'Không gọi được máy chủ MoodBite.',
         );
         setDishes(null);
       })

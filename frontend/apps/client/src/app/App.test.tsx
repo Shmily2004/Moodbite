@@ -62,23 +62,29 @@ describe('App - smoke test', () => {
   it('hien nhan MoodBite - man hinh KHONG trang', () => {
     renderAt('/');
 
-    expect(screen.getByText('MoodBite')).toBeInTheDocument();
+    // Nhãn thương hiệu nay là ẢNH logo (từ 2026-08-22), không còn là chữ trong <span>.
+    // `getAllBy…` vì trang chủ có logo ở thanh trên; các trang khác có thể có thêm.
+    expect(screen.getAllByAltText('MoodBite').length).toBeGreaterThan(0);
   });
 
   it('trang chu hien BO LOC MON - buoc 1 cua luong chon mon truoc', () => {
     renderAt('/');
 
     // Đúng ba ví dụ chủ dự án nêu: "nay trời mưa, muốn ăn đồ nướng, đồ nóng".
-    expect(screen.getByRole('button', { name: /Trời mưa/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Đồ nướng/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Đồ nóng/i })).toBeInTheDocument();
+    // `getAllBy…`: từ bản thiết kế 2026-08-22, trang chủ có HAI chỗ chọn cùng một điều
+    // kiện — hàng "Gợi ý nhanh theo mood" ở trên và bảng "Lọc chi tiết" ở dưới. Trùng tên
+    // là CỐ Ý (cùng một bộ lọc, hai lối vào), nên test phải chấp nhận nhiều kết quả.
+    expect(screen.getAllByRole('button', { name: /Trời mưa/i }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('button', { name: /Đồ nướng/i }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('button', { name: /Đồ nóng|Món nóng/i }).length).toBeGreaterThan(0);
   });
 
   it('backend chet van render duoc phan khung', () => {
     renderAt('/');
 
     // Bộ lọc vẫn bấm được kể cả khi API chết - khung không phụ thuộc dữ liệu.
-    expect(screen.getByText(/Hôm nay bạn muốn ăn gì/i)).toBeInTheDocument();
+    // Câu mở đầu trang chủ nay là lời chào theo giờ + khẩu hiệu dạng ảnh.
+    expect(screen.getByText(/Chào buổi/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Bữa sáng/i })).toBeInTheDocument();
   });
 

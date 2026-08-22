@@ -39,6 +39,7 @@ DICH = ROOT / "frontend" / "apps" / "client" / "public" / "anh"
 CHEP_NGUYEN = {
     "Background-login.png": "nen-dang-nhap.png",
     "Register background.png": "nen-dang-ky.png",
+    "banner home.png": "banner-trang-chu.png",
 }
 
 # Ảnh cần XỬ LÝ trước khi dùng: {tên nguồn: (tên đích, tách nền?, bề ngang tối đa)}.

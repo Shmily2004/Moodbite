@@ -31,8 +31,23 @@ from src.infrastructure.notifications.smtp_email_sender import SmtpEmailSender  
 
 
 def che(gia_tri: str) -> str:
-    """Chỉ cho thấy có hay không và dài bao nhiêu."""
+    """Chỉ cho thấy CÓ hay KHÔNG và dài bao nhiêu — không lộ một ký tự nào của giá trị."""
     return f"đã đặt ({len(gia_tri)} ký tự)" if gia_tri else "CHƯA ĐẶT"
+
+
+def che_email(dia_chi: str) -> str:
+    """Che phần tên của địa chỉ thư, chỉ giữ 2 ký tự đầu và tên miền.
+
+    VÌ SAO CHE CẢ EMAIL (chủ dự án nhắc 2026-08-22): địa chỉ thư cũng là dữ liệu cá nhân.
+    Kết quả script này hay được chụp màn hình gửi cho người khác xem giúp, nên mặc định
+    phải KHÔNG lộ gì. Vẫn đủ để tự nhận ra mình gõ nhầm tài khoản nào.
+    """
+    if not dia_chi:
+        return "CHƯA ĐẶT"
+    if "@" not in dia_chi:
+        return f"{dia_chi[:2]}***"
+    ten, mien = dia_chi.split("@", 1)
+    return f"{ten[:2]}***@{mien}"
 
 
 def main() -> int:
@@ -50,9 +65,12 @@ def main() -> int:
     print("=" * 68)
     print(f"  MOODBITE_SMTP_HOST     : {settings.smtp_host or 'CHƯA ĐẶT'}")
     print(f"  MOODBITE_SMTP_PORT     : {settings.smtp_port}")
-    print(f"  MOODBITE_SMTP_USER     : {settings.smtp_username or 'CHƯA ĐẶT'}")
+    print(f"  MOODBITE_SMTP_USER     : {che_email(settings.smtp_username)}")
     print(f"  MOODBITE_SMTP_PASSWORD : {che(settings.smtp_password)}")
-    print(f"  MOODBITE_SMTP_FROM     : {settings.smtp_sender or '(trống → dùng SMTP_USER)'}")
+    print(
+        "  MOODBITE_SMTP_FROM     : "
+        + (che_email(settings.smtp_sender) if settings.smtp_sender else "(trống → dùng SMTP_USER)")
+    )
     print(f"  MOODBITE_RESET_SECRET  : {che(settings.reset_token_secret)}")
     print(f"  MOODBITE_AUTH_SECRET   : {che(settings.user_token_secret)}")
     print(f"  MOODBITE_APP_URL       : {settings.app_base_url}")
@@ -101,7 +119,7 @@ def main() -> int:
         print("Muốn gửi thử thật: python scripts/check_email.py --to email-cua-ban@gmail.com")
         return 0
 
-    print(f"Đang gửi thư thử tới {args.to} …")
+    print(f"Đang gửi thư thử tới {che_email(args.to)} …")
     try:
         sender.send(
             to=args.to,

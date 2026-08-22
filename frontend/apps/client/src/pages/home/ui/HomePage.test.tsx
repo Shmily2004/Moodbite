@@ -12,6 +12,7 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import { UserSessionProvider } from '@/entities/user';
 import { HomePage } from '../index';
 
 /** Một món đúng hình dạng backend trả về (envelope `data`, tên trường snake_case). */
@@ -59,7 +60,11 @@ function mockSuggestResponse(results: unknown[], warnings: string[] = []) {
 function renderHome() {
   return render(
     <MemoryRouter initialEntries={['/']}>
-      <HomePage />
+      {/* Trang chủ đọc phiên tài khoản (lời chào có tên, dải mời đăng nhập) nên phải có
+          provider. Lúc chạy thật `RootLayout` lo việc này. */}
+      <UserSessionProvider>
+        <HomePage />
+      </UserSessionProvider>
     </MemoryRouter>,
   );
 }

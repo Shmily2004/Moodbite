@@ -9,6 +9,11 @@
  *
  * Dòng gợi ý dưới ô tên đăng nhập chỉ là CHỮ MÔ TẢ cho người dùng đọc, không phải chỗ
  * cưỡng chế luật — nội dung của nó bám theo `src/domain/entities/user.py`.
+ *
+ * ⚠️ GIỮ CHO THẺ FORM VỪA MỘT MÀN HÌNH (chủ dự án yêu cầu 2026-08-22): bản thiết kế không
+ * bắt cuộn. Mỗi dòng gợi ý là ~48px chiều cao, nên chỉ giữ đúng dòng cần thiết nhất (luật
+ * đặt tên đăng nhập — thứ backend sẽ từ chối nếu gõ sai); phần còn lại dồn vào placeholder
+ * và `title`. Thêm ô mới thì phải cân lại chỗ này.
  */
 import { useId, useState } from 'react';
 import type { ReactNode } from 'react';
@@ -83,10 +88,7 @@ export function RegisterForm({ loading, error, onSubmit, footer }: RegisterFormP
           onChange={(event) => setUsername(event.target.value)}
         />
       </div>
-      <p className="field__hint">
-        Chỉ dùng chữ cái không dấu (a–z), số, dấu gạch ngang (-) và gạch dưới (_), dài
-        3–32 ký tự.
-      </p>
+      <p className="field__hint">3–32 ký tự: chữ thường không dấu, số, dấu - và _</p>
 
       <label className="field__label" htmlFor={idHienThi}>
         Tên hiển thị
@@ -97,15 +99,15 @@ export function RegisterForm({ loading, error, onSubmit, footer }: RegisterFormP
           id={idHienThi}
           className="field__input"
           value={displayName}
-          placeholder="Tên hiển thị của bạn"
+          // Lời giải thích dồn vào placeholder + `title` thay vì một dòng gợi ý riêng:
+          // bản thiết kế chỉ có MỘT dòng gợi ý (dưới ô tên đăng nhập), và mỗi dòng gợi ý
+          // thừa đẩy thẻ form dài thêm ~48px — đủ để tràn xuống dưới màn hình.
+          placeholder="Tên hiển thị (có thể bỏ trống)"
+          title="Được dùng tiếng Việt có dấu. Bỏ trống thì hiển thị theo tên đăng nhập."
           autoComplete="nickname"
           onChange={(event) => setDisplayName(event.target.value)}
         />
       </div>
-      <p className="field__hint">
-        Được dùng tiếng Việt có dấu. Bỏ trống cũng được — khi đó sẽ hiển thị theo tên
-        đăng nhập.
-      </p>
 
       {/*
         Ô EMAIL — bản thiết kế KHÔNG có ô này, thêm vào có chủ đích (2026-08-22).
@@ -132,10 +134,7 @@ export function RegisterForm({ loading, error, onSubmit, footer }: RegisterFormP
           onChange={(event) => setEmail(event.target.value)}
         />
       </div>
-      <p className="field__hint">
-        Chỉ dùng để gửi thư khi bạn quên mật khẩu. Bỏ trống cũng được, nhưng khi đó bạn sẽ
-        không tự lấy lại mật khẩu được.
-      </p>
+      <p className="field__hint">Chỉ dùng để gửi thư khi bạn quên mật khẩu.</p>
 
       <label className="field__label" htmlFor={idMatKhau}>
         Mật khẩu
@@ -227,14 +226,12 @@ export function RegisterForm({ loading, error, onSubmit, footer }: RegisterFormP
         {loading ? 'Đang tạo tài khoản…' : 'Tạo tài khoản'}
       </button>
 
-      {footer && (
-        <>
-          <div className="auth-card__or">
-            <span>hoặc</span>
-          </div>
-          <p className="auth-card__footer">{footer}</p>
-        </>
-      )}
+      {/*
+        KHÔNG có đường kẻ "hoặc" như thẻ đăng nhập — bản thiết kế `design/Register.png`
+        đi thẳng từ nút xuống dòng "Đã có tài khoản?". Bỏ nó vừa đúng mẫu, vừa tiết kiệm
+        ~34px chiều cao, giúp thẻ 5 ô này vừa một màn hình 900px mà không phải cuộn.
+      */}
+      {footer && <p className="auth-card__footer auth-card__footer--tight">{footer}</p>}
     </form>
   );
 }

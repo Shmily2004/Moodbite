@@ -20,7 +20,7 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Bản đồ | ✅ **Xong** | Leaflet + OpenStreetMap, miễn phí, không cần key |
 | Kiến trúc | ✅ Sạch | Clean Architecture + checker tự động trong CI |
 | Test | ✅ **437 backend + 123 frontend** | tổng **560** (client 115 · admin 8) |
-| Giao diện | ✅ Theo bản duyệt | trang chủ = LƯỚI MÓN + chips lọc; trang món = giới thiệu + bản đồ + danh sách quán; `/tim-kiem` giữ bố cục bản đồ + rail cũ |
+| Giao diện | ✅ Theo bản duyệt · **trang chủ + tài khoản dựng lại 2026-08-22** | trang chủ = LƯỚI MÓN + chips lọc; trang món = giới thiệu + bản đồ + danh sách quán; `/tim-kiem` giữ bố cục bản đồ + rail cũ |
 | Router + layout | ✅ Xong | react-router v6, khung dùng chung, `RequireAuth` cho admin |
 | Chạy xem giao diện | ✅ **một lệnh** | `python scripts/run_dev.py --admin` |
 | Kho lưu trữ | ✅ CSV (mặc định) · ✅ SQLite (chọn được) | `MOODBITE_STORAGE=sqlite`, kết quả GIỐNG HỆT |
@@ -535,6 +535,32 @@ bản trong `attribute/` mới đúng, và luật này áp cho MỌI layout về
       Cần vì `slogan.png` xuất ra KHÔNG có kênh trong suốt (là ảnh phẳng, dính nguyên nền
       caro của công cụ thiết kế). Script tách nền, cắt sát, thu nhỏ: 1601×982 (912 KB) →
       1120×310 (179 KB). Thuần Python, không cần cài thêm thư viện.
+
+### Trang chủ dựng lại theo bản thiết kế (2026-08-22)
+
+Theo `design/Home.jpg`. Cấu trúc: thanh trên · lời chào + ô tìm + tranh · mood nhanh ·
+lọc chi tiết · lưới món · dải mời đăng nhập.
+
+- [x] `widgets/site-header` — logo, điều hướng, khu vực (Hà Nội), nút nền tối, tài khoản
+      (tên người dùng thật lấy từ `/auth/me`, kèm nút đăng xuất).
+- [x] `widgets/home-hero` — lời chào theo giờ máy, khẩu hiệu (ảnh), **chip ngữ cảnh lấy
+      THẲNG từ `context` của API** (không viết cứng "28°C trời mưa" như bản vẽ), ô tìm dẫn
+      sang luồng tìm bằng câu tự nhiên, tranh `banner home.png`.
+- [x] `widgets/mood-quick-pick` — 7 thẻ, mỗi thẻ ánh xạ vào MỘT bộ lọc có thật.
+- [x] `/auth/me` + `useUserSession.user` — mở lại tab vẫn biết mình là ai; token hết hạn
+      thì tự đăng xuất (trước đây chưa có gì kiểm token cũ).
+
+**CỐ TÌNH KHÔNG DỰNG — vì không có dữ liệu thật phía sau (CLAUDE.md mục 4: thiếu thì để
+trống, không bịa):**
+
+| Trong bản vẽ | Vì sao chưa làm |
+|---|---|
+| ⭐ điểm sao từng món | Món KHÔNG có trường rating. Chỉ QUÁN mới có, và chỉ 37,9% quán có |
+| "~1,2 km" từng món | Món không có khoảng cách; khoảng cách là của quán |
+| Chuông thông báo | Không có API nào phía sau |
+| "Bộ sưu tập", "Blog", "Theo mood", "Theo thời tiết" | Chưa có trang; link chết còn tệ hơn |
+| Thẻ mood "Lười nấu", "Hẹn hò" | Backend chỉ có 4 mood: happy/sad/excited/relaxed |
+| Trái tim lưu món | `POST /interactions` có `action=save` nhưng CHƯA có endpoint đọc lại danh sách đã lưu |
 
 ### Quên mật khẩu qua email (2026-08-22)
 

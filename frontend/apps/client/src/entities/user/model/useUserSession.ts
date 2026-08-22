@@ -12,12 +12,21 @@
  * nhập… đều do backend quyết (`src/domain/entities/user.py`). Chép luật xuống frontend là
  * tạo NƠI THỨ HAI chứa nghiệp vụ — đúng sai lầm CLAUDE.md mục 1b cấm.
  */
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import type { UserPublic } from '@/shared/api';
 import { ApiError, authApi } from '@/shared/api';
 import { clearToken, readToken, writeToken } from '@/shared/lib';
 
 export interface UseUserSessionResult {
   isLoggedIn: boolean;
+  /**
+   * Tài khoản đang đăng nhập, hoặc `null` khi chưa đăng nhập / chưa hỏi xong.
+   *
+   * `isLoggedIn` bật lên NGAY khi thấy token trong storage, còn `user` phải đợi một vòng
+   * mạng. Hai thứ tách nhau có chủ đích: giao diện hiện được ngay phần "đã đăng nhập" mà
+   * không nhấp nháy, chỗ nào cần tên thì tự chờ.
+   */
+  user: UserPublic | null;
   loading: boolean;
   error: string | null;
   login: (username: string, password: string, remember: boolean) => Promise<void>;
@@ -56,8 +65,41 @@ export function useUserSession(): UseUserSessionResult {
   // Token có thể đã hết hạn — chỗ đó lộ ra ở lần gọi API đầu tiên (401), chưa cần gọi
   // `/auth/me` để kiểm khi chưa trang nào hiển thị thông tin tài khoản.
   const [isLoggedIn, setIsLoggedIn] = useState(() => readToken() !== null);
+  const [user, setUser] = useState<UserPublic | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  /**
+   * Mở lại tab mà token còn -> hỏi backend xem mình là ai.
+   *
+   * Chỉ chạy khi CÓ token và CHƯA biết tên: đăng nhập/đăng ký đã trả sẵn `user` nên không
+   * cần hỏi thêm một vòng nữa.
+   *
+   * Token hỏng/hết hạn (401) -> xoá luôn. Đây cũng chính là chỗ phát hiện token quá hạn,
+   * thứ mà trước đây chưa có gì kiểm.
+   */
+  useEffect(() => {
+    if (!isLoggedIn || user !== null) return;
+    let con_hieu_luc = true;
+
+    authApi
+      .me()
+      .then((data) => {
+        if (con_hieu_luc) setUser(data);
+      })
+      .catch((err) => {
+        if (!con_hieu_luc) return;
+        if (err instanceof ApiError && err.code === 'UNAUTHORIZED') {
+          clearToken();
+          setIsLoggedIn(false);
+        }
+        // Lỗi mạng thì KHÔNG đăng xuất: mất mạng tạm thời không có nghĩa là token hỏng.
+      });
+
+    return () => {
+      con_hieu_luc = false;
+    };
+  }, [isLoggedIn, user]);
 
   const login = useCallback(
     async (username: string, password: string, remember: boolean) => {
@@ -68,6 +110,7 @@ export function useUserSession(): UseUserSessionResult {
         // vào mật khẩu: khoảng trắng ở đó có thể là ký tự người dùng cố ý đặt.
         const data = await authApi.login({ username: username.trim(), password });
         writeToken(data.token, remember);
+        setUser(data.user);
         setIsLoggedIn(true);
       } catch (err) {
         setError(authErrorMessage(err));
@@ -105,6 +148,7 @@ export function useUserSession(): UseUserSessionResult {
         // Đăng ký xong lưu phiên TẠM (sessionStorage): form đăng ký không có ô "ghi nhớ",
         // và mặc định nhớ lâu trên máy người khác là quyết định thay người dùng.
         writeToken(data.token, false);
+        setUser(data.user);
         setIsLoggedIn(true);
       } catch (err) {
         setError(authErrorMessage(err));
@@ -121,11 +165,12 @@ export function useUserSession(): UseUserSessionResult {
     // danh sách token đang sống nên không có gì để xoá. Đăng xuất = client bỏ token của
     // mình đi. Xem đầu file `src/presentation/api/routers/auth.py`.
     clearToken();
+    setUser(null);
     setIsLoggedIn(false);
     setError(null);
   }, []);
 
   const clearError = useCallback(() => setError(null), []);
 
-  return { isLoggedIn, loading, error, login, register, logout, clearError };
+  return { isLoggedIn, user, loading, error, login, register, logout, clearError };
 }

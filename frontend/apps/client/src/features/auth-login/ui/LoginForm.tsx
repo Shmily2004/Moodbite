@@ -43,7 +43,7 @@ export function LoginForm({ loading, error, onSubmit, footer }: LoginFormProps) 
         Chào mừng trở lại! <span aria-hidden="true">👋</span>
       </h1>
       <p className="auth-card__sub">
-        Đăng nhập để khám phá những món ngon phù hợp với bạn mỗi ngày.
+        Đăng nhập để khám phá những món ngon phù hợp với bạn ở Hà Nội.
       </p>
 
       <label className="field__label" htmlFor={idTen}>

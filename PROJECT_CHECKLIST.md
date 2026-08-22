@@ -479,8 +479,32 @@ bản trong `attribute/` mới đúng, và luật này áp cho MỌI layout về
       đăng ký là HAI feature mà FSD cấm feature này import feature kia — để state ở
       `features/auth-login` thì đăng ký xong app vẫn tưởng chưa đăng nhập cho tới khi tải
       lại trang. Khái niệm dùng chung phải nằm ở tầng dùng chung.
-- [x] **Sửa theo nhận xét của chủ dự án (2026-08-22):** logo 46 → 64px; tranh nền TRÀN CẢ
-      BỀ NGANG màn hình (bản đầu chỉ rộng 46vw nên dừng giữa trang, sai bản thiết kế).
+- [x] **Sửa theo nhận xét của chủ dự án (2026-08-22), vòng 2 — ĐO chứ không đoán:**
+      - Logo 34 → 46 → 64 → **clamp(72px, 11vw, 158px)**. Cỡ lấy từ bản thiết kế: logo
+        rộng bằng 0,74 lần bề ngang thẻ form.
+      - Tranh nền TRÀN CẢ BỀ NGANG (bản đầu chỉ 46vw nên dừng giữa trang).
+      - **Câu khẩu hiệu nay là ẢNH** (`design/attribute/slogan.png`) chứ không dựng bằng
+        chữ hệ thống — bản dựng bằng chữ sai bộ chữ nên trông "xượng".
+      - **`mix-blend-mode: multiply` cho tranh nền.** Đây là nguyên nhân thật của lỗi
+        "tranh với nền không ăn nhập": đo được phần giấy trong tranh là TRẮNG TINH
+        (255,255,255) còn trang màu kem #FCF4EA — hai mảng màu khác nhau dán cạnh nhau.
+        Nhân với nền thì trắng thành đúng màu kem, mép cắt biến mất.
+      - Tranh trang đăng ký nằm ở NỬA TRÁI (không luồn dưới thẻ form) — đúng bản thiết kế.
+- [x] **KHÔNG CẮT XÉN TRANH (2026-08-22, vòng 3).** Chủ dự án phát hiện tranh bị mất một
+      phần so với file gốc. Đo lại: `object-fit: cover` + chặn chiều cao đã XÉN 396/810
+      pixel chiều cao ở màn hình 1440×900 — **mất 49% tấm tranh** (ngọn cây, nóc nhà).
+      File trong `public/anh/` vẫn nguyên vẹn (MD5 trùng khớp bản trong `design/attribute/`)
+      — lỗi hoàn toàn nằm ở CSS. Nay tranh giữ NGUYÊN TỈ LỆ, hiện trọn vẹn, phần trên MỜ
+      DẦN vào nền thay vì bị cắt ngang.
+- [x] **Màn sương (`.auth::after`)** — hệ quả của việc trên: tranh hiện trọn thì tán cây
+      dâng lên ngang đoạn giới thiệu, chữ đọc không ra. Phủ một lớp kem mờ dần TRẢI KÍN
+      màn hình (bọc riêng khối chữ thì lộ nguyên hình chữ nhật sáng trên tranh).
+      ⚠ Phải là `::after` chứ không phải `::before`: cùng z-index thì `::before` bị chính
+      tấm tranh phủ lên.
+- [x] **`python scripts/prepare_design_assets.py`** — xử lý ảnh thiết kế, chạy lại được.
+      Cần vì `slogan.png` xuất ra KHÔNG có kênh trong suốt (là ảnh phẳng, dính nguyên nền
+      caro của công cụ thiết kế). Script tách nền, cắt sát, thu nhỏ: 1601×982 (912 KB) →
+      1120×310 (179 KB). Thuần Python, không cần cài thêm thư viện.
 
 **Ghi chú số liệu — bản thiết kế ghi khác backend, và BACKEND THẮNG:**
 mẫu ghi mật khẩu "Ít nhất 6 ký tự" và tên đăng nhập "3–30 ký tự"; luật thật ở
@@ -494,9 +518,12 @@ luật thật, nếu không thì người dùng gõ 6 ký tự rồi bị server
   thích chứ không dẫn đi đâu.
 - **Đa ngôn ngữ** — ô "VI" chỉ có đúng một lựa chọn; làm i18n thật là việc riêng.
 - **Bản mobile trong thiết kế** — hiện mới xếp dọc cho dùng được, chưa có thanh ☰.
-- **Ảnh nền trang đăng ký chỉ 404×269 px** (trang đăng nhập là 1672×941). Phóng lên cả bề
-  ngang màn hình thì nét vẽ hơi nhoè. Có bản xuất lớn hơn thì chép đè
-  `public/anh/nen-dang-ky.png`, không phải sửa code.
+- **Ảnh nền trang đăng ký chỉ 404×269 px** (trang đăng nhập là 1672×941). Nét vẽ hơi nhoè
+  khi phóng to. Có bản xuất lớn hơn thì thay file trong `design/attribute/` rồi chạy lại
+  `python scripts/prepare_design_assets.py`.
+- **Khẩu hiệu ở nền tối** đang lật màu bằng bộ lọc CSS (`invert` + `hue-rotate`) nên chữ
+  "mood" hơi ngả đỏ so với màu cam gốc. Muốn chuẩn tuyệt đối thì cần xuất thêm một bản
+  ảnh khẩu hiệu cho nền tối.
 
 ### Dọn dẹp phụ thuộc (2026-08-17)
 - [x] Chuyển toàn bộ floorplan/3D vào `archive/spatial-3d/` (11 file)

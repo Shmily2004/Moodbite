@@ -36,6 +36,10 @@
   --auth-primary-ink:  #FFFFFF;
 
   --auth-shadow: 0 24px 60px rgba(2, 29, 72, .13), 0 2px 6px rgba(2, 29, 72, .06);
+
+  /* Màn sương phủ sau khối chữ giới thiệu để chữ nổi lên trên tranh. Phải là RGBA (có độ
+     trong) chứ không phải mã màu đặc — xem `.auth__hero::before`. */
+  --auth-veil: rgba(252, 244, 234, .94);
 }
 
 /* Nền tối: KHÔNG đảo đen trắng máy móc. Nền là navy rất sẫm (cùng họ với logo), và nút
@@ -60,6 +64,7 @@
   --brand-cream-hi:    #131E33;
 
   --auth-shadow: 0 24px 60px rgba(0, 0, 0, .5), 0 2px 6px rgba(0, 0, 0, .35);
+  --auth-veil: rgba(13, 21, 38, .92);
 }
 
 /* --- Logo ---------------------------------------------------------------- */

@@ -12,21 +12,28 @@ import { useState } from 'react';
 import { ANH_GIAO_DIEN } from '../config';
 
 export interface BrandLogoProps {
-  /** Chiều cao hiển thị, tính bằng px. Chiều rộng tự co theo tỉ lệ gốc. */
-  height?: number;
+  /**
+   * Chiều cao hiển thị — nhận CHUỖI CSS (`'64px'`, `'clamp(...)'`) chứ không phải số,
+   * để nơi dùng có thể cho logo co theo màn hình. Bỏ trống thì dùng cỡ chuẩn.
+   */
+  height?: string;
   className?: string;
 }
 
 /**
- * 64px. Logo có 3 tầng (hình mascot + tên + khẩu hiệu "Find Your Food, Match Your Mood"),
- * nên nó cần CAO GẤP ĐÔI một logo chỉ có chữ mới cân với phần còn lại của trang.
+ * KHÔNG phải một con số cố định — logo co theo bề ngang màn hình.
  *
- * Đã thử 34px rồi 46px và chụp màn hình thật ở 1440px: cả hai đều bị chủ dự án nhận xét
- * là quá bé, và ở 46px dòng khẩu hiệu vẫn chỉ là một vệt xám. Đừng hạ xuống nữa.
+ * Con số lấy từ chính bản thiết kế chứ không ước lượng: trong `design/Login - register.png`,
+ * logo rộng bằng **0,74 lần bề ngang thẻ form**. Thẻ form của ta rộng tối đa 430px, nên
+ * logo rộng ~318px, tức CAO ~160px (tỉ lệ ảnh 226×114 ≈ 1,98).
+ *
+ * Đã thử 34px → 46px → 64px, cả ba lần chủ dự án đều nói còn quá bé. Đây là logo có 3
+ * tầng (mascot + tên + khẩu hiệu), nó đóng vai một khối hình chứ không phải cái nhãn nhỏ
+ * ở góc. Muốn đổi thì đổi ở ĐÂY, đừng đặt chiều cao rải rác trong từng trang.
  */
-const DEFAULT_HEIGHT_PX = 64;
+const DEFAULT_HEIGHT = 'clamp(72px, 11vw, 158px)';
 
-export function BrandLogo({ height = DEFAULT_HEIGHT_PX, className }: BrandLogoProps) {
+export function BrandLogo({ height = DEFAULT_HEIGHT, className }: BrandLogoProps) {
   const anh = ANH_GIAO_DIEN.logo;
   const [anhHong, setAnhHong] = useState(false);
 
@@ -35,7 +42,11 @@ export function BrandLogo({ height = DEFAULT_HEIGHT_PX, className }: BrandLogoPr
   if (!anh || anhHong) {
     // Bản thay thế bằng chữ: vẫn đọc được, vẫn nhận ra thương hiệu.
     return (
-      <span className={`${classes} brand-logo--text`} style={{ fontSize: height * 0.52 }}>
+      <span
+        className={`${classes} brand-logo--text`}
+        // Chữ cao khoảng một nửa khung logo thì nhìn cân với bản có ảnh.
+        style={{ fontSize: `calc(${height} * 0.42)` }}
+      >
         Mood<span className="brand-logo__accent">Bite</span>
       </span>
     );

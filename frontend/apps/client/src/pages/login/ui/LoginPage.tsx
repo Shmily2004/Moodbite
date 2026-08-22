@@ -9,6 +9,7 @@
 import { Link, Navigate, useLocation } from 'react-router-dom';
 import { AuthLayout } from '@/widgets/auth-layout';
 import { LoginForm } from '@/features/auth-login';
+import { Slogan } from '@/shared/ui';
 import { useUserSessionContext } from '@/entities/user';
 import { ROUTES } from '@/shared/config';
 
@@ -28,14 +29,9 @@ export function LoginPage() {
 
   return (
     <AuthLayout
-      heading={
-        <>
-          Ăn gì ở Hà Nội,
-          <br />
-          tùy <em className="auth__accent">mood</em> của bạn.
-        </>
-      }
-      intro="MoodBite gợi ý những món ăn phù hợp với cảm xúc, thời tiết và thời điểm của bạn."
+      // Tiêu đề là ẢNH chứ không phải chữ — xem `shared/ui/Slogan`.
+      heading={<Slogan />}
+      intro="MoodBite gợi ý những quán ăn phù hợp với cảm xúc, thời tiết và thói quen của bạn."
     >
       <LoginForm
         loading={session.loading}

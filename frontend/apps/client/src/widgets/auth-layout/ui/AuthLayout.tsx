@@ -22,7 +22,7 @@
  */
 import { useState } from 'react';
 import type { ReactNode } from 'react';
-import { BrandLogo, IconPin, LanguageSelect } from '@/shared/ui';
+import { BrandLogo, IconHeart, IconPin, LanguageSelect } from '@/shared/ui';
 import { ThemeToggle } from '@/features/switch-theme';
 import { ANH_GIAO_DIEN } from '@/shared/config';
 
@@ -69,7 +69,8 @@ export function AuthLayout({
           {intro && <p className="auth__intro">{intro}</p>}
           <span className="auth__badge">
             <IconPin width={16} height={16} />
-            Made for Hà Nội
+            Made for Hà Nội!
+            <IconHeart className="auth__badge-heart" width={15} height={15} />
           </span>
         </section>
 

@@ -96,6 +96,29 @@ export const ANH_GIAO_DIEN: Record<string, AnhUI | null> = {
     fit: 'contain',
   },
 
+  /**
+   * Câu khẩu hiệu "Ăn gì ở Hà Nội, tùy mood của bạn." — là ẢNH, không phải chữ.
+   *
+   * VÌ SAO DÙNG ẢNH CHO MỘT CÂU CHỮ (bình thường là điều nên tránh): câu này dùng đúng
+   * bộ chữ của bản thiết kế, kể cả chữ "mood" viết tay. Dựng lại bằng CSS thì phải tải
+   * webfont và ĐOÁN xem thiết kế dùng font nào — chủ dự án đã nhận xét bản dựng bằng
+   * chữ hệ thống trông "xượng" (2026-08-22). Đây là ảnh chủ dự án tự xuất ra.
+   *
+   * `alt` KHÔNG để rỗng: đây là chữ có nghĩa, người dùng trình đọc màn hình phải nghe
+   * được. Đúng nguyên tắc "ảnh chứa chữ thì alt là chính chữ đó".
+   *
+   * File gốc `design/attribute/slogan.png` là ảnh phẳng CÓ SẴN nền caro và KHÔNG có kênh
+   * trong suốt. Bản dùng ở đây do `python scripts/prepare_design_assets.py` tách nền,
+   * cắt sát và thu nhỏ. Xuất bản mới thì chạy lại script đó, đừng chép tay.
+   */
+  slogan: {
+    src: '/anh/slogan.png',
+    alt: 'Ăn gì ở Hà Nội, tùy mood của bạn.',
+    width: 1120,
+    height: 310,
+    fit: 'contain',
+  },
+
   /** Ảnh bìa đầu trang chủ, phía trên lưới món. */
   bia_trang_chu: null,
 

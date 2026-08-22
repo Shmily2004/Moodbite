@@ -29,7 +29,7 @@ function mockLoi(code: string, message: string, status: number) {
 }
 
 /** `duongDan` chứa cả query string, đúng như khi bấm link trong thư. */
-function renderDatLai(duongDan = '/dat-lai-mat-khau?token=token-trong-thu') {
+function renderDatLai(duongDan = '/reset-password?token=token-trong-thu') {
   return render(
     <MemoryRouter initialEntries={[duongDan]}>
       <ResetPasswordPage />
@@ -66,7 +66,7 @@ describe('ResetPasswordPage', () => {
 
   it('thiếu token trong đường dẫn thì KHÔNG cho gõ gì cả', () => {
     vi.stubGlobal('fetch', vi.fn());
-    renderDatLai('/dat-lai-mat-khau');
+    renderDatLai('/reset-password');
 
     expect(screen.getByRole('alert')).toHaveTextContent('thiếu mã đặt lại');
     expect(screen.queryByLabelText('Mật khẩu mới')).not.toBeInTheDocument();

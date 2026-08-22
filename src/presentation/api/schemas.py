@@ -412,8 +412,22 @@ class AuthResponse(BaseModel):
     data: AuthData
 
 
+class UserSelf(UserPublic):
+    """Bản hồ sơ CHÍNH CHỦ nhìn thấy — có thêm email và ngày tham gia.
+
+    Kế thừa UserPublic để hai bên không lệch nhau khi thêm trường mới.
+    """
+
+    email: Optional[str] = Field(
+        default=None, description="Chỉ chính chủ thấy. Không lộ cho người khác."
+    )
+    created_at: Optional[str] = Field(
+        default=None, description="Ngày tạo tài khoản, dạng ISO-8601."
+    )
+
+
 class MeResponse(BaseModel):
-    data: UserPublic
+    data: UserSelf
 
 
 # --- Quản trị ---------------------------------------------------------------

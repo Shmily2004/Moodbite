@@ -786,7 +786,7 @@ export interface components {
         };
         /** MeResponse */
         MeResponse: {
-            data: components["schemas"]["UserPublic"];
+            data: components["schemas"]["UserSelf"];
         };
         /**
          * MessageData
@@ -1062,6 +1062,35 @@ export interface components {
             role: string;
             /** Display Name */
             display_name?: string | null;
+        };
+        /**
+         * UserSelf
+         * @description Bản hồ sơ CHÍNH CHỦ nhìn thấy — có thêm email và ngày tham gia.
+         *
+         *     Kế thừa UserPublic để hai bên không lệch nhau khi thêm trường mới.
+         */
+        UserSelf: {
+            /** User Id */
+            user_id: string;
+            /** Username */
+            username: string;
+            /**
+             * Role
+             * @description user | admin
+             */
+            role: string;
+            /** Display Name */
+            display_name?: string | null;
+            /**
+             * Email
+             * @description Chỉ chính chủ thấy. Không lộ cho người khác.
+             */
+            email?: string | null;
+            /**
+             * Created At
+             * @description Ngày tạo tài khoản, dạng ISO-8601.
+             */
+            created_at?: string | null;
         };
         /** ValidationError */
         ValidationError: {

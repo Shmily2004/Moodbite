@@ -41,6 +41,7 @@ export type {
   RegisterRequest,
   ResetPasswordRequest,
   UserPublic,
+  UserSelf,
 } from './auth';
 
 export { MoodbiteAdminApi } from './admin';

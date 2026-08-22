@@ -151,6 +151,23 @@ class User:
             "display_name": self.display_name,
         }
 
+    def to_self(self) -> dict:
+        """Bản dành cho CHÍNH CHỦ xem hồ sơ của mình (`GET /auth/me`).
+
+        Khác `to_public()` ở chỗ có thêm EMAIL và NGÀY THAM GIA.
+
+        ⚠️ TUYỆT ĐỐI KHÔNG dùng hàm này cho danh sách người dùng hay bất cứ chỗ nào người
+        này xem người khác — email là dữ liệu cá nhân. `to_public()` vẫn là bản mặc định;
+        chỗ nào cần lộ thêm thì phải cố ý gọi `to_self()` và tự chịu trách nhiệm.
+
+        Vẫn KHÔNG BAO GIỜ chứa `password_hash` — có test khoá.
+        """
+        return {
+            **self.to_public(),
+            "email": self.email,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+        }
+
     @property
     def has_email(self) -> bool:
         return bool(self.email)

@@ -2,7 +2,7 @@
  * THANH TRÊN của trang chủ: logo · điều hướng · khu vực · nền tối · tài khoản.
  *
  * Là `widget` chứ không phải `app/layout` vì mới chỉ trang chủ dùng — trang bản đồ
- * (`/tim-kiem`) cố tình không có thanh này để dành trọn màn hình cho bản đồ.
+ * (`/search`) cố tình không có thanh này để dành trọn màn hình cho bản đồ.
  *
  * ⚠️ CHỈ ĐƯA VÀO ĐÂY THỨ BẤM ĐƯỢC THẬT.
  * Bản thiết kế `design/Home.jpg` có thêm "Theo mood", "Theo thời tiết", "Bộ sưu tập",
@@ -13,7 +13,8 @@
 import { Link, NavLink } from 'react-router-dom';
 import { BrandLogo, IconPin } from '@/shared/ui';
 import { ThemeToggle } from '@/features/switch-theme';
-import { useUserSessionContext } from '@/entities/user';
+import { UserAvatar, useUserSessionContext } from '@/entities/user';
+import { useAvatar } from '@/features/change-avatar';
 import { ROUTES } from '@/shared/config';
 
 interface MucDieuHuong {
@@ -24,11 +25,12 @@ interface MucDieuHuong {
 /** Chỉ những trang ĐÃ CÓ THẬT. Thêm trang mới thì thêm một dòng ở đây. */
 const MUC_DIEU_HUONG: MucDieuHuong[] = [
   { to: ROUTES.home, label: 'Gợi ý món ăn' },
-  { to: '/tim-kiem', label: 'Tìm bằng câu tự nhiên' },
+  { to: ROUTES.search, label: 'Tìm bằng câu tự nhiên' },
 ];
 
 export function SiteHeader() {
   const session = useUserSessionContext();
+  const { avatar } = useAvatar();
   const ten = session.user?.display_name || session.user?.username;
 
   return (
@@ -67,10 +69,13 @@ export function SiteHeader() {
 
         {session.isLoggedIn ? (
           <div className="site-header__account">
-            <span className="site-header__user" title={session.user?.username}>
-              {/* Chưa hỏi xong `/auth/me` thì hiện dấu … thay vì nhấp nháy đổi chữ. */}
-              {ten ?? '…'}
-            </span>
+            <Link className="site-header__me" to={ROUTES.account}>
+              <UserAvatar name={ten ?? null} src={avatar} size={32} />
+              <span className="site-header__user" title={session.user?.username}>
+                {/* Chưa hỏi xong `/auth/me` thì hiện dấu … thay vì nhấp nháy đổi chữ. */}
+                {ten ?? '…'}
+              </span>
+            </Link>
             <button type="button" className="linkish" onClick={session.logout}>
               Đăng xuất
             </button>

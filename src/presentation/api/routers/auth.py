@@ -167,4 +167,6 @@ def me(user: User = Depends(get_current_user)):
     đâu. Vai đọc từ CSDL chứ không lấy trong token, nên admin vừa bị hạ quyền sẽ thấy
     ngay ở lần gọi kế tiếp.
     """
-    return success(user.to_public())
+    # `to_self()` (không phải `to_public()`): đây là CHÍNH CHỦ xem hồ sơ mình, nên được
+    # thấy email và ngày tham gia của chính mình. Xem ghi chú ở `domain/entities/user.py`.
+    return success(user.to_self())

@@ -24,6 +24,8 @@ export type ResetPasswordRequest = components['schemas']['ResetPasswordRequest']
 export type MessageData = components['schemas']['MessageData'];
 export type AuthData = components['schemas']['AuthData'];
 export type UserPublic = components['schemas']['UserPublic'];
+/** Hồ sơ CHÍNH CHỦ: có thêm email + ngày tham gia. Chỉ `/auth/me` trả về kiểu này. */
+export type UserSelf = components['schemas']['UserSelf'];
 
 export class MoodbiteAuthApi {
   constructor(private readonly http: HttpClient) {}
@@ -104,7 +106,7 @@ export class MoodbiteAuthApi {
    * Vai (`role`) đọc từ CSDL ở mỗi lần gọi chứ không nằm trong token, nên admin vừa bị hạ
    * quyền sẽ thấy ngay ở lần gọi kế tiếp.
    */
-  me(options?: RequestOptions): Promise<UserPublic> {
-    return this.http.request<UserPublic>('/auth/me', options);
+  me(options?: RequestOptions): Promise<UserSelf> {
+    return this.http.request<UserSelf>('/auth/me', options);
   }
 }

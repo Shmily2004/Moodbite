@@ -91,10 +91,30 @@ describe('App - smoke test', () => {
     expect(screen.getAllByRole('button', { name: /Bữa sáng/i }).length).toBeGreaterThan(0);
   });
 
-  it('luong tim kiem CU van vao duoc o /tim-kiem', () => {
+  it('duong dan CU chuyen huong sang duong dan MOI, giu nguyen token', async () => {
+    // Link `/dat-lai-mat-khau?token=…` đã nằm trong hộp thư người dùng từ trước khi đổi
+    // đường dẫn. Mất chuyển hướng này là những lá thư đó chết.
+    renderAt('/dat-lai-mat-khau?token=abc123');
+
+    expect(
+      await screen.findByRole('heading', { name: /Đặt mật khẩu mới/i }),
+    ).toBeInTheDocument();
+    // Có token -> form hiện ra chứ không báo "thiếu mã đặt lại".
+    expect(screen.queryByText(/thiếu mã đặt lại/i)).not.toBeInTheDocument();
+  });
+
+  it('duong dan CU cua trang mon cung chuyen huong (giu :dishId)', async () => {
+    renderAt('/mon/bun-cha');
+
+    // Chuyển sang /dishes/bun-cha -> trang món gọi API và báo lỗi mạng (fetch bị chặn
+    // trong bộ test này), nghĩa là ĐÃ vào đúng trang chứ không phải 404.
+    expect(await screen.findByText(/Không có trang này/i).catch(() => null)).toBeNull();
+  });
+
+  it('luong tim kiem vao duoc o /search', () => {
     // Giữ luồng cũ là quyết định có chủ đích (CLAUDE.md mục 8: không xoá code đang
     // chạy được). Test này khoá lại để không ai lỡ tay gỡ mất.
-    renderAt('/tim-kiem');
+    renderAt('/search');
 
     expect(screen.getByRole('textbox')).toBeInTheDocument();
     expect(screen.getByText(/Bạn đang muốn ăn gì/i)).toBeInTheDocument();

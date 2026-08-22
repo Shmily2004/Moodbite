@@ -625,6 +625,39 @@ trống, không bịa):**
 | "Quán đang hot" | Không có số liệu lượt xem/đặt nào |
 | Trái tim lưu món | `POST /interactions` có `action=save` nhưng CHƯA có endpoint đọc lại danh sách đã lưu |
 
+### Đường dẫn tiếng Anh + trang tài khoản + ảnh đại diện (2026-08-22, khuya)
+
+- [x] **Đổi toàn bộ đường dẫn sang tiếng Anh**: `/login` `/register` `/forgot-password`
+      `/reset-password` `/dishes/:id` `/search` `/account`. Đường dẫn CŨ giữ làm CHUYỂN
+      HƯỚNG (giữ nguyên query string) — quan trọng nhất là `/dat-lai-mat-khau?token=…` vì
+      link đó đã nằm trong hộp thư người dùng. Backend đổi link trong thư theo. 2 test khoá.
+- [x] **`GET /auth/me` trả thêm `email` + `created_at`** qua `User.to_self()`.
+      ⚠️ `to_public()` vẫn KHÔNG có email — `to_self()` chỉ dùng cho chính chủ xem hồ sơ
+      mình, tuyệt đối không dùng cho danh sách người dùng.
+- [x] **Trang `/account`** — ảnh đại diện, tên, email, ngày tham gia, sở thích, món đã lưu,
+      đã xem gần đây, cài đặt (nền tối + đăng xuất). Chỉ hiện SỐ ĐẾM CÓ THẬT (món đã lưu,
+      món đã xem); bốn ô còn lại trong bản thiết kế chưa có gì để đếm — xem bảng dưới.
+- [x] **Ảnh đại diện: mặc định sinh từ tên + cho tải ảnh lên, 4 LỚP CHẶN bảo mật**
+      (`features/change-avatar`, 6 test tấn công thật):
+      1. lọc MIME, **từ chối SVG** (SVG là XML, chạy được `<script>`)
+      2. đọc **số ma thuật** — file HTML đổi đuôi thành `.png` bị chặn ở đây
+      3. **vẽ lại qua canvas** rồi xuất PNG mới — thứ lưu lại là pixel do trình duyệt vẽ,
+         không còn byte nào của file gốc (mã nhúng, EXIF, payload đều biến mất)
+      4. chặn kích thước 2 MB trước khi giải mã (chống bom nén)
+      Lưu ở localStorage, **không gửi lên máy chủ** — không có endpoint nhận file thì cũng
+      không có bề mặt tấn công nào ở phía server.
+      ⚠️ `Blob.arrayBuffer()` không có ở Safari < 14 và jsdom → có đường lui `FileReader`.
+      Thiếu nó thì phép kiểm số ma thuật ném lỗi và file độc hại LỌT trong im lặng.
+
+**CHƯA LÀM — 4 mục chủ dự án đánh dấu "cần xem kỹ trước khi làm" (2026-08-22):**
+
+| Mục | Thiếu gì ở backend | Ước lượng |
+|---|---|---|
+| Viết review + "Đánh giá của tôi" | Review hiện CHỈ ĐỌC từ Google/Apify. Cần entity + bảng + `POST/GET /reviews`, phân biệt rõ nguồn (người dùng vs Google), chặn spam | ~1 ngày |
+| Cấp độ + huy hiệu | `POST /interactions` ghi theo **session_id**, KHÔNG có `user_id` → không đếm được theo NGƯỜI. Cần thêm user_id + `GET /me/stats` + bảng quy tắc điểm | ~0,5 ngày (sau khi có user_id) |
+| "Lượt khám phá" (128) | Cùng lý do trên — chính là số đếm tương tác của người đó | gộp vào mục trên |
+| "Quán yêu thích" (15) | Mới lưu được MÓN (ở máy), chưa lưu QUÁN và chưa đồng bộ giữa máy. Cần bảng `saved_items` | ~0,5 ngày |
+
 ### Sửa lỗi vận hành + trang tài khoản vừa một màn hình (2026-08-22, tối)
 
 - [x] **`run_dev.py` tự né cổng bận.** Nguyên nhân lỗi "Món phổ biến hôm nay báo lỗi":

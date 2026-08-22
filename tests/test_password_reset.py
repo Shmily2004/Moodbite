@@ -47,7 +47,7 @@ def dat_lai(client, token, new_password=MAT_KHAU_MOI):
 def token_trong_thu(emails) -> str:
     """Bóc token từ đường dẫn trong lá thư gần nhất — đúng như người dùng bấm vào link."""
     body = emails.da_gui[-1]["body"]
-    dong = next(d for d in body.splitlines() if "/dat-lai-mat-khau?token=" in d)
+    dong = next(d for d in body.splitlines() if "/reset-password?token=" in d)
     return dong.split("token=", 1)[1].strip()
 
 
@@ -84,7 +84,7 @@ def test_thu_KHONG_chua_mat_khau_va_co_han_su_dung(setup):
 
     assert PASSWORD not in body           # không bao giờ gửi mật khẩu qua thư
     assert "pbkdf2" not in body           # cũng không gửi chuỗi băm
-    assert "/dat-lai-mat-khau?token=" in body
+    assert "/reset-password?token=" in body
     assert "phút" in body                 # nói rõ đường dẫn sống bao lâu
 
 

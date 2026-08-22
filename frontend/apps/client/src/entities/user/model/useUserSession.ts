@@ -13,7 +13,7 @@
  * tạo NƠI THỨ HAI chứa nghiệp vụ — đúng sai lầm CLAUDE.md mục 1b cấm.
  */
 import { useCallback, useEffect, useState } from 'react';
-import type { UserPublic } from '@/shared/api';
+import type { UserSelf } from '@/shared/api';
 import { ApiError, authApi } from '@/shared/api';
 import { clearToken, readToken, writeToken } from '@/shared/lib';
 
@@ -26,7 +26,7 @@ export interface UseUserSessionResult {
    * mạng. Hai thứ tách nhau có chủ đích: giao diện hiện được ngay phần "đã đăng nhập" mà
    * không nhấp nháy, chỗ nào cần tên thì tự chờ.
    */
-  user: UserPublic | null;
+  user: UserSelf | null;
   loading: boolean;
   error: string | null;
   login: (username: string, password: string, remember: boolean) => Promise<void>;
@@ -65,7 +65,7 @@ export function useUserSession(): UseUserSessionResult {
   // Token có thể đã hết hạn — chỗ đó lộ ra ở lần gọi API đầu tiên (401), chưa cần gọi
   // `/auth/me` để kiểm khi chưa trang nào hiển thị thông tin tài khoản.
   const [isLoggedIn, setIsLoggedIn] = useState(() => readToken() !== null);
-  const [user, setUser] = useState<UserPublic | null>(null);
+  const [user, setUser] = useState<UserSelf | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

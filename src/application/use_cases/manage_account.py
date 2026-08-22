@@ -133,7 +133,10 @@ class RequestPasswordResetUseCase:
             return False
 
         token = self.issue_reset_token(user)
-        lien_ket = f"{self.app_base_url.rstrip('/')}/dat-lai-mat-khau?token={token}"
+        # ⚠️ Phải KHỚP `ROUTES.resetPassword` ở frontend
+        # (`frontend/apps/client/src/shared/config/routes.ts`). Lệch một chữ là link trong
+        # thư ra 404. Frontend có giữ chuyển hướng từ đường dẫn cũ để thư cũ không chết.
+        lien_ket = f"{self.app_base_url.rstrip('/')}/reset-password?token={token}"
         phut = max(1, self.token_ttl_seconds // 60)
 
         # Soạn thư bằng cách NỐI DANH SÁCH DÒNG thay vì một chuỗi dài có "\n":

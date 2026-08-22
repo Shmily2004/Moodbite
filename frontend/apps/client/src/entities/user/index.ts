@@ -4,3 +4,5 @@ export {
   UserSessionProvider,
   useUserSessionContext,
 } from './model/UserSessionContext';
+export { UserAvatar } from './ui/UserAvatar';
+export type { UserAvatarProps } from './ui/UserAvatar';

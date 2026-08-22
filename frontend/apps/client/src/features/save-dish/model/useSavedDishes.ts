@@ -17,39 +17,48 @@ import { useCallback, useEffect, useState } from 'react';
 
 const STORAGE_KEY = 'moodbite.saved_dishes';
 
-function doc(): string[] {
+export interface SavedDish {
+  dishId: string;
+  name: string;
+}
+
+function doc(): SavedDish[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
     const data = JSON.parse(raw);
     // Dữ liệu trong localStorage do NGƯỜI DÙNG sở hữu và sửa được — không tin cấu trúc.
-    return Array.isArray(data) ? data.filter((x): x is string => typeof x === 'string') : [];
+    if (!Array.isArray(data)) return [];
+    return data.filter(
+      (x): x is SavedDish =>
+        !!x && typeof x.dishId === 'string' && typeof x.name === 'string',
+    );
   } catch {
     return [];
   }
 }
 
 export interface UseSavedDishesResult {
-  /** Danh sách `dish_id` đã lưu. */
-  saved: string[];
+  /** Món đã lưu, mới nhất đứng đầu. Lưu kèm TÊN để trang tài khoản khỏi phải gọi API. */
+  saved: SavedDish[];
   isSaved: (dishId: string) => boolean;
   /** Lưu nếu chưa có, bỏ lưu nếu đã có. */
-  toggle: (dishId: string) => void;
+  toggle: (dish: SavedDish) => void;
 }
 
 export function useSavedDishes(): UseSavedDishesResult {
-  const [saved, setSaved] = useState<string[]>([]);
+  const [saved, setSaved] = useState<SavedDish[]>([]);
 
   // Đọc SAU khi dựng xong để lần render đầu trong test không đụng localStorage.
   useEffect(() => {
     setSaved(doc());
   }, []);
 
-  const toggle = useCallback((dishId: string) => {
+  const toggle = useCallback((dish: SavedDish) => {
     setSaved((truoc) => {
-      const moi = truoc.includes(dishId)
-        ? truoc.filter((x) => x !== dishId)
-        : [dishId, ...truoc];
+      const moi = truoc.some((x) => x.dishId === dish.dishId)
+        ? truoc.filter((x) => x.dishId !== dish.dishId)
+        : [dish, ...truoc];
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(moi));
       } catch {
@@ -59,7 +68,10 @@ export function useSavedDishes(): UseSavedDishesResult {
     });
   }, []);
 
-  const isSaved = useCallback((dishId: string) => saved.includes(dishId), [saved]);
+  const isSaved = useCallback(
+    (dishId: string) => saved.some((x) => x.dishId === dishId),
+    [saved],
+  );
 
   return { saved, isSaved, toggle };
 }

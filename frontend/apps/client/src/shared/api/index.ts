@@ -20,7 +20,7 @@ export const api = createApi(API_BASE);
 export const authApi = createAuthApi(API_BASE, readToken);
 
 export { ApiError } from '@moodbite/api-client';
-export type { AuthData, LoginRequest, UserPublic } from '@moodbite/api-client';
+export type { AuthData, LoginRequest, UserPublic, UserSelf } from '@moodbite/api-client';
 export type {
   SearchRequest,
   SearchResponseData,

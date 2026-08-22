@@ -143,9 +143,11 @@ describe('HomePage - nut tim luu mon', () => {
 
     // Lưu ở localStorage vì backend CHƯA có endpoint đọc danh sách đã lưu — xem
     // `features/save-dish/model/useSavedDishes.ts`.
-    expect(JSON.parse(localStorage.getItem('moodbite.saved_dishes') ?? '[]')).toContain(
-      'bun-cha',
-    );
+    // Lưu kèm TÊN chứ không chỉ id: trang tài khoản hiện danh sách đã lưu mà không phải
+    // gọi API lấy tên từng món.
+    expect(JSON.parse(localStorage.getItem('moodbite.saved_dishes') ?? '[]')).toEqual([
+      { dishId: 'bun-cha', name: 'Bún chả' },
+    ]);
 
     fireEvent.click(screen.getByRole('button', { name: /^Bỏ lưu Bún chả$/ }));
     expect(JSON.parse(localStorage.getItem('moodbite.saved_dishes') ?? '[]')).toHaveLength(0);

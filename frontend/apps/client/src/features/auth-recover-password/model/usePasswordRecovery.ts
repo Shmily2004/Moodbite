@@ -1,8 +1,8 @@
 /**
  * VIEWMODEL của luồng QUÊN MẬT KHẨU (hai bước, hai trang).
  *
- *   1. `/quen-mat-khau`     — gõ email/tên đăng nhập  -> backend gửi thư
- *   2. `/dat-lai-mat-khau`  — mở link trong thư       -> đặt mật khẩu mới
+ *   1. `/forgot-password`  — gõ email/tên đăng nhập  -> backend gửi thư
+ *   2. `/reset-password`   — mở link trong thư       -> đặt mật khẩu mới
  *
  * VÌ SAO KHÔNG NẰM TRONG `entities/user` NHƯ PHIÊN ĐĂNG NHẬP: hai thao tác này KHÔNG đụng
  * tới phiên. Đổi mật khẩu xong người dùng vẫn chưa đăng nhập — cố tình như vậy, để đường

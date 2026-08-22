@@ -2063,7 +2063,7 @@
       "MeResponse": {
         "properties": {
           "data": {
-            "$ref": "#/components/schemas/UserPublic"
+            "$ref": "#/components/schemas/UserSelf"
           }
         },
         "type": "object",
@@ -2843,6 +2843,66 @@
         ],
         "title": "UserPublic",
         "description": "Bản công khai của một tài khoản. KHÔNG BAO GIỜ chứa `password_hash`."
+      },
+      "UserSelf": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "username": {
+            "type": "string",
+            "title": "Username"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role",
+            "description": "user | admin"
+          },
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email",
+            "description": "Chỉ chính chủ thấy. Không lộ cho người khác."
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At",
+            "description": "Ngày tạo tài khoản, dạng ISO-8601."
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_id",
+          "username",
+          "role"
+        ],
+        "title": "UserSelf",
+        "description": "Bản hồ sơ CHÍNH CHỦ nhìn thấy — có thêm email và ngày tham gia.\n\nKế thừa UserPublic để hai bên không lệch nhau khi thêm trường mới."
       },
       "ValidationError": {
         "properties": {

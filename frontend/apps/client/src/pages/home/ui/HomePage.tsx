@@ -117,7 +117,7 @@ export function HomePage() {
           context={suggestions.context}
           // Ô tìm chỉ CHUYỂN TRANG sang luồng tìm bằng câu tự nhiên; trang đó mới gọi
           // `/search`. Trang chủ không ôm hai đường gọi API cùng lúc.
-          onSearch={(query) => navigate(`/tim-kiem?q=${encodeURIComponent(query)}`)}
+          onSearch={(query) => navigate(`${ROUTES.search}?q=${encodeURIComponent(query)}`)}
         />
 
         <MoodQuickPick
@@ -228,7 +228,9 @@ export function HomePage() {
               onOpen={openDish}
               layout={xemTatCa ? 'grid' : 'row'}
               isSaved={(dish) => savedDishes.isSaved(dish.dish_id)}
-              onToggleSave={(dish) => savedDishes.toggle(dish.dish_id)}
+              onToggleSave={(dish) =>
+                savedDishes.toggle({ dishId: dish.dish_id, name: dish.name })
+              }
             />
           )}
 

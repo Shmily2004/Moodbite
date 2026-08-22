@@ -37,7 +37,7 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  padding: clamp(16px, 2.6vh, 34px) clamp(20px, 3.4vw, 64px) 0;
+  padding: clamp(8px, 1.8vh, 30px) clamp(20px, 3.4vw, 64px) 0;
 }
 
 /*
@@ -101,7 +101,9 @@
     mà logo vừa to lên 158px thì từng chục pixel dọc đều phải tính, không thì thẻ đăng ký
     (4 ô) tràn xuống dưới màn hình 900px và người dùng phải cuộn mới thấy nút.
   */
-  padding: clamp(8px, 2vh, 20px) 0 clamp(24px, 4vh, 40px);
+  padding: clamp(4px, 1.2vh, 18px) 0 clamp(10px, 2.4vh, 36px);
+  /* Không cho phần thân cao hơn chỗ còn lại: nếu không, thẻ form đẩy ra ngoài màn hình. */
+  min-height: 0;
 }
 
 .auth__hero {
@@ -254,35 +256,37 @@
 .auth-card {
   display: flex;
   flex-direction: column;
-  padding: clamp(18px, 1.6vw, 26px);
+  /* Đệm dọc theo `vh` để thẻ tự co trên màn hình thấp; đệm ngang giữ nguyên theo `vw`. */
+  padding: clamp(14px, 2.4vh, 26px) clamp(16px, 1.6vw, 26px);
   border: 1px solid var(--auth-line-soft);
+  max-height: 100%;
   border-radius: 20px;
   background: var(--auth-card);
   box-shadow: var(--auth-shadow);
 }
 
 .auth-card__title {
-  margin: 0 0 8px;
+  margin: 0 0 clamp(4px, .9vh, 8px);
   text-align: center;
-  font-size: 1.42rem;
+  font-size: clamp(1.15rem, 2.6vh, 1.42rem);
   font-weight: 800;
   letter-spacing: -.01em;
 }
 
 .auth-card__sub {
-  margin: 0 0 16px;
+  margin: 0 0 clamp(8px, 1.8vh, 16px);
   text-align: center;
   color: var(--auth-ink-soft);
-  font-size: .9rem;
-  line-height: 1.55;
+  font-size: clamp(.8rem, 1.7vh, .9rem);
+  line-height: 1.5;
 }
 
 /* --- Ô nhập -------------------------------------------------------------- */
 
 .field__label {
   display: block;
-  margin-bottom: 6px;
-  font-size: .84rem;
+  margin-bottom: clamp(3px, .8vh, 6px);
+  font-size: clamp(.78rem, 1.6vh, .84rem);
   font-weight: 700;
 }
 
@@ -298,18 +302,18 @@
   position: relative;
   display: flex;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: clamp(6px, 1.4vh, 12px);
 }
 
 /* Ô có dòng gợi ý ngay dưới -> bớt khoảng cách để chữ gợi ý dính vào đúng ô của nó,
    không lửng lơ giữa hai ô. */
-.field--tight { margin-bottom: 5px; }
+.field--tight { margin-bottom: clamp(3px, .6vh, 5px); }
 
 .field__hint {
-  margin: 0 0 10px;
+  margin: 0 0 clamp(5px, 1.2vh, 10px);
   color: var(--auth-muted);
-  font-size: .78rem;
-  line-height: 1.45;
+  font-size: clamp(.7rem, 1.5vh, .78rem);
+  line-height: 1.4;
 }
 
 .field__icon {
@@ -323,7 +327,7 @@
 .field__input {
   width: 100%;
   /* Chừa 40px bên trái cho biểu tượng, 42px bên phải cho nút con mắt. */
-  padding: 12px 42px 12px 40px;
+  padding: clamp(8px, 1.6vh, 12px) 42px clamp(8px, 1.6vh, 12px) 40px;
   border: 1px solid var(--auth-line);
   border-radius: 12px;
   background: var(--auth-field);
@@ -360,8 +364,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin: 2px 0 14px;
-  font-size: .85rem;
+  margin: 2px 0 clamp(8px, 1.6vh, 14px);
+  font-size: clamp(.78rem, 1.6vh, .85rem);
 }
 
 /* Hàng chỉ có một ô tick dài (điều khoản sử dụng): căn TRÁI và cho chữ xuống dòng, thay
@@ -422,7 +426,7 @@
 /* --- Nút ----------------------------------------------------------------- */
 
 .btn {
-  padding: 13px 18px;
+  padding: clamp(9px, 1.8vh, 13px) 18px;
   border: 0;
   border-radius: 12px;
   font: inherit;
@@ -469,7 +473,7 @@
 }
 
 /* Không có đường kẻ "hoặc" ở trên thì tự chừa khoảng cách với nút. */
-.auth-card__footer--tight { margin-top: 14px; }
+.auth-card__footer--tight { margin-top: clamp(8px, 1.6vh, 14px); }
 
 .auth-card__footer {
   margin: 0;
@@ -504,4 +508,35 @@
   /* Màn hình hẹp: tranh vẫn giữ nguyên tỉ lệ (không cắt), chỉ mờ bớt để không lấn form. */
   .auth__scene { opacity: .55; }
   :root[data-theme='dark'] .auth__scene { opacity: .25; }
+}
+
+
+/* =========================================================================
+   MÀN HÌNH QUÁ THẤP — lối thoát cuối cùng.
+
+   Dưới 620px thì dù nén hết cỡ chữ cũng bắt đầu dính vào nhau. Khi đó cho trang cuộn:
+   thà cuộn còn hơn cắt mất nút bấm. Đây là cỡ gần như không ai dùng để đăng ký (điện
+   thoại xoay ngang), nên không tối ưu thêm.
+   ========================================================================= */
+
+/*
+  MÀN HÌNH THẤP (dưới 820px) — bỏ bớt chữ phụ để thẻ form vẫn vừa một viewport.
+
+  Đã đo: ở 700px chỉ nén khoảng cách thôi là chưa đủ, thẻ đăng ký (5 ô) vẫn tràn. Ẩn hai
+  thứ KHÔNG mất thông tin: câu phụ dưới tiêu đề (tiêu đề đã đủ nghĩa) và dòng gợi ý của ô
+  email (nhãn đã ghi "không bắt buộc"). Dòng gợi ý TÊN ĐĂNG NHẬP thì giữ — sai luật đặt
+  tên là backend từ chối ngay.
+*/
+@media (max-height: 820px) {
+  .auth-card__sub { display: none; }
+  .field__hint--phu { display: none; }
+  .auth-card { padding: clamp(12px, 2vh, 20px) clamp(14px, 1.4vw, 22px); }
+  .auth__frame { padding-top: clamp(6px, 1.2vh, 14px); }
+}
+
+@media (max-height: 620px) {
+  .auth {
+    height: auto;
+    overflow: visible;
+  }
 }

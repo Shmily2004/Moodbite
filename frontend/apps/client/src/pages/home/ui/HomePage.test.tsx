@@ -10,7 +10,7 @@
  * ĐÚNG lớp HttpClient thật, nên nếu envelope `{data: ...}` bị đọc sai thì test đỏ.
  */
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { UserSessionProvider } from '@/entities/user';
 import { HomePage } from '../index';
@@ -69,6 +69,99 @@ function renderHome() {
   );
 }
 
+describe('HomePage - KHACH vs DA DANG NHAP', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+  });
+
+  it('KHACH: goi la "Mon pho bien", KHONG noi "danh cho ban"', async () => {
+    vi.stubGlobal('fetch', mockSuggestResponse([BUN_CHA]));
+    renderHome();
+
+    expect(await screen.findByText(/Món phổ biến hôm nay/i)).toBeInTheDocument();
+    // Chốt chặn quan trọng: chưa đăng nhập thì hệ thống KHÔNG biết người này là ai, nên
+    // mọi câu "dành cho bạn / phù hợp với bạn" đều là nói dối.
+    expect(screen.queryByText(/dành cho bạn/i)).not.toBeInTheDocument();
+  });
+
+  it('KHACH: co hang "Kham pha theo nhu cau" - dung duoc khi chua co tai khoan', async () => {
+    vi.stubGlobal('fetch', mockSuggestResponse([BUN_CHA]));
+    renderHome();
+
+    expect(await screen.findByText(/Khám phá theo nhu cầu/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Ăn gần đây/i })).toBeInTheDocument();
+  });
+
+  it('DA DANG NHAP: chao ten that va doi tieu de sang "danh cho <ten>"', async () => {
+    // Có token -> `useUserSession` sẽ hỏi `/auth/me`. Giả lập theo TỪNG đường dẫn thay vì
+    // một response chung, để test đi đúng hai lời gọi khác nhau.
+    sessionStorage.setItem('moodbite.user.token', 'token-gia-lap');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockImplementation((url: string) => {
+        if (String(url).includes('/auth/me')) {
+          return Promise.resolve({
+            ok: true,
+            status: 200,
+            json: async () => ({
+              data: { user_id: 'u1', username: 'mung', role: 'user', display_name: 'Mừng' },
+            }),
+          });
+        }
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: async () => ({
+            data: { search_query_id: 'q1', results: [BUN_CHA], context: [], warnings: [] },
+          }),
+        });
+      }),
+    );
+
+    renderHome();
+
+    expect(await screen.findByText(/Gợi ý hôm nay dành cho Mừng/i)).toBeInTheDocument();
+    expect(screen.getByText(/Mood của bạn hôm nay/i)).toBeInTheDocument();
+    // Hàng "Khám phá theo nhu cầu" là lối vào cho khách, người đã đăng nhập không cần.
+    expect(screen.queryByText(/Khám phá theo nhu cầu/i)).not.toBeInTheDocument();
+  });
+});
+
+describe('HomePage - nut tim luu mon', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+  });
+
+  it('bam tim thi luu lai o may, bam lai thi bo luu', async () => {
+    vi.stubGlobal('fetch', mockSuggestResponse([BUN_CHA]));
+    renderHome();
+
+    const tim = await screen.findByRole('button', { name: /^Lưu Bún chả$/ });
+    fireEvent.click(tim);
+
+    // Lưu ở localStorage vì backend CHƯA có endpoint đọc danh sách đã lưu — xem
+    // `features/save-dish/model/useSavedDishes.ts`.
+    expect(JSON.parse(localStorage.getItem('moodbite.saved_dishes') ?? '[]')).toContain(
+      'bun-cha',
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /^Bỏ lưu Bún chả$/ }));
+    expect(JSON.parse(localStorage.getItem('moodbite.saved_dishes') ?? '[]')).toHaveLength(0);
+  });
+
+  it('bam tim KHONG mo trang chi tiet mon', async () => {
+    vi.stubGlobal('fetch', mockSuggestResponse([BUN_CHA]));
+    renderHome();
+
+    fireEvent.click(await screen.findByRole('button', { name: /^Lưu Bún chả$/ }));
+
+    // Vẫn ở trang chủ: tiêu đề khối kết quả còn đó.
+    expect(screen.getByText(/Món phổ biến hôm nay/i)).toBeInTheDocument();
+  });
+});
+
 describe('HomePage - duong du lieu API -> the mon', () => {
   beforeEach(() => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -94,12 +187,18 @@ describe('HomePage - duong du lieu API -> the mon', () => {
     expect(await screen.findByText(/86 quán gần bạn/i)).toBeInTheDocument();
   });
 
-  it('hien GIOI THIEU NGAN ngay tren the mon', async () => {
+  it('the mon KHONG con doan gioi thieu - no da chuyen sang trang chi tiet', async () => {
+    // ĐỔI Ý CÓ CHỦ ĐÍCH (2026-08-22): bản đầu cho cả đoạn giới thiệu lên thẻ vì thẻ hồi
+    // đó không có ảnh. Bản thiết kế của chủ dự án dùng thẻ gọn: ẢNH + tên + số quán, và
+    // ảnh nói "món này là gì" tốt hơn hai dòng chữ bị cắt cụt.
+    //
+    // Thông tin KHÔNG mất: đoạn giới thiệu đầy đủ nằm ở `pages/dish` (DishPage) — có
+    // `dish-detail__intro`. Test này khoá đúng điều đó: đừng nhét lại vào thẻ.
     vi.stubGlobal('fetch', mockSuggestResponse([BUN_CHA]));
-
     renderHome();
 
-    expect(await screen.findByText(/chả thịt lợn nướng than/i)).toBeInTheDocument();
+    expect(await screen.findByText('Bún chả')).toBeInTheDocument();
+    expect(screen.queryByText(/chả thịt lợn nướng than/i)).not.toBeInTheDocument();
   });
 
   it('hien LY DO duoc goi y', async () => {

@@ -33,7 +33,9 @@ export interface BrandLogoProps {
  * hình. Tỉ lệ ảnh là 3:1 nên chiều cao ≈ 23vw / 3 ≈ 7,4vw. Chặn trên 148px để trên màn
  * hình siêu rộng logo không nuốt mất nửa thanh trên.
  */
-const DEFAULT_HEIGHT = 'clamp(56px, 7.4vw, 148px)';
+// `min(…, 12vh)`: trên màn hình THẤP (laptop 13" mở kèm thanh bookmark) logo phải nhỏ lại,
+// nếu không nó ăn mất chỗ của thẻ form và form bị tràn xuống dưới màn hình.
+const DEFAULT_HEIGHT = 'min(clamp(56px, 7.4vw, 148px), 12vh)';
 
 export function BrandLogo({ height = DEFAULT_HEIGHT, className }: BrandLogoProps) {
   const anh = ANH_GIAO_DIEN.logo;

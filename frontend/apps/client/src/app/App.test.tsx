@@ -83,9 +83,12 @@ describe('App - smoke test', () => {
     renderAt('/');
 
     // Bộ lọc vẫn bấm được kể cả khi API chết - khung không phụ thuộc dữ liệu.
-    // Câu mở đầu trang chủ nay là lời chào theo giờ + khẩu hiệu dạng ảnh.
-    expect(screen.getByText(/Chào buổi/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Bữa sáng/i })).toBeInTheDocument();
+    // Khách (chưa đăng nhập) thấy KHẨU HIỆU dạng ảnh; lời chào có tên chỉ dành cho người
+    // đã đăng nhập (chốt 2026-08-22). Kiểm qua `alt` vì đó là chữ thật của tấm ảnh.
+    expect(screen.getByAltText(/Ăn gì ở Hà Nội/i)).toBeInTheDocument();
+    // `getAllBy…`: "Bữa sáng" nay xuất hiện ở CẢ hàng "Khám phá theo nhu cầu" lẫn bảng
+    // "Lọc chi tiết" — cùng một bộ lọc, hai lối vào, đúng như thiết kế.
+    expect(screen.getAllByRole('button', { name: /Bữa sáng/i }).length).toBeGreaterThan(0);
   });
 
   it('luong tim kiem CU van vao duoc o /tim-kiem', () => {

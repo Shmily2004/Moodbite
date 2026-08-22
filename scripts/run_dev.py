@@ -13,6 +13,8 @@ Script tự kiểm điều kiện trước khi chạy, và in RÕ địa chỉ �
 from __future__ import annotations
 
 import argparse
+import os
+import socket
 import subprocess
 import sys
 import time
@@ -23,6 +25,36 @@ ROOT = Path(__file__).resolve().parent.parent
 FRONTEND = ROOT / "frontend"
 
 BACKEND_PORT = 8001
+# Số cổng thử tiếp nếu cổng mặc định đang bận. 8001 -> 8002 -> ... -> 8005.
+SO_CONG_THU = 5
+
+
+def cong_trong(port: int) -> bool:
+    """Cổng này có bind được không.
+
+    VÌ SAO PHẢI KIỂM TRƯỚC: Windows hay để lại "socket ma" — tiến trình đã chết nhưng cổng
+    vẫn ở trạng thái LISTENING và không ai nhả. Khi đó uvicorn khởi động rồi CHẾT NGAY với
+    lỗi WinError 10048, còn frontend thì vẫn trỏ vào cổng cũ và chỉ báo "không kết nối được
+    máy chủ" — người dùng không thể đoán ra nguyên nhân. Lỗi này đã xảy ra thật (2026-08-22).
+    """
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        try:
+            s.bind(("127.0.0.1", port))
+            return True
+        except OSError:
+            return False
+
+
+def tim_cong_backend() -> int:
+    """Trả cổng đầu tiên còn trống, bắt đầu từ 8001."""
+    for port in range(BACKEND_PORT, BACKEND_PORT + SO_CONG_THU):
+        if cong_trong(port):
+            return port
+    raise SystemExit(
+        f"Cả {SO_CONG_THU} cổng {BACKEND_PORT}-{BACKEND_PORT + SO_CONG_THU - 1} đều bận. "
+        "Thường là do lần chạy trước chưa tắt hẳn. Đóng các cửa sổ terminal cũ, hoặc "
+        "khởi động lại máy rồi thử lại."
+    )
 CLIENT_PORT = 5173
 ADMIN_PORT = 5174
 
@@ -98,6 +130,16 @@ def main() -> int:
 
     tien_trinh: list[tuple[str, subprocess.Popen]] = []
 
+    cong_api = tim_cong_backend()
+    if cong_api != BACKEND_PORT:
+        print(f"[LUU Y] Cong {BACKEND_PORT} dang ban -> dung cong {cong_api} thay the.")
+        print("        (Thuong do lan chay truoc chua tat han. Frontend se tu tro dung cong nay.)")
+
+    # Frontend PHAI biet backend nam o cong nao. Truyen qua bien moi truong cua tien trinh
+    # con thay vi sua file .env - sua file thi lan sau chay lai van con sai cong.
+    moi_truong = dict(os.environ)
+    moi_truong["VITE_API_BASE"] = f"http://localhost:{cong_api}/api/v1"
+
     try:
         print("Dang khoi dong backend...")
         tien_trinh.append((
@@ -105,7 +147,7 @@ def main() -> int:
             subprocess.Popen(
                 [sys.executable, "-m", "uvicorn",
                  "src.presentation.api.main:create_app", "--factory",
-                 "--port", str(BACKEND_PORT), "--reload"],
+                 "--port", str(cong_api), "--reload"],
                 cwd=ROOT,
             ),
         ))
@@ -115,13 +157,13 @@ def main() -> int:
             print("Dang khoi dong app nguoi dung...")
             tien_trinh.append((
                 "client",
-                subprocess.Popen("npm run dev", cwd=FRONTEND, shell=True),
+                subprocess.Popen("npm run dev", cwd=FRONTEND, shell=True, env=moi_truong),
             ))
         if chay_admin:
             print("Dang khoi dong app quan tri...")
             tien_trinh.append((
                 "admin",
-                subprocess.Popen("npm run dev:admin", cwd=FRONTEND, shell=True),
+                subprocess.Popen("npm run dev:admin", cwd=FRONTEND, shell=True, env=moi_truong),
             ))
 
         # Vite cần vài giây mới sẵn sàng; mở trình duyệt sớm quá sẽ ra trang lỗi.
@@ -131,8 +173,8 @@ def main() -> int:
         print("=" * 70)
         print("MOODBITE DANG CHAY")
         print("=" * 70)
-        print(f"  Backend  (API)      : http://localhost:{BACKEND_PORT}/api/v1/health")
-        print(f"  Tai lieu API        : http://localhost:{BACKEND_PORT}/docs")
+        print(f"  Backend  (API)      : http://localhost:{cong_api}/api/v1/health")
+        print(f"  Tai lieu API        : http://localhost:{cong_api}/docs")
         if chay_client:
             print(f"  >> APP NGUOI DUNG   : http://localhost:{CLIENT_PORT}")
         if chay_admin:

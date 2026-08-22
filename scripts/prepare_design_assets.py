@@ -51,6 +51,11 @@ XU_LY = {
     "logo.png": ("logo.png", False, 930),
     # Khẩu hiệu hiển thị rộng ~545px.
     "slogan.png": ("slogan.png", True, 1120),
+    # Mascot ở dải mời đăng ký, hiển thị rộng ~120px.
+    "mascot.png": ("mascot.png", False, 420),
+    # Favicon: 180px là cỡ `apple-touch-icon` yêu cầu; trình duyệt tự thu xuống 32px cho
+    # tab. Một file dùng cho cả hai chỗ, đỡ phải sinh 4 kích thước như thời xưa.
+    "favicon.png": ("favicon.png", False, 180),
 }
 
 # Ngưỡng tách nền, chọn theo số đo thật của `slogan.png`:
@@ -324,9 +329,12 @@ def main() -> int:
         else:
             r2, c2, diem = sang_rgba(rong, cao, kenh, hang)
         r2, c2, diem = thu_nho(r2, c2, diem, be_ngang)
-        ghi_png_rgba(DICH / ten_dich, r2, c2, diem)
+        # `favicon.png` phải nằm ở GỐC `public/` (trình duyệt tìm `/favicon.png`),
+        # còn lại nằm trong `public/anh/`.
+        dich = (DICH.parent / ten_dich) if ten_dich == "favicon.png" else (DICH / ten_dich)
+        ghi_png_rgba(dich, r2, c2, diem)
         kb_truoc = f.stat().st_size // 1024
-        kb_sau = (DICH / ten_dich).stat().st_size // 1024
+        kb_sau = dich.stat().st_size // 1024
         viec = "TÁCH NỀN" if tach_nen else "THU NHỎ"
         print(
             f"  [{viec}] {f.name} -> {ten_dich}  "

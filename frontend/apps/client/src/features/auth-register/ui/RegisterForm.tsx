@@ -134,7 +134,12 @@ export function RegisterForm({ loading, error, onSubmit, footer }: RegisterFormP
           onChange={(event) => setEmail(event.target.value)}
         />
       </div>
-      <p className="field__hint">Chỉ dùng để gửi thư khi bạn quên mật khẩu.</p>
+      {/* `--phu`: dòng này bị ẩn trên màn hình thấp để thẻ form vừa một viewport. Ẩn được
+          vì nội dung đã có ở nhãn "(không bắt buộc)"; còn dòng gợi ý của TÊN ĐĂNG NHẬP thì
+          KHÔNG ẩn — sai luật đặt tên là backend từ chối, phải cho người dùng biết trước. */}
+      <p className="field__hint field__hint--phu">
+        Chỉ dùng để gửi thư khi bạn quên mật khẩu.
+      </p>
 
       <label className="field__label" htmlFor={idMatKhau}>
         Mật khẩu

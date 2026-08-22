@@ -1,2 +1,2 @@
-export { HomeHero } from './ui/HomeHero';
+export { HomeHero, loiChao } from './ui/HomeHero';
 export type { HomeHeroProps } from './ui/HomeHero';

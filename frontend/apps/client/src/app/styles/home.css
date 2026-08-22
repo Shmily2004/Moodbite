@@ -140,7 +140,7 @@
 }
 /* Tranh minh hoạ chỉ xuất hiện khi còn chỗ — dưới 960px nó lấn hết phần chữ. */
 @media (min-width: 960px) {
-  .hero { grid-template-columns: minmax(0, 1fr) minmax(280px, 42%); }
+  .hero { grid-template-columns: minmax(0, 1fr) minmax(380px, 52%); }
 }
 
 .hero__greeting {
@@ -171,16 +171,23 @@
   list-style: none;
 }
 
+/* Thẻ ngữ cảnh: icon bên trái + chữ bên phải, đúng kiểu bản thiết kế (không phải viên
+   thuốc một dòng như bản đầu). */
 .signal {
-  padding: 8px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
   border: 1px solid var(--auth-line);
-  border-radius: 999px;
+  border-radius: 14px;
   background: var(--auth-card);
-  color: var(--auth-ink-soft);
-  font-size: .86rem;
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(2, 29, 72, .05);
+  color: var(--auth-ink);
+  font-size: .88rem;
+  font-weight: 700;
+  box-shadow: 0 2px 10px rgba(2, 29, 72, .06);
 }
+.signal__icon { font-size: 1.2rem; line-height: 1; }
+.signal__text { text-transform: capitalize; }
 
 /* --- Ô tìm --------------------------------------------------------------- */
 
@@ -194,6 +201,13 @@
   border-radius: 999px;
   background: var(--auth-card);
   box-shadow: var(--auth-shadow);
+}
+
+.hero__search-icon {
+  padding-left: 12px;
+  font-size: 1rem;
+  line-height: 1;
+  opacity: .55;
 }
 
 .hero__search-input {
@@ -216,10 +230,27 @@
 
 .hero__search .btn { flex: none; border-radius: 999px; }
 
+/*
+  Tranh trang chủ TO và TRÀN RA MÉP PHẢI màn hình, đúng bản thiết kế (chủ dự án nhận xét
+  2026-08-22: "ảnh background ở banner vẫn nhỏ").
+
+  `width: calc(100% + …)` cộng thêm đúng phần lề mà `.page__body` đang chừa hai bên, rồi
+  `margin-right` âm bằng đúng chỗ đó -> tranh chạm mép cửa sổ trong khi CHỮ vẫn thẳng cột
+  với các khối bên dưới. Cách này không cần phá bố cục cột giữa.
+*/
 .hero__art {
-  width: 100%;
+  width: calc(100% + clamp(16px, 3vw, 40px));
+  max-width: none;
   height: auto;
   justify-self: end;
+  margin-right: calc(-1 * clamp(16px, 3vw, 40px));
+}
+/* Màn hình rất rộng: cột giữa dừng ở 1240px nhưng tranh vẫn nên chạm mép phải. */
+@media (min-width: 1400px) {
+  .hero__art {
+    width: calc(100% + (100vw - 1240px) / 2);
+    margin-right: calc(-1 * (100vw - 1240px) / 2);
+  }
 }
 
 /* =========================================================================
@@ -309,8 +340,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+  gap: 18px;
   padding: 20px 24px;
   border: 1px solid var(--auth-line);
   border-radius: 18px;
@@ -325,3 +355,256 @@
   font-size: .9rem;
   line-height: 1.55;
 }
+
+
+/* =========================================================================
+   BỔ SUNG cho bản KHÁCH / ĐÃ ĐĂNG NHẬP (2026-08-22)
+   ========================================================================= */
+
+/* Tiêu đề lớn của bản đã đăng nhập ("Hôm nay bạn muốn ăn gì?") — thay chỗ ảnh khẩu hiệu. */
+.hero__title {
+  margin: 0 0 14px;
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  font-weight: 800;
+  letter-spacing: -.02em;
+  line-height: 1.15;
+}
+
+/* Dải mời đăng nhập nhẹ trong hero (chỉ khách thấy). */
+.hero__nudge {
+  margin: 14px 0 0;
+  color: var(--auth-ink-soft);
+  font-size: .9rem;
+}
+.hero__nudge a {
+  color: var(--auth-link);
+  font-weight: 700;
+  text-decoration: none;
+}
+.hero__nudge a:hover { text-decoration: underline; }
+
+.section-sub {
+  margin: 4px 0 14px;
+  color: var(--auth-ink-soft);
+  font-size: .9rem;
+}
+
+/* --- Khám phá theo nhu cầu ---------------------------------------------- */
+
+.needs__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.needcard {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--auth-line);
+  border-radius: 16px;
+  background: var(--auth-card);
+  color: var(--auth-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: transform .12s ease, border-color .12s ease;
+}
+.needcard:hover { transform: translateY(-2px); border-color: var(--brand-orange); }
+.needcard:focus-visible { outline: 2px solid var(--brand-orange); outline-offset: 2px; }
+
+.needcard__emoji { font-size: 1.5rem; line-height: 1; flex: none; }
+.needcard__body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.needcard__title { font-weight: 700; font-size: .95rem; }
+.needcard__desc { color: var(--auth-ink-soft); font-size: .82rem; line-height: 1.4; }
+
+/* --- Xem gần đây --------------------------------------------------------- */
+
+.recent__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* --- Dải mời đăng ký ở cuối --------------------------------------------- */
+
+.cta__actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.cta__text { flex: 1; min-width: 260px; }
+
+.cta__mascot {
+  width: clamp(84px, 10vw, 120px);
+  height: auto;
+  flex: none;
+}
+
+
+/* =========================================================================
+   THẺ MÓN — dựng theo `design/Home.jpg`: ảnh to, tim, nhãn đề xuất.
+   ========================================================================= */
+
+.dishes {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*
+  HÀNG NGANG (mặc định) — trượt được bằng chuột/vuốt.
+  `scroll-snap` để mỗi lần trượt dừng gọn ở một thẻ, không kẹt lưng chừng.
+*/
+.dishes--row {
+  display: grid;
+  grid-auto-flow: column;
+  /* CỐ ĐỊNH 240px chứ không `minmax`: với `minmax` thì thẻ CUỐI hàng bị co lại, mà thẻ
+     hẹp hơn -> ảnh tỉ lệ 4:3 thấp hơn -> cả thẻ ngắn hơn, nhìn như bị lệch hàng. Chủ dự
+     án phát hiện đúng chỗ này (2026-08-22). */
+  grid-auto-columns: 240px;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  padding-bottom: 8px;
+}
+.dishes--row > .dishcard-wrap { scroll-snap-align: start; }
+
+/* LƯỚI — hiện khi bấm "Xem tất cả". */
+.dishes--grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 16px;
+}
+
+.dishcard {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--auth-line-soft);
+  border-radius: 18px;
+  background: var(--auth-card);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.dishcard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(2, 29, 72, .12);
+}
+.dishcard:focus-visible { outline: 2px solid var(--brand-orange); outline-offset: 2px; }
+
+/* Món KHÔNG có quán nào bán trong bán kính: vẫn hiện nhưng nhạt đi, không giấu. */
+.dishcard--empty { opacity: .62; }
+
+.dishcard__media {
+  position: relative;
+  /*
+    CHIỀU CAO CỐ ĐỊNH 160px, KHÔNG dùng `aspect-ratio`.
+
+    Đã thử `aspect-ratio: 4/3` và hỏng: ảnh Wikipedia có tấm DỌC (ảnh "Bia hơi" là 3:4),
+    thẻ đó cao vọt lên, kéo cả hàng cao theo và bốn thẻ còn lại thừa một mảng trắng dưới
+    chân. Chiều cao cố định + `object-fit: cover` thì tấm nào cũng được cắt về đúng một cỡ.
+  */
+  height: 160px;
+  background: var(--auth-line-soft);
+  overflow: hidden;
+}
+
+.dishcard__thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Chưa có ảnh (140/747 món) — chữ cái đầu trên nền ấm, trông CHỦ ĐÍCH chứ không như vỡ. */
+.dishcard__thumb--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: var(--brand-orange);
+  background: linear-gradient(140deg, #FBEDE4, #F7E3D3);
+}
+
+.dishcard__badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--brand-orange);
+  color: #fff;
+  font-size: .72rem;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .2);
+}
+
+.dishcard__heart {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .92);
+  color: var(--auth-muted);
+  font-size: 1.05rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .15);
+}
+.dishcard__heart:hover { color: var(--error, #A32A1E); }
+.dishcard__heart--on { color: #E0245E; }
+
+.dishcard__body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px 14px;
+}
+
+.dishcard__name {
+  margin: 0;
+  font-size: .98rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.dishcard__meta {
+  margin: 0;
+  color: var(--auth-ink-soft);
+  font-size: .84rem;
+}
+.dishcard__meta--empty { color: var(--auth-muted); }
+
+/* Lý do được gợi ý — thứ THẬT thay cho chỗ ⭐/km của bản thiết kế. */
+.dishcard__why {
+  margin: 2px 0 0;
+  color: var(--brand-orange-2);
+  font-size: .78rem;
+  line-height: 1.35;
+}
+
+/* --- Vệt xương lúc đang tải --------------------------------------------- */
+
+.dishcard--skeleton { cursor: default; }
+.dishcard__thumb--skeleton { width: 100%; height: 100%; background: var(--auth-line-soft); }
+.skeleton-line {
+  display: block;
+  height: 10px;
+  border-radius: 6px;
+  background: var(--auth-line-soft);
+}
+.skeleton-line--title { height: 14px; width: 70%; margin-bottom: 8px; }

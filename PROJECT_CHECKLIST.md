@@ -550,6 +550,64 @@ lọc chi tiết · lưới món · dải mời đăng nhập.
 - [x] `/auth/me` + `useUserSession.user` — mở lại tab vẫn biết mình là ai; token hết hạn
       thì tự đăng xuất (trước đây chưa có gì kiểm token cũ).
 
+**KHÁCH vs ĐÃ ĐĂNG NHẬP (spec chủ dự án 2026-08-22) — đã dựng:**
+
+| | Khách | Đã đăng nhập |
+|---|---|---|
+| Thanh trên | Đăng nhập · Đăng ký | tên thật + Đăng xuất |
+| Hero | khẩu hiệu + dải mời đăng nhập nhẹ | "Chào buổi …, <tên> 👋" + "Hôm nay bạn muốn ăn gì?" |
+| Mood | "Gợi ý nhanh theo mood" | "Mood của bạn hôm nay là gì?" |
+| Kết quả | "🔥 Món phổ biến hôm nay" | "✨ Gợi ý hôm nay dành cho <tên>" |
+| Khối riêng | "🧭 Khám phá theo nhu cầu" (6 thẻ) | "🕘 Xem gần đây" |
+| Cuối trang | dải mời đăng ký (2 nút) | (không có) |
+
+⚠️ **Nguyên tắc:** với khách TUYỆT ĐỐI không viết "phù hợp với bạn" — hệ thống chưa biết
+họ là ai. Có test khoá điều này.
+
+"🕘 Xem gần đây" lưu ở **localStorage**, không phải server: `POST /interactions` ghi theo
+QUÁN và không có endpoint đọc lại. Nó chỉ hứa "món bạn vừa xem trên máy này" — đúng thứ
+làm được.
+
+**Sửa theo nhận xét "chưa giống mẫu" (2026-08-22, vòng 2):**
+- [x] Thẻ món dựng lại theo mẫu: ảnh 4:3 phía trên, nhãn "MoodBite đề xuất" (rank 1),
+      nút TIM, tên, số quán. Bày thành HÀNG NGANG trượt được; "Xem tất cả (30) →" mở lưới.
+- [x] Bỏ đoạn giới thiệu khỏi thẻ (mẫu không có) — nó vẫn còn đủ ở trang chi tiết món.
+      Có test khoá để không ai nhét lại.
+- [x] Thẻ ngữ cảnh có icon (mẫu), không còn là viên thuốc một dòng.
+- [x] Ô tìm có kính lúp; lời chào hiện cho CẢ khách (không kèm tên).
+- [x] **Lời chào tự đổi theo giờ THẬT**: hẹn giờ tới mốc kế tiếp (11h/14h/18h/0h) rồi vẽ
+      lại, thay vì chỉ đúng lúc mở trang. Mở lúc 17:59 để đó tới 18:05 vẫn đúng.
+- [x] **Favicon + mascot** vào pipeline ảnh; favicon khai ở `index.html` (một file 180px
+      dùng cho cả tab lẫn màn hình chính iOS).
+- [x] **Banner trang chủ TO và TRÀN ra mép phải** màn hình (chủ dự án: "ảnh vẫn nhỏ").
+- [x] **Thẻ món hết lệch hàng**: bỏ `aspect-ratio` (ảnh Wikipedia có tấm DỌC làm một thẻ
+      cao vọt, kéo cả hàng), thay bằng chiều cao ảnh cố định 160px + `object-fit: cover`.
+- [x] Nút TIM lưu ở localStorage (`features/save-dish`) — backend ghi được `save` theo QUÁN
+      nhưng KHÔNG có endpoint đọc lại, nên lưu ở máy là cách duy nhất không nói dối. 2 test.
+
+**ẢNH MÓN — tự tìm được, MIỄN PHÍ và HỢP PHÁP (2026-08-22):**
+`python scripts/find_dish_images.py [--apply]` — tìm ảnh cho món chưa có, thử lần lượt:
+Wikipedia VI (tìm kiếm rồi lấy ảnh bài khớp nhất) → Wikipedia EN → Wikimedia Commons.
+Không cần khoá API, không cần thẻ. **Kết quả: 607 → 691/747 món có ảnh (81% → 92%)**,
+tìm thêm được 84/87 món.
+
+⚠️ Bài học đã trả giá: để 0,3 giây/lượt thì Wikimedia CHẶN TẦN SUẤT từ món thứ ~49, kết
+quả tụt còn 19/87 dù chạy lẻ từng món vẫn ra ảnh. Nay 0,8 giây + thử lại có chờ (giống
+cách xử lý Overpass 504). Script in ra số lượt bị chặn để không nhầm "bị chặn" với
+"không có ảnh".
+
+⚠️ Script chọn BÀI KHỚP NHẤT chứ không hiểu nghĩa — "Phở gà"/"Phở bò" đều nhận ảnh của
+bài "Phở". Mỗi ảnh đều ghi `image_source` + `image_credit` để soi lại được, và sửa từng
+món bằng `python scripts/set_dish_image.py --dish <id> --url <...> --credit <...>`
+(`--credit` BẮT BUỘC — CLAUDE.md mục 4b).
+
+⚠️ KHÔNG dùng Google Images / cào ShopeeFood, Foody, Facebook: ToS cấm và bản quyền không
+rõ. Đây là chỗ dễ bị hỏi nhất khi bảo vệ.
+
+**CẦN CHỦ DỰ ÁN GỬI THÊM:**
+- ~~Ảnh mascot~~ ✅ đã có (2026-08-22), dùng ở dải mời đăng ký + favicon.
+- Bộ icon mood vẽ riêng (ớt, lá, nồi, tim, mây, vỉ nướng) — chủ dự án đang làm, gửi dần.
+
 **CỐ TÌNH KHÔNG DỰNG — vì không có dữ liệu thật phía sau (CLAUDE.md mục 4: thiếu thì để
 trống, không bịa):**
 
@@ -559,8 +617,26 @@ trống, không bịa):**
 | "~1,2 km" từng món | Món không có khoảng cách; khoảng cách là của quán |
 | Chuông thông báo | Không có API nào phía sau |
 | "Bộ sưu tập", "Blog", "Theo mood", "Theo thời tiết" | Chưa có trang; link chết còn tệ hơn |
-| Thẻ mood "Lười nấu", "Hẹn hò" | Backend chỉ có 4 mood: happy/sad/excited/relaxed |
+| Thẻ mood "Lười nấu", "Hẹn hò", "Healthy" | Backend chỉ có 4 mood: happy/sad/excited/relaxed |
+| "❤️ Dành riêng cho bạn" + "98% phù hợp" | Chưa có endpoint đọc lịch sử/sở thích. `predicted_score` là điểm XẾP HẠNG, hiện thành % là hiểu sai |
+| "❤️ Quán & món đã lưu" | Ghi được `action=save` nhưng KHÔNG có endpoint đọc danh sách đã lưu |
+| "Ăn dưới 50K" | Giá là CHUỖI ("1-100.000 ₫"), chỉ 273/4000 quán có; món không có giá |
+| "Ăn một mình" / "Đi ăn cùng bạn" | `portion_size` chỉ 55/747 món có và KHÔNG được API trả ra |
+| "Quán đang hot" | Không có số liệu lượt xem/đặt nào |
 | Trái tim lưu món | `POST /interactions` có `action=save` nhưng CHƯA có endpoint đọc lại danh sách đã lưu |
+
+### Sửa lỗi vận hành + trang tài khoản vừa một màn hình (2026-08-22, tối)
+
+- [x] **`run_dev.py` tự né cổng bận.** Nguyên nhân lỗi "Món phổ biến hôm nay báo lỗi":
+      Windows để lại SOCKET MA ở cổng 8001 (tiến trình đã chết nhưng cổng vẫn LISTENING),
+      uvicorn khởi động rồi chết ngay với WinError 10048, còn frontend vẫn trỏ cổng cũ nên
+      chỉ báo "không kết nối được máy chủ" — không ai đoán ra nguyên nhân. Nay `run_dev.py`
+      thử bind trước, bận thì nhảy sang 8002-8005 và truyền `VITE_API_BASE` cho frontend.
+- [x] **Trang đăng nhập/đăng ký VỪA ĐÚNG MỘT MÀN HÌNH, không cuộn, không cắt form.**
+      `.auth` cao đúng `100dvh` + `overflow: hidden`; mọi khoảng cách dọc đo bằng `vh` nên
+      màn hình càng thấp thẻ càng co. Dưới 820px ẩn thêm câu phụ + dòng gợi ý ô email (vẫn
+      GIỮ dòng gợi ý tên đăng nhập vì sai luật là backend từ chối). Đã chụp kiểm ở 900 /
+      800 / 700 / 650px — vừa hết.
 
 ### Quên mật khẩu qua email (2026-08-22)
 

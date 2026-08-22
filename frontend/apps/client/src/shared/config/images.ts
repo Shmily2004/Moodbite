@@ -136,6 +136,18 @@ export const ANH_GIAO_DIEN: Record<string, AnhUI | null> = {
     fit: 'contain',
   },
 
+  /**
+   * Mascot MoodBite (tô đội mũ đầu bếp) — dùng ở dải mời đăng ký cuối trang chủ.
+   * 420×371 do `python scripts/prepare_design_assets.py` thu nhỏ từ bản gốc 1335×1178.
+   */
+  mascot: {
+    src: '/anh/mascot.png',
+    alt: '',
+    width: 420,
+    height: 371,
+    fit: 'contain',
+  },
+
   /** Hình minh hoạ khi tìm không ra quán nào. */
   khong_co_ket_qua: null,
 

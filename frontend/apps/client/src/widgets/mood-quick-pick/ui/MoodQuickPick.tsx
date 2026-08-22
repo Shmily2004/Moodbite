@@ -31,6 +31,12 @@ export const LUA_CHON_NHANH: MoodChoice[] = [
 ];
 
 export interface MoodQuickPickProps {
+  /**
+   * Tiêu đề. Khách thấy "Gợi ý nhanh theo mood"; người đã đăng nhập thấy câu hỏi trực
+   * tiếp "Mood của bạn hôm nay là gì?" — chốt của chủ dự án 2026-08-22, để trang chủ của
+   * người đã đăng nhập có cảm giác đang nói chuyện với chính họ.
+   */
+  title?: string;
   /** Giá trị đang được chọn của từng nhóm, để tô đậm thẻ tương ứng. */
   dangChon: (choice: MoodChoice) => boolean;
   onPick: (choice: MoodChoice) => void;
@@ -38,10 +44,15 @@ export interface MoodQuickPickProps {
   onShowAll: () => void;
 }
 
-export function MoodQuickPick({ dangChon, onPick, onShowAll }: MoodQuickPickProps) {
+export function MoodQuickPick({
+  title = 'Gợi ý nhanh theo mood',
+  dangChon,
+  onPick,
+  onShowAll,
+}: MoodQuickPickProps) {
   return (
     <section className="quickpick">
-      <h2 className="section-title">Gợi ý nhanh theo mood</h2>
+      <h2 className="section-title">{title}</h2>
 
       <ul className="quickpick__row">
         {LUA_CHON_NHANH.map((choice) => {

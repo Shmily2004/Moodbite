@@ -19,12 +19,12 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Frontend Client | ✅ **TypeScript + FSD** | 86 test, có bản đồ, steiger trong CI |
 | Bản đồ | ✅ **Xong** | Leaflet + OpenStreetMap, miễn phí, không cần key |
 | Kiến trúc | ✅ Sạch | Clean Architecture + checker tự động trong CI |
-| Test | ✅ **481 backend + 147 frontend** | tổng **628** (client 139 · admin 8) |
+| Test | ✅ **489 backend + 147 frontend** | tổng **636** (client 139 · admin 8) |
 | Giao diện | ✅ Theo bản duyệt · **trang chủ + tài khoản dựng lại 2026-08-22** | trang chủ = LƯỚI MÓN + chips lọc; trang món = giới thiệu + bản đồ + danh sách quán; `/tim-kiem` giữ bố cục bản đồ + rail cũ |
 | Router + layout | ✅ Xong | react-router v6, khung dùng chung, `RequireAuth` cho admin |
 | Chạy xem giao diện | ✅ **một lệnh** | `python scripts/run_dev.py --admin` |
 | Kho lưu trữ | ✅ CSV (mặc định) · ✅ SQLite (chọn được) | `MOODBITE_STORAGE=sqlite`, kết quả GIỐNG HỆT |
-| **Frontend Admin** | ✅ **Code xong** · ⬜ **chưa bật** | `python scripts/check_permissions.py` để xem thiếu gì |
+| **Frontend Admin** | ✅ **Code xong + ĐÃ BẬT 2026-08-23** | sửa quán · ẩn/bỏ ẩn · **thêm quán mới**. `python scripts/run_dev.py --admin` |
 | Xác thực admin | ✅ Code xong | 1 tài khoản, token HMAC 1 giờ, fail-closed |
 | Phụ thuộc Python | ✅ 15 → **7** gói | gỡ torch/ultralytics/transformers/opencv (~2GB) khỏi CI |
 | Dữ liệu | ✅ **40.704 quán** · **747 món** | Overture · OSM (cào lại 2026-08-23) · Apify. Đã loại 16 bản ghi thiếu tên/toạ độ |
@@ -664,6 +664,63 @@ trống, không bịa):**
 | "Lượt khám phá" | ✅ **Xong** | = số QUÁN KHÁC NHAU đã xem đủ lâu; server đếm |
 | Cấp độ + huy hiệu | ✅ **Xong** | 5 cấp · 5 huy hiệu · `GET /me/stats` |
 
+### Bật quản trị · thêm quán mới · menu ☰ · tông màu (2026-08-23, đợt 2)
+
+- [x] **Trang quản trị ĐÃ BẬT trên máy này.** `build_sqlite.py` dựng lại từ dataset mới
+      (40.703 quán), sinh tài khoản admin, ghi 4 biến vào `.env.local` (đã .gitignore).
+      `python scripts/check_permissions.py` -> **QUYEN DA CAU HINH DAY DU**.
+      `make_admin_password.py` thêm cờ `--write-env`: ghi thẳng vào `.env.local` thay vì
+      bắt chép tay ba dòng dài vào PowerShell (biến `$env:` chỉ sống trong cửa sổ đang mở,
+      đóng là mất và lần sau lại thấy 503 mà không hiểu vì sao).
+- [x] **`POST /api/v1/admin/restaurants` — thêm quán hoàn toàn mới.**
+      Luật ở `domain/value_objects/restaurant_new.py`: bắt buộc tên + toạ độ, **toạ độ
+      phải nằm trong Hà Nội** (phạm vi chốt 2026-08-19), `place_id` do SERVER sinh với
+      tiền tố `manual:` — nhìn mã là biết quán do người nhập tay.
+      **KHÔNG nhận `rating`/`reviews_count` từ form**: gõ tay vào là làm sai lệch chính
+      con số dùng để xếp hạng. 8 test, trong đó có test khoá việc quán mới phải hiện ra
+      ngay ở luồng người dùng cuối (quên `reload()` bộ nhớ đệm là bug âm thầm).
+- [x] **Form thêm quán ở `apps/admin`** — đóng sẵn, mở ra là 10 ô. Ô để trống thì KHÔNG
+      gửi trường đó lên (cột trong CSDL là NULL = chưa có dữ liệu, khác chuỗi rỗng).
+- [x] **Menu ☰ cho điện thoại.** Dưới 760px, hàng điều hướng + khu công cụ phải cuộn
+      ngang — thao tác gần như không ai nghĩ tới nên các mục đó coi như biến mất.
+      Đã đo thật ở bề ngang 405px: `scrollWidth == viewport`, không tràn ngang.
+- [x] **Bộ mẫu frontend dựng lại** sau khi đổi dataset (`scripts/make_fixture.py`) —
+      tỉ lệ mẫu lệch < 0,5% so với dữ liệu thật.
+
+### Tông màu trang chủ — sửa theo góp ý (2026-08-23)
+
+Chủ dự án: *"mẫu tôi gửi là trang chủ all in về cùng 1 tông màu mà sao của bạn lại có
+nguyên 1 dải màu trắng rồi CTA cũng nguyên dải trắng?"* — **đúng**.
+
+Nguyên nhân: khối "Lọc chi tiết" và dải mời đăng ký dùng `--auth-card` (#FFFFFF) và
+`--auth-line` (#E2E7F0 — xám **ánh xanh**), vốn là màu của nhóm trang đăng nhập/đăng ký.
+Trên nền kem chúng thành hai dải trắng cắt ngang trang.
+
+- [x] Thêm bộ token **ẤM** riêng: `--surface` (#FFFCF6) · `--surface-soft` (#FBF1E2) ·
+      `--line-warm` (#F0E2CD). Trang chủ + trang tài khoản dùng bộ này.
+- [x] Dải mời đăng ký đổi sang `--surface-soft` (kem đậm hơn nền), bỏ đổ bóng.
+- ⚠️ **KHÔNG sửa thẳng `--auth-card`**: trang đăng nhập/đăng ký cố ý là "tờ giấy trắng"
+      đặt trên tranh nền và chủ dự án đã duyệt bản đó. Đổi token chung là phá luôn hai
+      trang kia.
+
+### Bộ icon mood — chủ dự án gửi dần (2026-08-23)
+
+| Thẻ | Icon | Trạng thái |
+|---|---|---|
+| Thèm cay | `spicy.png` | ✅ đã lắp |
+| Thư giãn | `Relax.png` | ✅ đã lắp |
+| Vui vẻ · Cần an ủi · Trời mưa · Đồ nướng · Món nóng | | ⬜ chờ |
+
+- [x] `prepare_design_assets.py` thêm chế độ **`nen_den`**: file gốc là hình PHÁT SÁNG
+      trên nền ĐEN, thừa rất nhiều lề (spicy.png là 1536×1024 với quả ớt lệch hẳn sang
+      phải). Không xử lý thì trang chủ nền kem sẽ hiện một ô đen sì.
+      Cách tách: ảnh sáng trên nền đen chính là ảnh **đã nhân sẵn alpha**, nên
+      `alpha = max(R,G,B)` rồi chia màu cho alpha. Quầng sáng nhờ đó chuyển thành phần
+      trong suốt dần thay vì để lại viền tối lởm chởm. Sau đó **cắt sát** phần có hình.
+- [x] `ICON_MOOD` ở `shared/config/images.ts` — khoá theo `value` của thẻ mood
+      (KHÔNG theo nhãn: nhãn đổi theo ngôn ngữ VI/EN, `value` thì không).
+      `null` = chưa có -> thẻ đó tự dùng emoji. Thêm icon mới chỉ sửa **một dòng**.
+
 ### Cào lại OpenStreetMap + soát ảnh món (2026-08-23)
 
 **Cào lại toàn bộ 35 ô OSM Hà Nội** (xoá cache để lấy dữ liệu tươi, giữ bản sao lưu).
@@ -981,7 +1038,7 @@ và không khớp bộ nhận diện. Có file thì thay vào `frontend/design/a
 
 | Cần gì | Đang tạm dùng | Dùng ở đâu |
 |---|---|---|
-| **Bộ icon mood** (7 cái) | 🌶️ ☕ 😊 🍲 🌧️ 🔥 🍜 | hàng "Gợi ý nhanh theo mood" — *chủ dự án đang làm* |
+| **Bộ icon mood** — còn 5/7 | ✅ cay · ✅ thư giãn · ⬜ 😊 🍲 🌧️ 🔥 🍜 | hàng "Gợi ý nhanh theo mood" — *chủ dự án gửi dần* |
 | **5 icon huy hiệu** (khối lục giác như thiết kế) | 🧭 👨‍🍳 📅 🗺️ 🛡️ | thẻ "Huy hiệu của bạn" |
 | **Icon ngôi sao cấp độ** | ⭐ | thẻ "Cấp độ của bạn" |
 | **Icon máy ảnh** trên ảnh đại diện | chữ "Tải ảnh lên" | thiết kế có nút máy ảnh tròn màu cam ở góc avatar |
@@ -1103,14 +1160,10 @@ máy" — phần dễ bị hỏi nhất khi bảo vệ. Nhắc lại ở mỗi l
 
 | # | Việc | Chặn bởi | Ai làm được |
 |---|---|---|---|
-| 1 | Dựng lại CSDL SQLite (`build_sqlite.py`) | — | **làm ngay được (cấu hình)** |
-| 2 | Sinh tài khoản quản trị (`make_admin_password.py`) | — | **làm ngay được (cấu hình)** |
-| 3 | Đặt 3 biến `MOODBITE_ADMIN_*` | — | **làm ngay được (cấu hình)** |
-| 4 | Đặt `MOODBITE_STORAGE=sqlite` | — | **làm ngay được (cấu hình)** |
-| 5 | `POST /admin/restaurants` (thêm quán mới) | — | **lập trình được** |
-| 6 | Form thêm quán ở `apps/admin` | mục 5 | lập trình được |
-| 7 | Trang chi tiết QUÁN riêng (hiện chỉ có panel trong bản đồ) | — | lập trình được |
-| 8 | Bản mobile: thanh ☰ cho `SiteHeader` | — | lập trình được |
+| ~~1-4~~ | ~~Bật quản trị (SQLite + tài khoản + 4 biến)~~ | — | ✅ **XONG 2026-08-23** |
+| ~~5-6~~ | ~~`POST /admin/restaurants` + form thêm quán~~ | — | ✅ **XONG 2026-08-23** |
+| 7 | **Trang chi tiết QUÁN riêng** (hiện chỉ có panel trong bản đồ) | **chờ bản thiết kế** | xem mục 🎨 CẦN THIẾT KẾ BỔ SUNG |
+| ~~8~~ | ~~Bản mobile: thanh ☰~~ | — | ✅ **XONG 2026-08-23** |
 | 9 | Xác minh email lúc đăng ký | — | lập trình được |
 | 10 | Thu hồi token khi đăng xuất (cột `token_version`) | **cần chốt đổi lược đồ** | chờ quyết định |
 | 11 | Bổ sung dữ liệu qua Apify | tài khoản + credit | cần người thật — xem `docs/apify_huong_dan.md` |
@@ -1121,19 +1174,18 @@ máy" — phần dễ bị hỏi nhất khi bảo vệ. Nhắc lại ở mỗi l
 | 16 | Deploy + bật `MOODBITE_ENABLE_WEATHER=1` + siết CORS | chưa deploy | cần môi trường thật |
 | 17 | Google Places API | **cần thẻ thanh toán** | ⏸️ để sau |
 
-**Đọc nhanh:** 4 việc đầu là **cấu hình** (vài phút). Mục 5-9 **lập trình được ngay**
-(~3 ngày). Mục 13 là thứ **quan trọng nhất và không code thay được**.
+**Đọc nhanh:** mục 1-6 và 8 đã xong. Mục 7 **chờ bản thiết kế**, mục 9 lập trình được.
+Mục 13 là thứ **quan trọng nhất và không code thay được**.
 
-### Bật quyền quản trị — chỉ là cấu hình
+### Đổi mật khẩu quản trị
 
 ```powershell
-python scripts/check_permissions.py
-python scripts/build_sqlite.py
-python scripts/make_admin_password.py
+python scripts/make_admin_password.py --write-env
 ```
 
-Script cuối in sẵn ba dòng biến môi trường cần đặt. Mẫu đầy đủ ở `.env.example`
-(để giá trị thật vào `.env.local`, **không** vào `.env.example` — file đó được commit).
+Ghi thẳng vào `.env.local` (đã .gitignore), rồi khởi động lại backend.
+Kiểm bất cứ lúc nào: `python scripts/check_permissions.py`.
+Chạy app quản trị: `python scripts/run_dev.py --admin` (cổng 5174).
 
 ### Mở rộng dữ liệu — miễn phí trước, trả phí sau
 

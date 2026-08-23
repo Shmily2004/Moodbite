@@ -446,7 +446,17 @@ export interface paths {
          */
         get: operations["list_restaurants_api_v1_admin_restaurants_get"];
         put?: never;
-        post?: never;
+        /**
+         * Create Restaurant
+         * @description Thêm một quán hoàn toàn mới.
+         *
+         *     201 CREATED chứ không phải 200: có tài nguyên mới được tạo ra.
+         *     `place_id` do SERVER sinh với tiền tố `manual:` — nhìn mã là biết quán này do người
+         *     gõ vào chứ không phải từ Google/OSM/Overture. Client KHÔNG được tự đặt mã.
+         *
+         *     Toạ độ ngoài Hà Nội -> 400 (phạm vi dự án chốt 2026-08-19).
+         */
+        post: operations["create_restaurant_api_v1_admin_restaurants_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -542,6 +552,52 @@ export interface components {
          * @enum {string}
          */
         ActionType: "view_detail" | "get_directions" | "save" | "explicit_positive" | "explicit_negative" | "report_closed";
+        /**
+         * AdminCreateRestaurantRequest
+         * @description Thêm quán MỚI bằng tay.
+         *
+         *     Chỉ `name` + `lat` + `lng` là bắt buộc — đúng ba trường thiết yếu; thiếu là bản ghi
+         *     vô dụng. Mọi trường khác điền được tới đâu thì điền, để trống là `null` (CHƯA CÓ
+         *     DỮ LIỆU), tuyệt đối không tự điền giá trị mặc định cho có.
+         *
+         *     ⚠️ KHÔNG có `rating`, `reviews_count`, `mood_scores`: chúng do nguồn thu thập hoặc do
+         *     pipeline tính. Gõ tay vào là làm sai lệch chính những con số dùng để xếp hạng.
+         *     Giới hạn toạ độ trong Hà Nội kiểm ở tầng domain, không kiểm ở đây.
+         */
+        AdminCreateRestaurantRequest: {
+            /** Name */
+            name: string;
+            /**
+             * Lat
+             * @description Vĩ độ, ví dụ 21.0285. Phải nằm trong Hà Nội.
+             */
+            lat: number;
+            /**
+             * Lng
+             * @description Kinh độ, ví dụ 105.8542.
+             */
+            lng: number;
+            /**
+             * Category
+             * @description Để trống -> "Nhà hàng"
+             */
+            category?: string | null;
+            /** Cuisine */
+            cuisine?: string | null;
+            /** Address */
+            address?: string | null;
+            /** District */
+            district?: string | null;
+            /**
+             * Price
+             * @description CHUỖI khoảng giá, không phải số
+             */
+            price?: string | null;
+            /** Phone */
+            phone?: string | null;
+            /** Website */
+            website?: string | null;
+        };
         /** AdminLoginData */
         AdminLoginData: {
             /** Token */
@@ -2304,6 +2360,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AdminRestaurantListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_restaurant_api_v1_admin_restaurants_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminCreateRestaurantRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminRestaurantResponse"];
                 };
             };
             /** @description Validation Error */

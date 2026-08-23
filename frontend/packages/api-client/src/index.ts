@@ -52,6 +52,7 @@ export type {
 
 export { MoodbiteAdminApi } from './admin';
 export type {
+  AdminCreateRestaurantRequest,
   AdminListParams,
   AdminLoginData,
   AdminLoginRequest,

@@ -46,16 +46,27 @@ CHEP_NGUYEN = {
 #
 # Bề ngang tối đa đặt bằng ~3 lần cỡ hiển thị thật, đủ nét cho màn hình 2x–3x mà không
 # bắt người dùng tải về một tấm ảnh mấy megabyte cho một cái logo.
+# Chế độ xử lý nền:
+#   "khong"     — ảnh đã có kênh trong suốt sẵn, chỉ thu nhỏ
+#   "nen_trang" — nền là ô caro / trắng (ảnh chụp phẳng)      -> xem `tach_nen_trang`
+#   "nen_den"   — hình PHÁT SÁNG trên nền ĐEN (bộ icon mood)  -> xem `tach_nen_den`
 XU_LY = {
     # Logo hiển thị rộng ~310px trên máy tính. Bản gốc 2172px là quá dư.
-    "logo.png": ("logo.png", False, 930),
+    "logo.png": ("logo.png", "khong", 930),
     # Khẩu hiệu hiển thị rộng ~545px.
-    "slogan.png": ("slogan.png", True, 1120),
+    "slogan.png": ("slogan.png", "nen_trang", 1120),
     # Mascot ở dải mời đăng ký, hiển thị rộng ~120px.
-    "mascot.png": ("mascot.png", False, 420),
+    "mascot.png": ("mascot.png", "khong", 420),
     # Favicon: 180px là cỡ `apple-touch-icon` yêu cầu; trình duyệt tự thu xuống 32px cho
     # tab. Một file dùng cho cả hai chỗ, đỡ phải sinh 4 kích thước như thời xưa.
-    "favicon.png": ("favicon.png", False, 180),
+    "favicon.png": ("favicon.png", "khong", 180),
+
+    # --- Bộ icon mood (chủ dự án gửi dần từ 2026-08-23) ----------------------
+    # Icon hiển thị rộng ~40px, nên 160px là đủ nét cho màn hình 3x.
+    # Nguồn xuất ra có NỀN ĐEN và thừa rất nhiều lề — bắt buộc phải tách nền + cắt sát,
+    # nếu không trang chủ nền kem sẽ hiện một ô đen sì.
+    "spicy.png": ("icon-cay.png", "nen_den", 160),
+    "Relax.png": ("icon-thu-gian.png", "nen_den", 160),
 }
 
 # Ngưỡng tách nền, chọn theo số đo thật của `slogan.png`:
@@ -209,6 +220,74 @@ def tach_nen_trang(rong: int, cao: int, kenh: int, hang: list[bytearray]):
     return rong_moi, cao_moi, cat
 
 
+# Điểm có độ sáng dưới mức này coi như nền đen hoàn toàn. Không lấy đúng 0 vì ảnh nén
+# JPEG-hoá / chuyển màu luôn để lại nhiễu 1-3 mức quanh vùng đen.
+NEN_DEN_TOI_DA = 6
+
+# Alpha tối thiểu để một điểm được tính vào khung cắt. Để 0 thì quầng sáng mờ gần như
+# vô hình vẫn kéo khung ra sát mép ảnh, và việc cắt thành vô nghĩa.
+ALPHA_CAT = 24
+
+
+def tach_nen_den(rong: int, cao: int, kenh: int, hang: list[bytearray]):
+    """Ảnh PHÁT SÁNG trên nền ĐEN -> RGBA, rồi CẮT SÁT phần có hình.
+
+    VÌ SAO KHÔNG CHỈ "ĐEN THÌ TRONG SUỐT": quanh hình có một quầng sáng chuyển dần về
+    đen. Cắt cứng theo ngưỡng sẽ để lại một vòng viền tối lởm chởm quanh icon — nhìn rất
+    rõ trên nền kem.
+
+    Cách đúng: ảnh sáng trên nền đen chính là ảnh đã NHÂN SẴN ALPHA (premultiplied).
+    Vậy `alpha = max(R,G,B)` và màu thật = màu chia cho alpha. Quầng sáng nhờ đó chuyển
+    thành phần trong suốt dần, hoà vào nền bất kỳ mà không để lại viền.
+
+    Cắt sát cũng bắt buộc: file gốc `spicy.png` là 1536×1024 với quả ớt lệch hẳn sang
+    phải; không cắt thì icon 40px sẽ thành một quả ớt tí xíu ở góc.
+    """
+    diem = bytearray(rong * cao * 4)
+    trai, tren, phai, duoi = rong, cao, -1, -1
+
+    for y in range(cao):
+        dong = hang[y]
+        for x in range(rong):
+            i = x * kenh
+            r, g, b = dong[i], dong[i + 1], dong[i + 2]
+            sang = max(r, g, b)
+
+            if sang <= NEN_DEN_TOI_DA:
+                continue  # đã là 0 sẵn trong `diem` -> trong suốt hoàn toàn
+
+            # Bỏ nhân alpha: chia màu cho alpha để lấy lại màu gốc.
+            ty_le = 255 / sang
+            j = (y * rong + x) * 4
+            diem[j] = min(255, int(r * ty_le))
+            diem[j + 1] = min(255, int(g * ty_le))
+            diem[j + 2] = min(255, int(b * ty_le))
+            diem[j + 3] = sang
+
+            if sang >= ALPHA_CAT:
+                if x < trai: trai = x
+                if x > phai: phai = x
+                if y < tren: tren = y
+                if y > duoi: duoi = y
+
+    if phai < 0:  # ảnh đen thui -> trả nguyên, để người chạy nhìn thấy mà sửa
+        return rong, cao, diem
+
+    # Chừa 2% lề để quầng sáng không bị cắt cụt ngay ở mép.
+    le = max(2, int(max(phai - trai, duoi - tren) * 0.02))
+    trai = max(0, trai - le)
+    tren = max(0, tren - le)
+    phai = min(rong - 1, phai + le)
+    duoi = min(cao - 1, duoi + le)
+
+    r2, c2 = phai - trai + 1, duoi - tren + 1
+    cat = bytearray(r2 * c2 * 4)
+    for y in range(c2):
+        nguon = ((tren + y) * rong + trai) * 4
+        cat[y * r2 * 4 : (y + 1) * r2 * 4] = diem[nguon : nguon + r2 * 4]
+    return r2, c2, cat
+
+
 def sang_rgba(rong: int, cao: int, kenh: int, hang: list[bytearray]) -> tuple[int, int, bytearray]:
     """Đưa ảnh về dạng RGBA phẳng, giữ nguyên mọi thứ. Dùng cho ảnh đã trong suốt sẵn."""
     diem = bytearray(rong * cao * 4)
@@ -318,14 +397,16 @@ def main() -> int:
             print("    ⚠ Ảnh KHÔNG có kênh trong suốt. Xuất lại dạng PNG-32 sẽ đẹp hơn.")
         kiem_giay_trang(ten_dich, rong, cao, kenh, hang)
 
-    for ten_nguon, (ten_dich, tach_nen, be_ngang) in XU_LY.items():
+    for ten_nguon, (ten_dich, che_do, be_ngang) in XU_LY.items():
         f = tim_file(ten_nguon)
         if f is None:
             print(f"  [BỎ QUA] {ten_nguon} — không có file")
             continue
         rong, cao, kenh, hang = doc_png(f)
-        if tach_nen:
+        if che_do == "nen_trang":
             r2, c2, diem = tach_nen_trang(rong, cao, kenh, hang)
+        elif che_do == "nen_den":
+            r2, c2, diem = tach_nen_den(rong, cao, kenh, hang)
         else:
             r2, c2, diem = sang_rgba(rong, cao, kenh, hang)
         r2, c2, diem = thu_nho(r2, c2, diem, be_ngang)
@@ -335,7 +416,9 @@ def main() -> int:
         ghi_png_rgba(dich, r2, c2, diem)
         kb_truoc = f.stat().st_size // 1024
         kb_sau = dich.stat().st_size // 1024
-        viec = "TÁCH NỀN" if tach_nen else "THU NHỎ"
+        viec = {"nen_trang": "TÁCH NỀN", "nen_den": "TÁCH NỀN ĐEN"}.get(
+            che_do, "THU NHỎ"
+        )
         print(
             f"  [{viec}] {f.name} -> {ten_dich}  "
             f"{rong}×{cao} ({kb_truoc} KB) -> {r2}×{c2} ({kb_sau} KB)"

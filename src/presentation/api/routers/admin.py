@@ -20,6 +20,7 @@ from src.application.errors import DataNotReadyError
 from src.presentation.api.dependencies import Container, get_container, require_admin
 from src.presentation.api.envelope import success
 from src.presentation.api.schemas import (
+    AdminCreateRestaurantRequest,
     AdminLoginRequest,
     AdminLoginResponse,
     AdminRestaurantListResponse,
@@ -104,6 +105,25 @@ def list_restaurants(
             "results": [_to_summary(r).model_dump() for r in results],
         }
     )
+
+
+@router.post("/restaurants", response_model=AdminRestaurantResponse, status_code=201)
+def create_restaurant(
+    payload: AdminCreateRestaurantRequest = Body(...),
+    container: Container = Depends(get_container),
+    _admin: str = Depends(require_admin),
+):
+    """Thêm một quán hoàn toàn mới.
+
+    201 CREATED chứ không phải 200: có tài nguyên mới được tạo ra.
+    `place_id` do SERVER sinh với tiền tố `manual:` — nhìn mã là biết quán này do người
+    gõ vào chứ không phải từ Google/OSM/Overture. Client KHÔNG được tự đặt mã.
+
+    Toạ độ ngoài Hà Nội -> 400 (phạm vi dự án chốt 2026-08-19).
+    """
+    _require_writable(container)
+    created = container.create_restaurant.execute(payload.model_dump(exclude_unset=True))
+    return success(_to_summary(created).model_dump(), status_code=201)
 
 
 @router.patch("/restaurants/{restaurant_id}", response_model=AdminRestaurantResponse)

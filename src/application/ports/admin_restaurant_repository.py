@@ -12,6 +12,10 @@ from typing import List, Mapping, Optional, Protocol, runtime_checkable
 from src.domain.entities.restaurant import Restaurant
 
 
+class RestaurantAlreadyExists(Exception):
+    """`place_id` đã tồn tại -> HTTP 409."""
+
+
 @runtime_checkable
 class AdminRestaurantRepository(Protocol):
     def list_for_admin(
@@ -26,6 +30,14 @@ class AdminRestaurantRepository(Protocol):
 
     def get_for_admin(self, place_id: str) -> Optional[Restaurant]:
         """1 quán, KỂ CẢ khi đã ẩn. `get_by_place_id()` thường bỏ qua quán ẩn."""
+        ...
+
+    def create(self, restaurant: Restaurant) -> Restaurant:
+        """Thêm quán MỚI. Ném `RestaurantAlreadyExists` nếu `place_id` đã có.
+
+        Kiểm trùng phải do TẦNG LƯU TRỮ làm (ràng buộc UNIQUE), không phải SELECT trước
+        rồi INSERT — hai request cùng lúc sẽ cùng vượt qua phép kiểm đó.
+        """
         ...
 
     def update_fields(self, place_id: str, changes: Mapping[str, object]) -> bool:

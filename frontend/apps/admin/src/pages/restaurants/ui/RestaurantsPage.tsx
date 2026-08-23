@@ -6,7 +6,11 @@
  * Nút đăng xuất đã chuyển lên `AdminLayout` — nó thuộc về khung, không thuộc về trang.
  */
 import { useAdminSessionContext } from '@/features/admin-login';
-import { RestaurantRow, useRestaurantAdmin } from '@/features/manage-restaurants';
+import {
+  AddRestaurantForm,
+  RestaurantRow,
+  useRestaurantAdmin,
+} from '@/features/manage-restaurants';
 
 export function RestaurantsPage() {
   const session = useAdminSessionContext();
@@ -36,6 +40,7 @@ export function RestaurantsPage() {
           />
           Hiện cả quán đã ẩn
         </label>
+        <AddRestaurantForm onCreate={admin.createRestaurant} />
       </div>
 
       {admin.error && <p className="error">{admin.error}</p>}

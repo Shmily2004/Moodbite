@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from typing import List, Mapping, Optional
 
 from src.application.errors import DataNotReadyError
@@ -18,7 +19,9 @@ from src.application.ports.admin_restaurant_repository import AdminRestaurantRep
 # sang 404 RESTAURANT_NOT_FOUND ở MỘT chỗ duy nhất.
 from src.application.use_cases.log_interaction import RestaurantNotFoundError
 from src.domain.entities.restaurant import Restaurant
+from src.domain.value_objects.location import Location
 from src.domain.value_objects.restaurant_edit import RestaurantEdit
+from src.domain.value_objects.restaurant_new import NewRestaurant
 
 logger = logging.getLogger("moodbite.admin")
 
@@ -50,6 +53,48 @@ class ListRestaurantsForAdminUseCase:
         return self.restaurants.list_for_admin(
             query=query, limit=safe_limit, include_hidden=include_hidden
         )
+
+
+@dataclass
+class CreateRestaurantUseCase:
+    """Thêm quán mới bằng tay qua trang quản trị.
+
+    Đây là con đường bổ sung dữ liệu MIỄN PHÍ và CHẤT LƯỢNG CAO nhất còn lại: người thật
+    tới tận nơi hoặc gọi điện xác minh. Chậm, nhưng không tốn tiền và không vi phạm ToS
+    của ai (`docs/data_sources.md`).
+
+    Chỉ ĐIỀU PHỐI: luật "quán mới phải có gì" nằm ở
+    `domain/value_objects/restaurant_new.py`.
+    """
+
+    restaurants: AdminRestaurantRepository
+
+    def execute(self, raw: Mapping[str, object]) -> Restaurant:
+        _require_ready(self.restaurants)
+        moi = NewRestaurant.from_dict(raw)
+
+        quan = Restaurant(
+            place_id=moi.place_id,
+            name=moi.name,
+            category=moi.fields.get("category"),
+            location=Location(lat=moi.lat, lng=moi.lng),
+            address=moi.fields.get("address"),
+            cuisine=moi.fields.get("cuisine"),
+            price=moi.fields.get("price"),
+            district=moi.fields.get("district"),
+            phone=moi.fields.get("phone"),
+            website=moi.fields.get("website"),
+            # BẮT BUỘC theo CLAUDE.md mục 4b: bản ghi nào cũng phải nói rõ mình ở đâu ra
+            # và đáng tin tới đâu. Quán nhập tay là `manual` — độ tin cậy cao nhất trong
+            # dataset, vì có người thật đứng sau.
+            source="manual",
+            data_confidence="manual",
+            source_updated_at=datetime.now(timezone.utc).date().isoformat(),
+        )
+
+        da_tao = self.restaurants.create(quan)
+        logger.info("Admin them quan moi: %s (%s)", da_tao.name, da_tao.place_id)
+        return da_tao
 
 
 @dataclass

@@ -11,6 +11,7 @@
  * Muốn có đủ 7 thẻ như thiết kế thì phải THÊM MOOD Ở BACKEND trước (thêm hồ sơ điểm trong
  * `MOOD_PROFILES`), rồi thêm một dòng vào bảng dưới đây.
  */
+import { ICON_MOOD } from '@/shared/config';
 import { useT } from '@/shared/i18n';
 import type { Khoa } from '@/shared/i18n';
 
@@ -67,9 +68,22 @@ export function MoodQuickPick({ title, dangChon, onPick, onShowAll }: MoodQuickP
                 aria-pressed={chon}
                 onClick={() => onPick(choice)}
               >
-                <span className="moodcard__emoji" aria-hidden="true">
-                  {choice.emoji}
-                </span>
+                {/* Có icon riêng thì dùng, chưa có thì emoji. Chủ dự án gửi bộ icon
+                    dần từng cái — xem `ICON_MOOD` ở `shared/config/images.ts`. */}
+                {ICON_MOOD[choice.value] ? (
+                  <img
+                    className="moodcard__icon"
+                    src={ICON_MOOD[choice.value]!.src}
+                    alt=""
+                    width={ICON_MOOD[choice.value]!.width}
+                    height={ICON_MOOD[choice.value]!.height}
+                    aria-hidden="true"
+                  />
+                ) : (
+                  <span className="moodcard__emoji" aria-hidden="true">
+                    {choice.emoji}
+                  </span>
+                )}
                 <span className="moodcard__label">{t(choice.nhan)}</span>
               </button>
             </li>

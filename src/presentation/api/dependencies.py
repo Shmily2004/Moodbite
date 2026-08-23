@@ -21,6 +21,7 @@ from src.application.use_cases.log_interaction import LogInteractionUseCase
 from src.domain.services.activity_tally import ActivityTally
 from src.domain.services.closure_reports import ClosureReportTally
 from src.application.use_cases.manage_restaurants import (
+    CreateRestaurantUseCase,
     ListRestaurantsForAdminUseCase,
     SetRestaurantVisibilityUseCase,
     UpdateRestaurantUseCase,
@@ -134,6 +135,7 @@ class Container:
     admin_auth: AdminAuthService
     admin_restaurants: Optional[object]
     list_restaurants_for_admin: Optional[ListRestaurantsForAdminUseCase]
+    create_restaurant: Optional[CreateRestaurantUseCase]
     update_restaurant: Optional[UpdateRestaurantUseCase]
     set_restaurant_visibility: Optional[SetRestaurantVisibilityUseCase]
     # --- Tài khoản người dùng cuối --------------------------------------------
@@ -351,6 +353,9 @@ def build_container(settings: Optional[Settings] = None) -> Container:
         admin_restaurants=admin_restaurants,
         list_restaurants_for_admin=(
             ListRestaurantsForAdminUseCase(admin_restaurants) if admin_restaurants else None
+        ),
+        create_restaurant=(
+            CreateRestaurantUseCase(admin_restaurants) if admin_restaurants else None
         ),
         update_restaurant=(
             UpdateRestaurantUseCase(admin_restaurants) if admin_restaurants else None

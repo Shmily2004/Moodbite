@@ -19,6 +19,8 @@ export type AdminLoginRequest = components['schemas']['AdminLoginRequest'];
 export type AdminLoginData = components['schemas']['AdminLoginData'];
 export type AdminRestaurantSummary = components['schemas']['AdminRestaurantSummary'];
 export type AdminRestaurantListData = components['schemas']['AdminRestaurantListData'];
+export type AdminCreateRestaurantRequest =
+  components['schemas']['AdminCreateRestaurantRequest'];
 export type AdminUpdateRestaurantRequest =
   components['schemas']['AdminUpdateRestaurantRequest'];
 
@@ -56,6 +58,24 @@ export class MoodbiteAdminApi {
       `/admin/restaurants${query ? `?${query}` : ''}`,
       options,
     );
+  }
+
+  /**
+   * Thêm một quán HOÀN TOÀN MỚI (nhập tay).
+   *
+   * Chỉ `name` + `lat` + `lng` bắt buộc. `place_id` do SERVER sinh với tiền tố
+   * `manual:` — client KHÔNG được tự đặt mã.
+   * Toạ độ ngoài Hà Nội -> 400 (phạm vi dự án chỉ có Hà Nội).
+   */
+  createRestaurant(
+    body: AdminCreateRestaurantRequest,
+    options?: RequestOptions,
+  ): Promise<AdminRestaurantSummary> {
+    return this.http.request<AdminRestaurantSummary>('/admin/restaurants', {
+      ...options,
+      method: 'POST',
+      body,
+    });
   }
 
   /**

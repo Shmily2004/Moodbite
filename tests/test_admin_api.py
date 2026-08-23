@@ -23,6 +23,7 @@ from src.application.errors import (
 from src.application.use_cases.get_restaurant_details import GetRestaurantDetailsUseCase
 from src.application.use_cases.log_interaction import LogInteractionUseCase
 from src.application.use_cases.manage_restaurants import (
+    CreateRestaurantUseCase,
     ListRestaurantsForAdminUseCase,
     SetRestaurantVisibilityUseCase,
     UpdateRestaurantUseCase,
@@ -115,6 +116,9 @@ def build_client(db_path, *, configured=True, writable=True):
     c.log_interaction = LogInteractionUseCase(interactions, repo)
     c.admin_auth = auth
     c.admin_restaurants = admin_repo
+    c.create_restaurant = (
+        CreateRestaurantUseCase(admin_repo) if admin_repo else None
+    )
     c.list_restaurants_for_admin = (
         ListRestaurantsForAdminUseCase(admin_repo) if admin_repo else None
     )
@@ -516,3 +520,101 @@ def test_token_het_han_theo_dong_ho_that():
 
     with pytest.raises(InvalidCredentialsError):
         auth.verify(token)
+
+
+# ==========================================================================
+# THÊM QUÁN MỚI — `POST /admin/restaurants` (2026-08-23)
+#
+# Đây là con đường bổ sung dữ liệu MIỄN PHÍ còn lại: người thật tới tận nơi xác minh.
+# Chỗ dễ sai nhất là để lọt dữ liệu rác vào dataset, nên test tập trung vào ĐƯỜNG SAI.
+# ==========================================================================
+
+
+def _them_quan(client, **truong):
+    body = {"name": "Bún chả Thử Nghiệm", "lat": 21.0285, "lng": 105.8542}
+    body.update(truong)
+    return client.post(
+        f"{API}/admin/restaurants", json=body, headers=auth_header(client)
+    )
+
+
+def test_them_quan_moi_tra_201_va_tim_lai_duoc(client):
+    res = _them_quan(client, address="1 Phố Thử Nghiệm", price="30-60.000 ₫")
+
+    assert res.status_code == 201, res.text
+    data = res.json()["data"]
+    assert data["name"] == "Bún chả Thử Nghiệm"
+    # place_id do SERVER sinh, có tiền tố nói rõ nguồn gốc.
+    assert data["restaurant_id"].startswith("manual:")
+
+    ds = client.get(
+        f"{API}/admin/restaurants?q=Thử Nghiệm", headers=auth_header(client)
+    ).json()["data"]
+    assert any(r["name"] == "Bún chả Thử Nghiệm" for r in ds["results"])
+
+
+def test_quan_moi_hien_ra_o_luong_NGUOI_DUNG_CUOI(client):
+    """Thêm xong mà người dùng không tìm thấy thì việc nhập liệu vô nghĩa.
+
+    Đây là test khoá phần LÀM MỚI BỘ NHỚ ĐỆM: repository nạp sẵn vào RAM, quên gọi
+    `reload()` sau khi ghi thì quán mới chỉ xuất hiện sau lần khởi động lại kế tiếp.
+    """
+    ma = _them_quan(client, name="Phở Kiểm Thử Bộ Nhớ").json()["data"]["restaurant_id"]
+
+    res = client.get(f"{API}/restaurants/{ma}")
+    assert res.status_code == 200, res.text
+
+
+def test_thieu_ten_thi_400(client):
+    res = client.post(
+        f"{API}/admin/restaurants",
+        json={"lat": 21.0285, "lng": 105.8542},
+        headers=auth_header(client),
+    )
+    assert res.status_code == 400
+
+
+def test_toa_do_NGOAI_HA_NOI_bi_tu_choi(client):
+    """Phạm vi dự án chốt CHỈ HÀ NỘI (CLAUDE.md mục 4b). Toạ độ TP.HCM phải bị chặn."""
+    res = _them_quan(client, lat=10.7769, lng=106.7009)
+
+    assert res.status_code == 400
+    assert "Hà Nội" in res.json()["error"]["message"]
+
+
+def test_KHONG_nhan_rating_tu_form(client):
+    """Rating gõ tay là làm sai lệch chính con số dùng để xếp hạng."""
+    res = _them_quan(client, rating=5.0, reviews_count=999)
+
+    assert res.status_code == 201
+    # Trường lạ bị Pydantic bỏ qua; quán mới KHÔNG có đánh giá.
+    ma = res.json()["data"]["restaurant_id"]
+    chi_tiet = client.get(f"{API}/restaurants/{ma}").json()["data"]
+    assert chi_tiet.get("rating") is None
+
+
+def test_de_trong_loai_hinh_thi_mac_dinh_Nha_hang(client):
+    res = _them_quan(client, name="Quán Không Ghi Loại")
+
+    assert res.json()["data"]["category"] == "Nhà hàng"
+
+
+def test_chua_dang_nhap_thi_KHONG_them_duoc(client):
+    res = client.post(
+        f"{API}/admin/restaurants",
+        json={"name": "Quán Lậu", "lat": 21.03, "lng": 105.85},
+    )
+    assert res.status_code == 401
+
+
+def test_kho_CHI_DOC_thi_tra_503_kem_cach_khac_phuc(tmp_path):
+    """CSV không ghi được — phải nói rõ phải làm gì, không phải 500."""
+    client_ro, _ = build_client(tmp_path / "ro.db", writable=False)
+
+    res = client_ro.post(
+        f"{API}/admin/restaurants",
+        json={"name": "Quán X", "lat": 21.03, "lng": 105.85},
+        headers=auth_header(client_ro),
+    )
+    assert res.status_code == 503
+    assert "build_sqlite" in res.json()["error"]["message"]

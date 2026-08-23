@@ -6,6 +6,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type {
+  AdminCreateRestaurantRequest,
   AdminRestaurantSummary,
   AdminUpdateRestaurantRequest,
 } from '@moodbite/api-client';
@@ -33,6 +34,8 @@ export interface UseRestaurantAdminResult {
     restaurantId: string,
     changes: AdminUpdateRestaurantRequest,
   ) => Promise<boolean>;
+  /** Thêm quán mới. Trả `true` khi thành công (form tự dọn), `false` khi lỗi. */
+  createRestaurant: (body: AdminCreateRestaurantRequest) => Promise<boolean>;
 }
 
 export function useRestaurantAdmin({
@@ -133,6 +136,28 @@ export function useRestaurantAdmin({
     [handleError],
   );
 
+  const createRestaurant = useCallback(
+    async (body: AdminCreateRestaurantRequest) => {
+      setError(null);
+      try {
+        const created = await adminApi.createRestaurant(body);
+        // Chèn lên ĐẦU danh sách để người nhập thấy ngay kết quả việc mình vừa làm,
+        // thay vì phải đi tìm trong 50 dòng.
+        setRestaurants((current) => [created, ...current]);
+        setTotal((n) => n + 1);
+        setNotice(
+          `Đã thêm "${created.name}". Mã: ${created.restaurant_id} ` +
+            '(tiền tố "manual:" cho biết quán này do người nhập tay).',
+        );
+        return true;
+      } catch (err) {
+        handleError(err);
+        return false;
+      }
+    },
+    [handleError],
+  );
+
   return {
     restaurants,
     total,
@@ -146,5 +171,6 @@ export function useRestaurantAdmin({
     reload,
     toggleHidden,
     saveChanges,
+    createRestaurant,
   };
 }

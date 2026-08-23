@@ -23,9 +23,9 @@
   top: 16px;
   align-self: start;
   padding: 16px 12px;
-  border: 1px solid var(--auth-line-soft);
+  border: 1px solid var(--line-warm-soft);
   border-radius: 18px;
-  background: var(--auth-card);
+  background: var(--surface);
   box-shadow: var(--auth-shadow);
 }
 .account-side__label {
@@ -50,7 +50,7 @@
   text-align: left;
   cursor: pointer;
 }
-.account-side__item:hover { background: var(--auth-line-soft); }
+.account-side__item:hover { background: var(--line-warm-soft); }
 .account-side__item--on {
   background: var(--accent-soft, #FBEDE4);
   color: var(--brand-orange);
@@ -69,9 +69,9 @@
 
 .panel {
   padding: clamp(16px, 2vw, 24px);
-  border: 1px solid var(--auth-line-soft);
+  border: 1px solid var(--line-warm-soft);
   border-radius: 18px;
-  background: var(--auth-card);
+  background: var(--surface);
 }
 .panel__title {
   margin: 0 0 10px;
@@ -89,7 +89,7 @@
   margin: 0;
   padding: clamp(10px, 1.4vw, 16px);
   border-radius: 16px;
-  background: var(--auth-line-soft);
+  background: var(--line-warm-soft);
   list-style: none;
 }
 .stat__icon { display: block; font-size: 1.1rem; }
@@ -113,7 +113,7 @@
 .level__bar {
   height: 10px;
   border-radius: 999px;
-  background: var(--auth-line-soft);
+  background: var(--line-warm-soft);
   overflow: hidden;
 }
 .level__fill {
@@ -140,7 +140,7 @@
   display: grid;
   gap: 2px;
   padding: 12px 10px;
-  border: 1px solid var(--auth-line-soft);
+  border: 1px solid var(--line-warm-soft);
   border-radius: 14px;
   text-align: center;
   /* Chưa đạt thì MỜ nhưng vẫn đọc được: nó là mục tiêu, không phải rác. */
@@ -167,7 +167,7 @@
   grid-template-columns: 160px minmax(0, 1fr);
   gap: 10px;
   padding: 10px 0;
-  border-bottom: 1px solid var(--auth-line-soft);
+  border-bottom: 1px solid var(--line-warm-soft);
 }
 .profile-grid__row dt { color: var(--auth-muted); font-size: .85rem; }
 .profile-grid__row dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
@@ -201,9 +201,9 @@
   align-items: center;
   gap: clamp(16px, 3vw, 32px);
   padding: clamp(18px, 2.4vw, 28px);
-  border: 1px solid var(--auth-line-soft);
+  border: 1px solid var(--line-warm-soft);
   border-radius: 20px;
-  background: var(--auth-card);
+  background: var(--surface);
   box-shadow: var(--auth-shadow);
 }
 
@@ -216,7 +216,7 @@
   margin: 8px 0 0;
   padding: 5px 12px;
   border-radius: 999px;
-  background: var(--auth-line-soft);
+  background: var(--line-warm-soft);
   color: var(--auth-ink-soft);
   font-size: .8rem;
   font-weight: 600;
@@ -235,9 +235,9 @@
 
 .account__block {
   padding: clamp(16px, 2vw, 24px);
-  border: 1px solid var(--auth-line-soft);
+  border: 1px solid var(--line-warm-soft);
   border-radius: 18px;
-  background: var(--auth-card);
+  background: var(--surface);
 }
 
 .chip-row {
@@ -263,7 +263,7 @@
   justify-content: space-between;
   gap: 12px;
   padding: 12px 14px;
-  border: 1px solid var(--auth-line-soft);
+  border: 1px solid var(--line-warm-soft);
   border-radius: 12px;
 }
 
@@ -328,9 +328,9 @@
 .pwform__row span { color: var(--auth-ink-soft); font-size: .82rem; }
 .pwform__row input {
   padding: 9px 12px;
-  border: 1px solid var(--auth-line);
+  border: 1px solid var(--line-warm);
   border-radius: 10px;
-  background: var(--auth-card);
+  background: var(--surface);
   color: var(--auth-ink);
   font: inherit;
 }

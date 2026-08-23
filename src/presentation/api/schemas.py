@@ -514,6 +514,30 @@ class AdminUpdateRestaurantRequest(BaseModel):
     website: Optional[str] = None
 
 
+class AdminCreateRestaurantRequest(BaseModel):
+    """Thêm quán MỚI bằng tay.
+
+    Chỉ `name` + `lat` + `lng` là bắt buộc — đúng ba trường thiết yếu; thiếu là bản ghi
+    vô dụng. Mọi trường khác điền được tới đâu thì điền, để trống là `null` (CHƯA CÓ
+    DỮ LIỆU), tuyệt đối không tự điền giá trị mặc định cho có.
+
+    ⚠️ KHÔNG có `rating`, `reviews_count`, `mood_scores`: chúng do nguồn thu thập hoặc do
+    pipeline tính. Gõ tay vào là làm sai lệch chính những con số dùng để xếp hạng.
+    Giới hạn toạ độ trong Hà Nội kiểm ở tầng domain, không kiểm ở đây.
+    """
+
+    name: str = Field(..., min_length=1, max_length=200)
+    lat: float = Field(..., description="Vĩ độ, ví dụ 21.0285. Phải nằm trong Hà Nội.")
+    lng: float = Field(..., description="Kinh độ, ví dụ 105.8542.")
+    category: Optional[str] = Field(None, description='Để trống -> "Nhà hàng"')
+    cuisine: Optional[str] = None
+    address: Optional[str] = None
+    district: Optional[str] = None
+    price: Optional[str] = Field(None, description="CHUỖI khoảng giá, không phải số")
+    phone: Optional[str] = None
+    website: Optional[str] = None
+
+
 # --- Quán & món đã lưu · cấp độ · huy hiệu (2026-08-22) ----------------------
 #
 # Bốn con số trên bản thiết kế trang tài khoản đều lấy từ đây và đều là SỐ ĐẾM THẬT.

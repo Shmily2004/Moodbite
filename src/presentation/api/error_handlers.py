@@ -22,6 +22,9 @@ from src.application.errors import (
     RateLimitExceeded,
 )
 from src.application.ports.email_sender import EmailSendFailed
+from src.application.ports.admin_restaurant_repository import (
+    RestaurantAlreadyExists,
+)
 from src.application.ports.user_repository import UsernameAlreadyExists
 from src.application.use_cases.find_restaurants_for_dish import DishNotFoundError
 from src.application.use_cases.log_interaction import (
@@ -150,6 +153,17 @@ def register_error_handlers(app: FastAPI) -> None:
         # theo đúng quy ước ở CLAUDE.md mục 5, KHÔNG nuốt lỗi rồi báo "đã gửi": người dùng
         # sẽ ngồi đợi mãi một lá thư không bao giờ tới.
         return error(ErrorCode.EXTERNAL_SERVICE_UNAVAILABLE, str(exc), status_code=503)
+
+    @app.exception_handler(RestaurantAlreadyExists)
+    async def _restaurant_exists(request: Request, exc: RestaurantAlreadyExists):
+        # 409 chứ không phải 400: dữ liệu gửi lên hợp lệ, chỉ là đã có quán mang mã đó.
+        # Trên thực tế gần như không xảy ra vì `place_id` do server sinh kèm mã ngẫu
+        # nhiên — nhưng im lặng nuốt một vụ đụng mã là mất bản ghi mà không ai biết.
+        return error(
+            ErrorCode.INVALID_REQUEST,
+            f"Quán với mã '{exc}' đã tồn tại.",
+            status_code=409,
+        )
 
     @app.exception_handler(ValueError)
     async def _value_error(request: Request, exc: ValueError):

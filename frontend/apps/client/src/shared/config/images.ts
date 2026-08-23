@@ -189,6 +189,48 @@ export const ANH_GIAO_DIEN: Record<string, AnhUI | null> = {
 };
 
 /**
+ * BỘ ICON MOOD của hàng "Gợi ý nhanh theo mood" trên trang chủ.
+ *
+ * Khoá là `value` của thẻ mood trong `widgets/mood-quick-pick` — KHÔNG phải nhãn hiển
+ * thị. Nhãn đổi theo ngôn ngữ (VI/EN), `value` thì không; khoá theo nhãn là đổi sang
+ * tiếng Anh thì icon biến mất hết.
+ *
+ * `null` = CHƯA CÓ ICON -> thẻ đó tự dùng emoji. Nhờ vậy chủ dự án gửi được từng cái
+ * một mà không phải chờ đủ bộ, và mỗi lần thêm chỉ sửa ĐÚNG MỘT DÒNG ở đây.
+ *
+ * CÁCH THÊM MỘT ICON:
+ *   1. Bỏ file vào `frontend/design/attribute/` (VD `relax.png`)
+ *   2. Thêm một dòng vào `XU_LY` trong `scripts/prepare_design_assets.py` với chế độ
+ *      `"nen_den"` — file nguồn có nền đen và thừa lề, phải tách nền + cắt sát
+ *   3. `python scripts/prepare_design_assets.py` (script in ra đúng width/height)
+ *   4. Thay `null` bên dưới bằng số vừa in ra
+ */
+export const ICON_MOOD: Record<string, AnhUI | null> = {
+  // Chủ dự án gửi 2026-08-23. Nguồn: `design/attribute/spicy.png` (1536×1024, nền đen).
+  excited: {
+    src: '/anh/icon-cay.png',
+    // Rỗng có chủ đích: nhãn "Thèm cay" đã nằm ngay dưới icon, đọc lại là thừa.
+    alt: '',
+    width: 160,
+    height: 142,
+    fit: 'contain',
+  },
+  // Chủ dự án gửi 2026-08-23. Nguồn: `design/attribute/Relax.png`.
+  relaxed: {
+    src: '/anh/icon-thu-gian.png',
+    alt: '',
+    width: 160,
+    height: 174,
+    fit: 'contain',
+  },
+  happy: null,
+  sad: null,
+  rain: null,
+  nuong: null,
+  hot: null,
+};
+
+/**
  * Ảnh DỰ PHÒNG theo loại hình quán — chỉ dùng khi API KHÔNG có ảnh thật.
  *
  * VÌ SAO CẦN: 71,8% quán không có ảnh. Hiện tại chỗ đó vẽ ô màu sinh từ tên quán

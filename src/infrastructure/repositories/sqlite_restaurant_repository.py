@@ -26,6 +26,9 @@ from typing import Dict, List, Mapping, Optional
 
 from src.domain.entities.restaurant import Restaurant
 from src.domain.value_objects.location import Location
+from src.application.ports.admin_restaurant_repository import (
+    RestaurantAlreadyExists,
+)
 from src.domain.value_objects.mood import MOOD_SCORE_COLUMNS
 from src.infrastructure.config.settings import describe_path
 
@@ -222,6 +225,49 @@ class SqliteRestaurantRepository:
             f"SELECT {_COLUMNS} FROM restaurants WHERE place_id = ?", [str(place_id)]
         )
         return self._to_entity(rows[0]) if rows else None
+
+    def create(self, restaurant: Restaurant) -> Restaurant:
+        """Thêm quán mới (nhập tay qua trang quản trị).
+
+        ⚠️ CHỈ ghi những cột người nhập thật sự cung cấp. `rating`, `reviews_count`,
+        `mood_scores`, cụm trải nghiệm đều để NULL — None nghĩa là CHƯA CÓ DỮ LIỆU
+        (CLAUDE.md mục 4 quy tắc 1). Đặt 0 vào đó là nói dối "0 sao".
+        """
+        cot = {
+            "place_id": restaurant.place_id,
+            "name": restaurant.name,
+            "category": restaurant.category,
+            "lat": restaurant.location.lat,
+            "lng": restaurant.location.lng,
+            "address": restaurant.address,
+            "cuisine": restaurant.cuisine,
+            "price": restaurant.price,
+            "district": restaurant.district,
+            "phone": restaurant.phone,
+            "website": restaurant.website,
+            "is_active": 1 if restaurant.is_active else 0,
+            "source": restaurant.source,
+            "data_confidence": restaurant.data_confidence,
+            "source_updated_at": restaurant.source_updated_at,
+        }
+        ten_cot = ", ".join(cot)
+        cho_trong = ", ".join("?" for _ in cot)
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                conn.execute(
+                    f"INSERT INTO restaurants ({ten_cot}) VALUES ({cho_trong})",
+                    list(cot.values()),
+                )
+                conn.commit()
+        except sqlite3.IntegrityError:
+            raise RestaurantAlreadyExists(restaurant.place_id or "")
+        except sqlite3.Error as exc:
+            logger.error("Lỗi thêm quán: %s", exc)
+            raise
+        # Làm mới bộ nhớ đệm, nếu không quán vừa thêm sẽ không tìm thấy cho tới lần
+        # khởi động lại sau — cùng lý do như `_write()`.
+        self.reload()
+        return restaurant
 
     def update_fields(self, place_id: str, changes: Mapping[str, object]) -> bool:
         """Ghi các trường ĐÃ được domain kiểm tra.

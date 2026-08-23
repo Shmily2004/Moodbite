@@ -35,6 +35,25 @@
   --auth-primary-2:    var(--brand-navy-2);
   --auth-primary-ink:  #FFFFFF;
 
+  /* --- MẶT PHẲNG ẤM, dùng cho TRANG CHỦ và TRANG TÀI KHOẢN ------------------
+     Chủ dự án góp ý 2026-08-23: bản thiết kế trang chủ nằm trọn trong MỘT TÔNG KEM ẤM,
+     nhưng bản dựng lại có mấy dải TRẮNG TINH (khối "Lọc chi tiết", dải mời đăng ký) cắt
+     ngang trang. Nguyên nhân: chúng dùng `--auth-card` (#FFFFFF) và `--auth-line`
+     (#E2E7F0 — xám ÁNH XANH), vốn là màu của nhóm trang đăng nhập/đăng ký.
+
+     Vì sao KHÔNG sửa thẳng `--auth-card`: trang đăng nhập/đăng ký cố ý là "tờ giấy trắng"
+     đặt trên tranh nền, và chủ dự án đã duyệt bản đó. Đổi token chung là phá luôn hai
+     trang kia. Nên tách một bộ token ẤM riêng, chỉ dùng ở trang chủ + tài khoản.
+
+     Ba mức, đi từ sáng nhất tới đậm nhất:
+       --surface       thẻ nội dung — trắng ngả kem, KHÔNG phải #FFFFFF
+       --surface-soft  dải nhấn (mời đăng ký, ô số liệu) — đậm hơn nền một chút
+       --line-warm     viền ấm, thay cho viền ánh xanh                                */
+  --surface:           #FFFCF6;
+  --surface-soft:      #FBF1E2;
+  --line-warm:         #F0E2CD;
+  --line-warm-soft:    #F6ECDD;
+
   --auth-shadow: 0 24px 60px rgba(2, 29, 72, .13), 0 2px 6px rgba(2, 29, 72, .06);
 
   /* Màn sương phủ sau khối chữ giới thiệu để chữ nổi lên trên tranh. Phải là RGBA (có độ
@@ -62,6 +81,13 @@
 
   --brand-cream:       #0D1526;
   --brand-cream-hi:    #131E33;
+
+  /* Nền tối: "ấm" không còn nghĩa gì khi nền là navy sẫm, nên bộ token này lui về đúng
+     mặt phẳng tối — miễn là vẫn TÁCH được thẻ khỏi nền. */
+  --surface:           #162032;
+  --surface-soft:      #1B2739;
+  --line-warm:         #2A3548;
+  --line-warm-soft:    #212B3C;
 
   --auth-shadow: 0 24px 60px rgba(0, 0, 0, .5), 0 2px 6px rgba(0, 0, 0, .35);
   --auth-veil: rgba(13, 21, 38, .92);

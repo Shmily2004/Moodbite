@@ -11,35 +11,39 @@
  * Làm trang nào thì thêm một dòng vào `MUC_DIEU_HUONG` là nó tự hiện ra.
  */
 import { Link, NavLink } from 'react-router-dom';
-import { BrandLogo, IconPin } from '@/shared/ui';
+import { BrandLogo, IconPin, LanguageSelect } from '@/shared/ui';
 import { ThemeToggle } from '@/features/switch-theme';
 import { UserAvatar, useUserSessionContext } from '@/entities/user';
 import { useAvatar } from '@/features/change-avatar';
 import { ROUTES } from '@/shared/config';
+import { useT } from '@/shared/i18n';
+import type { Khoa } from '@/shared/i18n';
 
 interface MucDieuHuong {
   to: string;
-  label: string;
+  /** Khoá trong từ điển, KHÔNG phải chữ viết sẵn — nếu không thì thanh trên không dịch được. */
+  nhan: Khoa;
 }
 
 /** Chỉ những trang ĐÃ CÓ THẬT. Thêm trang mới thì thêm một dòng ở đây. */
 const MUC_DIEU_HUONG: MucDieuHuong[] = [
-  { to: ROUTES.home, label: 'Gợi ý món ăn' },
-  { to: ROUTES.search, label: 'Tìm bằng câu tự nhiên' },
+  { to: ROUTES.home, nhan: 'nav.suggest' },
+  { to: ROUTES.search, nhan: 'nav.search' },
 ];
 
 export function SiteHeader() {
+  const t = useT();
   const session = useUserSessionContext();
   const { avatar } = useAvatar();
   const ten = session.user?.display_name || session.user?.username;
 
   return (
     <header className="site-header">
-      <Link to={ROUTES.home} className="site-header__brand" aria-label="MoodBite - trang chủ">
+      <Link to={ROUTES.home} className="site-header__brand" aria-label={t('nav.home')}>
         <BrandLogo height="clamp(34px, 3.4vw, 46px)" />
       </Link>
 
-      <nav className="site-header__nav" aria-label="Điều hướng chính">
+      <nav className="site-header__nav" aria-label={t('nav.main')}>
         {MUC_DIEU_HUONG.map((muc) => (
           <NavLink
             key={muc.to}
@@ -49,7 +53,7 @@ export function SiteHeader() {
               isActive ? 'site-header__link site-header__link--active' : 'site-header__link'
             }
           >
-            {muc.label}
+            {t(muc.nhan)}
           </NavLink>
         ))}
       </nav>
@@ -60,11 +64,12 @@ export function SiteHeader() {
           Toàn bộ dữ liệu quán chỉ có ở Hà Nội (chốt 2026-08-19, xem CLAUDE.md mục 4b).
           Làm cái dropdown chọn tỉnh khác là hứa một thứ không có dữ liệu.
         */}
-        <span className="site-header__place" title="Dữ liệu MoodBite hiện chỉ có ở Hà Nội">
+        <span className="site-header__place" title={t('nav.cityHint')}>
           <IconPin width={16} height={16} />
-          Hà Nội
+          {t('nav.city')}
         </span>
 
+        <LanguageSelect />
         <ThemeToggle />
 
         {session.isLoggedIn ? (
@@ -77,16 +82,16 @@ export function SiteHeader() {
               </span>
             </Link>
             <button type="button" className="linkish" onClick={session.logout}>
-              Đăng xuất
+              {t('nav.logout')}
             </button>
           </div>
         ) : (
           <div className="site-header__account">
             <Link className="linkish" to={ROUTES.login}>
-              Đăng nhập
+              {t('nav.login')}
             </Link>
             <Link className="btn btn--accent btn--sm" to={ROUTES.register}>
-              Đăng ký
+              {t('nav.register')}
             </Link>
           </div>
         )}

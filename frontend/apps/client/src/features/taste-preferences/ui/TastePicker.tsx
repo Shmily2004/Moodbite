@@ -13,25 +13,25 @@
  */
 import { useTastePreferences } from '../model/useTastePreferences';
 import { SO_THICH } from '../model/danh_sach';
+import { useT } from '@/shared/i18n';
 
 export function TastePicker() {
+  const t = useT();
   const { chon, dangChon, xoaHet, soLuong } = useTastePreferences();
 
   return (
-    <section className="account__block">
+    <section className="panel">
       <div className="results__head">
-        <h2 className="section-title">
-          <span aria-hidden="true">🍽️</span> Sở thích của bạn
+        <h2 className="panel__title">
+          <span aria-hidden="true">🍽️</span> {t('account.taste.title')}
         </h2>
         {soLuong > 0 && (
           <button type="button" className="linkish" onClick={xoaHet}>
-            Xoá hết
+            {t('account.taste.clear')}
           </button>
         )}
       </div>
-      <p className="section-sub">
-        Chọn vài thứ bạn hay ăn. MoodBite sẽ bật sẵn các bộ lọc này ở trang chủ.
-      </p>
+      <p className="section-sub">{t('account.taste.sub')}</p>
 
       <ul className="chip-row">
         {SO_THICH.map((mon) => {

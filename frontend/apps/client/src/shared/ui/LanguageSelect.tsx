@@ -1,25 +1,32 @@
 /**
- * Ô chọn ngôn ngữ ở góc phải thanh trên.
+ * Ô chọn ngôn ngữ. Đổi ngay lập tức, nhớ lại ở lần mở sau (localStorage).
  *
- * ⚠️ HIỆN CHỈ CÓ ĐÚNG MỘT NGÔN NGỮ — và ô này nói thật điều đó thay vì giả vờ có nhiều.
- * Toàn bộ chữ trong app đang viết thẳng bằng tiếng Việt trong JSX; làm đa ngôn ngữ thật
- * là một việc RIÊNG (tách chuỗi ra file dịch, thêm thư viện i18n, dịch lại toàn bộ) —
- * phải chốt với chủ dự án trước, không tự làm kèm.
- *
- * Khi nào làm: thêm option ở đây + nối vào thư viện i18n. Chỗ đặt ô này không đổi.
+ * ⚠️ Ô này CÓ `title` nói rõ giới hạn: giao diện dịch được, còn tên món/tên quán và mọi
+ * chữ do máy chủ sinh ra vẫn là tiếng Việt. Nói trước vẫn hơn để người dùng bật tiếng Anh
+ * rồi tự hỏi vì sao nửa trang không đổi. Muốn dịch nốt phần đó thì phải làm i18n Ở
+ * BACKEND — việc riêng, xem ghi chú đầu `shared/i18n/model/tu_dien.ts`.
  */
+import { NGON_NGU, useNgonNgu } from '../i18n';
+import type { NgonNgu } from '../i18n';
+
+const NHAN: Record<NgonNgu, string> = { vi: 'VI', en: 'EN' };
+
 export function LanguageSelect({ className }: { className?: string }) {
+  const { ngonNgu, doiNgonNgu, t } = useNgonNgu();
+
   return (
     <select
       className={['lang-select', className].filter(Boolean).join(' ')}
-      value="vi"
-      // Chỉ một lựa chọn nên không có gì để đổi. Vẫn phải khai `onChange` vì React coi
-      // `value` không kèm `onChange` là ô chỉ-đọc và sẽ cảnh báo trong console.
-      onChange={() => undefined}
-      aria-label="Ngôn ngữ hiển thị"
-      title="Hiện chỉ có tiếng Việt"
+      value={ngonNgu}
+      onChange={(su_kien) => doiNgonNgu(su_kien.target.value as NgonNgu)}
+      aria-label={t('lang.label')}
+      title={t('lang.hint')}
     >
-      <option value="vi">VI</option>
+      {NGON_NGU.map((ma) => (
+        <option key={ma} value={ma}>
+          {NHAN[ma]}
+        </option>
+      ))}
     </select>
   );
 }

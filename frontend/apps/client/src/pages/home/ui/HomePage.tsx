@@ -19,8 +19,8 @@
  * ⚠️ NHỮNG THỨ TRONG SPEC CỐ TÌNH CHƯA DỰNG (không có dữ liệu thật phía sau):
  *   - ⭐ điểm sao + "0.8 km" mỗi món  -> món KHÔNG có rating cũng KHÔNG có khoảng cách.
  *   - "❤️ Dành riêng cho bạn"          -> chưa có endpoint đọc lại lịch sử/sở thích.
- *   - "❤️ Quán & món đã lưu"           -> `POST /interactions` ghi được `save` nhưng
- *                                        KHÔNG có endpoint đọc danh sách đã lưu.
+ *   - "❤️ Quán & món đã lưu" ĐÃ CÓ    -> `GET/POST /me/favorites` (2026-08-22). Khách
+ *                                        vẫn lưu ở máy; đăng nhập thì đồng bộ lên server.
  *   - "98% phù hợp với bạn"            -> `predicted_score` là điểm XẾP HẠNG, không phải
  *                                        xác suất. Hiện ra thành % là hiểu sai (đã có
  *                                        tiền lệ, xem PROJECT_CHECKLIST).
@@ -40,17 +40,19 @@ import type { NeedPreset } from '@/widgets/explore-needs';
 import { DishFilters, useDishSuggestions } from '@/features/suggest-dishes';
 import { useUserLocation } from '@/features/pick-location';
 import { useRecentDishes } from '@/features/recent-dishes';
-import { useSavedDishes } from '@/features/save-dish';
+import { useFavorites } from '@/features/save-favorite';
 import { useUserSessionContext } from '@/entities/user';
 import { ANH_GIAO_DIEN, dishRoute, ROUTES } from '@/shared/config';
+import { useT } from '@/shared/i18n';
 
 export function HomePage() {
+  const t = useT();
   const navigate = useNavigate();
   const location = useUserLocation();
   const suggestions = useDishSuggestions(location.position);
   const session = useUserSessionContext();
   const recent = useRecentDishes();
-  const savedDishes = useSavedDishes();
+  const savedDishes = useFavorites();
   /**
    * Hàng ngang (như bản thiết kế) hay lưới đầy đủ.
    *
@@ -121,7 +123,7 @@ export function HomePage() {
         />
 
         <MoodQuickPick
-          title={daDangNhap ? 'Mood của bạn hôm nay là gì?' : 'Gợi ý nhanh theo mood'}
+          title={daDangNhap ? t('mood.titleLoggedIn') : t('mood.titleGuest')}
           dangChon={dangChon}
           onPick={chonNhanh}
           onShowAll={() => {
@@ -139,10 +141,10 @@ export function HomePage() {
           <section className="recent">
             <div className="results__head">
               <h2 className="section-title">
-                <span aria-hidden="true">🕘</span> Xem gần đây
+                <span aria-hidden="true">🕘</span> {t('account.recent.title')}
               </h2>
               <button type="button" className="linkish" onClick={recent.clear}>
-                Xoá lịch sử
+                {t('account.recent.clear')}
               </button>
             </div>
             <p className="section-sub">
@@ -169,11 +171,12 @@ export function HomePage() {
             <h2 className="section-title">
               {daDangNhap ? (
                 <>
-                  <span aria-hidden="true">✨</span> Gợi ý hôm nay dành cho {ten}
+                  <span aria-hidden="true">✨</span>{' '}
+                  {t('results.titleLoggedIn', { name: ten ?? '' })}
                 </>
               ) : (
                 <>
-                  <span aria-hidden="true">🔥</span> Món phổ biến hôm nay
+                  <span aria-hidden="true">🔥</span> {t('results.titleGuest')}
                 </>
               )}
             </h2>
@@ -183,7 +186,9 @@ export function HomePage() {
                 className="linkish"
                 onClick={() => setXemTatCa((cu) => !cu)}
               >
-                {xemTatCa ? '← Thu gọn' : `Xem tất cả (${dishes.length}) →`}
+                {xemTatCa
+                  ? `← ${t('results.collapse')}`
+                  : `${t('results.showAll', { count: dishes.length })} →`}
               </button>
             )}
           </div>
@@ -194,9 +199,7 @@ export function HomePage() {
             có thật là món đó được nhiều quán ở Hà Nội bán và hợp thời điểm hiện tại.
           */}
           <p className="section-sub">
-            {daDangNhap
-              ? 'Dựa trên mood bạn chọn, thời tiết và thời điểm hiện tại.'
-              : 'Món có nhiều quán ở Hà Nội đang bán, hợp với thời điểm và thời tiết lúc này.'}
+            {daDangNhap ? t('results.subLoggedIn') : t('results.subGuest')}
           </p>
 
           {location.error && <p className="notice notice--warn">{location.error}</p>}
@@ -205,7 +208,7 @@ export function HomePage() {
             <div className="notice notice--error">
               <p>{suggestions.error}</p>
               <button className="btn" onClick={suggestions.reload}>
-                Thử lại
+                {t('results.retry')}
               </button>
             </div>
           )}
@@ -227,20 +230,24 @@ export function HomePage() {
               dishes={dishes}
               onOpen={openDish}
               layout={xemTatCa ? 'grid' : 'row'}
-              isSaved={(dish) => savedDishes.isSaved(dish.dish_id)}
+              isSaved={(dish) => savedDishes.isSaved('dish', dish.dish_id)}
               onToggleSave={(dish) =>
-                savedDishes.toggle({ dishId: dish.dish_id, name: dish.name })
+                savedDishes.toggle({
+                  itemType: 'dish',
+                  itemId: dish.dish_id,
+                  name: dish.name,
+                })
               }
             />
           )}
 
           {!suggestions.loading && !suggestions.error && !hasDishes && (
             <div className="state">
-              <p className="state__title">Không có món nào khớp</p>
-              <p>Điều kiện đang hơi chặt. Thử bỏ bớt một vài bộ lọc.</p>
+              <p className="state__title">{t('results.emptyTitle')}</p>
+              <p>{t('results.emptyHint')}</p>
               {suggestions.activeFilterCount > 0 && (
                 <button className="chip" onClick={suggestions.reset}>
-                  Xoá hết bộ lọc
+                  {t('results.clearFilters')}
                 </button>
               )}
             </div>
@@ -248,10 +255,8 @@ export function HomePage() {
         </section>
 
         <section id="bo-loc-day-du" className="filters-block">
-          <h2 className="section-title">Lọc chi tiết</h2>
-          <p className="section-sub">
-            Mọi điều kiện mà bảy thẻ mood ở trên không phủ hết.
-          </p>
+          <h2 className="section-title">{t('filters.title')}</h2>
+          <p className="section-sub">{t('filters.sub')}</p>
           <DishFilters
             filters={suggestions.filters}
             onToggle={suggestions.toggle}
@@ -286,22 +291,20 @@ export function HomePage() {
             )}
             <div className="cta__text">
               <p className="cta__title">
-                <span aria-hidden="true">🎯</span> Muốn MoodBite hiểu bạn hơn?
+                <span aria-hidden="true">🎯</span> {t('cta.title')}
               </p>
-              <p className="cta__sub">
-                Chọn mood và khẩu vị của bạn, MoodBite sẽ nhớ lại cho những lần sau.
-              </p>
+              <p className="cta__sub">{t('cta.sub')}</p>
             </div>
             <div className="cta__actions">
               <button type="button" className="btn" onClick={keoToiKetQua}>
-                Khám phá ngay
+                {t('cta.explore')}
               </button>
               <button
                 type="button"
                 className="btn btn--accent"
                 onClick={() => navigate(ROUTES.register)}
               >
-                Đăng ký tài khoản
+                {t('cta.register')}
               </button>
             </div>
           </section>

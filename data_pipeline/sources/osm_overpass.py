@@ -202,8 +202,14 @@ class OsmOverpassSource:
             "out center tags meta;"
         )
 
-    def _fetch_tile(self, tile: tuple[float, float, float, float]) -> List[Dict[str, Any]]:
-        """Lấy 1 ô, tự đổi mirror khi lỗi. Có cache trên đĩa để chạy lại không tốn công."""
+    def _fetch_tile(
+        self, tile: tuple[float, float, float, float]
+    ) -> Optional[List[Dict[str, Any]]]:
+        """Lấy 1 ô, tự đổi mirror khi lỗi. Có cache trên đĩa để chạy lại không tốn công.
+
+        Trả `None` khi HỎI KHÔNG ĐƯỢC, và `[]` khi hỏi được nhưng ô đó không có quán nào.
+        Hai chuyện này khác hẳn nhau — xem ghi chú ở `fetch()`.
+        """
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         cache_file = self.cache_dir / f"tile_{'_'.join(str(v) for v in tile)}.json"
         if cache_file.exists():
@@ -249,7 +255,9 @@ class OsmOverpassSource:
 
         logger.warning("Bo qua o %s sau %d vong thu (%s)",
                        tile, len(self.retry_backoff), last_error)
-        return []
+        # None chu KHONG phai [] — de `fetch()` phan biet "hoi khong duoc" voi
+        # "hoi duoc nhung o do khong co quan nao".
+        return None
 
     # --- chuyển đổi -----------------------------------------------------
 
@@ -345,11 +353,21 @@ class OsmOverpassSource:
         logger.info("OSM: bat dau lay %d o (moi o %.2f do)", len(tiles), self.tile_size_deg)
 
         places: List[RawPlace] = []
+        # PHÂN BIỆT HAI CHUYỆN KHÁC HẲN NHAU (sửa 2026-08-23):
+        #   ô LỖI  = hỏi mãi không được -> MẤT dữ liệu khu vực đó, phải chạy lại
+        #   ô RỖNG = hỏi được, khu vực đó thật sự không có quán nào (vùng nông thôn ở
+        #            rìa hộp bao Hà Nội) -> hoàn toàn bình thường
+        # Trước đây gộp cả hai vào "ô lỗi", nên log báo "12 ô lỗi" trong khi thật ra cả 35
+        # ô đều lấy được — con số đó làm người đọc tưởng dữ liệu bị thủng.
         failed_tiles = 0
+        empty_tiles = 0
         for index, tile in enumerate(tiles, start=1):
             elements = self._fetch_tile(tile)
-            if not elements:
+            if elements is None:
                 failed_tiles += 1
+                elements = []
+            elif not elements:
+                empty_tiles += 1
             for element in elements:
                 place = self._to_place(element)
                 if place:
@@ -363,7 +381,13 @@ class OsmOverpassSource:
 
         unique, duplicates = dedupe_places(places)
         logger.info(
-            "OSM: xong. %d quan duy nhat (bo %d trung lap, %d o loi)",
-            len(unique), duplicates, failed_tiles,
+            "OSM: xong. %d quan duy nhat (bo %d trung lap, %d o RONG, %d o LOI)",
+            len(unique), duplicates, empty_tiles, failed_tiles,
         )
+        if failed_tiles:
+            logger.warning(
+                "%d o KHONG lay duoc -> thieu quan o nhung khu vuc do. "
+                "Chay lai lenh nay luc Overpass ranh; o da lay duoc deu co cache nen nhanh.",
+                failed_tiles,
+            )
         return unique

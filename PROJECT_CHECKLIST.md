@@ -1,6 +1,6 @@
 # MoodBite — Bảng theo dõi tiến độ
 
-**Cập nhật:** 2026-08-22 (chiều)
+**Cập nhật:** 2026-08-23
 **Nguyên tắc:** file này chỉ ghi thứ đã **chạy thật và kiểm chứng được**. Không ghi theo
 kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh để tự kiểm lại.
 
@@ -19,7 +19,7 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Frontend Client | ✅ **TypeScript + FSD** | 86 test, có bản đồ, steiger trong CI |
 | Bản đồ | ✅ **Xong** | Leaflet + OpenStreetMap, miễn phí, không cần key |
 | Kiến trúc | ✅ Sạch | Clean Architecture + checker tự động trong CI |
-| Test | ✅ **437 backend + 123 frontend** | tổng **560** (client 115 · admin 8) |
+| Test | ✅ **481 backend + 147 frontend** | tổng **628** (client 139 · admin 8) |
 | Giao diện | ✅ Theo bản duyệt · **trang chủ + tài khoản dựng lại 2026-08-22** | trang chủ = LƯỚI MÓN + chips lọc; trang món = giới thiệu + bản đồ + danh sách quán; `/tim-kiem` giữ bố cục bản đồ + rail cũ |
 | Router + layout | ✅ Xong | react-router v6, khung dùng chung, `RequireAuth` cho admin |
 | Chạy xem giao diện | ✅ **một lệnh** | `python scripts/run_dev.py --admin` |
@@ -27,7 +27,8 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | **Frontend Admin** | ✅ **Code xong** · ⬜ **chưa bật** | `python scripts/check_permissions.py` để xem thiếu gì |
 | Xác thực admin | ✅ Code xong | 1 tài khoản, token HMAC 1 giờ, fail-closed |
 | Phụ thuộc Python | ✅ 15 → **7** gói | gỡ torch/ultralytics/transformers/opencv (~2GB) khỏi CI |
-| Dữ liệu | ✅ **40.719 quán** · **747 món** | Overture 36.176 · OSM 3.135 · Apify 1.409. Đã loại 1 quán đóng hẳn |
+| Dữ liệu | ✅ **40.704 quán** · **747 món** | Overture · OSM (cào lại 2026-08-23) · Apify. Đã loại 16 bản ghi thiếu tên/toạ độ |
+| **Ảnh món gắn nhầm** | ✅ **Đã soát và gỡ 2026-08-23** | `python scripts/audit_dish_images.py` — 4 món đang hiện ảnh SAI (bãi biển cho món lẩu). Đã chặn ở nguồn |
 | Thu thập dữ liệu đa nguồn | ✅ Xong | kiến trúc `SourceAdapter`, thêm nguồn không sửa pipeline |
 | Lọc giờ mở cửa / chế độ ăn / quận | ✅ Xong | thiếu dữ liệu KHÔNG bị loại |
 | **Tuổi thật của dữ liệu** | ✅ **Xong, ĐÃ HIỆN RA UI 2026-08-20** | 97,3% quán có ngày NGUỒN cập nhật (khác ngày ta cào). OSM: chỉ 28,5% thuộc 2026. Thẻ quán hiện "nguồn cập nhật N năm trước" |
@@ -52,8 +53,11 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Trích món từ review (đề án mục 7) | ✅ Xong | 1076 quán có review; bún chả 86 → 94 quán |
 | Ma trận truy vết | ✅ Viết lại 2026-08-19 | bản cũ có 9/10 đường dẫn KHÔNG tồn tại — xem `traceability.md` |
 | **Lớp 4 — Tóm tắt review** | ✅ **XONG 2026-08-19** | Trích rút TF-IDF centroid, **851/1310 quán** có nhận xét tổng hợp (339 quán có cả điểm yếu). Mọi câu TRÍCH NGUYÊN VĂN, không sinh chữ. `python -m data_pipeline.review_summary` |
-| Đăng nhập / tài khoản | ✅ **Đăng nhập + đăng ký + QUÊN MẬT KHẨU xong (2026-08-22)** | `/api/v1/auth/*` đủ 3 endpoint. Client: `/dang-nhap` và `/dang-ky` chạy thật qua `createAuthApi()`. CHƯA làm: trang hồ sơ, chỗ hiện "đang đăng nhập là ai", đăng xuất trên giao diện. Đổi phạm vi có chủ đích so với SRS mục 8 — xem ghi chú dưới bảng |
+| Đăng nhập / tài khoản | ✅ **Đăng nhập · đăng ký · quên mật khẩu · TRANG TÀI KHOẢN 7 TAB (2026-08-23)** | `/api/v1/auth/*` + `/api/v1/me/*`. Trang `/account` có thanh bên 7 mục, ảnh đại diện, số liệu thật, cấp độ, huy hiệu. Đổi phạm vi có chủ đích so với SRS mục 8 — xem ghi chú dưới bảng |
 | Phân quyền (`role`) | 🟡 Có `user`/`admin` + guard 403 | admin VẪN dùng biến môi trường, chưa chuyển sang bảng `users` |
+| **Quán & món yêu thích (server)** | ✅ **Xong 2026-08-23** | bảng `saved_items`, `GET/POST/DELETE /me/favorites`. Khách vẫn lưu ở máy và được ĐỒNG BỘ LÊN khi đăng nhập |
+| **Lượt khám phá · cấp độ · huy hiệu** | ✅ **Xong 2026-08-23** | `GET /me/stats`. `POST /interactions` nay ghi thêm `user_id` (LẤY TỪ TOKEN, không nhận từ body) |
+| **Song ngữ Việt–Anh** | ✅ **Giao diện xong 2026-08-23** · ⬜ dữ liệu vẫn tiếng Việt | `shared/i18n/tu_dien.ts` — 1 file, kiểm kiểu lúc biên dịch. Tên món/quán và chữ do máy chủ sinh KHÔNG dịch (cần i18n ở backend) |
 
 > **Ghi chú — tài khoản người dùng là ĐỔI PHẠM VI CÓ CHỦ ĐÍCH (2026-08-17).**
 > SRS mục 8 và `docs/extracted/MoodBite_Dac_Ta_API.md` xếp tài khoản vào *Won't-have*.
@@ -61,9 +65,11 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 > hơn. Hai tài liệu trong `docs/extracted/` **cố ý giữ nguyên** — chúng là bản gốc đã nộp,
 > sửa lại là làm sai lịch sử. Chỗ nào mâu thuẫn thì **code + dòng này thắng**.
 >
-> Chưa làm: đăng xuất có thu hồi token, `user_id` trong `POST /interactions`, lưu quán yêu
-> thích ở server, giao diện Profile, và chỗ hiển thị "đang đăng nhập là ai" (kèm nút đăng
-> xuất). Giao diện Login + Register đã xong 2026-08-22 (xem mục dưới).
+> Đã xong (2026-08-23): `user_id` trong `POST /interactions` · lưu quán & món yêu thích ở
+> server · trang Profile 7 tab · chỗ hiển thị "đang đăng nhập là ai" kèm nút đăng xuất ·
+> đổi mật khẩu khi đang đăng nhập.
+> **Còn lại:** đăng xuất có THU HỒI token (cần cột `token_version` — đổi lược đồ, phải chốt
+> trước) và xác minh email lúc đăng ký.
 
 **Tự kiểm toàn bộ bằng MỘT lệnh** (chạy được ở PowerShell, CMD, bash, macOS, Linux):
 
@@ -71,7 +77,7 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 python scripts/verify.py
 ```
 
-Lệnh này kiểm 8 việc và in rõ từng mục đạt/hỏng: app dựng được · test backend ·
+Lệnh này kiểm 9 việc và in rõ từng mục đạt/hỏng: app dựng được · test backend ·
 hướng phụ thuộc · **chỉ có 1 backend** · frontend build · test frontend · luật import
 FSD · **CI cài đặt được**.
 
@@ -649,14 +655,151 @@ trống, không bịa):**
       ⚠️ `Blob.arrayBuffer()` không có ở Safari < 14 và jsdom → có đường lui `FileReader`.
       Thiếu nó thì phép kiểm số ma thuật ném lỗi và file độc hại LỌT trong im lặng.
 
-**CHƯA LÀM — 4 mục chủ dự án đánh dấu "cần xem kỹ trước khi làm" (2026-08-22):**
+**Bốn mục chủ dự án đánh dấu "cần xem kỹ trước khi làm" — chốt 2026-08-23:**
 
-| Mục | Thiếu gì ở backend | Ước lượng |
+| Mục | Trạng thái | Ghi chú |
 |---|---|---|
-| Viết review + "Đánh giá của tôi" | Review hiện CHỈ ĐỌC từ Google/Apify. Cần entity + bảng + `POST/GET /reviews`, phân biệt rõ nguồn (người dùng vs Google), chặn spam | ~1 ngày |
-| Cấp độ + huy hiệu | `POST /interactions` ghi theo **session_id**, KHÔNG có `user_id` → không đếm được theo NGƯỜI. Cần thêm user_id + `GET /me/stats` + bảng quy tắc điểm | ~0,5 ngày (sau khi có user_id) |
-| "Lượt khám phá" (128) | Cùng lý do trên — chính là số đếm tương tác của người đó | gộp vào mục trên |
-| "Quán yêu thích" (15) | Mới lưu được MÓN (ở máy), chưa lưu QUÁN và chưa đồng bộ giữa máy. Cần bảng `saved_items` | ~0,5 ngày |
+| Viết review + "Đánh giá của tôi" | ⬜ **HOÃN — chủ dự án quyết định không làm** | *"tôi không thích mục 1, cũng không muốn tự tạo thêm vấn đề"*. Nội dung do người dùng viết kéo theo kiểm duyệt, chống spam, xử lý báo cáo — việc lớn hơn nó trông thấy. Đưa vào phần ĐỊNH HƯỚNG |
+| "Quán yêu thích" | ✅ **Xong** | bảng `saved_items` + `/me/favorites` |
+| "Lượt khám phá" | ✅ **Xong** | = số QUÁN KHÁC NHAU đã xem đủ lâu; server đếm |
+| Cấp độ + huy hiệu | ✅ **Xong** | 5 cấp · 5 huy hiệu · `GET /me/stats` |
+
+### Cào lại OpenStreetMap + soát ảnh món (2026-08-23)
+
+**Cào lại toàn bộ 35 ô OSM Hà Nội** (xoá cache để lấy dữ liệu tươi, giữ bản sao lưu).
+Overpass đêm đó trả 500/502/504 liên tục nên mất ~50 phút, nhưng **không bỏ ô nào**.
+
+Đo bằng `python scripts/data_report.py` TRƯỚC và SAU:
+
+| Chỉ số | Trước | Sau | Chênh |
+|---|---:|---:|---:|
+| Tổng số quán | 40.720 | 40.704 | **−16** |
+| Đơn vị hành chính phủ | 183 | 185 | +2 |
+| Quán có trường `dishes` | 1.458 | 1.493 | **+35** |
+| Quán có `amenities` | 645 | 659 | +14 |
+| Quán có `dietary` | 115 | 124 | +9 |
+| Quán có `aliases` | 326 | 329 | +3 |
+
+**Kết luận thẳng thắn: cào lại OSM KHÔNG thêm được quán mới.** Ảnh chụp OSM Hà Nội cũ đã
+gần như đầy đủ; cái được là **tag phong phú hơn** (món, tiện nghi, chế độ ăn). 16 bản ghi
+biến mất là bản ghi **thiếu tên hoặc thiếu toạ độ** — bước làm sạch loại đúng, vì không có
+hai thứ đó thì quán vô dụng.
+
+➡️ **Muốn thêm quán thật thì phải đi đường khác**, không phải cào lại OSM:
+Apify (xem `docs/apify_huong_dan.md`) hoặc nhập tay qua trang admin.
+
+**Sửa một chỗ log nói sai:** trước đây báo "12 ô lỗi" trong khi cả 35 ô đều lấy được — 12
+ô đó chỉ là **RỖNG** (vùng nông thôn ở rìa hộp bao, không có quán nào). Nay log phân biệt
+rõ "ô RỖNG" và "ô LỖI", và cảnh báo riêng khi thật sự có ô lỗi.
+
+**Soát ảnh món — 4 món đang hiện ảnh SAI:**
+
+| Món | Đang hiện ảnh của | |
+|---|---|---|
+| Lẩu gà lá é | bài "Tuy Hoà (thành phố)" | **ảnh bãi biển** |
+| Trà đào cam sả | bài "Lào Cai" | ảnh một tỉnh miền núi |
+| Sữa chua trân châu | bài "Hoa Kỳ" | ảnh nước Mỹ |
+| Bánh xèo tôm nhảy | bài "Quy Nhơn" | ảnh một thành phố |
+
+Nguyên nhân: `find_dish_images.py` hỏi Wikipedia "bài nào khớp tên món nhất" rồi lấy ảnh
+đại diện của bài đó. Món là ĐẶC SẢN vùng nào thì máy tìm kiếm chấm bài về vùng đó cao nhất.
+
+- [x] `scripts/audit_dish_images.py` — soát bằng `description` (mô tả ngắn Wikidata),
+      loại bài mô tả một nơi chốn/con người. Đã gỡ 4 ảnh sai (`--clear`).
+- [x] Chặn ngay tại nguồn: `find_dish_images.py` nay từ chối bài không phải món ăn.
+- ⚠️ **Hai luật đã phải trả giá mới có** (lần chạy đầu báo nhầm 5/9 món):
+      chỉ xét `description` chứ không xét tóm tắt · khớp TỪ NGUYÊN VẸN qua
+      `contains_phrase` — khớp chuỗi con thì "song" nằm trong "rau sống" và món salad bị
+      chấm là "con sông". Đúng lỗi kinh điển ở CLAUDE.md mục 4.5, vừa tái diễn.
+
+### Đổi mật khẩu khi đang đăng nhập + 2 lỗi vận hành (2026-08-23)
+
+- [x] **`POST /auth/change-password`** + ô nhập ở tab Cài đặt. **Vẫn hỏi mật khẩu hiện tại**
+      dù đã có token: token sống 24 giờ trong trình duyệt, ai mượn được máy là chiếm được
+      tài khoản. 5 test. Câu trả về nói rõ giới hạn: máy khác vẫn dùng được tới khi token
+      hết hạn (thu hồi thật cần cột `token_version` — đổi lược đồ, phải chốt trước).
+- [x] **Sửa lỗi `.gitignore` làm frontend KHÔNG BUILD ĐƯỢC khi clone về.**
+      Dòng `lib/` (chép từ mẫu .gitignore của Python) khớp MỌI thư mục tên `lib` ở mọi độ
+      sâu, và trong dự án chỉ có đúng hai thư mục như vậy — cả hai đều là MÃ NGUỒN:
+      `frontend/apps/{client,admin}/src/shared/lib/` (session.ts, tokenStorage.ts).
+      Nay là `/lib/` (chỉ ở gốc). Thêm `*.tsbuildinfo` vào .gitignore.
+- [x] **Sửa 8 script chết giữa chừng trên PowerShell.** Console Windows mặc định cp1252,
+      in chữ tiếng Việt là `UnicodeEncodeError` và script dừng ngang. `data_report.py`
+      chết đúng ở dòng `additionalInfo/Bầu không khí`. Nay tất cả đều ép stdout về UTF-8.
+
+### Quán yêu thích · lượt khám phá · cấp độ · huy hiệu (2026-08-23)
+
+**Nút thắt phải gỡ trước:** `POST /interactions` chỉ ghi `session_id` — mã ngẫu nhiên của
+một tab trình duyệt, đổi mỗi lần xoá dữ liệu. Vì vậy KHÔNG có cách nào đếm "người này đã
+khám phá bao nhiêu quán", và đó là lý do bốn con số trên bản thiết kế (27·15·18·5) không
+thể dựng được. Nay `InteractionEvent` có thêm `user_id`.
+
+- [x] **`user_id` LẤY TỪ TOKEN, không nhận từ body.** Có test khoá: kẻ gian gửi
+      `user_id` của người khác trong JSON thì điểm vẫn rơi vào chủ của token.
+- [x] **Khách chưa đăng nhập VẪN ghi được tương tác** (`get_optional_user` không bao giờ
+      ném lỗi) — đó là nguồn nhãn huấn luyện và nguồn của tính năng báo đóng cửa.
+      Token hết hạn cũng coi như khách, KHÔNG trả 401: chặn ghi nhật ký vì một chuyện
+      chẳng liên quan chỉ làm client hiện lỗi ở chỗ vô nghĩa.
+- [x] **Bảng `saved_items`** trong `moodbite_users.db` (CÙNG file với tài khoản, vì cả hai
+      là dữ liệu GỐC — `moodbite.db` là dữ liệu dẫn xuất và tài liệu còn khuyến khích xoá
+      đi dựng lại). Một bảng cho cả quán lẫn món, phân biệt bằng `item_type`.
+- [x] **`GET/POST/DELETE /me/favorites` · `GET /me/stats`** — không endpoint nào nhận
+      `user_id` từ client. Có test: A không đọc và không xoá được mục của B.
+- [x] **Khách lưu ở máy, đăng nhập thì ĐƯỢC ĐẨY LÊN server rồi xoá bản cục bộ.** Không làm
+      bước này thì người dùng lưu 5 món, đăng ký tài khoản, và thấy danh sách trống —
+      mất dữ liệu ngay tại bước ta đang mời họ đăng ký.
+- [x] **Bảng điểm** (`domain/services/gamification.py`, thuần Python):
+      xem quán mới **+2** · chỉ đường **+3** · đánh giá **+3** · lưu **+5** ·
+      báo quán đóng cửa **+10**.
+      Đóng góp cho cộng đồng đáng giá hơn tiêu thụ — đó là lý do báo đóng cửa gấp 5 lần.
+- [x] **ĐẾM THỨ KHÁC NHAU, KHÔNG ĐẾM SỐ LẦN BẤM.** Xem lại cùng một quán 20 lần vẫn chỉ
+      được tính 1 (có test). Không có luật này thì cấp độ chỉ đo được ai bấm F5 nhiều hơn.
+      Lượt `save` cố ý KHÔNG tính ở bộ đếm — số mục đã lưu lấy từ bảng `saved_items`, nếu
+      không thì lưu rồi bỏ lưu vẫn còn điểm.
+- [x] **5 cấp:** Người mới (0) · Foodie Explorer (50) · Thổ địa Hà Nội (150) ·
+      Sành ăn (400) · Huyền thoại ẩm thực (900). Khoảng cách tăng dần (50→100→250→500):
+      thưởng dày ở đầu, thưa dần về sau. Thanh tiến độ tính TRONG khoảng giữa hai cấp.
+- [x] **5 huy hiệu**, mỗi cái kiểm chứng được từ số đếm thật. Huy hiệu chưa đạt vẫn hiện
+      ở dạng mờ kèm tiến độ ("0/20") — chỉ hiện cái đã đạt thì người mới nhìn vào ô trống.
+- [x] **Bộ đếm dựng lại từ nhật ký lúc khởi động** (giống bộ đếm báo đóng cửa), nên khởi
+      động lại KHÔNG xoá cấp độ của ai.
+- [x] 32 test mới (18 domain + 14 HTTP). **Test khoá quan trọng nhất:** tài khoản mới thì
+      mọi số phải là **0 thật** — bản thiết kế vẽ 27·15·18·5 và 320/500 điểm, chép mấy con
+      số đó vào code là nói dối người dùng.
+
+### Trang tài khoản dựng lại theo `design/profile.png` (2026-08-23)
+
+- [x] **Thanh bên 7 mục, bấm được hết:** Tổng quan · Hồ sơ cá nhân · Sở thích & khẩu vị ·
+      Quán & món đã lưu · Đã xem gần đây · Cấp độ & huy hiệu · Cài đặt.
+- [x] **Tab nằm trên URL** (`/account?tab=saved`) chứ không phải state trong bộ nhớ — nút
+      Back chạy đúng và gửi link tới đúng mục được.
+- [x] **Bốn ô số liệu** đúng như thiết kế, và cả bốn đều là số đếm thật.
+- [x] Cột phải: thẻ **Cấp độ** + lưới **Huy hiệu**, đúng vị trí trong bản thiết kế.
+
+**BA mục trong bản thiết kế CHƯA dựng — thiếu DỮ LIỆU, không phải thiếu thời gian:**
+
+| Mục | Thiếu gì |
+|---|---|
+| "Địa chỉ của tôi" | Không có bảng địa chỉ, không có endpoint. Vị trí hiện lấy từ trình duyệt |
+| "Bộ sưu tập của tôi" | Cần bảng `collections` + endpoint. Khác "đã lưu" ở chỗ người dùng tự đặt tên nhóm — là một tính năng riêng |
+| "Thông báo" (chuông đỏ) | Không có nguồn thông báo nào. Cái chuông sẽ luôn trống |
+
+### Song ngữ Việt–Anh (2026-08-23)
+
+- [x] **Một file từ điển duy nhất**: `frontend/apps/client/src/shared/i18n/tu_dien.ts`.
+      Bản `en` khai kiểu `Record<Khoa, string>` nên **thiếu một câu là lỗi biên dịch** —
+      không thể quên dịch mà vẫn build được.
+- [x] Ô chọn VI/EN ở thanh trên và trong Cài đặt; nhớ lựa chọn ở localStorage; cập nhật
+      `<html lang>` (trình đọc màn hình dựa vào đó để chọn giọng).
+- [x] **Mặc định LUÔN là tiếng Việt**, cố ý KHÔNG đoán theo `navigator.language`: nhiều
+      máy ở Việt Nam cài Windows bản tiếng Anh, buổi bảo vệ mở ra thành giao diện tiếng
+      Anh là hỏng việc.
+- [x] 6 test: bản tiếng Anh không còn sót chữ tiếng Việt · không câu nào rỗng ·
+      placeholder `{name}` phải giống nhau ở cả hai bản.
+- ⬜ **KHÔNG dịch được:** tên món, tên quán, địa chỉ, câu ngữ cảnh ("buổi tối", "trời
+      mưa"), thông báo lỗi từ API, giới thiệu món lấy từ Wikipedia tiếng Việt. Tất cả do
+      **backend** sinh bằng tiếng Việt — dịch nốt nghĩa là làm i18n ở backend, việc riêng
+      và tốn hơn hẳn. Ô chọn ngôn ngữ nói rõ điều này ở `title`.
 
 ### Sửa lỗi vận hành + trang tài khoản vừa một màn hình (2026-08-22, tối)
 
@@ -812,108 +955,196 @@ tự động trong ToS** → không dùng. Phân tích đầy đủ: `docs/data_
 
 ---
 
+## 🎨 CẦN THIẾT KẾ BỔ SUNG (báo cáo 2026-08-23)
+
+Những màn hình dưới đây **chưa có bản thiết kế**, nên chưa dựng. Xếp theo mức đáng làm.
+
+| # | Màn hình | Vì sao cần | Backend đã sẵn sàng? |
+|---|---|---|---|
+| 1 | **Trang chi tiết QUÁN** (`/restaurants/:id`) | Hiện chi tiết quán chỉ là một panel trượt trong trang bản đồ — không gửi link được, không lưu được, không có địa chỉ riêng. Đây là lỗ hổng lớn nhất còn lại của giao diện | ✅ `GET /restaurants/{id}` đã có đủ review · ảnh · giá · giờ |
+| 2 | **Bộ lọc dạng ngăn kéo (drawer)** | Xem mục "Bộ lọc" bên dưới | ✅ không cần gì thêm |
+| 3 | **Thanh ☰ cho điện thoại** | Thanh trên hiện xếp dọc khi màn hình hẹp, dùng được nhưng chiếm chỗ | ✅ |
+| 4 | "Bộ sưu tập của tôi" | Có trong `design/profile.png` và trên thanh điều hướng của `design/Home.jpg` | ❌ cần bảng `collections` + endpoint |
+| 5 | "Địa chỉ của tôi" | Có trong `design/profile.png` | ❌ cần bảng địa chỉ |
+| 6 | "Thông báo" (chuông đỏ) | Có trong cả hai bản thiết kế | ❌ không có nguồn thông báo nào |
+| 7 | "Theo mood" · "Theo thời tiết" (trang riêng) | Có trên thanh điều hướng `design/Home.jpg` | 🟡 lọc được rồi, nhưng hiện nằm TRONG trang chủ |
+| 8 | "Blog" | Có trên thanh điều hướng | ❌ không có nội dung |
+
+**Đề xuất:** làm mục 1-3 trước — cả ba đều đã có sẵn dữ liệu, chỉ thiếu bản vẽ.
+Mục 4-8 cần quyết định có làm hay không TRƯỚC khi vẽ, vì mỗi mục kéo theo một phần backend.
+
+### 🖼️ Ảnh / icon còn thiếu — cần chủ dự án gửi
+
+Những chỗ này đang dùng **emoji tạm**. Emoji chạy được nhưng mỗi hệ điều hành vẽ một kiểu,
+và không khớp bộ nhận diện. Có file thì thay vào `frontend/design/attribute/` rồi chạy
+`python scripts/prepare_design_assets.py`.
+
+| Cần gì | Đang tạm dùng | Dùng ở đâu |
+|---|---|---|
+| **Bộ icon mood** (7 cái) | 🌶️ ☕ 😊 🍲 🌧️ 🔥 🍜 | hàng "Gợi ý nhanh theo mood" — *chủ dự án đang làm* |
+| **5 icon huy hiệu** (khối lục giác như thiết kế) | 🧭 👨‍🍳 📅 🗺️ 🛡️ | thẻ "Huy hiệu của bạn" |
+| **Icon ngôi sao cấp độ** | ⭐ | thẻ "Cấp độ của bạn" |
+| **Icon máy ảnh** trên ảnh đại diện | chữ "Tải ảnh lên" | thiết kế có nút máy ảnh tròn màu cam ở góc avatar |
+| **Khẩu hiệu bản tiếng Anh** | dựng bằng chữ hệ thống | trang chủ khi bật EN — bản tiếng Việt là ảnh, bản Anh chưa có |
+| **Ảnh nền trang đăng ký bản lớn** | 404×269 px (nhoè khi phóng to) | trang `/register` — bản đăng nhập là 1672×941 |
+| **6 icon "khám phá theo nhu cầu"** | 📍 🌙 🌅 🍢 🍜 🧊 | hàng "Khám phá theo nhu cầu" |
+
+### Bộ lọc — có cần một layout riêng không?
+
+**Kết luận: KHÔNG cần một TRANG riêng, nhưng CẦN đổi chỗ đặt.**
+
+Lý do không tách trang:
+- Chỉ có **21 điều khiển** (6 mood + 9 cách chế biến + 5 bữa + 1 bán kính). Đủ gọn cho
+  một khối, không cần cả một trang.
+- Lọc là việc **lặp**: bấm → nhìn kết quả → bấm tiếp. Tách sang trang riêng là cắt đứt
+  vòng lặp đó, người dùng phải đi đi về về.
+
+Nhưng chỗ đặt hiện tại **sai**: khối "Lọc chi tiết" đang nằm **DƯỚI** danh sách kết quả,
+nên muốn lọc phải cuộn xuống, bấm xong lại cuộn lên. Hai phương án:
+
+| Phương án | Mô tả | Ưu | Nhược |
+|---|---|---|---|
+| **A (đề xuất)** | Nút "Lọc" cạnh tiêu đề kết quả, bấm ra **ngăn kéo trượt từ phải** | Không chiếm chỗ; dùng chung một component cho cả máy tính lẫn điện thoại; giữ nguyên lưới món rộng | Phải bấm thêm một lần mới thấy bộ lọc |
+| B | Cột lọc cố định bên trái (kiểu trang thương mại điện tử) | Luôn nhìn thấy | Bóp lưới món còn ~70% bề ngang; trên điện thoại vẫn phải làm ngăn kéo — thành hai bản |
+
+**Chờ chủ dự án chọn A hay B trước khi dựng.** Không cần bản vẽ tay: cả hai đều dùng lại
+đúng các chip đang có, chỉ đổi vị trí.
+
+---
+
+## 📊 TIẾN ĐỘ — đánh giá thẳng thắn (2026-08-23)
+
+**Số liệu thật, không ước lượng cảm tính:**
+
+| Chỉ số | Giá trị |
+|---|---|
+| Ngày commit đầu tiên | 2026-07-29 |
+| Số commit | 112 |
+| Số ngày đã làm | ~26 ngày |
+| Test | 481 backend + 147 frontend = **628** |
+| Dữ liệu quán | 40.720 (Hà Nội) |
+| Danh mục món | 747 món · 92% có ảnh · 100% có giới thiệu |
+| `python scripts/verify.py` | **9/9 đạt** |
+
+### Đã xong bao nhiêu phần trăm?
+
+Chia theo hạng mục của đề án, chấm theo *chạy được thật*, không theo *đã viết code*:
+
+| Hạng mục | Xong | Ghi chú |
+|---|---:|---|
+| Backend + API | **95%** | thiếu `POST /admin/restaurants` |
+| Dữ liệu quán | **85%** | đủ tên/toạ độ/loại; thiếu sao·giá·giờ (2-4%) |
+| Danh mục món | **95%** | |
+| Lớp 1 phân cụm | **100%** | |
+| Lớp 2 tìm kiếm ngữ nghĩa | **100%** | |
+| Lớp 3 xếp hạng | **60%** | công thức trọng số chạy tốt; **mô hình HỌC thì chưa** |
+| Lớp 4 tóm tắt review | **100%** | 851/1310 quán |
+| Lớp 5 gợi ý món | **100%** | |
+| Giao diện người dùng | **85%** | còn trang chi tiết quán riêng, bản mobile |
+| Tài khoản + cá nhân hoá | **90%** | còn xác minh email, thu hồi token |
+| Trang quản trị | **70%** | code xong, **chưa bật trên máy**, chưa thêm mới quán được |
+| Triển khai (deploy) | **10%** | mới có `Procfile`, chưa deploy lần nào |
+| Báo cáo / tài liệu bảo vệ | **?** | ngoài phạm vi file này — **tự đánh giá** |
+
+**Trung bình có trọng số: khoảng 82–85%.**
+
+### Bao giờ xong?
+
+Với nhịp hiện tại (~4 commit/ngày, mỗi phiên làm xong 1-2 hạng mục lớn):
+
+| Mốc | Còn lại | Ước tính |
+|---|---|---|
+| Bật quản trị + thêm quán mới | 4 việc cấu hình + 2 việc code | **1 ngày** |
+| Trang chi tiết quán + bản mobile | | **1-2 ngày** |
+| Deploy thật (Render/Fly free tier) | | **1 ngày** |
+| Bổ sung dữ liệu Apify | phụ thuộc credit | **1 buổi/đợt** |
+| Lớp 3 mô hình học | **CHẶN — chờ dữ liệu tương tác** | xem cảnh báo dưới |
+
+➡️ **Phần LÀM ĐƯỢC còn lại: 3–5 ngày làm việc.**
+➡️ **Không tính Lớp 3 học máy** — mục đó không phụ thuộc vào tốc độ code.
+
+### ⚠️ RỦI RO LỚN NHẤT — nói thẳng
+
+**`interactions.jsonl` mới có 1 bản ghi.**
+
+Đề án hứa Lớp 3 là *mô hình xếp hạng học có giám sát*. Muốn học thì phải có nhãn, mà nhãn
+chính là file này. Với 1 bản ghi thì **không thể huấn luyện, cũng không thể đánh giá bằng
+NDCG/Precision@K** — hai thứ đề án mục 8 nêu đích danh.
+
+Đây **không phải** vấn đề lập trình (code ghi nhãn đã chạy từ lâu). Đây là vấn đề **chưa
+có ai dùng app**. Ba đường ra, chọn sớm chừng nào tốt chừng đó:
+
+1. **Nhờ 20-30 người dùng thử 15 phút** → vài trăm tương tác → đủ để huấn luyện một mô
+   hình nhỏ và đo được. *Rẻ nhất, thật nhất, và làm được ngay tuần này.*
+2. **Sinh nhãn mô phỏng** — huấn luyện được, nhưng **phải nói rõ trong báo cáo là mô
+   phỏng**. Giấu đi là gian lận học thuật.
+3. **Đổi cách trình bày**: nói thẳng Lớp 3 hiện là công thức trọng số giải thích được,
+   và mô hình học là hướng phát triển. Trung thực, nhưng mất một điểm mạnh của đề án.
+
+**Khuyến nghị: chọn (1), và chọn NGAY.** Càng để muộn càng không kịp thu dữ liệu trước
+ngày bảo vệ. Mọi thứ khác trong danh sách đều làm được trong vài ngày; riêng việc này cần
+NGƯỜI THẬT và cần THỜI GIAN TRÔI QUA — không rút ngắn được bằng cách code nhanh hơn.
+
+### Có đang chậm tiến độ không?
+
+**Không chậm về khối lượng code** — 26 ngày, 112 commit, 628 test, 9/9 mục kiểm đạt là
+nhịp tốt.
+
+**Chậm ở đúng một chỗ: thu thập tương tác người dùng.** Và đó lại là thứ chặn phần "học
+máy" — phần dễ bị hỏi nhất khi bảo vệ. Nhắc lại ở mỗi lần cập nhật file này cho tới khi
+`interactions.jsonl` có ít nhất **500 bản ghi từ người thật**.
+
+---
+
 ## 🚧 VIỆC TIẾP THEO
 
 > **Quy ước:** mục dưới đây CHỈ chứa việc **chưa làm hoặc chưa xong**.
 > Việc đã xong nằm ở phần ✅ ĐÃ LÀM XONG bên trên — không lặp lại ở đây.
 
-### Tổng hợp: 14 việc chưa xong, chia theo thứ đang CHẶN chúng
-
-*(16 ô `[ ]` trong file này — 14 việc thật, cộng 2 dòng ⚠️ là ghi chú ràng buộc chứ
-không phải việc phải làm.)*
-
 | # | Việc | Chặn bởi | Ai làm được |
 |---|---|---|---|
-| 1 | Dựng lại CSDL SQLite | — | **làm ngay được** |
-| 2 | Sinh tài khoản quản trị | — | **làm ngay được** |
-| 3 | Đặt 3 biến `MOODBITE_ADMIN_*` | — | **làm ngay được** |
-| 4 | Đặt `MOODBITE_STORAGE=sqlite` | — | **làm ngay được** |
-| 5 | Tóm tắt review trích rút | — | **lập trình được** |
-| 6 | Cảnh báo tỷ lệ phủ 12% của Lớp 4 | mục 5 | lập trình được |
-| 7 | `POST /admin/restaurants` (thêm quán mới) | — | **lập trình được** |
-| 8 | Form thêm quán ở `apps/admin` | mục 7 | lập trình được |
-| 9 | Apify free tier hàng tháng | tài khoản + credit | cần người thật |
-| 10 | Nhập tay 50-100 quán Hoàn Kiếm | mục 1-4 | cần người thật |
-| 11 | Google Places API | **cần thẻ thanh toán** | ⏸️ để sau |
-| 12 | Huấn luyện mô hình xếp hạng | `interactions.jsonl` = **0 bản ghi** | ⛔ chờ dữ liệu |
-| 13 | Đánh giá NDCG / Precision@K | mục 12 | ⛔ chờ dữ liệu |
-| 14 | Bật thời tiết + siết CORS khi deploy | chưa deploy | cần môi trường thật |
+| 1 | Dựng lại CSDL SQLite (`build_sqlite.py`) | — | **làm ngay được (cấu hình)** |
+| 2 | Sinh tài khoản quản trị (`make_admin_password.py`) | — | **làm ngay được (cấu hình)** |
+| 3 | Đặt 3 biến `MOODBITE_ADMIN_*` | — | **làm ngay được (cấu hình)** |
+| 4 | Đặt `MOODBITE_STORAGE=sqlite` | — | **làm ngay được (cấu hình)** |
+| 5 | `POST /admin/restaurants` (thêm quán mới) | — | **lập trình được** |
+| 6 | Form thêm quán ở `apps/admin` | mục 5 | lập trình được |
+| 7 | Trang chi tiết QUÁN riêng (hiện chỉ có panel trong bản đồ) | — | lập trình được |
+| 8 | Bản mobile: thanh ☰ cho `SiteHeader` | — | lập trình được |
+| 9 | Xác minh email lúc đăng ký | — | lập trình được |
+| 10 | Thu hồi token khi đăng xuất (cột `token_version`) | **cần chốt đổi lược đồ** | chờ quyết định |
+| 11 | Bổ sung dữ liệu qua Apify | tài khoản + credit | cần người thật — xem `docs/apify_huong_dan.md` |
+| 12 | Nhập tay 50-100 quán Hoàn Kiếm | mục 1-4 | cần người thật |
+| 13 | **Thu tương tác từ người dùng thật** | **cần người thật** | ⬅ **ƯU TIÊN CAO NHẤT** |
+| 14 | Huấn luyện mô hình xếp hạng | mục 13 | ⛔ chờ dữ liệu |
+| 15 | Đánh giá NDCG / Precision@K | mục 14 | ⛔ chờ dữ liệu |
+| 16 | Deploy + bật `MOODBITE_ENABLE_WEATHER=1` + siết CORS | chưa deploy | cần môi trường thật |
+| 17 | Google Places API | **cần thẻ thanh toán** | ⏸️ để sau |
 
-**Đọc nhanh:** 4 việc đầu chỉ là **cấu hình** (vài phút). 4 việc tiếp là **lập trình
-được ngay**. 6 việc còn lại chờ tiền, người, hoặc dữ liệu — không phải chờ code.
+**Đọc nhanh:** 4 việc đầu là **cấu hình** (vài phút). Mục 5-9 **lập trình được ngay**
+(~3 ngày). Mục 13 là thứ **quan trọng nhất và không code thay được**.
 
-### 1. Mở rộng đánh giá — MIỄN PHÍ, không cần Google Places
-Hiện 23.2% quán có đánh giá. **Đây KHÔNG còn là nút thắt**: Lớp 1 (phân cụm) và Lớp 2
-(tìm kiếm ngữ nghĩa) đã chạy được với dữ liệu hiện có.
+### Bật quyền quản trị — chỉ là cấu hình
 
-Cách miễn phí, theo thứ tự đáng làm:
+```powershell
+python scripts/check_permissions.py
+python scripts/build_sqlite.py
+python scripts/make_admin_password.py
+```
 
-- [ ] **Apify free tier mỗi tháng** — credit miễn phí được cấp lại theo chu kỳ. Mỗi đợt
-      ~500 quán. Chạy 3-4 tháng là phủ xong trung tâm Hà Nội. Cấu hình + toạ độ vùng đã
-      có sẵn ở mục "Vì sao đánh giá vẫn chỉ 23.2%" bên trên.
-- [ ] **Tự nhập tay quán trọng điểm** — 50-100 quán nổi tiếng ở Hoàn Kiếm. Chậm nhưng
-      miễn phí và chất lượng cao.
-      ✅ **KHÔNG CÒN BỊ CHẶN** từ 2026-08-17: trang Admin đã chạy (`npm run dev:admin`),
-      sửa được tên/loại hình/địa chỉ/giá/điện thoại/website. Đây giờ là việc NHẬP LIỆU
-      thủ công, không phải việc lập trình.
-      ⚠️ Admin CHƯA thêm mới được quán, mới chỉ SỬA quán đã có. Cần thêm `POST
-      /api/v1/admin/restaurants` nếu muốn nhập quán hoàn toàn mới.
-- [ ] ⏸️ Google Places API — **để sau**, chỉ làm nếu có thẻ thanh toán. Chỗ cắm adapter
-      đã sẵn sàng (`data_pipeline/sources/`), viết thêm 1 file là chạy.
+Script cuối in sẵn ba dòng biến môi trường cần đặt. Mẫu đầy đủ ở `.env.example`
+(để giá trị thật vào `.env.local`, **không** vào `.env.example` — file đó được commit).
+
+### Mở rộng dữ liệu — miễn phí trước, trả phí sau
+
+- [ ] **Apify free tier mỗi tháng** — xem hướng dẫn đầy đủ kèm thông số ở
+      **`docs/apify_huong_dan.md`** (2026-08-23). Ưu tiên **giờ mở cửa · sao · giá**,
+      không phải tìm quán mới (Overture đã cho 36.176 quán miễn phí).
+- [ ] **Nhập tay quán trọng điểm** ở Hoàn Kiếm qua trang admin.
+- [ ] ⏸️ Google Places API — chỉ khi có thẻ thanh toán.
 
 > ⚠️ ĐỪNG scrape ShopeeFood/GrabFood/Foody/Facebook để lách — vi phạm ToS, rất dễ bị hỏi
 > khi bảo vệ. Xem `docs/data_sources.md`.
-
-### 2. Bật quyền quản trị trên máy đang dùng — CHỈ LÀ CẤU HÌNH, không phải lập trình
-
-Code đã xong và đã chạy thật. Nhưng **quyền chưa được đặt trên máy này**, nên
-`/api/v1/admin/*` đang trả 503 (đúng thiết kế fail-closed). Kiểm bất cứ lúc nào:
-
-```
-python scripts/check_permissions.py
-```
-
-- [ ] Dựng CSDL ghi được: `python scripts/build_sqlite.py` *(đã có file, chỉ cần dựng lại
-      sau mỗi lần chạy data_pipeline)*
-- [ ] Sinh tài khoản: `python scripts/make_admin_password.py`
-- [ ] Đặt 3 biến `MOODBITE_ADMIN_USER` / `_PASSWORD_HASH` / `_SECRET` (script in sẵn lệnh)
-- [ ] Đặt `MOODBITE_STORAGE=sqlite` rồi khởi động lại backend
-
-Mẫu đầy đủ ở `.env.example`.
-
-### 3. Lớp 4 — tóm tắt review (đã đo, CHƯA làm)
-
-Kết luận cũ "review TB 106 ký tự, quá ngắn" đo SAI ĐƠN VỊ — nó đo từng review lẻ, trong
-khi tóm tắt làm việc trên TOÀN BỘ review của một quán gộp lại.
-
-Đo lại bằng `python scripts/review_report.py` (1310 quán có chi tiết):
-
-| Chỉ số | Giá trị |
-|---|---|
-| Một review lẻ | TB 122.8 ký tự · trung vị 63 — **vẫn ngắn** |
-| **Gộp theo quán** | **TB 666.2 ký tự · trung vị 468 · p90 1556** |
-| Số review mỗi quán | TB 5.4 · trung vị 6 |
-| **Quán đáng tóm tắt** (≥300 ký tự gộp và ≥5 review) | **592 quán = 45.2%** số quán có chi tiết |
-
-- [ ] Làm tóm tắt **trích rút** (chọn câu tiêu biểu), KHÔNG dùng LLM trả phí
-- [ ] ⚠️ Chỉ phủ được 592/4938 quán (12%) — phải nói rõ tỷ lệ phủ, đây là lớp LÀM GIÀU
-
-### 4. Admin thêm mới quán — CHƯA có
-
-Hiện admin chỉ SỬA được quán đã tồn tại.
-
-- [ ] `POST /api/v1/admin/restaurants` để nhập quán hoàn toàn mới
-- [ ] Form thêm quán ở `apps/admin` (cần tối thiểu: tên + toạ độ)
-
-### 5. Lớp 3 đầy đủ — CHẶN, chờ dữ liệu tương tác
-- [ ] Huấn luyện mô hình xếp hạng thay công thức trọng số
-- [ ] Đánh giá bằng NDCG / Precision@K (đề án mục 8)
-- [ ] ⚠️ Chỉ làm khi có nhãn thật — `interactions.jsonl` hiện **0 bản ghi**.
-      Huấn luyện khi chưa có nhãn chỉ tạo ảo giác chính xác.
-
-### 6. Triển khai thật — chưa deploy
-- [ ] Bật `MOODBITE_ENABLE_WEATHER=1` trên môi trường thật (code + test đã xong)
-- [ ] Đặt `MOODBITE_CORS_ORIGINS` cụ thể thay vì `*`
 
 ---
 
@@ -932,51 +1163,71 @@ Hiện admin chỉ SỬA được quán đã tồn tại.
 
 ## 🗺️ Bản đồ mã nguồn
 
+> 📖 **Bản đầy đủ, giải thích từng file và cách mở từng màn hình:
+> [`docs/BAN_DO_DU_AN.md`](docs/BAN_DO_DU_AN.md)** (viết 2026-08-23).
+> Dưới đây chỉ là bản rút gọn.
+
 ```
-src/
+src/                                 BACKEND — Clean Architecture
 ├── domain/                          QUY TẮC NGHIỆP VỤ — thuần Python, không framework
-│   ├── entities/                      Restaurant, Dish, InteractionEvent
+│   ├── entities/                      Restaurant · Dish · InteractionEvent · User · SavedItem
 │   ├── value_objects/
 │   │   ├── mood.py                    bảng điểm mood ⭐
 │   │   ├── context_signal.py          thời tiết/giờ ảnh hưởng xếp hạng thế nào ⭐
 │   │   ├── location.py                toạ độ + haversine
-│   │   └── text.py                    bỏ dấu, khớp từ nguyên vẹn ⭐
+│   │   ├── price.py · opening_hours.py
+│   │   └── text.py                    bỏ dấu, khớp từ nguyên vẹn ⭐⭐
 │   └── services/
-│       ├── search_ranking.py          CÔNG THỨC XẾP HẠNG ⭐⭐
-│       └── text_relevance.py          khớp câu tự do với quán ⭐
+│       ├── search_ranking.py          CÔNG THỨC XẾP HẠNG QUÁN ⭐⭐
+│       ├── dish_ranking.py            CÔNG THỨC XẾP HẠNG MÓN ⭐⭐
+│       ├── dish_matching.py           suy món từ tên quán ⭐
+│       ├── text_relevance.py          khớp câu tự do với quán ⭐
+│       ├── closure_reports.py         ngưỡng báo quán đóng cửa
+│       ├── gamification.py            ĐIỂM · CẤP ĐỘ · HUY HIỆU ⭐ (2026-08-23)
+│       └── activity_tally.py          đếm lượt khám phá theo NGƯỜI (2026-08-23)
 ├── application/
 │   ├── ports/                         hợp đồng (Protocol) — không có code thật
-│   └── use_cases/                     search_restaurants ⭐, log_interaction, get_restaurant_details
+│   └── use_cases/                     search_restaurants ⭐ · suggest_dishes ⭐ ·
+│                                      find_restaurants_for_dish · log_interaction ·
+│                                      manage_account · manage_favorites · get_user_stats
 ├── infrastructure/
-│   ├── repositories/                  CSV/JSON → entity (pandas dừng ở đây)
-│   ├── adapters/                      thời tiết Open-Meteo, model ML
-│   ├── config/settings.py             mọi đường dẫn + biến môi trường ⭐
-│   └── ai/                            script train (tạm dừng)
+│   ├── repositories/                  CSV/JSON/SQLite → entity (pandas dừng ở đây)
+│   ├── adapters/                      thời tiết Open-Meteo · TF-IDF · model ML
+│   ├── auth/                          băm mật khẩu · token HMAC · giới hạn tần suất
+│   ├── notifications/                 gửi thư SMTP
+│   └── config/settings.py             mọi đường dẫn + biến môi trường ⭐
 └── presentation/api/
-    ├── dependencies.py                lắp mọi thứ lại ⭐
+    ├── dependencies.py                LẮP MỌI THỨ LẠI ⭐⭐ (đọc file này trước tiên)
     ├── schemas.py                     hợp đồng với frontend ⭐
     ├── envelope.py                    {data}/{error} + mã lỗi
     ├── error_handlers.py              lỗi → mã HTTP
-    └── routers/                       search, restaurants, interactions, meta
+    └── routers/                       search · dishes · restaurants · interactions ·
+                                       meta · auth · me · admin
 
 frontend/                            Monorepo npm workspaces — React + TS + FSD
-├── packages/
-│   ├── api-client/src/              DÙNG CHUNG cho client + admin (admin chưa dựng)
-│   │   ├── schema.d.ts                SINH TỰ ĐỘNG từ openapi.json — KHÔNG sửa tay
-│   │   ├── http.ts                    nơi DUY NHẤT biết envelope {data}/{error} ⭐
-│   │   └── endpoints.ts               các endpoint, gắn kiểu từ schema ⭐
-│   └── ui/src/index.ts              cố ý còn rỗng — chờ apps/admin
+├── packages/api-client/src/         DÙNG CHUNG cho app client và app admin
+│   ├── schema.d.ts                    SINH TỰ ĐỘNG từ openapi.json — KHÔNG sửa tay
+│   ├── http.ts                        nơi DUY NHẤT biết envelope {data}/{error} ⭐
+│   ├── endpoints.ts · auth.ts · admin.ts
 └── apps/client/src/
-    ├── app/                         App.tsx, styles.css
-    ├── pages/search/                SearchPage.tsx
-    ├── widgets/                     restaurant-list, restaurant-map (Leaflet)
+    ├── app/                         App.tsx · routes.tsx · layout/ · styles/
+    │   └── styles/                    brand · auth · home · account
+    ├── pages/                       home · dish · search · account · login · register ·
+    │                                forgot-password · reset-password · not-found
+    ├── widgets/                     site-header · home-hero · mood-quick-pick ·
+    │                                explore-needs · dish-list · restaurant-list ·
+    │                                restaurant-map · user-progress · auth-layout
     ├── features/                    MỘT hành động = MỘT feature
-    │   ├── search-restaurants/        model/useSearch.ts ⭐ + ui/SearchForm.tsx
-    │   ├── pick-location/             model/useUserLocation.ts
-    │   ├── view-restaurant-detail/    model/useRestaurantDetail.ts
-    │   └── log-interaction/           model/useInteractionLogger.ts
-    ├── entities/restaurant/         model/format.ts (quy tắc HIỂN THỊ) ⭐ + ui/RestaurantCard.tsx
-    └── shared/                      api/ (dựng client), config/env.ts, lib/session.ts
+    │   ├── suggest-dishes/            model/useDishSuggestions.ts ⭐ + ui/DishFilters.tsx
+    │   ├── search-restaurants/        model/useSearch.ts ⭐
+    │   ├── save-favorite/             model/useFavorites.ts ⭐ (máy ↔ server)
+    │   ├── change-avatar/             4 lớp chặn bảo mật ⭐
+    │   ├── change-password/           đổi mật khẩu khi đang đăng nhập
+    │   ├── taste-preferences · recent-dishes · report-closure ·
+    │   ├── pick-location · switch-theme · log-interaction ·
+    │   └── auth-login · auth-register · auth-recover-password
+    ├── entities/                    restaurant (format ⭐) · dish · user (session, stats)
+    └── shared/                      api/ · config/ · lib/ · ui/ · i18n/ (từ điển VI–EN ⭐)
 ```
 
 > Bản frontend JavaScript cũ nằm ở `archive/frontend-v1/` — **không dùng nữa**, giữ lại

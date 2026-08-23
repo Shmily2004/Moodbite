@@ -19,6 +19,7 @@ from src.presentation.api.routers import (
     auth,
     dishes,
     interactions,
+    me,
     meta,
     restaurants,
     search,
@@ -80,6 +81,7 @@ def create_app(
     # Tài khoản người dùng. `/register` và `/login` công khai (chúng là nơi phát token),
     # `/me` tự yêu cầu token qua `Depends(get_current_user)`.
     app.include_router(auth.router, prefix=API_PREFIX)
+    app.include_router(me.router, prefix=API_PREFIX)
     # Quản trị: `public_router` chỉ có /login (nơi phát token), `router` yêu cầu token.
     app.include_router(admin.public_router, prefix=API_PREFIX)
     app.include_router(admin.router, prefix=API_PREFIX)
@@ -109,3 +111,4 @@ def create_app(
 
 # CỐ Ý không tạo `app = create_app()` ở cấp module: làm vậy thì mỗi lần import file này
 # (kể cả trong test) đều nạp toàn bộ 4170 quán. Server tạo app ở app.py.
+

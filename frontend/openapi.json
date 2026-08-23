@@ -534,7 +534,7 @@
           "interactions"
         ],
         "summary": "Log Interaction",
-        "description": "Ghi một sự kiện tương tác gắn với một nhà hàng cụ thể.\n\n`is_positive_signal` được tính Ở SERVER theo quy tắc thống nhất, không để client tự\nsuy luận - nếu không, nhãn huấn luyện sẽ nhiễu.",
+        "description": "Ghi một sự kiện tương tác gắn với một nhà hàng cụ thể.\n\n`is_positive_signal` được tính Ở SERVER theo quy tắc thống nhất, không để client tự\nsuy luận - nếu không, nhãn huấn luyện sẽ nhiễu.\n\nKHÁCH VẪN GỌI ĐƯỢC. Đã đăng nhập thì tương tác được gắn thêm `user_id` để đếm \"lượt\nkhám phá\" cho cấp độ. `user_id` lấy TỪ TOKEN, không lấy từ body — nếu không thì ai\ncũng tự cộng điểm cho mình bằng cách gọi thẳng API.",
         "operationId": "log_interaction_api_v1_interactions_post",
         "requestBody": {
           "content": {
@@ -821,6 +821,48 @@
         }
       }
     },
+    "/api/v1/auth/change-password": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Change Password",
+        "description": "Đổi mật khẩu khi ĐANG đăng nhập. Khác `/reset-password` (dùng token trong thư).\n\nVẫn phải nhập mật khẩu HIỆN TẠI dù đã có token — xem `ChangePasswordUseCase`.\nGiới hạn tần suất dùng chung bộ đếm với đăng nhập: đây cũng là chỗ đoán mật khẩu được.",
+        "operationId": "change_password_api_v1_auth_change_password_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/auth/me": {
       "get": {
         "tags": [
@@ -836,6 +878,332 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/favorites": {
+      "get": {
+        "tags": [
+          "me"
+        ],
+        "summary": "List Favorites",
+        "description": "Danh sách quán & món đã lưu của chính chủ, MỚI NHẤT ĐỨNG ĐẦU.",
+        "operationId": "list_favorites_api_v1_me_favorites_get",
+        "parameters": [
+          {
+            "name": "item_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Lọc theo loại: restaurant | dish. Bỏ trống = cả hai.",
+              "title": "Item Type"
+            },
+            "description": "Lọc theo loại: restaurant | dish. Bỏ trống = cả hai."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FavoritesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "RESTAURANT_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "DATA_NOT_READY",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "me"
+        ],
+        "summary": "Save Favorite",
+        "description": "Lưu một quán hoặc một món.\n\nLưu lại thứ đã lưu KHÔNG phải lỗi — chỉ cập nhật tên và giữ nguyên thứ tự. Người dùng\nbấm tim hai lần vì mạng chậm không đáng nhận một thông báo lỗi.",
+        "operationId": "save_favorite_api_v1_me_favorites_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveFavoriteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedItemResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "RESTAURANT_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "DATA_NOT_READY",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/favorites/{item_type}/{item_id}": {
+      "delete": {
+        "tags": [
+          "me"
+        ],
+        "summary": "Remove Favorite",
+        "description": "Bỏ lưu.\n\nBỏ thứ vốn không có trong danh sách vẫn trả 200. Đây là thao tác ĐƯA VỀ TRẠNG THÁI\nMONG MUỐN (\"tôi không muốn lưu cái này nữa\") — kết quả cuối cùng giống hệt nhau, nên\n404 chỉ làm client phải viết thêm nhánh xử lý cho một tình huống vô hại.",
+        "operationId": "remove_favorite_api_v1_me_favorites__item_type___item_id__delete",
+        "parameters": [
+          {
+            "name": "item_type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Item Type"
+            }
+          },
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Item Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "RESTAURANT_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "DATA_NOT_READY",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/stats": {
+      "get": {
+        "tags": [
+          "me"
+        ],
+        "summary": "User Stats",
+        "description": "Số liệu hoạt động + cấp độ + huy hiệu của chính chủ.\n\nTài khoản mới thì MỌI SỐ ĐỀU LÀ 0 và cấp là 1 — đó là sự thật, và giao diện phải hiện\nđúng như vậy. Bản thiết kế vẽ \"320/500 điểm\" chỉ là minh hoạ.",
+        "operationId": "user_stats_api_v1_me_stats_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserStatsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "RESTAURANT_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "DATA_NOT_READY",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
                 }
               }
             }
@@ -1515,6 +1883,70 @@
         ],
         "title": "AuthResponse"
       },
+      "BadgeSchema": {
+        "properties": {
+          "badge_id": {
+            "type": "string",
+            "title": "Badge Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "emoji": {
+            "type": "string",
+            "title": "Emoji"
+          },
+          "target": {
+            "type": "integer",
+            "title": "Target"
+          },
+          "current": {
+            "type": "integer",
+            "title": "Current"
+          },
+          "earned": {
+            "type": "boolean",
+            "title": "Earned"
+          }
+        },
+        "type": "object",
+        "required": [
+          "badge_id",
+          "name",
+          "description",
+          "emoji",
+          "target",
+          "current",
+          "earned"
+        ],
+        "title": "BadgeSchema"
+      },
+      "ChangePasswordRequest": {
+        "properties": {
+          "current_password": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Current Password"
+          },
+          "new_password": {
+            "type": "string",
+            "minLength": 1,
+            "title": "New Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "current_password",
+          "new_password"
+        ],
+        "title": "ChangePasswordRequest",
+        "description": "Đổi mật khẩu khi ĐANG đăng nhập.\n\nVẫn đòi mật khẩu hiện tại dù đã có token — xem `ChangePasswordUseCase`."
+      },
       "DishDetailResponse": {
         "properties": {
           "data": {
@@ -1885,6 +2317,39 @@
         ],
         "title": "ErrorEnvelope"
       },
+      "FavoritesData": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SavedItemSchema"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total"
+        ],
+        "title": "FavoritesData"
+      },
+      "FavoritesResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/FavoritesData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "FavoritesResponse"
+      },
       "ForgotPasswordRequest": {
         "properties": {
           "identifier": {
@@ -2037,6 +2502,74 @@
           "is_positive_signal"
         ],
         "title": "InteractionResponseData"
+      },
+      "LevelProgressSchema": {
+        "properties": {
+          "current": {
+            "$ref": "#/components/schemas/LevelSchema"
+          },
+          "next": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LevelSchema"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "points": {
+            "type": "integer",
+            "title": "Points"
+          },
+          "points_to_next": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Points To Next",
+            "description": "null khi đã ở cấp cao nhất."
+          },
+          "ratio": {
+            "type": "number",
+            "title": "Ratio",
+            "description": "[0,1] — tiến độ TRONG khoảng giữa hai cấp."
+          }
+        },
+        "type": "object",
+        "required": [
+          "current",
+          "points",
+          "ratio"
+        ],
+        "title": "LevelProgressSchema"
+      },
+      "LevelSchema": {
+        "properties": {
+          "number": {
+            "type": "integer",
+            "title": "Number"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "min_points": {
+            "type": "integer",
+            "title": "Min Points"
+          }
+        },
+        "type": "object",
+        "required": [
+          "number",
+          "name",
+          "min_points"
+        ],
+        "title": "LevelSchema"
       },
       "LoginRequest": {
         "properties": {
@@ -2347,6 +2880,78 @@
           "data"
         ],
         "title": "RestaurantDetailResponse"
+      },
+      "SaveFavoriteRequest": {
+        "properties": {
+          "item_type": {
+            "type": "string",
+            "title": "Item Type",
+            "description": "restaurant | dish"
+          },
+          "item_id": {
+            "type": "string",
+            "title": "Item Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Tên để hiển thị trong danh sách đã lưu, chụp lại lúc lưu."
+          }
+        },
+        "type": "object",
+        "required": [
+          "item_type",
+          "item_id",
+          "name"
+        ],
+        "title": "SaveFavoriteRequest"
+      },
+      "SavedItemResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/SavedItemSchema"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "SavedItemResponse"
+      },
+      "SavedItemSchema": {
+        "properties": {
+          "item_type": {
+            "type": "string",
+            "title": "Item Type",
+            "description": "restaurant | dish"
+          },
+          "item_id": {
+            "type": "string",
+            "title": "Item Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "item_type",
+          "item_id",
+          "name"
+        ],
+        "title": "SavedItemSchema"
       },
       "SearchRequest": {
         "properties": {
@@ -2903,6 +3508,84 @@
         ],
         "title": "UserSelf",
         "description": "Bản hồ sơ CHÍNH CHỦ nhìn thấy — có thêm email và ngày tham gia.\n\nKế thừa UserPublic để hai bên không lệch nhau khi thêm trường mới."
+      },
+      "UserStatsData": {
+        "properties": {
+          "saved_restaurants": {
+            "type": "integer",
+            "title": "Saved Restaurants"
+          },
+          "saved_dishes": {
+            "type": "integer",
+            "title": "Saved Dishes"
+          },
+          "viewed_restaurants": {
+            "type": "integer",
+            "title": "Viewed Restaurants"
+          },
+          "explorations": {
+            "type": "integer",
+            "title": "Explorations"
+          },
+          "directions": {
+            "type": "integer",
+            "title": "Directions"
+          },
+          "ratings": {
+            "type": "integer",
+            "title": "Ratings"
+          },
+          "closure_reports": {
+            "type": "integer",
+            "title": "Closure Reports"
+          },
+          "active_days": {
+            "type": "integer",
+            "title": "Active Days"
+          },
+          "points": {
+            "type": "integer",
+            "title": "Points"
+          },
+          "level": {
+            "$ref": "#/components/schemas/LevelProgressSchema"
+          },
+          "badges": {
+            "items": {
+              "$ref": "#/components/schemas/BadgeSchema"
+            },
+            "type": "array",
+            "title": "Badges"
+          }
+        },
+        "type": "object",
+        "required": [
+          "saved_restaurants",
+          "saved_dishes",
+          "viewed_restaurants",
+          "explorations",
+          "directions",
+          "ratings",
+          "closure_reports",
+          "active_days",
+          "points",
+          "level",
+          "badges"
+        ],
+        "title": "UserStatsData",
+        "description": "Số liệu hoạt động của chính chủ.\n\n`explorations` = số QUÁN KHÁC NHAU đã mở xem đủ lâu. Định nghĩa hẹp và cố ý — xem\n`domain/services/gamification.py`."
+      },
+      "UserStatsResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/UserStatsData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "UserStatsResponse"
       },
       "ValidationError": {
         "properties": {

@@ -373,6 +373,16 @@ class ResetPasswordRequest(BaseModel):
     )
 
 
+class ChangePasswordRequest(BaseModel):
+    """Đổi mật khẩu khi ĐANG đăng nhập.
+
+    Vẫn đòi mật khẩu hiện tại dù đã có token — xem `ChangePasswordUseCase`.
+    """
+
+    current_password: str = Field(..., min_length=1)
+    new_password: str = Field(..., min_length=1)
+
+
 class MessageData(BaseModel):
     """Kết quả cho các thao tác không trả về tài nguyên nào."""
 
@@ -502,6 +512,90 @@ class AdminUpdateRestaurantRequest(BaseModel):
     price: Optional[str] = Field(None, description="CHUỖI, không phải số")
     phone: Optional[str] = None
     website: Optional[str] = None
+
+
+# --- Quán & món đã lưu · cấp độ · huy hiệu (2026-08-22) ----------------------
+#
+# Bốn con số trên bản thiết kế trang tài khoản đều lấy từ đây và đều là SỐ ĐẾM THẬT.
+# Chưa hoạt động gì thì trả 0 — không có chỗ nào trong file này sinh dữ liệu mẫu.
+
+
+class SavedItemSchema(BaseModel):
+    item_type: str = Field(..., description="restaurant | dish")
+    item_id: str
+    name: str
+    created_at: Optional[str] = None
+
+
+class SaveFavoriteRequest(BaseModel):
+    item_type: str = Field(..., description="restaurant | dish")
+    item_id: str
+    name: str = Field(
+        ..., description="Tên để hiển thị trong danh sách đã lưu, chụp lại lúc lưu."
+    )
+
+
+class FavoritesData(BaseModel):
+    items: List[SavedItemSchema]
+    total: int
+
+
+class FavoritesResponse(BaseModel):
+    data: FavoritesData
+
+
+class SavedItemResponse(BaseModel):
+    data: SavedItemSchema
+
+
+class LevelSchema(BaseModel):
+    number: int
+    name: str
+    min_points: int
+
+
+class LevelProgressSchema(BaseModel):
+    current: LevelSchema
+    next: Optional[LevelSchema] = None
+    points: int
+    points_to_next: Optional[int] = Field(
+        default=None, description="null khi đã ở cấp cao nhất."
+    )
+    ratio: float = Field(..., description="[0,1] — tiến độ TRONG khoảng giữa hai cấp.")
+
+
+class BadgeSchema(BaseModel):
+    badge_id: str
+    name: str
+    description: str
+    emoji: str
+    target: int
+    current: int
+    earned: bool
+
+
+class UserStatsData(BaseModel):
+    """Số liệu hoạt động của chính chủ.
+
+    `explorations` = số QUÁN KHÁC NHAU đã mở xem đủ lâu. Định nghĩa hẹp và cố ý — xem
+    `domain/services/gamification.py`.
+    """
+
+    saved_restaurants: int
+    saved_dishes: int
+    viewed_restaurants: int
+    explorations: int
+    directions: int
+    ratings: int
+    closure_reports: int
+    active_days: int
+    points: int
+    level: LevelProgressSchema
+    badges: List[BadgeSchema]
+
+
+class UserStatsResponse(BaseModel):
+    data: UserStatsData
 
 
 # Mô tả lỗi dùng chung cho mọi endpoint, để OpenAPI ghi rõ hình dạng lỗi.

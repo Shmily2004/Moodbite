@@ -43,7 +43,12 @@ from pathlib import Path
 from typing import Optional
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT))
 CATALOG = ROOT / "data_pipeline" / "data_cleaned" / "dish_catalog.json"
+
+# Dùng lại đúng bộ so khớp tiếng Việt của domain — tuyệt đối không tự viết lại
+# (CLAUDE.md mục 4.5: ba bug thật đã xảy ra vì tự viết lại).
+from src.domain.value_objects.text import contains_phrase  # noqa: E402
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -129,6 +134,36 @@ def tim_tieu_de(lang: str, ten_mon: str) -> Optional[str]:
     return ket_qua[0]["title"] if ket_qua else None
 
 
+# Cụm từ trong MÔ TẢ NGẮN (Wikidata) cho thấy bài KHÔNG nói về món ăn.
+#
+# ⚠️ CHỐT CHẶN NÀY LÀ BẮT BUỘC, không phải cho đẹp. Máy tìm kiếm chấm bài về ĐỊA PHƯƠNG
+# điểm cao nhất khi món là đặc sản vùng đó, và trước 2026-08-23 script này im lặng nhận:
+#     "Lẩu gà lá é"        -> bài "Tuy Hòa (thành phố)"  -> ảnh BÃI BIỂN trên trang chủ
+#     "Sữa chua trân châu" -> bài "Hoa Kỳ"               -> ảnh nước Mỹ
+# Bốn món đã dính lỗi này; `scripts/audit_dish_images.py` tìm ra và gỡ.
+#
+# Chỉ xét `description`, KHÔNG xét phần tóm tắt: tóm tắt của bài món ăn thật vẫn hay nhắc
+# tên tỉnh thành. Và khớp TỪ NGUYÊN VẸN qua `contains_phrase` — khớp chuỗi con thì "song"
+# nằm trong "rau sống" (CLAUDE.md mục 4.5).
+KHONG_PHAI_MON = [
+    "thành phố", "tỉnh", "quốc gia", "huyện", "thị xã", "phường", "quận", "xã",
+    "con sông", "ngọn núi", "hòn đảo", "vịnh", "hồ nước", "vùng đất",
+    "city in", "province", "country in", "district in", "river", "mountain",
+    "island", "human settlement", "municipality", "capital of", "commune", "town in",
+    "nhà văn", "ca sĩ", "diễn viên", "chính trị gia", "cầu thủ",
+]
+
+
+def la_thuc_the_khong_phai_mon(mo_ta: Optional[str]) -> bool:
+    """True khi mô tả ngắn cho thấy bài nói về một nơi chốn / một con người.
+
+    Không có mô tả ngắn -> trả False (chưa rõ, không kết luận). "Chưa rõ" khác "sai".
+    """
+    if not mo_ta:
+        return False
+    return any(contains_phrase(mo_ta, cum) for cum in KHONG_PHAI_MON)
+
+
 def tu_wikipedia(lang: str, ten_mon: str) -> Optional[tuple[str, str]]:
     """Thử một wiki (`vi` hoặc `en`): tìm bài -> lấy ảnh đại diện của bài đó."""
     tieu_de = tim_tieu_de(lang, ten_mon)
@@ -140,6 +175,10 @@ def tu_wikipedia(lang: str, ten_mon: str) -> Optional[tuple[str, str]]:
         SUMMARY.format(lang=lang, title=urllib.parse.quote(tieu_de.replace(" ", "_")))
     )
     if not data:
+        return None
+
+    # Bài tìm được có nói về MÓN ĂN không? Không thì bỏ, thà để trống còn hơn ảnh sai.
+    if la_thuc_the_khong_phai_mon(data.get("description")):
         return None
 
     # `thumbnail` (~320px) chứ không phải `originalimage`: ảnh gốc có cái nặng 8MB.

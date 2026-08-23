@@ -13,6 +13,7 @@ from src.application.errors import InvalidCredentialsError
 from src.application.ports.email_sender import EmailSender
 from src.application.ports.user_repository import UserRepository, UsernameAlreadyExists
 from src.domain.entities.user import (
+    InvalidCredentialsFormat,
     User,
     UserRole,
     validate_email,
@@ -212,6 +213,43 @@ class ResetPasswordUseCase:
         return user
 
 
+@dataclass
+class ChangePasswordUseCase:
+    """Đổi mật khẩu khi ĐANG ĐĂNG NHẬP. Khác hẳn luồng quên mật khẩu.
+
+    VÌ SAO VẪN PHẢI HỎI MẬT KHẨU CŨ dù người dùng đã có token hợp lệ:
+    token nằm trong trình duyệt và sống 24 giờ. Ai đó mượn máy lúc chủ máy đi pha cà phê
+    là đổi được mật khẩu rồi chiếm luôn tài khoản. Hỏi lại mật khẩu cũ biến "mượn được
+    máy" thành "phải biết mật khẩu" — chặn đúng tình huống hay xảy ra nhất.
+
+    ⚠️ Đổi mật khẩu KHÔNG thu hồi được token đang sống ở máy khác. Token ký bằng HMAC là
+    stateless, server không giữ danh sách nào để xoá. Muốn thu hồi thật thì phải thêm cột
+    `token_version` vào bảng `users` — ĐỔI LƯỢC ĐỒ nên phải chốt trước
+    (`docs/API_DECISIONS_PENDING.md`). Router nói rõ giới hạn này cho người dùng.
+    """
+
+    users: UserRepository
+    verify_password: object       # (password, hash) -> bool
+    hash_password: PasswordHasher
+
+    def execute(self, user: User, mat_khau_cu: str, mat_khau_moi: str) -> User:
+        if not self.verify_password(mat_khau_cu or "", user.password_hash):
+            # Người này đã đăng nhập nên nói thẳng "mật khẩu hiện tại không đúng" là an
+            # toàn — không lộ thêm gì về tài khoản nào cả.
+            raise InvalidCredentialsError("Mật khẩu hiện tại không đúng.")
+
+        validate_password(mat_khau_moi)
+
+        if mat_khau_moi == mat_khau_cu:
+            raise InvalidCredentialsFormat("Mật khẩu mới phải khác mật khẩu cũ.")
+
+        if not self.users.update_password(user.user_id, self.hash_password(mat_khau_moi)):
+            raise InvalidCredentialsError("Không tìm thấy tài khoản để đổi mật khẩu.")
+
+        logger.info("Đã đổi mật khẩu (từ trong tài khoản) cho %s", user.username)
+        return user
+
+
 # Chuỗi băm giả, dùng để so khớp khi tài khoản không tồn tại (xem giải thích ở trên).
 # Đúng định dạng thật để `verify_password` chạy trọn vẹn số vòng lặp.
 _HASH_GIA = (
@@ -221,4 +259,9 @@ _HASH_GIA = (
 )
 
 
-__all__ = ["RegisterUserUseCase", "LoginUseCase", "UsernameAlreadyExists"]
+__all__ = [
+    "RegisterUserUseCase",
+    "LoginUseCase",
+    "ChangePasswordUseCase",
+    "UsernameAlreadyExists",
+]

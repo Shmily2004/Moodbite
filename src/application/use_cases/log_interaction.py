@@ -7,12 +7,14 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from typing import Optional
 
 from src.application.errors import ApplicationError
 from src.application.ports.interaction_repository import InteractionRepository
 from src.application.ports.restaurant_repository import RestaurantRepository
 from src.domain.entities.interaction import ActionType, InteractionEvent
+from src.domain.services.activity_tally import ActivityTally
 from src.domain.services.closure_reports import ClosureReportTally
 
 logger = logging.getLogger("moodbite.interactions")
@@ -38,6 +40,9 @@ class LogInteractionCommand:
     search_query_id: Optional[str] = None
     dwell_time_ms: Optional[int] = None
     rank_position: Optional[int] = None
+    # Do ROUTER lấy từ token đăng nhập rồi truyền vào, KHÔNG lấy từ body request —
+    # xem ghi chú ở `domain/entities/interaction.py`.
+    user_id: Optional[str] = None
 
 
 @dataclass(frozen=True)
@@ -52,12 +57,15 @@ class LogInteractionUseCase:
         interactions: InteractionRepository,
         restaurants: RestaurantRepository,
         closure_tally: Optional[ClosureReportTally] = None,
+        activity_tally: Optional[ActivityTally] = None,
     ) -> None:
         self._interactions = interactions
         self._restaurants = restaurants
         # Không bắt buộc: bộ test nào không quan tâm tới báo đóng cửa thì bỏ trống được,
         # và use case vẫn ghi tương tác bình thường.
         self._closure_tally = closure_tally
+        # Cũng không bắt buộc, cùng lý do. Đây là bộ đếm "lượt khám phá" cho cấp độ.
+        self._activity_tally = activity_tally
 
     def execute(self, command: LogInteractionCommand) -> LoggedInteraction:
         try:
@@ -91,6 +99,7 @@ class LogInteractionUseCase:
             search_query_id=command.search_query_id,
             dwell_time_ms=command.dwell_time_ms,
             rank_position=command.rank_position,
+            user_id=command.user_id,
         )
         event_id = self._interactions.append(event)
 
@@ -103,6 +112,18 @@ class LogInteractionUseCase:
             logger.info(
                 "Quán %s bị báo đã đóng cửa (%d/%d phiên)",
                 command.restaurant_id, so_luot, self._closure_tally.threshold,
+            )
+
+        # Cộng vào bộ đếm hoạt động SAU khi đã ghi nhật ký, cùng lý do như bộ đếm đóng
+        # cửa ở trên: bộ đếm trong RAM phải luôn dựng lại được từ nhật ký trên đĩa.
+        # Khách chưa đăng nhập (`user_id` rỗng) thì tally tự bỏ qua.
+        if self._activity_tally is not None:
+            self._activity_tally.record(
+                user_id=command.user_id,
+                action_type=action,
+                restaurant_id=command.restaurant_id,
+                day=datetime.now(timezone.utc).date().isoformat(),
+                dwell_time_ms=command.dwell_time_ms,
             )
 
         return LoggedInteraction(

@@ -11,23 +11,27 @@
  * Muốn có đủ 7 thẻ như thiết kế thì phải THÊM MOOD Ở BACKEND trước (thêm hồ sơ điểm trong
  * `MOOD_PROFILES`), rồi thêm một dòng vào bảng dưới đây.
  */
+import { useT } from '@/shared/i18n';
+import type { Khoa } from '@/shared/i18n';
+
 export interface MoodChoice {
   /** Nhóm bộ lọc trong `useDishSuggestions` — quyết định bấm vào thì lọc theo cái gì. */
   group: 'mood' | 'weather' | 'cookingMethods' | 'temperatures';
   value: string;
-  label: string;
+  /** Khoá từ điển, KHÔNG phải chữ viết sẵn — nếu không thì hàng thẻ này không dịch được. */
+  nhan: Khoa;
   emoji: string;
 }
 
 /** Bảng ánh xạ. Mỗi dòng đều đã đối chiếu với giá trị backend chấp nhận. */
 export const LUA_CHON_NHANH: MoodChoice[] = [
-  { group: 'mood', value: 'excited', label: 'Thèm cay', emoji: '🌶️' },
-  { group: 'mood', value: 'relaxed', label: 'Thư giãn', emoji: '☕' },
-  { group: 'mood', value: 'happy', label: 'Vui vẻ', emoji: '😊' },
-  { group: 'mood', value: 'sad', label: 'Cần an ủi', emoji: '🍲' },
-  { group: 'weather', value: 'rain', label: 'Trời mưa', emoji: '🌧️' },
-  { group: 'cookingMethods', value: 'nuong', label: 'Đồ nướng', emoji: '🔥' },
-  { group: 'temperatures', value: 'hot', label: 'Món nóng', emoji: '🍜' },
+  { group: 'mood', value: 'excited', nhan: 'mood.card.excited', emoji: '🌶️' },
+  { group: 'mood', value: 'relaxed', nhan: 'mood.card.relaxed', emoji: '☕' },
+  { group: 'mood', value: 'happy', nhan: 'mood.card.happy', emoji: '😊' },
+  { group: 'mood', value: 'sad', nhan: 'mood.card.sad', emoji: '🍲' },
+  { group: 'weather', value: 'rain', nhan: 'mood.card.rain', emoji: '🌧️' },
+  { group: 'cookingMethods', value: 'nuong', nhan: 'mood.card.nuong', emoji: '🔥' },
+  { group: 'temperatures', value: 'hot', nhan: 'mood.card.hot', emoji: '🍜' },
 ];
 
 export interface MoodQuickPickProps {
@@ -44,15 +48,11 @@ export interface MoodQuickPickProps {
   onShowAll: () => void;
 }
 
-export function MoodQuickPick({
-  title = 'Gợi ý nhanh theo mood',
-  dangChon,
-  onPick,
-  onShowAll,
-}: MoodQuickPickProps) {
+export function MoodQuickPick({ title, dangChon, onPick, onShowAll }: MoodQuickPickProps) {
+  const t = useT();
   return (
     <section className="quickpick">
-      <h2 className="section-title">{title}</h2>
+      <h2 className="section-title">{title ?? t('mood.titleGuest')}</h2>
 
       <ul className="quickpick__row">
         {LUA_CHON_NHANH.map((choice) => {
@@ -70,7 +70,7 @@ export function MoodQuickPick({
                 <span className="moodcard__emoji" aria-hidden="true">
                   {choice.emoji}
                 </span>
-                <span className="moodcard__label">{choice.label}</span>
+                <span className="moodcard__label">{t(choice.nhan)}</span>
               </button>
             </li>
           );
@@ -81,7 +81,7 @@ export function MoodQuickPick({
             <span className="moodcard__emoji" aria-hidden="true">
               •••
             </span>
-            <span className="moodcard__label">Xem thêm</span>
+            <span className="moodcard__label">{t('mood.more')}</span>
           </button>
         </li>
       </ul>

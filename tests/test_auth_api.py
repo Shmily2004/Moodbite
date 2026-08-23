@@ -17,6 +17,7 @@ from fastapi.testclient import TestClient
 from src.application.use_cases.get_restaurant_details import GetRestaurantDetailsUseCase
 from src.application.use_cases.log_interaction import LogInteractionUseCase
 from src.application.use_cases.manage_account import (
+    ChangePasswordUseCase,
     LoginUseCase,
     RegisterUserUseCase,
     RequestPasswordResetUseCase,
@@ -43,6 +44,7 @@ from tests.fakes import (
     PHO_RULE,
     UnavailablePredictor,
     attach_closure_tally,
+    attach_user_activity,
     attach_dish_catalog,
     make_restaurant,
 )
@@ -98,6 +100,7 @@ def build_client(
     emails = emails if emails is not None else FakeEmailSender()
 
     c = attach_closure_tally(Container.__new__(Container))
+    attach_user_activity(c, tmp_path)
     c.settings = None
     c.restaurant_repository = repo
     c.details_repository = details_repo
@@ -108,7 +111,11 @@ def build_client(
     c.semantic_search = NullSemanticSearch()
     c.search_restaurants = SearchRestaurantsUseCase(repo, knowledge, context, predictor)
     c.get_restaurant_details = GetRestaurantDetailsUseCase(details_repo, repo)
-    c.log_interaction = LogInteractionUseCase(interactions, repo)
+    # Lắp bộ đếm hoạt động đúng như lúc chạy thật: thiếu nó thì `/me/stats` luôn
+    # trả 0 và test về cấp độ sẽ xanh một cách vô nghĩa.
+    c.log_interaction = LogInteractionUseCase(
+        interactions, repo, activity_tally=c.activity_tally
+    )
     c.admin_auth = AdminAuthService("", "", "")
     c.admin_restaurants = None
     c.list_restaurants_for_admin = None
@@ -120,6 +127,7 @@ def build_client(
     c.emails = emails
     c.register_user = RegisterUserUseCase(users, hash_password, tokens.issue)
     c.login_user = LoginUseCase(users, verify_password, tokens.issue)
+    c.change_password = ChangePasswordUseCase(users, verify_password, hash_password)
     c.request_password_reset = RequestPasswordResetUseCase(
         users=users,
         emails=emails,
@@ -451,3 +459,71 @@ def test_health_noi_RO_khi_chua_bat_tinh_nang_tai_khoan(tmp_path):
     assert services["users"]["ready"] is True
     assert services["user_auth"]["ready"] is False
     assert "MOODBITE_AUTH_SECRET" in services["user_auth"]["error"]
+
+
+# ==========================================================================
+# ĐỔI MẬT KHẨU KHI ĐANG ĐĂNG NHẬP (`/auth/change-password`)
+# ==========================================================================
+
+
+def _dang_ky_lay_token(client, username="doimatkhau"):
+    res = register(client, username=username)
+    assert res.status_code == 201, res.text
+    return res.json()["data"]["token"]
+
+
+def test_doi_mat_khau_thanh_cong_va_mat_khau_cu_HET_TAC_DUNG(client):
+    token = _dang_ky_lay_token(client)
+    moi = "mat-khau-moi-that-dai"
+
+    res = client.post(
+        f"{API}/auth/change-password",
+        json={"current_password": PASSWORD, "new_password": moi},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert res.status_code == 200, res.text
+
+    assert login(client, "doimatkhau", PASSWORD).status_code == 401
+    assert login(client, "doimatkhau", moi).status_code == 200
+
+
+def test_sai_mat_khau_HIEN_TAI_thi_401_du_token_dung(client):
+    """Token hợp lệ KHÔNG đủ để đổi mật khẩu — chặn đúng cảnh 'mượn được máy'."""
+    token = _dang_ky_lay_token(client)
+
+    res = client.post(
+        f"{API}/auth/change-password",
+        json={"current_password": "sai-mat-khau-roi", "new_password": "mat-khau-moi-dai"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert res.status_code == 401
+
+
+def test_chua_dang_nhap_thi_KHONG_doi_duoc(client):
+    res = client.post(
+        f"{API}/auth/change-password",
+        json={"current_password": PASSWORD, "new_password": "mat-khau-moi-dai"},
+    )
+    assert res.status_code == 401
+
+
+def test_mat_khau_moi_qua_ngan_thi_400(client):
+    token = _dang_ky_lay_token(client)
+
+    res = client.post(
+        f"{API}/auth/change-password",
+        json={"current_password": PASSWORD, "new_password": "ngan"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert res.status_code == 400
+
+
+def test_mat_khau_moi_TRUNG_mat_khau_cu_thi_400(client):
+    token = _dang_ky_lay_token(client)
+
+    res = client.post(
+        f"{API}/auth/change-password",
+        json={"current_password": PASSWORD, "new_password": PASSWORD},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert res.status_code == 400

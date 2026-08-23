@@ -139,6 +139,10 @@ export interface paths {
          *
          *     `is_positive_signal` được tính Ở SERVER theo quy tắc thống nhất, không để client tự
          *     suy luận - nếu không, nhãn huấn luyện sẽ nhiễu.
+         *
+         *     KHÁCH VẪN GỌI ĐƯỢC. Đã đăng nhập thì tương tác được gắn thêm `user_id` để đếm "lượt
+         *     khám phá" cho cấp độ. `user_id` lấy TỪ TOKEN, không lấy từ body — nếu không thì ai
+         *     cũng tự cộng điểm cho mình bằng cách gọi thẳng API.
          */
         post: operations["log_interaction_api_v1_interactions_post"];
         delete?: never;
@@ -283,6 +287,29 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/change-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Change Password
+         * @description Đổi mật khẩu khi ĐANG đăng nhập. Khác `/reset-password` (dùng token trong thư).
+         *
+         *     Vẫn phải nhập mật khẩu HIỆN TẠI dù đã có token — xem `ChangePasswordUseCase`.
+         *     Giới hạn tần suất dùng chung bộ đếm với đăng nhập: đây cũng là chỗ đoán mật khẩu được.
+         */
+        post: operations["change_password_api_v1_auth_change_password_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/me": {
         parameters: {
             query?: never;
@@ -299,6 +326,80 @@ export interface paths {
          *     ngay ở lần gọi kế tiếp.
          */
         get: operations["me_api_v1_auth_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/favorites": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Favorites
+         * @description Danh sách quán & món đã lưu của chính chủ, MỚI NHẤT ĐỨNG ĐẦU.
+         */
+        get: operations["list_favorites_api_v1_me_favorites_get"];
+        put?: never;
+        /**
+         * Save Favorite
+         * @description Lưu một quán hoặc một món.
+         *
+         *     Lưu lại thứ đã lưu KHÔNG phải lỗi — chỉ cập nhật tên và giữ nguyên thứ tự. Người dùng
+         *     bấm tim hai lần vì mạng chậm không đáng nhận một thông báo lỗi.
+         */
+        post: operations["save_favorite_api_v1_me_favorites_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/favorites/{item_type}/{item_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove Favorite
+         * @description Bỏ lưu.
+         *
+         *     Bỏ thứ vốn không có trong danh sách vẫn trả 200. Đây là thao tác ĐƯA VỀ TRẠNG THÁI
+         *     MONG MUỐN ("tôi không muốn lưu cái này nữa") — kết quả cuối cùng giống hệt nhau, nên
+         *     404 chỉ làm client phải viết thêm nhánh xử lý cho một tình huống vô hại.
+         */
+        delete: operations["remove_favorite_api_v1_me_favorites__item_type___item_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * User Stats
+         * @description Số liệu hoạt động + cấp độ + huy hiệu của chính chủ.
+         *
+         *     Tài khoản mới thì MỌI SỐ ĐỀU LÀ 0 và cấp là 1 — đó là sự thật, và giao diện phải hiện
+         *     đúng như vậy. Bản thiết kế vẽ "320/500 điểm" chỉ là minh hoạ.
+         */
+        get: operations["user_stats_api_v1_me_stats_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -568,6 +669,35 @@ export interface components {
         AuthResponse: {
             data: components["schemas"]["AuthData"];
         };
+        /** BadgeSchema */
+        BadgeSchema: {
+            /** Badge Id */
+            badge_id: string;
+            /** Name */
+            name: string;
+            /** Description */
+            description: string;
+            /** Emoji */
+            emoji: string;
+            /** Target */
+            target: number;
+            /** Current */
+            current: number;
+            /** Earned */
+            earned: boolean;
+        };
+        /**
+         * ChangePasswordRequest
+         * @description Đổi mật khẩu khi ĐANG đăng nhập.
+         *
+         *     Vẫn đòi mật khẩu hiện tại dù đã có token — xem `ChangePasswordUseCase`.
+         */
+        ChangePasswordRequest: {
+            /** Current Password */
+            current_password: string;
+            /** New Password */
+            new_password: string;
+        };
         /** DishDetailResponse */
         DishDetailResponse: {
             data: components["schemas"]["DishItemSchema"];
@@ -721,6 +851,17 @@ export interface components {
         ErrorEnvelope: {
             error: components["schemas"]["ErrorDetail"];
         };
+        /** FavoritesData */
+        FavoritesData: {
+            /** Items */
+            items: components["schemas"]["SavedItemSchema"][];
+            /** Total */
+            total: number;
+        };
+        /** FavoritesResponse */
+        FavoritesResponse: {
+            data: components["schemas"]["FavoritesData"];
+        };
         /** ForgotPasswordRequest */
         ForgotPasswordRequest: {
             /**
@@ -776,6 +917,32 @@ export interface components {
             interaction_event_id: string;
             /** Is Positive Signal */
             is_positive_signal: boolean;
+        };
+        /** LevelProgressSchema */
+        LevelProgressSchema: {
+            current: components["schemas"]["LevelSchema"];
+            next?: components["schemas"]["LevelSchema"] | null;
+            /** Points */
+            points: number;
+            /**
+             * Points To Next
+             * @description null khi đã ở cấp cao nhất.
+             */
+            points_to_next?: number | null;
+            /**
+             * Ratio
+             * @description [0,1] — tiến độ TRONG khoảng giữa hai cấp.
+             */
+            ratio: number;
+        };
+        /** LevelSchema */
+        LevelSchema: {
+            /** Number */
+            number: number;
+            /** Name */
+            name: string;
+            /** Min Points */
+            min_points: number;
         };
         /** LoginRequest */
         LoginRequest: {
@@ -892,6 +1059,39 @@ export interface components {
         /** RestaurantDetailResponse */
         RestaurantDetailResponse: {
             data: components["schemas"]["RestaurantDetailData"];
+        };
+        /** SaveFavoriteRequest */
+        SaveFavoriteRequest: {
+            /**
+             * Item Type
+             * @description restaurant | dish
+             */
+            item_type: string;
+            /** Item Id */
+            item_id: string;
+            /**
+             * Name
+             * @description Tên để hiển thị trong danh sách đã lưu, chụp lại lúc lưu.
+             */
+            name: string;
+        };
+        /** SavedItemResponse */
+        SavedItemResponse: {
+            data: components["schemas"]["SavedItemSchema"];
+        };
+        /** SavedItemSchema */
+        SavedItemSchema: {
+            /**
+             * Item Type
+             * @description restaurant | dish
+             */
+            item_type: string;
+            /** Item Id */
+            item_id: string;
+            /** Name */
+            name: string;
+            /** Created At */
+            created_at?: string | null;
         };
         /** SearchRequest */
         SearchRequest: {
@@ -1091,6 +1291,40 @@ export interface components {
              * @description Ngày tạo tài khoản, dạng ISO-8601.
              */
             created_at?: string | null;
+        };
+        /**
+         * UserStatsData
+         * @description Số liệu hoạt động của chính chủ.
+         *
+         *     `explorations` = số QUÁN KHÁC NHAU đã mở xem đủ lâu. Định nghĩa hẹp và cố ý — xem
+         *     `domain/services/gamification.py`.
+         */
+        UserStatsData: {
+            /** Saved Restaurants */
+            saved_restaurants: number;
+            /** Saved Dishes */
+            saved_dishes: number;
+            /** Viewed Restaurants */
+            viewed_restaurants: number;
+            /** Explorations */
+            explorations: number;
+            /** Directions */
+            directions: number;
+            /** Ratings */
+            ratings: number;
+            /** Closure Reports */
+            closure_reports: number;
+            /** Active Days */
+            active_days: number;
+            /** Points */
+            points: number;
+            level: components["schemas"]["LevelProgressSchema"];
+            /** Badges */
+            badges: components["schemas"]["BadgeSchema"][];
+        };
+        /** UserStatsResponse */
+        UserStatsResponse: {
+            data: components["schemas"]["UserStatsData"];
         };
         /** ValidationError */
         ValidationError: {
@@ -1701,6 +1935,39 @@ export interface operations {
             };
         };
     };
+    change_password_api_v1_auth_change_password_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangePasswordRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     me_api_v1_auth_me_get: {
         parameters: {
             query?: never;
@@ -1717,6 +1984,267 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MeResponse"];
+                };
+            };
+        };
+    };
+    list_favorites_api_v1_me_favorites_get: {
+        parameters: {
+            query?: {
+                /** @description Lọc theo loại: restaurant | dish. Bỏ trống = cả hai. */
+                item_type?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FavoritesResponse"];
+                };
+            };
+            /** @description INVALID_REQUEST */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description RESTAURANT_NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description DATA_NOT_READY */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    save_favorite_api_v1_me_favorites_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveFavoriteRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedItemResponse"];
+                };
+            };
+            /** @description INVALID_REQUEST */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description RESTAURANT_NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description DATA_NOT_READY */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    remove_favorite_api_v1_me_favorites__item_type___item_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_type: string;
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageResponse"];
+                };
+            };
+            /** @description INVALID_REQUEST */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description RESTAURANT_NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description DATA_NOT_READY */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    user_stats_api_v1_me_stats_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserStatsResponse"];
+                };
+            };
+            /** @description INVALID_REQUEST */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description RESTAURANT_NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description DATA_NOT_READY */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
         };

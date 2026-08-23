@@ -35,13 +35,19 @@ export type {
 export { MoodbiteAuthApi } from './auth';
 export type {
   AuthData,
+  BadgeData,
+  ChangePasswordRequest,
+  FavoritesData,
   ForgotPasswordRequest,
   LoginRequest,
   MessageData,
   RegisterRequest,
   ResetPasswordRequest,
+  SaveFavoriteRequest,
+  SavedItem,
   UserPublic,
   UserSelf,
+  UserStatsData,
 } from './auth';
 
 export { MoodbiteAdminApi } from './admin';

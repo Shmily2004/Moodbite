@@ -48,6 +48,9 @@ class JsonlInteractionRepository:
             "interaction_event_id": event_id,
             "created_at": datetime.now(timezone.utc).isoformat(),
             "session_id": event.session_id,
+            # Chỉ có khi người dùng đã đăng nhập. Bản ghi cũ (trước 2026-08-22) không có
+            # khoá này — mọi chỗ đọc lại phải dùng `.get("user_id")`, không được `[...]`.
+            "user_id": event.user_id,
             "search_query_id": event.search_query_id,
             "restaurant_id": event.restaurant_id,
             "action_type": event.action_type.value,
@@ -107,6 +110,35 @@ class JsonlInteractionRepository:
             return out
         if hong:
             logger.warning("Bỏ qua %d dòng hỏng trong %s", hong, describe_path(self.path))
+        return out
+
+    def replay_user_activity(self) -> List[dict]:
+        """Các tương tác CÓ `user_id`, để dựng lại bộ đếm hoạt động lúc khởi động.
+
+        Cùng lý do và cùng cách làm với `replay_closure_reports`: bộ đếm nằm trong RAM
+        nhưng luôn suy được từ nhật ký trên đĩa, nên khởi động lại không mất cấp độ của
+        ai. Dòng hỏng thì bỏ qua dòng đó — một dòng ghi dở không được làm app chết.
+
+        ĐỌC ĐÚNG MỘT LẦN lúc dựng container. Nhật ký chỉ dài thêm nên đọc ở mỗi request
+        là hỏng dần theo thời gian.
+        """
+        if not self.path.exists():
+            return []
+        out: List[dict] = []
+        try:
+            with open(self.path, encoding="utf-8") as fh:
+                for line in fh:
+                    if not line.strip():
+                        continue
+                    try:
+                        rec = json.loads(line)
+                    except ValueError:
+                        continue
+                    if not rec.get("user_id"):
+                        continue
+                    out.append(rec)
+        except OSError as exc:
+            logger.warning("Không đọc lại được nhật ký tương tác: %s", exc)
         return out
 
     def count(self) -> int:

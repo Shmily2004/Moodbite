@@ -20,12 +20,20 @@ export type LoginRequest = components['schemas']['LoginRequest'];
 export type RegisterRequest = components['schemas']['RegisterRequest'];
 export type ForgotPasswordRequest = components['schemas']['ForgotPasswordRequest'];
 export type ResetPasswordRequest = components['schemas']['ResetPasswordRequest'];
+export type ChangePasswordRequest = components['schemas']['ChangePasswordRequest'];
 /** Kết quả của các thao tác không trả về tài nguyên nào — chỉ một câu cho người dùng đọc. */
 export type MessageData = components['schemas']['MessageData'];
 export type AuthData = components['schemas']['AuthData'];
 export type UserPublic = components['schemas']['UserPublic'];
 /** Hồ sơ CHÍNH CHỦ: có thêm email + ngày tham gia. Chỉ `/auth/me` trả về kiểu này. */
 export type UserSelf = components['schemas']['UserSelf'];
+/** Một mục đã lưu: quán hoặc món. `item_type` là 'restaurant' | 'dish'. */
+export type SavedItem = components['schemas']['SavedItemSchema'];
+export type SaveFavoriteRequest = components['schemas']['SaveFavoriteRequest'];
+export type FavoritesData = components['schemas']['FavoritesData'];
+/** Số liệu hoạt động + cấp độ + huy hiệu của chính chủ. MỌI SỐ Ở ĐÂY LÀ SỐ ĐẾM THẬT. */
+export type UserStatsData = components['schemas']['UserStatsData'];
+export type BadgeData = components['schemas']['BadgeSchema'];
 
 export class MoodbiteAuthApi {
   constructor(private readonly http: HttpClient) {}
@@ -106,7 +114,77 @@ export class MoodbiteAuthApi {
    * Vai (`role`) đọc từ CSDL ở mỗi lần gọi chứ không nằm trong token, nên admin vừa bị hạ
    * quyền sẽ thấy ngay ở lần gọi kế tiếp.
    */
+  /**
+   * Đổi mật khẩu khi ĐANG đăng nhập. Khác `resetPassword` (dùng token trong thư).
+   *
+   * Vẫn phải gửi mật khẩu hiện tại dù đã có token — token nằm trong trình duyệt và sống
+   * 24 giờ, ai mượn được máy là đổi được mật khẩu.
+   * ⚠️ Đổi xong KHÔNG thu hồi token ở máy khác (token HMAC là stateless). Câu trả về của
+   * server đã nói rõ điều này — hãy hiện nguyên văn cho người dùng.
+   */
+  changePassword(
+    body: ChangePasswordRequest,
+    options?: RequestOptions,
+  ): Promise<MessageData> {
+    return this.http.request<MessageData>('/auth/change-password', {
+      ...options,
+      method: 'POST',
+      body,
+    });
+  }
+
   me(options?: RequestOptions): Promise<UserSelf> {
     return this.http.request<UserSelf>('/auth/me', options);
+  }
+
+  // --- Quán & món đã lưu · cấp độ · huy hiệu (`/me/*`) ---------------------
+  //
+  // Không endpoint nào ở đây nhận `user_id`: server luôn lấy id từ token. Nhờ vậy
+  // frontend KHÔNG THỂ vô tình (hay cố ý) đọc dữ liệu của người khác.
+
+  /** Danh sách đã lưu, mới nhất đứng đầu. Bỏ `itemType` để lấy cả quán lẫn món. */
+  favorites(
+    itemType?: 'restaurant' | 'dish',
+    options?: RequestOptions,
+  ): Promise<FavoritesData> {
+    const query = itemType ? `?item_type=${encodeURIComponent(itemType)}` : '';
+    return this.http.request<FavoritesData>(`/me/favorites${query}`, options);
+  }
+
+  /**
+   * Lưu một quán hoặc món.
+   *
+   * `name` là BẮT BUỘC và được chụp lại lúc lưu, để danh sách hiện được ngay mà không
+   * phải gọi thêm một request tra tên cho từng mục.
+   * Lưu lại thứ đã lưu KHÔNG lỗi — server cố tình làm idempotent.
+   */
+  saveFavorite(body: SaveFavoriteRequest, options?: RequestOptions): Promise<SavedItem> {
+    return this.http.request<SavedItem>('/me/favorites', {
+      ...options,
+      method: 'POST',
+      body,
+    });
+  }
+
+  /** Bỏ lưu. Bỏ thứ vốn không có vẫn trả 200 — kết quả cuối cùng giống hệt nhau. */
+  removeFavorite(
+    itemType: 'restaurant' | 'dish',
+    itemId: string,
+    options?: RequestOptions,
+  ): Promise<MessageData> {
+    return this.http.request<MessageData>(
+      `/me/favorites/${itemType}/${encodeURIComponent(itemId)}`,
+      { ...options, method: 'DELETE' },
+    );
+  }
+
+  /**
+   * Số liệu hoạt động + cấp độ + huy hiệu.
+   *
+   * ⚠️ Tài khoản mới thì MỌI SỐ LÀ 0 và cấp là 1. Đó là sự thật — đừng thay bằng số
+   * minh hoạ trên bản thiết kế.
+   */
+  stats(options?: RequestOptions): Promise<UserStatsData> {
+    return this.http.request<UserStatsData>('/me/stats', options);
   }
 }

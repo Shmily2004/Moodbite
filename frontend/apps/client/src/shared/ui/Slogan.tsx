@@ -11,22 +11,29 @@
  *
  * Thiếu file ảnh thì lui về bản dựng bằng chữ: xấu hơn nhưng vẫn đọc được, còn hơn để
  * trang trống trơn không biết đây là cái gì.
+ *
+ * ⚠️ BẬT TIẾNG ANH THÌ LUÔN DỰNG BẰNG CHỮ. Ảnh khẩu hiệu chỉ có bản tiếng Việt; giữ ảnh
+ * đó trên trang tiếng Anh sẽ thành một câu tiếng Việt to tướng giữa trang — trông như
+ * lỗi. Có bản ảnh tiếng Anh thì thêm vào `design/attribute/` rồi bỏ nhánh này đi.
  */
 import { useState } from 'react';
 import { ANH_GIAO_DIEN } from '../config';
+import { useNgonNgu } from '../i18n';
 
 export function Slogan({ className }: { className?: string }) {
   const anh = ANH_GIAO_DIEN.slogan;
   const [anhHong, setAnhHong] = useState(false);
+  const { ngonNgu, t } = useNgonNgu();
 
   const classes = ['slogan', className].filter(Boolean).join(' ');
 
-  if (!anh || anhHong) {
+  if (!anh || anhHong || ngonNgu !== 'vi') {
     return (
       <span className={`${classes} slogan--text`}>
-        Ăn gì ở Hà Nội,
+        {t('hero.sloganLine1')}
         <br />
-        tùy <em className="slogan__accent">mood</em> của bạn.
+        {t('hero.sloganLine2a')} <em className="slogan__accent">mood</em>{' '}
+        {t('hero.sloganLine2b')}
       </span>
     );
   }

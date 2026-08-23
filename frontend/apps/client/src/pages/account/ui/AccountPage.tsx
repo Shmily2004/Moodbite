@@ -1,52 +1,67 @@
 /**
- * TRANG TÀI KHOẢN — `/account`.
+ * TRANG TÀI KHOẢN — `/account`. Dựng theo `frontend/design/profile.png`.
  *
- * Dựng theo bản thiết kế chủ dự án gửi 2026-08-22, nhưng CHỈ những mục có dữ liệu thật.
+ * BỐ CỤC ĐÚNG BẢN THIẾT KẾ: thanh bên trái (danh sách mục) · cột giữa (nội dung) ·
+ * cột phải (cấp độ + huy hiệu, chỉ ở tab Tổng quan).
  *
- * ✅ ĐÃ DỰNG            | nguồn dữ liệu
- * ---------------------|--------------------------------------------------------------
- * Ảnh đại diện          | sinh từ tên, hoặc ảnh người dùng tải lên (lưu ở máy)
- * Tên · email · ngày TG | `GET /auth/me` (`to_self()` — chính chủ mới thấy email)
- * Món đã lưu            | localStorage (`features/save-dish`)
- * Đã xem gần đây        | localStorage (`features/recent-dishes`)
- * Sở thích của bạn      | localStorage, chọn từ ĐÚNG bộ lọc backend hiểu được
- * Cài đặt (nền, đăng xuất)
+ * TAB LÀ THAM SỐ TRÊN URL (`?tab=saved`), không phải state trong bộ nhớ. Nhờ vậy nút Back
+ * hoạt động đúng, và người dùng gửi được đường dẫn tới đúng mục mình đang xem. Đây là
+ * điều `useState` không làm được, và cũng là lý do không dùng `useState` ở đây.
  *
- * ⛔ CHƯA DỰNG — chủ dự án đã đánh dấu "cần xem kỹ trước khi làm", và đúng là cả bốn đều
- *    CHƯA CÓ GÌ Ở BACKEND (chi tiết đã báo cáo riêng):
- *      - Viết review / "Đánh giá của tôi" (42)  -> chưa có endpoint ghi & đọc review
- *      - Cấp độ + huy hiệu                      -> cần đếm tương tác theo NGƯỜI, mà
- *                                                  `/interactions` hiện ghi theo PHIÊN
- *      - "Lượt khám phá" (128)                  -> cùng lý do trên
- *      - "Quán yêu thích" (15)                  -> mới lưu được MÓN, chưa lưu được QUÁN
- *    Vẽ ra mấy con số đó khi không đếm được là bịa số — đúng thứ CLAUDE.md mục 4 cấm.
- *
- * Chưa đăng nhập thì đá về trang đăng nhập: trang này không có gì để xem khi không biết
- * bạn là ai.
+ * ⛔ BA MỤC TRONG BẢN THIẾT KẾ CHƯA DỰNG — đã báo cáo riêng cho chủ dự án, và lý do là
+ *    THIẾU DỮ LIỆU chứ không phải thiếu thời gian:
+ *      · "Địa chỉ của tôi"      -> không có bảng địa chỉ, cũng chưa có endpoint nào.
+ *                                  Vị trí hiện lấy từ trình duyệt (`features/pick-location`).
+ *      · "Bộ sưu tập của tôi"   -> cần bảng `collections` + endpoint. Khác "đã lưu" ở chỗ
+ *                                  người dùng tự đặt tên nhóm — là một tính năng riêng.
+ *      · "Thông báo"            -> không có nguồn thông báo nào. Cái chuông đỏ trên bản
+ *                                  thiết kế sẽ luôn trống.
+ *    Vẽ ba mục đó ra rồi bấm vào không có gì thì tệ hơn là chưa có (CLAUDE.md mục 4).
  */
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { useMemo } from 'react';
+import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { SiteHeader } from '@/widgets/site-header';
+import { LevelCard, BadgeGrid, StatTiles } from '@/widgets/user-progress';
 import { AvatarPicker } from '@/features/change-avatar';
 import { TastePicker } from '@/features/taste-preferences';
-import { useSavedDishes } from '@/features/save-dish';
+import { useFavorites } from '@/features/save-favorite';
 import { useRecentDishes } from '@/features/recent-dishes';
 import { ThemeToggle } from '@/features/switch-theme';
-import { useUserSessionContext } from '@/entities/user';
-import { dishRoute, ROUTES } from '@/shared/config';
+import { ChangePasswordForm } from '@/features/change-password';
+import { useUserSessionContext, useUserStats } from '@/entities/user';
+import { LanguageSelect } from '@/shared/ui';
+import { useT } from '@/shared/i18n';
+import type { Khoa } from '@/shared/i18n';
+import { ROUTES } from '@/shared/config';
+import { BadgesTab, ProfileTab, RecentTab, SavedTab, thangNam } from './tabs';
 
-/** "05/2024" từ chuỗi ISO backend trả về. Sai định dạng thì thà không hiện gì. */
-function thangNam(iso: string | null | undefined): string | null {
-  if (!iso) return null;
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return null;
-  return `${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
-}
+/** Mã tab nằm trên URL. Đổi giá trị ở đây là đổi đường dẫn — cân nhắc trước khi sửa. */
+const TABS = [
+  { id: 'overview', nhan: 'account.tab.overview', icon: '🏠' },
+  { id: 'profile', nhan: 'account.tab.profile', icon: '👤' },
+  { id: 'taste', nhan: 'account.tab.taste', icon: '🍽️' },
+  { id: 'saved', nhan: 'account.tab.saved', icon: '❤️' },
+  { id: 'recent', nhan: 'account.tab.recent', icon: '🕘' },
+  { id: 'badges', nhan: 'account.tab.badges', icon: '🏅' },
+  { id: 'settings', nhan: 'account.tab.settings', icon: '⚙️' },
+] as const satisfies ReadonlyArray<{ id: string; nhan: Khoa; icon: string }>;
+
+type TabId = (typeof TABS)[number]['id'];
 
 export function AccountPage() {
   const session = useUserSessionContext();
   const navigate = useNavigate();
-  const saved = useSavedDishes();
+  const t = useT();
+  const favorites = useFavorites();
   const recent = useRecentDishes();
+  const { stats, loading: dangTaiStats } = useUserStats();
+  const [params, setParams] = useSearchParams();
+
+  // Tab lạ trên URL (gõ tay, link cũ) -> quay về Tổng quan thay vì trang trắng.
+  const tab = useMemo<TabId>(() => {
+    const gia_tri = params.get('tab');
+    return (TABS.find((x) => x.id === gia_tri)?.id ?? 'overview') as TabId;
+  }, [params]);
 
   if (!session.isLoggedIn) {
     return <Navigate to={ROUTES.login} replace />;
@@ -54,144 +69,121 @@ export function AccountPage() {
 
   const ten = session.user?.display_name || session.user?.username || null;
   const thamGia = thangNam(session.user?.created_at);
+  const doiTab = (id: TabId) => setParams(id === 'overview' ? {} : { tab: id });
 
   return (
     <div className="page">
       <SiteHeader />
 
-      <main className="page__body account">
-        {/* --- Thẻ đầu trang: ảnh đại diện + thông tin + số liệu --- */}
-        <section className="account__head">
-          <AvatarPicker name={ten} />
-
-          <div className="account__id">
-            <h1 className="account__name">{ten ?? '…'}</h1>
-            <p className="account__line">@{session.user?.username}</p>
-            {session.user?.email ? (
-              <p className="account__line">{session.user.email}</p>
-            ) : (
-              /* Không có email thì nói rõ hệ quả, thay vì để trống cho người dùng đoán. */
-              <p className="account__line account__line--warn">
-                Chưa có email — bạn sẽ không tự lấy lại được mật khẩu nếu quên.
-              </p>
-            )}
-            {thamGia && <p className="account__since">Thành viên từ {thamGia}</p>}
-          </div>
-
-          {/*
-            CHỈ HAI Ô SỐ LIỆU. Bản thiết kế có bốn (thêm "Đánh giá" và "Lượt khám phá")
-            nhưng hai cái đó chưa có gì để đếm — xem ghi chú đầu file.
-          */}
-          <ul className="account__stats">
-            <li className="stat">
-              <span className="stat__value">{saved.saved.length}</span>
-              <span className="stat__label">Món đã lưu</span>
-            </li>
-            <li className="stat">
-              <span className="stat__value">{recent.recent.length}</span>
-              <span className="stat__label">Món đã xem</span>
-            </li>
+      <div className="account-shell">
+        {/* --- Thanh bên --- */}
+        <nav className="account-side" aria-label={t('account.sectionLabel')}>
+          <p className="account-side__label">{t('account.sectionLabel')}</p>
+          <ul className="account-side__list">
+            {TABS.map((muc) => (
+              <li key={muc.id}>
+                <button
+                  type="button"
+                  className={
+                    muc.id === tab
+                      ? 'account-side__item account-side__item--on'
+                      : 'account-side__item'
+                  }
+                  aria-current={muc.id === tab ? 'page' : undefined}
+                  onClick={() => doiTab(muc.id)}
+                >
+                  <span aria-hidden="true">{muc.icon}</span> {t(muc.nhan)}
+                </button>
+              </li>
+            ))}
           </ul>
-        </section>
+        </nav>
 
-        <TastePicker />
+        <main className="account-main">
+          {/* --- Thẻ đầu trang: luôn hiện ở mọi tab, như bản thiết kế --- */}
+          <section className="account__head">
+            <AvatarPicker name={ten} />
 
-        {/* --- Món đã lưu --- */}
-        <section className="account__block">
-          <div className="results__head">
-            <h2 className="section-title">
-              <span aria-hidden="true">❤️</span> Món đã lưu
-            </h2>
-            {saved.saved.length > 0 && (
-              <p className="results__count">{saved.saved.length} món</p>
+            <div className="account__id">
+              <h1 className="account__name">{ten ?? '…'}</h1>
+              <p className="account__line">@{session.user?.username}</p>
+              {session.user?.email ? (
+                <p className="account__line">✉️ {session.user.email}</p>
+              ) : (
+                /* Không có email thì nói rõ HỆ QUẢ, thay vì để trống cho người dùng đoán. */
+                <p className="account__line account__line--warn">{t('account.noEmail')}</p>
+              )}
+              {thamGia && (
+                <p className="account__since">
+                  🗓️ {t('account.memberSince', { date: thamGia })}
+                </p>
+              )}
+            </div>
+
+            <StatTiles stats={stats} viewedLocal={recent.recent.length} />
+          </section>
+
+          <div className={tab === 'overview' ? 'account-body account-body--two' : 'account-body'}>
+            <div className="account-col">
+              {tab === 'overview' && (
+                <>
+                  <TastePicker />
+                  <SavedTab favorites={favorites} />
+                  <RecentTab recent={recent} />
+                </>
+              )}
+              {tab === 'profile' && <ProfileTab user={session.user ?? null} />}
+              {tab === 'taste' && <TastePicker />}
+              {tab === 'saved' && <SavedTab favorites={favorites} />}
+              {tab === 'recent' && <RecentTab recent={recent} />}
+              {tab === 'badges' && <BadgesTab stats={stats} loading={dangTaiStats} />}
+              {tab === 'settings' && (
+                <section className="panel">
+                  <h2 className="panel__title">
+                    <span aria-hidden="true">⚙️</span> {t('account.settings.title')}
+                  </h2>
+                  <div className="account__settings">
+                    <div className="account__setting">
+                      <span>{t('account.settings.dark')}</span>
+                      <ThemeToggle />
+                    </div>
+                    <div className="account__setting">
+                      <span>{t('account.settings.language')}</span>
+                      <LanguageSelect />
+                    </div>
+                    <div className="account__setting account__setting--doc">
+                      <span>{t('account.settings.password')}</span>
+                      <ChangePasswordForm />
+                    </div>
+                    <div className="account__setting">
+                      <span>{t('account.settings.logout')}</span>
+                      <button
+                        type="button"
+                        className="btn btn--sm"
+                        onClick={() => {
+                          session.logout();
+                          navigate(ROUTES.home);
+                        }}
+                      >
+                        {t('nav.logout')}
+                      </button>
+                    </div>
+                  </div>
+                </section>
+              )}
+            </div>
+
+            {/* Cột phải chỉ ở Tổng quan — đúng bản thiết kế. Tab "Cấp độ & huy hiệu" đã
+                có nguyên hai thẻ này ở cột chính rồi, lặp lại là thừa. */}
+            {tab === 'overview' && (
+              <aside className="account-aside">
+                <LevelCard stats={stats} loading={dangTaiStats} />
+                <BadgeGrid stats={stats} loading={dangTaiStats} />
+              </aside>
             )}
           </div>
-
-          {saved.saved.length === 0 ? (
-            <p className="section-sub">
-              Chưa lưu món nào. Bấm hình trái tim trên thẻ món ở{' '}
-              <Link to={ROUTES.home}>trang chủ</Link> để lưu lại.
-            </p>
-          ) : (
-            <>
-              <p className="section-sub">
-                Lưu trên máy này. Đổi máy hoặc xoá dữ liệu trình duyệt là mất.
-              </p>
-              <ul className="chip-row">
-                {saved.saved.map((mon) => (
-                  <li key={mon.dishId}>
-                    <button
-                      type="button"
-                      className="chip"
-                      onClick={() => navigate(dishRoute(mon.dishId))}
-                    >
-                      {mon.name}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </>
-          )}
-        </section>
-
-        {/* --- Đã xem gần đây --- */}
-        <section className="account__block">
-          <div className="results__head">
-            <h2 className="section-title">
-              <span aria-hidden="true">🕘</span> Đã xem gần đây
-            </h2>
-            {recent.recent.length > 0 && (
-              <button type="button" className="linkish" onClick={recent.clear}>
-                Xoá lịch sử
-              </button>
-            )}
-          </div>
-
-          {recent.recent.length === 0 ? (
-            <p className="section-sub">Chưa mở món nào.</p>
-          ) : (
-            <ul className="chip-row">
-              {recent.recent.map((mon) => (
-                <li key={mon.dishId}>
-                  <button
-                    type="button"
-                    className="chip"
-                    onClick={() => navigate(dishRoute(mon.dishId))}
-                  >
-                    {mon.name}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-
-        {/* --- Cài đặt --- */}
-        <section className="account__block">
-          <h2 className="section-title">
-            <span aria-hidden="true">⚙️</span> Cài đặt
-          </h2>
-          <div className="account__settings">
-            <div className="account__setting">
-              <span>Giao diện nền tối</span>
-              <ThemeToggle />
-            </div>
-            <div className="account__setting">
-              <span>Đăng xuất khỏi máy này</span>
-              <button
-                type="button"
-                className="btn btn--sm"
-                onClick={() => {
-                  session.logout();
-                  navigate(ROUTES.home);
-                }}
-              >
-                Đăng xuất
-              </button>
-            </div>
-          </div>
-        </section>
-      </main>
+        </main>
+      </div>
     </div>
   );
 }

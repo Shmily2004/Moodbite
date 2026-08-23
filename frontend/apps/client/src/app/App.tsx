@@ -13,6 +13,7 @@ import './styles.css';
 import './styles/brand.css';
 import './styles/auth.css';
 import './styles/home.css';
+import './styles/account.css';
 
 const router = createBrowserRouter(routes);
 

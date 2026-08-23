@@ -32,6 +32,7 @@ from src.presentation.api.dependencies import (
 from src.presentation.api.envelope import success
 from src.presentation.api.schemas import (
     AuthResponse,
+    ChangePasswordRequest,
     ForgotPasswordRequest,
     LoginRequest,
     MeResponse,
@@ -157,6 +158,30 @@ def reset_password(
 
     container.reset_password.execute(payload.token, payload.new_password)
     return success({"message": "Đã đổi mật khẩu. Hãy đăng nhập bằng mật khẩu mới."})
+
+
+@router.post("/change-password", response_model=MessageResponse)
+def change_password(
+    payload: ChangePasswordRequest,
+    request: Request,
+    user: User = Depends(get_current_user),
+    container: Container = Depends(get_container),
+):
+    """Đổi mật khẩu khi ĐANG đăng nhập. Khác `/reset-password` (dùng token trong thư).
+
+    Vẫn phải nhập mật khẩu HIỆN TẠI dù đã có token — xem `ChangePasswordUseCase`.
+    Giới hạn tần suất dùng chung bộ đếm với đăng nhập: đây cũng là chỗ đoán mật khẩu được.
+    """
+    container.login_rate_limiter.check(client_key(request))
+    container.change_password.execute(user, payload.current_password, payload.new_password)
+    return success(
+        {
+            "message": (
+                "Đã đổi mật khẩu. Lưu ý: các thiết bị khác đang đăng nhập vẫn dùng được "
+                "cho tới khi token của chúng hết hạn (tối đa 24 giờ)."
+            )
+        }
+    )
 
 
 @router.get("/me", response_model=MeResponse)

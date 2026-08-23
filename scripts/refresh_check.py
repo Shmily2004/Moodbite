@@ -46,8 +46,16 @@ from src.domain.value_objects.location import Location  # noqa: E402
 from src.domain.value_objects.text import normalize  # noqa: E402
 from src.infrastructure.config.settings import Settings  # noqa: E402
 from src.infrastructure.repositories.csv_restaurant_repository import (  # noqa: E402
+
+
     CsvRestaurantRepository,
 )
+
+# Console Windows mặc định là cp1252 và sẽ NỔ khi in chữ tiếng Việt — script
+# đang chạy dở bị dừng giữa chừng. Lỗi này đã xảy ra thật với
+# "additionalInfo/Bầu không khí" trong `data_report.py`.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger("refresh_check")

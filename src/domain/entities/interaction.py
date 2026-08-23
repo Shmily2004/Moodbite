@@ -40,6 +40,17 @@ class InteractionEvent:
     search_query_id: Optional[str] = None
     dwell_time_ms: Optional[int] = None
     rank_position: Optional[int] = None
+    # TUỲ CHỌN — chỉ có khi người dùng ĐÃ ĐĂNG NHẬP.
+    #
+    # Vì sao không dùng `session_id` thay thế: session_id là mã ngẫu nhiên của một tab
+    # trình duyệt, đổi mỗi lần xoá dữ liệu. Đếm theo nó thì "số quán đã khám phá" của một
+    # người bị chia nhỏ ra hàng chục phiên và không bao giờ cộng lại được. Đó chính là lý
+    # do trước 2026-08-22 không thể làm được cấp độ/huy hiệu.
+    #
+    # ⚠️ Giá trị này do SERVER đặt từ token đăng nhập, KHÔNG lấy từ body request. Để client
+    # tự khai `user_id` là để bất kỳ ai cũng cộng điểm cho người khác — hoặc cho chính
+    # mình bằng cách gọi thẳng API.
+    user_id: Optional[str] = None
 
     @property
     def is_positive_signal(self) -> bool:

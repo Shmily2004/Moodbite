@@ -18,6 +18,13 @@ sys.path.insert(0, str(ROOT))
 
 from src.infrastructure.config.settings import Settings  # noqa: E402
 
+# Console Windows mặc định là cp1252 và sẽ NỔ khi in chữ tiếng Việt — script
+# đang chạy dở bị dừng giữa chừng. Lỗi này đã xảy ra thật với
+# "additionalInfo/Bầu không khí" trong `data_report.py`.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
+
 OK, MISSING = "[ DAT  ]", "[THIEU ]"
 
 

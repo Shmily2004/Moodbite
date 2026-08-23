@@ -17,10 +17,14 @@
  * nước, đồ mát) để hàng thẻ vẫn đủ 6 mà không có cái nào bấm vào cũng ra kết quả sai.
  * Làm được phần backend thì đổi lại bảng này là xong.
  */
+import { useT } from '@/shared/i18n';
+import type { Khoa } from '@/shared/i18n';
+
 export interface NeedPreset {
   id: string;
-  title: string;
-  desc: string;
+  /** Khoá từ điển cho tiêu đề và mô tả — hai thẻ này cũng phải dịch được. */
+  nhanTitle: Khoa;
+  nhanDesc: Khoa;
   emoji: string;
   /** Bộ lọc sẽ được áp khi bấm. `null` nghĩa là xoá lọc của nhóm đó. */
   apply: {
@@ -37,43 +41,43 @@ const BAN_KINH_GAN = 2;
 export const NHU_CAU: NeedPreset[] = [
   {
     id: 'gan-day',
-    title: 'Ăn gần đây',
-    desc: `Món có quán trong bán kính ${BAN_KINH_GAN} km`,
+    nhanTitle: 'need.gan-day.title',
+    nhanDesc: 'need.gan-day.desc',
     emoji: '📍',
     apply: { maxDistanceKm: BAN_KINH_GAN },
   },
   {
     id: 'an-dem',
-    title: 'Ăn đêm',
-    desc: 'Món hợp lúc đêm khuya',
+    nhanTitle: 'need.an-dem.title',
+    nhanDesc: 'need.an-dem.desc',
     emoji: '🌙',
     apply: { mealTimes: ['khuya'] },
   },
   {
     id: 'bua-sang',
-    title: 'Bữa sáng',
-    desc: 'Bắt đầu ngày mới nhẹ nhàng',
+    nhanTitle: 'need.bua-sang.title',
+    nhanDesc: 'need.bua-sang.desc',
     emoji: '🌅',
     apply: { mealTimes: ['sang'] },
   },
   {
     id: 'an-vat',
-    title: 'Ăn vặt',
-    desc: 'Món nhâm nhi giữa buổi',
+    nhanTitle: 'need.an-vat.title',
+    nhanDesc: 'need.an-vat.desc',
     emoji: '🍢',
     apply: { mealTimes: ['an_vat'] },
   },
   {
     id: 'mon-nuoc',
-    title: 'Món nước',
-    desc: 'Phở, bún, miến… nóng hổi',
+    nhanTitle: 'need.mon-nuoc.title',
+    nhanDesc: 'need.mon-nuoc.desc',
     emoji: '🍜',
     apply: { cookingMethods: ['nuoc'], temperatures: ['hot'] },
   },
   {
     id: 'do-mat',
-    title: 'Đồ mát',
-    desc: 'Ngày oi bức thì chọn nhóm này',
+    nhanTitle: 'need.do-mat.title',
+    nhanDesc: 'need.do-mat.desc',
     emoji: '🧊',
     apply: { temperatures: ['cold'] },
   },
@@ -84,12 +88,13 @@ export interface ExploreNeedsProps {
 }
 
 export function ExploreNeeds({ onPick }: ExploreNeedsProps) {
+  const t = useT();
   return (
     <section className="needs">
       <h2 className="section-title">
-        <span aria-hidden="true">🧭</span> Khám phá theo nhu cầu
+        <span aria-hidden="true">🧭</span> {t('needs.title')}
       </h2>
-      <p className="section-sub">Không cần tài khoản — bấm một cái là xem được ngay.</p>
+      <p className="section-sub">{t('needs.sub')}</p>
 
       <ul className="needs__grid">
         {NHU_CAU.map((preset) => (
@@ -99,8 +104,8 @@ export function ExploreNeeds({ onPick }: ExploreNeedsProps) {
                 {preset.emoji}
               </span>
               <span className="needcard__body">
-                <span className="needcard__title">{preset.title}</span>
-                <span className="needcard__desc">{preset.desc}</span>
+                <span className="needcard__title">{t(preset.nhanTitle)}</span>
+                <span className="needcard__desc">{t(preset.nhanDesc)}</span>
               </span>
             </button>
           </li>

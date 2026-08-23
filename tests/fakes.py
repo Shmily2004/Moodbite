@@ -3,6 +3,8 @@
 Nhờ có port (Protocol) ở application/ports, test không cần file dữ liệu thật -
 chạy nhanh và không phụ thuộc máy đang chạy có chạy data_pipeline hay chưa.
 """
+import pathlib
+
 from src.domain.entities.dish import Dish, DishRule
 from src.domain.entities.restaurant import Restaurant
 from src.domain.value_objects.context_signal import NEUTRAL_CONTEXT, ContextSignal
@@ -311,4 +313,43 @@ def attach_closure_tally(container, tally=None):
     from src.domain.services.closure_reports import ClosureReportTally
 
     container.closure_tally = tally or ClosureReportTally()
+    return container
+
+
+def attach_user_activity(container, tmp_path=None):
+    """Gắn kho "đã lưu" + bộ đếm hoạt động + use case cấp độ vào container test.
+
+    Cùng lý do tồn tại với `attach_closure_tally`: container test dựng bằng
+    `Container.__new__` nên không tự có trường mới. Gắn tường minh để quên lắp dây thành
+    lỗi ồn ào thay vì `getattr(..., None)` im lặng nuốt.
+
+    `tmp_path=None` -> tự tạo một thư mục tạm. KHÔNG dùng ":memory:" của SQLite: adapter
+    mở kết nối MỚI ở mỗi truy vấn (đúng như lúc chạy thật), mà CSDL trong RAM biến mất
+    ngay khi kết nối đóng — bảng vừa tạo xong sẽ không còn ở câu lệnh kế tiếp.
+    """
+    import tempfile
+    from src.application.use_cases.get_user_stats import GetUserStatsUseCase
+    from src.application.use_cases.manage_favorites import (
+        ListFavoritesUseCase,
+        RemoveFavoriteUseCase,
+        SaveFavoriteUseCase,
+    )
+    from src.domain.services.activity_tally import ActivityTally
+    from src.infrastructure.repositories.sqlite_saved_item_repository import (
+        SqliteSavedItemRepository,
+    )
+
+    thu_muc = pathlib.Path(tmp_path) if tmp_path is not None else pathlib.Path(
+        tempfile.mkdtemp(prefix="moodbite-test-")
+    )
+    duong_dan = thu_muc / "users.db"
+    saved = SqliteSavedItemRepository(duong_dan)
+    tally = ActivityTally()
+
+    container.saved_items = saved
+    container.activity_tally = tally
+    container.save_favorite = SaveFavoriteUseCase(saved)
+    container.remove_favorite = RemoveFavoriteUseCase(saved)
+    container.list_favorites = ListFavoritesUseCase(saved)
+    container.get_user_stats = GetUserStatsUseCase(tally, saved)
     return container

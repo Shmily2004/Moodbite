@@ -1,0 +1,337 @@
+/* =========================================================================
+   TRANG TÀI KHOẢN (/account) — bố cục theo `design/profile.png`
+
+   Tách khỏi `home.css` ngày 2026-08-22: file đó đã 737 dòng và chứa hai bố cục chẳng
+   liên quan gì nhau. CLAUDE.md mục 6: một file một trách nhiệm.
+
+   BA CỘT như bản thiết kế: thanh bên · nội dung · cấp độ + huy hiệu.
+   Dưới 1080px xếp thành một cột; thanh bên thành hàng ngang cuộn được — trên điện thoại
+   một danh sách dọc 7 mục sẽ đẩy toàn bộ nội dung xuống dưới màn hình.
+   ========================================================================= */
+
+.account-shell {
+  display: grid;
+  grid-template-columns: 232px minmax(0, 1fr);
+  gap: clamp(16px, 2vw, 28px);
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: clamp(16px, 2.2vw, 28px);
+}
+
+.account-side {
+  position: sticky;
+  top: 16px;
+  align-self: start;
+  padding: 16px 12px;
+  border: 1px solid var(--auth-line-soft);
+  border-radius: 18px;
+  background: var(--auth-card);
+  box-shadow: var(--auth-shadow);
+}
+.account-side__label {
+  margin: 0 0 10px 10px;
+  color: var(--auth-muted);
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+}
+.account-side__list { margin: 0; padding: 0; list-style: none; display: grid; gap: 2px; }
+.account-side__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.account-side__item:hover { background: var(--auth-line-soft); }
+.account-side__item--on {
+  background: var(--accent-soft, #FBEDE4);
+  color: var(--brand-orange);
+  font-weight: 700;
+}
+
+.account-main { display: grid; gap: clamp(14px, 1.8vw, 22px); min-width: 0; }
+
+.account-body { display: grid; gap: clamp(14px, 1.8vw, 22px); min-width: 0; }
+/* Tab Tổng quan có thêm cột phải (cấp độ + huy hiệu). */
+.account-body--two { grid-template-columns: minmax(0, 1fr) 320px; align-items: start; }
+.account-col { display: grid; gap: clamp(14px, 1.8vw, 22px); min-width: 0; }
+.account-aside { display: grid; gap: clamp(14px, 1.8vw, 22px); }
+
+/* --- Thẻ dùng chung ------------------------------------------------------ */
+
+.panel {
+  padding: clamp(16px, 2vw, 24px);
+  border: 1px solid var(--auth-line-soft);
+  border-radius: 18px;
+  background: var(--auth-card);
+}
+.panel__title {
+  margin: 0 0 10px;
+  font-size: .95rem;
+  font-weight: 800;
+  letter-spacing: .02em;
+}
+
+/* --- Bốn ô số liệu ------------------------------------------------------- */
+
+.stat-tiles {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(84px, 1fr));
+  gap: clamp(8px, 1.4vw, 18px);
+  margin: 0;
+  padding: clamp(10px, 1.4vw, 16px);
+  border-radius: 16px;
+  background: var(--auth-line-soft);
+  list-style: none;
+}
+.stat__icon { display: block; font-size: 1.1rem; }
+
+/* --- Cấp độ -------------------------------------------------------------- */
+
+.level { display: flex; gap: 14px; align-items: flex-start; }
+.level__badge {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--accent-soft, #FBEDE4);
+  font-size: 1.8rem;
+}
+.level__body { flex: 1; min-width: 0; }
+.level__name { margin: 0; font-weight: 800; }
+.level__rank { margin: 2px 0 10px; color: var(--brand-orange); font-weight: 700; font-size: .9rem; }
+.level__bar {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--auth-line-soft);
+  overflow: hidden;
+}
+.level__fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--brand-orange), #F0A03C);
+  transition: width .3s ease;
+}
+.level__points { margin: 8px 0 2px; font-weight: 700; font-size: .9rem; }
+.level__hint { margin: 0; color: var(--auth-muted); font-size: .78rem; line-height: 1.5; }
+
+/* --- Huy hiệu ------------------------------------------------------------ */
+
+.badges {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.badge {
+  display: grid;
+  gap: 2px;
+  padding: 12px 10px;
+  border: 1px solid var(--auth-line-soft);
+  border-radius: 14px;
+  text-align: center;
+  /* Chưa đạt thì MỜ nhưng vẫn đọc được: nó là mục tiêu, không phải rác. */
+  opacity: .55;
+}
+.badge--on { opacity: 1; border-color: var(--brand-orange); background: var(--accent-soft, #FBEDE4); }
+.badge__icon { font-size: 1.6rem; }
+.badge__name { font-weight: 700; font-size: .84rem; }
+.badge__desc { color: var(--auth-muted); font-size: .72rem; line-height: 1.35; }
+.badge__state { margin-top: 4px; color: var(--brand-orange); font-size: .74rem; font-weight: 700; }
+
+/* --- Danh sách đã lưu ---------------------------------------------------- */
+
+.saved-list { display: grid; gap: 8px; margin: 12px 0 0; padding: 0; list-style: none; }
+.saved-list__item { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+/* Mục chưa có trang riêng để bấm vào: trông như chip nhưng không phải link. */
+.chip--flat { cursor: default; }
+
+/* --- Hồ sơ --------------------------------------------------------------- */
+
+.profile-grid { margin: 0; display: grid; gap: 2px; }
+.profile-grid__row {
+  display: grid;
+  grid-template-columns: 160px minmax(0, 1fr);
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--auth-line-soft);
+}
+.profile-grid__row dt { color: var(--auth-muted); font-size: .85rem; }
+.profile-grid__row dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
+
+.rule-list { margin: 0 0 10px; padding-left: 1.1rem; display: grid; gap: 6px; font-size: .88rem; }
+
+@media (max-width: 1080px) {
+  .account-shell { grid-template-columns: minmax(0, 1fr); }
+  .account-body--two { grid-template-columns: minmax(0, 1fr); }
+  .account-side { position: static; }
+  .account-side__list {
+    grid-auto-flow: column;
+    grid-auto-columns: max-content;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+}
+
+@media (max-width: 560px) {
+  .stat-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .profile-grid__row { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* =========================================================================
+   TRANG TÀI KHOẢN (/account)
+   ========================================================================= */
+
+.account__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(16px, 3vw, 32px);
+  padding: clamp(18px, 2.4vw, 28px);
+  border: 1px solid var(--auth-line-soft);
+  border-radius: 20px;
+  background: var(--auth-card);
+  box-shadow: var(--auth-shadow);
+}
+
+.account__id { flex: 1; min-width: 220px; }
+.account__name { margin: 0 0 4px; font-size: 1.5rem; font-weight: 800; }
+.account__line { margin: 0 0 2px; color: var(--auth-ink-soft); font-size: .9rem; }
+.account__line--warn { color: var(--warn, #8A5A00); }
+.account__since {
+  display: inline-block;
+  margin: 8px 0 0;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--auth-line-soft);
+  color: var(--auth-ink-soft);
+  font-size: .8rem;
+  font-weight: 600;
+}
+
+.account__stats {
+  display: flex;
+  gap: clamp(16px, 3vw, 36px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.stat { text-align: center; }
+.stat__value { display: block; font-size: 1.6rem; font-weight: 800; color: var(--brand-orange); }
+.stat__label { color: var(--auth-ink-soft); font-size: .82rem; }
+
+.account__block {
+  padding: clamp(16px, 2vw, 24px);
+  border: 1px solid var(--auth-line-soft);
+  border-radius: 18px;
+  background: var(--auth-card);
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Ô sở thích đang bật. */
+.chip--on {
+  border-color: var(--brand-orange);
+  background: var(--accent-soft, #FBEDE4);
+  font-weight: 700;
+}
+
+.account__settings { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
+.account__setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--auth-line-soft);
+  border-radius: 12px;
+}
+
+/* --- Ảnh đại diện ------------------------------------------------------- */
+
+.avatar {
+  border-radius: 50%;
+  object-fit: cover;
+  flex: none;
+  display: block;
+}
+
+/* Ảnh mặc định: chữ cái đầu trên nền màu sinh từ chính tên -> cùng người luôn cùng màu. */
+.avatar--chu {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(
+    140deg,
+    hsl(var(--avatar-h, 24) 62% 58%),
+    hsl(calc(var(--avatar-h, 24) + 24) 68% 46%)
+  );
+}
+
+.avatar-picker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+}
+.avatar-picker__actions { display: flex; align-items: center; gap: 10px; }
+.avatar-picker__hint {
+  margin: 0;
+  max-width: 22ch;
+  text-align: center;
+  color: var(--auth-muted);
+  font-size: .74rem;
+  line-height: 1.4;
+}
+
+/* Ảnh đại diện + tên ở thanh trên, bấm vào ra trang tài khoản. */
+.site-header__me {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: inherit;
+  text-decoration: none;
+}
+.site-header__me:hover .site-header__user { color: var(--brand-orange); }
+
+/* --- Đổi mật khẩu (tab Cài đặt) ------------------------------------------ */
+
+/* Hàng cài đặt bình thường là "nhãn trái · điều khiển phải". Ô đổi mật khẩu có 2 ô nhập
+   nên phải xuống dòng, nếu không nó bóp hai ô còn 60px. */
+.account__setting--doc { flex-direction: column; align-items: stretch; }
+
+.pwform { display: grid; gap: 10px; margin-top: 10px; }
+.pwform__row { display: grid; gap: 4px; }
+.pwform__row span { color: var(--auth-ink-soft); font-size: .82rem; }
+.pwform__row input {
+  padding: 9px 12px;
+  border: 1px solid var(--auth-line);
+  border-radius: 10px;
+  background: var(--auth-card);
+  color: var(--auth-ink);
+  font: inherit;
+}
+.pwform button { justify-self: start; }

@@ -23,6 +23,13 @@ from typing import Any, Dict
 
 import pandas as pd
 
+# Console Windows mặc định là cp1252 và sẽ NỔ khi in chữ tiếng Việt — script
+# đang chạy dở bị dừng giữa chừng. Lỗi này đã xảy ra thật với
+# "additionalInfo/Bầu không khí" trong `data_report.py`.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
+
 DATASET = Path("data_pipeline/data_cleaned/dataset_moodbite_features.csv")
 DETAILS = Path("data_pipeline/data_cleaned/restaurant_details.json")
 

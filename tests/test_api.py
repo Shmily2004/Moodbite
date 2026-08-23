@@ -23,6 +23,7 @@ from tests.fakes import (
     PHO_RULE,
     UnavailablePredictor,
     attach_closure_tally,
+    attach_user_activity,
     attach_disabled_auth,
     attach_dish_catalog,
     make_restaurant,
@@ -60,6 +61,9 @@ def _container(restaurants=None, details=None, restaurants_ready=True):
     context = FixedContextProvider()
 
     c = attach_closure_tally(Container.__new__(Container))
+    # Thư mục tạm tự sinh: mấy bộ test này không nói gì về yêu thích/cấp độ,
+    # chỉ cần container có đủ trường để /health không nổ.
+    attach_user_activity(c)
     c.settings = None
     c.restaurant_repository = repo
     c.details_repository = details_repo

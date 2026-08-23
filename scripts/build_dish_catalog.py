@@ -56,8 +56,16 @@ from src.infrastructure.repositories.json_dish_knowledge_repository import (  # 
     JsonDishKnowledgeRepository,
 )
 from src.infrastructure.repositories.json_restaurant_details_repository import (  # noqa: E402
+
+
     JsonRestaurantDetailsRepository,
 )
+
+# Console Windows mặc định là cp1252 và sẽ NỔ khi in chữ tiếng Việt — script
+# đang chạy dở bị dừng giữa chừng. Lỗi này đã xảy ra thật với
+# "additionalInfo/Bầu không khí" trong `data_report.py`.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger("build_dish_catalog")

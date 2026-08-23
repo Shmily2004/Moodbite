@@ -15,8 +15,15 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+# ⚠️ PHẢI có gạch chéo đầu: `/lib/` chỉ khớp thư mục lib Ở GỐC (do công cụ đóng gói Python
+# sinh ra). Viết `lib/` như bản mẫu gốc thì nó khớp MỌI thư mục tên `lib` ở mọi độ sâu —
+# và trong dự án này chỉ có đúng hai thư mục như vậy, cả hai đều là MÃ NGUỒN:
+#     frontend/apps/client/src/shared/lib/   (session.ts, tokenStorage.ts)
+#     frontend/apps/admin/src/shared/lib/    (tokenStorage.ts)
+# Hậu quả: người clone repo về sẽ thiếu các file đó và frontend KHÔNG BUILD ĐƯỢC.
+# Đã sửa 2026-08-23.
+/lib/
+/lib64/
 parts/
 sdist/
 var/
@@ -197,3 +204,5 @@ harvest.log
 # co chot chan tu choi ghi de len kho tai khoan, nhung xoa bang tay thi khong ai chan duoc.
 data_pipeline/data_cleaned/*.db
 
+# TypeScript build cache — sinh lại được, không đưa vào git.
+*.tsbuildinfo

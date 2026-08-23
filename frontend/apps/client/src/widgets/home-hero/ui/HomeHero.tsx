@@ -22,6 +22,8 @@ import type { FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { ANH_GIAO_DIEN, ROUTES } from '@/shared/config';
 import { Slogan } from '@/shared/ui';
+import { useT } from '@/shared/i18n';
+import type { HamDich } from '@/shared/i18n';
 
 export interface HomeHeroProps {
   /** Tên hiển thị của người đang đăng nhập, hoặc `null` khi là khách. */
@@ -37,11 +39,11 @@ export interface HomeHeroProps {
  * QUY TẮC HIỂN THỊ thuần tuý nên đặt ở frontend là đúng chỗ — nó không đổi kết quả gợi ý
  * nào. (Giờ ăn dùng để CHẤM ĐIỂM món thì ngược lại, do backend quyết.)
  */
-export function loiChao(gio: number): string {
-  if (gio < 11) return 'Chào buổi sáng';
-  if (gio < 14) return 'Chào buổi trưa';
-  if (gio < 18) return 'Chào buổi chiều';
-  return 'Chào buổi tối';
+export function loiChao(gio: number, t: HamDich): string {
+  if (gio < 11) return t('hero.morning');
+  if (gio < 14) return t('hero.noon');
+  if (gio < 18) return t('hero.afternoon');
+  return t('hero.evening');
 }
 
 /**
@@ -52,7 +54,7 @@ export function loiChao(gio: number): string {
  * MỐC KẾ TIẾP (11h/14h/18h/0h) rồi vẽ lại một lần, thay vì chạy đồng hồ mỗi giây cho một
  * dòng chữ đổi 4 lần/ngày.
  */
-function useLoiChao(): string {
+function useLoiChao(t: HamDich): string {
   const [gio, setGio] = useState(() => new Date().getHours());
 
   useEffect(() => {
@@ -68,7 +70,7 @@ function useLoiChao(): string {
     return () => clearTimeout(hen);
   }, [gio]);
 
-  return loiChao(gio);
+  return loiChao(gio, t);
 }
 
 /**
@@ -90,7 +92,8 @@ function icon(nguCanh: string): string {
 
 export function HomeHero({ userName, context, onSearch }: HomeHeroProps) {
   const [query, setQuery] = useState('');
-  const chao = useLoiChao();
+  const t = useT();
+  const chao = useLoiChao(t);
   const tranh = ANH_GIAO_DIEN.banner_trang_chu;
   const daDangNhap = userName !== null;
 
@@ -110,25 +113,20 @@ export function HomeHero({ userName, context, onSearch }: HomeHeroProps) {
 
         {daDangNhap ? (
           <>
-            <h1 className="hero__title">Hôm nay bạn muốn ăn gì?</h1>
-            <p className="hero__intro">
-              MoodBite đã tìm một số món có thể hợp với bạn, dựa trên thời điểm và thời
-              tiết hiện tại.
-            </p>
+            <h1 className="hero__title">{t('hero.titleLoggedIn')}</h1>
+            <p className="hero__intro">{t('hero.introLoggedIn')}</p>
           </>
         ) : (
           <>
             <h1 className="hero__slogan">
               <Slogan />
             </h1>
-            <p className="hero__intro">
-              MoodBite gợi ý những món ăn phù hợp với cảm xúc, thời tiết và thói quen của bạn.
-            </p>
+            <p className="hero__intro">{t('hero.introGuest')}</p>
           </>
         )}
 
         {context.length > 0 && (
-          <ul className="hero__signals" aria-label="Ngữ cảnh đang được dùng để gợi ý">
+          <ul className="hero__signals" aria-label={t('hero.signals')}>
             {context.map((tin) => (
               <li key={tin} className="signal">
                 <span className="signal__icon" aria-hidden="true">
@@ -142,7 +140,7 @@ export function HomeHero({ userName, context, onSearch }: HomeHeroProps) {
 
         <form className="hero__search" onSubmit={guiTim} role="search">
           <label className="sr-only" htmlFor="hero-search">
-            Tìm món ăn hoặc quán ăn
+            {t('hero.searchLabel')}
           </label>
           <span className="hero__search-icon" aria-hidden="true">
             🔍
@@ -151,11 +149,11 @@ export function HomeHero({ userName, context, onSearch }: HomeHeroProps) {
             id="hero-search"
             className="hero__search-input"
             value={query}
-            placeholder="Tìm món ăn, quán ăn, món bạn muốn…"
+            placeholder={t('hero.searchPlaceholder')}
             onChange={(event) => setQuery(event.target.value)}
           />
           <button type="submit" className="btn btn--accent" disabled={query.trim() === ''}>
-            Tìm ngay
+            {t('hero.searchButton')}
           </button>
         </form>
 
@@ -167,7 +165,7 @@ export function HomeHero({ userName, context, onSearch }: HomeHeroProps) {
         {!daDangNhap && (
           <p className="hero__nudge">
             <span aria-hidden="true">✨</span>{' '}
-            <Link to={ROUTES.login}>Đăng nhập</Link> để nhận gợi ý phù hợp với bạn hơn
+            <Link to={ROUTES.login}>{t('nav.login')}</Link> {t('hero.nudge')}
           </p>
         )}
       </div>

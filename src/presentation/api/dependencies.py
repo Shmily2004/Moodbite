@@ -18,6 +18,7 @@ from fastapi import Depends, Request
 from src.application.ports.admin_restaurant_repository import AdminRestaurantRepository
 from src.application.use_cases.get_restaurant_details import GetRestaurantDetailsUseCase
 from src.application.use_cases.log_interaction import LogInteractionUseCase
+from src.domain.services.activity_tally import ActivityTally
 from src.domain.services.closure_reports import ClosureReportTally
 from src.application.use_cases.manage_restaurants import (
     ListRestaurantsForAdminUseCase,
@@ -25,11 +26,18 @@ from src.application.use_cases.manage_restaurants import (
     UpdateRestaurantUseCase,
 )
 from src.application.use_cases.manage_account import (
+    ChangePasswordUseCase,
     LoginUseCase,
     RegisterUserUseCase,
     RequestPasswordResetUseCase,
     ResetPasswordUseCase,
 )
+from src.application.use_cases.manage_favorites import (
+    ListFavoritesUseCase,
+    RemoveFavoriteUseCase,
+    SaveFavoriteUseCase,
+)
+from src.application.use_cases.get_user_stats import GetUserStatsUseCase
 from src.application.use_cases.find_restaurants_for_dish import (
     FindRestaurantsForDishUseCase,
 )
@@ -41,6 +49,7 @@ from src.application.errors import (
     InvalidCredentialsError,
     PermissionDeniedError,
 )
+from src.domain.entities.interaction import ActionType
 from src.domain.entities.user import User, UserRole
 from src.infrastructure.auth.admin_auth import AdminAuthService
 from src.infrastructure.auth.crypto import hash_password, verify_password
@@ -56,6 +65,9 @@ from src.infrastructure.auth.rate_limit import (
 from src.infrastructure.auth.user_auth import UserTokenService
 from src.infrastructure.notifications.smtp_email_sender import SmtpEmailSender
 from src.infrastructure.auth.password_reset import PasswordResetTokenService
+from src.infrastructure.repositories.sqlite_saved_item_repository import (
+    SqliteSavedItemRepository,
+)
 from src.infrastructure.repositories.sqlite_user_repository import SqliteUserRepository
 from src.infrastructure.adapters.ml_rule_predictor import MlRulePredictor
 from src.infrastructure.adapters.open_meteo_context_provider import (
@@ -126,11 +138,19 @@ class Container:
     set_restaurant_visibility: Optional[SetRestaurantVisibilityUseCase]
     # --- Tài khoản người dùng cuối --------------------------------------------
     users: object
+    # Kho "quán & món đã lưu" + bộ đếm hoạt động: hai thứ đứng sau cấp độ và huy hiệu.
+    saved_items: object
+    activity_tally: ActivityTally
+    save_favorite: SaveFavoriteUseCase
+    remove_favorite: RemoveFavoriteUseCase
+    list_favorites: ListFavoritesUseCase
+    get_user_stats: GetUserStatsUseCase
     user_tokens: UserTokenService
     reset_tokens: PasswordResetTokenService
     emails: SmtpEmailSender
     register_user: RegisterUserUseCase
     login_user: LoginUseCase
+    change_password: ChangePasswordUseCase
     request_password_reset: RequestPasswordResetUseCase
     reset_password: ResetPasswordUseCase
     # Hai bộ đếm RIÊNG BIỆT. Dùng chung một bộ thì người đăng ký hụt vài lần sẽ ăn hết
@@ -163,6 +183,8 @@ class Container:
                 else "kho hiện tại không ghi được - cần MOODBITE_STORAGE=sqlite",
             },
             "users": _status_of(self.users),
+            "saved_items": _status_of(self.saved_items),
+            "user_activity": _status_of(self.activity_tally),
             "user_auth": _status_of(self.user_tokens),
             "email": self.emails.status(),
         }
@@ -277,6 +299,35 @@ def build_container(settings: Optional[Settings] = None) -> Container:
     # SQLite rỗng gần như không tốn gì, và nhờ vậy /health nói được "kho sẵn sàng nhưng
     # chưa có secret" thay vì gộp hai vấn đề khác nhau vào một thông báo.
     users = SqliteUserRepository(settings.users_db)
+    # CÙNG FILE CSDL với tài khoản, cố ý — cả hai đều là dữ liệu gốc. Xem ghi chú đầu
+    # `sqlite_saved_item_repository.py`.
+    saved_items = SqliteSavedItemRepository(settings.users_db)
+
+    # Bộ đếm "lượt khám phá" cho cấp độ/huy hiệu. Dựng lại từ nhật ký tương tác đúng như
+    # bộ đếm báo đóng cửa ở trên, để khởi động lại không xoá sạch cấp độ của người dùng.
+    activity_tally = ActivityTally()
+    replay_activity = getattr(interaction_repository, "replay_user_activity", None)
+    if callable(replay_activity):
+        so_ban_ghi = 0
+        for rec in replay_activity():
+            try:
+                hanh_dong = ActionType(rec.get("action_type"))
+            except ValueError:
+                continue  # action_type lạ trong bản ghi cũ -> bỏ qua, không làm sập app
+            ngay = str(rec.get("created_at") or "")[:10] or None
+            activity_tally.record(
+                user_id=rec.get("user_id"),
+                action_type=hanh_dong,
+                restaurant_id=str(rec.get("restaurant_id") or ""),
+                day=ngay,
+                dwell_time_ms=rec.get("dwell_time_ms"),
+            )
+            so_ban_ghi += 1
+        if so_ban_ghi:
+            logger.info(
+                "Dựng lại hoạt động người dùng từ %d bản ghi (%d tài khoản).",
+                so_ban_ghi, activity_tally.tracked_users,
+            )
     user_tokens = UserTokenService(
         settings.user_token_secret, settings.user_token_ttl_seconds
     )
@@ -331,6 +382,7 @@ def build_container(settings: Optional[Settings] = None) -> Container:
             interactions=interaction_repository,
             restaurants=restaurant_repository,
             closure_tally=closure_tally,
+            activity_tally=activity_tally,
         ),
         suggest_dishes=SuggestDishesUseCase(
             catalog=dish_catalog_repository,
@@ -345,11 +397,18 @@ def build_container(settings: Optional[Settings] = None) -> Container:
             closure_tally=closure_tally,
         ),
         users=users,
+        saved_items=saved_items,
+        activity_tally=activity_tally,
+        save_favorite=SaveFavoriteUseCase(saved_items),
+        remove_favorite=RemoveFavoriteUseCase(saved_items),
+        list_favorites=ListFavoritesUseCase(saved_items),
+        get_user_stats=GetUserStatsUseCase(activity_tally, saved_items),
         user_tokens=user_tokens,
         reset_tokens=reset_tokens,
         emails=emails,
         register_user=RegisterUserUseCase(users, hash_password, user_tokens.issue),
         login_user=LoginUseCase(users, verify_password, user_tokens.issue),
+        change_password=ChangePasswordUseCase(users, verify_password, hash_password),
         request_password_reset=RequestPasswordResetUseCase(
             users=users,
             emails=emails,
@@ -461,6 +520,31 @@ def get_current_user(
             "Tài khoản không còn tồn tại. Hãy đăng nhập lại."
         )
     return user
+
+
+def get_optional_user(
+    request: Request,
+    container: Container = Depends(get_container),
+) -> Optional[User]:
+    """Người đang đăng nhập, hoặc `None` nếu là KHÁCH. KHÔNG BAO GIỜ ném lỗi.
+
+    Dùng cho endpoint mà cả khách lẫn người đã đăng nhập đều gọi được — hiện chỉ có
+    `POST /interactions`. Khách vẫn phải ghi được tương tác (đó là nguồn nhãn huấn luyện
+    và cũng là nguồn của tính năng báo đóng cửa); người đã đăng nhập thì ghi kèm `user_id`
+    để đếm được lượt khám phá.
+
+    ⚠️ Token hỏng/hết hạn ở đây được coi như KHÁCH, không phải 401. Lý do: người dùng đang
+    xem một quán mà token vừa hết hạn thì không có lý gì để chặn việc ghi nhật ký — hành
+    vi đó vẫn có thật. Trả 401 chỉ khiến client hiện lỗi ở một chỗ chẳng liên quan gì.
+    """
+    if not request.headers.get("Authorization"):
+        return None
+    try:
+        container.user_tokens.ensure_configured()
+        user_id = container.user_tokens.subject_of(_bearer_token(request))
+        return container.users.get_by_id(user_id)
+    except Exception:  # noqa: BLE001 - mọi lỗi xác thực đều quy về "coi như khách"
+        return None
 
 
 def require_role(role: UserRole):

@@ -27,6 +27,7 @@ import { LoginPage } from '@/pages/login';
 import { RegisterPage } from '@/pages/register';
 import { ForgotPasswordPage } from '@/pages/forgot-password';
 import { ResetPasswordPage } from '@/pages/reset-password';
+import { VerifyEmailPage } from '@/pages/verify-email';
 import { AccountPage } from '@/pages/account';
 import { NotFoundPage } from '@/pages/not-found';
 import { DUONG_DAN_CU, ROUTES } from '@/shared/config';
@@ -65,6 +66,7 @@ export const routes: RouteObject[] = [
       { path: ROUTES.register, element: <RegisterPage /> },
       { path: ROUTES.forgotPassword, element: <ForgotPasswordPage /> },
       { path: ROUTES.resetPassword, element: <ResetPasswordPage /> },
+      { path: ROUTES.verifyEmail, element: <VerifyEmailPage /> },
       { path: ROUTES.account, element: <AccountPage /> },
       // Luồng cũ: tìm quán bằng câu tự nhiên.
       { path: ROUTES.search, element: <SearchPage /> },

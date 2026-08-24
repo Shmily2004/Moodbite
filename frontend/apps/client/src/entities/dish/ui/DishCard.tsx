@@ -6,13 +6,15 @@
  * Dựng theo `design/Home.jpg` (2026-08-22): ảnh to phía trên, trái tim ở góc ảnh, nhãn
  * "MoodBite đề xuất" cho món xếp đầu, rồi tên và một dòng thông tin.
  *
- * ⚠️ HAI THỨ TRONG BẢN THIẾT KẾ KHÔNG CÓ DỮ LIỆU, CỐ TÌNH BỎ TRỐNG:
- *   ⭐ 4.7    -> MÓN không có trường rating. Chỉ QUÁN mới có, và chỉ 37,9% quán có.
- *              Muốn hiện thì backend phải tính trung bình rating các quán bán món đó.
- *   ~1,2 km  -> MÓN không có khoảng cách; khoảng cách là của từng quán. Muốn hiện thì
- *              backend phải trả thêm "quán gần nhất bán món này cách bao xa".
- * Bịa hai con số này ra là kiểu sai nghiêm trọng nhất của dự án (CLAUDE.md mục 4). Chỗ
- * của chúng đang được thay bằng dữ liệu CÓ THẬT: số quán gần bạn và lý do được gợi ý.
+ * ⚠️ ⭐ 4.7 TRONG BẢN THIẾT KẾ VẪN KHÔNG CÓ DỮ LIỆU, CỐ TÌNH BỎ TRỐNG.
+ *   MÓN không có trường rating. Chỉ QUÁN mới có, và chỉ **2,7%** quán có (1.145/43.119).
+ *   Muốn hiện thì backend phải tính trung bình rating các quán bán món đó — và trung bình
+ *   của 2,7% mẫu thì tự nó cũng là một con số đáng ngờ. Bịa ra là kiểu sai nghiêm trọng
+ *   nhất của dự án (CLAUDE.md mục 4).
+ *
+ * ✅ 📍 1,2 km NAY LÀ SỐ THẬT (2026-08-23): `nearest_restaurant_km` = khoảng cách tới
+ *   quán GẦN NHẤT có bán món này, do `SuggestDishesUseCase` tính. `null` = không có quán
+ *   nào trong bán kính, và khi đó KHÔNG hiện gì — không bao giờ hiện "0 km".
  *
  * THỨ TỰ THÔNG TIN (bước 1 của luồng: người dùng đang CHỌN MÓN, chưa quan tâm quán):
  *   1. ảnh + tên món
@@ -53,6 +55,15 @@ export function DishCard({ dish, onOpen, saved = false, onToggleSave }: DishCard
           <DishThumb name={dish.name} imageUrl={dish.image_url} />
 
           {deXuat && <span className="dishcard__badge">MoodBite đề xuất</span>}
+
+          {/* Khoảng cách tới quán gần nhất. `null` -> không vẽ gì cả; "0 km" hay "?" đều
+              tệ hơn là để trống. */}
+          {dish.nearest_restaurant_km != null && (
+            <span className="dishcard__distance">
+              <span aria-hidden="true">📍</span>{' '}
+              {dish.nearest_restaurant_km.toFixed(1).replace('.', ',')} km
+            </span>
+          )}
 
           {onToggleSave && (
             <button

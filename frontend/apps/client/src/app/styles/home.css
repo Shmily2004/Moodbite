@@ -60,7 +60,9 @@
   align-items: center;
   gap: clamp(12px, 2vw, 28px);
   padding: 10px clamp(16px, 3vw, 40px);
-  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  /* Đo trên bản thiết kế: thanh trên là #FDF4E8 — cùng tông với nền trang, KHÔNG
+     phải một dải trắng. Vẫn để hơi trong để nội dung cuộn qua thấy mờ mờ. */
+  background: color-mix(in srgb, var(--brand-cream) 92%, transparent);
   border-bottom: 1px solid var(--line-warm-soft);
   /* Dính trên cùng khi cuộn -> phải làm mờ nền, nếu không chữ phía dưới trôi qua sẽ
      chồng lên chữ của thanh. */
@@ -596,6 +598,23 @@
   background: linear-gradient(140deg, #FBEDE4, #F7E3D3);
 }
 
+/* Khoảng cách tới quán gần nhất — góc dưới trái của ảnh, đúng như bản thiết kế bộ lọc.
+   Nền tối mờ vì nó nằm trên ẢNH, mà ảnh món thì sáng tối đủ kiểu. */
+.dishcard__distance {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: rgba(16, 32, 60, .62);
+  color: #fff;
+  font-size: .76rem;
+  font-weight: 700;
+}
+
 .dishcard__badge {
   position: absolute;
   top: 10px;
@@ -670,3 +689,99 @@
   background: var(--line-warm-soft);
 }
 .skeleton-line--title { height: 14px; width: 70%; margin-bottom: 8px; }
+
+
+/* =========================================================================
+   NGĂN KÉO BỘ LỌC (phương án A — chủ dự án chốt 2026-08-23)
+   ========================================================================= */
+
+.results__actions { display: flex; align-items: center; gap: 12px; }
+
+.btn--filter { display: inline-flex; align-items: center; gap: 6px; }
+/* Đang lọc thì nút phải KHÁC HẲN: người dùng cuộn xuống giữa danh sách rất dễ quên là
+   mình đang bật bộ lọc, rồi tưởng "app có mỗi bằng này món". */
+.btn--filter-on { border-color: var(--brand-orange); color: var(--brand-orange); }
+.btn__badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--brand-orange);
+  color: #fff;
+  font-size: .72rem;
+  font-weight: 800;
+}
+
+.drawer { position: fixed; inset: 0; z-index: 60; }
+.drawer__veil {
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 29, 72, .32);
+}
+
+.drawer__panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  width: min(420px, 100%);
+  height: 100%;
+  background: var(--brand-cream);
+  border-left: 1px solid var(--line-warm);
+  box-shadow: -20px 0 60px rgba(2, 29, 72, .18);
+  animation: drawer-vao .18s ease-out;
+}
+.drawer__panel:focus { outline: none; }
+
+/* Trượt vào từ mép phải. Người dùng bật "giảm chuyển động" thì bỏ hiệu ứng — chuyển
+   động ngang là thứ gây khó chịu nhất với nhóm nhạy cảm tiền đình. */
+@keyframes drawer-vao {
+  from { transform: translateX(16px); opacity: .4; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .drawer__panel { animation: none; }
+}
+
+.drawer__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--line-warm);
+}
+.drawer__head .panel__title { display: flex; align-items: center; gap: 8px; margin: 0; }
+.drawer__head-actions { display: flex; align-items: center; gap: 10px; }
+.drawer__count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--brand-orange);
+  color: #fff;
+  font-size: .74rem;
+}
+.drawer__close {
+  border: 0;
+  background: none;
+  color: var(--auth-ink-soft);
+  font-size: 1.05rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px 6px;
+}
+
+/* Chỉ PHẦN THÂN cuộn, đầu và đáy đứng yên — nếu cả panel cuộn thì nút "Xem kết quả"
+   trôi mất khỏi màn hình đúng lúc người dùng cần nó nhất. */
+.drawer__body { flex: 1; overflow-y: auto; padding: 16px 18px; }
+.drawer__foot {
+  padding: 12px 18px;
+  border-top: 1px solid var(--line-warm);
+}
+.drawer__foot .btn { width: 100%; justify-content: center; }

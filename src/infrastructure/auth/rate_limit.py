@@ -92,10 +92,26 @@ REGISTER_WINDOW_SECONDS = 3600
 FORGOT_PASSWORD_MAX_ATTEMPTS = 3
 FORGOT_PASSWORD_WINDOW_SECONDS = 3600
 
+# Đăng nhập QUẢN TRỊ — CHẶT HƠN đăng nhập thường. Thêm 2026-08-24 sau khi rà soát bảo mật.
+#
+# ⚠️ TRƯỚC ĐÓ `/admin/login` KHÔNG hề có giới hạn nào, trong khi `/auth/login` của người
+# dùng thường thì có. Đó là bất đối xứng đúng chiều nguy hiểm nhất: chỉ có MỘT tài khoản
+# quản trị, nó sửa/ẩn được mọi quán, và đây là cánh cửa duy nhất vào đó.
+#
+# Còn một lý do thứ hai không liên quan tới đoán mật khẩu: mỗi lần thử đều chạy PBKDF2
+# 600.000 vòng, tốn ~0,4 giây CPU. Không chặn thì một người gửi liên tục là đủ chiếm hết
+# CPU của máy chủ — endpoint này công khai, ai cũng gọi được.
+#
+# 5 lần/15 phút: người quản trị biết mật khẩu của mình, gõ nhầm quá 5 lần là chuyện hiếm.
+ADMIN_LOGIN_MAX_ATTEMPTS = 5
+ADMIN_LOGIN_WINDOW_SECONDS = 900
+
 
 __all__ = [
     "SlidingWindowRateLimiter",
     "RateLimitExceeded",
+    "ADMIN_LOGIN_MAX_ATTEMPTS",
+    "ADMIN_LOGIN_WINDOW_SECONDS",
     "LOGIN_MAX_ATTEMPTS",
     "LOGIN_WINDOW_SECONDS",
     "REGISTER_MAX_ATTEMPTS",

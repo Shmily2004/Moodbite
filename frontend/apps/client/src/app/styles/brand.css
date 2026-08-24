@@ -16,8 +16,20 @@
   --brand-navy-2:      #0B2E68;   /* trạng thái hover của nút chính */
   --brand-orange:      #F39206;
   --brand-orange-2:    #D97C04;
-  --brand-cream:       #FCF4EA;
-  --brand-cream-hi:    #FEFBF6;   /* đỉnh gradient nền, sáng hơn kem một chút */
+  /* ĐO TỪ BẢN THIẾT KẾ, không chọn bằng mắt.
+     `frontend/design/Home.jpg`, lấy màu TRUNG BÌNH từng vùng (JPEG có nhiễu nên một
+     điểm lẻ không đáng tin):
+         nền trang (hero · giữa · lưới món)  #FDF3E5 · #FDF5EC · #FDF5EB  -> #FDF4E9
+         thanh trên                          #FDF4E8   (KEM, không phải trắng)
+         nền thẻ mood                        #FEF7EE   (nhạt hơn nền một chút xíu)
+         dải mời đăng ký                     #FCF3E8   (gần như bằng nền)
+         viền thẻ                            #FAF0E4   (rất mờ)
+     Đo lại bất cứ lúc nào bằng PIL — xem ghi chú ở PROJECT_CHECKLIST. */
+  --brand-cream:       #FDF4E9;
+  /* CỐ Ý BẰNG `--brand-cream`: bản thiết kế là MỘT TÔNG PHẲNG từ trên xuống. Bản trước
+     để #FEFBF6 (gần trắng) làm đỉnh gradient, khiến cả phần đầu trang trắng bệch —
+     đúng chỗ chủ dự án đã chỉ ra hai lần. */
+  --brand-cream-hi:    #FDF4E9;
 
   /* Màu chữ và mặt phẳng của các trang thương hiệu. */
   --auth-page:         var(--brand-cream);
@@ -49,10 +61,10 @@
        --surface       thẻ nội dung — trắng ngả kem, KHÔNG phải #FFFFFF
        --surface-soft  dải nhấn (mời đăng ký, ô số liệu) — đậm hơn nền một chút
        --line-warm     viền ấm, thay cho viền ánh xanh                                */
-  --surface:           #FFFCF6;
-  --surface-soft:      #FBF1E2;
-  --line-warm:         #F0E2CD;
-  --line-warm-soft:    #F6ECDD;
+  --surface:           #FEF7EE;
+  --surface-soft:      #FCF3E8;
+  --line-warm:         #F5E9DA;
+  --line-warm-soft:    #FAF1E6;
 
   --auth-shadow: 0 24px 60px rgba(2, 29, 72, .13), 0 2px 6px rgba(2, 29, 72, .06);
 

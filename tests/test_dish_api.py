@@ -408,3 +408,61 @@ def test_rank_positions_stay_continuous_across_the_two_tiers(client):
     ).json()["data"]
 
     assert [r["rank_position"] for r in data["results"]] == [1, 2, 3]
+
+
+# ==========================================================================
+# KHOẢNG CÁCH TỚI QUÁN GẦN NHẤT (thêm 2026-08-23)
+#
+# Bản thiết kế bộ lọc mới hiện "📍 1,2 km" trên từng thẻ món. Trước đây API không trả
+# trường này nên con số đó không thể có thật.
+# ==========================================================================
+
+
+def test_moi_mon_co_khoang_cach_toi_quan_GAN_NHAT(client):
+    res = client.post(
+        f"{API}/dishes/suggest",
+        json={"session_id": "s1", "latitude": 21.0285, "longitude": 105.8542},
+    )
+    assert res.status_code == 200, res.text
+    ket_qua = res.json()["data"]["results"]
+    assert ket_qua, "phải có ít nhất một món để kiểm"
+
+    for mon in ket_qua:
+        assert "nearest_restaurant_km" in mon
+        km = mon["nearest_restaurant_km"]
+        if mon["restaurant_count"] > 0:
+            # Có quán thì PHẢI có khoảng cách. None ở đây là mất dữ liệu.
+            assert km is not None, mon["name"]
+            assert km >= 0
+
+
+def test_khong_co_quan_nao_thi_khoang_cach_la_None_KHONG_phai_0(client):
+    """0 km nghĩa là "quán ngay dưới chân bạn" — một lời nói dối rất dễ tin.
+
+    Bán kính 0.01 km quanh một điểm giữa Thái Bình Dương thì không món nào có quán.
+    """
+    res = client.post(
+        f"{API}/dishes/suggest",
+        json={
+            "session_id": "s1",
+            "latitude": 21.0285,
+            "longitude": 105.8542,
+            "max_distance_km": 0.01,
+        },
+    )
+    assert res.status_code == 200, res.text
+    for mon in res.json()["data"]["results"]:
+        if mon["restaurant_count"] == 0:
+            assert mon["nearest_restaurant_km"] is None, mon["name"]
+
+
+def test_khoang_cach_lam_tron_MOT_chu_so_thap_phan(client):
+    """Sai số haversine + sai số toạ độ nguồn đều > 100m; "1,23 km" là chính xác giả."""
+    res = client.post(
+        f"{API}/dishes/suggest",
+        json={"session_id": "s1", "latitude": 21.0285, "longitude": 105.8542},
+    )
+    for mon in res.json()["data"]["results"]:
+        km = mon["nearest_restaurant_km"]
+        if km is not None:
+            assert round(km, 1) == km, f"{mon['name']}: {km}"

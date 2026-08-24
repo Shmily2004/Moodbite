@@ -39,6 +39,7 @@ from src.presentation.api.schemas import (
     MessageResponse,
     RegisterRequest,
     ResetPasswordRequest,
+    VerifyEmailRequest,
 )
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -50,11 +51,15 @@ def _auth_payload(user: User, token: str, ttl_seconds: int) -> dict:
     Đăng ký trả luôn token để người dùng không phải đăng nhập lại ngay sau đó — một bước
     thừa mà ai cũng bỏ qua được.
 
-    `to_public()` là nơi DUY NHẤT quyết định trường nào được lộ ra; router không tự dựng
-    dict, nếu không thì thêm trường vào entity sẽ có ngày lộ cả `password_hash`.
+    `to_self()` (không phải `to_public()`): người nhận vừa chứng minh xong họ là chủ tài
+    khoản — gõ đúng mật khẩu, hoặc vừa tự tạo tài khoản này. Nhờ vậy frontend biết ngay
+    `email_verified` mà không phải gọi thêm một vòng `/auth/me`.
+
+    Entity là nơi DUY NHẤT quyết định trường nào được lộ ra; router không tự dựng dict,
+    nếu không thì thêm trường vào entity sẽ có ngày lộ cả `password_hash`.
     """
     return {
-        "user": user.to_public(),
+        "user": user.to_self(),
         "token": token,
         "token_type": "bearer",
         "expires_in": ttl_seconds,
@@ -80,6 +85,13 @@ def register(
     user, token = container.register_user.execute(
         payload.username, payload.password, payload.display_name, payload.email
     )
+
+    # Có khai email thì gửi luôn thư xác minh — người dùng không phải tìm nút bấm.
+    # `try_send` NUỐT lỗi gửi thư, cố ý: tài khoản đã ghi vào CSDL rồi, để lỗi SMTP ném
+    # ra đây thì người dùng thấy "đăng ký thất bại" trong khi tên đã bị chiếm và họ không
+    # đăng ký lại được nữa. Xem `RequestEmailVerificationUseCase.try_send`.
+    container.request_email_verification.try_send(user)
+
     return success(
         _auth_payload(user, token, container.user_tokens.token_ttl_seconds),
         status_code=201,
@@ -182,6 +194,61 @@ def change_password(
             )
         }
     )
+
+
+@router.post("/verify-email/request", response_model=MessageResponse)
+def request_email_verification(
+    request: Request,
+    user: User = Depends(get_current_user),
+    container: Container = Depends(get_container),
+):
+    """Gửi lại thư xác minh email cho tài khoản ĐANG đăng nhập.
+
+    KHÁC `/forgot-password` ở chỗ KHÔNG phải giấu "tài khoản có tồn tại không": người gọi
+    đã đăng nhập nên đã biết thừa tài khoản của chính họ. Vì vậy ở đây nói thẳng được
+    "chưa khai email" hay "đã xác minh rồi" — giấu chỉ làm người dùng bối rối.
+
+    Dùng CHUNG bộ đếm với `/forgot-password`: cả hai đều làm một lá thư thật bay đi, và
+    hạn mức SMTP miễn phí của Gmail chỉ khoảng 500 thư/ngày.
+    """
+    container.email_verify_tokens.ensure_configured()
+    container.forgot_password_rate_limiter.check(client_key(request))
+
+    da_gui = container.request_email_verification.execute(user)
+    if not da_gui:
+        thong_diep = (
+            "Email của bạn đã được xác minh rồi."
+            if user.email_verified
+            else "Tài khoản chưa khai email nên không gửi được thư xác minh."
+        )
+        return success({"message": thong_diep})
+    return success(
+        {"message": "Đã gửi thư xác minh. Hãy kiểm tra cả hộp thư rác."}
+    )
+
+
+@router.post("/verify-email/confirm", response_model=MeResponse)
+def confirm_email_verification(
+    payload: VerifyEmailRequest,
+    request: Request,
+    container: Container = Depends(get_container),
+):
+    """Đóng dấu đã xác minh bằng token trong thư. KHÔNG cần đăng nhập.
+
+    Cố ý không đòi đăng nhập: người dùng hay mở thư ở máy/trình duyệt khác, bắt đăng nhập
+    trước sẽ chặn đúng lúc họ vừa bấm vào link. Token đã tự mang chữ ký và thời hạn nên
+    bản thân nó là bằng chứng đủ.
+
+    Token hỏng/hết hạn/đã dùng/email đã đổi -> 401.
+    Dùng chung bộ đếm với đăng nhập vì đây cũng là chỗ có thể đem token ra thử.
+    """
+    container.email_verify_tokens.ensure_configured()
+    container.login_rate_limiter.check(client_key(request))
+
+    user = container.confirm_email_verification.execute(payload.token)
+    # `to_self()`: người vừa chứng minh mình cầm được thư gửi tới hộp thư của tài khoản
+    # này, nên cho xem hồ sơ của chính tài khoản đó là hợp lý.
+    return success(user.to_self())
 
 
 @router.get("/me", response_model=MeResponse)

@@ -21,11 +21,19 @@ export type RegisterRequest = components['schemas']['RegisterRequest'];
 export type ForgotPasswordRequest = components['schemas']['ForgotPasswordRequest'];
 export type ResetPasswordRequest = components['schemas']['ResetPasswordRequest'];
 export type ChangePasswordRequest = components['schemas']['ChangePasswordRequest'];
+export type VerifyEmailRequest = components['schemas']['VerifyEmailRequest'];
 /** Kết quả của các thao tác không trả về tài nguyên nào — chỉ một câu cho người dùng đọc. */
 export type MessageData = components['schemas']['MessageData'];
 export type AuthData = components['schemas']['AuthData'];
-export type UserPublic = components['schemas']['UserPublic'];
-/** Hồ sơ CHÍNH CHỦ: có thêm email + ngày tham gia. Chỉ `/auth/me` trả về kiểu này. */
+/**
+ * Hồ sơ CHÍNH CHỦ: có thêm email, ngày tham gia và trạng thái xác minh email.
+ *
+ * Trả về bởi `/auth/me`, và từ 2026-08-24 cả `/auth/login` + `/auth/register` — người
+ * nhận vừa chứng minh xong họ là chủ tài khoản. Không bao giờ chứa `password_hash`.
+ *
+ * `UserPublic` (bản rút gọn) đã BỎ khỏi tệp này vì không endpoint nào còn trả về nó;
+ * giữ một kiểu không ai dùng chỉ tạo chỗ để chọn nhầm.
+ */
 export type UserSelf = components['schemas']['UserSelf'];
 /** Một mục đã lưu: quán hoặc món. `item_type` là 'restaurant' | 'dish'. */
 export type SavedItem = components['schemas']['SavedItemSchema'];
@@ -127,6 +135,38 @@ export class MoodbiteAuthApi {
     options?: RequestOptions,
   ): Promise<MessageData> {
     return this.http.request<MessageData>('/auth/change-password', {
+      ...options,
+      method: 'POST',
+      body,
+    });
+  }
+
+  /**
+   * Gửi LẠI thư xác minh email cho tài khoản đang đăng nhập.
+   *
+   * Luôn trả 200 kèm một câu để hiện cho người dùng, kể cả khi không có gì để gửi
+   * ("đã xác minh rồi", "chưa khai email"). Khác `forgotPassword`: ở đây người gọi đã
+   * đăng nhập nên backend nói thẳng được, không phải giấu để chống dò tài khoản.
+   */
+  requestEmailVerification(options?: RequestOptions): Promise<MessageData> {
+    return this.http.request<MessageData>('/auth/verify-email/request', {
+      ...options,
+      method: 'POST',
+    });
+  }
+
+  /**
+   * Xác nhận email bằng token trong thư. KHÔNG cần đăng nhập — người dùng hay mở thư ở
+   * máy khác, bắt đăng nhập trước sẽ chặn đúng lúc họ vừa bấm vào link.
+   *
+   * Trả về hồ sơ chính chủ với `email_verified = true`.
+   * Token hỏng / hết hạn / đã dùng / email đã đổi -> 401.
+   */
+  confirmEmailVerification(
+    body: VerifyEmailRequest,
+    options?: RequestOptions,
+  ): Promise<UserSelf> {
+    return this.http.request<UserSelf>('/auth/verify-email/confirm', {
       ...options,
       method: 'POST',
       body,

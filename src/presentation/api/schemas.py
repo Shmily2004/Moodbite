@@ -191,6 +191,11 @@ class DishItemSchema(BaseModel):
     image_url: Optional[str] = None
     # ĐO ĐƯỢC trong bán kính đã chọn, không phải ước lượng.
     restaurant_count: int
+    nearest_restaurant_km: Optional[float] = Field(
+        default=None,
+        description="Khoảng cách tới quán GẦN NHẤT bán món này (km). "
+                    "null = không có quán nào trong bán kính — KHÔNG phải 0 km.",
+    )
     rank_position: int
     score: float
     reasons: List[str] = []
@@ -373,6 +378,16 @@ class ResetPasswordRequest(BaseModel):
     )
 
 
+class VerifyEmailRequest(BaseModel):
+    """Xác minh email bằng token trong thư.
+
+    KHÔNG có trường email: địa chỉ nằm sẵn trong token và đã được ký. Nhận email từ
+    client rồi tin theo là mở đường cho người ta xác minh hộ địa chỉ của người khác.
+    """
+
+    token: str = Field(..., min_length=1, description="Token lấy từ đường dẫn trong thư.")
+
+
 class ChangePasswordRequest(BaseModel):
     """Đổi mật khẩu khi ĐANG đăng nhập.
 
@@ -411,17 +426,6 @@ class UserPublic(BaseModel):
     display_name: Optional[str] = None
 
 
-class AuthData(BaseModel):
-    user: UserPublic
-    token: str
-    token_type: str = "bearer"
-    expires_in: int = Field(..., description="Số giây token còn hiệu lực")
-
-
-class AuthResponse(BaseModel):
-    data: AuthData
-
-
 class UserSelf(UserPublic):
     """Bản hồ sơ CHÍNH CHỦ nhìn thấy — có thêm email và ngày tham gia.
 
@@ -434,6 +438,34 @@ class UserSelf(UserPublic):
     created_at: Optional[str] = Field(
         default=None, description="Ngày tạo tài khoản, dạng ISO-8601."
     )
+    email_verified: bool = Field(
+        default=False,
+        description=(
+            "Hộp thư đã được chứng minh là có thật chưa (chủ tài khoản đã bấm đường dẫn "
+            "trong thư). Chưa xác minh KHÔNG chặn đăng nhập — email vốn là trường tuỳ chọn."
+        ),
+    )
+
+
+class AuthData(BaseModel):
+    # `UserSelf` chứ không phải `UserPublic`, đổi 2026-08-24.
+    #
+    # Người nhận response này VỪA chứng minh xong họ là chủ tài khoản (gõ đúng mật khẩu,
+    # hoặc vừa tự tạo tài khoản), nên họ đúng là đối tượng mà `to_self()` phục vụ — cùng
+    # lý lẽ với `/auth/me`. Đây KHÔNG phải nới lỏng quyền: `to_self()` vẫn không bao giờ
+    # chứa `password_hash`, và vẫn tuyệt đối không được dùng ở chỗ người này xem người kia.
+    #
+    # Vì sao cần: thiếu `email_verified` ở đây thì sau khi đăng nhập, frontend không biết
+    # có phải nhắc "hãy xác minh email" hay không, mà cũng không có cớ gọi thêm
+    # `/auth/me` (nó chỉ gọi khi chưa có thông tin người dùng).
+    user: UserSelf
+    token: str
+    token_type: str = "bearer"
+    expires_in: int = Field(..., description="Số giây token còn hiệu lực")
+
+
+class AuthResponse(BaseModel):
+    data: AuthData
 
 
 class MeResponse(BaseModel):

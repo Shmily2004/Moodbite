@@ -25,9 +25,12 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Chạy xem giao diện | ✅ **một lệnh** | `python scripts/run_dev.py --admin` |
 | Kho lưu trữ | ✅ CSV (mặc định) · ✅ SQLite (chọn được) | `MOODBITE_STORAGE=sqlite`, kết quả GIỐNG HỆT |
 | **Frontend Admin** | ✅ **Code xong + ĐÃ BẬT 2026-08-23** | sửa quán · ẩn/bỏ ẩn · **thêm quán mới**. `python scripts/run_dev.py --admin` |
-| Xác thực admin | ✅ Code xong | 1 tài khoản, token HMAC 1 giờ, fail-closed |
+| Xác thực admin | ✅ Code xong | 1 tài khoản, token HMAC 1 giờ, fail-closed, **giới hạn 5 lần/15 phút (thêm 2026-08-24)** |
 | Phụ thuộc Python | ✅ 15 → **7** gói | gỡ torch/ultralytics/transformers/opencv (~2GB) khỏi CI |
-| Dữ liệu | ✅ **40.704 quán** · **747 món** | Overture · OSM (cào lại 2026-08-23) · Apify. Đã loại 16 bản ghi thiếu tên/toạ độ |
+| **Xác minh email** | ✅ **Xong 2026-08-24** | đăng ký có email → tự gửi thư; token HMAC 24h, dùng MỘT lần, đổi email là link cũ chết. Secret riêng `MOODBITE_EMAIL_VERIFY_SECRET` |
+| **Rà soát bảo mật** | ✅ **2026-08-24** | sửa 3 lỗi: secret đặt lại mật khẩu bị dán nhầm bằng CÂU LỆNH sinh nó · CORS mặc định `*` · `/admin/login` không giới hạn tần suất. Có `tests/test_bao_mat.py` canh |
+| **Phạm vi Hà Nội** | ✅ **Sửa 2026-08-24** | bbox cũ cắt mất 1/3 thành phố (Ba Vì, Sơn Tây, Mỹ Đức, Ứng Hoà…) và lấn sang Bắc Ninh. Ranh giới nay hỏi theo AREA của Hà Nội → đúng 126 đơn vị |
+| Dữ liệu | ✅ **52.855 quán** · **855 món** | Overture · OSM · Apify. Hạ ngưỡng tin cậy Overture 0.5→0.2 và **sửa bbox Hà Nội** (bbox cũ cắt mất 1/3 thành phố → Overture 268k→310k POI, OSM 110 ô, 0 ô lỗi). **Làm sạch 2026-08-24:** bỏ **7.534 quán ở tỉnh khác** (Bắc Ninh/Hưng Yên/Vĩnh Phúc/Bắc Giang), sửa **803** `district` sai/bẩn, làm sạch **494** tên quán. Đơn vị hành chính **185 → 125**, tất cả đều thuộc Hà Nội |
 | **Ảnh món gắn nhầm** | ✅ **Đã soát và gỡ 2026-08-23** | `python scripts/audit_dish_images.py` — 4 món đang hiện ảnh SAI (bãi biển cho món lẩu). Đã chặn ở nguồn |
 | Thu thập dữ liệu đa nguồn | ✅ Xong | kiến trúc `SourceAdapter`, thêm nguồn không sửa pipeline |
 | Lọc giờ mở cửa / chế độ ăn / quận | ✅ Xong | thiếu dữ liệu KHÔNG bị loại |
@@ -40,11 +43,11 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | **Lớp 1 — Phân cụm trải nghiệm** | ✅ **Xong** | KMeans k=7, Silhouette 0.318 |
 | **Lớp 2 — Tìm kiếm ngữ nghĩa** | ✅ **Xong** | TF-IDF cosine, 40.720 quán |
 | **Luồng "chọn món trước, tìm quán sau"** | ✅ **Backend + Client xong** · ⬜ chưa có UI admin cho món | `/dishes/suggest` → `/dishes/{id}` → `/dishes/{id}/restaurants`; trang chủ là LƯỚI MÓN. Tài liệu đề án đã sửa cho khớp (2026-08-19) |
-| **Danh mục món ăn** | ✅ **747 món** · **100% có giới thiệu** · 87.1% có ảnh | `python scripts/build_dish_catalog.py --enrich` |
-| ↳ trong đó tìm được quán ở Hà Nội | 🟡 **189 món (25.3%)** | 610 món còn lại là món quốc tế chưa quán nào ở HN bán. Trang chủ **tự ẩn** và nói rõ lý do; chúng sẽ tự hiện khi có thêm dữ liệu quán |
+| **Danh mục món ăn** | ✅ **855 món** · 93.0% có giới thiệu · 81.5% có ảnh | `python scripts/build_dish_catalog.py --enrich`. Hai tỷ lệ này TỤT so với mốc 747 món (100% / 87.1%) vì 108 món mới đào từ tên quán và Wikidata chưa có bài Wikipedia để lấy ảnh + giới thiệu |
+| ↳ trong đó tìm được quán ở Hà Nội | 🟡 **297 món (34.7%)** | +108 món so với 2026-08-23, nhờ nguồn thứ ba: đào cụm từ trong TÊN của 53.461 quán thật (`python scripts/mine_dish_names.py`). 558 món còn lại là món quốc tế chưa quán nào ở HN bán — trang chủ **tự ẩn** và nói rõ lý do |
 | Giới thiệu ngắn về món | ✅ Wikipedia REST summary + soạn tay | ĐÃ BỎ phần nguyên liệu (chốt 2026-08-19). ĐÃ BỎ trích regex vì sinh dữ liệu sai — xem `sources/wikipedia_dish.py` |
 | Ảnh món | ✅ 87.1% · **chỉ lưu URL, không tải file** | ~2000 món cache ≈ 1.4MB; tải ảnh về sẽ tốn ~400MB |
-| Tìm món mới tự động | ✅ 37 thể loại Wikipedia | `python scripts/discover_dishes.py` — quét 1959 trang, thêm 640 món |
+| Tìm món mới tự động | ✅ **3 nguồn** | `discover_dishes.py` (37 thể loại Wikipedia + **Wikidata CC0**, 4.793 mục) và `mine_dish_names.py` (đào từ tên quán). Mọi `--apply` phải đi qua danh sách duyệt tay `data_pipeline/dish_approved.json` |
 | Phạm vi địa lý | 🔒 **CHỈ HÀ NỘI** (chốt 2026-08-19) | `CITY_BBOXES` chỉ còn `ha_noi`; truyền `--city` khác bị từ chối. Dữ liệu hiện tại 100% trong Hà Nội (lat 20.729–21.400, lng 105.416–106.050) |
 | Theo dõi dung lượng | ✅ Có công cụ | `python scripts/disk_report.py` |
 | Nguồn quán ngoài OSM/Google | ✅ **Overture Maps** | `python -m data_pipeline.harvest --source overture --city ha_noi`. Wikidata đã thử và LOẠI (chỉ 5 quán toàn VN) |
@@ -664,6 +667,56 @@ trống, không bịa):**
 | "Lượt khám phá" | ✅ **Xong** | = số QUÁN KHÁC NHAU đã xem đủ lâu; server đếm |
 | Cấp độ + huy hiệu | ✅ **Xong** | 5 cấp · 5 huy hiệu · `GET /me/stats` |
 
+### Đào thêm dữ liệu — 3 lỗi thật, +2.414 quán (2026-08-23, đợt 3)
+
+Chủ dự án: *"hãy xem có thể đào thêm dữ liệu gì thì đào, đào từ mọi nguồn có thể"*.
+Không tìm được nguồn MỚI nào hợp pháp và miễn phí, nhưng tìm ra **ba lỗi đang chặn dữ
+liệu sẵn có** — sửa xong lấy thêm được 2.414 quán mà không tốn một đồng.
+
+| Bước | Trước | Sau |
+|---|---:|---:|
+| Tổng số quán | 40.704 | **43.118** (+2.414) |
+| Quán có điện thoại | 32.926 | **34.9xx** |
+| Quán có website | 10.514 | **11.6xx** |
+
+**Lỗi 1 — cache Overture GHIM CHẶT bản phát hành đầu tiên.**
+`_cache_file()` đặt tên `ha_noi_places.parquet`, không kèm tên bản. Overture ra bản mới
+hàng tháng và `_latest_release()` tra đúng bản mới, nhưng ngay sau đó thấy file cache cũ
+là dùng luôn — **cào lại bao nhiêu lần cũng ra đúng dữ liệu tháng đầu**, không một dòng
+log nào báo. Nay tên cache kèm bản phát hành.
+
+**Lỗi 2 — bản phát hành mới làm sập cả lượt cào.**
+`row.get("src_datasets") or []` — với bản 2026-08-19, cột đó về dưới dạng **mảng numpy**,
+và `mảng or []` ném `ValueError: truth value of an array is ambiguous`. Cả lượt cào chết
+giữa chừng. Nay đi qua `_danh_sach()`; không bao giờ dùng `or` với thứ có thể là mảng.
+
+**Lỗi 3 — bảy danh mục ăn uống bị vứt nhầm.**
+Soát 218.907 POI bị loại "không phải ăn uống", lọc ra danh mục có chữ liên quan đồ ăn rồi
+xét từng cái: `food` (460) · `desserts` (139) · `delicatessen` (123) · `gastropub` (38) ·
+`night_market` (12) · `donuts` (9) · `soul_food` (3) đều là **chỗ người ta ngồi ăn**.
+Vẫn KHÔNG lấy `health_food_store` (820), `farmers_market` (136), `food_delivery_service`,
+`restaurant_equipment_and_supply`, `food_tours` — đó là cửa hàng/dịch vụ, không phải quán.
+
+**Gộp HAI bản phát hành Overture thay vì thay thế.** Bản 2026-08-19 có ÍT hơn bản
+2026-07-22 (35.795 vs 39.567 quán ăn uống). Overture dọn bớt bản ghi không có nghĩa là
+"quán đó đóng cửa" — có thể chỉ là hạ điểm tin cậy hoặc gộp trùng lặp. Giữ cả hai ảnh chụp
+rồi để bước merge khử trùng lặp: không mất quán nào, cũng không đếm trùng.
+
+### Soát ảnh món bằng MẮT — `scripts/review_dish_images.py` (2026-08-23)
+
+Chủ dự án chỉ ra: ảnh **Nem nướng** là mấy xiên thịt đỏ au đang nướng trên vỉ than, nhìn
+như thịt sống. Kiểm lại: ảnh lấy từ ĐÚNG bài "Nem nướng" trên Wikipedia, file tên
+`Nem_nướng_by_Baoothersks.jpg` — **dữ liệu đúng, tấm ảnh tệ**.
+
+`audit_dish_images.py` bất lực trước loại lỗi này: nó chỉ bắt được ảnh lấy từ bài KHÔNG
+PHẢI món ăn. Không có mô hình thị giác thì máy không tự biết "tấm này trông có giống món
+không" — nhưng mắt người làm việc đó trong nửa giây.
+
+- [x] `python scripts/review_dish_images.py` dựng một trang HTML bày TOÀN BỘ ảnh món
+      (175 món đang bật có ảnh). Bấm vào ảnh nào sai -> đánh dấu đỏ, lưu ở localStorage,
+      cuối trang có sẵn lệnh `set_dish_image.py --clear` cho từng món đã đánh dấu.
+- ⚠️ Đây là việc của NGƯỜI, không tự động được. Nhưng 175 tấm soát hết trong vài phút.
+
 ### Bật quản trị · thêm quán mới · menu ☰ · tông màu (2026-08-23, đợt 2)
 
 - [x] **Trang quản trị ĐÃ BẬT trên máy này.** `build_sqlite.py` dựng lại từ dataset mới
@@ -1098,7 +1151,7 @@ Chia theo hạng mục của đề án, chấm theo *chạy được thật*, kh
 | Lớp 4 tóm tắt review | **100%** | 851/1310 quán |
 | Lớp 5 gợi ý món | **100%** | |
 | Giao diện người dùng | **85%** | còn trang chi tiết quán riêng, bản mobile |
-| Tài khoản + cá nhân hoá | **90%** | còn xác minh email, thu hồi token |
+| Tài khoản + cá nhân hoá | **95%** | ✅ **xác minh email xong 2026-08-24** (`/auth/verify-email/*`, trang `/verify-email`, 15 test). Còn: thu hồi token |
 | Trang quản trị | **70%** | code xong, **chưa bật trên máy**, chưa thêm mới quán được |
 | Triển khai (deploy) | **10%** | mới có `Procfile`, chưa deploy lần nào |
 | Báo cáo / tài liệu bảo vệ | **?** | ngoài phạm vi file này — **tự đánh giá** |

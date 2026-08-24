@@ -110,6 +110,9 @@ const vi = {
 
   'filters.title': 'Lọc chi tiết',
   'filters.sub': 'Mọi điều kiện mà bảy thẻ mood ở trên không phủ hết.',
+  'filters.open': 'Lọc',
+  'filters.close': 'Đóng bộ lọc',
+  'filters.apply': 'Xem kết quả',
 
   // --- Mời đăng ký ----------------------------------------------------------
   'cta.title': 'Muốn MoodBite hiểu bạn hơn?',
@@ -259,6 +262,9 @@ const en: Record<Khoa, string> = {
 
   'filters.title': 'Detailed filters',
   'filters.sub': "Everything the seven mood cards above don't cover.",
+  'filters.open': 'Filters',
+  'filters.close': 'Close filters',
+  'filters.apply': 'Show results',
 
   'cta.title': 'Want MoodBite to know you better?',
   'cta.sub': 'Pick your mood and taste, and MoodBite will remember them next time.',

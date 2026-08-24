@@ -44,9 +44,19 @@ def dat_lai(client, token, new_password=MAT_KHAU_MOI):
     )
 
 
+def thu_dat_lai(emails) -> list:
+    """Chỉ những lá thư ĐẶT LẠI MẬT KHẨU.
+
+    Phải LỌC chứ không đếm tổng: từ 2026-08-24, đăng ký có khai email sẽ tự sinh thêm
+    một lá thư XÁC MINH EMAIL. Đếm tổng thì mọi test ở file này đỏ vì một lý do chẳng
+    liên quan gì tới quên mật khẩu — và lần sau thêm loại thư khác lại đỏ tiếp.
+    """
+    return [t for t in emails.da_gui if "/reset-password?token=" in t["body"]]
+
+
 def token_trong_thu(emails) -> str:
-    """Bóc token từ đường dẫn trong lá thư gần nhất — đúng như người dùng bấm vào link."""
-    body = emails.da_gui[-1]["body"]
+    """Bóc token từ đường dẫn trong lá thư ĐẶT LẠI gần nhất — như người dùng bấm link."""
+    body = thu_dat_lai(emails)[-1]["body"]
     dong = next(d for d in body.splitlines() if "/reset-password?token=" in d)
     return dong.split("token=", 1)[1].strip()
 
@@ -60,8 +70,8 @@ def test_quen_mat_khau_gui_thu_va_doi_duoc_mat_khau(setup):
     client, emails, _ = setup
 
     assert quen(client, EMAIL).status_code == 200
-    assert len(emails.da_gui) == 1
-    assert emails.da_gui[0]["to"] == EMAIL
+    assert len(thu_dat_lai(emails)) == 1
+    assert thu_dat_lai(emails)[0]["to"] == EMAIL
 
     assert dat_lai(client, token_trong_thu(emails)).status_code == 200
 
@@ -74,13 +84,13 @@ def test_tim_duoc_ca_khi_go_TEN_DANG_NHAP_thay_vi_email(setup):
     """Người dùng thường không nhớ mình đăng ký bằng email nào."""
     client, emails, _ = setup
     assert quen(client, "nguoidung").status_code == 200
-    assert len(emails.da_gui) == 1
+    assert len(thu_dat_lai(emails)) == 1
 
 
 def test_thu_KHONG_chua_mat_khau_va_co_han_su_dung(setup):
     client, emails, _ = setup
     quen(client, EMAIL)
-    body = emails.da_gui[0]["body"]
+    body = thu_dat_lai(emails)[0]["body"]
 
     assert PASSWORD not in body           # không bao giờ gửi mật khẩu qua thư
     assert "pbkdf2" not in body           # cũng không gửi chuỗi băm
@@ -103,7 +113,7 @@ def test_email_khong_ton_tai_van_tra_ve_Y_HET_email_co_that(setup):
     assert co_that.status_code == khong_co.status_code == 200
     assert co_that.json() == khong_co.json()
     # Nhưng thư thì chỉ gửi cho tài khoản có thật.
-    assert len(emails.da_gui) == 1
+    assert len(thu_dat_lai(emails)) == 1
 
 
 def test_tai_khoan_KHONG_khai_email_cung_tra_ve_cau_giong_het(tmp_path):
@@ -114,7 +124,7 @@ def test_tai_khoan_KHONG_khai_email_cung_tra_ve_cau_giong_het(tmp_path):
     res = quen(client, "khongemail")
 
     assert res.status_code == 200
-    assert emails.da_gui == []                  # không có gì để gửi
+    assert thu_dat_lai(emails) == []           # không có gì để gửi
 
 
 # ==========================================================================

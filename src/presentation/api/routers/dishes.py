@@ -60,6 +60,7 @@ def _dish_item_dict(item) -> dict:
         "has_description": item.has_description,
         "description": item.description,
         "image_url": item.image_url,
+        "nearest_restaurant_km": item.nearest_restaurant_km,
         "restaurant_count": item.restaurant_count,
         "rank_position": item.rank_position,
         "score": item.score,

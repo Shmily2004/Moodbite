@@ -187,11 +187,14 @@ def attach_disabled_auth(container):
     quên lắp dây thành im lặng.
     """
     from src.application.use_cases.manage_account import (
+        ConfirmEmailVerificationUseCase,
         LoginUseCase,
         RegisterUserUseCase,
+        RequestEmailVerificationUseCase,
         RequestPasswordResetUseCase,
         ResetPasswordUseCase,
     )
+    from src.infrastructure.auth.email_verification import EmailVerificationTokenService
     from src.infrastructure.auth.password_reset import PasswordResetTokenService
     from src.infrastructure.auth.rate_limit import SlidingWindowRateLimiter
     from src.infrastructure.auth.user_auth import UserTokenService
@@ -199,10 +202,12 @@ def attach_disabled_auth(container):
     users = UnavailableUserRepo()
     tokens = UserTokenService(token_secret="")   # rỗng = chưa cấu hình
     reset_tokens = PasswordResetTokenService(token_secret="")
+    verify_tokens = EmailVerificationTokenService(token_secret="")
     emails = FakeEmailSender(configured=False)
     container.users = users
     container.user_tokens = tokens
     container.reset_tokens = reset_tokens
+    container.email_verify_tokens = verify_tokens
     container.emails = emails
     container.register_user = RegisterUserUseCase(users, lambda p: "x", tokens.issue)
     container.login_user = LoginUseCase(users, lambda p, h: False, tokens.issue)
@@ -214,7 +219,20 @@ def attach_disabled_auth(container):
         token_ttl_seconds=reset_tokens.token_ttl_seconds,
     )
     container.reset_password = ResetPasswordUseCase(users, lambda p: "x", reset_tokens)
+    container.request_email_verification = RequestEmailVerificationUseCase(
+        emails=emails,
+        verify_tokens=verify_tokens,
+        app_base_url="http://localhost:5173",
+        token_ttl_seconds=verify_tokens.token_ttl_seconds,
+    )
+    container.confirm_email_verification = ConfirmEmailVerificationUseCase(
+        users, verify_tokens
+    )
     container.login_rate_limiter = SlidingWindowRateLimiter(5, 300)
+    # Đăng nhập quản trị có bộ đếm RIÊNG — xem `rate_limit.ADMIN_LOGIN_MAX_ATTEMPTS`.
+    # Để rộng (50) vì phần lớn test không nói về giới hạn tần suất; test về giới hạn
+    # tự dựng bộ đếm nhỏ.
+    container.admin_login_rate_limiter = SlidingWindowRateLimiter(50, 900)
     container.register_rate_limiter = SlidingWindowRateLimiter(3, 3600)
     container.forgot_password_rate_limiter = SlidingWindowRateLimiter(3, 3600)
     return container

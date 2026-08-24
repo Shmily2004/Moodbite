@@ -278,19 +278,36 @@ def dedupe_across_sources(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]
     return kept
 
 
-def assign_missing_districts(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Gán khu vực hành chính cho MỌI bản ghi còn thiếu, bất kể đến từ nguồn nào.
+# Số đơn vị hành chính cấp 6 của Hà Nội, đo bằng chính ranh giới OSM ngày 2026-08-24
+# (relation 1903516 -> 126 đơn vị). Dùng làm CHỐT AN TOÀN: tải hụt ranh giới mà vẫn đem
+# đi lọc thì sẽ xoá nhầm hàng chục nghìn quán, nên dưới ngưỡng này là KHÔNG lọc.
+SO_DON_VI_HA_NOI_TOI_THIEU = 100
 
-    VÌ SAO Ở ĐÂY chứ không ở từng adapter: `harvest.py` chỉ gán cho dữ liệu nó vừa lấy
-    về, nên 546 quán cào từ Apify trước đây (vốn giàu rating/giá nhất) lại KHÔNG có khu
-    vực. Đặt ở bước gộp thì mọi nguồn - kể cả dữ liệu cũ - đều được gán.
 
-    Thiếu file ranh giới -> bỏ qua, KHÔNG làm hỏng pipeline.
+def assign_districts_and_filter_hanoi(
+    records: List[Dict[str, Any]],
+) -> List[Dict[str, Any]]:
+    """Gán LẠI khu vực cho MỌI bản ghi từ toạ độ, rồi bỏ quán nằm ngoài Hà Nội.
+
+    HAI THAY ĐỔI so với bản cũ (`assign_missing_districts`), đều có số đo ngày 2026-08-24:
+
+    1. GÁN LẠI CHO MỌI BẢN GHI, không chỉ bản ghi còn trống.
+       Bản cũ giữ nguyên giá trị do nguồn cung cấp, và giá trị đó BẨN: dataset có 185 giá
+       trị `district` khác nhau trong khi Hà Nội chỉ có 126 đơn vị. Thực tế gặp phải:
+       "Hoan Kiem" / "Dong Da" (không dấu) · "Hà đông" / "Hà Đông" (khác hoa thường) ·
+       "quận Long Biên" (lẫn tiền tố) · "Phố Phan Huy Chú" (là TÊN PHỐ) · "Hà Nội" (là
+       thành phố). Đo được 904 bản ghi sai kiểu này. Toạ độ + ranh giới hành chính là
+       nguồn sự thật đáng tin hơn hẳn chuỗi tự do của nguồn.
+
+    2. BỎ QUÁN NGOÀI HÀ NỘI. `CLAUDE.md` mục 4b chốt phạm vi CHỈ HÀ NỘI, nhưng đo được
+       3.184 quán (6,0%) nằm ở tỉnh khác: Từ Sơn/Tiên Du/Yên Phong (Bắc Ninh),
+       Ecopark - Xã Phụng Công/Văn Giang/Như Quỳnh (Hưng Yên), Phúc Yên/Xuân Hoà
+       (Vĩnh Phúc), Việt Yên/Hiệp Hoà (Bắc Giang). Chúng lọt vào vì bbox cũ lấn sang
+       phía đông - xem ghi chú ở `sources/districts.py`.
+
+    THIẾU RANH GIỚI THÌ KHÔNG LỌC. Xoá dữ liệu vì một lỗi mạng thoáng qua là hỏng nặng
+    hơn nhiều so với để lẫn vài trăm quán tỉnh bên cạnh thêm một hôm.
     """
-    missing = [r for r in records if not r.get("district")]
-    if not missing:
-        return records
-
     try:
         from data_pipeline.sources.districts import (
             DistrictLocator,
@@ -302,28 +319,54 @@ def assign_missing_districts(records: List[Dict[str, Any]]) -> List[Dict[str, An
         logger.warning(f"Bỏ qua bước gán khu vực: {exc}")
         return records
 
-    if not boundaries:
-        logger.warning("Bỏ qua bước gán khu vực: chưa có dữ liệu ranh giới")
-        return records
+    if len(boundaries) < SO_DON_VI_HA_NOI_TOI_THIEU:
+        logger.warning(
+            "Chỉ có %d đơn vị ranh giới (cần >=%d) - GÁN nhưng KHÔNG lọc, "
+            "để một lần tải hụt không xoá mất dữ liệu",
+            len(boundaries), SO_DON_VI_HA_NOI_TOI_THIEU,
+        )
 
     locator = DistrictLocator(boundaries)
-    assigned = 0
-    for record in missing:
+    du_de_loc = len(boundaries) >= SO_DON_VI_HA_NOI_TOI_THIEU
+
+    giu: List[Dict[str, Any]] = []
+    gan_moi = sua_lai = ngoai_ha_noi = khong_toa_do = 0
+
+    for record in records:
         location = record.get("location") or {}
         try:
             lat = float(location.get("lat"))
             lng = float(location.get("lng"))
         except (TypeError, ValueError):
+            khong_toa_do += 1
+            giu.append(record)   # không có toạ độ thì không kết luận được - giữ lại
             continue
-        district = locator.find(lat, lng)
-        if district:
-            record["district"] = district
-            # Khu vực là giá trị SUY RA từ toạ độ, không do nguồn cung cấp.
-            record["district_confidence"] = "derived"
-            assigned += 1
 
-    logger.info(f"Đã gán khu vực cho {assigned}/{len(missing)} record còn thiếu")
-    return records
+        district = locator.find(lat, lng)
+        if district is None:
+            ngoai_ha_noi += 1
+            if du_de_loc:
+                continue
+            giu.append(record)
+            continue
+
+        cu = record.get("district")
+        if not cu:
+            gan_moi += 1
+        elif cu != district:
+            sua_lai += 1
+        record["district"] = district
+        # Khu vực là giá trị SUY RA từ toạ độ, không do nguồn cung cấp.
+        record["district_confidence"] = "derived"
+        giu.append(record)
+
+    logger.info(
+        "Khu vực: gán mới %d · sửa lại %d sai/bẩn · %d không toạ độ · "
+        "%d ngoài Hà Nội (%s)",
+        gan_moi, sua_lai, khong_toa_do, ngoai_ha_noi,
+        "đã bỏ" if du_de_loc else "GIỮ vì thiếu ranh giới",
+    )
+    return giu
 
 
 def filter_to_food_only(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -343,7 +386,7 @@ def merge_and_prepare(raw_dir: str | Path | None = None, output_filename: str = 
 
     unique_records = backfill_provenance(unique_records)
     unique_records = dedupe_across_sources(unique_records)
-    unique_records = assign_missing_districts(unique_records)
+    unique_records = assign_districts_and_filter_hanoi(unique_records)
     filtered_records = filter_to_food_only(unique_records)
     if not filtered_records:
         logger.warning("Không còn record nào sau khi lọc.")

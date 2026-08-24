@@ -26,7 +26,6 @@ export type {
   FavoritesData,
   LoginRequest,
   SavedItem,
-  UserPublic,
   UserSelf,
   UserStatsData,
 } from '@moodbite/api-client';

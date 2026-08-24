@@ -62,11 +62,20 @@ XU_LY = {
     "favicon.png": ("favicon.png", "khong", 180),
 
     # --- Bộ icon mood (chủ dự án gửi dần từ 2026-08-23) ----------------------
-    # Icon hiển thị rộng ~40px, nên 160px là đủ nét cho màn hình 3x.
-    # Nguồn xuất ra có NỀN ĐEN và thừa rất nhiều lề — bắt buộc phải tách nền + cắt sát,
-    # nếu không trang chủ nền kem sẽ hiện một ô đen sì.
-    "spicy.png": ("icon-cay.png", "nen_den", 160),
-    "Relax.png": ("icon-thu-gian.png", "nen_den", 160),
+    # Icon hiển thị cao ~26px, nên 160px là dư nét cho cả màn hình 3x.
+    #
+    # Chế độ "icon" = GIỮ NGUYÊN màu, chỉ cắt sát theo kênh trong suốt sẵn có. Đã kiểm
+    # bằng máy: cả 7 file đều là PNG-32 có alpha (`spicy.png` góc = alpha 0). Trình xem
+    # ảnh vẽ vùng trong suốt thành đen nên nhìn tưởng có nền đen — xem `cat_theo_alpha`.
+    "spicy.png": ("icon-cay.png", "icon", 160),
+    "Relax.png": ("icon-thu-gian.png", "icon", 160),
+    "rain.png": ("icon-troi-mua.png", "icon", 160),
+    "grilled food.png": ("icon-do-nuong.png", "icon", 160),
+    # Ba icon dưới đây CHƯA CÓ THẺ tương ứng trên trang chủ — vẫn xử lý sẵn để lúc chốt
+    # được phần backend là lắp vào ngay. Xem PROJECT_CHECKLIST mục "Bộ icon mood".
+    "Date.png": ("icon-hen-ho.png", "icon", 160),
+    "Healthy.png": ("icon-healthy.png", "icon", 160),
+    "beer.png": ("icon-bia.png", "icon", 160),
 }
 
 # Ngưỡng tách nền, chọn theo số đo thật của `slogan.png`:
@@ -227,6 +236,52 @@ NEN_DEN_TOI_DA = 6
 # Alpha tối thiểu để một điểm được tính vào khung cắt. Để 0 thì quầng sáng mờ gần như
 # vô hình vẫn kéo khung ra sát mép ảnh, và việc cắt thành vô nghĩa.
 ALPHA_CAT = 24
+
+
+def cat_theo_alpha(rong: int, cao: int, kenh: int, hang: list[bytearray]):
+    """Ảnh ĐÃ CÓ kênh trong suốt -> giữ NGUYÊN màu, chỉ CẮT SÁT phần có hình.
+
+    ⚠️ LỖI ĐÃ MẮC 2026-08-23, ghi lại để không tái phạm: mấy file icon mở bằng trình xem
+    ảnh trông như có "nền đen", nên bản đầu đem chúng qua `tach_nen_den` — hàm đó tính
+    `alpha = max(R,G,B)`. Với ảnh vốn đã trong suốt, việc đó PHÁ kênh alpha thật: phần
+    màu sẫm của chính hình vẽ (nét viền lá, viền quả ớt) bị hạ alpha xuống theo độ sáng,
+    làm icon nhợt hẳn đi. Cái "nền đen" chỉ là cách trình xem ảnh vẽ vùng trong suốt.
+
+    Bài học chung: TRƯỚC KHI xử lý nền, phải kiểm xem ảnh đã có alpha chưa.
+
+    Vẫn phải cắt, vì file nguồn thừa rất nhiều lề — `spicy.png` là 1536×1024 với quả ớt
+    lệch hẳn sang phải; không cắt thì icon 26px hiện ra một quả ớt tí xíu ở góc.
+    """
+    if kenh != 4:
+        # Không có alpha thì không có gì để cắt theo — trả nguyên, `sang_rgba` lo phần sau.
+        return sang_rgba(rong, cao, kenh, hang)
+
+    trai, tren, phai, duoi = rong, cao, -1, -1
+    for y in range(cao):
+        dong = hang[y]
+        for x in range(rong):
+            if dong[x * 4 + 3] >= ALPHA_CAT:
+                if x < trai: trai = x
+                if x > phai: phai = x
+                if y < tren: tren = y
+                if y > duoi: duoi = y
+
+    if phai < 0:  # ảnh trống trơn -> trả nguyên để người chạy nhìn thấy mà sửa
+        return sang_rgba(rong, cao, kenh, hang)
+
+    le = max(1, int(max(phai - trai, duoi - tren) * 0.02))
+    trai = max(0, trai - le); tren = max(0, tren - le)
+    phai = min(rong - 1, phai + le); duoi = min(cao - 1, duoi + le)
+
+    r2, c2 = phai - trai + 1, duoi - tren + 1
+    cat = bytearray(r2 * c2 * 4)
+    for y in range(c2):
+        dong = hang[tren + y]
+        for x in range(r2):
+            i = (trai + x) * 4
+            j = (y * r2 + x) * 4
+            cat[j : j + 4] = dong[i : i + 4]
+    return r2, c2, cat
 
 
 def tach_nen_den(rong: int, cao: int, kenh: int, hang: list[bytearray]):
@@ -407,6 +462,8 @@ def main() -> int:
             r2, c2, diem = tach_nen_trang(rong, cao, kenh, hang)
         elif che_do == "nen_den":
             r2, c2, diem = tach_nen_den(rong, cao, kenh, hang)
+        elif che_do == "icon":
+            r2, c2, diem = cat_theo_alpha(rong, cao, kenh, hang)
         else:
             r2, c2, diem = sang_rgba(rong, cao, kenh, hang)
         r2, c2, diem = thu_nho(r2, c2, diem, be_ngang)
@@ -416,7 +473,11 @@ def main() -> int:
         ghi_png_rgba(dich, r2, c2, diem)
         kb_truoc = f.stat().st_size // 1024
         kb_sau = dich.stat().st_size // 1024
-        viec = {"nen_trang": "TÁCH NỀN", "nen_den": "TÁCH NỀN ĐEN"}.get(
+        viec = {
+            "nen_trang": "TÁCH NỀN",
+            "nen_den": "TÁCH NỀN ĐEN",
+            "icon": "CẮT SÁT",
+        }.get(
             che_do, "THU NHỎ"
         )
         print(

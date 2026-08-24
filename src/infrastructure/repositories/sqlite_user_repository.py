@@ -39,7 +39,11 @@ CREATE TABLE IF NOT EXISTS users (
     created_at    TEXT NOT NULL,
     -- TUỲ CHỌN và cố ý KHÔNG UNIQUE: chỉ dùng để gửi thư đặt lại mật khẩu, và đây là đồ
     -- án nên một người hoàn toàn có thể tạo vài tài khoản thử bằng cùng một hộp thư.
-    email         TEXT
+    email         TEXT,
+    -- 0/1. SQLite không có kiểu BOOLEAN riêng; INTEGER là cách chuẩn của nó.
+    -- NOT NULL DEFAULT 0: tài khoản cũ mặc định là CHƯA xác minh — đúng sự thật, vì
+    -- chưa ai từng bấm vào đường dẫn nào cả.
+    email_verified INTEGER NOT NULL DEFAULT 0
 );
 CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
 """
@@ -48,7 +52,10 @@ CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
 # email) câu `CREATE INDEX ... ON users(email)` sẽ nổ "no such column: email" và làm hỏng
 # cả bước dựng lược đồ. Phải thêm CỘT xong mới được tạo INDEX. Lỗi này đã xảy ra thật.
 
-_COLUMNS = "user_id, username, password_hash, role, display_name, created_at, email"
+_COLUMNS = (
+    "user_id, username, password_hash, role, display_name, created_at, "
+    "email, email_verified"
+)
 
 
 class SqliteUserRepository:
@@ -91,6 +98,13 @@ class SqliteUserRepository:
         if cot and "email" not in cot:
             logger.info("Nâng cấp kho tài khoản: thêm cột email.")
             conn.execute("ALTER TABLE users ADD COLUMN email TEXT")
+        if cot and "email_verified" not in cot:
+            # Cùng lý do với cột `email`: CSDL tạo trước khi có tính năng xác minh sẽ
+            # thiếu cột này và MỌI câu SELECT sau đó nổ "no such column".
+            logger.info("Nâng cấp kho tài khoản: thêm cột email_verified.")
+            conn.execute(
+                "ALTER TABLE users ADD COLUMN email_verified INTEGER NOT NULL DEFAULT 0"
+            )
         # Tạo index SAU khi chắc chắn đã có cột. `IF NOT EXISTS` nên chạy lại vô hại.
         conn.execute("CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)")
 
@@ -129,6 +143,31 @@ class SqliteUserRepository:
             logger.error("Lỗi đổi mật khẩu: %s", exc)
             return False
 
+    def mark_email_verified(self, user_id: str, email: str) -> bool:
+        """Đóng dấu đã xác minh, NHƯNG chỉ khi email hiện tại vẫn đúng bằng địa chỉ đó.
+
+        Điều kiện `AND email = ?` nằm ngay trong câu UPDATE chứ không kiểm bằng SELECT
+        trước rồi mới ghi: giữa hai câu lệnh đó người dùng vẫn kịp đổi email, và khi ấy
+        ta sẽ đóng dấu lên địa chỉ mới mà chưa ai chứng minh là có thật.
+        """
+        if self._error is not None:
+            return False
+        dia_chi = (email or "").strip().lower()
+        if not dia_chi:
+            return False
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                cur = conn.execute(
+                    "UPDATE users SET email_verified = 1 "
+                    "WHERE user_id = ? AND email = ?",
+                    (str(user_id), dia_chi),
+                )
+                conn.commit()
+                return cur.rowcount > 0
+        except sqlite3.Error as exc:
+            logger.error("Lỗi đánh dấu xác minh email: %s", exc)
+            return False
+
     def create(self, user: User) -> User:
         record = User(
             user_id=user.user_id or f"u-{uuid.uuid4()}",
@@ -138,11 +177,12 @@ class SqliteUserRepository:
             display_name=user.display_name,
             created_at=user.created_at or datetime.now(timezone.utc),
             email=user.email,
+            email_verified=user.email_verified,
         )
         try:
             with sqlite3.connect(self.db_path) as conn:
                 conn.execute(
-                    f"INSERT INTO users ({_COLUMNS}) VALUES (?,?,?,?,?,?,?)",
+                    f"INSERT INTO users ({_COLUMNS}) VALUES (?,?,?,?,?,?,?,?)",
                     (
                         record.user_id,
                         record.username,
@@ -151,6 +191,7 @@ class SqliteUserRepository:
                         record.display_name,
                         record.created_at.isoformat(),
                         record.email,
+                        int(record.email_verified),
                     ),
                 )
                 conn.commit()
@@ -194,6 +235,7 @@ class SqliteUserRepository:
             display_name=row["display_name"],
             created_at=datetime.fromisoformat(created) if created else None,
             email=row["email"],
+            email_verified=bool(row["email_verified"]),
         )
 
     def status(self) -> dict:

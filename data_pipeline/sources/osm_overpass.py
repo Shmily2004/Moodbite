@@ -20,6 +20,7 @@ BÀI HỌC ĐÃ SỬA Ở BẢN NÀY:
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 import math
@@ -40,7 +41,9 @@ from data_pipeline.sources.base import (
 logger = logging.getLogger(__name__)
 
 # Bbox Hà Nội (nam, tây, bắc, đông).
-HANOI_BBOX = (20.85, 105.70, 21.40, 106.05)
+# Lấy từ `districts.py` — MỘT nguồn sự thật duy nhất. Khai báo lại ở đây là cách
+# chắc chắn để hai file lệch nhau (đã suýt xảy ra khi sửa bbox ngày 2026-08-24).
+from data_pipeline.sources.districts import HANOI_BBOX  # noqa: E402
 
 # PHẠM VI THU THẬP: **CHỈ HÀ NỘI** — chủ dự án chốt ngày 2026-08-19.
 #
@@ -69,8 +72,16 @@ MIRRORS = [
 USER_AGENT = "MoodBite/1.0 (academic graduation project; OSM data via Overpass)"
 
 # Loại hình lấy về. Bám theo tài liệu OSM Map Features (amenity + shop liên quan ăn uống).
-AMENITY_VALUES = "restaurant|cafe|fast_food|bar|pub|food_court|ice_cream|biergarten"
-SHOP_VALUES = "bakery|confectionery|deli|pastry|tea|coffee|greengrocer"
+# Bổ sung 2026-08-24: `nightclub` (OSM) để KHỚP với nguồn Overture - bên đó đã nhận
+# `night_club` và `karaoke` từ lâu, nên bỏ ở đây là hai nguồn nói khác nhau về cùng một
+# quán. `shop=ice_cream` và `shop=chocolate` là hai tag chuẩn của OSM cùng họ với
+# `confectionery`/`pastry` vốn đã lấy.
+AMENITY_VALUES = (
+    "restaurant|cafe|fast_food|bar|pub|food_court|ice_cream|biergarten|nightclub"
+)
+SHOP_VALUES = (
+    "bakery|confectionery|deli|pastry|tea|coffee|greengrocer|ice_cream|chocolate"
+)
 
 # amenity/shop -> nhãn tiếng Việt, khớp cách đặt tên của dữ liệu Google đang có
 # (để `dish_knowledge_base.json` và bộ lọc mood khớp được cùng một bộ từ vựng).
@@ -90,6 +101,8 @@ CATEGORY_LABELS = {
     "tea": "Quán trà",
     "coffee": "Quán cà phê",
     "greengrocer": "Cửa hàng rau quả",
+    "nightclub": "Quán bar",
+    "chocolate": "Tiệm bánh kẹo",
 }
 
 # Tag tiện nghi: tên tag OSM -> nhãn nội bộ. Chỉ nhận khi giá trị là "yes".
@@ -211,14 +224,26 @@ class OsmOverpassSource:
         Hai chuyện này khác hẳn nhau — xem ghi chú ở `fetch()`.
         """
         self.cache_dir.mkdir(parents=True, exist_ok=True)
-        cache_file = self.cache_dir / f"tile_{'_'.join(str(v) for v in tile)}.json"
+        query = self._query(tile)
+        # ⚠️ TÊN CACHE PHẢI KÈM VÂN TAY CỦA QUERY.
+        #
+        # BUG THẬT, sửa 2026-08-24 - CÙNG MỘT LOẠI với bug cache của Overture đã sửa
+        # hôm 2026-08-23: bản cũ đặt tên `tile_<toạ độ>.json`, không dính dáng gì tới nội
+        # dung câu hỏi. Nghĩa là thêm loại quán mới vào `AMENITY_VALUES`/`SHOP_VALUES`
+        # rồi chạy lại thì vẫn đọc trúng cache cũ và ra **y hệt kết quả cũ**, không một
+        # dòng log nào báo là câu hỏi mới chưa từng được gửi đi.
+        # Kèm vân tay thì đổi tag = sinh file cache mới, cache cũ vẫn còn để đối chiếu.
+        fingerprint = hashlib.sha1(query.encode("utf-8")).hexdigest()[:8]
+        cache_file = (
+            self.cache_dir / f"tile_{'_'.join(str(v) for v in tile)}_{fingerprint}.json"
+        )
         if cache_file.exists():
             try:
                 return json.loads(cache_file.read_text(encoding="utf-8"))
             except (json.JSONDecodeError, OSError):
                 cache_file.unlink(missing_ok=True)  # cache hỏng thì lấy lại
 
-        payload = urllib.parse.urlencode({"data": self._query(tile)}).encode()
+        payload = urllib.parse.urlencode({"data": query}).encode()
         last_error = "khong ro"
 
         # Overpass trả 504 khá thường xuyên khi máy chủ đang tải nặng, NHƯNG cùng một

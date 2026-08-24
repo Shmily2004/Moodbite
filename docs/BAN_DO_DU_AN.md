@@ -163,8 +163,11 @@ code, và bấm thử được từng endpoint ngay trên trình duyệt.
 | `data_pipeline/data_raw/` | **Dữ liệu thô** vừa cào về, chưa xử lý. Không đọc trực tiếp |
 | `data_pipeline/data_cleaned/dataset_moodbite_features.csv` | **Dataset chính** — app đọc file này |
 | `data_pipeline/data_cleaned/restaurant_details.json` | Review · ảnh · giá (10,4% quán) |
-| `data_pipeline/data_cleaned/dish_catalog.json` | **Danh mục 747 món** + ảnh + giới thiệu |
+| `data_pipeline/data_cleaned/dish_catalog.json` | **Danh mục 855 món** + ảnh + giới thiệu |
 | `data_pipeline/dish_seed_manual.json` | Từ khoá nhận diện món — **soạn tay**, nguồn sự thật |
+| `data_pipeline/dish_approved.json` | **Cửa kiểm duyệt**: chỉ món có tên ở đây mới được `--apply` vào danh mục |
+| `data_pipeline/sources/wikidata_dish.py` | Nguồn món thứ hai (Wikidata, CC0) — lấy **tên gọi khác** |
+| `scripts/mine_dish_names.py` | Nguồn món thứ ba: đào cụm từ trong TÊN quán thật |
 | `data_pipeline/dish_knowledge_base.json` | Luật gợi ý món theo mood |
 | `data_pipeline/sources/` | Mỗi file = một **nguồn dữ liệu** (OSM, Overture, Wikipedia) |
 

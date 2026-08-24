@@ -14,10 +14,15 @@ from __future__ import annotations
 
 from typing import Optional
 
-from fastapi import APIRouter, Body, Depends, Query
+from fastapi import APIRouter, Body, Depends, Query, Request
 
 from src.application.errors import DataNotReadyError
-from src.presentation.api.dependencies import Container, get_container, require_admin
+from src.presentation.api.dependencies import (
+    Container,
+    client_key,
+    get_container,
+    require_admin,
+)
 from src.presentation.api.envelope import success
 from src.presentation.api.schemas import (
     AdminCreateRestaurantRequest,
@@ -67,12 +72,26 @@ def _to_summary(restaurant) -> AdminRestaurantSummary:
 
 
 @public_router.post("/login", response_model=AdminLoginResponse)
-def login(payload: AdminLoginRequest, container: Container = Depends(get_container)):
+def login(
+    payload: AdminLoginRequest,
+    request: Request,
+    container: Container = Depends(get_container),
+):
     """Đổi tài khoản/mật khẩu lấy token ngắn hạn.
 
     Sai thông tin -> 401 UNAUTHORIZED. Chưa cấu hình admin -> 503 kèm hướng dẫn.
+    Quá số lần thử -> 429 RATE_LIMITED.
+
+    ⚠️ ĐẾM TRƯỚC KHI KIỂM MẬT KHẨU. Kiểm mật khẩu chạy PBKDF2 600.000 vòng (~0,4 giây
+    CPU); để sau thì kẻ tấn công vẫn ép được máy chủ làm việc nặng dù request rốt cuộc
+    bị từ chối. Cùng lý lẽ đã ghi ở `/auth/register`.
     """
+    container.admin_login_rate_limiter.check(client_key(request))
+
     token = container.admin_auth.login(payload.username, payload.password)
+    # Đăng nhập ĐÚNG thì xoá lịch sử đếm — người quản trị gõ nhầm vài lần rồi vào được
+    # không đáng bị chặn oan ở lần sau. Giống hệt `/auth/login`.
+    container.admin_login_rate_limiter.reset(client_key(request))
     return success(
         {
             "token": token,

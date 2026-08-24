@@ -206,28 +206,39 @@ export const ANH_GIAO_DIEN: Record<string, AnhUI | null> = {
  *   4. Thay `null` bên dưới bằng số vừa in ra
  */
 export const ICON_MOOD: Record<string, AnhUI | null> = {
-  // Chủ dự án gửi 2026-08-23. Nguồn: `design/attribute/spicy.png` (1536×1024, nền đen).
-  excited: {
-    src: '/anh/icon-cay.png',
-    // Rỗng có chủ đích: nhãn "Thèm cay" đã nằm ngay dưới icon, đọc lại là thừa.
-    alt: '',
-    width: 160,
-    height: 142,
-    fit: 'contain',
-  },
-  // Chủ dự án gửi 2026-08-23. Nguồn: `design/attribute/Relax.png`.
+  // Chủ dự án gửi 2026-08-23. Kích thước do `prepare_design_assets.py` in ra sau khi
+  // cắt sát — đừng gõ tay.
+  excited: { src: '/anh/icon-cay.png', alt: '', width: 160, height: 155, fit: 'contain' },
   relaxed: {
-    src: '/anh/icon-thu-gian.png',
-    alt: '',
-    width: 160,
-    height: 174,
-    fit: 'contain',
+    src: '/anh/icon-thu-gian.png', alt: '', width: 160, height: 174, fit: 'contain',
   },
+  rain: { src: '/anh/icon-troi-mua.png', alt: '', width: 35, height: 33, fit: 'contain' },
+  nuong: {
+    src: '/anh/icon-do-nuong.png', alt: '', width: 160, height: 178, fit: 'contain',
+  },
+
+  // Chưa có icon -> thẻ tự dùng emoji.
   happy: null,
   sad: null,
-  rain: null,
-  nuong: null,
   hot: null,
+};
+
+/**
+ * Icon ĐÃ CÓ FILE nhưng CHƯA CÓ THẺ tương ứng trên trang chủ.
+ *
+ * Bản thiết kế vẽ 7 thẻ: Thèm cay · Thư giãn · Lười nấu · Hẹn hò · Healthy · Trời mưa ·
+ * Đồ nướng. Backend chỉ có 4 mood (`happy`/`sad`/`excited`/`relaxed`) cộng bộ lọc thời
+ * tiết / cách chế biến / nhiệt độ — nên "Hẹn hò", "Healthy", "Đi nhậu" hiện KHÔNG có gì
+ * phía sau để lọc.
+ *
+ * File đã xử lý sẵn và để đây, KHÔNG vẽ ra giao diện: một cái thẻ bấm vào mà kết quả
+ * không đổi thì tệ hơn là không có thẻ. Chốt được phần backend cho mục nào thì chuyển
+ * mục đó lên `ICON_MOOD` — xem PROJECT_CHECKLIST.
+ */
+export const ICON_CHUA_DUNG: Record<string, AnhUI> = {
+  hen_ho: { src: '/anh/icon-hen-ho.png', alt: '', width: 160, height: 142, fit: 'contain' },
+  healthy: { src: '/anh/icon-healthy.png', alt: '', width: 160, height: 176, fit: 'contain' },
+  bia: { src: '/anh/icon-bia.png', alt: '', width: 30, height: 33, fit: 'contain' },
 };
 
 /**

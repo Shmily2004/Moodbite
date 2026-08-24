@@ -134,6 +134,15 @@ class User:
     # chỉ là không tự lấy lại mật khẩu được.
     email: Optional[str] = None
 
+    # Hộp thư này đã được CHỨNG MINH là có thật chưa (chủ tài khoản đã bấm vào đường dẫn
+    # trong thư). Mặc định False.
+    #
+    # VÌ SAO KHÔNG CHẶN ĐĂNG NHẬP KHI CHƯA XÁC MINH: email vốn là trường TUỲ CHỌN ở dự án
+    # này (xem `RegisterUserUseCase`), nên chặn đăng nhập sẽ khoá luôn cả người không khai
+    # email. Xác minh ở đây là để TRẢ LỜI ĐƯỢC câu "địa chỉ này có thật không", phục vụ
+    # đúng một việc: gửi thư đặt lại mật khẩu tới đúng người.
+    email_verified: bool = False
+
     @property
     def is_admin(self) -> bool:
         return self.role == UserRole.ADMIN
@@ -165,11 +174,24 @@ class User:
         return {
             **self.to_public(),
             "email": self.email,
+            # Chính chủ cần biết hộp thư của mình đã xác minh chưa để còn bấm gửi lại thư.
+            "email_verified": self.email_verified,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
 
     @property
     def has_email(self) -> bool:
+        return bool(self.email)
+
+    @property
+    def can_receive_mail(self) -> bool:
+        """Gửi thư tới tài khoản này thì có tới nơi không.
+
+        Có email nhưng CHƯA xác minh vẫn trả True, cố ý: chưa xác minh nghĩa là ta CHƯA
+        BIẾT địa chỉ có thật hay không, chứ không phải đã biết là sai. Coi "chưa biết"
+        thành "không gửi" sẽ khoá luôn đường lấy lại mật khẩu của mọi tài khoản cũ —
+        tất cả đều `email_verified = False` cho tới khi họ bấm xác minh.
+        """
         return bool(self.email)
 
 

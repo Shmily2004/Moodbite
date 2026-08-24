@@ -23,6 +23,7 @@ import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { SiteHeader } from '@/widgets/site-header';
 import { LevelCard, BadgeGrid, StatTiles } from '@/widgets/user-progress';
 import { AvatarPicker } from '@/features/change-avatar';
+import { EmailVerificationStatus, useEmailVerification } from '@/features/auth-verify-email';
 import { TastePicker } from '@/features/taste-preferences';
 import { useFavorites } from '@/features/save-favorite';
 import { useRecentDishes } from '@/features/recent-dishes';
@@ -50,6 +51,9 @@ type TabId = (typeof TABS)[number]['id'];
 
 export function AccountPage() {
   const session = useUserSessionContext();
+  // Chuỗi rỗng: trang này KHÔNG mở từ thư nên không có token để tự xác nhận — hook chỉ
+  // dùng cho việc gửi lại thư.
+  const xacMinhEmail = useEmailVerification('');
   const navigate = useNavigate();
   const t = useT();
   const favorites = useFavorites();
@@ -108,7 +112,16 @@ export function AccountPage() {
               <h1 className="account__name">{ten ?? '…'}</h1>
               <p className="account__line">@{session.user?.username}</p>
               {session.user?.email ? (
-                <p className="account__line">✉️ {session.user.email}</p>
+                <p className="account__line">
+                  ✉️ {session.user.email}{' '}
+                  {/* Nói rõ trạng thái ngay cạnh địa chỉ: người dùng cần biết mình có
+                      lấy lại được mật khẩu qua email hay không. */}
+                  {session.user.email_verified ? (
+                    <span className="account__da-xac-minh">✓ đã xác minh</span>
+                  ) : (
+                    <span className="account__chua-xac-minh">chưa xác minh</span>
+                  )}
+                </p>
               ) : (
                 /* Không có email thì nói rõ HỆ QUẢ, thay vì để trống cho người dùng đoán. */
                 <p className="account__line account__line--warn">{t('account.noEmail')}</p>
@@ -118,6 +131,18 @@ export function AccountPage() {
                   🗓️ {t('account.memberSince', { date: thamGia })}
                 </p>
               )}
+
+              {/* Chỉ hiện khi THỰC SỰ có việc để làm — `EmailVerificationStatus` tự ẩn
+                  nút nếu đã xác minh hoặc chưa khai email. */}
+              <EmailVerificationStatus
+                status={xacMinhEmail.status}
+                message={xacMinhEmail.message}
+                error={xacMinhEmail.error}
+                verified={session.user?.email_verified ?? false}
+                hasEmail={Boolean(session.user?.email)}
+                variant="inline"
+                onResend={() => void xacMinhEmail.resend()}
+              />
             </div>
 
             <StatTiles stats={stats} viewedLocal={recent.recent.length} />

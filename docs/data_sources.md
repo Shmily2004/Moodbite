@@ -19,7 +19,8 @@ Tài liệu này giải thích **vì sao MoodBite dùng nguồn nào**, và vì 
 | **Facebook / Fanpage** | 🟡 phân mảnh | ❌ không có cấu trúc | 🟡 | ❌ | — | ❌ ToS cấm scraping | **KHÔNG DÙNG** |
 | **Foody / TripAdvisor** | ✅ tốt | ✅ có review | ✅ có | ❌ chặn bot | — | ❌ ToS cấm | **KHÔNG DÙNG** |
 | **Nominatim (OSM)** | — | — | ❌ | 🟡 1 req/giây | ✅ miễn phí | ✅ ODbL | **Chỉ dùng khi cần geocode lẻ** |
-| **Wikidata** | ❌ rất ít quán ăn | ✅ chuẩn | ❌ | ✅ SPARQL mở | ✅ miễn phí | ✅ CC0 | Không đáng công |
+| **Wikidata** | ❌ rất ít quán ăn | ✅ chuẩn | ❌ | ✅ SPARQL mở | ✅ miễn phí | ✅ CC0 | Không đáng công **cho quán** — nhưng ĐANG DÙNG cho MÓN, xem mục 5 |
+| **Foursquare OS Places** | ? chưa đo được | ? | 🟡 | ❌ bộ dữ liệu bị khoá | ✅ miễn phí | ✅ Apache-2.0 | **THỬ 2026-08-24, KHÔNG DÙNG ĐƯỢC** — xem mục 6 |
 
 ---
 
@@ -230,3 +231,124 @@ Ba quyết định giữ cho dữ liệu không phình:
 > ảnh huấn luyện của tính năng floorplan→3D **đã tạm dừng** (code ở `archive/spatial-3d/`).
 > Đây là chỗ dọn được nhiều nhất, nhưng script KHÔNG tự xoá: xoá thứ đang tồn tại thì phải
 > hỏi chủ dự án trước (CLAUDE.md mục 8).
+
+
+---
+
+## 5. Nguồn MÓN ĂN (khác nguồn quán — đừng lẫn)
+
+Ba nguồn, mỗi nguồn trả lời một câu hỏi khác nhau. Thiếu bất kỳ nguồn nào là mất một
+loại món.
+
+| Nguồn | Trả lời câu | Cách chạy | Giấy phép |
+|---|---|---|---|
+| **Wikipedia tiếng Việt** | "món này có tồn tại không" | `python scripts/discover_dishes.py --source wikipedia` | CC BY-SA |
+| **Wikidata** | "món này còn tên gọi nào khác" | `python scripts/discover_dishes.py --source wikidata --merge-aliases` | **CC0** |
+| **Tên quán trong dataset** | "món này có ai bán ở Hà Nội không" | `python scripts/mine_dish_names.py` | dữ liệu của chính dự án |
+
+**Vì sao cần nguồn thứ ba.** Đo ngày 2026-08-23: **565/747 món (75,6%)** trong danh mục
+không khớp một quán nào. Chúng đến từ Wikipedia, đều là món có thật, nhưng ở Hà Nội thì
+là ngõ cụt với người dùng. Đào ngược từ TÊN của 53.461 quán thì món tìm được **luôn có
+quán bán**, vì chính tên quán sinh ra nó.
+
+**Vì sao cần Wikidata dù đã có Wikipedia.** Wikipedia không bao giờ cho biết TÊN GỌI KHÁC
+của một món. Đo 2026-08-24: gộp `aliases` của Wikidata vào 55 món đang có thì thêm được
+90 từ khoá khớp (`Mì Quảng` → `Mỳ Quảng`, `Bibimbap` → `cơm trộn`, `Pa tê sô` → 6 cách
+viết khác).
+
+**KHÔNG dùng SPARQL của Wikidata.** Đo 2026-08-24: `query.wikidata.org` trả HTTP 504 rồi
+502 cho hai cách viết query khác nhau. Dùng API tìm kiếm + `wbgetentities` — xem
+`data_pipeline/sources/wikidata_dish.py`.
+
+### Cửa kiểm duyệt BẮT BUỘC
+
+Cả ba nguồn đều trả về ứng viên **lẫn rác**, và rác ở đây không vô hại:
+
+| Nguồn | Rác đo được 2026-08-24 |
+|---|---|
+| Tên quán | "Coffee tea" 357 quán · "Trung Nguyên" 234 · "Long Biên" 201 — thương hiệu và địa danh |
+| Wikidata | "kho" 310 quán (cách chế biến, không phải món) · "Kun" · "Gui" · "Bûş" · "Koki" |
+
+Nên `--apply` của cả hai script CHỈ thêm món có `dish_id` trong
+`data_pipeline/dish_approved.json` — danh sách do người đọc và duyệt. Muốn bỏ qua thì
+phải gõ hẳn `--apply-all`, và không nên.
+
+---
+
+## 6. Foursquare OS Places — đã thử, KHÔNG dùng được
+
+Nghe rất hợp: bộ POI mở của Foursquare, giấy phép **Apache-2.0**, có sẵn category,
+số điện thoại, mạng xã hội — đúng là nguồn thứ ba độc lập với OSM và Overture.
+
+Thử ngày 2026-08-24, hai đường vào đều tắc:
+
+1. **HuggingFace** (`foursquare/fsq-os-places`, bản mới nhất `dt=2026-08-11`, 100 file
+   parquet): tải file trả **HTTP 401 Unauthorized** — bộ dữ liệu bị khoá, phải có tài
+   khoản và bấm đồng ý điều khoản mới tải được.
+2. **S3 công khai** (`fsq-os-places-us-east-1`): liệt kê thư mục trả về rỗng, và cả ba
+   cách đặt tên file hợp lý (`places-00000.parquet`, `.zstd.parquet`, `.snappy.parquet`)
+   đều trả **404** ở hai bản phát hành khác nhau.
+
+Kể cả có tải được thì vẫn còn vấn đề dung lượng: 100 file parquet toàn cầu, và lược đồ
+KHÔNG có cột `bbox` như Overture nên không chắc lọc được ở tầng đọc file.
+
+→ Xem lại nếu Foursquare bỏ khoá. Chưa bỏ khoá thì **đừng thử lại**, đã tốn một lượt rồi.
+
+
+---
+
+## 7. PHẠM VI ĐỊA LÝ — bbox từng SAI và cắt mất 1/3 Hà Nội
+
+Sửa 2026-08-24. Ghi lại vì đây là loại lỗi làm **mất dữ liệu mà không ai thấy gì bất thường**:
+số quán vẫn tăng đều qua mỗi lượt cào, chỉ là một phần ba thành phố chưa bao giờ được hỏi tới.
+
+### Số đo
+
+| | vĩ độ | kinh độ |
+|---|---|---|
+| Hà Nội **thật** (OSM relation 1903516, `ISO3166-2=VN-HN`) | 20.5645 – 21.3854 | 105.2890 – 106.0200 |
+| bbox **cũ** trong code | 20.8500 – 21.4000 | 105.7000 – 106.0500 |
+
+Bản cũ **cắt mất**: toàn bộ phía tây (Ba Vì, Sơn Tây, Phúc Thọ, Thạch Thất, Quốc Oai,
+Chương Mỹ — từ kinh độ 105.289) và phía nam (Mỹ Đức, Ứng Hoà, Phú Xuyên — từ vĩ độ
+20.5645). Đồng thời **lấn** sang Bắc Ninh ở phía đông.
+
+### Hậu quả đo được
+
+- File ranh giới cache có **136 đơn vị** trong khi Hà Nội chỉ có **126** → 10 đơn vị thừa
+  của tỉnh khác (`Phường Ninh Xá`, `Phường Hạp Lĩnh`, `Huyện Yên Phong`…).
+- Tải lại theo ranh giới đúng: **thêm 41** đơn vị Hà Nội trước đây không có, **bỏ 51**
+  đơn vị không thuộc Hà Nội.
+- **3.184 quán (6,0%)** trong dataset nằm ở tỉnh khác: Từ Sơn/Tiên Du/Yên Phong (Bắc Ninh),
+  Ecopark – Xã Phụng Công/Văn Giang/Như Quỳnh (Hưng Yên), Phúc Yên/Xuân Hoà (Vĩnh Phúc),
+  Việt Yên/Hiệp Hoà (Bắc Giang). Vi phạm đúng quy tắc "CHỈ HÀ NỘI" của `CLAUDE.md` mục 4b.
+- **904 quán** có `district` sai hoặc bẩn — dataset từng có **185** giá trị `district` khác
+  nhau: `"Hoan Kiem"` (không dấu), `"Hà đông"` (khác hoa thường), `"quận Long Biên"` (lẫn
+  tiền tố), `"Phố Phan Huy Chú"` (là TÊN PHỐ), `"Hà Nội"` (là thành phố).
+- Overture cào lại với bbox đúng: **268.304 → 309.566 POI**, tức **+6.698 quán ăn uống**.
+
+### Ba thứ đã sửa ở gốc
+
+1. `HANOI_BBOX` lấy theo ranh giới thật, khai ở **một chỗ** (`sources/districts.py`) và
+   `osm_overpass.py` import lại — trước đó hai file khai riêng, chắc chắn sẽ có ngày lệch.
+2. `fetch_district_boundaries()` hỏi theo **AREA của Hà Nội** (`rel(1903516);map_to_area`)
+   thay vì theo bbox. Cách này không phụ thuộc bbox có đúng hay không, nên lỗi cũ không
+   lặp lại được. Comment cũ ghi "hỏi theo area luôn trả 504" là **sai**: đo lại chỉ mất
+   ~20 giây. Nó hỏng vì tra theo TÊN `"Hà Nội"`, mà tên OSM là **"Thành phố Hà Nội"**.
+3. `merge_and_prepare_raw` nay **gán lại** khu vực cho MỌI bản ghi từ toạ độ (không chỉ
+   bản ghi trống) và **bỏ** quán không rơi vào đơn vị nào của Hà Nội. Có chốt an toàn:
+   tải hụt ranh giới (<100 đơn vị) thì vẫn gán nhưng **KHÔNG lọc** — thà để lẫn thêm một
+   hôm còn hơn xoá dữ liệu vì một lỗi mạng.
+
+### Bài học chung với hai lỗi cache trước đó
+
+Đây là **lần thứ ba** cùng một loại lỗi: *tên cache không phản ánh nội dung câu hỏi*.
+
+| Ngày | Cache | Quên đưa vào tên | Hậu quả |
+|---|---|---|---|
+| 2026-08-23 | Overture parquet | bản phát hành | cào lại bao nhiêu lần cũng ra dữ liệu tháng đầu |
+| 2026-08-24 | ô OSM Overpass | nội dung query | thêm loại quán mới nhưng đọc trúng kết quả cũ |
+| 2026-08-24 | Overture parquet | **bbox** | sửa bbox nhưng vẫn đọc file của bbox cũ |
+
+**Luật rút ra: tên file cache phải chứa MỌI thứ làm kết quả thay đổi.** Thiếu một yếu tố
+là cache trả về câu trả lời của một câu hỏi khác, và không có dòng log nào báo.

@@ -20,6 +20,8 @@ from src.application.use_cases.manage_account import (
     ChangePasswordUseCase,
     LoginUseCase,
     RegisterUserUseCase,
+    ConfirmEmailVerificationUseCase,
+    RequestEmailVerificationUseCase,
     RequestPasswordResetUseCase,
     ResetPasswordUseCase,
 )
@@ -29,6 +31,7 @@ from src.infrastructure.auth.admin_auth import AdminAuthService
 from src.infrastructure.auth.crypto import hash_password, verify_password
 from src.infrastructure.auth.rate_limit import SlidingWindowRateLimiter
 from src.infrastructure.auth.password_reset import PasswordResetTokenService
+from src.infrastructure.auth.email_verification import EmailVerificationTokenService
 from src.infrastructure.auth.user_auth import UserTokenService
 from src.infrastructure.repositories.sqlite_user_repository import SqliteUserRepository
 from src.presentation.api.dependencies import Container
@@ -97,6 +100,10 @@ def build_client(
         reset_secret if reset_secret is not None else (secret + "-reset" if secret else ""),
         token_ttl_seconds=60,
     )
+    # Secret xác minh email cũng KHÁC hai secret kia, đúng như lúc chạy thật.
+    verify_tokens = EmailVerificationTokenService(
+        (secret + "-verify") if secret else "", token_ttl_seconds=60
+    )
     emails = emails if emails is not None else FakeEmailSender()
 
     c = attach_closure_tally(Container.__new__(Container))
@@ -136,6 +143,14 @@ def build_client(
         token_ttl_seconds=reset_tokens.token_ttl_seconds,
     )
     c.reset_password = ResetPasswordUseCase(users, hash_password, reset_tokens)
+    c.email_verify_tokens = verify_tokens
+    c.request_email_verification = RequestEmailVerificationUseCase(
+        emails=emails,
+        verify_tokens=verify_tokens,
+        app_base_url="http://localhost:5173",
+        token_ttl_seconds=verify_tokens.token_ttl_seconds,
+    )
+    c.confirm_email_verification = ConfirmEmailVerificationUseCase(users, verify_tokens)
     c.login_rate_limiter = SlidingWindowRateLimiter(login_limit, 300)
     c.register_rate_limiter = SlidingWindowRateLimiter(register_limit, 3600)
     c.forgot_password_rate_limiter = SlidingWindowRateLimiter(forgot_limit, 3600)

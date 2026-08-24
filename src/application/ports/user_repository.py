@@ -46,6 +46,16 @@ class UserRepository(Protocol):
         """
         ...
 
+    def mark_email_verified(self, user_id: str, email: str) -> bool:
+        """Đánh dấu hộp thư của tài khoản này đã được xác minh. False nếu không có tài khoản.
+
+        NHẬN CẢ `email` chứ không chỉ `user_id`, cố ý: người dùng có thể đã đổi email sau
+        khi thư xác minh được gửi đi. Tầng lưu trữ chỉ đánh dấu khi email hiện tại ĐÚNG
+        BẰNG địa chỉ ghi trong thư — nếu không, ta sẽ đóng dấu "đã xác minh" lên một địa
+        chỉ chưa ai chứng minh là có thật.
+        """
+        ...
+
     def create(self, user: User) -> User:
         """Tạo tài khoản mới.
 

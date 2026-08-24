@@ -1,0 +1,462 @@
+{
+  "_readme": [
+    "DANH SACH MON DA DUOC NGUOI DUYET - cong tac cho hai script tim mon:",
+    "  scripts/discover_dishes.py   (Wikipedia + Wikidata)",
+    "  scripts/mine_dish_names.py   (dao tu ten quan that)",
+    "",
+    "VI SAO CO FILE NAY: ca hai nguon deu tra ve UNG VIEN lan rac, va rac o day khong",
+    "vo hai. Do that ngay 2026-08-24:",
+    "  - tu ten quan  : 'Coffee tea' 357 quan, 'Trung Nguyen' 234 -> thuong hieu/dia danh",
+    "  - tu Wikidata  : 'kho' 310 quan (cach che bien, khong phai mon), 'Kun', 'Gui',",
+    "                   'Bus', 'Koki' -> nhan rac cua muc Wikidata",
+    "Them thang vao danh muc thi trang chu hien 'Coffee tea' nhu mot mon an.",
+    "",
+    "QUY TAC: --apply cua hai script CHI them mon co dish_id trong danh sach nay.",
+    "Muon them mon moi -> doc file ung vien o data_cleaned/, tu them dish_id vao day.",
+    "Muon bo qua cua kiem duyet (KHONG khuyen khich) -> chay voi --apply-all.",
+    "",
+    "Duyet lan dau 2026-08-24 tren 195 ung vien tu ten quan + 44 tu Wikidata.",
+    "Tieu chi loai: thuong hieu (Pizza Hut, Pho Thin, TocoToco), dia danh (Trung Nguyen,",
+    "Long Bien), cach dat bien hieu (Coffee and tea), cum cat do (Bo hue o), nguyen lieu",
+    "khong phai mon (Ca ro, Thit heo), va nhan rac khong ro nghia."
+  ],
+  "approved_count": 109,
+  "approved": [
+    {
+      "dish_id": "banh-bao",
+      "name": "Bánh bao"
+    },
+    {
+      "dish_id": "banh-canh",
+      "name": "bánh canh"
+    },
+    {
+      "dish_id": "banh-canh-ghe",
+      "name": "Bánh canh ghẹ"
+    },
+    {
+      "dish_id": "banh-cay",
+      "name": "Bánh cáy"
+    },
+    {
+      "dish_id": "banh-chung",
+      "name": "bánh chưng"
+    },
+    {
+      "dish_id": "banh-cuon",
+      "name": "bánh cuốn"
+    },
+    {
+      "dish_id": "banh-cuon-cao-bang",
+      "name": "Bánh cuốn cao bằng"
+    },
+    {
+      "dish_id": "banh-da-ca",
+      "name": "Bánh đa cá"
+    },
+    {
+      "dish_id": "banh-da-ca-ro",
+      "name": "Bánh đa cá rô"
+    },
+    {
+      "dish_id": "banh-duc",
+      "name": "bánh đúc"
+    },
+    {
+      "dish_id": "banh-giay",
+      "name": "bánh giầy"
+    },
+    {
+      "dish_id": "banh-hoi",
+      "name": "bánh hỏi"
+    },
+    {
+      "dish_id": "banh-mi-chao",
+      "name": "Bánh mì chảo"
+    },
+    {
+      "dish_id": "banh-my",
+      "name": "Bánh mỳ"
+    },
+    {
+      "dish_id": "banh-ran",
+      "name": "Bánh rán"
+    },
+    {
+      "dish_id": "banh-tom",
+      "name": "Bánh tôm"
+    },
+    {
+      "dish_id": "banh-trang-cuon-thit",
+      "name": "Bánh tráng cuốn thịt"
+    },
+    {
+      "dish_id": "banh-troi",
+      "name": "bánh trôi"
+    },
+    {
+      "dish_id": "bo-nam-nuong",
+      "name": "Bò nầm nướng"
+    },
+    {
+      "dish_id": "bo-nhung-dam",
+      "name": "Bò nhúng dấm"
+    },
+    {
+      "dish_id": "bo-nuong",
+      "name": "Bò nướng"
+    },
+    {
+      "dish_id": "bo-nuong-la-lot",
+      "name": "Bò nướng lá lốt"
+    },
+    {
+      "dish_id": "bo-to",
+      "name": "Bò tơ"
+    },
+    {
+      "dish_id": "buffet-chay",
+      "name": "Buffet chay"
+    },
+    {
+      "dish_id": "buffet-lau-nuong",
+      "name": "Buffet lẩu nướng"
+    },
+    {
+      "dish_id": "buffet-nuong",
+      "name": "Buffet nướng"
+    },
+    {
+      "dish_id": "bun-bung",
+      "name": "Bún bung"
+    },
+    {
+      "dish_id": "bun-ca-cay",
+      "name": "Bún cá cay"
+    },
+    {
+      "dish_id": "bun-ca-cham",
+      "name": "Bún cá chấm"
+    },
+    {
+      "dish_id": "bun-cha-nem",
+      "name": "Bún chả nem"
+    },
+    {
+      "dish_id": "bun-dau-met",
+      "name": "Bún đậu mẹt"
+    },
+    {
+      "dish_id": "bun-doc-mung",
+      "name": "Bún dọc mùng"
+    },
+    {
+      "dish_id": "bun-hai-san",
+      "name": "Bún hải sản"
+    },
+    {
+      "dish_id": "bun-mien-ngan",
+      "name": "Bún miến ngan"
+    },
+    {
+      "dish_id": "bun-moc",
+      "name": "Bún mọc"
+    },
+    {
+      "dish_id": "bun-oc-suon",
+      "name": "Bún ốc sườn"
+    },
+    {
+      "dish_id": "bun-rieu-top-mo",
+      "name": "Bún riêu tóp mỡ"
+    },
+    {
+      "dish_id": "bun-suon",
+      "name": "Bún sườn"
+    },
+    {
+      "dish_id": "bun-tron",
+      "name": "Bún trộn"
+    },
+    {
+      "dish_id": "burrito",
+      "name": "Burrito"
+    },
+    {
+      "dish_id": "ca-hoi",
+      "name": "Cá hồi"
+    },
+    {
+      "dish_id": "ca-lang",
+      "name": "Cá lăng"
+    },
+    {
+      "dish_id": "ca-ro-dong",
+      "name": "Cá rô đồng"
+    },
+    {
+      "dish_id": "canh-ca-ro",
+      "name": "Canh cá rô"
+    },
+    {
+      "dish_id": "canh-ca-ro-dong",
+      "name": "Canh cá rô đồng"
+    },
+    {
+      "dish_id": "canh-ghe",
+      "name": "Canh ghẹ"
+    },
+    {
+      "dish_id": "cao-lau",
+      "name": "Cao lầu"
+    },
+    {
+      "dish_id": "cha-ca-la-vong",
+      "name": "chả cá Lã Vọng"
+    },
+    {
+      "dish_id": "cha-ca-lang",
+      "name": "Chả cá lăng"
+    },
+    {
+      "dish_id": "cha-cua",
+      "name": "Chả cua"
+    },
+    {
+      "dish_id": "chao-dinh-duong",
+      "name": "Cháo dinh dưỡng"
+    },
+    {
+      "dish_id": "chao-long",
+      "name": "Cháo lòng"
+    },
+    {
+      "dish_id": "chao-suon",
+      "name": "Cháo sườn"
+    },
+    {
+      "dish_id": "chao-trai",
+      "name": "Cháo trai"
+    },
+    {
+      "dish_id": "che-buoi",
+      "name": "Chè bưởi"
+    },
+    {
+      "dish_id": "che-sau",
+      "name": "Chè sầu"
+    },
+    {
+      "dish_id": "che-thai",
+      "name": "Chè thái"
+    },
+    {
+      "dish_id": "com-hen",
+      "name": "cơm hến"
+    },
+    {
+      "dish_id": "com-nam",
+      "name": "cơm nắm"
+    },
+    {
+      "dish_id": "com-nieu",
+      "name": "Cơm niêu"
+    },
+    {
+      "dish_id": "com-tho",
+      "name": "Cơm thố"
+    },
+    {
+      "dish_id": "cua-be",
+      "name": "Cua bể"
+    },
+    {
+      "dish_id": "cua-dong",
+      "name": "Cua đồng"
+    },
+    {
+      "dish_id": "ga-tan",
+      "name": "Gà tần"
+    },
+    {
+      "dish_id": "hu-tieu",
+      "name": "Hủ tiếu"
+    },
+    {
+      "dish_id": "kem-bo",
+      "name": "Kem bơ"
+    },
+    {
+      "dish_id": "kem-dua",
+      "name": "Kem dừa"
+    },
+    {
+      "dish_id": "lau-bo",
+      "name": "Lẩu bò"
+    },
+    {
+      "dish_id": "lau-chao",
+      "name": "Lẩu cháo"
+    },
+    {
+      "dish_id": "lau-cua",
+      "name": "Lẩu cua"
+    },
+    {
+      "dish_id": "lau-cua-dong",
+      "name": "Lẩu cua đồng"
+    },
+    {
+      "dish_id": "lau-de",
+      "name": "Lẩu dê"
+    },
+    {
+      "dish_id": "lau-duoi-bo",
+      "name": "Lẩu đuôi bò"
+    },
+    {
+      "dish_id": "lau-ech",
+      "name": "Lẩu ếch"
+    },
+    {
+      "dish_id": "lau-long",
+      "name": "Lẩu lòng"
+    },
+    {
+      "dish_id": "lau-nam",
+      "name": "Lẩu nấm"
+    },
+    {
+      "dish_id": "lau-nuong-han-quoc",
+      "name": "Lẩu nướng hàn quốc"
+    },
+    {
+      "dish_id": "lau-rieu",
+      "name": "Lẩu riêu"
+    },
+    {
+      "dish_id": "long-bo",
+      "name": "Lòng bò"
+    },
+    {
+      "dish_id": "long-lon",
+      "name": "Lòng lợn"
+    },
+    {
+      "dish_id": "luon-xu-nghe",
+      "name": "Lươn xứ nghệ"
+    },
+    {
+      "dish_id": "mi",
+      "name": "Mì"
+    },
+    {
+      "dish_id": "my-cay",
+      "name": "Mỳ cay"
+    },
+    {
+      "dish_id": "my-van-than",
+      "name": "Mỳ vằn thắn"
+    },
+    {
+      "dish_id": "nem-cuon",
+      "name": "Nem cuốn"
+    },
+    {
+      "dish_id": "nem-lui",
+      "name": "Nem lụi"
+    },
+    {
+      "dish_id": "nuoc-ep",
+      "name": "Nước ép"
+    },
+    {
+      "dish_id": "nuoc-ep-trai-cay",
+      "name": "Nước ép trái cây"
+    },
+    {
+      "dish_id": "nuoc-mia",
+      "name": "Nước mía"
+    },
+    {
+      "dish_id": "oc-nong",
+      "name": "Ốc nóng"
+    },
+    {
+      "dish_id": "pancake",
+      "name": "Pancake"
+    },
+    {
+      "dish_id": "pho-bo-nam-dinh",
+      "name": "Phở bò nam định"
+    },
+    {
+      "dish_id": "pho-xao",
+      "name": "phở xào"
+    },
+    {
+      "dish_id": "poke",
+      "name": "poke"
+    },
+    {
+      "dish_id": "ruou-nep-cai",
+      "name": "Rượu nếp cái"
+    },
+    {
+      "dish_id": "ruou-vang",
+      "name": "Rượu vang"
+    },
+    {
+      "dish_id": "sinh-to",
+      "name": "Sinh tố"
+    },
+    {
+      "dish_id": "sua-hat",
+      "name": "Sữa hạt"
+    },
+    {
+      "dish_id": "suon-sun",
+      "name": "Sườn sụn"
+    },
+    {
+      "dish_id": "thach-den",
+      "name": "Thạch đen"
+    },
+    {
+      "dish_id": "thit-dong",
+      "name": "Thịt đông"
+    },
+    {
+      "dish_id": "thit-xien",
+      "name": "Thịt xiên"
+    },
+    {
+      "dish_id": "thit-xien-nuong",
+      "name": "Thịt xiên nướng"
+    },
+    {
+      "dish_id": "tiet-canh",
+      "name": "Tiết canh"
+    },
+    {
+      "dish_id": "tra-bi-dao",
+      "name": "Trà bí đao"
+    },
+    {
+      "dish_id": "tra-da",
+      "name": "Trà đá"
+    },
+    {
+      "dish_id": "tra-hoa-qua",
+      "name": "Trà hoa quả"
+    },
+    {
+      "dish_id": "tra-o-long",
+      "name": "Trà ô long"
+    },
+    {
+      "dish_id": "tteokbokki",
+      "name": "tteokbokki"
+    }
+  ]
+}

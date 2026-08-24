@@ -42,7 +42,27 @@ Point = Tuple[float, float]        # (lat, lng)
 Ring = List[Point]
 
 
-HANOI_BBOX = (20.85, 105.70, 21.40, 106.05)
+# ⚠️ BBOX NÀY TỪNG SAI VÀ ĐÃ CẮT MẤT 1/3 HÀ NỘI. Sửa 2026-08-24.
+#
+# Bản cũ là `(20.85, 105.70, 21.40, 106.05)` — không rõ lấy ở đâu ra. Đo lại bằng chính
+# ranh giới hành chính của OSM (relation 1903516, `ISO3166-2=VN-HN`, tên OSM là
+# "Thành phố Hà Nội" chứ KHÔNG phải "Hà Nội" — đó là lý do tra theo tên luôn trả 0):
+#
+#     Hà Nội THẬT : lat 20.5645 - 21.3854 | lng 105.2890 - 106.0200
+#     bbox cũ     : lat 20.8500 - 21.4000 | lng 105.7000 - 106.0500
+#
+# Bản cũ cắt mất toàn bộ phía TÂY (Ba Vì, Sơn Tây, Phúc Thọ, Thạch Thất, Quốc Oai,
+# Chương Mỹ — từ kinh độ 105.289) và phía NAM (Mỹ Đức, Ứng Hoà, Phú Xuyên — từ vĩ độ
+# 20.5645), đồng thời lấn sang Bắc Ninh ở phía đông (tới 106.05 > 106.02). Hậu quả đo
+# được: file ranh giới cache có 136 đơn vị trong khi Hà Nội chỉ có 126 — 10 đơn vị thừa
+# là của tỉnh khác ("Phường Ninh Xá", "Phường Hạp Lĩnh", "Huyện Yên Phong"...).
+#
+# Đệm 0.01 độ (~1,1km) để điểm sát biên không bị rơi ra ngoài do làm tròn toạ độ.
+HANOI_BBOX = (20.55, 105.28, 21.40, 106.03)
+
+# Định danh ranh giới Hà Nội trên OSM. Dùng ID thay vì tra theo tên vì tên OSM là
+# "Thành phố Hà Nội"; tra `["name"="Hà Nội"]` trả về RỖNG (đã đo 2026-08-24).
+HANOI_RELATION_ID = 1903516
 
 
 def fetch_district_boundaries(
@@ -64,15 +84,24 @@ def fetch_district_boundaries(
         except (json.JSONDecodeError, OSError, TypeError):
             logger.warning("Cache ranh gioi hong, tai lai")
 
-    # Dùng BBOX chứ không dùng `area["name"="Hà Nội"]`: truy vấn theo area bắt Overpass
-    # dựng vùng từ quan hệ hành chính cấp tỉnh, rất nặng và luôn trả HTTP 504 (đã đo).
-    # Bbox rẻ hơn nhiều; đổi lại sẽ lấy dư vài quận của tỉnh giáp ranh - vô hại, vì ta
-    # chỉ tra quận cho những quán vốn đã nằm trong bbox Hà Nội.
-    south, west, north, east = bbox
+    # HỎI THEO AREA CỦA HÀ NỘI, KHÔNG hỏi theo bbox nữa (đổi 2026-08-24).
+    #
+    # Comment cũ ở đây viết "truy vấn theo area ... luôn trả HTTP 504 (đã đo)" và kết
+    # luận lấy dư quận tỉnh bên cạnh là "vô hại". Cả hai vế đều sai:
+    #   - Đo lại 2026-08-24: hỏi theo area bằng `rel(1903516);map_to_area` trả về
+    #     ĐÚNG 126 đơn vị trong ~20 giây, không hề 504. Cách viết cũ hỏng vì tra theo
+    #     TÊN ("Hà Nội") mà tên OSM là "Thành phố Hà Nội".
+    #   - Không vô hại: lấy dư sinh 10 đơn vị của Bắc Ninh trong file ranh giới, và quán
+    #     sát biên bị gán quận của TỈNH KHÁC. Trường `district` là thứ người dùng lọc
+    #     theo, gán sai là hiển thị sai.
+    #
+    # Hỏi theo area còn được cái quan trọng hơn: nó KHÔNG phụ thuộc bbox có đúng hay
+    # không, nên lỗi bbox hẹp không thể lặp lại lần nữa ở bước này.
     query = (
-        "[out:json][timeout:180];"
+        "[out:json][timeout:240];"
+        f"rel({HANOI_RELATION_ID});map_to_area->.hn;"
         f'relation["admin_level"="{DISTRICT_ADMIN_LEVEL}"]["boundary"="administrative"]'
-        f"({south},{west},{north},{east});"
+        "(area.hn);"
         "out geom;"
     )
     payload = urllib.parse.urlencode({"data": query}).encode()

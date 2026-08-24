@@ -310,6 +310,60 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/verify-email/request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Request Email Verification
+         * @description Gửi lại thư xác minh email cho tài khoản ĐANG đăng nhập.
+         *
+         *     KHÁC `/forgot-password` ở chỗ KHÔNG phải giấu "tài khoản có tồn tại không": người gọi
+         *     đã đăng nhập nên đã biết thừa tài khoản của chính họ. Vì vậy ở đây nói thẳng được
+         *     "chưa khai email" hay "đã xác minh rồi" — giấu chỉ làm người dùng bối rối.
+         *
+         *     Dùng CHUNG bộ đếm với `/forgot-password`: cả hai đều làm một lá thư thật bay đi, và
+         *     hạn mức SMTP miễn phí của Gmail chỉ khoảng 500 thư/ngày.
+         */
+        post: operations["request_email_verification_api_v1_auth_verify_email_request_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/verify-email/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm Email Verification
+         * @description Đóng dấu đã xác minh bằng token trong thư. KHÔNG cần đăng nhập.
+         *
+         *     Cố ý không đòi đăng nhập: người dùng hay mở thư ở máy/trình duyệt khác, bắt đăng nhập
+         *     trước sẽ chặn đúng lúc họ vừa bấm vào link. Token đã tự mang chữ ký và thời hạn nên
+         *     bản thân nó là bằng chứng đủ.
+         *
+         *     Token hỏng/hết hạn/đã dùng/email đã đổi -> 401.
+         *     Dùng chung bộ đếm với đăng nhập vì đây cũng là chỗ có thể đem token ra thử.
+         */
+        post: operations["confirm_email_verification_api_v1_auth_verify_email_confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/me": {
         parameters: {
             query?: never;
@@ -707,7 +761,7 @@ export interface components {
         };
         /** AuthData */
         AuthData: {
-            user: components["schemas"]["UserPublic"];
+            user: components["schemas"]["UserSelf"];
             /** Token */
             token: string;
             /**
@@ -788,6 +842,11 @@ export interface components {
             image_url?: string | null;
             /** Restaurant Count */
             restaurant_count: number;
+            /**
+             * Nearest Restaurant Km
+             * @description Khoảng cách tới quán GẦN NHẤT bán món này (km). null = không có quán nào trong bán kính — KHÔNG phải 0 km.
+             */
+            nearest_restaurant_km?: number | null;
             /** Rank Position */
             rank_position: number;
             /** Score */
@@ -1303,23 +1362,6 @@ export interface components {
             reason?: string | null;
         };
         /**
-         * UserPublic
-         * @description Bản công khai của một tài khoản. KHÔNG BAO GIỜ chứa `password_hash`.
-         */
-        UserPublic: {
-            /** User Id */
-            user_id: string;
-            /** Username */
-            username: string;
-            /**
-             * Role
-             * @description user | admin
-             */
-            role: string;
-            /** Display Name */
-            display_name?: string | null;
-        };
-        /**
          * UserSelf
          * @description Bản hồ sơ CHÍNH CHỦ nhìn thấy — có thêm email và ngày tham gia.
          *
@@ -1347,6 +1389,12 @@ export interface components {
              * @description Ngày tạo tài khoản, dạng ISO-8601.
              */
             created_at?: string | null;
+            /**
+             * Email Verified
+             * @description Hộp thư đã được chứng minh là có thật chưa (chủ tài khoản đã bấm đường dẫn trong thư). Chưa xác minh KHÔNG chặn đăng nhập — email vốn là trường tuỳ chọn.
+             * @default false
+             */
+            email_verified: boolean;
         };
         /**
          * UserStatsData
@@ -1390,6 +1438,20 @@ export interface components {
             msg: string;
             /** Error Type */
             type: string;
+        };
+        /**
+         * VerifyEmailRequest
+         * @description Xác minh email bằng token trong thư.
+         *
+         *     KHÔNG có trường email: địa chỉ nằm sẵn trong token và đã được ký. Nhận email từ
+         *     client rồi tin theo là mở đường cho người ta xác minh hộ địa chỉ của người khác.
+         */
+        VerifyEmailRequest: {
+            /**
+             * Token
+             * @description Token lấy từ đường dẫn trong thư.
+             */
+            token: string;
         };
     };
     responses: never;
@@ -2011,6 +2073,59 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MessageResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    request_email_verification_api_v1_auth_verify_email_request_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageResponse"];
+                };
+            };
+        };
+    };
+    confirm_email_verification_api_v1_auth_verify_email_confirm_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VerifyEmailRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeResponse"];
                 };
             };
             /** @description Validation Error */

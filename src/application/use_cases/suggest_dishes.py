@@ -73,6 +73,12 @@ class SuggestedDishItem:
     description: Optional[str]
     image_url: Optional[str]
     restaurant_count: int
+    # Khoảng cách tới quán GẦN NHẤT có bán món này, đơn vị km.
+    #
+    # `None` = KHÔNG CÓ QUÁN NÀO trong bán kính, hoặc chưa lọc được — TUYỆT ĐỐI không
+    # thay bằng 0.0. 0.0 km nghĩa là "quán ngay dưới chân bạn", một lời nói dối rất dễ
+    # tin (CLAUDE.md mục 4 quy tắc 1).
+    nearest_restaurant_km: Optional[float]
     rank_position: int
     score: float
     reasons: List[str]
@@ -114,10 +120,10 @@ class SuggestDishesUseCase:
         context = self._resolve_context(origin)
 
         dishes = self._catalog.list_dishes()
-        counts = self._count_nearby(dishes, origin, query.max_distance_km)
+        counts, nearest = self._count_nearby(dishes, origin, query.max_distance_km)
         # Đếm KHÔNG giới hạn bán kính, để phân biệt "quán ở xa" với "cả kho không có quán
         # nào bán món này" - hai chuyện đó cần hai lời khuyên khác hẳn nhau.
-        counts_anywhere = self._count_nearby(dishes, origin, None)
+        counts_anywhere, _ = self._count_nearby(dishes, origin, None)
 
         available = self._drop_dead_ends(dishes, counts, counts_anywhere, query, warnings)
         dish_filter = self._to_filter(query)
@@ -133,7 +139,7 @@ class SuggestDishesUseCase:
 
         return DishSuggestionResult(
             search_query_id=str(uuid.uuid4()),
-            results=[self._to_item(r) for r in ranked],
+            results=[self._to_item(r, nearest) for r in ranked],
             context=context.describe(),
             warnings=warnings,
         )
@@ -163,15 +169,21 @@ class SuggestDishesUseCase:
 
     def _count_nearby(
         self, dishes: Sequence[Dish], origin: Location, max_distance_km: Optional[float]
-    ) -> Dict[str, int]:
-        """Số quán bán từng món TRONG BÁN KÍNH người dùng chọn.
+    ) -> tuple[Dict[str, int], Dict[str, float]]:
+        """Số quán bán từng món TRONG BÁN KÍNH, và khoảng cách tới quán GẦN NHẤT.
 
         Quán thiếu toạ độ không đếm được nên bị bỏ qua ở đây - nhưng đó là trường hợp
         không xảy ra trên dataset hiện tại (lat/lng là cột bắt buộc của pipeline).
+
+        Trả về khoảng cách gần nhất LUÔN THỂ vì vòng lặp này ĐÃ tính `distance_km` cho
+        từng quán rồi — giữ lại giá trị nhỏ nhất gần như không tốn thêm gì, trong khi tính
+        lại ở chỗ khác là quét lại toàn bộ chỉ mục lần hai.
         """
         counts: Dict[str, int] = {}
+        nearest: Dict[str, float] = {}
         for dish in dishes:
             nearby = 0
+            gan_nhat: Optional[float] = None
             for match in self._index.get(dish.identifier, ()):
                 restaurant = match.restaurant
                 if not restaurant.is_visible:
@@ -182,12 +194,18 @@ class SuggestDishesUseCase:
                     restaurant.place_id
                 ):
                     continue
-                if max_distance_km is None:
-                    nearby += 1
-                elif origin.distance_km(restaurant.location) <= max_distance_km:
-                    nearby += 1
+                khoang_cach = origin.distance_km(restaurant.location)
+                if max_distance_km is not None and khoang_cach > max_distance_km:
+                    continue
+                nearby += 1
+                if gan_nhat is None or khoang_cach < gan_nhat:
+                    gan_nhat = khoang_cach
             counts[dish.identifier] = nearby
-        return counts
+            if gan_nhat is not None:
+                # Một chữ số thập phân: sai số của haversine và của toạ độ nguồn đều lớn
+                # hơn 100m, nên "1,23 km" là độ chính xác giả.
+                nearest[dish.identifier] = round(gan_nhat, 1)
+        return counts, nearest
 
     @staticmethod
     def _drop_dead_ends(
@@ -235,7 +253,9 @@ class SuggestDishesUseCase:
         return available or list(dishes)
 
     @staticmethod
-    def _to_item(ranked: dish_ranking.RankedDish) -> SuggestedDishItem:
+    def _to_item(
+        ranked: dish_ranking.RankedDish, nearest: Mapping[str, float]
+    ) -> SuggestedDishItem:
         dish = ranked.dish
         return SuggestedDishItem(
             dish_id=dish.identifier,
@@ -249,6 +269,7 @@ class SuggestDishesUseCase:
             description=dish.description,
             image_url=dish.image_url,
             restaurant_count=ranked.restaurant_count,
+            nearest_restaurant_km=nearest.get(ranked.dish.identifier),
             rank_position=ranked.rank_position,
             score=ranked.score,
             reasons=list(ranked.reasons),

@@ -83,6 +83,20 @@ FOOD_EXACT_CATEGORIES = frozenset({
     "dessert_shop", "donut_shop", "bagel_shop", "sandwich_shop", "noodle_house",
     "hot_pot", "barbecue", "dim_sum", "sushi_bar", "wine_bar", "beer_garden",
     "beer_hall", "cocktail_bar", "night_club", "karaoke",
+    # --- Bổ sung 2026-08-23 sau khi SOÁT danh mục bị loại -----------------
+    # Rà 218.907 POI bị loại "không phải ăn uống", lọc ra những danh mục có chữ liên quan
+    # đồ ăn rồi xét từng cái một. Bảy cái dưới đây đúng là CHỖ NGƯỜI TA NGỒI ĂN (+784 POI):
+    "food",           # 460 — danh mục chung chung nhưng vẫn là hàng ăn
+    "desserts",       # 139 — dạng số nhiều, `dessert_shop` ở trên không phủ
+    "delicatessen",   # 123 — quán bán đồ nguội ăn tại chỗ
+    "gastropub",      #  38
+    "night_market",   #  12 — chợ đêm là nơi ăn uống ở Việt Nam, khác hẳn chợ mua bán
+    "donuts",         #   9
+    "soul_food",      #   3
+    # CỐ Ý KHÔNG LẤY, dù tên có chữ đồ ăn — đây là CỬA HÀNG/DỊCH VỤ, không phải chỗ ăn:
+    #   health_food_store (820) · farmers_market (136) · specialty_foods (25)
+    #   restaurant_equipment_and_supply (92) · food_delivery_service (91)
+    #   food_consultant (28) · restaurant_wholesale (27) · food_tours (27)
 })
 
 # Từ cho biết đây là CỬA HÀNG/DỊCH VỤ chứ không phải chỗ ngồi ăn. Chặn kể cả khi danh mục
@@ -112,9 +126,27 @@ CATEGORY_LABELS = (
     ("restaurant", "Nhà hàng"),
 )
 
-# Ngưỡng tin cậy của Overture. Bản ghi dưới ngưỡng thường là POI trùng lặp hoặc đã đóng
-# cửa. 0.5 chọn theo phân bố thật, KHÔNG phải số bịa - xem báo cáo lúc chạy `fetch()`.
-MIN_CONFIDENCE = 0.5
+# Ngưỡng tin cậy của Overture.
+#
+# HẠ 0.5 -> 0.2 ngày 2026-08-24, SAU KHI ĐO, không phải để lấy cho nhiều.
+#
+# Giả định cũ ("dưới ngưỡng thường là POI trùng lặp hoặc đã đóng cửa") KHÔNG đứng vững
+# khi soi vào 14.386 POI ăn uống bị 0.5 loại ở Hà Nội (bản 2026-08-19.0):
+#   - 100% có TÊN, 100% có ĐỊA CHỈ, 83% có SỐ ĐIỆN THOẠI
+#   - 100% được nguồn cập nhật trong năm 2026
+#   - chỉ 10,8% trùng tên với bản ghi đã nhận -> phần lớn KHÔNG phải bản sao
+#   - số nền tảng đóng góp = 1,0 ở MỌI dải điểm, kể cả dải 0.8-1.0. Tức `confidence`
+#     KHÔNG phản ánh "được mấy nguồn xác nhận" như từng đoán.
+# Tên thật ở dải bị loại đều là quán ăn Hà Nội: "Bún riêu cua Nga Sơn",
+# "Bún chả Thanh Tâm CS 2", "Chè Sài Gòn Thập Cẩm", "Tiệm Bánh Bé Bin".
+#
+# VÌ SAO DỪNG Ở 0.2 CHỨ KHÔNG LẤY HẾT: tỷ lệ có số điện thoại - dấu hiệu đo được duy
+# nhất về chất lượng bản ghi - tụt hẳn ở dải dưới 0.2 (74,9% và 81,7%) so với dải
+# 0.2-0.35 (89,9% / 89,3% / 86,4%). Cắt ở 0.2 bỏ 949 bản ghi yếu nhất và giữ ~13.400.
+#
+# AN TOÀN: điểm gốc vẫn được ghi nguyên vào `source_confidence` của mọi bản ghi, nên
+# tầng xếp hạng hạ điểm quán ít bằng chứng lúc nào cũng được, không mất thông tin.
+MIN_CONFIDENCE = 0.2
 
 
 class OverturePlacesSource:
@@ -149,7 +181,22 @@ class OverturePlacesSource:
     # --- lấy dữ liệu ---------------------------------------------------------
 
     def _cache_file(self) -> Path:
-        return self.cache_dir / f"{self.city}_places.parquet"
+        """Tên cache PHẢI kèm BẢN PHÁT HÀNH.
+
+        ⚠️ BUG THẬT, sửa 2026-08-23: bản cũ đặt tên `ha_noi_places.parquet` không kèm gì
+        cả. Overture ra bản mới hàng tháng và `_latest_release()` tra đúng bản mới, nhưng
+        rồi lại thấy file cache cũ và dùng luôn — nghĩa là **cào lại bao nhiêu lần cũng ra
+        đúng dữ liệu của tháng đầu tiên**, mà không có lấy một dòng log nào báo. Kèm tên
+        bản vào thì bản mới tự sinh file mới, bản cũ vẫn còn đó để đối chiếu.
+        """
+        # ⚠️ PHẢI KÈM CẢ BBOX, không chỉ bản phát hành. Sửa 2026-08-24 — đây là LẦN THỨ BA
+        # cùng một loại lỗi trong dự án (Overture quên bản phát hành 08-23, OSM quên nội
+        # dung query 08-24). Ngày 2026-08-24 bbox Hà Nội được sửa từ
+        # (20.85,105.70,21.40,106.05) thành (20.55,105.28,21.40,106.03) vì bản cũ cắt mất
+        # 1/3 thành phố; nếu tên cache không đổi theo thì lượt cào "vùng mới" sẽ đọc trúng
+        # file cũ và trả về ĐÚNG dữ liệu thiếu đó, không một dòng log nào báo.
+        vung = "_".join(f"{v:.4f}" for v in self.bbox)
+        return self.cache_dir / f"{self.city}_{vung}_places_{self._latest_release()}.parquet"
 
     def _latest_release(self) -> str:
         """Tra bản phát hành mới nhất trên S3.
@@ -159,6 +206,10 @@ class OverturePlacesSource:
         """
         if self.release:
             return self.release
+        # Nhớ lại: `_cache_file()` gọi hàm này nhiều lần, không nhớ thì mỗi lần lại đi
+        # hỏi S3 một vòng.
+        if getattr(self, "_release_da_tra", None):
+            return self._release_da_tra
         try:
             import re
 
@@ -168,7 +219,8 @@ class OverturePlacesSource:
             response.raise_for_status()
             releases = re.findall(r"<Prefix>release/([^<]+)/</Prefix>", response.text)
             if releases:
-                return sorted(releases)[-1]
+                self._release_da_tra = sorted(releases)[-1]
+                return self._release_da_tra
         except Exception as exc:
             logger.warning("Khong tra duoc ban phat hanh moi nhat (%s)", exc)
         return FALLBACK_RELEASE
@@ -290,11 +342,14 @@ class OverturePlacesSource:
             # Bỏ "Overture" khỏi danh sách: bản ghi nào cũng có nên nó không phân biệt
             # được gì. Cái đáng giữ là nền tảng ĐÓNG GÓP (meta, Microsoft, Foursquare...).
             source_datasets=[
-                str(d) for d in (row.get("src_datasets") or [])
-                if d and str(d).lower() != "overture"
+                str(d) for d in _danh_sach(row.get("src_datasets"))
+                if d is not None and str(d) and str(d).lower() != "overture"
             ],
             source_confidence=confidence,
-            socials=[str(x) for x in (row.get("socials") or []) if x],
+            socials=[
+                str(x) for x in _danh_sach(row.get("socials"))
+                if x is not None and str(x)
+            ],
         )
 
 
@@ -337,16 +392,34 @@ def _as_text(value: Any) -> Optional[str]:
     return text or None
 
 
+def _danh_sach(value: Any) -> list:
+    """Đưa một ô của DuckDB/Arrow về `list` Python, an toàn với mọi kiểu.
+
+    ⚠️ LỖI THẬT, sửa 2026-08-23: bản cũ viết `row.get("src_datasets") or []`. Với bản phát
+    hành Overture 2026-08-19, cột đó về dưới dạng **mảng numpy**, và `mảng or []` ném
+    `ValueError: The truth value of an array with more than one element is ambiguous` —
+    cả lượt cào 40.000 quán chết ngay giữa chừng.
+
+    Không dùng `or` với thứ có thể là mảng. Kiểm `None` tường minh, rồi ép sang list.
+    """
+    if value is None:
+        return []
+    if isinstance(value, str):
+        return [value]
+    try:
+        return list(value)
+    except TypeError:
+        return []
+
+
 def _first_of(value: Any) -> Optional[str]:
     """Overture trả mảng cho phones/websites. Lấy phần tử đầu, rỗng thì None."""
     if value is None:
         return None
     if isinstance(value, str):
         return value or None
-    try:
-        items = [str(v) for v in value if v]
-    except TypeError:
-        return None
+    # Đi qua `_danh_sach` để không lặp lại lỗi `mảng or []` — xem ghi chú ở đó.
+    items = [str(v) for v in _danh_sach(value) if v is not None and str(v)]
     return items[0] if items else None
 
 

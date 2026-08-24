@@ -59,7 +59,8 @@
         "fresh"
       ],
       "match_keywords": [
-        "bún ốc"
+        "bún ốc",
+        "snail vermicelli soup"
       ],
       "source": "manual",
       "description": "Bún ốc là món bún nước có vị chua đặc trưng từ giấm bỗng, ăn kèm ốc, cà chua và tía tô. Là món quà sáng quen thuộc của Hà Nội."
@@ -502,7 +503,13 @@
       ],
       "match_keywords": [
         "burger",
-        "hamburger"
+        "hamburger",
+        "hăm-bơ-gơ",
+        "hem-bơ-gơ",
+        "bơ-gơ",
+        "Hamburgh ſauſage",
+        "hamburger sandwich",
+        "beef hamburger"
       ],
       "source": "manual",
       "description": "Hamburger là bánh mì tròn kẹp thịt bò nướng, phô mai và rau, ăn bằng tay."
@@ -567,7 +574,8 @@
       ],
       "match_keywords": [
         "kimbap",
-        "gimbap"
+        "gimbap",
+        "seaweed roll"
       ],
       "source": "manual",
       "description": "Kimbap là món cơm cuộn rong biển kiểu Hàn Quốc với nhân rau củ, trứng và xúc xích, cắt khoanh ăn nguội."
@@ -724,7 +732,8 @@
       "match_keywords": [
         "cà phê",
         "coffee",
-        "cafe"
+        "cafe",
+        "cà phê đá"
       ],
       "source": "manual",
       "description": "Cà phê sữa đá là cà phê pha phin trộn sữa đặc rồi thêm đá, vị đậm và ngọt. Thức uống phổ biến nhất ở quán cà phê Việt Nam."
@@ -826,7 +835,8 @@
         "toi"
       ],
       "match_keywords": [
-        "phở"
+        "phở",
+        "feu"
       ],
       "source": "manual"
     },
@@ -910,7 +920,9 @@
         "trua"
       ],
       "match_keywords": [
-        "bún bò"
+        "bún bò",
+        "Nấu ăn:Bún bò Huế",
+        "rice noodle and beef soup of Hue"
       ],
       "source": "manual",
       "description": "Bún bò Huế là món bún nước cay đặc sản xứ Huế, nước dùng nấu với sả và mắm ruốc, ăn cùng bắp bò và giò heo."
@@ -1466,7 +1478,9 @@
       "description": "Bò kho là một món ăn chế biến từ thịt bò với phương pháp kho, có xuất xứ ở miền Nam Việt Nam. Món này được nhiều người ưa thích. Nguyên bản món Bò kho được người miền Nam Việt Nam dùng kèm với nhiều loại rau mùi, để tăng hương vị món ăn.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Bo_kho_mien_Bac.jpg/330px-Bo_kho_mien_Bac.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
-        "Bò kho"
+        "Bò kho",
+        "bánh mì bò kho",
+        "bánh mỳ bò kho"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/B%C3%B2_kho"
@@ -1626,7 +1640,9 @@
       "description": "Bánh khúc, còn gọi là xôi khúc hoặc xôi cúc, là một loại bánh truyền thống có nguồn gốc từ đồng bằng Bắc Bộ của Việt Nam.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/B%C3%A1nh_kh%C3%BAc.JPG/330px-B%C3%A1nh_kh%C3%BAc.JPG?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
-        "Bánh khúc"
+        "Bánh khúc",
+        "xôi khúc",
+        "xôi cúc"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_kh%C3%BAc",
@@ -1638,7 +1654,8 @@
       "description": "Bánh sinh nhật là một loại bánh thường có ý nghĩa quan trọng và đặc biệt nhất trong dịp kỷ niệm sinh nhật của người dùng. Đây là một loại bánh ngọt dạng tháp như bánh bông lan xốp và được phủ lên một lớp kem dày hoặc mỏng vừa để trang trí vừa để tăng thêm hương vị cho bánh.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Birthday_cake.jpg/330px-Birthday_cake.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
-        "Bánh sinh nhật"
+        "Bánh sinh nhật",
+        "Devrajsah"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_sinh_nh%E1%BA%ADt"
@@ -2100,7 +2117,10 @@
       "description": "Bibimbap hay Pibimpap là một món ăn Triều Tiên. Về từ nguyên, bibim có nghĩa là \"hỗn hợp nhiều thành phần\", còn bap có nghĩa là \"cơm\", vì vậy bibimbap có nghĩa là \"cơm trộn\". Thành phần chính của món ăn này là cơm, xếp bên trên là namul và tương ớt Koch'uchang hoặc bông cải.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Dolsot-bibimbap.jpg/330px-Dolsot-bibimbap.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
-        "Bibimbap"
+        "Bibimbap",
+        "cơm trộn",
+        "bi bim bap",
+        "bi bim bop"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/Bibimbap"
@@ -2571,7 +2591,8 @@
       "description": "Bánh giá là một món ăn đặc sản nổi tiếng xuất xứ từ Chợ Giồng ở vùng Gò Công, Tiền Giang. Cũng vì xuất xứ đó mà người ta thường gọi là Bánh giá Chợ Giồng. Theo lời truyền miệng của cư dân, nghề làm bánh giá xuất hiện cùng lúc với quá trình khai hoang lập ấp của người Việt ở vùng đất này vào thế kỷ XVII.",
       "image_url": null,
       "match_keywords": [
-        "Bánh giá"
+        "Bánh giá",
+        "bánh giá Chợ Giồng"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_gi%C3%A1"
@@ -2961,7 +2982,8 @@
       "description": "Bánh nướng hay bánh nướng trung thu là một trong những loại bánh được làm và sử dụng nhiều trong lễ tiết trung thu. Bánh xuất xứ từ ẩm thực Trung Hoa nhưng trong chiều dài lịch sử giao thoa, ảnh hưởng và tiếp biến văn hóa, đã lan tỏa và phổ biến tại nhiều quốc gia châu Á khác.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/B%C3%A1nh_n%C6%B0%E1%BB%9Bng_th%E1%BA%ADp_c%E1%BA%A9m_tr%E1%BB%A9ng_mu%E1%BB%91i.JPG/330px-B%C3%A1nh_n%C6%B0%E1%BB%9Bng_th%E1%BA%ADp_c%E1%BA%A9m_tr%E1%BB%A9ng_mu%E1%BB%91i.JPG?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
-        "Bánh nướng"
+        "Bánh nướng",
+        "bánh nướng trung thu"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_n%C6%B0%E1%BB%9Bng",
@@ -2985,7 +3007,11 @@
       "description": "Bánh nướng chảo, dịch từ pancake trong tiếng Anh, hay bánh phèng la/ phèn la trong tiếng Việt, là một loại bánh phẳng được chế biến từ bột làm từ tinh bột có thể chứa trứng, sữa và bơ. Món ăn thường mỏng và tròn và có thể nấu trên một bề mặt nóng như vỉ nướng hoặc chảo rán, thường chiên với dầu hoặc bơ.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Blueberry_pancakes_%283%29.jpg/330px-Blueberry_pancakes_%283%29.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
-        "Bánh nướng chảo"
+        "Bánh nướng chảo",
+        "hotcake",
+        "griddlecake",
+        "flapjack",
+        "serguio massa"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_n%C6%B0%E1%BB%9Bng_ch%E1%BA%A3o"
@@ -3070,7 +3096,10 @@
       "description": "Bánh pía là món bánh ngọt ngàn lớp có nhân và là bánh trung thu truyền thống xuất phát từ Triều Châu, Trung Quốc và được du nhập vào các khu phố người Hoa trên thế giới. Đặc biệt ở Đông Nam Á, nơi có Hoa Kiều cư ngụ là Việt Nam, Malaysia, Indonesia, Philippines và Singapore.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Bakpia_pathok.jpg/330px-Bakpia_pathok.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
-        "Bánh pía"
+        "Bánh pía",
+        "bánh bía",
+        "bánh lột da",
+        "bánh bao chi"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_p%C3%ADa",
@@ -3179,7 +3208,9 @@
       "description": "Bánh quế hoa là một loại bánh ngọt truyền thống của Trung Quốc, được làm từ bột nếp, mật quế hoa, kỷ tử và đường phèn, có đặc điểm là trong suốt như pha lê, vị thanh mát, hương thơm ngọt và mềm mại.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Sweet_Tea_Olive_Cake.jpg/330px-Sweet_Tea_Olive_Cake.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
-        "Bánh quế hoa"
+        "Bánh quế hoa",
+        "quế hoa cao",
+        "Osmanthus jelly"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_qu%E1%BA%BF_hoa",
@@ -3214,7 +3245,8 @@
       "description": "Bánh sô-cô-la hoặc sô-cô-la gateau là một loại bánh có hương vị sô cô la, ca cao hoặc cả hai.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Chocolate_fudge_cake.jpg/330px-Chocolate_fudge_cake.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
-        "Bánh sô-cô-la"
+        "Bánh sô-cô-la",
+        "cake flavored with chocolate"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_s%C3%B4-c%C3%B4-la"
@@ -3297,7 +3329,8 @@
       "description": "Bánh tằm khoai mì là một món bánh tráng miệng dân dã của người dân Nam bộ, gắn liền với tuổi thơ của nhiều người từ nông thôn đến thành thị. Gọi là bánh tằm vì bánh có hình dáng thon dài và được phủ lớp vụn dừa giống con tằm.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/B%C3%A1nh_t%E1%BA%B1m_khoai_m%C3%AC_ng%C3%A0y_22_th%C3%A1ng_02_n%C4%83m_2020_%283%29.jpg/330px-B%C3%A1nh_t%E1%BA%B1m_khoai_m%C3%AC_ng%C3%A0y_22_th%C3%A1ng_02_n%C4%83m_2020_%283%29.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
-        "Bánh tằm khoai mì"
+        "Bánh tằm khoai mì",
+        "bánh tằm khoai mỳ"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/B%C3%A1nh_t%E1%BA%B1m_khoai_m%C3%AC"
@@ -3533,7 +3566,8 @@
       "description": "Bún mắm là một trong số các món ăn đặc sản của miền tây Nam bộ Việt Nam. Bún mắm được nấu bằng mắm cá linh hay cá sặc, đây là các loại cá có nhiều tại miền Tây, đặc biệt là các tỉnh thành Vĩnh Long và Cần Thơ.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/B%C3%BAn_m%E1%BA%AFm.jpg/330px-B%C3%BAn_m%E1%BA%AFm.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
-        "Bún mắm"
+        "Bún mắm",
+        "Vietnamese gumbo"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/B%C3%BAn_m%E1%BA%AFm"
@@ -3624,7 +3658,8 @@
       "description": "Cachupa là một món ăn nổi tiếng từ quần đảo Cabo Verde, Tây Phi. Đây là một món hầm nấu chậm có thành phần chính là ngô (hominy), đậu, sắn, khoai lang, cá hoặc thịt, và thường là morcela (dồi). Được gọi là món ăn quốc gia, mỗi đảo có phong cách biến tấu riêng.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Cachupa_2.jpg/330px-Cachupa_2.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
-        "Cachupa"
+        "Cachupa",
+        "Katxupa"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/Cachupa"
@@ -3693,7 +3728,8 @@
       "description": "Canh khổ qua nhồi thịt là một món ăn của người dân miền Nam Việt Nam nhưng hầu như vẫn được thưởng thức rộng rãi ở cả hai miền còn lại của nước này.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Canh_kh%E1%BB%95_qua.JPG/330px-Canh_kh%E1%BB%95_qua.JPG?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
-        "Canh khổ qua nhồi thịt"
+        "Canh khổ qua nhồi thịt",
+        "sngaor mreah"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/Canh_kh%E1%BB%95_qua_nh%E1%BB%93i_th%E1%BB%8Bt"
@@ -3940,7 +3976,8 @@
       "description": "Chè bánh lọt là một món chè ngọt ăn lạnh. Món chè này phổ biến khắp Đông Nam Á và có ý kiến cho rằng xuất xứ từ Indonesia.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Cendol_in_a_Glass.JPG/330px-Cendol_in_a_Glass.JPG?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
-        "Chè bánh lọt"
+        "Chè bánh lọt",
+        "Cendoi"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/Ch%C3%A8_b%C3%A1nh_l%E1%BB%8Dt",
@@ -4381,7 +4418,9 @@
       "description": "Cơm bụi hay cơm tiệm, cơm quán, cơm bình dân, cơm giá rẻ là thuật ngữ riêng có và được sử dụng phổ biến ở Việt Nam dùng để miêu tả về những bữa ăn đại trà trong đó món ăn chủ đạo từ cơm được phục vụ tại các quán, tiệm cơm bình dân ở hè phố và có giá cả rẻ hơn so với các nhà hàng, quán ăn, căng tin khác.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Com-Tam-2008.jpg/330px-Com-Tam-2008.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
-        "Cơm bụi"
+        "Cơm bụi",
+        "Cơm tiệm",
+        "Cơm quán"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/C%C6%A1m_b%E1%BB%A5i"
@@ -4666,7 +4705,8 @@
       "description": "Flammekueche, Flammkuchen, hoặc tarte flambée, là một đặc sản của vùng Alsace, Moselle nói tiếng Đức, Baden và Palatinate. Nó bao gồm bột bánh mì được cán rất mỏng thành hình chữ nhật hoặc hình bầu dục, được phủ bằng fromage blanc hoặc crème fraîche, hành tây thái mỏng và thịt xông khói.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Flameukeusche_2.jpg/330px-Flameukeusche_2.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
-        "Flammekueche"
+        "Flammekueche",
+        "tarte flambee"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/Flammekueche"
@@ -5780,7 +5820,15 @@
       "description": "Khao kha mu, đôi khi gọi đơn giản là kha mu (ขาหมู), là một món ăn Thái nổi tiếng. Nó ảnh hưởng bởi ẩm thực Trung Quốc, đặc biệt là ẩm thực Triều Châu.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Khao_kha_mu_02.JPG/330px-Khao_kha_mu_02.JPG?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
-        "Khao kha mu"
+        "Khao kha mu",
+        "khao kha moo",
+        "kha mu",
+        "kha moo",
+        "kao ka mu",
+        "kao ka moo",
+        "ka mu",
+        "ka moo",
+        "kha mu phalo"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/Khao_kha_mu"
@@ -5824,7 +5872,9 @@
       "description": "Kho quẹt là một món ăn dân dã của người Việt Nam, đặc biệt phổ biến ở Nam Bộ. Đây là món ăn rất rẻ tiền, dễ chế biến và rất đưa cơm; một đĩa kho quẹt nhỏ đôi khi có thể đủ cho cả một bữa ăn gia đình. Chính vì tính kinh tế, kho quẹt ngày xưa từng là món ăn phổ biến của các gia đình nghèo.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Kho_qu%E1%BA%B9t_2.jpg/330px-Kho_qu%E1%BA%B9t_2.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
-        "Kho quẹt"
+        "Kho quẹt",
+        "mắm kho quẹt",
+        "nước mắm kho quẹt"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/Kho_qu%E1%BA%B9t"
@@ -6112,7 +6162,8 @@
       "description": "Lasagna, hoặc Lasagne, là một loại mì phẳng, rất rộng. Món ăn này thường được phục vụ dưới dạng xếp lớp chồng lên nhau xen kẽ với phô mai, nước sốt, cùng với các thành phần khác như thịt hoặc rau quả. Như các món ăn khác của Ý, Lasagna có nhiều biến thể.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Lasagna_NIH.jpg/330px-Lasagna_NIH.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
-        "Lasagna"
+        "Lasagna",
+        "lasagne"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/Lasagna",
@@ -6124,7 +6175,8 @@
       "description": "Sữa chua Lassi hay còn gọi là sữa chua uống là một loại đồ uống làm từ sữa chua của Ấn Độ với độ đặc sệt giống như sinh tố. Sữa chua Lassi được gọi là \"thức uống làm từ sữa chua truyền thống và phổ biến nhất\" ở Ấn Độ.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Salt_lassi.jpg/330px-Salt_lassi.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
-        "Lassi"
+        "Lassi",
+        "Sweet Lassi"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/Lassi",
@@ -6338,7 +6390,11 @@
       "description": "Mille-feuille hay còn gọi là Bánh ngàn lớp hoặc bánh Napoleon là một món tráng miệng có nguồn gốc từ ẩm thực Pháp được làm từ bột ngàn lớp phủ kem bánh ngọt. Hình dạng bề ngoài ngày nay của món tráng miệng này chịu ảnh hưởng từ những cải tiến của món Marie-Antoine Carême.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Napoleon_dessert_-_March_2023_-_Sarah_Stierch_02.jpg/330px-Napoleon_dessert_-_March_2023_-_Sarah_Stierch_02.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
-        "Mille-feuille"
+        "Mille-feuille",
+        "cream slice",
+        "custard slice",
+        "vanilla slice",
+        "milfey"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/Mille-feuille",
@@ -6421,7 +6477,8 @@
       "description": "Moules-frites hoặc moules et frites là một món ăn được làm từ trai và khoai tây chiên có nguồn gốc xuất xứ từ Bỉ. Món ăn được đặt tên theo một từ trong tiếng Pháp, trong đó, moules có nghĩa là con trai và frites mang nghĩa là khoai tây chiên, với tên tiếng Hà Lan cho món ăn có nghĩa giống nhau.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Moules_Frites.jpg/330px-Moules_Frites.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
-        "Moules-frites"
+        "Moules-frites",
+        "Moules et frites"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/Moules-frites",
@@ -6514,7 +6571,8 @@
       "description": "Mì Quảng là một món ăn có nguồn gốc xuất xứ và cũng là đặc sản của Quảng Nam, Việt Nam.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Mi_Quang_1A_Danang.jpg/330px-Mi_Quang_1A_Danang.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
-        "Mì Quảng"
+        "Mì Quảng",
+        "Mỳ Quảng"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/M%C3%AC_Qu%E1%BA%A3ng"
@@ -6597,7 +6655,8 @@
       "description": "Mắm tôm chua là một món ăn của Nam Bộ và miền Trung Việt Nam, đặc biệt là tại Gò Công và Huế, làm từ tôm bạc đất ủ chua. Gò Công và Huế là hai nơi làm mắm tôm chua nổi tiếng, tuy nhiên ở Huế thì nhiều cơ sở sản xuất hơn. Món này bắt nguồn từ Gò Công được Nam Phương Hoàng hậu mang về Huế.",
       "image_url": null,
       "match_keywords": [
-        "Mắm tôm chua"
+        "Mắm tôm chua",
+        "tôm chua"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/M%E1%BA%AFm_t%C3%B4m_chua"
@@ -6906,7 +6965,9 @@
       "description": "Nộm hoa chuối hay gỏi bắp chuối là một món ăn của người Việt Nam. Món ăn này được gọi là nộm hoa chuối ở miền Bắc Việt Nam, còn tại miền Nam được gọi là gỏi bắp chuối.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/N%E1%BB%99m_hoa_chu%E1%BB%91i.png/330px-N%E1%BB%99m_hoa_chu%E1%BB%91i.png?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
-        "Nộm hoa chuối"
+        "Nộm hoa chuối",
+        "Gỏi bắp chuối",
+        "Nộm bắp chuối"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/N%E1%BB%99m_hoa_chu%E1%BB%91i"
@@ -6974,7 +7035,13 @@
       "description": "Bánh Pa tê sô, , là một loại bánh pastry nướng mặn của Việt Nam. Bánh này có lớp vỏ ngoài mỏng, giòn tan với nhân thịt. Theo truyền thống, nhân bánh gồm thịt lợn xay, nhưng hiện nay cũng thường dùng thịt gà và thịt bò.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Pate_Chaud.jpg/330px-Pate_Chaud.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
-        "Pa tê sô"
+        "Pa tê sô",
+        "patê sô",
+        "pateso",
+        "ba tê sô",
+        "bánh pa tê sô",
+        "pâté chaud",
+        "bánh patê sô"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/Pa_t%C3%AA_s%C3%B4"
@@ -7095,7 +7162,13 @@
       "description": "Pav bhaji là một món ăn đường phố Ấn Độ, bao gồm cà ri rau dày (bhaji) ăn kèm với bánh mì mềm cuộn (pav). Nó có nguồn gốc ở thành phố Mumbai.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Bambayya_Pav_bhaji.jpg/330px-Bambayya_Pav_bhaji.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
-        "Pav bhaji"
+        "Pav bhaji",
+        "Bhaji Pav",
+        "Pao Bhaji",
+        "Pao Bhajee",
+        "Pav Bhajee",
+        "Bhajee Pav",
+        "Bhajee Pao"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/Pav_bhaji",
@@ -7130,7 +7203,11 @@
       "description": "Phat kaphrao, cũng được đọc là pad krapow, kaprao, là một trong những món ăn phổ biển của nền ẩm thực Thái Lan.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Basil_fried_crispy_pork_with_rice_-_Chiang_Mai_-_2017-07-11_%28002%29.jpg/330px-Basil_fried_crispy_pork_with_rice_-_Chiang_Mai_-_2017-07-11_%28002%29.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
-        "Phat kaphrao"
+        "Phat kaphrao",
+        "pad krapow",
+        "pad kaprao",
+        "pad kra pao",
+        "pad krapao"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/Phat_kaphrao",
@@ -7258,7 +7335,9 @@
       "description": "Pizza quattro formaggi tiếng Ý: [ˈkwattro forˈmaddʒi] là một loại pizza trong ẩm thực Ý được phủ lên trên với sự kết hợp của bốn loại pho mát, thường được nấu chảy cùng với sốt cà chua.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Pizza_quattro_formaggi_at_restaurant%2C_Chalk_Farm_Road%2C_London.jpg/330px-Pizza_quattro_formaggi_at_restaurant%2C_Chalk_Farm_Road%2C_London.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
-        "Pizza quattro formaggi"
+        "Pizza quattro formaggi",
+        "Quattro formaggi pizza",
+        "Four-Cheese Pizza"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/Pizza_quattro_formaggi",
@@ -7481,7 +7560,8 @@
       "description": "Món rojak là một món salad mang đậm dấu ấn ẩm thực của quốc đảo Singapore. Được sử dụng làm món khai vị trong các bữa tiệc gia đình hay những sự kiện quan trọng.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Fruit_Rojak.jpg/330px-Fruit_Rojak.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
-        "Rojak"
+        "Rojak",
+        "rujak"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/Rojak",
@@ -7572,7 +7652,8 @@
       "description": "S'more là một loại bánh kẹo bao gồm marshmallow và sô-cô-la nướng kẹp giữa hai miếng bánh quy giòn Graham. S'more rất phổ biến ở Hoa Kỳ và Canada, được nấu theo cách truyền thống trên lửa trại.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Smores-Microwave.jpg/330px-Smores-Microwave.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
-        "S'more"
+        "S'more",
+        "s'mores"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/S'more"
@@ -7647,7 +7728,9 @@
       "description": "Saumagen là một món ăn Đức phổ biến ở vùng Palatinate. Món ăn này tương tự như xúc xích ở chỗ nó bao gồm một lớp vỏ nhồi; tuy nhiên, chính dạ dày là thành phần không thể thiếu của món ăn. Dạ dày không mỏng như vỏ xúc xích thông thường mà giống như thịt, là một cơ quan cơ bắp chắc khỏe.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Saumagen_mit_Sauerkraut.JPG/330px-Saumagen_mit_Sauerkraut.JPG?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
-        "Saumagen"
+        "Saumagen",
+        "Pfälzer Saumagen",
+        "sow's stomach"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/Saumagen"
@@ -7810,7 +7893,9 @@
       "description": "Spaghetti là một loại pasta dài, mỏng, đặc, hình trụ. Nó là một thực phẩm thiết yếu của ẩm thực Ý truyền thống. Giống như các loại mì ống khác, mì spaghetti được làm từ lúa mỳ xay, nước, đôi khi được bổ sung thêm vitamin và khoáng chất. Spaghetti của Ý thường được làm từ semolina lúa mỳ cứng.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Spaghettoni.jpg/330px-Spaghettoni.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
-        "Spaghetti"
+        "Spaghetti",
+        "spaghetti dish",
+        "spaghetti meal"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/Spaghetti",
@@ -8511,7 +8596,9 @@
       "description": "Gà chiên xù kiểu Nhật hay còn gọi là Tori katsu (torikatsu/鶏カツ), còn được biết đến với tên tiếng Anh thông dụng là Chicken katsu là một món ăn từ thịt gà trong ẩm thực Nhật Bản.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Chicken_katsu_from_Kamameshi_House.JPG/330px-Chicken_katsu_from_Kamameshi_House.JPG?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
-        "Tori katsu"
+        "Tori katsu",
+        "chicken katsu",
+        "chicken cutlet"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/Tori_katsu"
@@ -9169,7 +9256,8 @@
       "description": "Đậu hũ cá chạch là một món ăn của Nhật Bản được chế biến từ đậu hũ và cá chạch.",
       "image_url": "https://upload.wikimedia.org/wikipedia/vi/thumb/9/94/T%C3%A0u_h%C5%A9_c%C3%A1_ch%E1%BA%A1ch-minh_h%E1%BB%8Da.jpg/330px-T%C3%A0u_h%C5%A9_c%C3%A1_ch%E1%BA%A1ch-minh_h%E1%BB%8Da.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
-        "Đậu hũ cá chạch"
+        "Đậu hũ cá chạch",
+        "Dojo tofu"
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/%C4%90%E1%BA%ADu_h%C5%A9_c%C3%A1_ch%E1%BA%A1ch"
@@ -9274,6 +9362,1070 @@
       ],
       "source": "wikipedia_vi",
       "source_url": "https://vi.wikipedia.org/wiki/%E1%BB%90c_s%C3%AAn_n%C6%B0%E1%BB%9Bng"
+    },
+    {
+      "dish_id": "nuoc-ep",
+      "name": "Nước ép",
+      "match_keywords": [
+        "Nước ép"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "banh-my",
+      "name": "Bánh mỳ",
+      "match_keywords": [
+        "Bánh mỳ"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "chao-long",
+      "name": "Cháo lòng",
+      "match_keywords": [
+        "Cháo lòng"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "lau-ech",
+      "name": "Lẩu ếch",
+      "match_keywords": [
+        "Lẩu ếch"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "bun-dau-met",
+      "name": "Bún đậu mẹt",
+      "match_keywords": [
+        "Bún đậu mẹt"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "my-cay",
+      "name": "Mỳ cay",
+      "match_keywords": [
+        "Mỳ cay"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "lau-cua",
+      "name": "Lẩu cua",
+      "match_keywords": [
+        "Lẩu cua"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "lau-bo",
+      "name": "Lẩu bò",
+      "match_keywords": [
+        "Lẩu bò"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "tra-da",
+      "name": "Trà đá",
+      "match_keywords": [
+        "Trà đá"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "sinh-to",
+      "name": "Sinh tố",
+      "match_keywords": [
+        "Sinh tố"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "com-tho",
+      "name": "Cơm thố",
+      "match_keywords": [
+        "Cơm thố"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "ca-ro-dong",
+      "name": "Cá rô đồng",
+      "match_keywords": [
+        "Cá rô đồng"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "tra-o-long",
+      "name": "Trà ô long",
+      "match_keywords": [
+        "Trà ô long"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "bun-hai-san",
+      "name": "Bún hải sản",
+      "match_keywords": [
+        "Bún hải sản"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "com-nieu",
+      "name": "Cơm niêu",
+      "match_keywords": [
+        "Cơm niêu"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "chao-dinh-duong",
+      "name": "Cháo dinh dưỡng",
+      "match_keywords": [
+        "Cháo dinh dưỡng"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "buffet-lau-nuong",
+      "name": "Buffet lẩu nướng",
+      "match_keywords": [
+        "Buffet lẩu nướng"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "ga-tan",
+      "name": "Gà tần",
+      "match_keywords": [
+        "Gà tần"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "bo-nuong",
+      "name": "Bò nướng",
+      "match_keywords": [
+        "Bò nướng"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "thit-xien",
+      "name": "Thịt xiên",
+      "match_keywords": [
+        "Thịt xiên"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "my-van-than",
+      "name": "Mỳ vằn thắn",
+      "match_keywords": [
+        "Mỳ vằn thắn"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "cua-dong",
+      "name": "Cua đồng",
+      "match_keywords": [
+        "Cua đồng"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "che-thai",
+      "name": "Chè thái",
+      "match_keywords": [
+        "Chè thái"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "ca-lang",
+      "name": "Cá lăng",
+      "match_keywords": [
+        "Cá lăng"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "banh-da-ca",
+      "name": "Bánh đa cá",
+      "match_keywords": [
+        "Bánh đa cá"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "tra-bi-dao",
+      "name": "Trà bí đao",
+      "match_keywords": [
+        "Trà bí đao"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "chao-suon",
+      "name": "Cháo sườn",
+      "match_keywords": [
+        "Cháo sườn"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "lau-cua-dong",
+      "name": "Lẩu cua đồng",
+      "match_keywords": [
+        "Lẩu cua đồng"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "banh-bao",
+      "name": "Bánh bao",
+      "match_keywords": [
+        "Bánh bao"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "bun-ca-cay",
+      "name": "Bún cá cay",
+      "match_keywords": [
+        "Bún cá cay"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "bo-nam-nuong",
+      "name": "Bò nầm nướng",
+      "match_keywords": [
+        "Bò nầm nướng"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "nuoc-ep-trai-cay",
+      "name": "Nước ép trái cây",
+      "match_keywords": [
+        "Nước ép trái cây"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "canh-ca-ro",
+      "name": "Canh cá rô",
+      "match_keywords": [
+        "Canh cá rô"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "bo-nhung-dam",
+      "name": "Bò nhúng dấm",
+      "match_keywords": [
+        "Bò nhúng dấm"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "lau-nam",
+      "name": "Lẩu nấm",
+      "match_keywords": [
+        "Lẩu nấm"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "kem-dua",
+      "name": "Kem dừa",
+      "match_keywords": [
+        "Kem dừa"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "lau-chao",
+      "name": "Lẩu cháo",
+      "match_keywords": [
+        "Lẩu cháo"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "bun-rieu-top-mo",
+      "name": "Bún riêu tóp mỡ",
+      "match_keywords": [
+        "Bún riêu tóp mỡ"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "bun-cha-nem",
+      "name": "Bún chả nem",
+      "match_keywords": [
+        "Bún chả nem"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "banh-da-ca-ro",
+      "name": "Bánh đa cá rô",
+      "match_keywords": [
+        "Bánh đa cá rô"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "bun-doc-mung",
+      "name": "Bún dọc mùng",
+      "match_keywords": [
+        "Bún dọc mùng"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "bun-ca-cham",
+      "name": "Bún cá chấm",
+      "match_keywords": [
+        "Bún cá chấm"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "bun-moc",
+      "name": "Bún mọc",
+      "match_keywords": [
+        "Bún mọc"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "lau-rieu",
+      "name": "Lẩu riêu",
+      "match_keywords": [
+        "Lẩu riêu"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "tra-hoa-qua",
+      "name": "Trà hoa quả",
+      "match_keywords": [
+        "Trà hoa quả"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "bo-to",
+      "name": "Bò tơ",
+      "match_keywords": [
+        "Bò tơ"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "thit-xien-nuong",
+      "name": "Thịt xiên nướng",
+      "match_keywords": [
+        "Thịt xiên nướng"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "long-lon",
+      "name": "Lòng lợn",
+      "match_keywords": [
+        "Lòng lợn"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "banh-trang-cuon-thit",
+      "name": "Bánh tráng cuốn thịt",
+      "match_keywords": [
+        "Bánh tráng cuốn thịt"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "canh-ca-ro-dong",
+      "name": "Canh cá rô đồng",
+      "match_keywords": [
+        "Canh cá rô đồng"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "nem-lui",
+      "name": "Nem lụi",
+      "match_keywords": [
+        "Nem lụi"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "banh-cuon-cao-bang",
+      "name": "Bánh cuốn cao bằng",
+      "match_keywords": [
+        "Bánh cuốn cao bằng"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "che-sau",
+      "name": "Chè sầu",
+      "match_keywords": [
+        "Chè sầu"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "oc-nong",
+      "name": "Ốc nóng",
+      "match_keywords": [
+        "Ốc nóng"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "lau-de",
+      "name": "Lẩu dê",
+      "match_keywords": [
+        "Lẩu dê"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "cha-ca-lang",
+      "name": "Chả cá lăng",
+      "match_keywords": [
+        "Chả cá lăng"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "lau-duoi-bo",
+      "name": "Lẩu đuôi bò",
+      "match_keywords": [
+        "Lẩu đuôi bò"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "bun-oc-suon",
+      "name": "Bún ốc sườn",
+      "match_keywords": [
+        "Bún ốc sườn"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "buffet-nuong",
+      "name": "Buffet nướng",
+      "match_keywords": [
+        "Buffet nướng"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "canh-ghe",
+      "name": "Canh ghẹ",
+      "match_keywords": [
+        "Canh ghẹ"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "banh-canh-ghe",
+      "name": "Bánh canh ghẹ",
+      "match_keywords": [
+        "Bánh canh ghẹ"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "ruou-vang",
+      "name": "Rượu vang",
+      "match_keywords": [
+        "Rượu vang"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "nuoc-mia",
+      "name": "Nước mía",
+      "match_keywords": [
+        "Nước mía"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "banh-ran",
+      "name": "Bánh rán",
+      "match_keywords": [
+        "Bánh rán",
+        "bánh cam"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "luon-xu-nghe",
+      "name": "Lươn xứ nghệ",
+      "match_keywords": [
+        "Lươn xứ nghệ"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "banh-tom",
+      "name": "Bánh tôm",
+      "match_keywords": [
+        "Bánh tôm"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "buffet-chay",
+      "name": "Buffet chay",
+      "match_keywords": [
+        "Buffet chay"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "lau-long",
+      "name": "Lẩu lòng",
+      "match_keywords": [
+        "Lẩu lòng"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "sua-hat",
+      "name": "Sữa hạt",
+      "match_keywords": [
+        "Sữa hạt"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "pho-bo-nam-dinh",
+      "name": "Phở bò nam định",
+      "match_keywords": [
+        "Phở bò nam định"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "chao-trai",
+      "name": "Cháo trai",
+      "match_keywords": [
+        "Cháo trai"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "bun-bung",
+      "name": "Bún bung",
+      "match_keywords": [
+        "Bún bung",
+        "Nấu ăn:Bún bung"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "lau-nuong-han-quoc",
+      "name": "Lẩu nướng hàn quốc",
+      "match_keywords": [
+        "Lẩu nướng hàn quốc"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "ca-hoi",
+      "name": "Cá hồi",
+      "match_keywords": [
+        "Cá hồi"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "banh-mi-chao",
+      "name": "Bánh mì chảo",
+      "match_keywords": [
+        "Bánh mì chảo"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "bun-suon",
+      "name": "Bún sườn",
+      "match_keywords": [
+        "Bún sườn"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "long-bo",
+      "name": "Lòng bò",
+      "match_keywords": [
+        "Lòng bò"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "suon-sun",
+      "name": "Sườn sụn",
+      "match_keywords": [
+        "Sườn sụn"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "kem-bo",
+      "name": "Kem bơ",
+      "match_keywords": [
+        "Kem bơ"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "bun-tron",
+      "name": "Bún trộn",
+      "match_keywords": [
+        "Bún trộn"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "che-buoi",
+      "name": "Chè bưởi",
+      "match_keywords": [
+        "Chè bưởi"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "cua-be",
+      "name": "Cua bể",
+      "match_keywords": [
+        "Cua bể"
+      ],
+      "source": "dataset_ten_quan",
+      "source_url": null
+    },
+    {
+      "dish_id": "mi",
+      "name": "Mì",
+      "description": "Yellow wheat noodles",
+      "image_url": null,
+      "match_keywords": [
+        "Mì"
+      ],
+      "source": "wikidata",
+      "source_url": "https://www.wikidata.org/wiki/Q65066993"
+    },
+    {
+      "dish_id": "banh-cuon",
+      "name": "bánh cuốn",
+      "description": "món ăn của người Việt xuất phát từ ẩm thực thời nhà Trần, Đại Việt",
+      "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/B%C3%A1nh_cu%E1%BB%91n_Thanh_Tr%C3%AC.jpg?width=320",
+      "match_keywords": [
+        "bánh cuốn",
+        "bánh ướt",
+        "bánh mướt"
+      ],
+      "source": "wikidata",
+      "source_url": "https://www.wikidata.org/wiki/Q50622"
+    },
+    {
+      "dish_id": "banh-canh",
+      "name": "bánh canh",
+      "description": "món ăn Việt Nam gồm nước dùng và sợi bánh canh",
+      "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Banh-Canh-Noodle-Soup.jpg?width=320",
+      "match_keywords": [
+        "bánh canh",
+        "banh canh"
+      ],
+      "source": "wikidata",
+      "source_url": "https://www.wikidata.org/wiki/Q4855649"
+    },
+    {
+      "dish_id": "hu-tieu",
+      "name": "Hủ tiếu",
+      "description": "Món canh Việt Nam",
+      "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/H%E1%BB%A7_ti%E1%BA%BFu_b%C3%B2_kho.jpg?width=320",
+      "match_keywords": [
+        "Hủ tiếu",
+        "Hu tieu Saigon"
+      ],
+      "source": "wikidata",
+      "source_url": "https://www.wikidata.org/wiki/Q27909648"
+    },
+    {
+      "dish_id": "tiet-canh",
+      "name": "Tiết canh",
+      "description": "traditional dish of raw blood (commonly pork or duck) pudding served with cooked meat in northern Vietnamese cuisine",
+      "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Tiet.jpg?width=320",
+      "match_keywords": [
+        "Tiết canh"
+      ],
+      "source": "wikidata",
+      "source_url": "https://www.wikidata.org/wiki/Q2591051"
+    },
+    {
+      "dish_id": "banh-duc",
+      "name": "bánh đúc",
+      "description": "Vietnamese rice dishes",
+      "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Banhduc-northern.jpg?width=320",
+      "match_keywords": [
+        "bánh đúc"
+      ],
+      "source": "wikidata",
+      "source_url": "https://www.wikidata.org/wiki/Q5004817"
+    },
+    {
+      "dish_id": "pho-xao",
+      "name": "phở xào",
+      "description": "món xào Việt Nam",
+      "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Ph%E1%BB%9F_x%C3%A0o_b%C3%B2.jpg?width=320",
+      "match_keywords": [
+        "phở xào",
+        "stir fried pho",
+        "stir fried phở"
+      ],
+      "source": "wikidata",
+      "source_url": "https://www.wikidata.org/wiki/Q3382152"
+    },
+    {
+      "dish_id": "banh-troi",
+      "name": "bánh trôi",
+      "description": "Vietnamese dessert",
+      "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Banhtroi.JPG?width=320",
+      "match_keywords": [
+        "bánh trôi"
+      ],
+      "source": "wikidata",
+      "source_url": "https://www.wikidata.org/wiki/Q110834778"
+    },
+    {
+      "dish_id": "tteokbokki",
+      "name": "tteokbokki",
+      "description": "South Korean dish made from rice and flour cakes",
+      "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Korean.snacks-Tteokbokki-08.jpg?width=320",
+      "match_keywords": [
+        "tteokbokki",
+        "rice pasta",
+        "simmered rice cake"
+      ],
+      "source": "wikidata",
+      "source_url": "https://www.wikidata.org/wiki/Q1190475"
+    },
+    {
+      "dish_id": "banh-chung",
+      "name": "bánh chưng",
+      "description": "loại bánh truyền thống của người Việt",
+      "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Banh_chung_vuong.jpg?width=320",
+      "match_keywords": [
+        "bánh chưng",
+        "banh chung",
+        "chung cake"
+      ],
+      "source": "wikidata",
+      "source_url": "https://www.wikidata.org/wiki/Q564567"
+    },
+    {
+      "dish_id": "nem-cuon",
+      "name": "Nem cuốn",
+      "description": "món ăn ở Việt Nam",
+      "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Summer_roll.jpg?width=320",
+      "match_keywords": [
+        "Nem cuốn",
+        "Gỏi cuốn",
+        "Gỏi cuốn, 膾卷",
+        "Goi cuon",
+        "Bánh tráng cuốn",
+        "Vietnamese Spring Roll",
+        "salad roll",
+        "summer roll"
+      ],
+      "source": "wikidata",
+      "source_url": "https://www.wikidata.org/wiki/Q7799573"
+    },
+    {
+      "dish_id": "cha-ca-la-vong",
+      "name": "chả cá Lã Vọng",
+      "description": "Vietnamese fish dish",
+      "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Cha_ca_La_Vong.jpg?width=320",
+      "match_keywords": [
+        "chả cá Lã Vọng",
+        "chả cá",
+        "Cha Ca La Vong"
+      ],
+      "source": "wikidata",
+      "source_url": "https://www.wikidata.org/wiki/Q3274058"
+    },
+    {
+      "dish_id": "com-nam",
+      "name": "cơm nắm",
+      "description": "Vietnam rice dish",
+      "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Rice_balls_to_freeze.jpg?width=320",
+      "match_keywords": [
+        "cơm nắm"
+      ],
+      "source": "wikidata",
+      "source_url": "https://www.wikidata.org/wiki/Q5202957"
+    },
+    {
+      "dish_id": "pancake",
+      "name": "Pancake",
+      "description": "Rice pancake is made with rice, yeast, salt, and sugar mix them together allow it to rise then roast it in frying pan. It is a food that mostly found in Northern Nigeria.",
+      "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Ailin27VeganPancakeSpinachRice.JPG?width=320",
+      "match_keywords": [
+        "Pancake",
+        "Rice Pancakes"
+      ],
+      "source": "wikidata",
+      "source_url": "https://www.wikidata.org/wiki/Q107358612"
+    },
+    {
+      "dish_id": "banh-hoi",
+      "name": "bánh hỏi",
+      "description": "Vietnamese dish",
+      "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Banh_hoi.jpg?width=320",
+      "match_keywords": [
+        "bánh hỏi"
+      ],
+      "source": "wikidata",
+      "source_url": "https://www.wikidata.org/wiki/Q5004799"
+    },
+    {
+      "dish_id": "poke",
+      "name": "poke",
+      "description": "Hawaiian raw fish dish",
+      "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Shoyu_and_onion_poke.jpg?width=320",
+      "match_keywords": [
+        "poke",
+        "poki",
+        "Ahi poke",
+        "pokè",
+        "poké",
+        "Poke Rice"
+      ],
+      "source": "wikidata",
+      "source_url": "https://www.wikidata.org/wiki/Q7208574"
+    },
+    {
+      "dish_id": "burrito",
+      "name": "Burrito",
+      "description": "Mexican dish consisting of a wheat flour tortilla wrapped or folded into a cylindrical shape to completely enclose the filling",
+      "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Breakfast_burritos.jpg?width=320",
+      "match_keywords": [
+        "Burrito"
+      ],
+      "source": "wikidata",
+      "source_url": "https://www.wikidata.org/wiki/Q390823"
+    },
+    {
+      "dish_id": "banh-cay",
+      "name": "Bánh cáy",
+      "description": "loại bánh truyền thống của Việt Nam",
+      "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/B%C3%A1nh_c%C3%A1y.JPG?width=320",
+      "match_keywords": [
+        "Bánh cáy",
+        "Bánh ngũ vị",
+        "banh cay"
+      ],
+      "source": "wikidata",
+      "source_url": "https://www.wikidata.org/wiki/Q5004800"
+    },
+    {
+      "dish_id": "bo-nuong-la-lot",
+      "name": "Bò nướng lá lốt",
+      "description": "món ăn có xuất xứ và thịnh hành ở vùng Nam Bộ, Việt Nam",
+      "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/B%C3%B2_n%C6%B0%E1%BB%9Bng_l%C3%A1_l%E1%BB%91t_t%E1%BA%A1i_Manchester.jpg?width=320",
+      "match_keywords": [
+        "Bò nướng lá lốt"
+      ],
+      "source": "wikidata",
+      "source_url": "https://www.wikidata.org/wiki/Q7799954"
+    },
+    {
+      "dish_id": "cha-cua",
+      "name": "Chả cua",
+      "description": "American crab dish",
+      "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Garnished_crabcake.jpg?width=320",
+      "match_keywords": [
+        "Chả cua",
+        "crabcake",
+        "crab cakes"
+      ],
+      "source": "wikidata",
+      "source_url": "https://www.wikidata.org/wiki/Q1138371"
+    },
+    {
+      "dish_id": "ruou-nep-cai",
+      "name": "Rượu nếp cái",
+      "description": "Traditional Vietnamese dessert made from glutinous rice",
+      "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Comruou.jpg?width=320",
+      "match_keywords": [
+        "Rượu nếp cái",
+        "Cơm rượu"
+      ],
+      "source": "wikidata",
+      "source_url": "https://www.wikidata.org/wiki/Q2436547"
+    },
+    {
+      "dish_id": "thach-den",
+      "name": "Thạch đen",
+      "description": "món tráng miệng dạng thạch có nguồn gốc từ Trung Quốc",
+      "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/GrassJellyBlocks.jpg?width=320",
+      "match_keywords": [
+        "Thạch đen",
+        "Thạch sương sáo",
+        "leaf jelly"
+      ],
+      "source": "wikidata",
+      "source_url": "https://www.wikidata.org/wiki/Q713869"
+    },
+    {
+      "dish_id": "thit-dong",
+      "name": "Thịt đông",
+      "description": "món ăn Việt Nam",
+      "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Pihtije_Cubes_Vlasotince_Bogojavljenje.JPG?width=320",
+      "match_keywords": [
+        "Thịt đông",
+        "Giò thủ",
+        "giò xào",
+        "chả thủ"
+      ],
+      "source": "wikidata",
+      "source_url": "https://www.wikidata.org/wiki/Q2840947"
+    },
+    {
+      "dish_id": "banh-giay",
+      "name": "bánh giầy",
+      "description": "một loại bánh truyền thống của Việt Nam",
+      "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/B%C3%A1nh_gi%E1%BA%A7y_gi%C3%B2.JPG?width=320",
+      "match_keywords": [
+        "bánh giầy",
+        "bánh giày",
+        "bánh dầy",
+        "bánh dày"
+      ],
+      "source": "wikidata",
+      "source_url": "https://www.wikidata.org/wiki/Q10742207"
+    },
+    {
+      "dish_id": "com-hen",
+      "name": "cơm hến",
+      "description": "Famous traditional dish in Huế, Vietnam",
+      "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/H%E1%BA%BFn_tr%E1%BB%99n.jpg?width=320",
+      "match_keywords": [
+        "cơm hến"
+      ],
+      "source": "wikidata",
+      "source_url": "https://www.wikidata.org/wiki/Q5202956"
+    },
+    {
+      "dish_id": "cao-lau",
+      "name": "Cao lầu",
+      "description": "Vietnamese noodle dish",
+      "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Cao_l%E1%BA%A7u_H%E1%BB%99i_An_%282024%29.jpg?width=320",
+      "match_keywords": [
+        "Cao lầu"
+      ],
+      "source": "wikidata",
+      "source_url": "https://www.wikidata.org/wiki/Q5034353"
     }
   ]
 }

@@ -31,6 +31,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { DishItem } from '@/shared/api';
 import { DishList, DishListSkeleton } from '@/widgets/dish-list';
+import { FilterDrawer } from '@/widgets/filter-drawer';
 import { SiteHeader } from '@/widgets/site-header';
 import { HomeHero } from '@/widgets/home-hero';
 import { MoodQuickPick } from '@/widgets/mood-quick-pick';
@@ -60,6 +61,8 @@ export function HomePage() {
    * không biết còn gì nữa. "Xem tất cả" mở lưới ra.
    */
   const [xemTatCa, setXemTatCa] = useState(false);
+  /** Ngăn kéo bộ lọc (phương án A, chủ dự án chốt 2026-08-23). */
+  const [moBoLoc, setMoBoLoc] = useState(false);
 
   const dishes = suggestions.dishes ?? [];
   const hasDishes = dishes.length > 0;
@@ -126,11 +129,7 @@ export function HomePage() {
           title={daDangNhap ? t('mood.titleLoggedIn') : t('mood.titleGuest')}
           dangChon={dangChon}
           onPick={chonNhanh}
-          onShowAll={() => {
-            document
-              .getElementById('bo-loc-day-du')
-              ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }}
+          onShowAll={() => setMoBoLoc(true)}
         />
 
         {/* Khách: 6 lối vào không cần tài khoản. Người đã đăng nhập không cần hàng này —
@@ -180,7 +179,25 @@ export function HomePage() {
                 </>
               )}
             </h2>
-            {hasDishes && (
+            <div className="results__actions">
+              {/* Nút mở bộ lọc đặt NGAY CẠNH tiêu đề kết quả, không phải cuối trang:
+                  lọc là việc lặp (bấm -> nhìn kết quả -> bấm tiếp), nút phải nằm trong
+                  tầm mắt của chính danh sách mà nó lọc. */}
+              <button
+                type="button"
+                className={
+                  suggestions.activeFilterCount > 0
+                    ? 'btn btn--sm btn--filter btn--filter-on'
+                    : 'btn btn--sm btn--filter'
+                }
+                onClick={() => setMoBoLoc(true)}
+              >
+                <span aria-hidden="true">⚙️</span> {t('filters.open')}
+                {suggestions.activeFilterCount > 0 && (
+                  <span className="btn__badge">{suggestions.activeFilterCount}</span>
+                )}
+              </button>
+              {hasDishes && (
               <button
                 type="button"
                 className="linkish"
@@ -190,7 +207,8 @@ export function HomePage() {
                   ? `← ${t('results.collapse')}`
                   : `${t('results.showAll', { count: dishes.length })} →`}
               </button>
-            )}
+              )}
+            </div>
           </div>
 
           {/*
@@ -254,8 +272,15 @@ export function HomePage() {
           )}
         </section>
 
-        <section id="bo-loc-day-du" className="filters-block">
-          <h2 className="section-title">{t('filters.title')}</h2>
+        {/* Bộ lọc nay nằm trong NGĂN KÉO, không còn là một khối cố định cuối trang.
+            Khối cũ đẩy mọi thứ khác xuống và người dùng phải cuộn lên cuộn xuống giữa
+            "bấm chip" và "xem kết quả". */}
+        <FilterDrawer
+          open={moBoLoc}
+          onClose={() => setMoBoLoc(false)}
+          activeCount={suggestions.activeFilterCount}
+          onReset={suggestions.reset}
+        >
           <p className="section-sub">{t('filters.sub')}</p>
           <DishFilters
             filters={suggestions.filters}
@@ -268,7 +293,7 @@ export function HomePage() {
             locationLoading={location.loading}
             onRequestLocation={location.request}
           />
-        </section>
+        </FilterDrawer>
 
         {/*
           Chỗ "bán" việc đăng ký — đặt ở CUỐI, sau khi người dùng đã thấy app có ích.

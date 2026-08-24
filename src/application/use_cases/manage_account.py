@@ -169,6 +169,120 @@ class RequestPasswordResetUseCase:
         return True
 
 
+class EmailVerificationTokens(Protocol):
+    """Hợp đồng token xác minh email. Hai bước, xem `infrastructure/auth/email_verification.py`."""
+
+    def issue(self, user: User) -> str: ...
+
+    def read(self, token: str) -> tuple[str, str, str]:
+        """Trả (user_id, email ghi trong thư, vân tay trạng thái)."""
+        ...
+
+    def ensure_unused(self, van_tay_trong_token: str, user: User) -> None:
+        """Ném lỗi nếu link đã dùng rồi hoặc email đã đổi."""
+        ...
+
+
+@dataclass
+class RequestEmailVerificationUseCase:
+    """Gửi thư kèm đường dẫn xác minh email cho MỘT tài khoản cụ thể.
+
+    KHÁC `RequestPasswordResetUseCase` ở chỗ KHÔNG phải giấu "tài khoản có tồn tại không":
+    ở đây người gọi đã đăng nhập, tức là đã biết thừa tài khoản của chính họ tồn tại.
+    Nên chỗ này được phép nói thẳng "bạn chưa khai email" hay "email đã xác minh rồi" —
+    giấu đi chỉ làm người dùng bối rối mà không che được bí mật nào.
+    """
+
+    emails: EmailSender
+    verify_tokens: EmailVerificationTokens
+    app_base_url: str
+    token_ttl_seconds: int
+
+    def execute(self, user: User) -> bool:
+        """Trả True nếu đã gửi thư, False nếu không có gì để gửi."""
+        if not user.has_email:
+            return False
+        if user.email_verified:
+            # Đã xác minh rồi thì không gửi lại. Không phải lỗi — chỉ là không có việc gì.
+            return False
+
+        token = self.verify_tokens.issue(user)
+        # ⚠️ Phải KHỚP `ROUTES.verifyEmail` ở frontend
+        # (`frontend/apps/client/src/shared/config/routes.ts`). Lệch một chữ là link
+        # trong thư ra 404 — đúng cái bẫy đã ghi ở luồng đặt lại mật khẩu.
+        lien_ket = f"{self.app_base_url.rstrip('/')}/verify-email?token={token}"
+        gio = max(1, self.token_ttl_seconds // 3600)
+
+        dong = [
+            f"Chào {user.display_name or user.username},",
+            "",
+            "Hãy xác nhận đây đúng là hộp thư của bạn bằng cách mở đường dẫn dưới đây:",
+            lien_ket,
+            "",
+            f"Đường dẫn có hiệu lực trong {gio} giờ và chỉ dùng được MỘT lần.",
+            "",
+            "Xác minh xong, bạn mới lấy lại được mật khẩu qua email nếu lỡ quên.",
+            "",
+            "Nếu bạn không đăng ký MoodBite thì cứ bỏ qua thư này.",
+            "",
+            "— MoodBite",
+        ]
+        self.emails.send(
+            to=user.email,
+            subject="Xác minh email MoodBite",
+            body=chr(10).join(dong),
+        )
+        logger.info("Đã gửi thư xác minh email cho %s", user.username)
+        return True
+
+    def try_send(self, user: User) -> bool:
+        """Như `execute` nhưng NUỐT lỗi gửi thư. Chỉ dùng ngay sau khi đăng ký.
+
+        VÌ SAO PHẢI CÓ BẢN RIÊNG NÀY: đăng ký xong thì gửi luôn thư xác minh là tiện nhất
+        cho người dùng, nhưng máy chủ SMTP hỏng KHÔNG được phép làm hỏng việc tạo tài
+        khoản — tài khoản đã ghi vào CSDL rồi, ném lỗi ra lúc này thì người dùng thấy
+        "đăng ký thất bại" trong khi họ đã có tài khoản và không đăng ký lại được nữa
+        (tên đã bị chiếm). Họ luôn bấm gửi lại thư sau được.
+        """
+        try:
+            return self.execute(user)
+        except Exception as exc:                      # noqa: BLE001 - xem docstring
+            logger.warning("Không gửi được thư xác minh cho %s: %s", user.username, exc)
+            return False
+
+
+@dataclass
+class ConfirmEmailVerificationUseCase:
+    """Đóng dấu `email_verified` bằng token trong thư."""
+
+    users: UserRepository
+    verify_tokens: EmailVerificationTokens
+
+    def execute(self, token: str) -> User:
+        user_id, email_trong_thu, van_tay = self.verify_tokens.read(token)
+
+        user = self.users.get_by_id(user_id)
+        if user is None:
+            raise InvalidCredentialsError("Đường dẫn xác minh email không hợp lệ.")
+
+        # Bước 2: trạng thái email hiện tại phải khớp lúc phát token -> chặn cả việc
+        # bấm lại link cũ lẫn việc đổi email rồi bấm link cũ.
+        self.verify_tokens.ensure_unused(van_tay, user)
+
+        if not self.users.mark_email_verified(user.user_id, email_trong_thu):
+            # Tới đây mà thất bại nghĩa là email vừa đổi giữa chừng (câu UPDATE có điều
+            # kiện `AND email = ?`). Cùng thông điệp với `ensure_unused` vì với người
+            # dùng thì đó là cùng một tình huống.
+            raise InvalidCredentialsError(
+                "Đường dẫn này không còn hiệu lực — email đã được xác minh hoặc đã đổi. "
+                "Hãy yêu cầu gửi lại thư mới."
+            )
+
+        logger.info("Đã xác minh email cho %s", user.username)
+        # Đọc lại để trả về trạng thái MỚI, không trả bản cũ trong bộ nhớ.
+        return self.users.get_by_id(user.user_id) or user
+
+
 class ResetTokenReader(Protocol):
     """Hợp đồng đọc token đặt lại mật khẩu. Hai bước, xem `infrastructure/auth/password_reset.py`."""
 

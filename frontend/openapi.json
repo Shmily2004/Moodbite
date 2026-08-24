@@ -863,6 +863,70 @@
         }
       }
     },
+    "/api/v1/auth/verify-email/request": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Request Email Verification",
+        "description": "Gửi lại thư xác minh email cho tài khoản ĐANG đăng nhập.\n\nKHÁC `/forgot-password` ở chỗ KHÔNG phải giấu \"tài khoản có tồn tại không\": người gọi\nđã đăng nhập nên đã biết thừa tài khoản của chính họ. Vì vậy ở đây nói thẳng được\n\"chưa khai email\" hay \"đã xác minh rồi\" — giấu chỉ làm người dùng bối rối.\n\nDùng CHUNG bộ đếm với `/forgot-password`: cả hai đều làm một lá thư thật bay đi, và\nhạn mức SMTP miễn phí của Gmail chỉ khoảng 500 thư/ngày.",
+        "operationId": "request_email_verification_api_v1_auth_verify_email_request_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/verify-email/confirm": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Confirm Email Verification",
+        "description": "Đóng dấu đã xác minh bằng token trong thư. KHÔNG cần đăng nhập.\n\nCố ý không đòi đăng nhập: người dùng hay mở thư ở máy/trình duyệt khác, bắt đăng nhập\ntrước sẽ chặn đúng lúc họ vừa bấm vào link. Token đã tự mang chữ ký và thời hạn nên\nbản thân nó là bằng chứng đủ.\n\nToken hỏng/hết hạn/đã dùng/email đã đổi -> 401.\nDùng chung bộ đếm với đăng nhập vì đây cũng là chỗ có thể đem token ra thử.",
+        "operationId": "confirm_email_verification_api_v1_auth_verify_email_confirm_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyEmailRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/auth/me": {
       "get": {
         "tags": [
@@ -1993,7 +2057,7 @@
       "AuthData": {
         "properties": {
           "user": {
-            "$ref": "#/components/schemas/UserPublic"
+            "$ref": "#/components/schemas/UserSelf"
           },
           "token": {
             "type": "string",
@@ -2198,6 +2262,18 @@
           "restaurant_count": {
             "type": "integer",
             "title": "Restaurant Count"
+          },
+          "nearest_restaurant_km": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nearest Restaurant Km",
+            "description": "Khoảng cách tới quán GẦN NHẤT bán món này (km). null = không có quán nào trong bán kính — KHÔNG phải 0 km."
           },
           "rank_position": {
             "type": "integer",
@@ -3560,42 +3636,6 @@
         ],
         "title": "SuggestedDishSchema"
       },
-      "UserPublic": {
-        "properties": {
-          "user_id": {
-            "type": "string",
-            "title": "User Id"
-          },
-          "username": {
-            "type": "string",
-            "title": "Username"
-          },
-          "role": {
-            "type": "string",
-            "title": "Role",
-            "description": "user | admin"
-          },
-          "display_name": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Display Name"
-          }
-        },
-        "type": "object",
-        "required": [
-          "user_id",
-          "username",
-          "role"
-        ],
-        "title": "UserPublic",
-        "description": "Bản công khai của một tài khoản. KHÔNG BAO GIỜ chứa `password_hash`."
-      },
       "UserSelf": {
         "properties": {
           "user_id": {
@@ -3645,6 +3685,12 @@
             ],
             "title": "Created At",
             "description": "Ngày tạo tài khoản, dạng ISO-8601."
+          },
+          "email_verified": {
+            "type": "boolean",
+            "title": "Email Verified",
+            "description": "Hộp thư đã được chứng minh là có thật chưa (chủ tài khoản đã bấm đường dẫn trong thư). Chưa xác minh KHÔNG chặn đăng nhập — email vốn là trường tuỳ chọn.",
+            "default": false
           }
         },
         "type": "object",
@@ -3766,6 +3812,22 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "VerifyEmailRequest": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Token",
+            "description": "Token lấy từ đường dẫn trong thư."
+          }
+        },
+        "type": "object",
+        "required": [
+          "token"
+        ],
+        "title": "VerifyEmailRequest",
+        "description": "Xác minh email bằng token trong thư.\n\nKHÔNG có trường email: địa chỉ nằm sẵn trong token và đã được ký. Nhận email từ\nclient rồi tin theo là mở đường cho người ta xác minh hộ địa chỉ của người khác."
       }
     }
   }

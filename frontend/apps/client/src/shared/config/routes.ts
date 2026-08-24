@@ -20,6 +20,12 @@ export const ROUTES = {
    * ⚠️ Đổi ở đây thì phải đổi cả bên đó, nếu không link trong thư sẽ ra 404.
    */
   resetPassword: '/reset-password',
+  /**
+   * Trang XÁC MINH EMAIL. Đường dẫn này nằm TRONG THƯ, do backend dựng từ
+   * `MOODBITE_APP_URL` — xem `RequestEmailVerificationUseCase`.
+   * ⚠️ Đổi ở đây thì phải đổi cả bên đó, nếu không link trong thư sẽ ra 404.
+   */
+  verifyEmail: '/verify-email',
   /** Trang tài khoản cá nhân. */
   account: '/account',
 } as const;

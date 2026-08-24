@@ -13,7 +13,14 @@ from pathlib import Path
 # lại số 86400 vào đây - chép là có ngày hai chỗ lệch nhau.
 from src.infrastructure.auth.user_auth import DEFAULT_USER_TOKEN_TTL_SECONDS
 from src.infrastructure.config.dotenv import nap_env_local
+
+# Cổng phát triển của hai app frontend — xem `frontend/apps/*/vite.config.ts`.
+# 5173 = app người dùng, 5174 = app quản trị. Đổi cổng ở vite thì phải đổi cả ở đây.
+DEFAULT_CORS_ORIGINS = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174"
 from src.infrastructure.auth.password_reset import DEFAULT_RESET_TTL_SECONDS
+from src.infrastructure.auth.email_verification import (
+    DEFAULT_VERIFY_TTL_SECONDS,
+)
 
 # Gốc repo = thư mục chứa src/ (file này ở src/infrastructure/config/settings.py).
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
@@ -100,6 +107,12 @@ class Settings:
     # (xem `dependencies.py`) — chạy được vẫn hơn tắt hẳn, nhưng tách ra thì an toàn hơn.
     reset_token_secret: str
     reset_token_ttl_seconds: int
+    # Secret RIÊNG cho token XÁC MINH EMAIL. Thứ tự lui khi bỏ trống:
+    # `reset_token_secret` -> `user_token_secret` (xem `dependencies.py`).
+    # Tách riêng vì hai loại token này có quyền lực khác hẳn nhau: token đặt lại mật khẩu
+    # ĐỔI ĐƯỢC mật khẩu, token xác minh chỉ đóng một dấu `email_verified`.
+    email_verify_token_secret: str
+    email_verify_token_ttl_seconds: int
     # Địa chỉ gốc của FRONTEND, dùng để dựng đường dẫn trong thư. Chạy máy mình thì là
     # http://localhost:5173; deploy thật thì đổi bằng biến môi trường.
     app_base_url: str
@@ -110,7 +123,25 @@ class Settings:
         # biến đã đặt sẵn trong shell luôn THẮNG file — xem `config/dotenv.py`.
         nap_env_local()
 
-        origins = os.getenv("MOODBITE_CORS_ORIGINS", "*")
+        # CORS mặc định: CHỈ hai cổng phát triển của chính dự án, KHÔNG phải "*".
+        #
+        # Sửa 2026-08-24 sau khi rà soát bảo mật. Bản cũ mặc định "*", và app lại bật
+        # `allow_credentials=True` — đo thật: mọi Origin lạ đều nhận về
+        # `Access-Control-Allow-Origin: *` kèm `Access-Control-Allow-Credentials: true`.
+        #
+        # Tổ hợp đó vừa SAI CHUẨN (trình duyệt từ chối gửi credentials khi ACAO là "*",
+        # nên `allow_credentials` thành vô tác dụng — và sẽ hỏng âm thầm vào đúng ngày ai
+        # đó chuyển token sang cookie), vừa mở API cho mọi trang web gọi bằng JS.
+        #
+        # Rủi ro khai thác NGAY hiện tại là thấp, nói cho đúng: token đăng nhập nằm trong
+        # `localStorage`, trang web khác không đọc được, nên không có gì để đánh cắp qua
+        # đường này. Nhưng "mặc định mở hết rồi trông chờ vào một lớp bảo vệ khác" là
+        # đúng thứ không nên để trong đồ án đem đi bảo vệ.
+        #
+        # Deploy thật thì đặt `MOODBITE_CORS_ORIGINS=https://tenmien.cua.ban` (nhiều
+        # nguồn thì ngăn bằng dấu phẩy). Vẫn để "*" được nếu thực sự muốn — nhưng phải
+        # là lựa chọn CÓ Ý THỨC, không phải mặc định.
+        origins = os.getenv("MOODBITE_CORS_ORIGINS", DEFAULT_CORS_ORIGINS)
         return Settings(
             restaurants_csv=_path_from_env(
                 "MOODBITE_RESTAURANTS_CSV",
@@ -174,6 +205,13 @@ class Settings:
             smtp_password="".join(os.getenv("MOODBITE_SMTP_PASSWORD", "").split()),
             smtp_sender=os.getenv("MOODBITE_SMTP_FROM", "").strip(),
             reset_token_secret=os.getenv("MOODBITE_RESET_SECRET", "").strip(),
+            email_verify_token_secret=os.getenv(
+                "MOODBITE_EMAIL_VERIFY_SECRET", ""
+            ).strip(),
+            email_verify_token_ttl_seconds=int(
+                os.getenv("MOODBITE_EMAIL_VERIFY_TTL", str(DEFAULT_VERIFY_TTL_SECONDS))
+                or DEFAULT_VERIFY_TTL_SECONDS
+            ),
             reset_token_ttl_seconds=int(
                 os.getenv("MOODBITE_RESET_TOKEN_TTL", str(DEFAULT_RESET_TTL_SECONDS))
                 or DEFAULT_RESET_TTL_SECONDS

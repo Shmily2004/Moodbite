@@ -32,7 +32,7 @@ from __future__ import annotations
 import json
 import logging
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from urllib.parse import quote
@@ -75,6 +75,11 @@ class DishInfo:
     image_url: Optional[str] = None
     source_url: Optional[str] = None
     last_updated: Optional[str] = None
+    # Tên gọi khác của CÙNG MỘT MÓN ("bánh mì kẹp", "banh mi"). Wikipedia không cho biết
+    # cái này, nhưng Wikidata thì có - thêm 2026-08-24 để `sources/wikidata_dish.py`
+    # dùng chung được cấu trúc này thay vì đẻ ra một kiểu dữ liệu thứ hai.
+    # Rỗng = nguồn không cung cấp, KHÔNG phải "món này không có tên gọi khác".
+    aliases: List[str] = field(default_factory=list)
 
     @property
     def is_empty(self) -> bool:

@@ -1,8 +1,20 @@
-"""TÌM MÓN MỚI từ Wikipedia rồi ĐO xem món nào thật sự có quán bán ở Việt Nam.
+"""TÌM MÓN MỚI từ Wikipedia + Wikidata rồi ĐO xem món nào thật sự có quán bán ở Hà Nội.
 
-    python scripts/discover_dishes.py                      # tìm, chỉ báo cáo
-    python scripts/discover_dishes.py --apply              # + thêm món CÓ QUÁN vào seed
-    python scripts/discover_dishes.py --min-restaurants 3  # khắt khe hơn
+    python scripts/discover_dishes.py                       # cả hai nguồn, chỉ báo cáo
+    python scripts/discover_dishes.py --source wikidata     # chỉ một nguồn
+    python scripts/discover_dishes.py --apply               # + thêm món CÓ QUÁN vào seed
+    python scripts/discover_dishes.py --min-restaurants 3   # khắt khe hơn
+
+HAI NGUỒN, VÌ MỖI NGUỒN THẤY MỘT THỨ KHÁC (thêm Wikidata 2026-08-24)
+--------------------------------------------------------------------
+  wikipedia_vi : duyệt THỂ LOẠI vi.wikipedia — phủ tốt món có người Việt viết bài,
+                 nhưng KHÔNG bao giờ cho biết tên gọi khác của một món.
+  wikidata     : CC0, mỗi mục có sẵn `aliases` — đúng thứ `match_keywords` đang thiếu.
+                 Đo 2026-08-24: 120 quán ghi "bánh mỳ" mà danh mục chỉ có "bánh mì".
+                 Xem `data_pipeline/sources/wikidata_dish.py`.
+
+Cả hai đi qua CÙNG bộ lọc `looks_like_dish()` và CÙNG phép đếm quán bên dưới — hai nguồn
+dùng hai bộ lọc riêng thì chắc chắn có lúc nói ngược nhau.
 
 VÌ SAO CẦN SCRIPT NÀY
 ---------------------
@@ -46,8 +58,10 @@ import requests
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
+from data_pipeline.sources.wikidata_dish import WikidataDishSource  # noqa: E402
 from data_pipeline.sources.wikipedia_dish import (  # noqa: E402
     USER_AGENT,
+    DishInfo,
     WikipediaDishSource,
 )
 from src.domain.entities.dish import Dish, slugify_dish  # noqa: E402
@@ -55,6 +69,7 @@ from src.domain.services.dish_matching import (  # noqa: E402
     build_dish_restaurant_index,
     count_by_dish,
 )
+from src.domain.value_objects.text import tokenize  # noqa: E402
 from src.infrastructure.config.settings import Settings  # noqa: E402
 from src.infrastructure.repositories.csv_restaurant_repository import (  # noqa: E402
 
@@ -295,6 +310,74 @@ def looks_like_dish(title: str, description: Optional[str], extract: Optional[st
     return any(hint in haystack for hint in DISH_DESCRIPTION_HINTS)
 
 
+ALIAS_MIN_CHARS = 3
+
+# Tên gọi khác KHÔNG được dùng làm từ khoá khớp tên quán nếu nó quá rộng.
+# Cùng lý do với `SINGLE_WORD_INGREDIENTS`: thêm "cơm" hay "bánh" vào từ khoá sẽ nuốt
+# hàng trăm quán không liên quan - đúng cảnh báo đã ghi sẵn trong `dish_seed_manual.json`.
+def usable_aliases(name: str, aliases: List[str]) -> List[str]:
+    """Lọc `aliases` của Wikidata xuống những cụm AN TOÀN để đem khớp tên quán.
+
+    Wikidata để ai cũng thêm alias được nên rổ này lẫn khá nhiều thứ vô dụng: mã số,
+    tên viết tắt một hai chữ, và cả tên nguyên liệu. Bốn luật dưới đây đều là luật CHẶN,
+    tức là nghi ngờ thì bỏ - thà thiếu một từ khoá còn hơn kéo nhầm 300 quán vào một món.
+    """
+    result: List[str] = []
+    seen = {name.strip().lower()}
+    for alias in aliases:
+        text = (alias or "").strip()
+        lowered = text.lower()
+        if len(text) < ALIAS_MIN_CHARS:          # "bm", "pho?" - quá ngắn, khớp bừa
+            continue
+        if lowered in seen:                       # trùng chính tên món hoặc alias trước
+            continue
+        if lowered in SINGLE_WORD_INGREDIENTS:    # "trà", "chanh" - nguyên liệu
+            continue
+        if not any(ch.isalpha() for ch in text):  # mã số, ký hiệu
+            continue
+        seen.add(lowered)
+        result.append(text)
+    return result
+
+
+def collect_infos(
+    session: requests.Session, sources: List[str]
+) -> tuple[Dict[str, DishInfo], Dict[str, str]]:
+    """Gom ứng viên từ các nguồn được chọn.
+
+    Trả (thông tin theo tên món, nguồn theo tên món). Một món xuất hiện ở cả hai nguồn
+    thì GIỮ BẢN WIKIPEDIA làm gốc nhưng VẪN LẤY `aliases` của Wikidata - đó chính là thứ
+    Wikipedia không có, bỏ đi thì thêm nguồn cũng bằng thừa.
+    """
+    infos: Dict[str, DishInfo] = {}
+    origin: Dict[str, str] = {}
+
+    if "wikidata" in sources:
+        wikidata = WikidataDishSource()
+        available, reason = wikidata.is_available()
+        if not available:
+            raise WikipediaUnavailable(f"Wikidata: {reason}")
+        for title, info in wikidata.fetch_candidates().items():
+            infos[title] = info
+            origin[title] = "wikidata"
+
+    if "wikipedia" in sources:
+        wikipedia = WikipediaDishSource()
+        available, reason = wikipedia.is_available()
+        if not available:
+            raise WikipediaUnavailable(f"Wikipedia: {reason}")
+        titles = collect_candidate_titles(session)
+        logger.info("Tong ung vien tu category Wikipedia: %d trang", len(titles))
+        for title, info in wikipedia.fetch_many(titles).items():
+            truoc = infos.get(title)
+            if truoc is not None:
+                info.aliases = list(truoc.aliases)
+            infos[title] = info
+            origin[title] = "wikipedia_vi"
+
+    return infos, origin
+
+
 def collides_with_existing(dish_id: str, name: str, taken: Dict[str, str]) -> Optional[str]:
     """Slug này đã bị một món KHÁC TÊN chiếm chưa? Trả tên món đang giữ slug, hoặc None.
 
@@ -325,10 +408,106 @@ def load_existing_names() -> Dict[str, str]:
     }
 
 
+APPROVED_PATH = ROOT / "data_pipeline" / "dish_approved.json"
+
+
+def load_approved() -> Set[str]:
+    """`dish_id` đã được người duyệt cho phép thêm vào danh mục.
+
+    VÌ SAO CÓ CỬA KIỂM DUYỆT NÀY: cả hai nguồn tìm món đều trả về ứng viên lẫn rác, và
+    rác ở đây không vô hại - đo 2026-08-24: "Coffee tea" 357 quán, "kho" 310 quán,
+    "Trung Nguyên" 234 quán. Thêm thẳng thì trang chủ hiện "Coffee tea" như một món ăn.
+    Xem `data_pipeline/dish_approved.json`.
+    """
+    if not APPROVED_PATH.exists():
+        return set()
+    raw = json.loads(APPROVED_PATH.read_text(encoding="utf-8"))
+    return {e["dish_id"] for e in raw.get("approved", []) if e.get("dish_id")}
+
+
+def filter_approved(records: List[dict], apply_all: bool) -> tuple[List[dict], int]:
+    """Giữ lại món đã duyệt. Trả (danh sách giữ, số bị chặn)."""
+    if apply_all:
+        return records, 0
+    approved = load_approved()
+    giu = [r for r in records if r["dish_id"] in approved]
+    return giu, len(records) - len(giu)
+
+
+def merge_aliases(infos: Dict[str, DishInfo], dry_run: bool) -> int:
+    """Bổ sung TÊN GỌI KHÁC của Wikidata vào món ĐÃ CÓ trong seed. Trả số alias đã thêm.
+
+    Đây là giá trị riêng của Wikidata mà Wikipedia không có. Nhưng KHÔNG được nhận bừa:
+    đo 2026-08-24 trên 55 món trùng khớp, trong 97 alias lấy được có những cái NGUY HIỂM:
+
+        "Bánh cống"  -> alias "bánh tôm"   nhưng "Bánh tôm" là MỘT MÓN KHÁC trong danh mục
+        "Cơm"        -> alias "rice", "boiled rice"
+        "Bún bò Huế" -> alias "Nấu ăn:Bún bò Huế" (rác của trang thể loại)
+
+    Nhận "bánh tôm" làm từ khoá của "Bánh cống" thì mọi quán bánh tôm sẽ nhảy sang trang
+    bánh cống - đúng loại bug "một từ khoá quá rộng nuốt hàng trăm quán" mà
+    `dish_seed_manual.json` đã cảnh báo sẵn. Nên chặn alias nào ĐANG LÀ tên/từ khoá của
+    một món KHÁC.
+    """
+    if not SEED_PATH.exists():
+        logger.warning("Chua co %s - bo qua buoc gop alias", SEED_PATH.name)
+        return 0
+
+    raw = json.loads(SEED_PATH.read_text(encoding="utf-8"))
+    dishes = raw.get("dishes", [])
+
+    # {cụm đã chuẩn hoá: dish_id đang sở hữu}. Dùng để phát hiện alias đụng món khác.
+    chu_so_huu: Dict[str, str] = {}
+    for dish in dishes:
+        for text in list(dish.get("match_keywords") or []) + [dish.get("name")]:
+            if text:
+                chu_so_huu.setdefault(" ".join(tokenize(text, 1)), dish["dish_id"])
+
+    theo_ten = {
+        " ".join(tokenize(d.get("name") or "", 1)): d for d in dishes if d.get("name")
+    }
+
+    them = 0
+    bi_chan = 0
+    for title, info in infos.items():
+        if not info.aliases:
+            continue
+        dish = theo_ten.get(" ".join(tokenize(title, 1)))
+        if dish is None:
+            continue
+        for alias in usable_aliases(title, info.aliases):
+            key = " ".join(tokenize(alias, 1))
+            if not key:
+                continue
+            chu = chu_so_huu.get(key)
+            if chu == dish["dish_id"]:
+                continue  # đã có
+            if chu is not None:
+                logger.info("  CHAN alias '%s' cho '%s' - dang la tu khoa cua '%s'",
+                            alias, dish["name"], chu)
+                bi_chan += 1
+                continue
+            dish.setdefault("match_keywords", []).append(alias)
+            chu_so_huu[key] = dish["dish_id"]
+            them += 1
+
+    logger.info("Gop alias: them %d, chan %d (dung tu khoa mon khac)", them, bi_chan)
+    if them and not dry_run:
+        SEED_PATH.write_text(json.dumps(raw, ensure_ascii=False, indent=2), encoding="utf-8")
+        logger.info("Da ghi %s", SEED_PATH.name)
+    return them
+
+
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Tim mon an moi tu Wikipedia")
+    parser = argparse.ArgumentParser(description="Tim mon an moi tu Wikipedia va Wikidata")
+    parser.add_argument("--source", choices=["wikipedia", "wikidata", "all"], default="all",
+                        help="Nguon sinh ung vien (mac dinh: ca hai)")
     parser.add_argument("--apply", action="store_true",
-                        help="Them mon CO QUAN vao dish_seed_manual.json")
+                        help="Them mon CO QUAN va DA DUOC DUYET vao dish_seed_manual.json")
+    parser.add_argument("--apply-all", action="store_true",
+                        help="Bo qua cua kiem duyet - KHONG khuyen khich, se them ca rac")
+    parser.add_argument("--merge-aliases", action="store_true",
+                        help="Bo sung ten goi khac (Wikidata) vao mon DA CO trong seed")
     parser.add_argument("--min-restaurants", type=int, default=1,
                         help="So quan toi thieu de duoc them (mac dinh 1)")
     parser.add_argument("--limit", type=int, default=0,
@@ -338,21 +517,27 @@ def main() -> int:
     session = requests.Session()
     session.headers.update({"User-Agent": USER_AGENT})
 
-    titles = collect_candidate_titles(session)
-    logger.info("")
-    logger.info("Tong ung vien tu category: %d trang", len(titles))
-    if args.limit:
-        titles = titles[: args.limit]
-        logger.info("  (chi xu ly %d dau theo --limit)", len(titles))
-
-    # Tra Wikipedia MỘT LẦN cho mỗi bài, có cache đĩa dùng chung với bước làm giàu.
-    source = WikipediaDishSource()
-    available, reason = source.is_available()
-    if not available:
-        logger.error("Khong goi duoc Wikipedia: %s", reason)
+    sources = ["wikipedia", "wikidata"] if args.source == "all" else [args.source]
+    logger.info("Nguon: %s", ", ".join(sources))
+    try:
+        infos, origin = collect_infos(session, sources)
+    except WikipediaUnavailable as exc:
+        # NÉM chứ không nuốt: coi lỗi mạng là "không tìm được món nào" thì lượt chạy
+        # --apply sau đó sẽ báo "0 món mới" và ta tưởng đã khai thác hết nguồn.
+        logger.error("Khong goi duoc nguon: %s", exc)
         return 1
 
-    infos = source.fetch_many(titles)
+    logger.info("")
+    logger.info("Tong ung vien gop tu %d nguon: %d", len(sources), len(infos))
+
+    if args.merge_aliases:
+        merge_aliases(infos, dry_run=not (args.apply or args.apply_all))
+        if not (args.apply or args.apply_all):
+            logger.info("(chay thu - them --apply de ghi vao seed)")
+    if args.limit:
+        giu = sorted(infos)[: args.limit]
+        infos = {t: infos[t] for t in giu}
+        logger.info("  (chi xu ly %d dau theo --limit)", len(infos))
 
     # Lọc 2: có phải MÓN ĂN không.
     dish_like = {
@@ -388,9 +573,11 @@ def main() -> int:
             "name": title,
             "description": info.description,
             "image_url": info.image_url,
-            "match_keywords": [title],
+            # Tên gọi khác (chỉ Wikidata có) đi thẳng vào từ khoá khớp: đây là lý do
+            # chính để thêm nguồn thứ hai. Đã lọc bớt cụm quá rộng ở `usable_aliases`.
+            "match_keywords": [title] + usable_aliases(title, info.aliases),
             "restaurant_count": counts.get(dish_id, 0),
-            "source": "wikipedia_vi",
+            "source": origin.get(title, "wikipedia_vi"),
             "source_url": info.source_url,
         }
         if dish_id in existing:
@@ -438,9 +625,12 @@ def main() -> int:
     logger.info("")
     logger.info("Da ghi ung vien: %s", CANDIDATES_PATH)
 
-    if not args.apply:
-        logger.info("Chay lai voi --apply de them %d mon vao seed.", len(grounded))
+    if not (args.apply or args.apply_all):
+        logger.info("Chay lai voi --apply de them mon DA DUYET vao seed.")
         return 0
+
+    grounded, bi_chan = filter_approved(grounded, args.apply_all)
+    logger.info("Qua cua kiem duyet: %d mon (chan %d chua duyet)", len(grounded), bi_chan)
 
     raw = json.loads(SEED_PATH.read_text(encoding="utf-8"))
     for record in grounded:
@@ -453,7 +643,7 @@ def main() -> int:
                 "match_keywords": record["match_keywords"],
                 # KHÔNG tự đoán cách chế biến/độ cay/bữa ăn. Để trống -> bộ lọc cho điểm
                 # trung tính, và người soạn có thể điền dần.
-                "source": "wikipedia_vi",
+                "source": record["source"],
                 "source_url": record["source_url"],
             }
         )

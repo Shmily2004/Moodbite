@@ -335,3 +335,44 @@
   font: inherit;
 }
 .pwform button { justify-self: start; }
+
+/* --- Xác minh email (thêm 2026-08-24) ------------------------------------- */
+/* Nhãn trạng thái nằm NGAY CẠNH địa chỉ email, không tách thành khối riêng: người dùng
+   đọc địa chỉ và trạng thái của nó như một câu, tách ra thì phải nhìn hai chỗ. */
+.account__da-xac-minh {
+  color: var(--ok, #1B7F4B);
+  font-size: 0.85em;
+  white-space: nowrap;
+}
+.account__chua-xac-minh {
+  color: var(--warn, #8A5A00);
+  font-size: 0.85em;
+  white-space: nowrap;
+}
+
+/* Dáng GỌN dùng trong trang tài khoản. Không viền, không nền — nó là một dòng phụ
+   trong khối danh tính, không phải một thẻ riêng. */
+.xac-minh-email--gon {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+.xac-minh-email--gon p { margin: 0; }
+.xac-minh-email--gon button {
+  padding: 0.3rem 0.7rem;
+  font-size: 0.85rem;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.xac-minh-email--gon button[disabled] { opacity: 0.6; cursor: progress; }
+
+.xac-minh-email__loi { color: var(--danger, #B3261E); }
+.xac-minh-email__ok { color: var(--ok, #1B7F4B); }
+.xac-minh-email__trang-thai { color: var(--muted, #666); }
+.xac-minh-email__chan { margin-top: 1rem; }

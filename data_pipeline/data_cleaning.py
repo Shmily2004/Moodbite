@@ -19,7 +19,11 @@ logger = logging.getLogger(__name__)
 # CHỈ bắt chuỗi >=9 chữ số, KHÔNG bắt số ngắn: "Bún Chả 141" thì 141 là SỐ NHÀ, và
 # "Cơm Tấm 68" thì 68 là tên quán. Số điện thoại Việt Nam có 10 chữ số nên ngưỡng 9 vừa
 # đủ rộng để bắt cả số cũ 9 chữ số, vừa đủ hẹp để không đụng số nhà.
-SO_DIEN_THOAI = re.compile(r"[\s\-–—:.]*\(?\+?\d[\d.\-\s]{7,}\d\)?\s*$")
+# ⚠️ KHÔNG neo vào CUỐI chuỗi. Bản đầu dùng `...$` nên chỉ cắt được số ở cuối tên, và
+# lượt kiểm 2026-08-24 còn sót 18 bản ghi có số nằm GIỮA:
+#     "Cơm Cháy Ngon 0988999134 - Long Biên - Hà Nội"
+#     "Funny Chicken•quảng Oai•tây Đằng•bv, 0966245822"
+SO_DIEN_THOAI = re.compile(r"[\s\-–—:.,]*\(?\+?\d[\d.\-\s]{7,}\d\)?")
 
 # Ký tự phân cách còn sót lại sau khi cắt số điện thoại ("Bảo Long Audio-" -> "Bảo Long Audio").
 DUOI_THUA = re.compile(r"[\s\-–—:.,|/]+$")
@@ -35,7 +39,7 @@ def _lam_sach_ten(ten) -> str:
     """
     if not isinstance(ten, str):
         return ""
-    sach = SO_DIEN_THOAI.sub("", ten)
+    sach = SO_DIEN_THOAI.sub(" ", ten)
     sach = DUOI_THUA.sub("", sach)
     # Gộp mọi khoảng trắng lặp về một dấu cách (đo được 196 tên dính lỗi này).
     sach = re.sub(r"\s+", " ", sach).strip()
@@ -116,6 +120,22 @@ def clean_data(raw_file: str = None):
             "bỏ %d bản ghi không còn chữ cái nào",
             so_sua - so_bo, so_bo,
         )
+
+    # 3c. Bỏ quán mà CHÍNH TÊN nói là đã đóng cửa.
+    #
+    # Nguồn tự khai "(đã đóng cửa)" là bằng chứng mạnh nhất ta có được về việc quán không
+    # còn tồn tại — mạnh hơn hẳn suy đoán từ ngày cập nhật. Giữ lại là gợi ý người dùng
+    # đi tới một chỗ đã đóng.
+    # CHỈ khớp cụm trong NGOẶC hoặc đứng riêng, không khớp chuỗi con: quán tên
+    # "Quán Không Bao Giờ Đóng Cửa" phải được giữ.
+    if 'title' in df.columns:
+        da_dong = df['title'].fillna('').str.contains(
+            r'\(\s*(?:đã\s+)?đóng cửa\s*\)|permanently closed',
+            case=False, regex=True,
+        )
+        if int(da_dong.sum()):
+            logger.info("Bỏ %d quán mà tên tự ghi là đã đóng cửa", int(da_dong.sum()))
+            df = df[~da_dong]
 
     # 4. Save cleaned data
     output_path = CLEANED_DIR / 'dataset_moodbite_clean.csv'

@@ -56,6 +56,13 @@ class DishSuggestionQuery:
     # Hiện cả món không có quán nào gần đây. Mặc định TẮT vì với người dùng đó là ngõ cụt;
     # bật lên khi trang quản trị cần nhìn thấy toàn bộ danh mục.
     include_unavailable: bool = False
+    # DANH MỤC ("Bún") hay MÓN CỤ THỂ ("Bún chả")?
+    #
+    # Mặc định False = chỉ trả MÓN. Chủ dự án chốt 2026-08-24: trước đó lưới món và nút
+    # đề xuất nhanh đều trả về "Bún — 2.370 quán", mà người đang đói thì không gọi "cho
+    # tôi một bát bún" — họ gọi bún chả, bún cá, bún đậu.
+    # True = chỉ trả DANH MỤC, để frontend dựng thanh điều hướng theo nhóm.
+    only_categories: bool = False
 
 
 @dataclass(frozen=True)
@@ -120,6 +127,10 @@ class SuggestDishesUseCase:
         context = self._resolve_context(origin)
 
         dishes = self._catalog.list_dishes()
+        # LỌC DANH MỤC/MÓN NGAY TỪ ĐẦU, trước cả bước đếm quán: đếm cho những mục sẽ bị
+        # bỏ đi là tốn công vô ích, và quan trọng hơn là cảnh báo "đã ẩn N món" phải nói
+        # về đúng nhóm người dùng đang xem.
+        dishes = [d for d in dishes if d.is_category == query.only_categories]
         counts, nearest = self._count_nearby(dishes, origin, query.max_distance_km)
         # Đếm KHÔNG giới hạn bán kính, để phân biệt "quán ở xa" với "cả kho không có quán
         # nào bán món này" - hai chuyện đó cần hai lời khuyên khác hẳn nhau.

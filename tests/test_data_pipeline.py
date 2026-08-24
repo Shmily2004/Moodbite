@@ -69,6 +69,18 @@ class TestLamSachTenQuan:
         assert self._sach("Lò Quay Vịt Huy Hải 0973663726") == "Lò Quay Vịt Huy Hải"
         assert self._sach("Bảo Long Audio-0983293453") == "Bảo Long Audio"
 
+    def test_bo_so_dien_thoai_nam_GIUA_ten(self):
+        """Bản đầu neo regex vào cuối chuỗi nên sót 18 bản ghi có số ở giữa (đo 2026-08-24)."""
+        assert (
+            self._sach("Cơm Cháy Ngon 0988999134 - Long Biên - Hà Nội")
+            == "Cơm Cháy Ngon - Long Biên - Hà Nội"
+        )
+
+    def test_GIU_so_nha_nam_giua_ten(self):
+        """Cắt số ở giữa KHÔNG được đụng vào số nhà — ngưỡng 9 chữ số vẫn là thứ phân biệt."""
+        assert self._sach("Phở Thìn 13 Lò Đúc") == "Phở Thìn 13 Lò Đúc"
+        assert self._sach("Bún Chả 141") == "Bún Chả 141"
+
     def test_GIU_so_nha_va_so_trong_ten_quan(self):
         """Ngưỡng 9 chữ số có mục đích: số nhà và tên quán dạng số phải giữ nguyên."""
         assert self._sach("Bún Chả 141") == "Bún Chả 141"

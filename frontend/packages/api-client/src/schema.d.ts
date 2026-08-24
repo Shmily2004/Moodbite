@@ -476,6 +476,11 @@ export interface paths {
          * @description Đổi tài khoản/mật khẩu lấy token ngắn hạn.
          *
          *     Sai thông tin -> 401 UNAUTHORIZED. Chưa cấu hình admin -> 503 kèm hướng dẫn.
+         *     Quá số lần thử -> 429 RATE_LIMITED.
+         *
+         *     ⚠️ ĐẾM TRƯỚC KHI KIỂM MẬT KHẨU. Kiểm mật khẩu chạy PBKDF2 600.000 vòng (~0,4 giây
+         *     CPU); để sau thì kẻ tấn công vẫn ép được máy chủ làm việc nặng dù request rốt cuộc
+         *     bị từ chối. Cùng lý lẽ đã ghi ở `/auth/register`.
          */
         post: operations["login_api_v1_admin_login_post"];
         delete?: never;
@@ -862,6 +867,12 @@ export interface components {
             source_url?: string | null;
             /** Data Confidence */
             data_confidence?: string | null;
+            /**
+             * Is Category
+             * @description True = đây là DANH MỤC món ('Bún', 'Phở', 'Cơm'), không phải một món cụ thể. `/dishes/suggest` KHÔNG trả về danh mục (xem `only_categories`); dùng cờ này để hiển thị chúng như đường điều hướng thay vì như một món ăn.
+             * @default false
+             */
+            is_category: boolean;
         };
         /** DishSuggestRequest */
         DishSuggestRequest: {
@@ -926,6 +937,12 @@ export interface components {
              * @default 20
              */
             limit: number;
+            /**
+             * Only Categories
+             * @description False (mặc định) = chỉ trả MÓN CỤ THỂ, bỏ qua danh mục. True = chỉ trả DANH MỤC ('Bún', 'Phở'...) để dựng thanh điều hướng. Chủ dự án chốt 2026-08-24: lưới món và đề xuất nhanh không được hiện danh mục — 'Bún — 2.370 quán' không giúp gì cho người đang đói.
+             * @default false
+             */
+            only_categories: boolean;
         };
         /** DishSuggestResponse */
         DishSuggestResponse: {

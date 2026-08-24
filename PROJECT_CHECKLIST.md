@@ -30,7 +30,7 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | **Xác minh email** | ✅ **Xong 2026-08-24** | đăng ký có email → tự gửi thư; token HMAC 24h, dùng MỘT lần, đổi email là link cũ chết. Secret riêng `MOODBITE_EMAIL_VERIFY_SECRET` |
 | **Rà soát bảo mật** | ✅ **2026-08-24** | sửa 3 lỗi: secret đặt lại mật khẩu bị dán nhầm bằng CÂU LỆNH sinh nó · CORS mặc định `*` · `/admin/login` không giới hạn tần suất. Có `tests/test_bao_mat.py` canh |
 | **Phạm vi Hà Nội** | ✅ **Sửa 2026-08-24** | bbox cũ cắt mất 1/3 thành phố (Ba Vì, Sơn Tây, Mỹ Đức, Ứng Hoà…) và lấn sang Bắc Ninh. Ranh giới nay hỏi theo AREA của Hà Nội → đúng 126 đơn vị |
-| Dữ liệu | ✅ **52.855 quán** · **855 món** | Overture · OSM · Apify. Hạ ngưỡng tin cậy Overture 0.5→0.2 và **sửa bbox Hà Nội** (bbox cũ cắt mất 1/3 thành phố → Overture 268k→310k POI, OSM 110 ô, 0 ô lỗi). **Làm sạch 2026-08-24:** bỏ **7.534 quán ở tỉnh khác** (Bắc Ninh/Hưng Yên/Vĩnh Phúc/Bắc Giang), sửa **803** `district` sai/bẩn, làm sạch **494** tên quán. Đơn vị hành chính **185 → 125**, tất cả đều thuộc Hà Nội |
+| Dữ liệu | ✅ **52.854 quán** · **855 món** | Overture · OSM · Apify — **cả ba nguồn đã cạn** (Overture chưa ra bản mới, OSM 110/110 ô 0 lỗi, Wikipedia+Wikidata chỉ còn trả về rác). **Làm sạch 2026-08-24:** bỏ 7.534 quán ở tỉnh khác, sửa 803 `district`, làm sạch 519 tên. Kiểm tra lại: `district` **100% thuộc Hà Nội**, 0 trùng lặp, 0 tên rác |
 | **Ảnh món gắn nhầm** | ✅ **Đã soát và gỡ 2026-08-23** | `python scripts/audit_dish_images.py` — 4 món đang hiện ảnh SAI (bãi biển cho món lẩu). Đã chặn ở nguồn |
 | Thu thập dữ liệu đa nguồn | ✅ Xong | kiến trúc `SourceAdapter`, thêm nguồn không sửa pipeline |
 | Lọc giờ mở cửa / chế độ ăn / quận | ✅ Xong | thiếu dữ liệu KHÔNG bị loại |

@@ -36,6 +36,9 @@ from typing import Dict, List, Optional
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
+from dataclasses import replace
+
+from src.domain.value_objects.text import tokenize
 from src.domain.entities.dish import (  # noqa: E402
     CONFIDENCE_SPECIFIC,
     DISH_SOURCE_MANUAL,
@@ -197,17 +200,14 @@ def merge(seed: List[Dish], manual: List[Dish]) -> List[Dish]:
         merged_keywords = list(
             dict.fromkeys(dish.restaurant_match_keywords + existing.restaurant_match_keywords)
         )
-        by_id[dish.identifier] = Dish(
-            name=dish.name,
-            dish_id=dish.identifier,
+        # `replace()` chứ không dựng `Dish(...)` tay — xem giải thích ở `enrich_from_wikipedia`.
+        by_id[dish.identifier] = replace(
+            dish,
             cuisine=dish.cuisine or existing.cuisine,
             spice_level=dish.spice_level if dish.spice_level is not None else existing.spice_level,
             temperature=dish.temperature or existing.temperature,
-            cooking_method=dish.cooking_method,
-            meal_times=list(dish.meal_times),
             portion_size=dish.portion_size or existing.portion_size,
             mood_keywords=list(dish.mood_keywords or existing.mood_keywords),
-            description=dish.description,
             # ⚠️ BUG THẬT, sửa 2026-08-24: ba trường dưới đây TỪNG BỊ BỎ QUÊN ở đây.
             #
             # Hàm này dựng một `Dish` HOÀN TOÀN MỚI, nên trường nào không liệt kê ra thì
@@ -225,8 +225,6 @@ def merge(seed: List[Dish], manual: List[Dish]) -> List[Dish]:
             source_url=dish.source_url or existing.source_url,
             last_updated=dish.last_updated or existing.last_updated,
             match_keywords=merged_keywords,
-            source=dish.source,
-            data_confidence=dish.data_confidence,
         )
     return list(by_id.values())
 
@@ -288,21 +286,22 @@ def enrich(dishes: List[Dish], skip_ids: set[str]) -> tuple[List[Dish], int]:
         if not dish.has_description and data.description:
             enriched_count += 1
 
+        # ⚠️ DÙNG `replace()`, ĐỪNG dựng `Dish(...)` bằng tay ở đây.
+        #
+        # Bản cũ liệt kê từng trường một, và đó là nguồn của BA lần mất dữ liệu liên
+        # tiếp — cùng một lỗi, ba lần, vì trường nào quên liệt kê thì mất trắng mà
+        # không có lỗi nào báo:
+        #   1. `image_url` không được đọc từ seed  -> ảnh tụt 87% xuống 0% khi offline
+        #   2. `image_url` không được gộp ở `merge` -> 56 ảnh vừa tìm biến mất
+        #   3. `is_category` không được giữ ở đây   -> "Phở", "Cơm", "Mì" mất cờ danh mục
+        # `replace()` giữ MỌI trường khác nguyên vẹn, nên thêm trường mới vào `Dish`
+        # sau này không thể lặp lại chuyện đó nữa.
         result.append(
-            Dish(
-                name=dish.name,
-                dish_id=dish.identifier,
-                cuisine=dish.cuisine,
-                spice_level=dish.spice_level,
-                temperature=dish.temperature,
-                cooking_method=dish.cooking_method,
-                meal_times=list(dish.meal_times),
-                portion_size=dish.portion_size,
-                mood_keywords=list(dish.mood_keywords),
+            replace(
+                dish,
                 description=description,
                 # Ảnh: chỉ giữ ĐƯỜNG DẪN, không tải file về. Xem `sources/wikipedia_dish.py`.
                 image_url=dish.image_url or data.image_url,
-                match_keywords=list(dish.restaurant_match_keywords),
                 # Ghi đúng nguồn của phần VỪA điền thêm. Món tự soạn mà ghi là lấy từ
                 # Wikipedia là nói dối về xuất xứ dữ liệu.
                 source=(
@@ -312,10 +311,54 @@ def enrich(dishes: List[Dish], skip_ids: set[str]) -> tuple[List[Dish], int]:
                 ),
                 source_url=data.source_url or dish.source_url,
                 last_updated=data.last_updated,
-                data_confidence=dish.data_confidence,
             )
         )
     return result, enriched_count
+
+
+# Số món con tối thiểu để một mục được coi là DANH MỤC thay vì món.
+#
+# Chủ dự án chốt 3 (2026-08-24) sau khi xem số đo thật. Vì sao không phải 2: "Bún chả"
+# có 2 món con (Bún chả nem, Bún chả cá) nhưng nó là MÓN ai cũng gọi đích danh — gọi nó
+# là danh mục thì sai. Với ngưỡng 3, nhóm danh mục ra đúng những cái nghe là biết ngay:
+# Bún(29) · Bánh mì(26) · Cơm(16) · Kem(16) · Chè(13) · Phở(8) · Mì(8) · Pizza(4) · Miến(3).
+SO_MON_CON_TOI_THIEU = 3
+
+
+def danh_dau_danh_muc(dishes: List[Dish]) -> tuple[List[Dish], int]:
+    """Đánh dấu mục nào là DANH MỤC (đặt `is_category`). Trả số mục đã đánh dấu.
+
+    LUẬT: tên của nó là TIỀN TỐ (theo TỪ) của tên >= 3 mục khác.
+        "Bún"      là tiền tố của "Bún chả", "Bún cá", "Bún đậu mắm tôm"... -> danh mục
+        "Bún chả"  chỉ là tiền tố của 2 mục                                 -> vẫn là món
+
+    So theo TỪ chứ không theo chuỗi con, và dùng `tokenize` của domain — cùng lý do đã
+    trả giá ba lần ở `value_objects/text.py`: khớp chuỗi con thì "bo" khớp "bột".
+    Bỏ dấu luôn: dữ liệu thật có cả "bánh cuốn" lẫn "Bánh Cuốn".
+    """
+    tu_theo_id = {d.identifier: tokenize(d.name, 1) for d in dishes}
+
+    ket_qua: List[Dish] = []
+    danh_dau = 0
+    for cha in dishes:
+        tu_cha = tu_theo_id[cha.identifier]
+        so_con = (
+            sum(
+                1
+                for con in dishes
+                if con is not cha and tu_theo_id[con.identifier][: len(tu_cha)] == tu_cha
+            )
+            if tu_cha
+            else 0
+        )
+        if so_con >= SO_MON_CON_TOI_THIEU:
+            # `Dish` là `frozen=True` nên KHÔNG gán được thuộc tính — phải tạo bản mới.
+            # Frozen là cố ý (entity bất biến), đừng gỡ nó chỉ để tiện chỗ này.
+            ket_qua.append(replace(cha, is_category=True))
+            danh_dau += 1
+        else:
+            ket_qua.append(cha)
+    return ket_qua, danh_dau
 
 
 def to_record(dish: Dish, restaurant_count: int) -> dict:
@@ -338,6 +381,9 @@ def to_record(dish: Dish, restaurant_count: int) -> dict:
         "source_url": dish.source_url,
         "last_updated": dish.last_updated,
         "data_confidence": dish.data_confidence,
+        # DANH MỤC hay MÓN cụ thể — xem `danh_dau_danh_muc`. Lưới món và nút đề xuất
+        # nhanh chỉ hiện món; danh mục dùng làm đường điều hướng riêng.
+        "is_category": dish.is_category,
         # TẮT món KHÔNG QUÁN NÀO BÁN. Chủ dự án chốt 2026-08-19: "đừng cố tình kiếm
         # những món rất khó kiếm quán hoặc thậm chí không có quán bán".
         #
@@ -417,6 +463,12 @@ def main() -> int:
 
     dishes = merge(seed, manual)
     logger.info("Gộp lại: %d món duy nhất", len(dishes))
+
+    dishes, so_danh_muc = danh_dau_danh_muc(dishes)
+    logger.info(
+        "Đánh dấu %d mục là DANH MỤC (>=%d món con) — lưới món sẽ bỏ qua chúng",
+        so_danh_muc, SO_MON_CON_TOI_THIEU,
+    )
 
     enriched_count = 0
     if args.enrich:

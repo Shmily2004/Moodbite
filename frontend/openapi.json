@@ -1281,7 +1281,7 @@
           "admin"
         ],
         "summary": "Login",
-        "description": "Đổi tài khoản/mật khẩu lấy token ngắn hạn.\n\nSai thông tin -> 401 UNAUTHORIZED. Chưa cấu hình admin -> 503 kèm hướng dẫn.",
+        "description": "Đổi tài khoản/mật khẩu lấy token ngắn hạn.\n\nSai thông tin -> 401 UNAUTHORIZED. Chưa cấu hình admin -> 503 kèm hướng dẫn.\nQuá số lần thử -> 429 RATE_LIMITED.\n\n⚠️ ĐẾM TRƯỚC KHI KIỂM MẬT KHẨU. Kiểm mật khẩu chạy PBKDF2 600.000 vòng (~0,4 giây\nCPU); để sau thì kẻ tấn công vẫn ép được máy chủ làm việc nặng dù request rốt cuộc\nbị từ chối. Cùng lý lẽ đã ghi ở `/auth/register`.",
         "operationId": "login_api_v1_admin_login_post",
         "requestBody": {
           "content": {
@@ -2323,6 +2323,12 @@
               }
             ],
             "title": "Data Confidence"
+          },
+          "is_category": {
+            "type": "boolean",
+            "title": "Is Category",
+            "description": "True = đây là DANH MỤC món ('Bún', 'Phở', 'Cơm'), không phải một món cụ thể. `/dishes/suggest` KHÔNG trả về danh mục (xem `only_categories`); dùng cờ này để hiển thị chúng như đường điều hướng thay vì như một món ăn.",
+            "default": false
           }
         },
         "type": "object",
@@ -2447,6 +2453,12 @@
             "minimum": 1.0,
             "title": "Limit",
             "default": 20
+          },
+          "only_categories": {
+            "type": "boolean",
+            "title": "Only Categories",
+            "description": "False (mặc định) = chỉ trả MÓN CỤ THỂ, bỏ qua danh mục. True = chỉ trả DANH MỤC ('Bún', 'Phở'...) để dựng thanh điều hướng. Chủ dự án chốt 2026-08-24: lưới món và đề xuất nhanh không được hiện danh mục — 'Bún — 2.370 quán' không giúp gì cho người đang đói.",
+            "default": false
           }
         },
         "type": "object",

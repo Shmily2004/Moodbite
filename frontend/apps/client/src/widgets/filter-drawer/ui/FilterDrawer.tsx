@@ -7,6 +7,11 @@
  * Lý do chọn A: không bóp lưới món, và DÙNG CHUNG MỘT component cho cả máy tính lẫn điện
  * thoại — phương án B trên điện thoại vẫn phải làm ngăn kéo, tức là hai bản phải bảo trì.
  *
+ * BỔ SUNG 2026-08-24 — thiết kế mới muốn cột trái kiểu TopCV. Chủ dự án chốt: giữ A làm
+ * GỐC, nhưng cho phép ĐẶT CÙNG MỘT component vào cột trái ở màn rộng (`variant="inline"`).
+ * Nhờ vậy vẫn đúng lý do chọn A ban đầu — chỉ có MỘT component để bảo trì — mà vẫn được
+ * bố cục cột trái. Ai đó định tách thành hai component riêng thì đọc lại đoạn này trước.
+ *
  * VÌ SAO KHÔNG PHẢI MỘT TRANG RIÊNG: chỉ có 21 điều khiển, và lọc là việc LẶP (bấm ->
  * nhìn kết quả -> bấm tiếp). Tách sang trang khác là cắt đứt vòng lặp đó.
  *
@@ -23,6 +28,13 @@ import type { ReactNode } from 'react';
 import { useT } from '@/shared/i18n';
 
 export interface FilterDrawerProps {
+  /**
+   * 'drawer' = hộp thoại trượt từ mép phải (mặc định, dùng cho màn hẹp).
+   * 'inline' = khối gắn thẳng vào bố cục, KHÔNG có nền mờ, KHÔNG khoá cuộn, KHÔNG bẫy
+   *            tiêu điểm — vì nó không phải hộp thoại, và làm mấy việc đó với một khối
+   *            luôn hiển thị sẽ khoá cuộn trang vĩnh viễn.
+   */
+  variant?: 'drawer' | 'inline';
   open: boolean;
   onClose: () => void;
   /** Số bộ lọc đang bật — hiện ở tiêu đề để người dùng biết mình đang lọc gì đó. */
@@ -32,6 +44,7 @@ export interface FilterDrawerProps {
 }
 
 export function FilterDrawer({
+  variant = 'drawer',
   open,
   onClose,
   activeCount,
@@ -44,7 +57,10 @@ export function FilterDrawer({
   const truocDo = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    if (!open) return;
+    // Bốn hành vi dưới đây CHỈ đúng với hộp thoại. Ở dạng `inline` khối này luôn hiển
+    // thị, nên khoá cuộn trang sẽ khoá vĩnh viễn và `Esc` sẽ "đóng" một thứ không đóng
+    // được — đó là lý do chặn ngay từ đây thay vì rải `if` khắp nơi.
+    if (variant !== 'drawer' || !open) return;
 
     truocDo.current = document.activeElement as HTMLElement | null;
     // Đưa tiêu điểm vào trong ngăn kéo, nếu không trình đọc màn hình vẫn đang đọc trang
@@ -64,7 +80,27 @@ export function FilterDrawer({
       document.body.style.overflow = cuonCu;
       truocDo.current?.focus();
     };
-  }, [open, onClose]);
+  }, [variant, open, onClose]);
+
+  // Dạng `inline`: luôn hiển thị, không có nền mờ, không có nút đóng.
+  if (variant === 'inline') {
+    return (
+      <aside className="drawer drawer--inline" aria-label={t('filters.title')}>
+        <div className="drawer__head">
+          <h2 className="panel__title">
+            {t('filters.title')}
+            {activeCount > 0 && <span className="drawer__count">{activeCount}</span>}
+          </h2>
+          {activeCount > 0 && (
+            <button type="button" className="linkish" onClick={onReset}>
+              {t('results.clearFilters')}
+            </button>
+          )}
+        </div>
+        <div className="drawer__body">{children}</div>
+      </aside>
+    );
+  }
 
   if (!open) return null;
 

@@ -93,15 +93,16 @@ export function HomePage() {
     return suggestions.filters[choice.group].includes(choice.value);
   };
 
-  /** Áp một "nhu cầu" -> đặt lại từ đầu rồi bật đúng các bộ lọc của nhu cầu đó. */
+  /**
+   * Áp một "nhu cầu" -> bật đúng các bộ lọc của nhu cầu đó, bấm lại là tắt.
+   *
+   * Dùng `applyPreset` (2026-08-24) thay cho `reset()` + nhiều lần `toggle()`. Bản cũ có
+   * hai vấn đề: (1) `reset()` xoá luôn những bộ lọc người dùng TỰ bấm trước đó, (2) mỗi
+   * `toggle` là một lần đặt state nên một cú bấm sinh 3-4 lần dựng lại, và vì `toggle`
+   * lật giá trị nên bấm lại cùng một nhu cầu cho kết quả khó đoán.
+   */
   const chonNhuCau = (preset: NeedPreset) => {
-    suggestions.reset();
-    preset.apply.mealTimes?.forEach((v) => suggestions.toggle('mealTimes', v));
-    preset.apply.temperatures?.forEach((v) => suggestions.toggle('temperatures', v));
-    preset.apply.cookingMethods?.forEach((v) => suggestions.toggle('cookingMethods', v));
-    if (preset.apply.maxDistanceKm !== undefined) {
-      suggestions.setMaxDistanceKm(preset.apply.maxDistanceKm);
-    }
+    suggestions.applyPreset(preset.apply);
     keoToiKetQua();
   };
 
@@ -111,6 +112,31 @@ export function HomePage() {
       .getElementById('ket-qua')
       ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
+
+  /**
+   * Nội dung bộ lọc — dựng MỘT LẦN, đặt được ở hai chỗ.
+   *
+   * Chủ dự án chốt 2026-08-24: màn rộng hiện thành CỘT TRÁI (kiểu TopCV), màn hẹp vẫn là
+   * ngăn kéo. Chỗ đặt khác nhau nhưng phải là CÙNG MỘT component — nếu tách làm hai bản
+   * thì mỗi lần thêm/bớt một bộ lọc phải sửa hai nơi, và sẽ có ngày quên một nơi.
+   * Trạng thái vẫn nằm ở `useDishSuggestions`, nên hai chỗ luôn nói cùng một chuyện.
+   */
+  const noiDungBoLoc = (
+    <>
+      <p className="section-sub">{t('filters.sub')}</p>
+      <DishFilters
+        filters={suggestions.filters}
+        onToggle={suggestions.toggle}
+        onSetSingle={suggestions.setSingle}
+        onSetMaxDistanceKm={suggestions.setMaxDistanceKm}
+        onReset={suggestions.reset}
+        activeFilterCount={suggestions.activeFilterCount}
+        locationIsDefault={location.isDefault}
+        locationLoading={location.loading}
+        onRequestLocation={location.request}
+      />
+    </>
+  );
 
   return (
     <div className="page">
@@ -165,6 +191,12 @@ export function HomePage() {
           </section>
         )}
 
+        {/* ⚠️ KHÔNG đặt cột lọc vào TRANG CHỦ. Đã thử và gỡ ngày 2026-08-24.
+            Bản thiết kế `frontend/design/Filler.png` là TRANG KẾT QUẢ sau khi lọc, không
+            phải trang chủ. Trang chủ có luồng riêng và đang chạy tốt: hero -> ô tìm ->
+            "Gợi ý nhanh theo mood" -> "Khám phá theo nhu cầu". Nhét thêm một cột lọc
+            luôn hiển thị vào đây làm hỏng đúng cái luồng đó. Bộ lọc chi tiết vẫn mở được
+            bằng nút "Lọc" (ngăn kéo) ngay cạnh tiêu đề kết quả. */}
         <section id="ket-qua" className="results">
           <div className="results__head">
             <h2 className="section-title">
@@ -281,18 +313,7 @@ export function HomePage() {
           activeCount={suggestions.activeFilterCount}
           onReset={suggestions.reset}
         >
-          <p className="section-sub">{t('filters.sub')}</p>
-          <DishFilters
-            filters={suggestions.filters}
-            onToggle={suggestions.toggle}
-            onSetSingle={suggestions.setSingle}
-            onSetMaxDistanceKm={suggestions.setMaxDistanceKm}
-            onReset={suggestions.reset}
-            activeFilterCount={suggestions.activeFilterCount}
-            locationIsDefault={location.isDefault}
-            locationLoading={location.loading}
-            onRequestLocation={location.request}
-          />
+          {noiDungBoLoc}
         </FilterDrawer>
 
         {/*

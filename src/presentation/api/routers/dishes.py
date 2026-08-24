@@ -96,6 +96,7 @@ def suggest_dishes(
             weather=body.weather,
             max_distance_km=body.max_distance_km,
             limit=body.limit,
+            only_categories=body.only_categories,
         )
     )
     payload = DishSuggestResponseData(
@@ -134,6 +135,9 @@ def dish_detail(
             longitude=longitude,
             max_distance_km=max_distance_km,
             include_unavailable=True,
+            # Trang chi tiết phải mở được CẢ danh mục lẫn món cụ thể — người dùng có thể
+            # vào từ liên kết đã chia sẻ. Nên KHÔNG lọc theo `only_categories` ở đây.
+            only_categories=False,
             limit=100,
         )
     )

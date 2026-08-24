@@ -116,6 +116,21 @@ class Dish:
     last_updated: Optional[str] = None
     data_confidence: Optional[str] = None
 
+    # ĐÂY LÀ DANH MỤC hay MỘT MÓN CỤ THỂ.
+    #
+    # Chủ dự án chỉ ra 2026-08-24: "Bún" là DANH MỤC, còn "bún bò", "bún cá", "bún dọc
+    # mùng" mới là MÓN. Trước đó danh mục trộn lẫn cả hai, nên trang chủ hiện thẻ "Bún —
+    # 2.370 quán" (vô nghĩa với người đang đói) và nút đề xuất nhanh cũng trả về "Bún".
+    #
+    # Đo trên dữ liệu thật: 52/855 mục là danh mục theo ngưỡng "có >= 3 món con", trong
+    # đó Bún(29 con) · Bánh mì(26) · Cơm(16) · Kem(16) · Chè(13) · Phở(8) · Mì(8).
+    # Ngưỡng 3 do chủ dự án chốt: để 2 thì "Bún chả"(2 con) bị gọi là danh mục, mà đó là
+    # món ai cũng gọi đích danh.
+    #
+    # KHÔNG xoá danh mục khỏi dữ liệu — chúng là đường điều hướng tốt ("cho tôi xem mọi
+    # loại bún"). Chỉ là lưới món và nút đề xuất phải bỏ qua chúng.
+    is_category: bool = False
+
     @property
     def identifier(self) -> str:
         """`dish_id` đã đặt, hoặc slug suy từ tên."""

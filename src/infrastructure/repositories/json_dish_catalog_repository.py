@@ -103,4 +103,6 @@ class JsonDishCatalogRepository:
             source_url=raw.get("source_url"),
             last_updated=raw.get("last_updated"),
             data_confidence=raw.get("data_confidence"),
+            # DANH MỤC ("Bún") hay MÓN cụ thể ("Bún chả") — xem `Dish.is_category`.
+            is_category=bool(raw.get("is_category", False)),
         )

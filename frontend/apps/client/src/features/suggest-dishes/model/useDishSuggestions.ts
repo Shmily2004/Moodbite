@@ -40,6 +40,16 @@ export const EMPTY_FILTERS: DishFilterState = {
   maxDistanceKm: DEFAULT_RADIUS_KM,
 };
 
+/**
+ * Một "gợi ý nhanh": tổ hợp bộ lọc đặt sẵn, bấm một cái là tick sẵn nhiều ô bên dưới.
+ *
+ * CỐ Ý chỉ là `Partial<DishFilterState>` chứ không phải một loại lọc RIÊNG: gợi ý nhanh
+ * không được là nguồn sự thật thứ hai. Nó chỉ ghi vào đúng những ô mà bộ lọc chi tiết
+ * vẫn đang giữ, nên hai chỗ không bao giờ nói ngược nhau — đây chính là lỗi của bản
+ * thiết kế ngày 2026-08-24, khi "Trời mưa" nằm ở CẢ nhóm trên lẫn nhóm "Thời tiết".
+ */
+export type FilterPreset = Partial<DishFilterState>;
+
 export interface UseDishSuggestionsResult {
   filters: DishFilterState;
   /** Bật/tắt một giá trị trong nhóm lọc nhiều lựa chọn. */
@@ -47,6 +57,10 @@ export interface UseDishSuggestionsResult {
   /** Đặt giá trị cho nhóm chỉ chọn một (mood, weather) - bấm lại chính nó thì bỏ chọn. */
   setSingle: (group: SingleSelectGroup, value: string | null) => void;
   setMaxDistanceKm: (value: number | null) => void;
+  /** Bật/tắt một gợi ý nhanh. Đang bật sẵn thì bấm lại là tắt. */
+  applyPreset: (preset: FilterPreset) => void;
+  /** Gợi ý nhanh này có đang bật đủ mọi vế của nó không (để tô sáng chip). */
+  isPresetActive: (preset: FilterPreset) => boolean;
   reset: () => void;
   activeFilterCount: number;
   dishes: DishItem[] | null;
@@ -103,6 +117,58 @@ export function useDishSuggestions(position: Coordinates): UseDishSuggestionsRes
     setFilters((current) => ({ ...current, maxDistanceKm: value }));
   }, []);
 
+  /**
+   * Một vế của gợi ý nhanh có đang bật không.
+   *
+   * Mảng thì đòi CHỨA ĐỦ (không đòi bằng nhau): bấm "Đồ nướng" rồi tự thêm "Chiên rán"
+   * thì gợi ý "Đồ nướng" vẫn phải sáng — người dùng chưa hề tắt nó.
+   */
+  const veDangBat = useCallback(
+    (hien: DishFilterState, khoa: keyof DishFilterState, gia_tri: unknown) => {
+      const dang = hien[khoa];
+      if (Array.isArray(dang) && Array.isArray(gia_tri)) {
+        return gia_tri.every((v) => (dang as string[]).includes(v as string));
+      }
+      return dang === gia_tri;
+    },
+    [],
+  );
+
+  const isPresetActive = useCallback(
+    (preset: FilterPreset) =>
+      Object.entries(preset).every(([khoa, gia_tri]) =>
+        veDangBat(filters, khoa as keyof DishFilterState, gia_tri),
+      ),
+    [filters, veDangBat],
+  );
+
+  const applyPreset = useCallback(
+    (preset: FilterPreset) => {
+      setFilters((current) => {
+        const dangBat = Object.entries(preset).every(([khoa, gia_tri]) =>
+          veDangBat(current, khoa as keyof DishFilterState, gia_tri),
+        );
+        const moi: DishFilterState = { ...current };
+
+        for (const [khoa, gia_tri] of Object.entries(preset)) {
+          const k = khoa as keyof DishFilterState;
+          if (Array.isArray(gia_tri)) {
+            const hien = (current[k] as string[]) ?? [];
+            // TẮT thì chỉ bỏ đúng những giá trị của gợi ý này, GIỮ những gì người dùng
+            // tự thêm. Gán thẳng mảng rỗng sẽ xoá luôn lựa chọn họ tự bấm.
+            (moi[k] as string[]) = dangBat
+              ? hien.filter((v) => !(gia_tri as string[]).includes(v))
+              : Array.from(new Set([...hien, ...(gia_tri as string[])]));
+          } else {
+            (moi[k] as unknown) = dangBat ? null : gia_tri;
+          }
+        }
+        return moi;
+      });
+    },
+    [veDangBat],
+  );
+
   const reset = useCallback(() => setFilters(EMPTY_FILTERS), []);
   const reload = useCallback(() => setReloadToken((n) => n + 1), []);
 
@@ -129,6 +195,11 @@ export function useDishSuggestions(position: Coordinates): UseDishSuggestionsRes
           mood: filters.mood,
           weather: filters.weather,
           max_distance_km: filters.maxDistanceKm,
+          // Lưới món CHỈ hiện món cụ thể, không hiện danh mục ("Bún", "Phở", "Cơm").
+          // Chủ dự án chốt 2026-08-24: "Bún — 2.370 quán" không giúp gì cho người đang
+          // đói; họ gọi bún chả, bún cá, bún đậu. Danh mục lấy riêng qua
+          // `only_categories: true` để dựng thanh điều hướng.
+          only_categories: false,
           limit: 30,
         },
         { signal: controller.signal },
@@ -175,6 +246,8 @@ export function useDishSuggestions(position: Coordinates): UseDishSuggestionsRes
     toggle,
     setSingle,
     setMaxDistanceKm,
+    applyPreset,
+    isPresetActive,
     reset,
     activeFilterCount,
     dishes,

@@ -785,3 +785,106 @@
   border-top: 1px solid var(--line-warm);
 }
 .drawer__foot .btn { width: 100%; justify-content: center; }
+
+/* ===========================================================================
+   BỐ CỤC HAI CỘT của trang chủ (2026-08-24, sửa lại sau khi xem ảnh thật)
+   ---------------------------------------------------------------------------
+   ⚠️ BẢN ĐẦU XẤU VÌ 4 LÝ DO, đừng lặp lại:
+     1. `max-height` + `overflow-y: auto`  -> cột mọc THANH CUỘN RIÊNG bên trong
+        trang, nhìn như một khung iframe lạc vào giữa bố cục.
+     2. `border` + `background` + bo góc   -> hộp trắng nổi trên nền kem = "hộp
+        trong hộp", trong khi cột lọc chỉ nên là một phần của trang.
+     3. rộng 320px cho chip cỡ nhỏ         -> mỗi hàng nhét được đúng 2 chip, nên
+        21 chip kéo cột dài lê thê xuống dưới màn hình.
+     4. `position: sticky` + nội dung cao hơn màn hình -> sticky không có tác dụng
+        gì cả, chỉ tổ khoá chiều cao.
+   Nay: KHÔNG khung, KHÔNG cuộn riêng, cột hẹp hơn và chip nhỏ lại cho 3 chip/hàng.
+   =========================================================================== */
+.home-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+/* Màn hẹp: ẩn cột, dùng nút "Lọc" mở ngăn kéo.
+   `display: none` chứ không phải ẩn mờ — khối này có hơn 20 nút, ẩn nửa vời là
+   chúng vẫn lọt vào thứ tự Tab và trình đọc màn hình vẫn đọc ra. */
+.drawer--inline { display: none; }
+
+@media (min-width: 1100px) {
+  .home-layout {
+    grid-template-columns: 244px minmax(0, 1fr);
+    gap: 2rem;
+  }
+
+  .drawer--inline {
+    display: block;
+    /* Ghi đè `position: fixed` của `.drawer`, nếu không nó phủ kín màn hình. */
+    position: static;
+    inset: auto;
+    z-index: auto;
+    /* KHÔNG khung, KHÔNG nền: chỉ một đường kẻ dọc ngăn cách. Cột lọc là một phần
+       của trang, không phải một tấm thẻ nổi lên trên nó. */
+    background: none;
+    border: 0;
+    border-right: 1px solid var(--vien, rgba(2, 29, 72, .10));
+    border-radius: 0;
+    padding: 0 1.5rem 0 0;
+    /* KHÔNG `max-height`, KHÔNG `overflow`: để cột cuộn CÙNG trang. */
+  }
+
+  .drawer--inline .drawer__head {
+    padding: 0 0 .75rem;
+    border-bottom: 1px solid var(--vien, rgba(2, 29, 72, .10));
+    margin-bottom: 1rem;
+  }
+
+  /* Câu "Mọi điều kiện mà bảy thẻ mood ở trên không phủ hết" viết cho NGĂN KÉO,
+     nơi người dùng vừa bấm nút Lọc và các thẻ mood đúng là ở ngay trên. Đặt vào
+     cột trái thì nó trỏ tới một thứ không nằm ở đó -> ẩn đi. */
+  .drawer--inline .section-sub { display: none; }
+
+  /* Chip nhỏ lại để vừa 3 cái một hàng thay vì 2. */
+  .drawer--inline .chip {
+    font-size: .82rem;
+    padding: .34rem .6rem;
+  }
+  .drawer--inline .chips { gap: .35rem; }
+  .drawer--inline .filters__row { margin-bottom: 1rem; }
+  .drawer--inline .filters__label {
+    font-size: .74rem;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    opacity: .65;
+  }
+
+  /* Phần chân (bán kính, vị trí) xếp DỌC — cột hẹp không đủ chỗ nằm ngang. */
+  .drawer--inline .filters__foot {
+    flex-direction: column;
+    align-items: stretch;
+    gap: .5rem;
+  }
+
+  .home-layout .results { min-width: 0; }
+
+  /* Nút "Lọc" thành thừa khi bộ lọc đã nằm ngay bên cạnh. */
+  .results__actions .btn--filter { display: none; }
+}
+
+/* Màn rất rộng: nới cột một chút cho nhãn dài không phải xuống dòng. */
+@media (min-width: 1500px) {
+  .home-layout { grid-template-columns: 280px minmax(0, 1fr); }
+}
+
+/* Chip có icon (2026-08-24, thay cho emoji) — icon và chữ nằm cùng một dòng,
+   khoảng cách đều nhau dù là SVG hay ảnh PNG của chủ dự án. */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+}
+/* SVG ăn màu chữ nên tự đúng cả lúc chip bật (đảo màu) lẫn ở giao diện tối —
+   đây là thứ emoji không làm được. */
+.chip svg { width: 17px; height: 17px; flex: 0 0 auto; }
+.chip__icon { width: 17px; height: 17px; object-fit: contain; flex: 0 0 auto; }

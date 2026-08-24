@@ -173,6 +173,15 @@ class DishSuggestRequest(BaseModel):
         description="null = tắt lọc khoảng cách. Ảnh hưởng tới `restaurant_count`.",
     )
     limit: int = Field(default=20, ge=1, le=100)
+    only_categories: bool = Field(
+        default=False,
+        description=(
+            "False (mặc định) = chỉ trả MÓN CỤ THỂ, bỏ qua danh mục. "
+            "True = chỉ trả DANH MỤC ('Bún', 'Phở'...) để dựng thanh điều hướng. "
+            "Chủ dự án chốt 2026-08-24: lưới món và đề xuất nhanh không được hiện danh mục "
+            "— 'Bún — 2.370 quán' không giúp gì cho người đang đói."
+        ),
+    )
 
 
 class DishItemSchema(BaseModel):
@@ -204,6 +213,14 @@ class DishItemSchema(BaseModel):
     source: Optional[str] = None
     source_url: Optional[str] = None
     data_confidence: Optional[str] = None
+    is_category: bool = Field(
+        default=False,
+        description=(
+            "True = đây là DANH MỤC món ('Bún', 'Phở', 'Cơm'), không phải một món cụ thể. "
+            "`/dishes/suggest` KHÔNG trả về danh mục (xem `only_categories`); dùng cờ này "
+            "để hiển thị chúng như đường điều hướng thay vì như một món ăn."
+        ),
+    )
 
 
 class DishSuggestResponseData(BaseModel):

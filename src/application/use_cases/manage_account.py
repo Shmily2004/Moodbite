@@ -45,18 +45,26 @@ class RegisterUserUseCase:
         username: str,
         password: str,
         display_name: Optional[str] = None,
-        email: Optional[str] = None,
+        email: str = "",
     ) -> tuple[User, str]:
         """Tạo tài khoản mới, trả về (user, token) để đăng ký xong là dùng được luôn.
 
-        `email` TUỲ CHỌN: không có email thì tài khoản vẫn dùng bình thường, chỉ là sau
-        này không tự lấy lại mật khẩu được. Không bắt buộc vì bản thiết kế của chủ dự án
-        không có ô email, và ép nhập chỉ để phòng xa sẽ làm rơi người đăng ký.
+        `email` BẮT BUỘC — đổi ngày 2026-08-24 theo yêu cầu chủ dự án.
+
+        VÌ SAO ĐỔI (bản cũ ghi "tuỳ chọn... ép nhập chỉ để phòng xa sẽ làm rơi người đăng
+        ký"): lý lẽ đó đúng khi email chưa dùng vào việc gì ngoài "phòng xa". Nay đã có
+        luồng XÁC MINH EMAIL, nên email là thứ duy nhất chứng minh tài khoản thuộc về một
+        người có thật, và cũng là đường DUY NHẤT lấy lại mật khẩu. Tài khoản không email
+        mà quên mật khẩu thì mất hẳn — không ai cứu được.
+
+        ⚠️ CHỈ ÁP CHO ĐĂNG KÝ MỚI. Tài khoản cũ tạo trước hôm nay vẫn có thể không có
+        email và PHẢI dùng được bình thường — xem `User.can_receive_mail`.
         """
         # Kiểm định dạng TRƯỚC khi băm: băm mất ~0.4s, không nên tốn cho input rác.
         name = validate_username(username)
         validate_password(password)
-        dia_chi = validate_email(email) if (email or "").strip() else None
+        # Không còn nhánh "bỏ trống thì thôi": thiếu email là lỗi định dạng -> 400.
+        dia_chi = validate_email(email)
 
         # ⚠️ Vai LUÔN là `user`. Tuyệt đối không lấy vai từ input - nếu không thì bất kỳ
         # ai cũng tự đăng ký thành admin. Nâng vai là việc riêng, phải qua admin.

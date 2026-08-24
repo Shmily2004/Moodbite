@@ -366,12 +366,13 @@ class RegisterRequest(BaseModel):
         max_length=64,
         description="Tên hiển thị, ĐƯỢC dùng tiếng Việt có dấu. Không dùng để đăng nhập.",
     )
-    email: Optional[str] = Field(
-        default=None,
+    email: str = Field(
+        ...,
+        min_length=1,
         max_length=MAX_EMAIL_LENGTH,
         description=(
-            "TUỲ CHỌN. Chỉ dùng để gửi thư đặt lại mật khẩu. Không khai thì tài khoản vẫn "
-            "dùng bình thường, chỉ là sau này không tự lấy lại mật khẩu được."
+            "BẮT BUỘC (đổi 2026-08-24). Dùng để xác minh tài khoản và lấy lại mật khẩu. "
+            "Trước đó là tuỳ chọn; chủ dự án đổi sau khi luồng xác minh email hoàn thành."
         ),
     )
 

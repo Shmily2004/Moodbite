@@ -31,6 +31,8 @@ from src.infrastructure.auth.rate_limit import (
 from src.infrastructure.repositories.sqlite_user_repository import SqliteUserRepository
 
 PASSWORD = "mat-khau-du-dai"
+# Email BẮT BUỘC từ 2026-08-24 — mọi lời gọi đăng ký đều phải có.
+EMAIL_MAC_DINH = "nguoidung@vidu.com"
 
 
 @pytest.fixture
@@ -55,7 +57,7 @@ def test_dang_ky_LUON_la_vai_user_khong_bao_gio_la_admin(repo):
     """Nếu vai lấy từ input thì ai cũng tự phong mình làm admin."""
     register, _ = make_use_cases(repo)
 
-    user, _ = register.execute("nguoidung", PASSWORD)
+    user, _ = register.execute("nguoidung", PASSWORD, email=EMAIL_MAC_DINH)
 
     assert user.role == UserRole.USER
     assert user.is_admin is False
@@ -66,7 +68,7 @@ def test_khong_the_tu_dang_ky_thanh_admin_qua_tham_so(repo):
     register, _ = make_use_cases(repo)
 
     with pytest.raises(TypeError):
-        register.execute("kesau", PASSWORD, role="admin")  # type: ignore[call-arg]
+        register.execute("kesau", PASSWORD, email=EMAIL_MAC_DINH, role="admin")  # type: ignore[call-arg]
 
 
 def test_vai_LA_trong_CSDL_bi_ha_ve_user_khong_phai_nang_len_admin(tmp_path):
@@ -104,7 +106,7 @@ def test_to_public_KHONG_BAO_GIO_lo_chuoi_bam():
 
 def test_thong_bao_loi_KHONG_noi_sai_ten_hay_sai_mat_khau(repo):
     register, login = make_use_cases(repo)
-    register.execute("cothat", PASSWORD)
+    register.execute("cothat", PASSWORD, email=EMAIL_MAC_DINH)
 
     loi = []
     for ten, mk in [("cothat", "sai-mat-khau"), ("khong-ton-tai", PASSWORD)]:
@@ -205,10 +207,10 @@ def test_ten_dang_nhap_hop_le(ten):
 def test_ten_dang_nhap_chuan_hoa_ve_chu_thuong(repo):
     """'Admin' và 'admin' phải là CÙNG một tài khoản, nếu không sẽ giả mạo được."""
     register, _ = make_use_cases(repo)
-    register.execute("NguoiDung", PASSWORD)
+    register.execute("NguoiDung", PASSWORD, email=EMAIL_MAC_DINH)
 
     with pytest.raises(UsernameAlreadyExists):
-        register.execute("nguoidung", PASSWORD)
+        register.execute("nguoidung", PASSWORD, email=EMAIL_MAC_DINH)
 
 
 def test_mat_khau_qua_ngan_bi_tu_choi():
@@ -224,7 +226,7 @@ def test_mat_khau_qua_ngan_bi_tu_choi():
 
 def test_tao_va_doc_lai_duoc(repo):
     register, login = make_use_cases(repo)
-    created, token = register.execute("ai_do", PASSWORD, display_name="Ai Đó")
+    created, token = register.execute("ai_do", PASSWORD, display_name="Ai Đó", email=EMAIL_MAC_DINH)
 
     assert token == "token-cho-ai_do"
     doc_lai = repo.get_by_username("ai_do")

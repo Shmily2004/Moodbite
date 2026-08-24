@@ -27,6 +27,18 @@ export type NgonNgu = (typeof NGON_NGU)[number];
 /** Bản tiếng Việt là BẢN GỐC: nó định nghĩa danh sách khoá. */
 const vi = {
   // --- Thanh trên -----------------------------------------------------------
+  // --- Chân trang (thêm 2026-08-24) ---------------------------------------
+  'footer.tagline': 'Gợi ý món ăn theo tâm trạng, thời tiết và giờ giấc của bạn.',
+  'footer.scope': 'Phạm vi dữ liệu: Hà Nội.',
+  'footer.navLabel': 'Liên kết trong trang',
+  'footer.exploreTitle': 'Khám phá',
+  'footer.account': 'Tài khoản của tôi',
+  'footer.dataTitle': 'Nguồn dữ liệu',
+  'footer.honestTitle': 'Nói rõ để bạn khỏi hiểu nhầm',
+  'footer.dishDisclaimer':
+    'Món ăn được SUY LUẬN từ tên quán, không phải đọc từ thực đơn thật — hãy gọi điện hỏi quán trước khi đi xa.',
+  'footer.academic': 'MoodBite là đồ án tốt nghiệp, không phải dịch vụ thương mại.',
+  'footer.copyright': '© 2026 MoodBite · Dữ liệu quán ăn thuộc về các nguồn mở nêu trên.',
   'nav.suggest': 'Gợi ý món ăn',
   'nav.search': 'Tìm bằng câu tự nhiên',
   'nav.account': 'Tài khoản của tôi',
@@ -186,6 +198,18 @@ export type Khoa = keyof typeof vi;
  * không có cách nào quên dịch mà vẫn build được.
  */
 const en: Record<Khoa, string> = {
+  // --- Footer (added 2026-08-24) ------------------------------------------
+  'footer.tagline': 'Dish ideas that match your mood, the weather and the time of day.',
+  'footer.scope': 'Data coverage: Hanoi only.',
+  'footer.navLabel': 'Site links',
+  'footer.exploreTitle': 'Explore',
+  'footer.account': 'My account',
+  'footer.dataTitle': 'Data sources',
+  'footer.honestTitle': 'So there is no misunderstanding',
+  'footer.dishDisclaimer':
+    'Dishes are INFERRED from restaurant names, not read from real menus — call ahead before travelling far.',
+  'footer.academic': 'MoodBite is a graduation project, not a commercial service.',
+  'footer.copyright': '© 2026 MoodBite · Restaurant data belongs to the open sources listed above.',
   'nav.suggest': 'Dish ideas',
   'nav.search': 'Search in plain language',
   'nav.account': 'My account',

@@ -166,11 +166,18 @@ def client(tmp_path):
     return c
 
 
+# Email MẶC ĐỊNH cho helper đăng ký.
+#
+# Từ 2026-08-24 email là trường BẮT BUỘC (trước đó tuỳ chọn). Đặt mặc định ở đây thay vì
+# sửa hàng chục lời gọi: phần lớn test ở file này nói về tên/mật khẩu/giới hạn tần suất,
+# không nói gì về email. Test nào QUAN TÂM tới email thì tự truyền `email=...`.
+EMAIL_MAC_DINH = "nguoidung@vidu.com"
+
+
 def register(client, username="nguoidung", password=PASSWORD, **extra):
-    return client.post(
-        f"{API}/auth/register",
-        json={"username": username, "password": password, **extra},
-    )
+    than = {"username": username, "password": password, "email": EMAIL_MAC_DINH}
+    than.update(extra)
+    return client.post(f"{API}/auth/register", json=than)
 
 
 def login(client, username="nguoidung", password=PASSWORD):
@@ -188,7 +195,12 @@ def test_gui_role_admin_trong_body_KHONG_lam_minh_thanh_admin(client):
     """Trường lạ trong JSON phải bị BỎ QUA, không được chảy vào entity."""
     res = client.post(
         f"{API}/auth/register",
-        json={"username": "kesau", "password": PASSWORD, "role": "admin"},
+        json={
+            "username": "kesau",
+            "password": PASSWORD,
+            "email": EMAIL_MAC_DINH,
+            "role": "admin",
+        },
     )
 
     assert res.status_code == 201, res.text
@@ -439,7 +451,10 @@ def test_chua_dat_secret_thi_tra_503_kem_huong_dan(tmp_path, path, method):
     client, _ = build_client(tmp_path, secret="")
 
     res = getattr(client, method)(
-        f"{API}/auth/{path}", json={"username": "ai", "password": PASSWORD}
+        f"{API}/auth/{path}",
+        # Email BẮT BUỘC cho `/register` từ 2026-08-24. Gửi kèm cả ở `/login` cho gọn —
+        # trường thừa bị bỏ qua, và test này nói về SECRET chứ không về thân request.
+        json={"username": "ai", "password": PASSWORD, "email": EMAIL_MAC_DINH},
     )
 
     assert res.status_code == 503

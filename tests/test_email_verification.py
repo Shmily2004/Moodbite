@@ -40,9 +40,17 @@ def test_dang_ky_co_email_thi_tu_gui_thu_xac_minh(tmp_path):
     assert "Xác minh email" in client.app.state.container.emails.da_gui[0]["subject"]
 
 
-def test_dang_ky_khong_email_thi_khong_gui_thu(tmp_path):
+def test_khong_khai_email_thi_KHONG_dang_ky_duoc(tmp_path):
+    """Email BẮT BUỘC từ 2026-08-24.
+
+    Test cũ ở đây kiểm "đăng ký không email thì không gửi thư" — nay không còn tình
+    huống đó nữa, nên kiểm thẳng điều thay thế nó: thiếu email là 400.
+    """
     client, _ = build_client(tmp_path)
-    register(client)
+
+    res = client.post(f"{API}/auth/register", json={"username": "aido", "password": "matkhaudai123"})
+
+    assert res.status_code == 400
     assert client.app.state.container.emails.da_gui == []
 
 
@@ -152,10 +160,21 @@ def test_da_xac_minh_roi_thi_khong_gui_them_thu(tmp_path):
     assert len(client.app.state.container.emails.da_gui) == so_thu  # không gửi thêm
 
 
-def test_chua_khai_email_thi_bao_ro_va_khong_gui(tmp_path):
+def test_tai_khoan_CU_khong_co_email_van_bao_ro_va_khong_gui(tmp_path):
+    """Tài khoản tạo TRƯỚC 2026-08-24 vẫn có thể không có email — phải xử lý được.
+
+    Email nay bắt buộc lúc ĐĂNG KÝ, nhưng dữ liệu cũ thì không sửa ngược được. Mô phỏng
+    bằng cách xoá email thẳng dưới CSDL.
+    """
+    import sqlite3
+
     client, _ = build_client(tmp_path)
-    res = register(client)
+    res = register(client, email="ai.do@vi.du.com")
     headers = {"Authorization": f"Bearer {res.json()['data']['token']}"}
+    with sqlite3.connect(tmp_path / "users.db") as conn:
+        conn.execute("UPDATE users SET email = NULL")
+        conn.commit()
+    client.app.state.container.emails.da_gui.clear()
 
     lai = client.post(f"{API}/auth/verify-email/request", headers=headers)
 

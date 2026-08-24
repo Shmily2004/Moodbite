@@ -108,18 +108,31 @@ describe('RegisterPage', () => {
     });
   });
 
-  it('bỏ trống tên hiển thị và email thì gửi null, KHÔNG gửi chuỗi rỗng', async () => {
+  it('bỏ trống tên hiển thị thì gửi null, KHÔNG gửi chuỗi rỗng', async () => {
+    // EMAIL đã thành BẮT BUỘC từ 2026-08-24 nên không còn ca "bỏ trống email" nữa —
+    // phần đó chuyển sang test dưới. Tên hiển thị thì vẫn tuỳ chọn: backend hiểu `null`
+    // là "chưa đặt tên" và dùng tên đăng nhập, còn chuỗi rỗng thành một cái tên trống.
     const fetchMock = mockRegisterOk();
     vi.stubGlobal('fetch', fetchMock);
     renderRegister();
 
-    dienForm({ displayName: '   ', email: '' });
+    dienForm({ displayName: '   ' });
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalled());
     const body = JSON.parse(fetchMock.mock.calls[0][1].body);
     expect(body.display_name).toBeNull();
-    // Chuỗi rỗng sẽ bị backend coi là "có khai email" rồi báo sai định dạng.
-    expect(body.email).toBeNull();
+  });
+
+  it('email là BẮT BUỘC — bỏ trống thì KHÔNG gọi API', async () => {
+    // Ô email có `required`, nên trình duyệt chặn ngay tại chỗ và không đi một vòng lên
+    // server rồi mới báo lỗi. Backend vẫn kiểm lại (`required` sửa được bằng DevTools).
+    const fetchMock = mockRegisterOk();
+    vi.stubGlobal('fetch', fetchMock);
+    renderRegister();
+
+    dienForm({ email: '' });
+
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it('hai ô mật khẩu lệch nhau thì KHÔNG gọi API', async () => {

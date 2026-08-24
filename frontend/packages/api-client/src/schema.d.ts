@@ -1132,9 +1132,9 @@ export interface components {
             display_name?: string | null;
             /**
              * Email
-             * @description TUỲ CHỌN. Chỉ dùng để gửi thư đặt lại mật khẩu. Không khai thì tài khoản vẫn dùng bình thường, chỉ là sau này không tự lấy lại mật khẩu được.
+             * @description BẮT BUỘC (đổi 2026-08-24). Dùng để xác minh tài khoản và lấy lại mật khẩu. Trước đó là tuỳ chọn; chủ dự án đổi sau khi luồng xác minh email hoàn thành.
              */
-            email?: string | null;
+            email: string;
         };
         /** ResetPasswordRequest */
         ResetPasswordRequest: {

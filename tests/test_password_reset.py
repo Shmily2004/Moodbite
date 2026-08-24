@@ -117,9 +117,21 @@ def test_email_khong_ton_tai_van_tra_ve_Y_HET_email_co_that(setup):
 
 
 def test_tai_khoan_KHONG_khai_email_cung_tra_ve_cau_giong_het(tmp_path):
+    """Tài khoản CŨ (tạo trước 2026-08-24) có thể không có email.
+
+    Email nay bắt buộc lúc ĐĂNG KÝ, nhưng dữ liệu cũ thì không sửa ngược được — nên
+    luồng quên mật khẩu vẫn phải xử lý đúng: trả CÙNG một câu, không gửi thư nào.
+    Mô phỏng bằng cách xoá email thẳng dưới CSDL.
+    """
+    import sqlite3
+
     emails = FakeEmailSender()
     client, _ = build_client(tmp_path, emails=emails)
-    register(client, username="khongemail")     # đăng ký không kèm email
+    register(client, username="khongemail")
+    with sqlite3.connect(tmp_path / "users.db") as conn:
+        conn.execute("UPDATE users SET email = NULL WHERE username = 'khongemail'")
+        conn.commit()
+    emails.da_gui.clear()
 
     res = quen(client, "khongemail")
 

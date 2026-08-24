@@ -137,9 +137,10 @@ export function useUserSession(): UseUserSessionResult {
         const data = await authApi.register({
           username: username.trim(),
           password,
-          // Bỏ trống -> gửi `null`. Chuỗi rỗng sẽ được backend hiểu là "có khai email"
-          // rồi ném lỗi định dạng, dù người dùng cố tình không muốn khai.
-          email: hopThu === '' ? null : hopThu,
+          // Email BẮT BUỘC từ 2026-08-24 -> gửi thẳng chuỗi đã cắt khoảng trắng.
+          // Bản cũ gửi `null` khi bỏ trống để backend hiểu là "cố tình không khai";
+          // nay bỏ trống là LỖI, và backend trả 400 kèm câu giải thích cho người dùng.
+          email: hopThu,
           // Bỏ trống thì gửi `null` chứ không gửi chuỗi rỗng: backend hiểu `null` là
           // "không có tên hiển thị" và sẽ dùng tên đăng nhập, còn chuỗi rỗng sẽ thành
           // một cái tên trống rỗng hiện ra màn hình.

@@ -888,3 +888,71 @@
    đây là thứ emoji không làm được. */
 .chip svg { width: 17px; height: 17px; flex: 0 0 auto; }
 .chip__icon { width: 17px; height: 17px; object-fit: contain; flex: 0 0 auto; }
+
+/* ===========================================================================
+   CHÂN TRANG (thêm 2026-08-24)
+   ---------------------------------------------------------------------------
+   Trước đó app KHÔNG có chân trang, nên mọi trang đều kết thúc đột ngột. Ngoài
+   chuyện nhìn cụt, nó còn thiếu GHI CÔNG NGUỒN DỮ LIỆU — nghĩa vụ theo giấy
+   phép ODbL / CDLA / CC BY-SA. Xem `widgets/site-footer`.
+   =========================================================================== */
+.site-footer {
+  margin-top: 3rem;
+  padding: 2.5rem clamp(1rem, 5vw, 4rem) 1.5rem;
+  border-top: 1px solid var(--vien, rgba(2, 29, 72, .1));
+  background: var(--nen-phu, rgba(2, 29, 72, .03));
+  font-size: .9rem;
+}
+
+.site-footer__grid {
+  display: grid;
+  /* `auto-fit` + `minmax`: tự xuống 1 cột trên điện thoại mà không cần media query. */
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.75rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.site-footer__cot { display: flex; flex-direction: column; gap: .45rem; }
+.site-footer__cot--gioi-thieu { gap: .6rem; }
+
+.site-footer__ten {
+  font-weight: 700;
+  font-size: 1.15rem;
+  margin: 0;
+}
+.site-footer__tieu-de {
+  font-weight: 600;
+  margin: 0 0 .25rem;
+}
+.site-footer__mo-ta,
+.site-footer__pham-vi,
+.site-footer__ghi-chu {
+  margin: 0;
+  color: var(--muted, #5b6478);
+  line-height: 1.5;
+}
+.site-footer__pham-vi { font-weight: 600; }
+
+.site-footer__cot a {
+  color: inherit;
+  text-decoration: none;
+  width: fit-content;
+}
+.site-footer__cot a:hover { text-decoration: underline; }
+
+/* Tên giấy phép nhỏ và nhạt hơn tên nguồn: nguồn là thứ người đọc cần thấy,
+   giấy phép là thứ cần CÓ MẶT. */
+.site-footer__giay-phep {
+  font-size: .82em;
+  color: var(--muted, #5b6478);
+}
+
+.site-footer__ban-quyen {
+  max-width: 1200px;
+  margin: 2rem auto 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--vien, rgba(2, 29, 72, .08));
+  color: var(--muted, #5b6478);
+  text-align: center;
+}

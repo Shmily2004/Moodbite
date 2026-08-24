@@ -57,6 +57,13 @@ export function RegisterForm({ loading, error, onSubmit, footer }: RegisterFormP
       noValidate
       onSubmit={(event) => {
         event.preventDefault();
+        // Form đặt `noValidate`, nên thuộc tính `required` của ô email KHÔNG tự chặn —
+        // nó chỉ còn tác dụng gợi ý cho trình duyệt/trình đọc màn hình. Phải kiểm ở đây,
+        // đúng cách đã làm với hai ô mật khẩu ngay bên dưới.
+        if (email.trim() === '') {
+          setLoiKhop('Bạn cần nhập email để xác minh tài khoản và lấy lại mật khẩu.');
+          return;
+        }
         if (password !== confirm) {
           // Không gọi API khi đã biết chắc là gõ nhầm: đỡ một vòng mạng, và quan trọng
           // hơn là người dùng nhận phản hồi ngay lập tức.
@@ -112,15 +119,17 @@ export function RegisterForm({ loading, error, onSubmit, footer }: RegisterFormP
       {/*
         Ô EMAIL — bản thiết kế KHÔNG có ô này, thêm vào có chủ đích (2026-08-22).
 
-        Lý do: chủ dự án yêu cầu tính năng quên mật khẩu gửi qua thư. Không có email thì
-        không có cách nào gửi, và người dùng mất mật khẩu là mất luôn tài khoản.
+        BẮT BUỘC từ 2026-08-24 (trước đó tuỳ chọn). Chủ dự án đổi sau khi luồng XÁC MINH
+        EMAIL hoàn thành. Lý lẽ cũ ("bắt buộc thì làm rơi người đăng ký") chỉ đúng khi
+        email chưa dùng vào việc gì ngoài phòng xa; nay nó là thứ duy nhất chứng minh tài
+        khoản thuộc về người có thật, và là đường DUY NHẤT lấy lại mật khẩu — quên mật
+        khẩu mà không có email thì mất hẳn tài khoản, không ai cứu được.
 
-        Để TUỲ CHỌN chứ không bắt buộc: bắt buộc thì làm rơi người đăng ký, mà phần lớn
-        người dùng thử một đồ án sẽ không muốn khai email. Bỏ trống vẫn dùng app bình
-        thường — chỉ là sau này phải nhờ quản trị viên nếu quên mật khẩu.
+        `required` để trình duyệt chặn ngay tại chỗ, khỏi phải đi một vòng lên server rồi
+        mới báo lỗi. Backend vẫn kiểm lại — `required` của HTML sửa được bằng DevTools.
       */}
       <label className="field__label" htmlFor={idEmail}>
-        Email <span className="field__label-note">(không bắt buộc)</span>
+        Email
       </label>
       <div className="field field--tight">
         <IconMail className="field__icon" />
@@ -131,6 +140,7 @@ export function RegisterForm({ loading, error, onSubmit, footer }: RegisterFormP
           value={email}
           placeholder="email@cua-ban.com"
           autoComplete="email"
+          required
           onChange={(event) => setEmail(event.target.value)}
         />
       </div>
@@ -138,7 +148,7 @@ export function RegisterForm({ loading, error, onSubmit, footer }: RegisterFormP
           vì nội dung đã có ở nhãn "(không bắt buộc)"; còn dòng gợi ý của TÊN ĐĂNG NHẬP thì
           KHÔNG ẩn — sai luật đặt tên là backend từ chối, phải cho người dùng biết trước. */}
       <p className="field__hint field__hint--phu">
-        Chỉ dùng để gửi thư khi bạn quên mật khẩu.
+        Dùng để xác minh tài khoản và lấy lại mật khẩu khi bạn quên.
       </p>
 
       <label className="field__label" htmlFor={idMatKhau}>

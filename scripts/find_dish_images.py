@@ -1,7 +1,7 @@
 """Tìm ảnh cho những món CHƯA có ảnh — miễn phí, hợp pháp, không cần khoá API.
 
     python scripts/find_dish_images.py                 # thử, KHÔNG ghi gì (mặc định)
-    python scripts/find_dish_images.py --apply         # ghi vào dish_catalog.json
+    python scripts/find_dish_images.py --apply         # ghi vào seed + dish_catalog
     python scripts/find_dish_images.py --limit 20      # chỉ thử 20 món đầu
 
 VÌ SAO CẦN: `build_dish_catalog.py --enrich` chỉ hỏi Wikipedia TIẾNG VIỆT. Đo được
@@ -36,6 +36,7 @@ import argparse
 import json
 import sys
 import time
+import re
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -45,10 +46,13 @@ from typing import Optional
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 CATALOG = ROOT / "data_pipeline" / "data_cleaned" / "dish_catalog.json"
+# NGUỒN SỰ THẬT của món soạn tay. Ảnh phải được ghi vào ĐÂY, không chỉ vào catalog —
+# xem `ghi_anh_vao_seed`.
+SEED = ROOT / "data_pipeline" / "dish_seed_manual.json"
 
 # Dùng lại đúng bộ so khớp tiếng Việt của domain — tuyệt đối không tự viết lại
 # (CLAUDE.md mục 4.5: ba bug thật đã xảy ra vì tự viết lại).
-from src.domain.value_objects.text import contains_phrase  # noqa: E402
+from src.domain.value_objects.text import contains_phrase, tokenize  # noqa: E402
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -151,6 +155,19 @@ KHONG_PHAI_MON = [
     "city in", "province", "country in", "district in", "river", "mountain",
     "island", "human settlement", "municipality", "capital of", "commune", "town in",
     "nhà văn", "ca sĩ", "diễn viên", "chính trị gia", "cầu thủ",
+    # --- Bổ sung 2026-08-24: NGUYÊN LIỆU và LOÀI SINH VẬT ---------------------
+    # Lượt chạy thật cho thấy máy tìm kiếm hay trả về bài về NGUYÊN LIỆU của món thay vì
+    # món, và ảnh khi đó là cây/quả/con vật sống chứ không phải đồ ăn:
+    #     "Lẩu gà lá é"    -> bài "É"         -> ảnh CÂY É
+    #     "Bún dọc mùng"   -> bài "Dọc mùng"  -> ảnh CÂY DỌC MÙNG
+    #     "Kem dừa"        -> bài "Dừa"       -> ảnh QUẢ DỪA
+    #     "Lẩu dê"         -> bài "Dê cỏ"     -> ảnh CON DÊ SỐNG
+    # Cùng họ với `NOT_A_DISH_HINTS` ở `discover_dishes.py` — ở đó đã phải chặn đúng
+    # nhóm này để "Trà", "Chanh", "Đuông" không lọt vào danh mục món.
+    "loài thực vật", "loài cây", "chi thực vật", "họ thực vật", "giống cây",
+    "loài động vật", "loài cá", "loài chim", "giống vật nuôi", "loài côn trùng",
+    "nguyên liệu", "gia vị", "loại rau", "loại quả", "loại hạt", "loại củ",
+    "species of", "genus of", "plant", "family of", "breed of", "edible plant",
 ]
 
 
@@ -162,6 +179,72 @@ def la_thuc_the_khong_phai_mon(mo_ta: Optional[str]) -> bool:
     if not mo_ta:
         return False
     return any(contains_phrase(mo_ta, cum) for cum in KHONG_PHAI_MON)
+
+
+# --- CHỐT CHẶN THỨ HAI: TÊN BÀI PHẢI LIÊN QUAN TÊN MÓN (thêm 2026-08-24) -----------
+#
+# ⚠️ VÌ SAO CẦN, dù đã có `la_thuc_the_khong_phai_mon`: chốt kia chỉ đọc MÔ TẢ NGẮN, nên
+# nó bắt được "thành phố"/"con sông" nhưng bỏ lọt mọi thứ khác. Lượt chạy thật
+# 2026-08-24 trên 106 món cho ra 100 kết quả, và nhìn vào thì hỏng nặng:
+#
+#     Lẩu lòng      -> "Nuon Chea on 31 October 2013.jpg"   (chân dung MỘT NGƯỜI THẬT)
+#     Lươn xứ nghệ  -> "CTy Máy Phát Điện Hưng Thịnh Phát"  (máy phát điện)
+#     Sườn sụn      -> "Costal cartilages animation.gif"    (ảnh giải phẫu)
+#     Lẩu đuôi bò   -> "Phu Văn lâu.jpg"                    (kiến trúc Huế)
+#     Sữa hạt       -> bài "TH Group"                       (logo công ty)
+#     Lẩu dê        -> bài "Dê cỏ"                          (CON DÊ SỐNG)
+#     Bánh cuốn cao bằng -> bài "Pho"                       (món khác hẳn)
+#
+# Máy tìm kiếm LUÔN trả về thứ gì đó, và ta đang tin nó vô điều kiện. Đây đúng loại lỗi
+# `scripts/audit_dish_images.py` từng phải đi dọn ("bãi biển cho món lẩu", 2026-08-23).
+#
+# LUẬT: tên bài (sau khi bỏ phần trong ngoặc) phải là CỤM CON của tên món, hoặc ngược
+# lại. Khớp CỤM NGUYÊN VẸN qua `contains_phrase` của domain — không tự viết lại, vì đây
+# đúng chỗ dự án đã trả giá ba lần (CLAUDE.md mục 4.5).
+#
+#   nhận: "Chè sầu"        ~ "Chè (ẩm thực)"   -> bỏ ngoặc còn "Chè", là cụm con
+#         "Bún ốc sườn"    ~ "Bún"
+#         "Bánh canh ghẹ"  ~ "Bánh canh"
+#   loại: "Canh ghẹ"       ~ "Bánh canh"       -> không bên nào chứa bên nào
+#         "Lẩu dê"         ~ "Dê cỏ"
+#         "Bánh giá"       ~ "Bánh dày đỗ"     -> chỉ chung mỗi chữ "bánh"
+#
+# CHẶT CÓ CHỦ Ý. Luật này loại nhầm vài ảnh đúng ("Chả cá lăng" ~ "Chả cá Lã Vọng",
+# "Mì Ý sốt bò bằm" ~ "Spaghetti"). Chấp nhận: giao diện đã có ô chữ cái đầu cho món
+# thiếu ảnh, còn ảnh SAI thì người dùng tin là thật. Thiếu rẻ hơn sai.
+_TRONG_NGOAC = re.compile(r"\s*\([^)]*\)")
+
+
+def ten_bai_khop_ten_mon(ten_mon: str, tieu_de: str) -> bool:
+    """Tên bài/tên file này có nói về đúng món đang tra không.
+
+    LUẬT: chuỗi DÀI hơn phải BẮT ĐẦU bằng chuỗi ngắn hơn (so theo từ, đã bỏ dấu).
+
+    ⚠️ VÌ SAO PHẢI LÀ TIỀN TỐ, không phải "chứa ở bất kỳ đâu": thêm từ vào ĐUÔI chỉ là
+    nói rõ hơn về cùng một món, còn thêm từ vào ĐẦU thường tạo ra MÓN KHÁC HẲN.
+
+        nhận  "Bánh tôm"  ~ "Bánh tôm Hồ Tây"   (thêm ở đuôi -> vẫn bánh tôm)
+              "Vịt quay"  ~ "Vịt quay Bắc Kinh"
+              "Bún trộn"  ~ "Bún"               (bài là món cha)
+        loại  "Mì cay"    ~ "Bánh mì cay"       (thêm ở ĐẦU -> bánh mì cay Hải Phòng,
+                                                 khác hẳn mì cay Hàn Quốc)
+              "Kem dừa"   ~ "Dừa"               (dừa là NGUYÊN LIỆU, ảnh ra quả dừa)
+              "Chả cốm"   ~ "Cốm"
+              "Bún riêu tóp mỡ" ~ "Tóp mỡ"
+
+    Luật tiền tố bắt luôn được nhóm "bài về nguyên liệu" mà `KHONG_PHAI_MON` bỏ lọt khi
+    Wikidata không ghi mô tả ngắn — nguyên liệu gần như luôn đứng ở CUỐI tên món tiếng
+    Việt ("kem DỪA", "chả CỐM"), nên nó không bao giờ là tiền tố.
+    """
+    bai = _TRONG_NGOAC.sub("", tieu_de or "").strip()
+    if not bai:
+        return False
+    tu_mon = tokenize(ten_mon, 1)
+    tu_bai = tokenize(bai, 1)
+    if not tu_mon or not tu_bai:
+        return False
+    ngan, dai = (tu_mon, tu_bai) if len(tu_mon) <= len(tu_bai) else (tu_bai, tu_mon)
+    return dai[: len(ngan)] == ngan
 
 
 def tu_wikipedia(lang: str, ten_mon: str) -> Optional[tuple[str, str]]:
@@ -179,6 +262,11 @@ def tu_wikipedia(lang: str, ten_mon: str) -> Optional[tuple[str, str]]:
 
     # Bài tìm được có nói về MÓN ĂN không? Không thì bỏ, thà để trống còn hơn ảnh sai.
     if la_thuc_the_khong_phai_mon(data.get("description")):
+        return None
+
+    # Và có nói về ĐÚNG MÓN NÀY không. Xem `ten_bai_khop_ten_mon`.
+    ten_bai = data.get("title") or tieu_de
+    if not ten_bai_khop_ten_mon(ten_mon, ten_bai):
         return None
 
     # `thumbnail` (~320px) chứ không phải `originalimage`: ảnh gốc có cái nặng 8MB.
@@ -218,11 +306,51 @@ def tu_commons(ten_mon: str) -> Optional[tuple[str, str]]:
         url = thong_tin.get("thumburl") or thong_tin.get("url")
         if not url or thong_tin.get("width", 0) < RONG_TOI_THIEU:
             continue
+        ten_file = (muc.get("title") or "").replace("File:", "")
+        # Bỏ phần đuôi mở rộng trước khi so: "Bánh dày đỗ.jpg" -> "Bánh dày đỗ".
+        if not ten_bai_khop_ten_mon(ten_mon, ten_file.rsplit(".", 1)[0]):
+            continue
         meta = thong_tin.get("extmetadata") or {}
         giay_phep = (meta.get("LicenseShortName") or {}).get("value") or "xem trang Commons"
-        ten_file = (muc.get("title") or "").replace("File:", "")
         return url, f"Wikimedia Commons: {ten_file} — {giay_phep}"
     return None
+
+
+def ghi_anh_vao_seed(mon_trong_catalog: list) -> int:
+    """Chép ảnh vừa tìm được sang `dish_seed_manual.json`. Trả số món đã ghi.
+
+    ⚠️ BẮT BUỘC, KHÔNG PHẢI CHO CHẮC. `dish_catalog.json` là file SINH TỰ ĐỘNG — chính
+    nó ghi ở đầu file: "đừng sửa tay file này". `build_dish_catalog.py` dựng lại catalog
+    từ SEED và knowledge base, và nó đọc `image_url` từ SEED chứ không đọc catalog cũ.
+    Nghĩa là chỉ ghi vào catalog thôi thì **lần chạy `build_dish_catalog.py` kế tiếp sẽ
+    xoá sạch mọi ảnh vừa tìm** — im lặng, không lỗi, không log.
+    Đo 2026-08-24: đúng 56/56 ảnh vừa tìm sẽ mất theo cách đó.
+
+    Chỉ ghi cho món ĐÃ CÓ trong seed. Món đến từ knowledge base không nằm trong seed;
+    thêm mới vào đây sẽ tạo bản ghi nửa vời (có ảnh mà không có từ khoá khớp).
+    """
+    if not SEED.exists():
+        return 0
+    seed = json.loads(SEED.read_text(encoding="utf-8"))
+    theo_id = {d["dish_id"]: d for d in seed.get("dishes", []) if d.get("dish_id")}
+
+    ghi = 0
+    for mon in mon_trong_catalog:
+        # `image_credit` chỉ có ở ảnh do CHÍNH script này tìm — không đụng vào ảnh của
+        # `build_dish_catalog.py --enrich`.
+        if not mon.get("image_credit") or not mon.get("image_url"):
+            continue
+        muc = theo_id.get(mon.get("dish_id"))
+        if muc is None or muc.get("image_url"):
+            continue
+        muc["image_url"] = mon["image_url"]
+        muc["image_source"] = mon.get("image_source")
+        muc["image_credit"] = mon["image_credit"]
+        ghi += 1
+
+    if ghi:
+        SEED.write_text(json.dumps(seed, ensure_ascii=False, indent=2), encoding="utf-8")
+    return ghi
 
 
 def main() -> int:
@@ -302,6 +430,8 @@ def main() -> int:
             json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8"
         )
         print(f"  Đã ghi vào {CATALOG.name}.")
+        so_seed = ghi_anh_vao_seed(data.get("dishes", []))
+        print(f"  Đã ghi {so_seed} ảnh vào {SEED.name} (nguồn sự thật).")
         print("  ⚠️ Backend đọc file này lúc KHỞI ĐỘNG -> khởi động lại server mới thấy ảnh mới.")
     elif tim_duoc:
         print("  Chưa ghi gì. Thêm cờ --apply để ghi thật.")

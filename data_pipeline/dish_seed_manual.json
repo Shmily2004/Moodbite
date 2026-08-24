@@ -41,7 +41,10 @@
         "bún cá"
       ],
       "source": "manual",
-      "description": "Bún cá là món bún chan nước dùng nấu từ xương và cá, ăn kèm cá rán vàng, thì là và rau cần. Vị thanh, chua nhẹ, hợp bữa sáng và bữa trưa."
+      "description": "Bún cá là món bún chan nước dùng nấu từ xương và cá, ăn kèm cá rán vàng, thì là và rau cần. Vị thanh, chua nhẹ, hợp bữa sáng và bữa trưa.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/B%C3%BAn_c%C3%A1_r%C3%B4%2C_ng14th8n2022_%283%29.jpg/500px-B%C3%BAn_c%C3%A1_r%C3%B4%2C_ng14th8n2022_%283%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "image_source": "wikimedia_commons",
+      "image_credit": "Wikimedia Commons: Bún cá rô, ng14th8n2022 (3).jpg — CC BY-SA 4.0"
     },
     {
       "dish_id": "bun-oc",
@@ -106,7 +109,10 @@
         "bún ngan"
       ],
       "source": "manual",
-      "description": "Miến ngan là món miến dong chan nước dùng ninh từ xương ngan, ăn kèm thịt ngan và măng. Món nước ấm, hợp bữa sáng."
+      "description": "Miến ngan là món miến dong chan nước dùng ninh từ xương ngan, ăn kèm thịt ngan và măng. Món nước ấm, hợp bữa sáng.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Dongfen.JPG/330px-Dongfen.JPG?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Miến — CC BY-SA"
     },
     {
       "dish_id": "mien-luon",
@@ -233,7 +239,10 @@
         "bánh đúc"
       ],
       "source": "manual",
-      "description": "Bánh đúc nóng là bột gạo khuấy chín ăn khi còn nóng, chan nước mắm pha, rắc thịt băm xào mộc nhĩ và hành phi."
+      "description": "Bánh đúc nóng là bột gạo khuấy chín ăn khi còn nóng, chan nước mắm pha, rắc thịt băm xào mộc nhĩ và hành phi.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Banhduc-northern.jpg/330px-Banhduc-northern.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_en",
+      "image_credit": "Wikipedia (EN): Bánh đúc — CC BY-SA"
     },
     {
       "dish_id": "mi-cay",
@@ -253,7 +262,10 @@
         "mì cay"
       ],
       "source": "manual",
-      "description": "Mì cay là món mì nước kiểu Hàn Quốc nấu với kim chi, hải sản và xúc xích, chia theo nhiều cấp độ cay để người ăn tự chọn."
+      "description": "Mì cay là món mì nước kiểu Hàn Quốc nấu với kim chi, hải sản và xúc xích, chia theo nhiều cấp độ cay để người ăn tự chọn.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/M%C3%AC_cay_c%E1%BA%A5p_%C4%91%E1%BB%99_2_-_Mirace.jpg/500px-M%C3%AC_cay_c%E1%BA%A5p_%C4%91%E1%BB%99_2_-_Mirace.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "image_source": "wikimedia_commons",
+      "image_credit": "Wikimedia Commons: Mì cay cấp độ 2 - Mirace.jpg — Public domain"
     },
     {
       "dish_id": "tra-chanh",
@@ -274,7 +286,10 @@
         "trà chanh"
       ],
       "source": "manual",
-      "description": "Trà chanh là đồ uống pha từ trà, chanh tươi và đường, dùng lạnh. Phổ biến ở quán vỉa hè, hợp ngồi lâu trò chuyện."
+      "description": "Trà chanh là đồ uống pha từ trà, chanh tươi và đường, dùng lạnh. Phổ biến ở quán vỉa hè, hợp ngồi lâu trò chuyện.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Longjing_tea_steeping_in_gaiwan.jpg/330px-Longjing_tea_steeping_in_gaiwan.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Trà — CC BY-SA"
     },
     {
       "dish_id": "sua-chua-tran-chau",
@@ -294,7 +309,10 @@
         "sữa chua"
       ],
       "source": "manual",
-      "description": "Sữa chua trân châu là món tráng miệng lạnh gồm sữa chua ăn cùng trân châu dai và đá bào, vị chua ngọt mát."
+      "description": "Sữa chua trân châu là món tráng miệng lạnh gồm sữa chua ăn cùng trân châu dai và đá bào, vị chua ngọt mát.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/S%E1%BB%AFa_Chua_Tr%C3%A2n_Ch%C3%A2u_Houjicha%2C_40_Tran_Te_Xuong_Road%2C_Nam_Dinh_City%2C_Vietnam.jpg/500px-S%E1%BB%AFa_Chua_Tr%C3%A2n_Ch%C3%A2u_Houjicha%2C_40_Tran_Te_Xuong_Road%2C_Nam_Dinh_City%2C_Vietnam.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "image_source": "wikimedia_commons",
+      "image_credit": "Wikimedia Commons: Sữa Chua Trân Châu Houjicha, 40 Tran Te Xuong Road, Nam Dinh City, Vietnam.jpg — CC BY-SA 4.0"
     },
     {
       "dish_id": "bia-hoi",
@@ -441,7 +459,10 @@
         "phở cuốn"
       ],
       "source": "manual",
-      "description": "Phở cuốn dùng bánh phở không thái sợi, cuốn cùng thịt bò xào và rau thơm, ăn nguội và chấm nước mắm pha. Món đặc trưng của Hà Nội."
+      "description": "Phở cuốn dùng bánh phở không thái sợi, cuốn cùng thịt bò xào và rau thơm, ăn nguội và chấm nước mắm pha. Món đặc trưng của Hà Nội.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Ph%E1%BB%9F_b%C3%B2%2C_C%E1%BA%A7u_Gi%E1%BA%A5y%2C_H%C3%A0_N%E1%BB%99i.jpg/330px-Ph%E1%BB%9F_b%C3%B2%2C_C%E1%BA%A7u_Gi%E1%BA%A5y%2C_H%C3%A0_N%E1%BB%99i.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Phở — CC BY-SA"
     },
     {
       "dish_id": "banh-gio",
@@ -642,7 +663,10 @@
         "vịt nướng"
       ],
       "source": "manual",
-      "description": "Vịt quay là món vịt tẩm ngũ vị hương rồi quay đến khi da giòn, thường chặt miếng ăn kèm cơm hoặc bánh bao."
+      "description": "Vịt quay là món vịt tẩm ngũ vị hương rồi quay đến khi da giòn, thường chặt miếng ăn kèm cơm hoặc bánh bao.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/bb/Vit-quay-bac-kinh-by-vit-quay-to-thi.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "image_source": "wikimedia_commons",
+      "image_credit": "Wikimedia Commons: Vit-quay-bac-kinh-by-vit-quay-to-thi.jpg — CC BY-SA 4.0"
     },
     {
       "dish_id": "tom-yum",
@@ -664,7 +688,10 @@
         "tomyum"
       ],
       "source": "manual",
-      "description": "Tom Yum là món canh chua cay Thái Lan nấu với sả, lá chanh, riềng và ớt, thường dùng tôm hoặc hải sản."
+      "description": "Tom Yum là món canh chua cay Thái Lan nấu với sả, lá chanh, riềng và ớt, thường dùng tôm hoặc hải sản.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Tom_yam_kung_maenam.jpg/330px-Tom_yam_kung_maenam.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Tom yum — CC BY-SA"
     },
     {
       "dish_id": "salad",
@@ -823,7 +850,10 @@
         "phở"
       ],
       "source": "manual",
-      "description": "Phở gà là món phở dùng nước dùng ninh từ xương gà, ăn cùng thịt gà xé hoặc thái miếng, vị thanh nhẹ hơn phở bò."
+      "description": "Phở gà là món phở dùng nước dùng ninh từ xương gà, ăn cùng thịt gà xé hoặc thái miếng, vị thanh nhẹ hơn phở bò.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Bowl_of_Meatball_pho.jpg/330px-Bowl_of_Meatball_pho.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_en",
+      "image_credit": "Wikipedia (EN): Pho — CC BY-SA"
     },
     {
       "dish_id": "pho",
@@ -865,7 +895,10 @@
         "bún"
       ],
       "source": "manual",
-      "description": "Bún nước là cách gọi chung cho các món bún chan nước dùng nóng, ăn kèm rau sống. Nhóm món quen thuộc trong bữa sáng của người Việt."
+      "description": "Bún nước là cách gọi chung cho các món bún chan nước dùng nóng, ăn kèm rau sống. Nhóm món quen thuộc trong bữa sáng của người Việt.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/B%C3%BAn_n%C6%B0%E1%BB%9Bc_l%C3%A8o.jpg/330px-B%C3%BAn_n%C6%B0%E1%BB%9Bc_l%C3%A8o.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Bún nước lèo — CC BY-SA"
     },
     {
       "dish_id": "bun",
@@ -880,7 +913,10 @@
       ],
       "source": "manual",
       "description": "Bún là sợi làm từ bột gạo, luộc chín, dùng làm nền cho rất nhiều món Việt như bún chả, bún cá, bún riêu.",
-      "skip_wikipedia": true
+      "skip_wikipedia": true,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Rice_vermicelli.jpg/330px-Rice_vermicelli.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Bún — CC BY-SA"
     },
     {
       "dish_id": "mien",
@@ -896,7 +932,10 @@
       "source": "manual",
       "description": "Miến là sợi khô làm từ tinh bột dong hoặc đậu xanh, khi nấu trở nên trong và dai, dùng cho cả món nước lẫn món trộn.",
       "skip_wikipedia": true,
-      "cuisine": "Philippines"
+      "cuisine": "Philippines",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Dongfen.JPG/330px-Dongfen.JPG?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Miến — CC BY-SA"
     },
     {
       "dish_id": "mien-tron",
@@ -909,7 +948,10 @@
         "miến"
       ],
       "source": "manual",
-      "description": "Miến trộn là món miến không chan nước dùng, trộn cùng thịt, rau thơm và nước trộn chua ngọt."
+      "description": "Miến trộn là món miến không chan nước dùng, trộn cùng thịt, rau thơm và nước trộn chua ngọt.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Dongfen.JPG/330px-Dongfen.JPG?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Miến — CC BY-SA"
     },
     {
       "dish_id": "bun-bo-hue",
@@ -980,7 +1022,10 @@
         "nem"
       ],
       "source": "manual",
-      "description": "Nem chua rán là nem chua tẩm bột chiên giòn, ăn nóng chấm tương ớt. Món ăn vặt phổ biến."
+      "description": "Nem chua rán là nem chua tẩm bột chiên giòn, ăn nóng chấm tương ớt. Món ăn vặt phổ biến.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Fermented_pork_wrapped_in_leaves.jpg/330px-Fermented_pork_wrapped_in_leaves.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Nem chua — CC BY-SA"
     },
     {
       "dish_id": "thit-nuong-vi",
@@ -1007,7 +1052,10 @@
         "hải sản"
       ],
       "source": "manual",
-      "description": "Hải sản nướng gồm tôm, mực, sò nướng than, thường phết mỡ hành và chấm muối ớt chanh."
+      "description": "Hải sản nướng gồm tôm, mực, sò nướng than, thường phết mỡ hành và chấm muối ớt chanh.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Plateau_van_zeevruchten.jpg/330px-Plateau_van_zeevruchten.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Hải sản — CC BY-SA"
     },
     {
       "dish_id": "lau-thai",
@@ -1050,7 +1098,10 @@
         "hải sản"
       ],
       "source": "manual",
-      "description": "Lẩu hải sản là món lẩu nhúng tôm, mực, ngao cùng rau, ăn kèm bún hoặc mì."
+      "description": "Lẩu hải sản là món lẩu nhúng tôm, mực, ngao cùng rau, ăn kèm bún hoặc mì.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Day177lilybday.JPG/330px-Day177lilybday.JPG?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Lẩu — CC BY-SA"
     },
     {
       "dish_id": "oc-luoc",
@@ -1079,7 +1130,10 @@
         "cháo"
       ],
       "source": "manual",
-      "description": "Cháo nóng là gạo ninh nhừ với nước dùng, ăn nóng, dễ tiêu. Thường dùng cho bữa sáng hoặc bữa khuya."
+      "description": "Cháo nóng là gạo ninh nhừ với nước dùng, ăn nóng, dễ tiêu. Thường dùng cho bữa sáng hoặc bữa khuya.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Vietnamese_chao.JPG/330px-Vietnamese_chao.JPG?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Cháo — CC BY-SA"
     },
     {
       "dish_id": "com-hop",
@@ -1092,7 +1146,10 @@
         "mang về"
       ],
       "source": "manual",
-      "description": "Cơm hộp là suất cơm mang đi gồm cơm, món mặn, rau và canh, phục vụ nhanh cho bữa trưa."
+      "description": "Cơm hộp là suất cơm mang đi gồm cơm, món mặn, rau và canh, phục vụ nhanh cho bữa trưa.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Meshi.jpg/330px-Meshi.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Cơm — CC BY-SA"
     },
     {
       "dish_id": "do-nham",
@@ -1106,7 +1163,10 @@
         "quán bar"
       ],
       "source": "manual",
-      "description": "Đồ nhắm là các món ăn kèm khi uống bia rượu như lạc rang, nem chua, khô bò hay dưa chuột."
+      "description": "Đồ nhắm là các món ăn kèm khi uống bia rượu như lạc rang, nem chua, khô bò hay dưa chuột.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/%C4%90%E1%BB%93_nh%E1%BA%AFm_t%E1%BA%A1i_qu%C3%A1n_B%C3%B2_c%C6%B0%E1%BB%9Di_%281%29.jpg/500px-%C4%90%E1%BB%93_nh%E1%BA%AFm_t%E1%BA%A1i_qu%C3%A1n_B%C3%B2_c%C6%B0%E1%BB%9Di_%281%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "image_source": "wikimedia_commons",
+      "image_credit": "Wikimedia Commons: Đồ nhắm tại quán Bò cười (1).jpg — Public domain"
     },
     {
       "dish_id": "com-chay",
@@ -1133,7 +1193,10 @@
       ],
       "source": "manual",
       "description": "Kem là món tráng miệng lạnh làm từ sữa và đường, có nhiều hương vị.",
-      "skip_wikipedia": true
+      "skip_wikipedia": true,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Cr%C3%A8me_Chantilly.jpg/330px-Cr%C3%A8me_Chantilly.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Kem tươi — CC BY-SA"
     },
     {
       "dish_id": "che",
@@ -1147,7 +1210,10 @@
       ],
       "source": "manual",
       "description": "Chè là món tráng miệng ngọt nấu từ đậu, bột và nước cốt dừa, ăn nóng hoặc thêm đá.",
-      "skip_wikipedia": true
+      "skip_wikipedia": true,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Ch%C3%A8_xo%C3%A0i.jpg/330px-Ch%C3%A8_xo%C3%A0i.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_en",
+      "image_credit": "Wikipedia (EN): Chè — CC BY-SA"
     },
     {
       "dish_id": "mi-xao-gion",
@@ -1188,7 +1254,10 @@
         "bánh cuốn"
       ],
       "source": "manual",
-      "description": "Bánh cuốn nóng là bột gạo tráng mỏng hấp chín, cuộn nhân thịt băm mộc nhĩ, chấm nước mắm pha."
+      "description": "Bánh cuốn nóng là bột gạo tráng mỏng hấp chín, cuộn nhân thịt băm mộc nhĩ, chấm nước mắm pha.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Banh_cuon.jpg/330px-Banh_cuon.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Bánh cuốn — CC BY-SA"
     },
     {
       "dish_id": "xoi-man",
@@ -1201,7 +1270,10 @@
         "xôi"
       ],
       "source": "manual",
-      "description": "Xôi mặn là xôi nếp ăn kèm các món mặn như thịt, chả, trứng hoặc lạp xưởng. Bữa sáng no và tiện mang đi."
+      "description": "Xôi mặn là xôi nếp ăn kèm các món mặn như thịt, chả, trứng hoặc lạp xưởng. Bữa sáng no và tiện mang đi.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/X%C3%B4i_s%E1%BA%AFn.jpg/330px-X%C3%B4i_s%E1%BA%AFn.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_en",
+      "image_credit": "Wikipedia (EN): Xôi — CC BY-SA"
     },
     {
       "dish_id": "xoi",
@@ -1216,7 +1288,10 @@
       "source": "manual",
       "description": "Xôi là gạo nếp đồ chín bằng hơi nước, có cả loại ngọt lẫn mặn, là món ăn sáng quen thuộc.",
       "skip_wikipedia": true,
-      "cuisine": "Thái Lan"
+      "cuisine": "Thái Lan",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/X%C3%B4i_%C4%91%E1%BB%97_xanh.jpg/330px-X%C3%B4i_%C4%91%E1%BB%97_xanh.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Xôi — CC BY-SA"
     },
     {
       "dish_id": "banh-mi-thit",
@@ -1243,7 +1318,10 @@
       ],
       "source": "manual",
       "description": "Bánh mì là ổ bánh vỏ giòn ruột xốp, dùng để kẹp nhân làm món ăn nhanh đặc trưng của Việt Nam.",
-      "skip_wikipedia": true
+      "skip_wikipedia": true,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/B%C3%A1nh_m%C3%AC_th%E1%BB%8Bt_n%C6%B0%E1%BB%9Bng.png/330px-B%C3%A1nh_m%C3%AC_th%E1%BB%8Bt_n%C6%B0%E1%BB%9Bng.png?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Bánh mì Việt Nam — CC BY-SA"
     },
     {
       "dish_id": "pizza",
@@ -1331,7 +1409,10 @@
         "cơm tấm"
       ],
       "source": "manual",
-      "description": "Cơm tấm sườn dùng gạo tấm, ăn kèm sườn nướng, bì, chả trứng và nước mắm chua ngọt. Món đặc trưng miền Nam."
+      "description": "Cơm tấm sườn dùng gạo tấm, ăn kèm sườn nướng, bì, chả trứng và nước mắm chua ngọt. Món đặc trưng miền Nam.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/C%C6%A1m_T%E1%BA%A5m%2C_Da_Nang%2C_Vietnam.jpg/330px-C%C6%A1m_T%E1%BA%A5m%2C_Da_Nang%2C_Vietnam.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Cơm tấm — CC BY-SA"
     },
     {
       "dish_id": "com-ga",
@@ -1359,7 +1440,10 @@
         "quán mì"
       ],
       "source": "manual",
-      "description": "Mì xào giòn là mì trứng chiên giòn rồi rưới sốt sánh xào cùng thịt và rau cải."
+      "description": "Mì xào giòn là mì trứng chiên giòn rồi rưới sốt sánh xào cùng thịt và rau cải.",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Gombak_Malaysia_Tuaran-Mee-01.jpg/330px-Gombak_Malaysia_Tuaran-Mee-01.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Mì xào — CC BY-SA"
     },
     {
       "dish_id": "mi-van-than",
@@ -1686,12 +1770,14 @@
       "dish_id": "lau-ca-keo",
       "name": "Lẩu cá kèo",
       "description": "Lẩu cá kèo là một món ăn dân dã phổ biến ở các tỉnh miền Nam Việt Nam. Ngày nay, trong quá trình giao lưu văn hóa lẩu cá kèo đã xuất hiện tại rất nhiều nhà hàng tại Hà Nội.",
-      "image_url": null,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Day177lilybday.JPG/330px-Day177lilybday.JPG?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
         "Lẩu cá kèo"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/L%E1%BA%A9u_c%C3%A1_k%C3%A8o"
+      "source_url": "https://vi.wikipedia.org/wiki/L%E1%BA%A9u_c%C3%A1_k%C3%A8o",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Lẩu — CC BY-SA"
     },
     {
       "dish_id": "lau-cuu",
@@ -6653,13 +6739,15 @@
       "dish_id": "mam-tom-chua",
       "name": "Mắm tôm chua",
       "description": "Mắm tôm chua là một món ăn của Nam Bộ và miền Trung Việt Nam, đặc biệt là tại Gò Công và Huế, làm từ tôm bạc đất ủ chua. Gò Công và Huế là hai nơi làm mắm tôm chua nổi tiếng, tuy nhiên ở Huế thì nhiều cơ sở sản xuất hơn. Món này bắt nguồn từ Gò Công được Nam Phương Hoàng hậu mang về Huế.",
-      "image_url": null,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Mam_tom_chua_di_Can.jpg/500px-Mam_tom_chua_di_Can.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "match_keywords": [
         "Mắm tôm chua",
         "tôm chua"
       ],
       "source": "wikipedia_vi",
-      "source_url": "https://vi.wikipedia.org/wiki/M%E1%BA%AFm_t%C3%B4m_chua"
+      "source_url": "https://vi.wikipedia.org/wiki/M%E1%BA%AFm_t%C3%B4m_chua",
+      "image_source": "wikimedia_commons",
+      "image_credit": "Wikimedia Commons: Mam tom chua di Can.jpg — CC BY-SA 4.0"
     },
     {
       "dish_id": "mo-muoi",
@@ -9397,7 +9485,10 @@
         "Lẩu ếch"
       ],
       "source": "dataset_ten_quan",
-      "source_url": null
+      "source_url": null,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Day177lilybday.JPG/330px-Day177lilybday.JPG?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Lẩu — CC BY-SA"
     },
     {
       "dish_id": "bun-dau-met",
@@ -9415,7 +9506,10 @@
         "Mỳ cay"
       ],
       "source": "dataset_ten_quan",
-      "source_url": null
+      "source_url": null,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/M%E1%BB%B3_cay_2_%28t%C3%B4m%2C_tr%E1%BB%A9ng%2C_th%E1%BB%8Bt_b%C3%B2%29_c%E1%BA%ADn.jpg/500px-M%E1%BB%B3_cay_2_%28t%C3%B4m%2C_tr%E1%BB%A9ng%2C_th%E1%BB%8Bt_b%C3%B2%29_c%E1%BA%ADn.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "image_source": "wikimedia_commons",
+      "image_credit": "Wikimedia Commons: Mỳ cay 2 (tôm, trứng, thịt bò) cận.jpg — Public domain"
     },
     {
       "dish_id": "lau-cua",
@@ -9433,7 +9527,10 @@
         "Lẩu bò"
       ],
       "source": "dataset_ten_quan",
-      "source_url": null
+      "source_url": null,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Day177lilybday.JPG/330px-Day177lilybday.JPG?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Lẩu — CC BY-SA"
     },
     {
       "dish_id": "tra-da",
@@ -9496,7 +9593,10 @@
         "Cơm niêu"
       ],
       "source": "dataset_ten_quan",
-      "source_url": null
+      "source_url": null,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/C%C6%A1m_ni%C3%AAu_Kombo.jpg/500px-C%C6%A1m_ni%C3%AAu_Kombo.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "image_source": "wikimedia_commons",
+      "image_credit": "Wikimedia Commons: Cơm niêu Kombo.jpg — CC BY-SA 4.0"
     },
     {
       "dish_id": "chao-dinh-duong",
@@ -9532,7 +9632,10 @@
         "Bò nướng"
       ],
       "source": "dataset_ten_quan",
-      "source_url": null
+      "source_url": null,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/B%C3%B2_n%C6%B0%E1%BB%9Bng_l%C3%A1_l%E1%BB%91t_t%E1%BA%A1i_Manchester.jpg/330px-B%C3%B2_n%C6%B0%E1%BB%9Bng_l%C3%A1_l%E1%BB%91t_t%E1%BA%A1i_Manchester.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Bò nướng lá lốt — CC BY-SA"
     },
     {
       "dish_id": "thit-xien",
@@ -9568,7 +9671,10 @@
         "Chè thái"
       ],
       "source": "dataset_ten_quan",
-      "source_url": null
+      "source_url": null,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Ch%C3%A8_xo%C3%A0i.jpg/330px-Ch%C3%A8_xo%C3%A0i.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_en",
+      "image_credit": "Wikipedia (EN): Chè — CC BY-SA"
     },
     {
       "dish_id": "ca-lang",
@@ -9577,7 +9683,10 @@
         "Cá lăng"
       ],
       "source": "dataset_ten_quan",
-      "source_url": null
+      "source_url": null,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/C%C3%A1_l%C4%83ng_%C4%91u%C3%B4i_%C4%91%E1%BB%8F_G%C3%B2_V%E1%BA%A5p.jpg/500px-C%C3%A1_l%C4%83ng_%C4%91u%C3%B4i_%C4%91%E1%BB%8F_G%C3%B2_V%E1%BA%A5p.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "image_source": "wikimedia_commons",
+      "image_credit": "Wikimedia Commons: Cá lăng đuôi đỏ Gò Vấp.jpg — Public domain"
     },
     {
       "dish_id": "banh-da-ca",
@@ -9649,7 +9758,10 @@
         "Nước ép trái cây"
       ],
       "source": "dataset_ten_quan",
-      "source_url": null
+      "source_url": null,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Orange_juice_1.jpg/330px-Orange_juice_1.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Nước ép — CC BY-SA"
     },
     {
       "dish_id": "canh-ca-ro",
@@ -9658,7 +9770,10 @@
         "Canh cá rô"
       ],
       "source": "dataset_ten_quan",
-      "source_url": null
+      "source_url": null,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Canh-ca-ro-dong-thai-binh-viet-nam.jpg/500px-Canh-ca-ro-dong-thai-binh-viet-nam.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "image_source": "wikimedia_commons",
+      "image_credit": "Wikimedia Commons: Canh-ca-ro-dong-thai-binh-viet-nam.jpg — CC BY-SA 4.0"
     },
     {
       "dish_id": "bo-nhung-dam",
@@ -9676,7 +9791,10 @@
         "Lẩu nấm"
       ],
       "source": "dataset_ten_quan",
-      "source_url": null
+      "source_url": null,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Day177lilybday.JPG/330px-Day177lilybday.JPG?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Lẩu — CC BY-SA"
     },
     {
       "dish_id": "kem-dua",
@@ -9685,7 +9803,10 @@
         "Kem dừa"
       ],
       "source": "dataset_ten_quan",
-      "source_url": null
+      "source_url": null,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Kem_d%E1%BB%ABa_%E1%BB%9F_qu%C3%A1n_c%C3%A0_ph%C3%AA_Hoa_sim_t%C3%ADm_%E1%BB%9F_B%C3%ACnh_T%C3%A2n_%281%29.jpg/500px-Kem_d%E1%BB%ABa_%E1%BB%9F_qu%C3%A1n_c%C3%A0_ph%C3%AA_Hoa_sim_t%C3%ADm_%E1%BB%9F_B%C3%ACnh_T%C3%A2n_%281%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "image_source": "wikimedia_commons",
+      "image_credit": "Wikimedia Commons: Kem dừa ở quán cà phê Hoa sim tím ở Bình Tân (1).jpg — Public domain"
     },
     {
       "dish_id": "lau-chao",
@@ -9712,7 +9833,10 @@
         "Bún chả nem"
       ],
       "source": "dataset_ten_quan",
-      "source_url": null
+      "source_url": null,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/B%C3%BAn_ch%E1%BA%A3_Th%E1%BB%A5y_Khu%C3%AA.jpg/330px-B%C3%BAn_ch%E1%BA%A3_Th%E1%BB%A5y_Khu%C3%AA.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Bún chả — CC BY-SA"
     },
     {
       "dish_id": "banh-da-ca-ro",
@@ -9757,7 +9881,10 @@
         "Lẩu riêu"
       ],
       "source": "dataset_ten_quan",
-      "source_url": null
+      "source_url": null,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Day177lilybday.JPG/330px-Day177lilybday.JPG?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Lẩu — CC BY-SA"
     },
     {
       "dish_id": "tra-hoa-qua",
@@ -9802,7 +9929,10 @@
         "Bánh tráng cuốn thịt"
       ],
       "source": "dataset_ten_quan",
-      "source_url": null
+      "source_url": null,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/B%C3%A1nh_tr%C3%A1ng_cu%E1%BB%91n_th%E1%BB%8Bt_heo.jpg/500px-B%C3%A1nh_tr%C3%A1ng_cu%E1%BB%91n_th%E1%BB%8Bt_heo.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "image_source": "wikimedia_commons",
+      "image_credit": "Wikimedia Commons: Bánh tráng cuốn thịt heo.jpg — CC BY-SA 4.0"
     },
     {
       "dish_id": "canh-ca-ro-dong",
@@ -9811,7 +9941,10 @@
         "Canh cá rô đồng"
       ],
       "source": "dataset_ten_quan",
-      "source_url": null
+      "source_url": null,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Canh-ca-ro-dong-thai-binh-viet-nam.jpg/500px-Canh-ca-ro-dong-thai-binh-viet-nam.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "image_source": "wikimedia_commons",
+      "image_credit": "Wikimedia Commons: Canh-ca-ro-dong-thai-binh-viet-nam.jpg — CC BY-SA 4.0"
     },
     {
       "dish_id": "nem-lui",
@@ -9829,7 +9962,10 @@
         "Bánh cuốn cao bằng"
       ],
       "source": "dataset_ten_quan",
-      "source_url": null
+      "source_url": null,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Banh_cuon.jpg/330px-Banh_cuon.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Bánh cuốn — CC BY-SA"
     },
     {
       "dish_id": "che-sau",
@@ -9838,7 +9974,10 @@
         "Chè sầu"
       ],
       "source": "dataset_ten_quan",
-      "source_url": null
+      "source_url": null,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Ch%C3%A8_xo%C3%A0i.jpg/330px-Ch%C3%A8_xo%C3%A0i.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Chè (ẩm thực) — CC BY-SA"
     },
     {
       "dish_id": "oc-nong",
@@ -9883,7 +10022,10 @@
         "Bún ốc sườn"
       ],
       "source": "dataset_ten_quan",
-      "source_url": null
+      "source_url": null,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Rice_vermicelli.jpg/330px-Rice_vermicelli.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Bún — CC BY-SA"
     },
     {
       "dish_id": "buffet-nuong",
@@ -9910,7 +10052,10 @@
         "Bánh canh ghẹ"
       ],
       "source": "dataset_ten_quan",
-      "source_url": null
+      "source_url": null,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Banh-Canh-Noodle-Soup.jpg/330px-Banh-Canh-Noodle-Soup.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Bánh canh — CC BY-SA"
     },
     {
       "dish_id": "ruou-vang",
@@ -9956,7 +10101,10 @@
         "Bánh tôm"
       ],
       "source": "dataset_ten_quan",
-      "source_url": null
+      "source_url": null,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/B%C3%A1nh_t%C3%B4m.jpg/330px-B%C3%A1nh_t%C3%B4m.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Bánh tôm Hồ Tây — CC BY-SA"
     },
     {
       "dish_id": "buffet-chay",
@@ -9983,7 +10131,10 @@
         "Sữa hạt"
       ],
       "source": "dataset_ten_quan",
-      "source_url": null
+      "source_url": null,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/S%E1%BB%AFa_h%E1%BA%A1t_Nutie_house.png/500px-S%E1%BB%AFa_h%E1%BA%A1t_Nutie_house.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "image_source": "wikimedia_commons",
+      "image_credit": "Wikimedia Commons: Sữa hạt Nutie house.png — CC BY-SA 4.0"
     },
     {
       "dish_id": "pho-bo-nam-dinh",
@@ -9992,7 +10143,10 @@
         "Phở bò nam định"
       ],
       "source": "dataset_ten_quan",
-      "source_url": null
+      "source_url": null,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Ph%E1%BB%9F_b%C3%B2%2C_C%E1%BA%A7u_Gi%E1%BA%A5y%2C_H%C3%A0_N%E1%BB%99i.jpg/330px-Ph%E1%BB%9F_b%C3%B2%2C_C%E1%BA%A7u_Gi%E1%BA%A5y%2C_H%C3%A0_N%E1%BB%99i.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Phở — CC BY-SA"
     },
     {
       "dish_id": "chao-trai",
@@ -10038,7 +10192,10 @@
         "Bánh mì chảo"
       ],
       "source": "dataset_ten_quan",
-      "source_url": null
+      "source_url": null,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/B%C3%A1nh_m%C3%AC_th%E1%BB%8Bt_n%C6%B0%E1%BB%9Bng.png/330px-B%C3%A1nh_m%C3%AC_th%E1%BB%8Bt_n%C6%B0%E1%BB%9Bng.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_en",
+      "image_credit": "Wikipedia (EN): Bánh mì — CC BY-SA"
     },
     {
       "dish_id": "bun-suon",
@@ -10047,7 +10204,10 @@
         "Bún sườn"
       ],
       "source": "dataset_ten_quan",
-      "source_url": null
+      "source_url": null,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Rice_vermicelli.jpg/330px-Rice_vermicelli.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Bún — CC BY-SA"
     },
     {
       "dish_id": "long-bo",
@@ -10056,7 +10216,10 @@
         "Lòng bò"
       ],
       "source": "dataset_ten_quan",
-      "source_url": null
+      "source_url": null,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Stomach_lining_tripe_Athens.jpg/330px-Stomach_lining_tripe_Athens.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Lòng — CC BY-SA"
     },
     {
       "dish_id": "suon-sun",
@@ -10083,7 +10246,10 @@
         "Bún trộn"
       ],
       "source": "dataset_ten_quan",
-      "source_url": null
+      "source_url": null,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Rice_vermicelli.jpg/330px-Rice_vermicelli.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+      "image_source": "wikipedia_vi",
+      "image_credit": "Wikipedia (VI): Bún — CC BY-SA"
     },
     {
       "dish_id": "che-buoi",

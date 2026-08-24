@@ -208,6 +208,22 @@ def merge(seed: List[Dish], manual: List[Dish]) -> List[Dish]:
             portion_size=dish.portion_size or existing.portion_size,
             mood_keywords=list(dish.mood_keywords or existing.mood_keywords),
             description=dish.description,
+            # ⚠️ BUG THẬT, sửa 2026-08-24: ba trường dưới đây TỪNG BỊ BỎ QUÊN ở đây.
+            #
+            # Hàm này dựng một `Dish` HOÀN TOÀN MỚI, nên trường nào không liệt kê ra thì
+            # mất trắng — im lặng, không lỗi, không log. Hậu quả đo được: 56 ảnh vừa tìm
+            # bằng `find_dish_images.py` biến mất ngay ở lần dựng lại danh mục kế tiếp,
+            # và tỷ lệ món có ảnh tụt từ 83,2% xuống 54,7%.
+            #
+            # Đây là LẦN THỨ HAI cùng một lỗi với cùng một trường: comment ở `tu_seed`
+            # phía trên đã ghi "bản cũ chỉ đọc description mà bỏ qua image_url". Lần đó
+            # sửa ở chỗ ĐỌC, nhưng chỗ GỘP thì vẫn thiếu.
+            #
+            # `dish.<x> or existing.<x>`: bản soạn tay thắng, nhưng nó trống thì lấy của
+            # bản kia thay vì vứt đi.
+            image_url=dish.image_url or existing.image_url,
+            source_url=dish.source_url or existing.source_url,
+            last_updated=dish.last_updated or existing.last_updated,
             match_keywords=merged_keywords,
             source=dish.source,
             data_confidence=dish.data_confidence,

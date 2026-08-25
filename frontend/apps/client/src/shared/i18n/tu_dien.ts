@@ -27,6 +27,11 @@ export type NgonNgu = (typeof NGON_NGU)[number];
 /** Bản tiếng Việt là BẢN GỐC: nó định nghĩa danh sách khoá. */
 const vi = {
   // --- Thanh trên -----------------------------------------------------------
+  // --- Trang kết quả gợi ý món (thêm 2026-08-25) --------------------------
+  'recommend.loading': 'Đang tìm món hợp với bạn…',
+  'recommend.title': '{count} món phù hợp',
+  'recommend.empty':
+    'Không có món nào khớp bộ lọc hiện tại. Thử bỏ bớt một điều kiện hoặc nới bán kính nhé.',
   // --- Chân trang (thêm 2026-08-24) ---------------------------------------
   'footer.tagline': 'Gợi ý món ăn theo tâm trạng, thời tiết và giờ giấc của bạn.',
   'footer.scope': 'Phạm vi dữ liệu: Hà Nội.',
@@ -198,6 +203,11 @@ export type Khoa = keyof typeof vi;
  * không có cách nào quên dịch mà vẫn build được.
  */
 const en: Record<Khoa, string> = {
+  // --- Dish recommendation results page (added 2026-08-25) ----------------
+  'recommend.loading': 'Finding dishes for you…',
+  'recommend.title': '{count} matching dishes',
+  'recommend.empty':
+    'No dish matches the current filters. Try removing a condition or widening the radius.',
   // --- Footer (added 2026-08-24) ------------------------------------------
   'footer.tagline': 'Dish ideas that match your mood, the weather and the time of day.',
   'footer.scope': 'Data coverage: Hanoi only.',

@@ -23,6 +23,7 @@ import { Navigate, useLocation, useParams } from 'react-router-dom';
 import { HomePage } from '@/pages/home';
 import { DishPage } from '@/pages/dish';
 import { SearchPage } from '@/pages/search';
+import { RecommendPage } from '@/pages/recommend';
 import { LoginPage } from '@/pages/login';
 import { RegisterPage } from '@/pages/register';
 import { ForgotPasswordPage } from '@/pages/forgot-password';
@@ -70,6 +71,7 @@ export const routes: RouteObject[] = [
       { path: ROUTES.account, element: <AccountPage /> },
       // Luồng cũ: tìm quán bằng câu tự nhiên.
       { path: ROUTES.search, element: <SearchPage /> },
+      { path: ROUTES.recommend, element: <RecommendPage /> },
       // Đường dẫn CŨ (tiếng Việt) -> chuyển hướng sang đường mới, GIỮ nguyên query string.
       // Quan trọng nhất là `/dat-lai-mat-khau?token=…`: link đó đã nằm trong hộp thư người
       // dùng từ trước khi đổi, xoá thẳng là thư cũ chết.

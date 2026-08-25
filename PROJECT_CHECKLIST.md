@@ -27,6 +27,9 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | **Frontend Admin** | ✅ **Code xong + ĐÃ BẬT 2026-08-23** | sửa quán · ẩn/bỏ ẩn · **thêm quán mới**. `python scripts/run_dev.py --admin` |
 | Xác thực admin | ✅ Code xong | 1 tài khoản, token HMAC 1 giờ, fail-closed, **giới hạn 5 lần/15 phút (thêm 2026-08-24)** |
 | Phụ thuộc Python | ✅ 15 → **7** gói | gỡ torch/ultralytics/transformers/opencv (~2GB) khỏi CI |
+| **Trang kết quả gợi ý** | ✅ **Xong 2026-08-25** | `/recommend` — tách khỏi trang chủ (trang chủ lo KHÁM PHÁ, trang này lo KẾT QUẢ). Bộ lọc nằm trên query string nên chia sẻ link được, F5 không mất, nút Back đúng |
+| **Chân trang + ghi công nguồn** | ✅ **Xong 2026-08-24** | Trước đó ghi công OSM CHỈ có trên bản đồ Leaflet, trong khi dữ liệu dùng khắp app — thiếu nghĩa vụ của ODbL/CDLA/CC BY-SA |
+| **Email bắt buộc khi đăng ký** | ✅ **Xong 2026-08-24** | Đảo quyết định cũ ("tuỳ chọn"), vì nay đã có xác minh email và đó là đường DUY NHẤT lấy lại mật khẩu. Tài khoản cũ không email vẫn dùng được |
 | **Xác minh email** | ✅ **Xong 2026-08-24** | đăng ký có email → tự gửi thư; token HMAC 24h, dùng MỘT lần, đổi email là link cũ chết. Secret riêng `MOODBITE_EMAIL_VERIFY_SECRET` |
 | **Rà soát bảo mật** | ✅ **2026-08-24** | sửa 3 lỗi: secret đặt lại mật khẩu bị dán nhầm bằng CÂU LỆNH sinh nó · CORS mặc định `*` · `/admin/login` không giới hạn tần suất. Có `tests/test_bao_mat.py` canh |
 | **Phạm vi Hà Nội** | ✅ **Sửa 2026-08-24** | bbox cũ cắt mất 1/3 thành phố (Ba Vì, Sơn Tây, Mỹ Đức, Ứng Hoà…) và lấn sang Bắc Ninh. Ranh giới nay hỏi theo AREA của Hà Nội → đúng 126 đơn vị |

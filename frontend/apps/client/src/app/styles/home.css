@@ -956,3 +956,26 @@
   color: var(--muted, #5b6478);
   text-align: center;
 }
+
+/* ===========================================================================
+   TRANG KẾT QUẢ GỢI Ý MÓN — `/recommend` (thêm 2026-08-25)
+   ---------------------------------------------------------------------------
+   Trang này CHỈ có kết quả, không có phần khám phá, nên lưới được dùng trọn
+   chiều ngang. Đó cũng là lý do tách khỏi trang chủ.
+   =========================================================================== */
+.recommend { padding-bottom: 2rem; }
+
+.recommend__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: .75rem 1rem;
+  margin-bottom: 1.25rem;
+}
+
+/* Nút "Lọc" bám sát mép phải và KHÔNG co lại khi tiêu đề dài — người dùng phải
+   luôn tìm thấy nó ở cùng một chỗ. */
+.recommend__head > .btn--filter { flex: 0 0 auto; }
+
+.recommend .notice { margin-bottom: 1rem; }

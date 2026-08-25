@@ -8,3 +8,4 @@ export type {
   SingleSelectGroup,
   UseDishSuggestionsResult,
 } from './model/useDishSuggestions';
+export { ghiBoLocLenUrl, docBoLocTuUrl } from './model/boLocTuUrl';

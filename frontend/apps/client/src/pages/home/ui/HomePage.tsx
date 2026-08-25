@@ -38,7 +38,7 @@ import { MoodQuickPick } from '@/widgets/mood-quick-pick';
 import type { MoodChoice } from '@/widgets/mood-quick-pick';
 import { ExploreNeeds } from '@/widgets/explore-needs';
 import type { NeedPreset } from '@/widgets/explore-needs';
-import { DishFilters, useDishSuggestions } from '@/features/suggest-dishes';
+import { DishFilters, ghiBoLocLenUrl, useDishSuggestions } from '@/features/suggest-dishes';
 import { useUserLocation } from '@/features/pick-location';
 import { useRecentDishes } from '@/features/recent-dishes';
 import { useFavorites } from '@/features/save-favorite';
@@ -60,7 +60,6 @@ export function HomePage() {
    * Mặc định hàng ngang: lưới 30 món đẩy mọi khối phía dưới ra khỏi màn hình, người dùng
    * không biết còn gì nữa. "Xem tất cả" mở lưới ra.
    */
-  const [xemTatCa, setXemTatCa] = useState(false);
   /** Ngăn kéo bộ lọc (phương án A, chủ dự án chốt 2026-08-23). */
   const [moBoLoc, setMoBoLoc] = useState(false);
 
@@ -233,11 +232,19 @@ export function HomePage() {
               <button
                 type="button"
                 className="linkish"
-                onClick={() => setXemTatCa((cu) => !cu)}
+                onClick={() => {
+                  // CHUYỂN TRANG, không còn đổi bố cục tại chỗ (đổi 2026-08-25).
+                  // Bản cũ bung lưới ngay trên trang chủ, khiến trang dài thêm hàng chục
+                  // hàng thẻ và người dùng phải cuộn qua toàn bộ phần khám phá mỗi lần
+                  // muốn xem lại kết quả. Bộ lọc đang chọn đi kèm qua query string nên
+                  // sang trang mới vẫn giữ nguyên.
+                  navigate({
+                    pathname: ROUTES.recommend,
+                    search: ghiBoLocLenUrl(suggestions.filters).toString(),
+                  });
+                }}
               >
-                {xemTatCa
-                  ? `← ${t('results.collapse')}`
-                  : `${t('results.showAll', { count: dishes.length })} →`}
+                {`${t('results.showAll', { count: dishes.length })} →`}
               </button>
               )}
             </div>
@@ -271,15 +278,15 @@ export function HomePage() {
             </p>
           ))}
 
-          {suggestions.loading && (
-            <DishListSkeleton layout={xemTatCa ? 'grid' : 'row'} />
-          )}
+          {/* Trang chủ LUÔN là hàng ngang: nó lo phần KHÁM PHÁ, xem đầy đủ thì sang
+              `/recommend`. Trước 2026-08-25 chỗ này bung thành lưới ngay tại trang. */}
+          {suggestions.loading && <DishListSkeleton layout="row" />}
 
           {!suggestions.loading && !suggestions.error && hasDishes && (
             <DishList
               dishes={dishes}
               onOpen={openDish}
-              layout={xemTatCa ? 'grid' : 'row'}
+              layout="row"
               isSaved={(dish) => savedDishes.isSaved('dish', dish.dish_id)}
               onToggleSave={(dish) =>
                 savedDishes.toggle({

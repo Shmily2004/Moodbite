@@ -11,6 +11,11 @@ export const ROUTES = {
   /** Chi tiết món. `/dishes/pho-bo` — số nhiều theo thông lệ REST. */
   dish: '/dishes/:dishId',
   search: '/search',
+  /**
+   * Trang KẾT QUẢ GỢI Ý MÓN. Khác `search` (tìm QUÁN bằng câu tự nhiên + bản đồ).
+   * Bộ lọc nằm trên query string — xem `pages/recommend/ui/boLocTuUrl.ts`.
+   */
+  recommend: '/recommend',
   login: '/login',
   register: '/register',
   forgotPassword: '/forgot-password',

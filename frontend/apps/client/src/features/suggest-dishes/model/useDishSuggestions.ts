@@ -78,8 +78,21 @@ export type MultiSelectGroup =
   | 'cuisines';
 export type SingleSelectGroup = 'mood' | 'weather';
 
-export function useDishSuggestions(position: Coordinates): UseDishSuggestionsResult {
-  const [filters, setFilters] = useState<DishFilterState>(EMPTY_FILTERS);
+/**
+ * @param boLocBanDau Bộ lọc khởi tạo. Dùng khi trang đọc bộ lọc từ URL
+ *   (`/recommend?mood=relaxed&weather=rain`) — nhờ vậy chia sẻ đường dẫn được, F5 không
+ *   mất lựa chọn, và nút Back của trình duyệt hoạt động đúng.
+ *   Chỉ đọc MỘT LẦN lúc dựng: sau đó state trong hook là nguồn sự thật, nếu không mỗi
+ *   lần URL đổi lại ghi đè thứ người dùng vừa bấm.
+ */
+export function useDishSuggestions(
+  position: Coordinates,
+  boLocBanDau?: Partial<DishFilterState>,
+): UseDishSuggestionsResult {
+  const [filters, setFilters] = useState<DishFilterState>(() => ({
+    ...EMPTY_FILTERS,
+    ...boLocBanDau,
+  }));
   const [dishes, setDishes] = useState<DishItem[] | null>(null);
   const [context, setContext] = useState<string[]>([]);
   const [warnings, setWarnings] = useState<string[]>([]);

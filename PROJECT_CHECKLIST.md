@@ -27,6 +27,7 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | **Frontend Admin** | ✅ **Code xong + ĐÃ BẬT 2026-08-23** | sửa quán · ẩn/bỏ ẩn · **thêm quán mới**. `python scripts/run_dev.py --admin` |
 | Xác thực admin | ✅ Code xong | 1 tài khoản, token HMAC 1 giờ, fail-closed, **giới hạn 5 lần/15 phút (thêm 2026-08-24)** |
 | Phụ thuộc Python | ✅ 15 → **7** gói | gỡ torch/ultralytics/transformers/opencv (~2GB) khỏi CI |
+| **Làm việc trên 2 máy** | ✅ **Xong 2026-08-25** | `python scripts/chuan_bi_may_moi.py` (kiểm 4 thứ nằm ngoài git) + `dong_bo_du_lieu.py --tai/--day` (đồng bộ 39MB dữ liệu qua HuggingFace, miễn phí, không cần thẻ). Không còn phải điều khiển từ xa để chạy dự án |
 | **Trang kết quả gợi ý** | ✅ **Xong 2026-08-25** | `/recommend` — tách khỏi trang chủ (trang chủ lo KHÁM PHÁ, trang này lo KẾT QUẢ). Bộ lọc nằm trên query string nên chia sẻ link được, F5 không mất, nút Back đúng |
 | **Chân trang + ghi công nguồn** | ✅ **Xong 2026-08-24** | Trước đó ghi công OSM CHỈ có trên bản đồ Leaflet, trong khi dữ liệu dùng khắp app — thiếu nghĩa vụ của ODbL/CDLA/CC BY-SA |
 | **Email bắt buộc khi đăng ký** | ✅ **Xong 2026-08-24** | Đảo quyết định cũ ("tuỳ chọn"), vì nay đã có xác minh email và đó là đường DUY NHẤT lấy lại mật khẩu. Tài khoản cũ không email vẫn dùng được |

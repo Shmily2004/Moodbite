@@ -27,6 +27,13 @@ export type NgonNgu = (typeof NGON_NGU)[number];
 /** Bản tiếng Việt là BẢN GỐC: nó định nghĩa danh sách khoá. */
 const vi = {
   // --- Thanh trên -----------------------------------------------------------
+  // --- Khối "Dành riêng cho bạn" ở trang chủ (thêm 2026-08-25) ------------
+  'forYou.title': 'Dành riêng cho bạn',
+  'forYou.sub': 'Món và quán bạn đã bấm trái tim.',
+  'forYou.empty': 'Bấm hình trái tim trên thẻ món để lưu vào đây.',
+  'forYou.seeAll': 'Xem tất cả',
+  'forYou.dishes': 'Món yêu thích',
+  'forYou.places': 'Quán yêu thích',
   // --- Trang kết quả gợi ý món (thêm 2026-08-25) --------------------------
   'recommend.loading': 'Đang tìm món hợp với bạn…',
   'recommend.title': '{count} món phù hợp',
@@ -142,7 +149,7 @@ const vi = {
   'account.tab.overview': 'Tổng quan',
   'account.tab.profile': 'Hồ sơ cá nhân',
   'account.tab.taste': 'Sở thích & khẩu vị',
-  'account.tab.saved': 'Quán & món đã lưu',
+  'account.tab.saved': 'Yêu thích',
   'account.tab.recent': 'Đã xem gần đây',
   'account.tab.badges': 'Cấp độ & huy hiệu',
   'account.tab.settings': 'Cài đặt',
@@ -163,7 +170,7 @@ const vi = {
   'account.badges.title': 'HUY HIỆU CỦA BẠN',
   'account.badges.earned': 'Đã đạt',
   'account.badges.progress': '{current}/{target}',
-  'account.saved.title': 'Quán & món đã lưu',
+  'account.saved.title': 'Món & quán yêu thích',
   'account.saved.empty': 'Chưa lưu gì. Bấm hình trái tim trên thẻ món để lưu lại.',
   'account.saved.count': '{n} mục',
   'account.saved.local':
@@ -203,6 +210,13 @@ export type Khoa = keyof typeof vi;
  * không có cách nào quên dịch mà vẫn build được.
  */
 const en: Record<Khoa, string> = {
+  // --- "For you" block on the home page (added 2026-08-25) ----------------
+  'forYou.title': 'For you',
+  'forYou.sub': 'Dishes and places you hearted.',
+  'forYou.empty': 'Tap the heart on a dish card to save it here.',
+  'forYou.seeAll': 'See all',
+  'forYou.dishes': 'Favourite dishes',
+  'forYou.places': 'Favourite places',
   // --- Dish recommendation results page (added 2026-08-25) ----------------
   'recommend.loading': 'Finding dishes for you…',
   'recommend.title': '{count} matching dishes',
@@ -309,7 +323,7 @@ const en: Record<Khoa, string> = {
   'account.tab.overview': 'Overview',
   'account.tab.profile': 'Profile',
   'account.tab.taste': 'Taste & preferences',
-  'account.tab.saved': 'Saved places & dishes',
+  'account.tab.saved': 'Favourites',
   'account.tab.recent': 'Recently viewed',
   'account.tab.badges': 'Level & badges',
   'account.tab.settings': 'Settings',
@@ -329,7 +343,7 @@ const en: Record<Khoa, string> = {
   'account.badges.title': 'YOUR BADGES',
   'account.badges.earned': 'Earned',
   'account.badges.progress': '{current}/{target}',
-  'account.saved.title': 'Saved places & dishes',
+  'account.saved.title': 'Favourite dishes & places',
   'account.saved.empty': 'Nothing saved yet. Tap the heart on a dish card to save it.',
   'account.saved.count': '{n} items',
   'account.saved.local': 'Stored on this device. Sign in to sync across devices.',

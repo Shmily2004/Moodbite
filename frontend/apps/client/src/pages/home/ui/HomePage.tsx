@@ -42,6 +42,7 @@ import { DishFilters, ghiBoLocLenUrl, useDishSuggestions } from '@/features/sugg
 import { useUserLocation } from '@/features/pick-location';
 import { useRecentDishes } from '@/features/recent-dishes';
 import { useFavorites } from '@/features/save-favorite';
+import { ForYou } from '@/widgets/for-you';
 import { useUserSessionContext } from '@/entities/user';
 import { ANH_GIAO_DIEN, dishRoute, ROUTES } from '@/shared/config';
 import { useT } from '@/shared/i18n';
@@ -196,6 +197,10 @@ export function HomePage() {
             "Gợi ý nhanh theo mood" -> "Khám phá theo nhu cầu". Nhét thêm một cột lọc
             luôn hiển thị vào đây làm hỏng đúng cái luồng đó. Bộ lọc chi tiết vẫn mở được
             bằng nút "Lọc" (ngăn kéo) ngay cạnh tiêu đề kết quả. */}
+        {/* "Dành riêng cho bạn" đặt TRƯỚC lưới gợi ý: với người đã lưu vài món, thứ của
+            chính họ đáng lên trước gợi ý chung. Widget tự ẩn khi chưa lưu gì. */}
+        <ForYou favorites={savedDishes} />
+
         <section id="ket-qua" className="results">
           <div className="results__head">
             <h2 className="section-title">

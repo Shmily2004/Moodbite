@@ -21,7 +21,7 @@ export function thangNam(iso: string | null | undefined): string | null {
 }
 
 // ---------------------------------------------------------------------------
-// Quán & món đã lưu
+// Món & quán YÊU THÍCH (đổi tên 2026-08-25 — trái tim = "yêu thích")
 // ---------------------------------------------------------------------------
 
 export interface SavedTabProps {

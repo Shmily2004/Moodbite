@@ -12,9 +12,12 @@
  *   của 2,7% mẫu thì tự nó cũng là một con số đáng ngờ. Bịa ra là kiểu sai nghiêm trọng
  *   nhất của dự án (CLAUDE.md mục 4).
  *
- * ✅ 📍 1,2 km NAY LÀ SỐ THẬT (2026-08-23): `nearest_restaurant_km` = khoảng cách tới
- *   quán GẦN NHẤT có bán món này, do `SuggestDishesUseCase` tính. `null` = không có quán
- *   nào trong bán kính, và khi đó KHÔNG hiện gì — không bao giờ hiện "0 km".
+ * ⚠️ 📍 KHOẢNG CÁCH ĐÃ BỎ KHỎI THẺ MÓN (2026-08-25, chủ dự án chốt).
+ *   Con số là THẬT (`nearest_restaurant_km` = quán gần nhất bán món này), nhưng đặt trên
+ *   THẺ MÓN thì nó nói dối về mặt ý nghĩa: MÓN không có vị trí, chỉ QUÁN mới có. Người
+ *   nhìn thấy "Bún chả · 1,2 km" sẽ hiểu là "món này cách 1,2 km", một câu vô nghĩa.
+ *   Khoảng cách thuộc về danh sách QUÁN ở trang chi tiết món — đúng chỗ nó trả lời được
+ *   câu "đi bao xa thì ăn được".
  *
  * THỨ TỰ THÔNG TIN (bước 1 của luồng: người dùng đang CHỌN MÓN, chưa quan tâm quán):
  *   1. ảnh + tên món
@@ -55,15 +58,6 @@ export function DishCard({ dish, onOpen, saved = false, onToggleSave }: DishCard
           <DishThumb name={dish.name} imageUrl={dish.image_url} />
 
           {deXuat && <span className="dishcard__badge">MoodBite đề xuất</span>}
-
-          {/* Khoảng cách tới quán gần nhất. `null` -> không vẽ gì cả; "0 km" hay "?" đều
-              tệ hơn là để trống. */}
-          {dish.nearest_restaurant_km != null && (
-            <span className="dishcard__distance">
-              <span aria-hidden="true">📍</span>{' '}
-              {dish.nearest_restaurant_km.toFixed(1).replace('.', ',')} km
-            </span>
-          )}
 
           {onToggleSave && (
             <button

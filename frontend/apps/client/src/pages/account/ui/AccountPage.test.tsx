@@ -101,7 +101,8 @@ describe('AccountPage', () => {
     for (const ten of [
       /Hồ sơ cá nhân/,
       /Sở thích & khẩu vị/,
-      /Quán & món đã lưu/,
+      // Đổi nhãn 2026-08-25: chủ dự án gọi đây là "yêu thích", không phải "đã lưu".
+      /Yêu thích/,
       /Đã xem gần đây/,
       /Cấp độ & huy hiệu/,
       /Cài đặt/,

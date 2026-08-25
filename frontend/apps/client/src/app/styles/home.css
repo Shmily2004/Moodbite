@@ -598,23 +598,8 @@
   background: linear-gradient(140deg, #FBEDE4, #F7E3D3);
 }
 
-/* Khoảng cách tới quán gần nhất — góc dưới trái của ảnh, đúng như bản thiết kế bộ lọc.
-   Nền tối mờ vì nó nằm trên ẢNH, mà ảnh món thì sáng tối đủ kiểu. */
-.dishcard__distance {
-  position: absolute;
-  left: 10px;
-  bottom: 10px;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 9px;
-  border-radius: 999px;
-  background: rgba(16, 32, 60, .62);
-  color: #fff;
-  font-size: .76rem;
-  font-weight: 700;
-}
-
+/* ⚠️ `.dishcard__distance` ĐÃ BỎ (2026-08-25). Khoảng cách không thuộc về THẺ MÓN —
+   món không có vị trí, chỉ quán mới có. Xem `entities/dish/ui/DishCard.tsx`. */
 .dishcard__badge {
   position: absolute;
   top: 10px;
@@ -979,3 +964,34 @@
 .recommend__head > .btn--filter { flex: 0 0 auto; }
 
 .recommend .notice { margin-bottom: 1rem; }
+
+/* ===========================================================================
+   "DÀNH RIÊNG CHO BẠN" (thêm 2026-08-25)
+   Món & quán người dùng đã bấm trái tim. Widget TỰ ẨN khi chưa lưu gì —
+   xem `widgets/for-you`.
+   =========================================================================== */
+.for-you {
+  margin: 2rem 0;
+  padding: 1.25rem 1.5rem 1.5rem;
+  border-radius: 16px;
+  background: var(--nen-phu, rgba(2, 29, 72, .03));
+}
+
+.for-you__nhom { margin-top: 1rem; }
+
+.for-you__nhan {
+  margin: 0 0 .5rem;
+  font-size: .78rem;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  opacity: .65;
+}
+
+.for-you__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}

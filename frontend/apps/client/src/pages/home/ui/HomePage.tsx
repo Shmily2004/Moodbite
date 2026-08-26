@@ -32,6 +32,7 @@ import { useNavigate } from 'react-router-dom';
 import type { DishItem } from '@/shared/api';
 import { DishList, DishListSkeleton } from '@/widgets/dish-list';
 import { FilterDrawer } from '@/widgets/filter-drawer';
+import { AssistantBubble } from '@/widgets/assistant-bubble';
 import { SiteHeader } from '@/widgets/site-header';
 import { HomeHero } from '@/widgets/home-hero';
 import { MoodQuickPick } from '@/widgets/mood-quick-pick';
@@ -45,6 +46,13 @@ import { useFavorites } from '@/features/save-favorite';
 import { ForYou } from '@/widgets/for-you';
 import { useUserSessionContext } from '@/entities/user';
 import { ANH_GIAO_DIEN, dishRoute, ROUTES } from '@/shared/config';
+import {
+  IconClock,
+  IconFilter,
+  IconFlame,
+  IconSparkle,
+  IconTarget,
+} from '@/shared/ui';
 import { useT } from '@/shared/i18n';
 
 export function HomePage() {
@@ -166,7 +174,7 @@ export function HomePage() {
           <section className="recent">
             <div className="results__head">
               <h2 className="section-title">
-                <span aria-hidden="true">🕘</span> {t('account.recent.title')}
+                <IconClock /> {t('account.recent.title')}
               </h2>
               <button type="button" className="linkish" onClick={recent.clear}>
                 {t('account.recent.clear')}
@@ -206,12 +214,12 @@ export function HomePage() {
             <h2 className="section-title">
               {daDangNhap ? (
                 <>
-                  <span aria-hidden="true">✨</span>{' '}
+                  <IconSparkle />{' '}
                   {t('results.titleLoggedIn', { name: ten ?? '' })}
                 </>
               ) : (
                 <>
-                  <span aria-hidden="true">🔥</span> {t('results.titleGuest')}
+                  <IconFlame /> {t('results.titleGuest')}
                 </>
               )}
             </h2>
@@ -228,7 +236,7 @@ export function HomePage() {
                 }
                 onClick={() => setMoBoLoc(true)}
               >
-                <span aria-hidden="true">⚙️</span> {t('filters.open')}
+                <IconFilter /> {t('filters.open')}
                 {suggestions.activeFilterCount > 0 && (
                   <span className="btn__badge">{suggestions.activeFilterCount}</span>
                 )}
@@ -319,6 +327,12 @@ export function HomePage() {
         {/* Bộ lọc nay nằm trong NGĂN KÉO, không còn là một khối cố định cuối trang.
             Khối cũ đẩy mọi thứ khác xuống và người dùng phải cuộn lên cuộn xuống giữa
             "bấm chip" và "xem kết quả". */}
+        {/* Bong bóng trợ lý — chỉ đặt ở trang CÓ MÓN. Xem `widgets/assistant-bubble`. */}
+        <AssistantBubble
+          onOpen={() => setMoBoLoc(true)}
+          activeCount={suggestions.activeFilterCount}
+        />
+
         <FilterDrawer
           open={moBoLoc}
           onClose={() => setMoBoLoc(false)}
@@ -349,7 +363,7 @@ export function HomePage() {
             )}
             <div className="cta__text">
               <p className="cta__title">
-                <span aria-hidden="true">🎯</span> {t('cta.title')}
+                <IconTarget /> {t('cta.title')}
               </p>
               <p className="cta__sub">{t('cta.sub')}</p>
             </div>

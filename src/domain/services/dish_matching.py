@@ -134,11 +134,6 @@ def build_dish_restaurant_index(
     return index
 
 
-def restaurants_of(matches: Sequence[DishMatch]) -> List:
-    """Chỉ lấy quán, bỏ phần "khớp bằng cách nào"."""
-    return [m.restaurant for m in matches]
-
-
 def _bucket_keywords_by_first_token(
     dishes: Sequence[Dish], min_tokens: int = 1, keywords_of=None
 ) -> Dict[str, List[Tuple[str, List[Token]]]]:

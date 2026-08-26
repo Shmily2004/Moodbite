@@ -21,7 +21,20 @@ import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { ANH_GIAO_DIEN, ROUTES } from '@/shared/config';
-import { Slogan } from '@/shared/ui';
+import { Slogan,
+  IconClock,
+  IconCold,
+  IconDining,
+  IconMoon,
+  IconNight,
+  IconSearch,
+  IconSparkle,
+  IconSun,
+  IconSunrise,
+  IconSunset,
+  IconThermometer,
+  IconWave,
+} from '@/shared/ui';
 import { useT } from '@/shared/i18n';
 import type { HamDich } from '@/shared/i18n';
 
@@ -76,18 +89,21 @@ function useLoiChao(t: HamDich): string {
 /**
  * Biểu tượng cho một câu ngữ cảnh. QUY TẮC HIỂN THỊ, không đổi dữ liệu gì.
  * Không khớp từ khoá nào thì dùng chiếc đồng hồ chung chung — không bao giờ để trống.
+ *
+ * Trả về COMPONENT chứ không phải emoji (đổi 2026-08-25): emoji mỗi hệ điều hành vẽ một
+ * kiểu và không đổi màu theo giao diện sáng/tối — xem `shared/ui/icons.tsx`.
  */
-function icon(nguCanh: string): string {
+function icon(nguCanh: string): (props: { className?: string }) => JSX.Element {
   const chu = nguCanh.toLowerCase();
-  if (chu.includes('mưa')) return '🌧️';
-  if (chu.includes('quang') || chu.includes('nắng')) return '☀️';
-  if (chu.includes('°c')) return '🌡️';
-  if (chu.includes('sáng')) return '🌅';
-  if (chu.includes('trưa')) return '🍽️';
-  if (chu.includes('chiều')) return '🌇';
-  if (chu.includes('tối')) return '🌙';
-  if (chu.includes('khuya')) return '🌃';
-  return '🕒';
+  if (chu.includes('mưa')) return IconCold;
+  if (chu.includes('quang') || chu.includes('nắng')) return IconSun;
+  if (chu.includes('°c')) return IconThermometer;
+  if (chu.includes('sáng')) return IconSunrise;
+  if (chu.includes('trưa')) return IconDining;
+  if (chu.includes('chiều')) return IconSunset;
+  if (chu.includes('tối')) return IconMoon;
+  if (chu.includes('khuya')) return IconNight;
+  return IconClock;
 }
 
 export function HomeHero({ userName, context, onSearch }: HomeHeroProps) {
@@ -108,7 +124,7 @@ export function HomeHero({ userName, context, onSearch }: HomeHeroProps) {
       <div className="hero__text">
         <p className="hero__greeting">
           {chao}
-          {daDangNhap ? `, ${userName}` : ''} <span aria-hidden="true">👋</span>
+          {daDangNhap ? `, ${userName}` : ''} <IconWave className="hero__wave" />
         </p>
 
         {daDangNhap ? (
@@ -130,7 +146,7 @@ export function HomeHero({ userName, context, onSearch }: HomeHeroProps) {
             {context.map((tin) => (
               <li key={tin} className="signal">
                 <span className="signal__icon" aria-hidden="true">
-                  {icon(tin)}
+                  {(() => { const I = icon(tin); return <I className="hero__ctx-icon" />; })()}
                 </span>
                 <span className="signal__text">{tin}</span>
               </li>
@@ -142,9 +158,7 @@ export function HomeHero({ userName, context, onSearch }: HomeHeroProps) {
           <label className="sr-only" htmlFor="hero-search">
             {t('hero.searchLabel')}
           </label>
-          <span className="hero__search-icon" aria-hidden="true">
-            🔍
-          </span>
+          <IconSearch className="hero__search-icon" />
           <input
             id="hero-search"
             className="hero__search-input"
@@ -164,7 +178,7 @@ export function HomeHero({ userName, context, onSearch }: HomeHeroProps) {
         */}
         {!daDangNhap && (
           <p className="hero__nudge">
-            <span aria-hidden="true">✨</span>{' '}
+            <IconSparkle className="hero__spark" />{' '}
             <Link to={ROUTES.login}>{t('nav.login')}</Link> {t('hero.nudge')}
           </p>
         )}

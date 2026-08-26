@@ -20,12 +20,22 @@
 import { useT } from '@/shared/i18n';
 import type { Khoa } from '@/shared/i18n';
 
+import {
+  IconCold,
+  IconNight,
+  IconPin,
+  IconSnack,
+  IconSoup,
+  IconSunrise,
+} from '@/shared/ui';
+
 export interface NeedPreset {
   id: string;
   /** Khoá từ điển cho tiêu đề và mô tả — hai thẻ này cũng phải dịch được. */
   nhanTitle: Khoa;
   nhanDesc: Khoa;
-  emoji: string;
+  /** Icon minh hoạ. Component chứ không phải emoji — xem `shared/ui/icons.tsx`. */
+  Icon: (props: { className?: string }) => JSX.Element;
   /** Bộ lọc sẽ được áp khi bấm. `null` nghĩa là xoá lọc của nhóm đó. */
   apply: {
     mealTimes?: string[];
@@ -43,42 +53,42 @@ export const NHU_CAU: NeedPreset[] = [
     id: 'gan-day',
     nhanTitle: 'need.gan-day.title',
     nhanDesc: 'need.gan-day.desc',
-    emoji: '📍',
+    Icon: IconPin,
     apply: { maxDistanceKm: BAN_KINH_GAN },
   },
   {
     id: 'an-dem',
     nhanTitle: 'need.an-dem.title',
     nhanDesc: 'need.an-dem.desc',
-    emoji: '🌙',
+    Icon: IconNight,
     apply: { mealTimes: ['khuya'] },
   },
   {
     id: 'bua-sang',
     nhanTitle: 'need.bua-sang.title',
     nhanDesc: 'need.bua-sang.desc',
-    emoji: '🌅',
+    Icon: IconSunrise,
     apply: { mealTimes: ['sang'] },
   },
   {
     id: 'an-vat',
     nhanTitle: 'need.an-vat.title',
     nhanDesc: 'need.an-vat.desc',
-    emoji: '🍢',
+    Icon: IconSnack,
     apply: { mealTimes: ['an_vat'] },
   },
   {
     id: 'mon-nuoc',
     nhanTitle: 'need.mon-nuoc.title',
     nhanDesc: 'need.mon-nuoc.desc',
-    emoji: '🍜',
+    Icon: IconSoup,
     apply: { cookingMethods: ['nuoc'], temperatures: ['hot'] },
   },
   {
     id: 'do-mat',
     nhanTitle: 'need.do-mat.title',
     nhanDesc: 'need.do-mat.desc',
-    emoji: '🧊',
+    Icon: IconCold,
     apply: { temperatures: ['cold'] },
   },
 ];
@@ -100,9 +110,7 @@ export function ExploreNeeds({ onPick }: ExploreNeedsProps) {
         {NHU_CAU.map((preset) => (
           <li key={preset.id}>
             <button type="button" className="needcard" onClick={() => onPick(preset)}>
-              <span className="needcard__emoji" aria-hidden="true">
-                {preset.emoji}
-              </span>
+              <preset.Icon className="needcard__icon-svg" />
               <span className="needcard__body">
                 <span className="needcard__title">{t(preset.nhanTitle)}</span>
                 <span className="needcard__desc">{t(preset.nhanDesc)}</span>

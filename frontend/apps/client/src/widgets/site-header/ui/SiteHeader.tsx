@@ -12,7 +12,10 @@
  */
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { BrandLogo, IconPin, LanguageSelect } from '@/shared/ui';
+import { BrandLogo, IconPin, LanguageSelect,
+  IconClose,
+  IconMenu,
+} from '@/shared/ui';
 import { ThemeToggle } from '@/features/switch-theme';
 import { UserAvatar, useUserSessionContext } from '@/entities/user';
 import { useAvatar } from '@/features/change-avatar';
@@ -60,7 +63,7 @@ export function SiteHeader() {
         aria-expanded={moMenu}
         onClick={() => setMoMenu((cu) => !cu)}
       >
-        {moMenu ? '✕' : '☰'}
+        {moMenu ? <IconClose /> : <IconMenu />}
       </button>
 
       <nav

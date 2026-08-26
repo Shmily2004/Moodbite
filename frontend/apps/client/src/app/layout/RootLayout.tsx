@@ -15,7 +15,27 @@ import { LanguageProvider } from '@/shared/i18n';
 
 export function RootLayout() {
   const { pathname } = useLocation();
-  const coChanTrang = pathname !== ROUTES.search;
+
+  /**
+   * Những trang KHÔNG có chân trang.
+   *
+   * ⚠️ LỖI THẬT, sửa 2026-08-25: bản đầu chỉ loại trừ `/search`, nên chân trang lọt vào
+   * cả trang đăng nhập và đăng ký — và ở đó nó LÀM VỠ BỐ CỤC, mất luôn tranh nền.
+   * Lý do: `.auth` đặt `min-height: 100dvh` để trải kín màn hình (chốt với chủ dự án
+   * 2026-08-22: "tranh là NỀN của cả trang"). Gắn thêm một khối chữ bên dưới là trang
+   * cao hơn màn hình, tranh bị đẩy và bố cục toàn màn hình không còn đúng nữa.
+   *
+   * `/search` cũng nằm đây vì cùng lý do: bản đồ tràn màn hình.
+   */
+  const KHONG_CHAN_TRANG: string[] = [
+    ROUTES.search,
+    ROUTES.login,
+    ROUTES.register,
+    ROUTES.forgotPassword,
+    ROUTES.resetPassword,
+    ROUTES.verifyEmail,
+  ];
+  const coChanTrang = !KHONG_CHAN_TRANG.includes(pathname);
 
   // Provider bọc TOÀN BỘ route: trang đăng nhập và các trang khác là route ANH EM, không
   // có cha chung nào khác để chia sẻ state phiên. Nó chỉ đọc token trong storage lúc dựng

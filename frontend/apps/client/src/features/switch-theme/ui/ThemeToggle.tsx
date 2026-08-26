@@ -1,6 +1,8 @@
 /** VIEW: nút mặt trăng/mặt trời ở góc phải thanh trên. Chỉ JSX. */
 import { useTheme } from '../model/useTheme';
 
+import { IconMoon, IconSun } from '@/shared/ui';
+
 export function ThemeToggle({ className }: { className?: string }) {
   const { theme, toggle } = useTheme();
   const dangToi = theme === 'dark';
@@ -17,7 +19,7 @@ export function ThemeToggle({ className }: { className?: string }) {
       title={nhan}
       aria-pressed={dangToi}
     >
-      <span aria-hidden="true">{dangToi ? '☀️' : '🌙'}</span>
+      {dangToi ? <IconSun /> : <IconMoon />}
     </button>
   );
 }

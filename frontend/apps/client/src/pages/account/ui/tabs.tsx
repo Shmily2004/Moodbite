@@ -6,6 +6,17 @@
  * dài hơn 400 dòng và mỗi lần sửa một tab là phải cuộn qua sáu tab khác.
  */
 import { Link } from 'react-router-dom';
+import {
+  IconClock,
+  IconClose,
+  IconCompass,
+  IconDining,
+  IconHeart,
+  IconMap,
+  IconPin,
+  IconShield,
+  IconThumbUp,
+} from '@/shared/ui';
 import { useT } from '@/shared/i18n';
 import { dishRoute, ROUTES } from '@/shared/config';
 import type { UserSelf, UserStatsData } from '@/shared/api';
@@ -35,7 +46,7 @@ export function SavedTab({ favorites }: SavedTabProps) {
     <section className="panel">
       <div className="results__head">
         <h2 className="panel__title">
-          <span aria-hidden="true">❤️</span> {t('account.saved.title')}
+          <IconHeart /> {t('account.saved.title')}
         </h2>
         {favorites.items.length > 0 && (
           <p className="results__count">
@@ -62,19 +73,19 @@ export function SavedTab({ favorites }: SavedTabProps) {
             <li key={`${muc.itemType}:${muc.itemId}`} className="saved-list__item">
               {muc.itemType === 'dish' ? (
                 <Link className="chip" to={dishRoute(muc.itemId)}>
-                  🍜 {muc.name}
+                  <IconDining /> {muc.name}
                 </Link>
               ) : (
                 // Quán CHƯA có trang riêng — panel chi tiết nằm trong trang bản đồ. Làm
                 // một link chết chỉ để "cho đủ" thì tệ hơn là không có link.
-                <span className="chip chip--flat">📍 {muc.name}</span>
+                <span className="chip chip--flat"><IconPin /> {muc.name}</span>
               )}
               <button
                 type="button"
                 className="linkish"
                 onClick={() => favorites.toggle(muc)}
               >
-                ✕
+                <IconClose />
               </button>
             </li>
           ))}
@@ -99,7 +110,7 @@ export function RecentTab({ recent }: RecentTabProps) {
     <section className="panel">
       <div className="results__head">
         <h2 className="panel__title">
-          <span aria-hidden="true">🕘</span> {t('account.recent.title')}
+          <IconClock /> {t('account.recent.title')}
         </h2>
         {recent.recent.length > 0 && (
           <button type="button" className="linkish" onClick={recent.clear}>
@@ -190,11 +201,11 @@ export function BadgesTab({ stats, loading }: BadgesTabProps) {
             `domain/services/gamification.py`. Hiện chỉ có 5 dòng nên chép tay chấp nhận
             được; thêm loại điểm mới thì backend nên trả cả bảng điểm xuống. */}
         <ul className="rule-list">
-          <li>🧭 Xem chi tiết một quán mới — <strong>+2</strong></li>
-          <li>🗺️ Bấm chỉ đường tới một quán — <strong>+3</strong></li>
-          <li>👍 Đánh giá thích / không thích — <strong>+3</strong></li>
-          <li>❤️ Lưu một món hoặc một quán — <strong>+5</strong></li>
-          <li>🛡️ Báo một quán đã đóng cửa — <strong>+10</strong></li>
+          <li><IconCompass /> Xem chi tiết một quán mới — <strong>+2</strong></li>
+          <li><IconMap /> Bấm chỉ đường tới một quán — <strong>+3</strong></li>
+          <li><IconThumbUp /> Đánh giá thích / không thích — <strong>+3</strong></li>
+          <li><IconHeart /> Lưu một món hoặc một quán — <strong>+5</strong></li>
+          <li><IconShield /> Báo một quán đã đóng cửa — <strong>+10</strong></li>
         </ul>
         <p className="section-sub">
           Điểm tính theo số <strong>quán/món khác nhau</strong>, không theo số lần bấm —

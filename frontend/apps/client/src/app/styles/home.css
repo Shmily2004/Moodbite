@@ -995,3 +995,110 @@
   margin: 0;
   padding: 0;
 }
+
+/* Icon SVG thay cho emoji trong thẻ mood / thẻ nhu cầu (2026-08-25).
+   Cỡ bằng đúng ô emoji cũ để bố cục không xê dịch; `currentColor` nên nó đảo
+   màu theo thẻ đang chọn — thứ emoji không làm được. */
+.moodcard__icon-svg,
+.needcard__icon-svg {
+  width: 30px;
+  height: 30px;
+  stroke-width: 1.5;
+}
+
+/* ===========================================================================
+   BONG BÓNG TRỢ LÝ (thêm 2026-08-25)
+   Dựng theo ảnh chủ dự án gửi: mascot bên trái, lời thoại phía trên, nút
+   "Tinh chỉnh gợi ý" bên dưới. Xem `widgets/assistant-bubble`.
+   =========================================================================== */
+.bubble {
+  position: fixed;
+  right: clamp(12px, 2vw, 28px);
+  bottom: clamp(12px, 2vw, 28px);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: .5rem;
+  /* Không chặn thao tác với nội dung phía sau ở vùng trống quanh bong bóng. */
+  pointer-events: none;
+}
+.bubble > * { pointer-events: auto; }
+
+/* Lời thoại — bong bóng trắng bo tròn, có đuôi nhọn chỉ xuống nút. */
+.bubble__thoai {
+  position: relative;
+  margin: 0;
+  max-width: 15rem;
+  padding: .6rem .9rem;
+  border-radius: 14px;
+  background: var(--nen-the, #fff);
+  box-shadow: 0 6px 20px rgba(16, 32, 60, .16);
+  font-size: .86rem;
+  line-height: 1.4;
+}
+.bubble__thoai::after {
+  content: '';
+  position: absolute;
+  right: 26px;
+  bottom: -6px;
+  width: 12px;
+  height: 12px;
+  background: inherit;
+  transform: rotate(45deg);
+}
+
+.bubble__nut {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .4rem 1rem .4rem .4rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--nen-the, #fff);
+  box-shadow: 0 8px 24px rgba(16, 32, 60, .2);
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+.bubble__nut:hover { box-shadow: 0 10px 28px rgba(16, 32, 60, .26); }
+
+/* Mascot tràn LÊN TRÊN mép nút một chút, đúng như ảnh thiết kế. */
+.bubble__mascot {
+  width: 58px;
+  height: auto;
+  margin-top: -18px;
+  margin-bottom: -6px;
+}
+
+.bubble__nhan {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.bubble__spark { width: 16px; height: 16px; }
+
+.bubble__dem {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--accent, #F2701F);
+  color: #fff;
+  font-size: .74rem;
+  font-weight: 700;
+}
+
+/* Màn hẹp: giấu lời thoại, chỉ còn nút — bong bóng không được ăn hết màn hình. */
+@media (max-width: 560px) {
+  .bubble__thoai { display: none; }
+  .bubble__nhan { font-size: .85rem; }
+}
+
+/* Chừa chỗ cuối trang để bong bóng KHÔNG đè lên thẻ cuối cùng và nút tim của nó —
+   lỗi này chỉ lộ ra khi cuộn tới đáy, nên rất dễ bỏ sót. */
+.page__body { padding-bottom: 7rem; }

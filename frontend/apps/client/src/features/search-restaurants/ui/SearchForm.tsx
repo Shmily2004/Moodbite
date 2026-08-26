@@ -10,6 +10,14 @@
  * Cùng một feature nên để cùng file; tách file chỉ làm khó tìm.
  */
 import { useState } from 'react';
+import {
+  IconClock,
+  IconFilter,
+  IconFrown,
+  IconHotBowl,
+  IconPin,
+  IconSmile,
+} from '@/shared/ui';
 import type { FormEvent } from 'react';
 
 const EXAMPLE_QUERIES = [
@@ -20,10 +28,11 @@ const EXAMPLE_QUERIES = [
 ];
 
 const MOOD_SHORTCUTS = [
-  { value: 'happy', label: '😊 Vui' },
-  { value: 'sad', label: '😔 Buồn' },
-  { value: 'excited', label: '🌶️ Hào hứng' },
-  { value: 'relaxed', label: '☕ Thư giãn' },
+  // Icon là COMPONENT, không phải emoji trong nhãn — xem `shared/ui/icons.tsx`.
+  { value: 'happy', label: 'Vui', Icon: IconSmile },
+  { value: 'sad', label: 'Buồn', Icon: IconFrown },
+  { value: 'excited', label: 'Hào hứng', Icon: IconHotBowl },
+  { value: 'relaxed', label: 'Thư giãn', Icon: IconSmile },
 ];
 
 const RADIUS_OPTIONS = [2, 5, 10, 20];
@@ -88,7 +97,7 @@ function Filters(props: FiltersProps) {
           onClick={() => props.onOpenNowChange(!props.openNow)}
           aria-pressed={props.openNow}
         >
-          🕒 Đang mở
+          <IconClock /> Đang mở
         </button>
         {MOOD_SHORTCUTS.map((mood) => (
           <button
@@ -96,7 +105,7 @@ function Filters(props: FiltersProps) {
             className="chip"
             onClick={() => props.onPickMood(mood.value)}
           >
-            {mood.label}
+            <mood.Icon /> {mood.label}
           </button>
         ))}
         <button
@@ -104,7 +113,7 @@ function Filters(props: FiltersProps) {
           onClick={() => setShowAdvanced((open) => !open)}
           aria-expanded={showAdvanced}
         >
-          ⚙️ Bộ lọc
+          <IconFilter /> Bộ lọc
         </button>
 
         {props.showExamples &&
@@ -145,7 +154,7 @@ function Filters(props: FiltersProps) {
             onClick={props.onRequestLocation}
             disabled={props.locationLoading}
           >
-            {props.locationLoading ? 'Đang định vị…' : '📍 Vị trí của tôi'}
+            {props.locationLoading ? 'Đang định vị…' : <><IconPin /> Vị trí của tôi</>}
           </button>
 
           <span className="muted small">

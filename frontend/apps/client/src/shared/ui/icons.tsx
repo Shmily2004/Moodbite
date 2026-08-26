@@ -279,3 +279,242 @@ export function IconFilter(props: IconProps) {
     </Icon>
   );
 }
+
+/* ===========================================================================
+   ICON DÙNG CHUNG (thêm 2026-08-25)
+   ---------------------------------------------------------------------------
+   Đợt hai của việc bỏ emoji. Rà toàn dự án còn 141 emoji ở 23 file; phần dưới
+   phủ những chỗ NGƯỜI DÙNG NHÌN THẤY NHIỀU NHẤT: thanh trên, thẻ mood trang
+   chủ, tab tài khoản, nút đổi giao diện.
+   Lý do bỏ emoji vẫn như đã ghi ở đầu file: mỗi hệ điều hành vẽ một kiểu và
+   không đổi màu theo giao diện được.
+   =========================================================================== */
+
+/** Ngôi nhà — tab "Tổng quan". */
+export function IconHome(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M3.5 10.5 12 3.5l8.5 7" />
+      <path d="M5.5 9.5v10h13v-10" />
+      <path d="M9.5 19.5v-6h5v6" />
+    </Icon>
+  );
+}
+
+/** Dao & dĩa — tab "Khẩu vị", nhãn món ăn. */
+export function IconDining(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M7 3.5v7a2 2 0 0 0 4 0v-7M9 10.5v10" />
+      <path d="M16.5 3.5c-1.5 1.5-1.5 5 0 6.5v10.5" />
+    </Icon>
+  );
+}
+
+/** Đồng hồ — "xem gần đây", giờ mở cửa. */
+export function IconClock(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 7.5V12l3 2" />
+    </Icon>
+  );
+}
+
+/** Huy hiệu — tab "Huy hiệu". */
+export function IconBadge(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="12" cy="9" r="5.5" />
+      <path d="M8.5 13.5 7 21l5-2.5L17 21l-1.5-7.5" />
+    </Icon>
+  );
+}
+
+/** Bánh răng — cài đặt. */
+export function IconSettings(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="12" cy="12" r="3" />
+      <path d="M12 2.5v2.5M12 19v2.5M4.2 6.6l2.1 1.3M17.7 16.1l2.1 1.3M4.2 17.4l2.1-1.3M17.7 7.9l2.1-1.3" />
+    </Icon>
+  );
+}
+
+/** Dấu tích — trạng thái đã xong. */
+export function IconCheck(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M4.5 12.5 9.5 17.5 19.5 6.5" />
+    </Icon>
+  );
+}
+
+/** Lịch — ngày tham gia. */
+export function IconCalendar(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect x="3.5" y="5.5" width="17" height="15" rx="2.5" />
+      <path d="M3.5 10h17M8 3.5v4M16 3.5v4" />
+    </Icon>
+  );
+}
+
+/** Kính lúp — ô tìm kiếm. */
+export function IconSearch(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="10.5" cy="10.5" r="6.5" />
+      <path d="M15.5 15.5 20.5 20.5" />
+    </Icon>
+  );
+}
+
+/** Ba gạch — mở menu trên điện thoại. */
+export function IconMenu(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M4 7h16M4 12h16M4 17h16" />
+    </Icon>
+  );
+}
+
+/** Dấu nhân — đóng. */
+export function IconClose(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M6 6l12 12M18 6 6 18" />
+    </Icon>
+  );
+}
+
+/** Ngôi sao — đánh giá. Có `filled` để vẽ sao đặc. */
+export function IconStar({ filled = false, ...props }: IconProps & { filled?: boolean }) {
+  return (
+    <Icon fill={filled ? 'currentColor' : 'none'} {...props}>
+      <path d="M12 3.5l2.6 5.6 6 .8-4.4 4.2 1.1 6-5.3-2.9-5.3 2.9 1.1-6L3.4 9.9l6-.8Z" />
+    </Icon>
+  );
+}
+
+/** Tam giác cảnh báo — quán tạm đóng, dữ liệu thiếu. */
+export function IconWarning(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M12 4 21 19.5H3Z" />
+      <path d="M12 10v4M12 16.8h.01" />
+    </Icon>
+  );
+}
+
+/** La bàn — "khám phá". */
+export function IconCompass(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M15.2 8.8 13.5 13.5 8.8 15.2 10.5 10.5Z" />
+    </Icon>
+  );
+}
+
+/** Bàn tay vẫy — lời chào ở hero. */
+export function IconWave(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M8 11V6.5a1.5 1.5 0 0 1 3 0V11" />
+      <path d="M11 10.5V5a1.5 1.5 0 0 1 3 0v5.5" />
+      <path d="M14 10.5V7a1.5 1.5 0 0 1 3 0v7a6.5 6.5 0 0 1-13 0v-2a1.5 1.5 0 0 1 3 0" />
+    </Icon>
+  );
+}
+
+/** Ba chấm — nút "Xem thêm". */
+export function IconMore(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="5.5" cy="12" r="1.4" fill="currentColor" />
+      <circle cx="12" cy="12" r="1.4" fill="currentColor" />
+      <circle cx="18.5" cy="12" r="1.4" fill="currentColor" />
+    </Icon>
+  );
+}
+
+/** Nhiệt kế — số đo nhiệt độ ở hero. */
+export function IconThermometer(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M10 13.5V5.5a2 2 0 0 1 4 0v8a4 4 0 1 1-4 0Z" />
+      <circle cx="12" cy="17" r="1.6" fill="currentColor" />
+    </Icon>
+  );
+}
+
+/** Mặt trời lặn — buổi chiều. */
+export function IconSunset(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M2.5 18h19" />
+      <path d="M6 14a6 6 0 0 1 12 0" />
+      <path d="M12 9.5v-3M4.8 11.2 6.4 9.6M19.2 11.2l-1.6-1.6" />
+    </Icon>
+  );
+}
+
+/** Tia lấp lánh — nhãn "gợi ý cho bạn". */
+export function IconSparkle(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M12 3.5 13.7 9l5.5 1.7-5.5 1.7L12 18l-1.7-5.6L4.8 10.7 10.3 9Z" />
+      <path d="M18.5 4v3M17 5.5h3" />
+    </Icon>
+  );
+}
+
+/** Ngọn lửa — nhãn "phổ biến hôm nay". */
+export function IconFlame(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M12 3.5s5.5 4.2 5.5 9a5.5 5.5 0 0 1-11 0c0-2 1-3.5 2-4.5.3 1.2 1 2 2 2 0-2.5.5-4.8 1.5-6.5Z" />
+    </Icon>
+  );
+}
+
+/** Bia ngắm — mục tiêu, lời kêu gọi hành động. */
+export function IconTarget(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="12" cy="12" r="8.5" />
+      <circle cx="12" cy="12" r="4.5" />
+      <circle cx="12" cy="12" r="1.2" fill="currentColor" />
+    </Icon>
+  );
+}
+
+/** Bản đồ gấp — hành động chỉ đường. */
+export function IconMap(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M3.5 6.5 9 4.5l6 2 5.5-2v13l-5.5 2-6-2-5.5 2Z" />
+      <path d="M9 4.5v13M15 6.5v13" />
+    </Icon>
+  );
+}
+
+/** Ngón cái — đánh giá thích. */
+export function IconThumbUp(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M7 10.5 11 3.5a2 2 0 0 1 2 2v4h5.5a2 2 0 0 1 2 2.4l-1.4 6A2 2 0 0 1 17 19.5H7Z" />
+      <rect x="2.5" y="10.5" width="4.5" height="9" rx="1.2" />
+    </Icon>
+  );
+}
+
+/** Khiên — báo quán đã đóng cửa. */
+export function IconShield(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M12 3.5 19.5 6v6c0 4.2-3 7.3-7.5 8.5C7.5 19.3 4.5 16.2 4.5 12V6Z" />
+    </Icon>
+  );
+}

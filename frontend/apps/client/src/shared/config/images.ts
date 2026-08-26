@@ -148,6 +148,25 @@ export const ANH_GIAO_DIEN: Record<string, AnhUI | null> = {
     fit: 'contain',
   },
 
+  /**
+   * Mascot của BONG BÓNG TRỢ LÝ — ghim bản đồ đội mũ đầu bếp, cầm dĩa và thìa.
+   * 320×369 do `prepare_design_assets.py` cắt sát từ bản gốc 1536×1024.
+   *
+   * ⚠️ KHÁC `mascot` ở trên. Chủ dự án chốt 2026-08-25: `mascot` dành RIÊNG cho dải mời
+   * đăng ký (CTA) cuối trang chủ, `mascot_bubble` dành RIÊNG cho bong bóng trợ lý.
+   * Đừng dùng lẫn, và đừng gộp thành một.
+   *
+   * Một hình dùng cho MỌI trạng thái của bong bóng — chủ dự án đã bỏ ý định làm 3 mascot
+   * cho 3 trạng thái khác nhau.
+   */
+  mascot_bubble: {
+    src: '/anh/mascot-bubble.png',
+    alt: '',
+    width: 320,
+    height: 369,
+    fit: 'contain',
+  },
+
   /** Hình minh hoạ khi tìm không ra quán nào. */
   khong_co_ket_qua: null,
 

@@ -15,24 +15,38 @@ import { ICON_MOOD } from '@/shared/config';
 import { useT } from '@/shared/i18n';
 import type { Khoa } from '@/shared/i18n';
 
+import {
+  IconCold,
+  IconHotBowl,
+  IconMore,
+  IconPan,
+  IconSmile,
+  IconSoup,
+} from '@/shared/ui';
+
 export interface MoodChoice {
   /** Nhóm bộ lọc trong `useDishSuggestions` — quyết định bấm vào thì lọc theo cái gì. */
   group: 'mood' | 'weather' | 'cookingMethods' | 'temperatures';
   value: string;
   /** Khoá từ điển, KHÔNG phải chữ viết sẵn — nếu không thì hàng thẻ này không dịch được. */
   nhan: Khoa;
-  emoji: string;
+  /**
+   * Icon DỰ PHÒNG khi chủ dự án chưa gửi ảnh riêng cho lựa chọn này.
+   * Component chứ không phải emoji (đổi 2026-08-25) — emoji không đảo màu theo thẻ
+   * đang chọn và mỗi hệ điều hành vẽ một kiểu.
+   */
+  Icon: (props: { className?: string }) => JSX.Element;
 }
 
 /** Bảng ánh xạ. Mỗi dòng đều đã đối chiếu với giá trị backend chấp nhận. */
 export const LUA_CHON_NHANH: MoodChoice[] = [
-  { group: 'mood', value: 'excited', nhan: 'mood.card.excited', emoji: '🌶️' },
-  { group: 'mood', value: 'relaxed', nhan: 'mood.card.relaxed', emoji: '☕' },
-  { group: 'mood', value: 'happy', nhan: 'mood.card.happy', emoji: '😊' },
-  { group: 'mood', value: 'sad', nhan: 'mood.card.sad', emoji: '🍲' },
-  { group: 'weather', value: 'rain', nhan: 'mood.card.rain', emoji: '🌧️' },
-  { group: 'cookingMethods', value: 'nuong', nhan: 'mood.card.nuong', emoji: '🔥' },
-  { group: 'temperatures', value: 'hot', nhan: 'mood.card.hot', emoji: '🍜' },
+  { group: 'mood', value: 'excited', nhan: 'mood.card.excited', Icon: IconHotBowl },
+  { group: 'mood', value: 'relaxed', nhan: 'mood.card.relaxed', Icon: IconSmile },
+  { group: 'mood', value: 'happy', nhan: 'mood.card.happy', Icon: IconSmile },
+  { group: 'mood', value: 'sad', nhan: 'mood.card.sad', Icon: IconSoup },
+  { group: 'weather', value: 'rain', nhan: 'mood.card.rain', Icon: IconCold },
+  { group: 'cookingMethods', value: 'nuong', nhan: 'mood.card.nuong', Icon: IconPan },
+  { group: 'temperatures', value: 'hot', nhan: 'mood.card.hot', Icon: IconHotBowl },
 ];
 
 export interface MoodQuickPickProps {
@@ -80,9 +94,7 @@ export function MoodQuickPick({ title, dangChon, onPick, onShowAll }: MoodQuickP
                     aria-hidden="true"
                   />
                 ) : (
-                  <span className="moodcard__emoji" aria-hidden="true">
-                    {choice.emoji}
-                  </span>
+                  <choice.Icon className="moodcard__icon-svg" />
                 )}
                 <span className="moodcard__label">{t(choice.nhan)}</span>
               </button>
@@ -92,9 +104,7 @@ export function MoodQuickPick({ title, dangChon, onPick, onShowAll }: MoodQuickP
 
         <li>
           <button type="button" className="moodcard moodcard--more" onClick={onShowAll}>
-            <span className="moodcard__emoji" aria-hidden="true">
-              •••
-            </span>
+            <IconMore className="moodcard__icon-svg" />
             <span className="moodcard__label">{t('mood.more')}</span>
           </button>
         </li>

@@ -81,11 +81,7 @@ def weights_for(mood: str) -> Dict[str, float]:
     return MOOD_PROFILES[normalize_mood(mood)]
 
 
-def score_column_for(mood: str) -> str:
-    """Cột mood-score CHÍNH của 1 mood."""
-    return MOOD_TO_SCORE_COLUMN[normalize_mood(mood)]
-
-
-def dish_keywords_for(mood: str) -> List[str]:
-    """Các tag mood_keywords cấp món ứng với 1 mood."""
-    return MOOD_TO_DISH_KEYWORDS[normalize_mood(mood)]
+# ⚠️ ĐÃ XOÁ `score_column_for()` và `dish_keywords_for()` ngày 2026-08-25.
+# Cả hai là wrapper một dòng quanh hai dict ngay phía trên và KHÔNG chỗ nào gọi. Nơi cần
+# thì đọc thẳng dict (`dish_ranking.py` dùng `MOOD_TO_DISH_KEYWORDS.get`), nên giữ lại
+# chỉ tạo hai đường làm cùng một việc.

@@ -17,6 +17,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { SiteHeader } from '@/widgets/site-header';
 import { DishList, DishListSkeleton } from '@/widgets/dish-list';
 import { FilterDrawer } from '@/widgets/filter-drawer';
+import { AssistantBubble } from '@/widgets/assistant-bubble';
 import {
   DishFilters,
   docBoLocTuUrl,
@@ -129,6 +130,12 @@ export function RecommendPage() {
             }
           />
         )}
+
+        {/* Bong bóng trợ lý — chỉ đặt ở trang CÓ MÓN. Xem `widgets/assistant-bubble`. */}
+        <AssistantBubble
+          onOpen={() => setMoBoLoc(true)}
+          activeCount={suggestions.activeFilterCount}
+        />
 
         <FilterDrawer
           open={moBoLoc}

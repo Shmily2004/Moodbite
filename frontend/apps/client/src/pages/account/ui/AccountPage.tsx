@@ -30,22 +30,39 @@ import { useRecentDishes } from '@/features/recent-dishes';
 import { ThemeToggle } from '@/features/switch-theme';
 import { ChangePasswordForm } from '@/features/change-password';
 import { useUserSessionContext, useUserStats } from '@/entities/user';
-import { LanguageSelect } from '@/shared/ui';
+import { LanguageSelect,
+  IconBadge,
+  IconClock,
+  IconDining,
+  IconHome,
+  IconSettings,
+  IconHeart,
+  IconUser,
+} from '@/shared/ui';
 import { useT } from '@/shared/i18n';
 import type { Khoa } from '@/shared/i18n';
 import { ROUTES } from '@/shared/config';
 import { BadgesTab, ProfileTab, RecentTab, SavedTab, thangNam } from './tabs';
 
-/** Mã tab nằm trên URL. Đổi giá trị ở đây là đổi đường dẫn — cân nhắc trước khi sửa. */
+/**
+ * Mã tab nằm trên URL. Đổi giá trị ở đây là đổi đường dẫn — cân nhắc trước khi sửa.
+ *
+ * `Icon` là COMPONENT chứ không phải chuỗi emoji (đổi 2026-08-25): emoji mỗi hệ điều
+ * hành vẽ một kiểu và không đảo màu theo tab đang chọn — xem `shared/ui/icons.tsx`.
+ */
 const TABS = [
-  { id: 'overview', nhan: 'account.tab.overview', icon: '🏠' },
-  { id: 'profile', nhan: 'account.tab.profile', icon: '👤' },
-  { id: 'taste', nhan: 'account.tab.taste', icon: '🍽️' },
-  { id: 'saved', nhan: 'account.tab.saved', icon: '❤️' },
-  { id: 'recent', nhan: 'account.tab.recent', icon: '🕘' },
-  { id: 'badges', nhan: 'account.tab.badges', icon: '🏅' },
-  { id: 'settings', nhan: 'account.tab.settings', icon: '⚙️' },
-] as const satisfies ReadonlyArray<{ id: string; nhan: Khoa; icon: string }>;
+  { id: 'overview', nhan: 'account.tab.overview', Icon: IconHome },
+  { id: 'profile', nhan: 'account.tab.profile', Icon: IconUser },
+  { id: 'taste', nhan: 'account.tab.taste', Icon: IconDining },
+  { id: 'saved', nhan: 'account.tab.saved', Icon: IconHeart },
+  { id: 'recent', nhan: 'account.tab.recent', Icon: IconClock },
+  { id: 'badges', nhan: 'account.tab.badges', Icon: IconBadge },
+  { id: 'settings', nhan: 'account.tab.settings', Icon: IconSettings },
+] as const satisfies ReadonlyArray<{
+  id: string;
+  nhan: Khoa;
+  Icon: (props: { className?: string }) => JSX.Element;
+}>;
 
 type TabId = (typeof TABS)[number]['id'];
 
@@ -96,7 +113,7 @@ export function AccountPage() {
                   aria-current={muc.id === tab ? 'page' : undefined}
                   onClick={() => doiTab(muc.id)}
                 >
-                  <span aria-hidden="true">{muc.icon}</span> {t(muc.nhan)}
+                  <muc.Icon /> {t(muc.nhan)}
                 </button>
               </li>
             ))}

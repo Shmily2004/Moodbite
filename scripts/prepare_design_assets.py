@@ -76,6 +76,9 @@ XU_LY = {
     "Date.png": ("icon-hen-ho.png", "icon", 160),
     "Healthy.png": ("icon-healthy.png", "icon", 160),
     "beer.png": ("icon-bia.png", "icon", 160),
+    # --- Mascot bong bóng trợ lý (chủ dự án gửi 2026-08-25) ------------------
+    # To hơn hẳn nhóm icon vì nó hiển thị ~72px chứ không phải ~26px.
+    "mascot bubble.png": ("mascot-bubble.png", "icon", 320),
 }
 
 # Ngưỡng tách nền, chọn theo số đo thật của `slogan.png`:

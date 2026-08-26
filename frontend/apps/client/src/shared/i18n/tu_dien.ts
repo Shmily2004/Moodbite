@@ -27,6 +27,9 @@ export type NgonNgu = (typeof NGON_NGU)[number];
 /** Bản tiếng Việt là BẢN GỐC: nó định nghĩa danh sách khoá. */
 const vi = {
   // --- Thanh trên -----------------------------------------------------------
+  // --- Bong bóng trợ lý (thêm 2026-08-25) ---------------------------------
+  'bubble.hint': 'Chưa đúng gu? Tinh chỉnh gợi ý nhé!',
+  'bubble.cta': 'Tinh chỉnh gợi ý',
   // --- Khối "Dành riêng cho bạn" ở trang chủ (thêm 2026-08-25) ------------
   'forYou.title': 'Dành riêng cho bạn',
   'forYou.sub': 'Món và quán bạn đã bấm trái tim.',
@@ -210,6 +213,9 @@ export type Khoa = keyof typeof vi;
  * không có cách nào quên dịch mà vẫn build được.
  */
 const en: Record<Khoa, string> = {
+  // --- Assistant bubble (added 2026-08-25) --------------------------------
+  'bubble.hint': 'Not quite your taste? Let us fine-tune it.',
+  'bubble.cta': 'Fine-tune suggestions',
   // --- "For you" block on the home page (added 2026-08-25) ----------------
   'forYou.title': 'For you',
   'forYou.sub': 'Dishes and places you hearted.',

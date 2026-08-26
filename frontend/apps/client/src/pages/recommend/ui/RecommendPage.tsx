@@ -13,8 +13,10 @@
  *     └────────┘  [Khám phá Bún chả]   └──────────────┘
  *     [nhỏ][nhỏ][nhỏ][nhỏ][nhỏ]
  *
- *   ♥ CÓ THỂ BẠN SẼ THÍCH
+ *   ♥ CÓ THỂ BẠN SẼ THÍCH   (5 món, hàng ngang trượt — KHÔNG phải lưới)
  *     [nhỏ][nhỏ][nhỏ][nhỏ][nhỏ]
+ *
+ *   ♥ DÀNH RIÊNG CHO BẠN    (món/quán đã lưu — tự ẩn khi chưa lưu gì)
  *
  * ⚠️ KHÔNG hiện ⭐ rating và km trên thẻ món, dù bản thiết kế có. Chủ dự án chốt
  * 2026-08-25 rằng đó là lỗi thiết kế: MÓN không có trường rating (chỉ QUÁN mới có, và
@@ -31,6 +33,7 @@ import { SiteHeader } from '@/widgets/site-header';
 import { DishList, DishListSkeleton } from '@/widgets/dish-list';
 import { FilterDrawer } from '@/widgets/filter-drawer';
 import { AssistantBubble } from '@/widgets/assistant-bubble';
+import { ForYou } from '@/widgets/for-you';
 import { DishCard } from '@/entities/dish';
 import type { ChipDangBat } from '@/features/suggest-dishes';
 import {
@@ -48,6 +51,16 @@ import { useT } from '@/shared/i18n';
 
 /** Số món trong khối "phù hợp nhất": 1 thẻ lớn + 5 thẻ nhỏ, đúng như thiết kế. */
 const SO_MON_NOI_BAT = 6;
+
+/**
+ * Số món trong khối "Có thể bạn sẽ thích" — chủ dự án chốt 2026-08-26: "chỉ hiển thị
+ * khoảng 4-5 thôi, như giờ đang là quá nhiều".
+ *
+ * Bản cũ đổ TOÀN BỘ phần đuôi danh sách (có thể vài chục món) thành một lưới, làm trang
+ * dài gấp mấy lần và đẩy mọi thứ khác ra khỏi màn hình. Đây là khối GỢI Ý THÊM, không
+ * phải kết quả chính — kết quả chính nằm ở khối "phù hợp nhất" ngay trên.
+ */
+const SO_MON_CO_THE_THICH = 5;
 
 export function RecommendPage() {
   const t = useT();
@@ -78,7 +91,7 @@ export function RecommendPage() {
   // ⚠️ ĐÂY KHÔNG PHẢI GỢI Ý CÁ NHÂN HOÁ, và câu phụ dưới tiêu đề nói đúng như vậy.
   // Cá nhân hoá thật cần lịch sử hành vi, mà `interactions.jsonl` mới có vài bản ghi.
   // Đặt tên "dành riêng cho bạn" lúc này là hứa thứ chưa có.
-  const coTheThich = dishes.slice(SO_MON_NOI_BAT);
+  const coTheThich = dishes.slice(SO_MON_NOI_BAT, SO_MON_NOI_BAT + SO_MON_CO_THE_THICH);
 
   const chips = chipDangBat(suggestions.filters);
   const goChip = (chip: ChipDangBat) => {
@@ -87,9 +100,16 @@ export function RecommendPage() {
   };
 
   const moMon = (dishId: string) => navigate(ROUTES.dish.replace(':dishId', dishId));
-  const daLuu = (dishId: string) => savedDishes.isSaved('dish', dishId);
-  const luuMon = (dishId: string, ten: string) =>
-    savedDishes.toggle({ itemType: 'dish', itemId: dishId, name: ten });
+
+  // HAI danh sách tách bạch: trái tim ("Món yêu thích") và dấu trang ("Đã lưu").
+  // Xem `features/save-favorite` — bỏ cái này không đụng tới cái kia.
+  const daThich = (dishId: string) => savedDishes.isSaved('dish', dishId, 'favorite');
+  const daDanhDau = (dishId: string) => savedDishes.isSaved('dish', dishId, 'bookmark');
+  const doiTrangThai = (
+    dishId: string,
+    ten: string,
+    listType: 'favorite' | 'bookmark',
+  ) => savedDishes.toggle({ itemType: 'dish', itemId: dishId, name: ten, listType });
 
   return (
     <div className="page">
@@ -177,8 +197,12 @@ export function RecommendPage() {
               <DishCard
                 dish={monDau}
                 onOpen={() => moMon(monDau.dish_id)}
-                saved={daLuu(monDau.dish_id)}
-                onToggleSave={() => luuMon(monDau.dish_id, monDau.name)}
+                saved={daThich(monDau.dish_id)}
+                onToggleSave={() => doiTrangThai(monDau.dish_id, monDau.name, 'favorite')}
+                bookmarked={daDanhDau(monDau.dish_id)}
+                onToggleBookmark={() =>
+                  doiTrangThai(monDau.dish_id, monDau.name, 'bookmark')
+                }
               />
 
               <div className="mon-noi-bat__info">
@@ -213,8 +237,12 @@ export function RecommendPage() {
                 dishes={monPhu}
                 layout="row"
                 onOpen={(dish) => moMon(dish.dish_id)}
-                isSaved={(dish) => daLuu(dish.dish_id)}
-                onToggleSave={(dish) => luuMon(dish.dish_id, dish.name)}
+                isSaved={(dish) => daThich(dish.dish_id)}
+                onToggleSave={(dish) => doiTrangThai(dish.dish_id, dish.name, 'favorite')}
+                isBookmarked={(dish) => daDanhDau(dish.dish_id)}
+                onToggleBookmark={(dish) =>
+                  doiTrangThai(dish.dish_id, dish.name, 'bookmark')
+                }
               />
             )}
           </section>
@@ -227,15 +255,27 @@ export function RecommendPage() {
             </h2>
             <p className="section-sub">{t('recommend.mayLikeSub')}</p>
 
+            {/* HÀNG NGANG TRƯỢT, không phải lưới: khối này là gợi ý thêm, nó không
+                được quyền chiếm chiều cao của cả trang. */}
             <DishList
               dishes={coTheThich}
-              layout="grid"
+              layout="row"
               onOpen={(dish) => moMon(dish.dish_id)}
-              isSaved={(dish) => daLuu(dish.dish_id)}
-              onToggleSave={(dish) => luuMon(dish.dish_id, dish.name)}
+              isSaved={(dish) => daThich(dish.dish_id)}
+              onToggleSave={(dish) => doiTrangThai(dish.dish_id, dish.name, 'favorite')}
+              isBookmarked={(dish) => daDanhDau(dish.dish_id)}
+              onToggleBookmark={(dish) =>
+                doiTrangThai(dish.dish_id, dish.name, 'bookmark')
+              }
             />
           </section>
         )}
+
+        {/* MÓN & QUÁN ĐÃ LƯU — đặt SAU các khối gợi ý.
+            Trang này người dùng vào để tìm món MỚI, nên thứ họ đã lưu là để đối chiếu
+            ("mình từng thích gì rồi nhỉ"), không phải thứ cần thấy đầu tiên. Widget tự
+            ẩn khi chưa lưu gì, nên trang không phình ra với người mới. */}
+        <ForYou favorites={savedDishes} />
 
         <AssistantBubble
           onOpen={() => setMoBoLoc(true)}

@@ -138,26 +138,53 @@ describe('HomePage - nut tim luu mon', () => {
     vi.stubGlobal('fetch', mockSuggestResponse([BUN_CHA]));
     renderHome();
 
-    const tim = await screen.findByRole('button', { name: /^Lưu Bún chả$/ });
+    const tim = await screen.findByRole('button', {
+      name: /Thêm Bún chả vào Món yêu thích/,
+    });
     fireEvent.click(tim);
 
     // KHÁCH lưu ở localStorage; người đã đăng nhập thì đồng bộ lên `/me/favorites`
     // (xem `features/save-favorite`). Test này chạy ở trạng thái CHƯA đăng nhập.
     // Lưu kèm TÊN chứ không chỉ id: trang tài khoản hiện danh sách đã lưu mà không phải
-    // gọi API lấy tên từng món.
+    // gọi API lấy tên từng món. Và kèm `listType` — hai danh sách tách bạch từ 2026-08-26.
     expect(JSON.parse(localStorage.getItem('moodbite.favorites') ?? '[]')).toEqual([
-      { itemType: 'dish', itemId: 'bun-cha', name: 'Bún chả' },
+      { itemType: 'dish', itemId: 'bun-cha', name: 'Bún chả', listType: 'favorite' },
     ]);
 
-    fireEvent.click(screen.getByRole('button', { name: /^Bỏ lưu Bún chả$/ }));
+    fireEvent.click(
+      screen.getByRole('button', { name: /Bỏ Bún chả khỏi Món yêu thích/ }),
+    );
     expect(JSON.parse(localStorage.getItem('moodbite.favorites') ?? '[]')).toHaveLength(0);
+  });
+
+  it('trai tim va dau trang la HAI danh sach TACH BACH', async () => {
+    // Chủ dự án chốt 2026-08-26. Lỗi dễ mắc nhất: bỏ tim xoá luôn dấu trang.
+    vi.stubGlobal('fetch', mockSuggestResponse([BUN_CHA]));
+    renderHome();
+
+    fireEvent.click(
+      await screen.findByRole('button', { name: /Thêm Bún chả vào Món yêu thích/ }),
+    );
+    fireEvent.click(screen.getByRole('button', { name: /Lưu Bún chả để xem sau/ }));
+
+    const luu = () => JSON.parse(localStorage.getItem('moodbite.favorites') ?? '[]');
+    expect(luu()).toHaveLength(2);
+
+    // Bỏ TIM — dấu trang phải còn nguyên.
+    fireEvent.click(screen.getByRole('button', { name: /Bỏ Bún chả khỏi Món yêu thích/ }));
+
+    expect(luu()).toEqual([
+      { itemType: 'dish', itemId: 'bun-cha', name: 'Bún chả', listType: 'bookmark' },
+    ]);
   });
 
   it('bam tim KHONG mo trang chi tiet mon', async () => {
     vi.stubGlobal('fetch', mockSuggestResponse([BUN_CHA]));
     renderHome();
 
-    fireEvent.click(await screen.findByRole('button', { name: /^Lưu Bún chả$/ }));
+    fireEvent.click(
+      await screen.findByRole('button', { name: /Thêm Bún chả vào Món yêu thích/ }),
+    );
 
     // Vẫn ở trang chủ: tiêu đề khối kết quả còn đó.
     expect(screen.getByText(/Món phổ biến hôm nay/i)).toBeInTheDocument();

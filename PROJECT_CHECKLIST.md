@@ -1,6 +1,6 @@
 # MoodBite — Bảng theo dõi tiến độ
 
-**Cập nhật:** 2026-08-23
+**Cập nhật:** 2026-08-26
 **Nguyên tắc:** file này chỉ ghi thứ đã **chạy thật và kiểm chứng được**. Không ghi theo
 kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh để tự kiểm lại.
 
@@ -19,7 +19,7 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Frontend Client | ✅ **TypeScript + FSD** | 86 test, có bản đồ, steiger trong CI |
 | Bản đồ | ✅ **Xong** | Leaflet + OpenStreetMap, miễn phí, không cần key |
 | Kiến trúc | ✅ Sạch | Clean Architecture + checker tự động trong CI |
-| Test | ✅ **489 backend + 147 frontend** | tổng **636** (client 139 · admin 8) |
+| Test | ✅ **544 backend + 188 frontend** | tổng **732** (client 180 · admin 8). Đo bằng `python scripts/verify.py` ngày 2026-08-26 |
 | Giao diện | ✅ Theo bản duyệt · **trang chủ + tài khoản dựng lại 2026-08-22** | trang chủ = LƯỚI MÓN + chips lọc; trang món = giới thiệu + bản đồ + danh sách quán; `/tim-kiem` giữ bố cục bản đồ + rail cũ |
 | Router + layout | ✅ Xong | react-router v6, khung dùng chung, `RequireAuth` cho admin |
 | Chạy xem giao diện | ✅ **một lệnh** | `python scripts/run_dev.py --admin` |
@@ -32,6 +32,7 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | **Chân trang + ghi công nguồn** | ✅ **Xong 2026-08-24** | Trước đó ghi công OSM CHỈ có trên bản đồ Leaflet, trong khi dữ liệu dùng khắp app — thiếu nghĩa vụ của ODbL/CDLA/CC BY-SA |
 | **Email bắt buộc khi đăng ký** | ✅ **Xong 2026-08-24** | Đảo quyết định cũ ("tuỳ chọn"), vì nay đã có xác minh email và đó là đường DUY NHẤT lấy lại mật khẩu. Tài khoản cũ không email vẫn dùng được |
 | **Xác minh email** | ✅ **Xong 2026-08-24, sửa lá thư 2026-08-26** | đăng ký có email → tự gửi thư; token HMAC 24h, dùng MỘT lần, đổi email là link cũ chết. Secret riêng `MOODBITE_EMAIL_VERIFY_SECRET`. **2026-08-26:** thư nay có bản HTML kèm NÚT BẤM — bản chữ thuần cũ để đường dẫn 218 ký tự trần giữa dòng, quoted-printable bẻ ở cột 76 nên hộp thư auto-link ra link CỤT. Xác minh xong TỰ về trang chủ sau 3 giây |
+| **Hai danh sách lưu tách bạch** | ✅ **Xong 2026-08-26** | `favorite` (trái tim — "Món yêu thích") và `bookmark` (dấu trang — "Đã lưu") là HAI danh sách. Một món nằm được ở cả hai; bỏ tim không xoá dấu trang. Khoá chính bảng `saved_items` gộp thêm `list_type`, dữ liệu cũ tự chuyển về `favorite` khi mở app. 11 test khoá |
 | **Rà soát bảo mật** | ✅ **2026-08-24** | sửa 3 lỗi: secret đặt lại mật khẩu bị dán nhầm bằng CÂU LỆNH sinh nó · CORS mặc định `*` · `/admin/login` không giới hạn tần suất. Có `tests/test_bao_mat.py` canh |
 | **Phạm vi Hà Nội** | ✅ **Sửa 2026-08-24** | bbox cũ cắt mất 1/3 thành phố (Ba Vì, Sơn Tây, Mỹ Đức, Ứng Hoà…) và lấn sang Bắc Ninh. Ranh giới nay hỏi theo AREA của Hà Nội → đúng 126 đơn vị |
 | Dữ liệu | ✅ **52.854 quán** · **855 món** | Overture · OSM · Apify — **cả ba nguồn đã cạn** (Overture chưa ra bản mới, OSM 110/110 ô 0 lỗi, Wikipedia+Wikidata chỉ còn trả về rác). **Làm sạch 2026-08-24:** bỏ 7.534 quán ở tỉnh khác, sửa 803 `district`, làm sạch 519 tên. Kiểm tra lại: `district` **100% thuộc Hà Nội**, 0 trùng lặp, 0 tên rác |
@@ -45,12 +46,12 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | **Tóm tắt review (Lớp 4)** | ✅ Xong | 851/1.310 quán, trích nguyên văn |
 | Kiểm tra định kỳ nguồn | ✅ Xong | `python scripts/refresh_check.py` — báo cáo quán mới/mất/đổi tên |
 | **Lớp 1 — Phân cụm trải nghiệm** | ✅ **Xong** | KMeans k=7, Silhouette 0.318 |
-| **Lớp 2 — Tìm kiếm ngữ nghĩa** | ✅ **Xong** | TF-IDF cosine, 40.720 quán |
+| **Lớp 2 — Tìm kiếm ngữ nghĩa** | ✅ **Xong** | TF-IDF cosine, **52.854 quán · 37.450 đặc trưng** (log khởi động 2026-08-26) |
 | **Luồng "chọn món trước, tìm quán sau"** | ✅ **Backend + Client xong** · ⬜ chưa có UI admin cho món | `/dishes/suggest` → `/dishes/{id}` → `/dishes/{id}/restaurants`; trang chủ là LƯỚI MÓN. Tài liệu đề án đã sửa cho khớp (2026-08-19) |
-| **Danh mục món ăn** | ✅ **855 món** · 93.0% có giới thiệu · 81.5% có ảnh | `python scripts/build_dish_catalog.py --enrich`. Hai tỷ lệ này TỤT so với mốc 747 món (100% / 87.1%) vì 108 món mới đào từ tên quán và Wikidata chưa có bài Wikipedia để lấy ảnh + giới thiệu |
-| ↳ trong đó tìm được quán ở Hà Nội | 🟡 **297 món (34.7%)** | +108 món so với 2026-08-23, nhờ nguồn thứ ba: đào cụm từ trong TÊN của 53.461 quán thật (`python scripts/mine_dish_names.py`). 558 món còn lại là món quốc tế chưa quán nào ở HN bán — trang chủ **tự ẩn** và nói rõ lý do |
+| **Danh mục món ăn** | ✅ **855 món** · 93.0% có giới thiệu · **88.1% có ảnh** · 14 mục là DANH MỤC không phải món | `python scripts/build_dish_catalog.py --enrich`. Hai tỷ lệ này TỤT so với mốc 747 món (100% / 87.1%) vì 108 món mới đào từ tên quán và Wikidata chưa có bài Wikipedia để lấy ảnh + giới thiệu |
+| ↳ trong đó tìm được quán ở Hà Nội | 🟡 **298 món (34.9%)** | +108 món so với 2026-08-23, nhờ nguồn thứ ba: đào cụm từ trong TÊN của 53.461 quán thật (`python scripts/mine_dish_names.py`). 558 món còn lại là món quốc tế chưa quán nào ở HN bán — trang chủ **tự ẩn** và nói rõ lý do |
 | Giới thiệu ngắn về món | ✅ Wikipedia REST summary + soạn tay | ĐÃ BỎ phần nguyên liệu (chốt 2026-08-19). ĐÃ BỎ trích regex vì sinh dữ liệu sai — xem `sources/wikipedia_dish.py` |
-| Ảnh món | ✅ 87.1% · **chỉ lưu URL, không tải file** | ~2000 món cache ≈ 1.4MB; tải ảnh về sẽ tốn ~400MB |
+| Ảnh món | ✅ **88.1%** (753/855) · **chỉ lưu URL, không tải file** | ~2000 món cache ≈ 1.4MB; tải ảnh về sẽ tốn ~400MB |
 | Tìm món mới tự động | ✅ **3 nguồn** | `discover_dishes.py` (37 thể loại Wikipedia + **Wikidata CC0**, 4.793 mục) và `mine_dish_names.py` (đào từ tên quán). Mọi `--apply` phải đi qua danh sách duyệt tay `data_pipeline/dish_approved.json` |
 | Phạm vi địa lý | 🔒 **CHỈ HÀ NỘI** (chốt 2026-08-19) | `CITY_BBOXES` chỉ còn `ha_noi`; truyền `--city` khác bị từ chối. Dữ liệu hiện tại 100% trong Hà Nội (lat 20.729–21.400, lng 105.416–106.050) |
 | Theo dõi dung lượng | ✅ Có công cụ | `python scripts/disk_report.py` |
@@ -1075,9 +1076,9 @@ Những màn hình dưới đây **chưa có bản thiết kế**, nên chưa d�
 
 | # | Màn hình | Vì sao cần | Backend đã sẵn sàng? |
 |---|---|---|---|
-| 1 | **Trang chi tiết QUÁN** (`/restaurants/:id`) | Hiện chi tiết quán chỉ là một panel trượt trong trang bản đồ — không gửi link được, không lưu được, không có địa chỉ riêng. Đây là lỗ hổng lớn nhất còn lại của giao diện | ✅ `GET /restaurants/{id}` đã có đủ review · ảnh · giá · giờ |
-| 2 | **Bộ lọc dạng ngăn kéo (drawer)** | Xem mục "Bộ lọc" bên dưới | ✅ không cần gì thêm |
-| 3 | **Thanh ☰ cho điện thoại** | Thanh trên hiện xếp dọc khi màn hình hẹp, dùng được nhưng chiếm chỗ | ✅ |
+| ~~1~~ | ~~**Bộ lọc dạng ngăn kéo (drawer)**~~ | — | ✅ **XONG 2026-08-24** — chọn phương án A, `widgets/filter-drawer` |
+| ~~2~~ | ~~**Thanh ☰ cho điện thoại**~~ | — | ✅ **XONG 2026-08-23** |
+| 3 | **Trang chi tiết QUÁN** (`/restaurants/:id`) | Chi tiết quán vẫn chỉ là panel trượt trong trang bản đồ — không gửi link được, không có địa chỉ riêng | ✅ `GET /restaurants/{id}` đã đủ review · ảnh · giá · giờ. ⚠️ `restaurance recommend.png` KHÔNG phải bản vẽ cho màn này — đó là trang CHI TIẾT MÓN kèm danh sách quán (`/dishes/:id`) |
 | 4 | "Bộ sưu tập của tôi" | Có trong `design/profile.png` và trên thanh điều hướng của `design/Home.jpg` | ❌ cần bảng `collections` + endpoint |
 | 5 | "Địa chỉ của tôi" | Có trong `design/profile.png` | ❌ cần bảng địa chỉ |
 | 6 | "Thông báo" (chuông đỏ) | Có trong cả hai bản thiết kế | ❌ không có nguồn thông báo nào |
@@ -1095,7 +1096,8 @@ và không khớp bộ nhận diện. Có file thì thay vào `frontend/design/a
 
 | Cần gì | Đang tạm dùng | Dùng ở đâu |
 |---|---|---|
-| **Bộ icon mood** — còn 5/7 | ✅ cay · ✅ thư giãn · ⬜ 😊 🍲 🌧️ 🔥 🍜 | hàng "Gợi ý nhanh theo mood" — *chủ dự án gửi dần* |
+| **Bộ icon mood** — còn 3/7 | ✅ cay · ✅ thư giãn · ✅ trời mưa · ✅ đồ nướng · ⬜ happy · ⬜ sad · ⬜ hot | hàng "Gợi ý nhanh theo mood". Chưa có thì thẻ dùng **icon SVG**, không phải emoji |
+| ⚠️ **3 icon ĐÃ GỬI nhưng CHƯA DÙNG** | `icon-hen-ho` · `icon-healthy` · `icon-bia` | Nằm ở `ICON_CHUA_DUNG` trong `shared/config/images.ts`, **không component nào đọc**. Backend chưa có bộ lọc tương ứng nên chưa vẽ thẻ — bấm vào mà kết quả không đổi thì tệ hơn là không có thẻ |
 | **5 icon huy hiệu** (khối lục giác như thiết kế) | 🧭 👨‍🍳 📅 🗺️ 🛡️ | thẻ "Huy hiệu của bạn" |
 | **Icon ngôi sao cấp độ** | ⭐ | thẻ "Cấp độ của bạn" |
 | **Icon máy ảnh** trên ảnh đại diện | chữ "Tải ảnh lên" | thiết kế có nút máy ảnh tròn màu cam ở góc avatar |
@@ -1121,23 +1123,24 @@ nên muốn lọc phải cuộn xuống, bấm xong lại cuộn lên. Hai phư�
 | **A (đề xuất)** | Nút "Lọc" cạnh tiêu đề kết quả, bấm ra **ngăn kéo trượt từ phải** | Không chiếm chỗ; dùng chung một component cho cả máy tính lẫn điện thoại; giữ nguyên lưới món rộng | Phải bấm thêm một lần mới thấy bộ lọc |
 | B | Cột lọc cố định bên trái (kiểu trang thương mại điện tử) | Luôn nhìn thấy | Bóp lưới món còn ~70% bề ngang; trên điện thoại vẫn phải làm ngăn kéo — thành hai bản |
 
-**Chờ chủ dự án chọn A hay B trước khi dựng.** Không cần bản vẽ tay: cả hai đều dùng lại
-đúng các chip đang có, chỉ đổi vị trí.
+> ✅ **ĐÃ CHỐT 2026-08-24: phương án A.** Dựng ở `widgets/filter-drawer`, mở bằng nút
+> "Lọc" cạnh tiêu đề kết quả và bằng bong bóng trợ lý. Phần bàn ở trên giữ lại để biết
+> vì sao chọn — đừng đọc thành "còn đang chờ".
 
 ---
 
-## 📊 TIẾN ĐỘ — đánh giá thẳng thắn (2026-08-23)
+## 📊 TIẾN ĐỘ — đánh giá thẳng thắn (đo lại 2026-08-26)
 
 **Số liệu thật, không ước lượng cảm tính:**
 
 | Chỉ số | Giá trị |
 |---|---|
 | Ngày commit đầu tiên | 2026-07-29 |
-| Số commit | 112 |
-| Số ngày đã làm | ~26 ngày |
-| Test | 481 backend + 147 frontend = **628** |
-| Dữ liệu quán | 40.720 (Hà Nội) |
-| Danh mục món | 747 món · 92% có ảnh · 100% có giới thiệu |
+| Số commit | 126 |
+| Số ngày đã làm | 28 ngày (29-07 → 26-08) |
+| Test | **544 backend + 188 frontend = 732** |
+| Dữ liệu quán | **52.854** (100% trong Hà Nội) |
+| Danh mục món | **855 món** · 88,1% có ảnh · 93,0% có giới thiệu · 298 món tìm được quán ở HN |
 | `python scripts/verify.py` | **9/9 đạt** |
 
 ### Đã xong bao nhiêu phần trăm?
@@ -1146,7 +1149,7 @@ Chia theo hạng mục của đề án, chấm theo *chạy được thật*, kh
 
 | Hạng mục | Xong | Ghi chú |
 |---|---:|---|
-| Backend + API | **95%** | thiếu `POST /admin/restaurants` |
+| Backend + API | **98%** | `POST /admin/restaurants` đã xong 2026-08-23. Còn: trường "nổi tiếng" cho thẻ quán, thu hồi token khi đăng xuất |
 | Dữ liệu quán | **85%** | đủ tên/toạ độ/loại; thiếu sao·giá·giờ (2-4%) |
 | Danh mục món | **95%** | |
 | Lớp 1 phân cụm | **100%** | |
@@ -1154,7 +1157,7 @@ Chia theo hạng mục của đề án, chấm theo *chạy được thật*, kh
 | Lớp 3 xếp hạng | **60%** | công thức trọng số chạy tốt; **mô hình HỌC thì chưa** |
 | Lớp 4 tóm tắt review | **100%** | 851/1310 quán |
 | Lớp 5 gợi ý món | **100%** | |
-| Giao diện người dùng | **85%** | còn trang chi tiết quán riêng, bản mobile |
+| Giao diện người dùng | **88%** | bản mobile xong 2026-08-23. Còn: trang chi tiết quán riêng (chờ bản vẽ), 8 chỗ lệch thiết kế + 44 emoji — xem mục 🚧 VIỆC TIẾP THEO phần A |
 | Tài khoản + cá nhân hoá | **95%** | ✅ **xác minh email xong 2026-08-24** (`/auth/verify-email/*`, trang `/verify-email`, 15 test). Còn: thu hồi token |
 | Trang quản trị | **70%** | code xong, **chưa bật trên máy**, chưa thêm mới quán được |
 | Triển khai (deploy) | **10%** | mới có `Procfile`, chưa deploy lần nào |
@@ -1215,24 +1218,68 @@ máy" — phần dễ bị hỏi nhất khi bảo vệ. Nhắc lại ở mỗi l
 > **Quy ước:** mục dưới đây CHỈ chứa việc **chưa làm hoặc chưa xong**.
 > Việc đã xong nằm ở phần ✅ ĐÃ LÀM XONG bên trên — không lặp lại ở đây.
 
+### A. Giao diện — chênh so với bản thiết kế (rà 2026-08-26)
+
+Đối chiếu từng màn với file trong `frontend/design/`. Chỉ ghi chỗ **thật sự lệch**, bỏ
+qua những thứ đã cố ý làm khác và đã ghi lý do trong code (⭐ và km trên thẻ món, ô lý do
+dùng `reasons` thật thay câu quảng cáo, "Có thể bạn sẽ thích" không hứa cá nhân hoá).
+
+| # | Chỗ lệch | Màn | Chặn bởi |
+|---|---|---|---|
+| A1 | Thẻ quán **chưa có số thứ tự** khớp ghim bản đồ (1·2·3·4) | `/dishes/:id` | — lập trình được |
+| A2 | Ghim bản đồ là **chấm tròn trơn**, chưa mang số | `/dishes/:id` | — lập trình được |
+| A3 | Chưa có nhãn **"Nổi tiếng"** | `/dishes/:id` | ⛔ **backend chưa có trường này**. Suy ra từ `rating`/`user_ratings_total` ở frontend là đặt nghiệp vụ sai tầng (CLAUDE.md 1b) → phải thêm ở `domain/` trước |
+| A4 | Chưa có nút **"Xem chi tiết →"** trên từng thẻ quán | `/dishes/:id` | 🟡 dính mục 3 bảng dưới — bấm vào thì đi đâu? Hiện chỉ có panel trượt |
+| A5 | Chưa có **"Xem thêm quán"** ở cuối danh sách | `/dishes/:id` | — lập trình được |
+| A6 | Chưa có **"Xem danh sách"** trên bản đồ (thu gọn bản đồ) | `/dishes/:id` | — lập trình được |
+| A7 | Chưa có **tranh minh hoạ** bên phải phần đầu trang | `/dishes/:id` | — đã có `banner-trang-chu.png` |
+| A8 | Tag món là **chữ trơn**, thiết kế là chip có icon + nút "Chỉnh sửa" mở bộ lọc | `/dishes/:id` | — lập trình được |
+| A9 | **44 emoji còn lại** chưa thay bằng icon SVG | 14 file | — lập trình được, xem bảng dưới |
+
+**Emoji còn sót** (đo bằng lệnh ở cuối mục này) — mũi tên `←` `→` `✕` KHÔNG tính, đó là
+ký tự chữ chứ không phải emoji:
+
+| File | Số | Là gì |
+|---|---|---|
+| `entities/restaurant/ui/RestaurantThumb.tsx` | 15 | icon loại hình quán (🍜 ☕ 🧋…) |
+| `features/taste-preferences/model/danh_sach.ts` | 8 | icon cách chế biến |
+| `entities/restaurant/model/format.ts` | 4 | 😌 và các icon mood |
+| `widgets/user-progress/ui/StatTiles.tsx` | 4 | 🍽️ ❤️ 🕘 🧭 |
+| `pages/account/ui/AccountPage.tsx` | 3 | ✉️ 🗓️ ⚙️ |
+| `widgets/assistant-bubble/ui/AssistantBubble.tsx` | 2 | ✦ trong sơ đồ + nhãn |
+| còn lại (8 file, mỗi file 1) | 8 | ⭐ 🧭 🍽️ 📍 👋 🌶️ 🍽 |
+| **TỔNG** | **44** | đo 2026-08-26 bằng `python scripts/dem_emoji.py` |
+
+### B. Việc còn lại — không phải giao diện
+
 | # | Việc | Chặn bởi | Ai làm được |
 |---|---|---|---|
-| ~~1-4~~ | ~~Bật quản trị (SQLite + tài khoản + 4 biến)~~ | — | ✅ **XONG 2026-08-23** |
-| ~~5-6~~ | ~~`POST /admin/restaurants` + form thêm quán~~ | — | ✅ **XONG 2026-08-23** |
-| 7 | **Trang chi tiết QUÁN riêng** (hiện chỉ có panel trong bản đồ) | **chờ bản thiết kế** | xem mục 🎨 CẦN THIẾT KẾ BỔ SUNG |
-| ~~8~~ | ~~Bản mobile: thanh ☰~~ | — | ✅ **XONG 2026-08-23** |
-| 9 | Xác minh email lúc đăng ký | — | lập trình được |
+| ~~1-6~~ | ~~Bật quản trị · `POST /admin/restaurants` + form thêm quán~~ | — | ✅ **XONG 2026-08-23** |
+| ~~7~~ | ~~Bản mobile: thanh ☰~~ | — | ✅ **XONG 2026-08-23** |
+| ~~8~~ | ~~Xác minh email lúc đăng ký~~ | — | ✅ **XONG 2026-08-24**, sửa lá thư 2026-08-26 |
+| 9 | **Trang chi tiết QUÁN riêng** (`/restaurants/:id`) | **chờ bản thiết kế** — `restaurance recommend.png` là bản vẽ cho trang CHI TIẾT MÓN, không phải màn này | chờ chủ dự án |
 | 10 | Thu hồi token khi đăng xuất (cột `token_version`) | **cần chốt đổi lược đồ** | chờ quyết định |
 | 11 | Bổ sung dữ liệu qua Apify | tài khoản + credit | cần người thật — xem `docs/apify_huong_dan.md` |
-| 12 | Nhập tay 50-100 quán Hoàn Kiếm | mục 1-4 | cần người thật |
+| 12 | Nhập tay 50-100 quán Hoàn Kiếm | — (admin đã bật) | cần người thật |
 | 13 | **Thu tương tác từ người dùng thật** | **cần người thật** | ⬅ **ƯU TIÊN CAO NHẤT** |
 | 14 | Huấn luyện mô hình xếp hạng | mục 13 | ⛔ chờ dữ liệu |
 | 15 | Đánh giá NDCG / Precision@K | mục 14 | ⛔ chờ dữ liệu |
 | 16 | Deploy + bật `MOODBITE_ENABLE_WEATHER=1` + siết CORS | chưa deploy | cần môi trường thật |
 | 17 | Google Places API | **cần thẻ thanh toán** | ⏸️ để sau |
+| 18 | Giá tiền cho MÓN (gộp từ quán) | **chờ chủ dự án chốt** | chỉ 41/298 món có ≥3 quán biết giá — số quá mỏng để nói "giá món này khoảng…" |
+| 19 | "Có thể bạn sẽ thích" thành gợi ý cá nhân hoá THẬT | mục 13 | ⛔ `interactions.jsonl` mới có **2 bản ghi** |
 
-**Đọc nhanh:** mục 1-6 và 8 đã xong. Mục 7 **chờ bản thiết kế**, mục 9 lập trình được.
-Mục 13 là thứ **quan trọng nhất và không code thay được**.
+**Đọc nhanh:**
+- Làm được ngay, không chờ ai: **A1 · A2 · A5 · A6 · A7 · A8 · A9**.
+- Cần backend trước: **A3** (trường "nổi tiếng").
+- Cần bản vẽ: **9** (trang chi tiết quán riêng), và nó chặn luôn **A4**.
+- **13 vẫn là thứ quan trọng nhất và không code thay được** — mọi mục ML phía sau đều đợi nó.
+
+Tự đếm lại emoji còn sót bất cứ lúc nào:
+
+```powershell
+python scripts/dem_emoji.py
+```
 
 ### Đổi mật khẩu quản trị
 

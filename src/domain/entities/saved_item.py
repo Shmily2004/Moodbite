@@ -25,8 +25,32 @@ from typing import Optional
 
 
 class SavedItemType(str, Enum):
+    """CÁI GÌ được lưu."""
+
     RESTAURANT = "restaurant"
     DISH = "dish"
+
+
+class SavedListType(str, Enum):
+    """LƯU VÀO ĐÂU — hai danh sách tách bạch, chủ dự án chốt 2026-08-26.
+
+    Trước đó chỉ có MỘT danh sách và trái tim vừa mang nghĩa "thích" vừa mang nghĩa
+    "để dành". Hai nghĩa đó khác nhau thật, và người dùng đang phải chọn một:
+
+        FAVORITE  trái tim   "Món yêu thích"  — món tôi THÍCH, để khoe/để nhớ khẩu vị
+        BOOKMARK  dấu trang  "Đã lưu"         — món tôi ĐỊNH ĂN, để dành xem sau
+
+    Một món nằm được ở CẢ HAI danh sách cùng lúc: thích rồi vẫn có thể đánh dấu để hôm
+    nào đi ăn. Vì vậy khoá chính của bảng phải gộp cả `list_type` — xem
+    `sqlite_saved_item_repository.py`.
+
+    ⚠️ FAVORITE là giá trị MẶC ĐỊNH ở mọi chỗ, và dữ liệu cũ (lúc chỉ có một danh sách)
+    được chuyển hết về FAVORITE. Lý do: nút duy nhất hồi đó là trái tim và giao diện gọi
+    nó là "yêu thích", nên đó mới đúng là điều người dùng đã làm.
+    """
+
+    FAVORITE = "favorite"
+    BOOKMARK = "bookmark"
 
 
 class InvalidSavedItem(ValueError):
@@ -49,9 +73,14 @@ class SavedItem:
     # và còn đúng hơn về mặt "đây là thứ tôi đã lưu lúc đó".
     name: str
     created_at: Optional[datetime] = None
+    # Mặc định FAVORITE để mọi chỗ gọi cũ (và mọi test cũ) vẫn đúng nghĩa — xem
+    # `SavedListType`. Đặt sau `created_at` vì dataclass bắt trường có mặc định phải
+    # đứng cuối.
+    list_type: SavedListType = SavedListType.FAVORITE
 
     def to_public(self) -> dict:
         return {
+            "list_type": self.list_type.value,
             "item_type": self.item_type.value,
             "item_id": self.item_id,
             "name": self.name,
@@ -59,11 +88,29 @@ class SavedItem:
         }
 
 
+def validate_list_type(list_type: Optional[str]) -> SavedListType:
+    """Kiểm `list_type`. Bỏ trống = FAVORITE.
+
+    Bỏ trống được là CÓ CHỦ ĐÍCH chứ không phải lơi lỏng: trái tim là hành động phổ biến
+    nhất, và mọi lời gọi có từ trước ngày tách hai danh sách đều mang nghĩa đó.
+    """
+    if list_type is None or str(list_type).strip() == "":
+        return SavedListType.FAVORITE
+    try:
+        return SavedListType(list_type)
+    except ValueError:
+        hop_le = [t.value for t in SavedListType]
+        raise InvalidSavedItem(f"list_type '{list_type}' không hợp lệ. Hợp lệ: {hop_le}")
+
+
 def validate_saved_item(item_type: str, item_id: str, name: str) -> tuple:
     """Kiểm và chuẩn hoá dữ liệu một mục lưu. Trả `(SavedItemType, item_id, name)`.
 
     Đặt ở domain vì đây là quy tắc nghiệp vụ: "một mục lưu phải có loại hợp lệ, có mã, và
     có tên để hiển thị". Mai kia có lệnh CLI nhập hàng loạt thì vẫn phải theo đúng luật này.
+
+    ⚠️ KHÔNG kiểm `list_type` ở đây — dùng `validate_list_type` riêng. Gộp vào sẽ đổi
+    kiểu trả về của hàm này và kéo theo mọi chỗ gọi, trong khi hai thứ vốn kiểm độc lập.
     """
     try:
         loai = SavedItemType(item_type)
@@ -87,6 +134,8 @@ def validate_saved_item(item_type: str, item_id: str, name: str) -> tuple:
 __all__ = [
     "SavedItem",
     "SavedItemType",
+    "SavedListType",
+    "validate_list_type",
     "InvalidSavedItem",
     "validate_saved_item",
     "MAX_SAVED_NAME_LENGTH",

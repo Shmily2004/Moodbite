@@ -37,6 +37,13 @@ export type AuthData = components['schemas']['AuthData'];
 export type UserSelf = components['schemas']['UserSelf'];
 /** Một mục đã lưu: quán hoặc món. `item_type` là 'restaurant' | 'dish'. */
 export type SavedItem = components['schemas']['SavedItemSchema'];
+/**
+ * HAI danh sách tách bạch (2026-08-26):
+ *   `favorite` — trái tim,  "Món yêu thích": món tôi THÍCH
+ *   `bookmark` — dấu trang, "Đã lưu":       món tôi ĐỊNH ĂN, để dành xem sau
+ * Một món nằm được ở cả hai cùng lúc.
+ */
+export type LoaiDanhSach = 'favorite' | 'bookmark';
 export type SaveFavoriteRequest = components['schemas']['SaveFavoriteRequest'];
 export type FavoritesData = components['schemas']['FavoritesData'];
 /** Số liệu hoạt động + cấp độ + huy hiệu của chính chủ. MỌI SỐ Ở ĐÂY LÀ SỐ ĐẾM THẬT. */
@@ -182,13 +189,26 @@ export class MoodbiteAuthApi {
   // Không endpoint nào ở đây nhận `user_id`: server luôn lấy id từ token. Nhờ vậy
   // frontend KHÔNG THỂ vô tình (hay cố ý) đọc dữ liệu của người khác.
 
-  /** Danh sách đã lưu, mới nhất đứng đầu. Bỏ `itemType` để lấy cả quán lẫn món. */
+  /**
+   * Danh sách đã lưu, mới nhất đứng đầu.
+   *
+   * Bỏ `itemType` để lấy cả quán lẫn món; bỏ `listType` để lấy CẢ HAI danh sách
+   * (yêu thích + đã lưu). Giao diện thường bỏ trống cả hai: một thẻ món cần biết cùng
+   * lúc tim có bật không và dấu trang có bật không.
+   */
   favorites(
     itemType?: 'restaurant' | 'dish',
+    listType?: LoaiDanhSach,
     options?: RequestOptions,
   ): Promise<FavoritesData> {
-    const query = itemType ? `?item_type=${encodeURIComponent(itemType)}` : '';
-    return this.http.request<FavoritesData>(`/me/favorites${query}`, options);
+    const tham_so = new URLSearchParams();
+    if (itemType) tham_so.set('item_type', itemType);
+    if (listType) tham_so.set('list_type', listType);
+    const query = tham_so.toString();
+    return this.http.request<FavoritesData>(
+      `/me/favorites${query ? `?${query}` : ''}`,
+      options,
+    );
   }
 
   /**
@@ -206,14 +226,21 @@ export class MoodbiteAuthApi {
     });
   }
 
-  /** Bỏ lưu. Bỏ thứ vốn không có vẫn trả 200 — kết quả cuối cùng giống hệt nhau. */
+  /**
+   * Bỏ khỏi MỘT danh sách. Bỏ thứ vốn không có vẫn trả 200.
+   *
+   * `listType` bỏ trống = bỏ khỏi danh sách yêu thích (trái tim). Bỏ tim KHÔNG đụng tới
+   * dấu trang của cùng món đó — server khoá điều này bằng test.
+   */
   removeFavorite(
     itemType: 'restaurant' | 'dish',
     itemId: string,
+    listType?: LoaiDanhSach,
     options?: RequestOptions,
   ): Promise<MessageData> {
+    const query = listType ? `?list_type=${listType}` : '';
     return this.http.request<MessageData>(
-      `/me/favorites/${itemType}/${encodeURIComponent(itemId)}`,
+      `/me/favorites/${itemType}/${encodeURIComponent(itemId)}${query}`,
       { ...options, method: 'DELETE' },
     );
   }

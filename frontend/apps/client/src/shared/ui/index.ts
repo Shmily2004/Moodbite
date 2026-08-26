@@ -7,6 +7,7 @@ export {
   IconEyeOff,
   IconPin,
   IconHeart,
+  IconBookmark,
   IconMail,
   // --- icon cho bộ lọc món (thêm 2026-08-24, thay cho emoji) ---
   IconSun,

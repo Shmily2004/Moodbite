@@ -46,8 +46,13 @@ class GetUserStatsUseCase:
     def execute(self, user_id: str) -> UserStats:
         quan = dishes = 0
         if self._saved is not None and self._saved.is_ready:
-            quan = self._saved.count_for_user(user_id, SavedItemType.RESTAURANT)
-            dishes = self._saved.count_for_user(user_id, SavedItemType.DISH)
+            # `count_distinct_items` chứ KHÔNG phải `count_for_user`: từ 2026-08-26 một
+            # món có thể nằm ở cả "Món yêu thích" lẫn "Đã lưu", tức HAI dòng trong bảng.
+            # Ô "Món đã lưu" trả lời câu "tôi đã lưu bao nhiêu MÓN", nên phải đếm số món
+            # khác nhau. Đếm dòng làm số hiển thị sai và thổi điểm cấp độ lên gấp đôi cho
+            # cùng một hành vi.
+            quan = self._saved.count_distinct_items(user_id, SavedItemType.RESTAURANT)
+            dishes = self._saved.count_distinct_items(user_id, SavedItemType.DISH)
 
         activity = self._tally.snapshot(user_id, saved_items=quan + dishes)
         return UserStats(

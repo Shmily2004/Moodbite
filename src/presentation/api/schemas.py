@@ -595,6 +595,10 @@ class AdminCreateRestaurantRequest(BaseModel):
 
 
 class SavedItemSchema(BaseModel):
+    # HAI danh sách tách bạch từ 2026-08-26 — xem `domain/entities/saved_item.py`.
+    list_type: str = Field(
+        default="favorite", description="favorite (trái tim) | bookmark (đã lưu)"
+    )
     item_type: str = Field(..., description="restaurant | dish")
     item_id: str
     name: str
@@ -602,6 +606,11 @@ class SavedItemSchema(BaseModel):
 
 
 class SaveFavoriteRequest(BaseModel):
+    # Bỏ trống = 'favorite'. Cố ý cho phép bỏ trống: trái tim là hành động phổ biến nhất
+    # và mọi client viết trước ngày tách hai danh sách vẫn gọi đúng.
+    list_type: Optional[str] = Field(
+        default=None, description="favorite (trái tim) | bookmark (đã lưu). Bỏ trống = favorite."
+    )
     item_type: str = Field(..., description="restaurant | dish")
     item_id: str
     name: str = Field(

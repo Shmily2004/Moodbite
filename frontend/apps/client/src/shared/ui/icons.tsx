@@ -88,10 +88,27 @@ export function IconMail(props: IconProps) {
 }
 
 /** Trái tim — vế phải của nhãn "Made for Hà Nội!". */
-export function IconHeart(props: IconProps) {
+export function IconHeart({ filled = false, ...props }: IconProps & { filled?: boolean }) {
+  // `filled` để MỘT hình dùng được cho cả hai trạng thái tim. Trước đây chỗ bấm tim viết
+  // thẳng ký tự ♥/♡ — mỗi hệ điều hành vẽ một kiểu và không ăn màu theo giao diện.
   return (
-    <Icon {...props}>
+    <Icon fill={filled ? 'currentColor' : 'none'} {...props}>
       <path d="M12 20s-7-4.4-7-9.2A4 4 0 0 1 12 8a4 4 0 0 1 7 2.8C19 15.6 12 20 12 20Z" />
+    </Icon>
+  );
+}
+
+/**
+ * Dấu trang — danh sách "Đã lưu" (món tôi ĐỊNH ĂN, để dành xem sau).
+ *
+ * Cố ý KHÁC HẲN hình trái tim: hai danh sách tách bạch từ 2026-08-26, và người dùng phải
+ * phân biệt được hai nút chỉ bằng cách liếc qua. Hai hình na ná nhau thì việc tách danh
+ * sách chẳng còn nghĩa gì.
+ */
+export function IconBookmark({ filled = false, ...props }: IconProps & { filled?: boolean }) {
+  return (
+    <Icon fill={filled ? 'currentColor' : 'none'} {...props}>
+      <path d="M6.5 3.8h11a1 1 0 0 1 1 1v15.4l-6.5-4-6.5 4V4.8a1 1 0 0 1 1-1Z" />
     </Icon>
   );
 }

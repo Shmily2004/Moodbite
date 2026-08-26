@@ -13,6 +13,8 @@ from src.application.ports.saved_item_repository import SavedItemRepository
 from src.domain.entities.saved_item import (
     SavedItem,
     SavedItemType,
+    SavedListType,
+    validate_list_type,
     validate_saved_item,
 )
 
@@ -33,6 +35,8 @@ class SaveFavoriteCommand:
     item_type: str
     item_id: str
     name: str
+    # Bỏ trống = trái tim ("yêu thích"). Xem `SavedListType`.
+    list_type: Optional[str] = None
 
 
 class SaveFavoriteUseCase:
@@ -45,9 +49,14 @@ class SaveFavoriteUseCase:
         loai, ma, ten = validate_saved_item(
             command.item_type, command.item_id, command.name
         )
+        danh_sach = validate_list_type(command.list_type)
         return self._saved.add(
             SavedItem(
-                user_id=command.user_id, item_type=loai, item_id=ma, name=ten
+                user_id=command.user_id,
+                item_type=loai,
+                item_id=ma,
+                name=ten,
+                list_type=danh_sach,
             )
         )
 
@@ -56,13 +65,19 @@ class RemoveFavoriteUseCase:
     def __init__(self, saved_items: SavedItemRepository) -> None:
         self._saved = saved_items
 
-    def execute(self, user_id: str, item_type: str, item_id: str) -> bool:
+    def execute(
+        self,
+        user_id: str,
+        item_type: str,
+        item_id: str,
+        list_type: Optional[str] = None,
+    ) -> bool:
         if not self._saved.is_ready:
             raise FavoritesNotAvailable()
         # Dùng lại đúng hàm kiểm của domain. Tên rỗng ở đây là hợp lệ về mặt nghiệp vụ
         # (bỏ lưu không cần tên), nên truyền một chỗ giữ chỗ rồi bỏ đi.
         loai, ma, _ = validate_saved_item(item_type, item_id, "-")
-        return self._saved.remove(user_id, loai, ma)
+        return self._saved.remove(user_id, loai, ma, validate_list_type(list_type))
 
 
 class ListFavoritesUseCase:
@@ -70,14 +85,22 @@ class ListFavoritesUseCase:
         self._saved = saved_items
 
     def execute(
-        self, user_id: str, item_type: Optional[str] = None
+        self,
+        user_id: str,
+        item_type: Optional[str] = None,
+        list_type: Optional[str] = None,
     ) -> List[SavedItem]:
         if not self._saved.is_ready:
             raise FavoritesNotAvailable()
         loai: Optional[SavedItemType] = None
         if item_type:
             loai, _, _ = validate_saved_item(item_type, "-", "-")
-        return self._saved.list_for_user(user_id, loai)
+        # KHÁC `add`/`remove`: ở đây bỏ trống nghĩa là LẤY CẢ HAI danh sách, không phải
+        # mặc định về FAVORITE. Lọc mà không nêu điều kiện thì phải trả về tất cả.
+        danh_sach: Optional[SavedListType] = (
+            validate_list_type(list_type) if list_type else None
+        )
+        return self._saved.list_for_user(user_id, loai, danh_sach)
 
 
 __all__ = [

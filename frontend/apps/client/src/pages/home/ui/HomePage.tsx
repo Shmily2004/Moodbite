@@ -325,12 +325,23 @@ export function HomePage() {
               dishes={dishes}
               onOpen={openDish}
               layout="row"
-              isSaved={(dish) => savedDishes.isSaved('dish', dish.dish_id)}
+              // HAI danh sách tách bạch — xem `features/save-favorite`.
+              isSaved={(dish) => savedDishes.isSaved('dish', dish.dish_id, 'favorite')}
               onToggleSave={(dish) =>
                 savedDishes.toggle({
                   itemType: 'dish',
                   itemId: dish.dish_id,
                   name: dish.name,
+                  listType: 'favorite',
+                })
+              }
+              isBookmarked={(dish) => savedDishes.isSaved('dish', dish.dish_id, 'bookmark')}
+              onToggleBookmark={(dish) =>
+                savedDishes.toggle({
+                  itemType: 'dish',
+                  itemId: dish.dish_id,
+                  name: dish.name,
+                  listType: 'bookmark',
                 })
               }
             />

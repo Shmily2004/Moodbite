@@ -613,10 +613,19 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, .2);
 }
 
-.dishcard__heart {
+/* HAI NÚT trên góc ảnh: trái tim ("Món yêu thích") và dấu trang ("Đã lưu").
+   Xếp CHỒNG DỌC chứ không nằm ngang: hàng ngang hai nút tròn chiếm gần nửa bề rộng ảnh
+   trên thẻ nhỏ, che mất chính món ăn. */
+.dishcard__actions {
   position: absolute;
   top: 8px;
   right: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dishcard__act {
   width: 32px;
   height: 32px;
   display: inline-flex;
@@ -626,13 +635,15 @@
   border-radius: 50%;
   background: rgba(255, 255, 255, .92);
   color: var(--auth-muted);
-  font-size: 1.05rem;
   line-height: 1;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, .15);
 }
-.dishcard__heart:hover { color: var(--error, #A32A1E); }
-.dishcard__heart--on { color: #E0245E; }
+.dishcard__act svg { width: 17px; height: 17px; }
+.dishcard__act:hover { color: var(--accent); }
+/* Đang bật: cùng màu nhấn cho cả hai nút. Cho tim màu hồng riêng thì hai nút trông như
+   hai tính năng khác hệ, trong khi chúng là hai danh sách ngang hàng nhau. */
+.dishcard__act--on { color: var(--accent); }
 
 .dishcard__body {
   display: flex;
@@ -1045,6 +1056,24 @@
   border-radius: 16px;
   background: var(--surface-2);
 }
+
+/* HAI danh sách trong cùng một khối: "Món yêu thích" và "Đã lưu".
+   Có vạch ngăn giữa hai danh sách — không có thì bốn nhãn con (Món/Quán × 2) đọc thành
+   một dãy phẳng và người dùng không thấy được đâu là ranh giới. */
+.for-you__danh-sach + .for-you__danh-sach {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line-warm-soft);
+}
+
+.for-you__ten-danh-sach {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  margin: 0;
+  font-weight: 700;
+}
+.for-you__ten-danh-sach svg { width: 17px; height: 17px; color: var(--accent); }
 
 .for-you__nhom { margin-top: 1rem; }
 

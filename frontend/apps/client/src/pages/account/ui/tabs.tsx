@@ -5,8 +5,10 @@
  * (thanh bên, thẻ đầu trang, chọn tab), file này lo NỘI DUNG. Gộp lại thì một file phải
  * dài hơn 400 dòng và mỗi lần sửa một tab là phải cuộn qua sáu tab khác.
  */
+import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import {
+  IconBookmark,
   IconClock,
   IconClose,
   IconCompass,
@@ -20,7 +22,7 @@ import {
 import { useT } from '@/shared/i18n';
 import { dishRoute, ROUTES } from '@/shared/config';
 import type { UserSelf, UserStatsData } from '@/shared/api';
-import type { UseFavoritesResult } from '@/features/save-favorite';
+import type { MucYeuThich, UseFavoritesResult } from '@/features/save-favorite';
 import { LevelCard, BadgeGrid } from '@/widgets/user-progress';
 
 /** "05/2024" từ chuỗi ISO. Sai định dạng thì thà không hiện gì còn hơn hiện "Invalid Date". */
@@ -68,22 +70,72 @@ export function SavedTab({ favorites }: SavedTabProps) {
           {t('account.saved.empty')} <Link to={ROUTES.home}>MoodBite</Link>
         </p>
       ) : (
+        <>
+          {/* HAI DANH SÁCH TÁCH BẠCH (2026-08-26). Khác trang chủ ở chỗ: ở ĐÂY danh sách
+              rỗng VẪN hiện, kèm câu hướng dẫn. Người dùng vào tab này là ĐANG đi tìm nó,
+              nên "chưa có gì" cũng là một câu trả lời họ cần. */}
+          <NhomDaLuuUI
+            nhan={t('forYou.favorites')}
+            icon={<IconHeart filled />}
+            goiY={t('account.saved.hintFavorite')}
+            muc={favorites.favorite.items}
+            onBo={favorites.toggle}
+          />
+          <NhomDaLuuUI
+            nhan={t('forYou.bookmarks')}
+            icon={<IconBookmark filled />}
+            goiY={t('account.saved.hintBookmark')}
+            muc={favorites.bookmark.items}
+            onBo={favorites.toggle}
+          />
+        </>
+      )}
+    </section>
+  );
+}
+
+/** Một danh sách trong tab "đã lưu". Rỗng thì hiện câu hướng dẫn thay vì biến mất. */
+function NhomDaLuuUI({
+  nhan,
+  icon,
+  goiY,
+  muc,
+  onBo,
+}: {
+  nhan: string;
+  icon: ReactNode;
+  goiY: string;
+  muc: MucYeuThich[];
+  onBo: (muc: MucYeuThich) => void;
+}) {
+  return (
+    <div className="for-you__danh-sach">
+      <p className="for-you__ten-danh-sach">
+        {icon} {nhan}
+      </p>
+
+      {muc.length === 0 ? (
+        <p className="section-sub">{goiY}</p>
+      ) : (
         <ul className="saved-list">
-          {favorites.items.map((muc) => (
-            <li key={`${muc.itemType}:${muc.itemId}`} className="saved-list__item">
-              {muc.itemType === 'dish' ? (
-                <Link className="chip" to={dishRoute(muc.itemId)}>
-                  <IconDining /> {muc.name}
+          {muc.map((m) => (
+            <li key={`${m.listType}:${m.itemType}:${m.itemId}`} className="saved-list__item">
+              {m.itemType === 'dish' ? (
+                <Link className="chip" to={dishRoute(m.itemId)}>
+                  <IconDining /> {m.name}
                 </Link>
               ) : (
                 // Quán CHƯA có trang riêng — panel chi tiết nằm trong trang bản đồ. Làm
                 // một link chết chỉ để "cho đủ" thì tệ hơn là không có link.
-                <span className="chip chip--flat"><IconPin /> {muc.name}</span>
+                <span className="chip chip--flat"><IconPin /> {m.name}</span>
               )}
               <button
                 type="button"
                 className="linkish"
-                onClick={() => favorites.toggle(muc)}
+                // Truyền NGUYÊN mục (kèm `listType`) chứ không dựng lại: thiếu `listType`
+                // là bỏ nhầm khỏi danh sách kia.
+                aria-label={`Bỏ ${m.name} khỏi ${nhan}`}
+                onClick={() => onBo(m)}
               >
                 <IconClose />
               </button>
@@ -91,7 +143,7 @@ export function SavedTab({ favorites }: SavedTabProps) {
           ))}
         </ul>
       )}
-    </section>
+    </div>
   );
 }
 

@@ -25,17 +25,28 @@
  *   3. VÌ SAO món này được gợi ý
  */
 import type { DishItem } from '@/shared/api';
+import { IconBookmark, IconHeart } from '@/shared/ui';
 import { describeRestaurantCount } from '../model/format';
 
 interface DishCardProps {
   dish: DishItem;
   onOpen?: (dish: DishItem) => void;
-  /** Đã lưu chưa. Không truyền `onToggleSave` thì trái tim không hiện. */
+  /** Trong danh sách "Món yêu thích" chưa. Không truyền `onToggleSave` thì tim không hiện. */
   saved?: boolean;
   onToggleSave?: (dish: DishItem) => void;
+  /** Trong danh sách "Đã lưu" chưa. Không truyền `onToggleBookmark` thì dấu trang không hiện. */
+  bookmarked?: boolean;
+  onToggleBookmark?: (dish: DishItem) => void;
 }
 
-export function DishCard({ dish, onOpen, saved = false, onToggleSave }: DishCardProps) {
+export function DishCard({
+  dish,
+  onOpen,
+  saved = false,
+  onToggleSave,
+  bookmarked = false,
+  onToggleBookmark,
+}: DishCardProps) {
   const unavailable = dish.restaurant_count <= 0;
   // `rank_position` 1 = món backend xếp đầu. Nhãn nói đúng nguồn gốc của nó.
   const deXuat = dish.rank_position === 1;
@@ -59,20 +70,57 @@ export function DishCard({ dish, onOpen, saved = false, onToggleSave }: DishCard
 
           {deXuat && <span className="dishcard__badge">MoodBite đề xuất</span>}
 
-          {onToggleSave && (
-            <button
-              type="button"
-              className={saved ? 'dishcard__heart dishcard__heart--on' : 'dishcard__heart'}
-              aria-label={saved ? `Bỏ lưu ${dish.name}` : `Lưu ${dish.name}`}
-              aria-pressed={saved}
-              // Chặn nổi bọt: bấm tim KHÔNG được mở luôn trang chi tiết món.
-              onClick={(event) => {
-                event.stopPropagation();
-                onToggleSave(dish);
-              }}
-            >
-              <span aria-hidden="true">{saved ? '♥' : '♡'}</span>
-            </button>
+          {/* HAI NÚT, HAI DANH SÁCH TÁCH BẠCH (chủ dự án chốt 2026-08-26):
+                trái tim  -> "Món yêu thích": món tôi THÍCH
+                dấu trang -> "Đã lưu":        món tôi ĐỊNH ĂN, để dành xem sau
+              Một món bật được cả hai cùng lúc, và bỏ cái này không đụng cái kia.
+              Nhãn nói rõ TÊN DANH SÁCH chứ không chỉ "lưu"/"bỏ lưu" — nếu không thì
+              người dùng trình đọc màn hình nghe hai nút giống hệt nhau. */}
+          {(onToggleSave || onToggleBookmark) && (
+            <div className="dishcard__actions">
+              {onToggleSave && (
+                <button
+                  type="button"
+                  className={
+                    saved ? 'dishcard__act dishcard__act--on' : 'dishcard__act'
+                  }
+                  aria-label={
+                    saved
+                      ? `Bỏ ${dish.name} khỏi Món yêu thích`
+                      : `Thêm ${dish.name} vào Món yêu thích`
+                  }
+                  aria-pressed={saved}
+                  // Chặn nổi bọt: bấm tim KHÔNG được mở luôn trang chi tiết món.
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onToggleSave(dish);
+                  }}
+                >
+                  <IconHeart filled={saved} />
+                </button>
+              )}
+
+              {onToggleBookmark && (
+                <button
+                  type="button"
+                  className={
+                    bookmarked ? 'dishcard__act dishcard__act--on' : 'dishcard__act'
+                  }
+                  aria-label={
+                    bookmarked
+                      ? `Bỏ ${dish.name} khỏi Đã lưu`
+                      : `Lưu ${dish.name} để xem sau`
+                  }
+                  aria-pressed={bookmarked}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onToggleBookmark(dish);
+                  }}
+                >
+                  <IconBookmark filled={bookmarked} />
+                </button>
+              )}
+            </div>
           )}
         </div>
 

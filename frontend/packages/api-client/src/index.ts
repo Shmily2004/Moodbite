@@ -45,6 +45,7 @@ export type {
   ResetPasswordRequest,
   SaveFavoriteRequest,
   SavedItem,
+  LoaiDanhSach,
   UserSelf,
   UserStatsData,
 } from './auth';

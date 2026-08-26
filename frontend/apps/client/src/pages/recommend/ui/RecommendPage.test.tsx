@@ -139,4 +139,45 @@ describe('RecommendPage', () => {
 
     expect(await screen.findByText(/Không có món nào khớp/)).toBeInTheDocument();
   });
+  it('"Có thể bạn sẽ thích" chỉ hiện 5 món, KHÔNG đổ hết danh sách ra', async () => {
+    // Lỗi thật 2026-08-26, chủ dự án báo: "đang hiển thị quá nhiều". Bản cũ đổ toàn bộ
+    // phần đuôi (ở đây là 24 món) thành một lưới dài lê thê.
+    const nhieuMon = Array.from({ length: 30 }, (_, i) => ({
+      ...MON,
+      dish_id: `mon-${i}`,
+      name: `Món số ${i}`,
+      rank_position: i + 1,
+    }));
+    vi.stubGlobal('fetch', mockOk(nhieuMon));
+
+    renderTrang();
+    // Món đầu xuất hiện hai lần: trên thẻ lớn và trong ô thông tin bên cạnh.
+    await screen.findAllByText('Món số 0');
+
+    // 6 món đầu thuộc khối "phù hợp nhất" (1 lớn + 5 nhỏ), 5 món tiếp là "có thể thích".
+    expect(screen.getByText('Món số 10')).toBeInTheDocument();  // món thứ 11 = cuối khối
+    expect(screen.queryByText('Món số 11')).not.toBeInTheDocument();
+    expect(screen.queryByText('Món số 29')).not.toBeInTheDocument();
+  });
+
+  it('khối "có thể thích" bày HÀNG NGANG trượt, không phải lưới', async () => {
+    const nhieuMon = Array.from({ length: 12 }, (_, i) => ({
+      ...MON,
+      dish_id: `mon-${i}`,
+      name: `Món số ${i}`,
+    }));
+    const { container } = render_(nhieuMon);
+    // Món đầu xuất hiện hai lần: trên thẻ lớn và trong ô thông tin bên cạnh.
+    await screen.findAllByText('Món số 0');
+
+    // Lưới đẩy mọi thứ phía dưới (kể cả khối "đã lưu") ra khỏi màn hình.
+    expect(container.querySelector('.dishes--grid')).toBeNull();
+    expect(container.querySelectorAll('.dishes--row').length).toBeGreaterThan(0);
+  });
 });
+
+/** Như `renderTrang` nhưng trả `container` để soi class bày trí. */
+function render_(monList: unknown[]) {
+  vi.stubGlobal('fetch', mockOk(monList));
+  return renderTrang();
+}

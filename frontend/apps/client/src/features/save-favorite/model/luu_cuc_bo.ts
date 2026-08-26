@@ -17,14 +17,31 @@ const STORAGE_KEY_CU = 'moodbite.saved_dishes';
 
 export type LoaiMuc = 'restaurant' | 'dish';
 
+/**
+ * HAI danh sách tách bạch (chủ dự án chốt 2026-08-26):
+ *   `favorite` — trái tim,  "Món yêu thích": món tôi THÍCH
+ *   `bookmark` — dấu trang, "Đã lưu":       món tôi ĐỊNH ĂN, để dành xem sau
+ * Một món nằm được ở CẢ HAI cùng lúc, nên khoá phải gộp cả `listType`.
+ */
+export type LoaiDanhSach = 'favorite' | 'bookmark';
+
+export const DANH_SACH_MAC_DINH: LoaiDanhSach = 'favorite';
+
 export interface MucYeuThich {
   itemType: LoaiMuc;
   itemId: string;
   name: string;
+  /** Bỏ trống = 'favorite'. Dữ liệu lưu từ trước ngày tách hai danh sách không có trường này. */
+  listType?: LoaiDanhSach;
 }
 
-export function khoa(muc: { itemType: LoaiMuc; itemId: string }): string {
-  return `${muc.itemType}:${muc.itemId}`;
+/** Khoá định danh MỘT mục trong MỘT danh sách. Thiếu `listType` là gộp nhầm hai danh sách. */
+export function khoa(muc: {
+  itemType: LoaiMuc;
+  itemId: string;
+  listType?: LoaiDanhSach;
+}): string {
+  return `${muc.listType ?? DANH_SACH_MAC_DINH}:${muc.itemType}:${muc.itemId}`;
 }
 
 function hop_le(x: unknown): x is MucYeuThich {
@@ -33,7 +50,9 @@ function hop_le(x: unknown): x is MucYeuThich {
   return (
     (m.itemType === 'restaurant' || m.itemType === 'dish') &&
     typeof m.itemId === 'string' &&
-    typeof m.name === 'string'
+    typeof m.name === 'string' &&
+    // Thiếu hẳn là HỢP LỆ (dữ liệu cũ, quy về 'favorite'); có nhưng sai giá trị thì không.
+    (m.listType === undefined || m.listType === 'favorite' || m.listType === 'bookmark')
   );
 }
 
@@ -57,7 +76,14 @@ export function doc_cuc_bo(): MucYeuThich[] {
         for (const x of data) {
           if (hop_le(x) && !da_co.has(khoa(x))) {
             da_co.add(khoa(x));
-            ket_qua.push({ itemType: x.itemType, itemId: x.itemId, name: x.name });
+            ket_qua.push({
+              itemType: x.itemType,
+              itemId: x.itemId,
+              name: x.name,
+              // Không có `listType` = lưu từ hồi chỉ có một danh sách, và nút duy nhất
+              // lúc đó là trái tim. Quy về 'favorite' mới đúng điều người dùng đã làm.
+              listType: x.listType ?? DANH_SACH_MAC_DINH,
+            });
           }
         }
       }
@@ -78,6 +104,7 @@ export function doc_cuc_bo(): MucYeuThich[] {
             itemType: 'dish',
             itemId: m.dishId,
             name: m.name,
+            listType: DANH_SACH_MAC_DINH,
           };
           if (!da_co.has(khoa(muc))) {
             da_co.add(khoa(muc));

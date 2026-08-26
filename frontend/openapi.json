@@ -955,7 +955,7 @@
           "me"
         ],
         "summary": "List Favorites",
-        "description": "Danh sách quán & món đã lưu của chính chủ, MỚI NHẤT ĐỨNG ĐẦU.",
+        "description": "Danh sách quán & món đã lưu của chính chủ, MỚI NHẤT ĐỨNG ĐẦU.\n\nBỏ trống `list_type` trả về CẢ HAI danh sách, mỗi mục tự khai `list_type` của nó.\nGiao diện cần vậy: một thẻ món phải biết cùng lúc tim có bật không và dấu trang có\nbật không — tách thành hai lượt gọi là hai lần đi mạng cho cùng một bảng.",
         "operationId": "list_favorites_api_v1_me_favorites_get",
         "parameters": [
           {
@@ -975,6 +975,24 @@
               "title": "Item Type"
             },
             "description": "Lọc theo loại: restaurant | dish. Bỏ trống = cả hai."
+          },
+          {
+            "name": "list_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Lọc theo danh sách: favorite | bookmark. Bỏ trống = CẢ HAI.",
+              "title": "List Type"
+            },
+            "description": "Lọc theo danh sách: favorite | bookmark. Bỏ trống = CẢ HAI."
           }
         ],
         "responses": {
@@ -1147,6 +1165,24 @@
               "type": "string",
               "title": "Item Id"
             }
+          },
+          {
+            "name": "list_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Danh sách cần bỏ: favorite | bookmark. Bỏ trống = favorite.",
+              "title": "List Type"
+            },
+            "description": "Danh sách cần bỏ: favorite | bookmark. Bỏ trống = favorite."
           }
         ],
         "responses": {
@@ -3113,6 +3149,18 @@
       },
       "SaveFavoriteRequest": {
         "properties": {
+          "list_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "List Type",
+            "description": "favorite (trái tim) | bookmark (đã lưu). Bỏ trống = favorite."
+          },
           "item_type": {
             "type": "string",
             "title": "Item Type",
@@ -3150,6 +3198,12 @@
       },
       "SavedItemSchema": {
         "properties": {
+          "list_type": {
+            "type": "string",
+            "title": "List Type",
+            "description": "favorite (trái tim) | bookmark (đã lưu)",
+            "default": "favorite"
+          },
           "item_type": {
             "type": "string",
             "title": "Item Type",

@@ -398,6 +398,10 @@ export interface paths {
         /**
          * List Favorites
          * @description Danh sách quán & món đã lưu của chính chủ, MỚI NHẤT ĐỨNG ĐẦU.
+         *
+         *     Bỏ trống `list_type` trả về CẢ HAI danh sách, mỗi mục tự khai `list_type` của nó.
+         *     Giao diện cần vậy: một thẻ món phải biết cùng lúc tim có bật không và dấu trang có
+         *     bật không — tách thành hai lượt gọi là hai lần đi mạng cho cùng một bảng.
          */
         get: operations["list_favorites_api_v1_me_favorites_get"];
         put?: never;
@@ -1195,6 +1199,11 @@ export interface components {
         /** SaveFavoriteRequest */
         SaveFavoriteRequest: {
             /**
+             * List Type
+             * @description favorite (trái tim) | bookmark (đã lưu). Bỏ trống = favorite.
+             */
+            list_type?: string | null;
+            /**
              * Item Type
              * @description restaurant | dish
              */
@@ -1213,6 +1222,12 @@ export interface components {
         };
         /** SavedItemSchema */
         SavedItemSchema: {
+            /**
+             * List Type
+             * @description favorite (trái tim) | bookmark (đã lưu)
+             * @default favorite
+             */
+            list_type: string;
             /**
              * Item Type
              * @description restaurant | dish
@@ -2181,6 +2196,8 @@ export interface operations {
             query?: {
                 /** @description Lọc theo loại: restaurant | dish. Bỏ trống = cả hai. */
                 item_type?: string | null;
+                /** @description Lọc theo danh sách: favorite | bookmark. Bỏ trống = CẢ HAI. */
+                list_type?: string | null;
             };
             header?: never;
             path?: never;
@@ -2315,7 +2332,10 @@ export interface operations {
     };
     remove_favorite_api_v1_me_favorites__item_type___item_id__delete: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Danh sách cần bỏ: favorite | bookmark. Bỏ trống = favorite. */
+                list_type?: string | null;
+            };
             header?: never;
             path: {
                 item_type: string;

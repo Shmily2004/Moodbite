@@ -41,11 +41,20 @@ def list_favorites(
     item_type: Optional[str] = Query(
         default=None, description="Lọc theo loại: restaurant | dish. Bỏ trống = cả hai."
     ),
+    list_type: Optional[str] = Query(
+        default=None,
+        description="Lọc theo danh sách: favorite | bookmark. Bỏ trống = CẢ HAI.",
+    ),
     user: User = Depends(get_current_user),
     container: Container = Depends(get_container),
 ):
-    """Danh sách quán & món đã lưu của chính chủ, MỚI NHẤT ĐỨNG ĐẦU."""
-    items = container.list_favorites.execute(user.user_id, item_type)
+    """Danh sách quán & món đã lưu của chính chủ, MỚI NHẤT ĐỨNG ĐẦU.
+
+    Bỏ trống `list_type` trả về CẢ HAI danh sách, mỗi mục tự khai `list_type` của nó.
+    Giao diện cần vậy: một thẻ món phải biết cùng lúc tim có bật không và dấu trang có
+    bật không — tách thành hai lượt gọi là hai lần đi mạng cho cùng một bảng.
+    """
+    items = container.list_favorites.execute(user.user_id, item_type, list_type)
     return success({"items": [i.to_public() for i in items], "total": len(items)})
 
 
@@ -69,6 +78,7 @@ def save_favorite(
             item_type=body.item_type,
             item_id=body.item_id,
             name=body.name,
+            list_type=body.list_type,
         )
     )
     return success(item.to_public(), status_code=201)
@@ -81,6 +91,10 @@ def save_favorite(
 def remove_favorite(
     item_type: str,
     item_id: str,
+    list_type: Optional[str] = Query(
+        default=None,
+        description="Danh sách cần bỏ: favorite | bookmark. Bỏ trống = favorite.",
+    ),
     user: User = Depends(get_current_user),
     container: Container = Depends(get_container),
 ):
@@ -90,7 +104,12 @@ def remove_favorite(
     MONG MUỐN ("tôi không muốn lưu cái này nữa") — kết quả cuối cùng giống hệt nhau, nên
     404 chỉ làm client phải viết thêm nhánh xử lý cho một tình huống vô hại.
     """
-    da_xoa = container.remove_favorite.execute(user.user_id, item_type, item_id)
+    # ⚠️ `list_type` là THAM SỐ TRUY VẤN chứ không nằm trong đường dẫn, để đường dẫn cũ
+    # `/favorites/dish/bun-cha` vẫn chạy đúng như trước (mặc định = favorite). Đổi đường
+    # dẫn sẽ là breaking change mà không đổi lại được gì.
+    da_xoa = container.remove_favorite.execute(
+        user.user_id, item_type, item_id, list_type
+    )
     return success(
         {"message": "Đã bỏ lưu." if da_xoa else "Mục này vốn không có trong danh sách."}
     )

@@ -32,11 +32,15 @@ const vi = {
   'bubble.cta': 'Tinh chỉnh gợi ý',
   // --- Khối "Dành riêng cho bạn" ở trang chủ (thêm 2026-08-25) ------------
   'forYou.title': 'Dành riêng cho bạn',
-  'forYou.sub': 'Món và quán bạn đã bấm trái tim.',
-  'forYou.empty': 'Bấm hình trái tim trên thẻ món để lưu vào đây.',
+  'forYou.sub': 'Hai danh sách của riêng bạn — món bạn thích và món bạn để dành.',
+  'forYou.empty': 'Bấm hình trái tim hoặc dấu trang trên thẻ món để lưu vào đây.',
   'forYou.seeAll': 'Xem tất cả',
-  'forYou.dishes': 'Món yêu thích',
-  'forYou.places': 'Quán yêu thích',
+  // Tên HAI DANH SÁCH (tách bạch 2026-08-26). `dishes`/`places` là tên NHÓM CON bên
+  // trong mỗi danh sách, đừng lẫn hai tầng này.
+  'forYou.favorites': 'Món yêu thích',
+  'forYou.bookmarks': 'Đã lưu',
+  'forYou.dishes': 'Món',
+  'forYou.places': 'Quán',
   // --- Trang kết quả gợi ý món (thêm 2026-08-25) --------------------------
   'recommend.back': 'Quay lại trang chủ',
   'recommend.heading': 'Món phù hợp với bạn hôm nay',
@@ -186,6 +190,8 @@ const vi = {
   'account.badges.progress': '{current}/{target}',
   'account.saved.title': 'Món & quán yêu thích',
   'account.saved.empty': 'Chưa lưu gì. Bấm hình trái tim trên thẻ món để lưu lại.',
+  'account.saved.hintFavorite': 'Bấm hình trái tim trên thẻ món để thêm vào đây.',
+  'account.saved.hintBookmark': 'Bấm dấu trang trên thẻ món để để dành xem sau.',
   'account.saved.count': '{n} mục',
   'account.saved.local':
     'Đang lưu trên máy này. Đăng nhập để đồng bộ giữa các thiết bị.',
@@ -229,11 +235,13 @@ const en: Record<Khoa, string> = {
   'bubble.cta': 'Fine-tune suggestions',
   // --- "For you" block on the home page (added 2026-08-25) ----------------
   'forYou.title': 'For you',
-  'forYou.sub': 'Dishes and places you hearted.',
-  'forYou.empty': 'Tap the heart on a dish card to save it here.',
+  'forYou.sub': 'Your two lists — what you love, and what you saved for later.',
+  'forYou.empty': 'Tap the heart or the bookmark on a dish card to save it here.',
   'forYou.seeAll': 'See all',
-  'forYou.dishes': 'Favourite dishes',
-  'forYou.places': 'Favourite places',
+  'forYou.favorites': 'Favourites',
+  'forYou.bookmarks': 'Saved for later',
+  'forYou.dishes': 'Dishes',
+  'forYou.places': 'Places',
   // --- Dish recommendation results page (added 2026-08-25) ----------------
   'recommend.back': 'Back to home',
   'recommend.heading': 'Dishes that suit you today',
@@ -373,6 +381,8 @@ const en: Record<Khoa, string> = {
   'account.badges.progress': '{current}/{target}',
   'account.saved.title': 'Favourite dishes & places',
   'account.saved.empty': 'Nothing saved yet. Tap the heart on a dish card to save it.',
+  'account.saved.hintFavorite': 'Tap the heart on a dish card to add it here.',
+  'account.saved.hintBookmark': 'Tap the bookmark on a dish card to keep it for later.',
   'account.saved.count': '{n} items',
   'account.saved.local': 'Stored on this device. Sign in to sync across devices.',
   'account.saved.synced': 'Synced with your account.',

@@ -17,6 +17,9 @@ interface DishListProps {
   layout?: 'row' | 'grid';
   isSaved?: (dish: DishItem) => boolean;
   onToggleSave?: (dish: DishItem) => void;
+  /** Danh sách "Đã lưu" (dấu trang) — tách bạch với trái tim. Xem `DishCard`. */
+  isBookmarked?: (dish: DishItem) => boolean;
+  onToggleBookmark?: (dish: DishItem) => void;
 }
 
 export function DishList({
@@ -25,6 +28,8 @@ export function DishList({
   layout = 'row',
   isSaved,
   onToggleSave,
+  isBookmarked,
+  onToggleBookmark,
 }: DishListProps) {
   return (
     <ul className={layout === 'row' ? 'dishes dishes--row' : 'dishes dishes--grid'}>
@@ -35,6 +40,8 @@ export function DishList({
           onOpen={onOpen}
           saved={isSaved?.(dish) ?? false}
           onToggleSave={onToggleSave}
+          bookmarked={isBookmarked?.(dish) ?? false}
+          onToggleBookmark={onToggleBookmark}
         />
       ))}
     </ul>

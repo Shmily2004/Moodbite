@@ -40,6 +40,15 @@ export interface FilterDrawerProps {
   /** Số bộ lọc đang bật — hiện ở tiêu đề để người dùng biết mình đang lọc gì đó. */
   activeCount: number;
   onReset: () => void;
+  /**
+   * Bấm nút "Xem kết quả" ở đáy. Không truyền thì chỉ ĐÓNG ngăn kéo.
+   *
+   * VÌ SAO TÁCH KHỎI `onClose` (2026-08-26): ở TRANG CHỦ, chọn xong bộ lọc thì phải sang
+   * `/recommend` để xem danh sách đầy đủ — đóng ngăn kéo rồi vẫn đứng nguyên trang chủ
+   * là cụt luồng, đúng chỗ chủ dự án chỉ ra. Còn ở chính `/recommend` thì đã đúng trang
+   * rồi nên đóng là đủ — vì vậy tham số này TUỲ CHỌN chứ không bắt buộc.
+   */
+  onApply?: () => void;
   children: ReactNode;
 }
 
@@ -49,6 +58,7 @@ export function FilterDrawer({
   onClose,
   activeCount,
   onReset,
+  onApply,
   children,
 }: FilterDrawerProps) {
   const t = useT();
@@ -144,7 +154,11 @@ export function FilterDrawer({
         {/* Nút "Xem kết quả" ở đáy: trên điện thoại, sau khi bấm vài chip người dùng
             không nhìn thấy danh sách nên không biết đã xong hay chưa. */}
         <div className="drawer__foot">
-          <button type="button" className="btn btn--accent" onClick={onClose}>
+          <button
+            type="button"
+            className="btn btn--accent"
+            onClick={onApply ?? onClose}
+          >
             {t('filters.apply')}
           </button>
         </div>

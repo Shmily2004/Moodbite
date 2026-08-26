@@ -338,6 +338,15 @@ export function HomePage() {
           onClose={() => setMoBoLoc(false)}
           activeCount={suggestions.activeFilterCount}
           onReset={suggestions.reset}
+          // Chọn xong ở trang chủ thì SANG TRANG KẾT QUẢ, mang theo bộ lọc qua query
+          // string. Trang chủ lo KHÁM PHÁ, `/recommend` lo KẾT QUẢ.
+          onApply={() => {
+            setMoBoLoc(false);
+            navigate({
+              pathname: ROUTES.recommend,
+              search: ghiBoLocLenUrl(suggestions.filters).toString(),
+            });
+          }}
         >
           {noiDungBoLoc}
         </FilterDrawer>

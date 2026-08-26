@@ -813,7 +813,7 @@
        của trang, không phải một tấm thẻ nổi lên trên nó. */
     background: none;
     border: 0;
-    border-right: 1px solid var(--vien, rgba(2, 29, 72, .10));
+    border-right: 1px solid var(--line-warm);
     border-radius: 0;
     padding: 0 1.5rem 0 0;
     /* KHÔNG `max-height`, KHÔNG `overflow`: để cột cuộn CÙNG trang. */
@@ -821,7 +821,7 @@
 
   .drawer--inline .drawer__head {
     padding: 0 0 .75rem;
-    border-bottom: 1px solid var(--vien, rgba(2, 29, 72, .10));
+    border-bottom: 1px solid var(--line-warm);
     margin-bottom: 1rem;
   }
 
@@ -884,8 +884,8 @@
 .site-footer {
   margin-top: 3rem;
   padding: 2.5rem clamp(1rem, 5vw, 4rem) 1.5rem;
-  border-top: 1px solid var(--vien, rgba(2, 29, 72, .1));
-  background: var(--nen-phu, rgba(2, 29, 72, .03));
+  border-top: 1px solid var(--line-warm);
+  background: var(--surface-2);
   font-size: .9rem;
 }
 
@@ -914,7 +914,7 @@
 .site-footer__pham-vi,
 .site-footer__ghi-chu {
   margin: 0;
-  color: var(--muted, #5b6478);
+  color: var(--muted);
   line-height: 1.5;
 }
 .site-footer__pham-vi { font-weight: 600; }
@@ -930,15 +930,15 @@
    giấy phép là thứ cần CÓ MẶT. */
 .site-footer__giay-phep {
   font-size: .82em;
-  color: var(--muted, #5b6478);
+  color: var(--muted);
 }
 
 .site-footer__ban-quyen {
   max-width: 1200px;
   margin: 2rem auto 0;
   padding-top: 1.25rem;
-  border-top: 1px solid var(--vien, rgba(2, 29, 72, .08));
-  color: var(--muted, #5b6478);
+  border-top: 1px solid var(--line-warm-soft);
+  color: var(--muted);
   text-align: center;
 }
 
@@ -974,7 +974,7 @@
   margin: 2rem 0;
   padding: 1.25rem 1.5rem 1.5rem;
   border-radius: 16px;
-  background: var(--nen-phu, rgba(2, 29, 72, .03));
+  background: var(--surface-2);
 }
 
 .for-you__nhom { margin-top: 1rem; }
@@ -1007,9 +1007,14 @@
 }
 
 /* ===========================================================================
-   BONG BÓNG TRỢ LÝ (thêm 2026-08-25)
-   Dựng theo ảnh chủ dự án gửi: mascot bên trái, lời thoại phía trên, nút
-   "Tinh chỉnh gợi ý" bên dưới. Xem `widgets/assistant-bubble`.
+   BONG BÓNG TRỢ LÝ — dựng theo ảnh mẫu chủ dự án gửi (bản đúng, 2026-08-26)
+   ---------------------------------------------------------------------------
+       (mascot)  [ lời thoại nền trắng ]
+       [ ✦  Tinh chỉnh gợi ý         › ]   <- nút TRẮNG, trải ngang cả khối
+
+   ⚠️ HAI BẢN TRƯỚC ĐỀU SAI, đừng quay lại:
+     lần 1 — mascot nằm BÊN TRONG nút như một icon;
+     lần 2 — mascot bên PHẢI và nút NỀN TỐI.
    =========================================================================== */
 .bubble {
   position: fixed;
@@ -1018,67 +1023,88 @@
   z-index: 50;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  gap: .5rem;
   /* Không chặn thao tác với nội dung phía sau ở vùng trống quanh bong bóng. */
   pointer-events: none;
 }
-.bubble > * { pointer-events: auto; }
 
-/* Lời thoại — bong bóng trắng bo tròn, có đuôi nhọn chỉ xuống nút. */
+/* Hàng trên: mascot bên TRÁI, lời thoại bên phải. */
+.bubble__tren {
+  display: flex;
+  align-items: flex-start;
+  gap: .35rem;
+  pointer-events: auto;
+}
+
+/* Mascot ĐỨNG RIÊNG, không phải icon của nút. `pointer-events: none` để bấm
+   trúng mascot không bị hụt — nó không phải vùng bấm. */
+.bubble__mascot {
+  width: clamp(64px, 7vw, 88px);
+  height: auto;
+  /* Tràn xuống dưới để chồng nhẹ lên nút, đúng như ảnh mẫu. */
+  margin-bottom: -22px;
+  pointer-events: none;
+  flex: 0 0 auto;
+}
+
 .bubble__thoai {
   position: relative;
-  margin: 0;
-  max-width: 15rem;
-  padding: .6rem .9rem;
-  border-radius: 14px;
-  background: var(--nen-the, #fff);
-  box-shadow: 0 6px 20px rgba(16, 32, 60, .16);
-  font-size: .86rem;
+  margin: .5rem 0 0;
+  max-width: 13rem;
+  padding: .55rem .85rem;
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: 0 6px 20px rgba(16, 32, 60, .14);
+  font-size: .84rem;
   line-height: 1.4;
+  color: var(--ink);
 }
+/* Đuôi nhọn chỉ sang TRÁI, về phía mascot đang nói. */
 .bubble__thoai::after {
   content: '';
   position: absolute;
-  right: 26px;
-  bottom: -6px;
-  width: 12px;
-  height: 12px;
+  left: -5px;
+  bottom: 14px;
+  width: 11px;
+  height: 11px;
   background: inherit;
   transform: rotate(45deg);
 }
 
+/* Nút NỀN TRẮNG trải ngang cả khối — nằm DƯỚI cả mascot lẫn lời thoại. */
 .bubble__nut {
-  display: inline-flex;
+  position: relative;
+  display: flex;
   align-items: center;
-  gap: .5rem;
-  padding: .4rem 1rem .4rem .4rem;
+  gap: .55rem;
+  width: 100%;
+  margin-top: .35rem;
+  padding: .75rem 1rem;
   border: 0;
   border-radius: 999px;
-  background: var(--nen-the, #fff);
-  box-shadow: 0 8px 24px rgba(16, 32, 60, .2);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 10px 28px rgba(16, 32, 60, .18);
   cursor: pointer;
   font: inherit;
-  color: inherit;
-}
-.bubble__nut:hover { box-shadow: 0 10px 28px rgba(16, 32, 60, .26); }
-
-/* Mascot tràn LÊN TRÊN mép nút một chút, đúng như ảnh thiết kế. */
-.bubble__mascot {
-  width: 58px;
-  height: auto;
-  margin-top: -18px;
-  margin-bottom: -6px;
-}
-
-.bubble__nhan {
-  display: inline-flex;
-  align-items: center;
-  gap: .35rem;
   font-weight: 600;
   white-space: nowrap;
+  pointer-events: auto;
 }
-.bubble__spark { width: 16px; height: 16px; }
+.bubble__nut:hover { box-shadow: 0 12px 32px rgba(16, 32, 60, .24); }
+
+/* Tia lấp lánh và mũi tên đều màu nhấn, đúng như ảnh mẫu. */
+.bubble__spark {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+  color: var(--accent);
+}
+.bubble__nhan { flex: 1 1 auto; text-align: left; }
+.bubble__mui-ten {
+  font-size: 1.2rem;
+  line-height: 1;
+  color: var(--accent);
+}
 
 .bubble__dem {
   display: inline-grid;
@@ -1087,18 +1113,19 @@
   height: 20px;
   padding: 0 5px;
   border-radius: 999px;
-  background: var(--accent, #F2701F);
+  background: var(--accent);
   color: #fff;
   font-size: .74rem;
   font-weight: 700;
 }
 
-/* Màn hẹp: giấu lời thoại, chỉ còn nút — bong bóng không được ăn hết màn hình. */
+/* Màn hẹp: giấu lời thoại, thu mascot — bong bóng không được ăn hết màn hình. */
 @media (max-width: 560px) {
   .bubble__thoai { display: none; }
-  .bubble__nhan { font-size: .85rem; }
+  .bubble__mascot { width: 54px; margin-bottom: -16px; }
+  .bubble__nut { padding: .6rem .85rem; font-size: .88rem; }
 }
 
 /* Chừa chỗ cuối trang để bong bóng KHÔNG đè lên thẻ cuối cùng và nút tim của nó —
    lỗi này chỉ lộ ra khi cuộn tới đáy, nên rất dễ bỏ sót. */
-.page__body { padding-bottom: 7rem; }
+.page__body { padding-bottom: 8rem; }

@@ -855,7 +855,7 @@ body {
 .dish-restaurants__sort select {
   padding: 6px 12px;
   border-radius: 999px;
-  border: 1px solid var(--line, rgba(2, 29, 72, .14));
+  border: 1px solid var(--line-warm);
   background: var(--surface, #fff);
   font: inherit;
   color: inherit;

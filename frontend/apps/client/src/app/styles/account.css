@@ -340,7 +340,7 @@
 /* Nhãn trạng thái nằm NGAY CẠNH địa chỉ email, không tách thành khối riêng: người dùng
    đọc địa chỉ và trạng thái của nó như một câu, tách ra thì phải nhìn hai chỗ. */
 .account__da-xac-minh {
-  color: var(--ok, #1B7F4B);
+  color: var(--open);
   font-size: 0.85em;
   white-space: nowrap;
 }
@@ -372,7 +372,7 @@
 }
 .xac-minh-email--gon button[disabled] { opacity: 0.6; cursor: progress; }
 
-.xac-minh-email__loi { color: var(--danger, #B3261E); }
-.xac-minh-email__ok { color: var(--ok, #1B7F4B); }
-.xac-minh-email__trang-thai { color: var(--muted, #666); }
+.xac-minh-email__loi { color: var(--error); }
+.xac-minh-email__ok { color: var(--open); }
+.xac-minh-email__trang-thai { color: var(--muted); }
 .xac-minh-email__chan { margin-top: 1rem; }

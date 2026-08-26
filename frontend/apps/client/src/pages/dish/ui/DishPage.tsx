@@ -8,7 +8,9 @@
  * `SearchResponseData`, nên không cần component thẻ quán thứ hai. Hai bản thẻ quán gần
  * giống nhau là hai chỗ phải cùng sửa mỗi lần đổi cách hiển thị.
  */
-import { Link, useParams } from 'react-router-dom';
+import { useMemo, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { AssistantBubble } from '@/widgets/assistant-bubble';
 import { RestaurantList } from '@/widgets/restaurant-list';
 import { RestaurantMap } from '@/widgets/restaurant-map';
 import { useDishDetail } from '@/features/view-dish-detail';
@@ -24,7 +26,11 @@ import {
 } from '@/entities/dish';
 import { DEFAULT_RADIUS_KM, ROUTES } from '@/shared/config';
 
+type KieuSapXep = 'gan' | 'hop';
+
 export function DishPage() {
+  const [sapXep, setSapXep] = useState<KieuSapXep>('gan');
+  const navigate = useNavigate();
   const { dishId } = useParams<{ dishId: string }>();
   const location = useUserLocation();
   const detail = useDishDetail(dishId, location.position, DEFAULT_RADIUS_KM);
@@ -45,6 +51,21 @@ export function DishPage() {
 
   const dish = detail.dish;
 
+  /**
+   * Thứ tự hiển thị danh sách quán.
+   *   'hop' = giữ nguyên thứ tự backend trả (theo `predicted_score`) — mặc định của API.
+   *   'gan' = gần nhất trước.
+   * Mặc định 'gan' theo thiết kế chủ dự án gửi 2026-08-26.
+   */
+  const quanDaSap = useMemo(() => {
+    if (sapXep !== 'gan') return detail.restaurants;
+    // `distance_m` có thể thiếu (quán không rõ toạ độ) -> đẩy xuống cuối thay vì coi là 0,
+    // nếu không quán không biết ở đâu lại đứng đầu danh sách "gần bạn nhất".
+    return [...detail.restaurants].sort(
+      (a, b) => (a.distance_m ?? Infinity) - (b.distance_m ?? Infinity),
+    );
+  }, [detail.restaurants, sapXep]);
+
   return (
     <div className="shell">
       <header className="topbar topbar--dish">
@@ -57,6 +78,17 @@ export function DishPage() {
       {detail.error && <p className="notice notice--error">{detail.error}</p>}
 
       {dish && (
+        <>
+        {/* Đường dẫn phân cấp: cho biết đang ở đâu, và cho một đường VỀ rõ ràng —
+            nút Back của trình duyệt không phải ai cũng dùng. */}
+        <nav className="breadcrumb" aria-label="Đường dẫn">
+          <Link to={ROUTES.home}>Trang chủ</Link>
+          <span aria-hidden="true">›</span>
+          <span className="breadcrumb__hien-tai">{dish.name}</span>
+          <span aria-hidden="true">›</span>
+          <span className="breadcrumb__hien-tai">Quán ăn</span>
+        </nav>
+
         <section className="dish-detail">
           {dish.image_url && (
             <img className="dish-detail__image" src={dish.image_url} alt="" />
@@ -109,12 +141,31 @@ export function DishPage() {
             )}
           </div>
         </section>
+        </>
       )}
 
       <section className="dish-restaurants">
-        <h2 className="dish-detail__heading">
-          {dish ? describeRestaurantCount(dish.restaurant_count) : 'Quán gần bạn'}
-        </h2>
+        <div className="dish-restaurants__head">
+          <h2 className="dish-detail__heading">
+            {dish ? describeRestaurantCount(dish.restaurant_count) : 'Quán gần bạn'}
+          </h2>
+
+          {/* SẮP XẾP Ở PHÍA CLIENT, có chủ đích.
+              `/dishes/{id}/restaurants` CHƯA có tham số sort. Thêm vào API là đổi hợp
+              đồng, nên tạm sắp ngay trên danh sách đã tải — mọi trường cần để sắp đều
+              đã nằm trong kết quả. Hệ quả phải biết: chỉ sắp trong SỐ QUÁN ĐÃ TẢI, nên
+              nhãn nói "trong danh sách này" chứ không hứa là toàn thành phố. */}
+          <label className="dish-restaurants__sort">
+            <span className="sr-only">Sắp xếp danh sách quán</span>
+            <select
+              value={sapXep}
+              onChange={(event) => setSapXep(event.target.value as KieuSapXep)}
+            >
+              <option value="gan">Gần bạn nhất</option>
+              <option value="hop">Phù hợp nhất</option>
+            </select>
+          </label>
+        </div>
 
         {detail.restaurantsError && (
           <p className="notice notice--error">{detail.restaurantsError}</p>
@@ -130,20 +181,23 @@ export function DishPage() {
 
         {!detail.loading && detail.restaurants.length > 0 && (
           <div className="dish-restaurants__body">
+            {/* Danh sách ĐỨNG TRƯỚC bản đồ trong DOM (đổi 2026-08-26 theo thiết kế):
+                nó là nội dung chính, và trình đọc màn hình nên gặp nó trước. Bố cục
+                trái/phải do CSS lo. */}
+            <RestaurantList
+              restaurants={quanDaSap}
+              searchQueryId={detail.searchQueryId}
+              queryText={dish?.name ?? null}
+            />
             <div className="map-pane">
               <RestaurantMap
-                restaurants={detail.restaurants}
+                restaurants={quanDaSap}
                 center={location.position}
                 userPosition={location.isDefault ? null : location.position}
                 activeId={null}
                 onSelect={() => undefined}
               />
             </div>
-            <RestaurantList
-              restaurants={detail.restaurants}
-              searchQueryId={detail.searchQueryId}
-              queryText={dish?.name ?? null}
-            />
           </div>
         )}
 
@@ -160,6 +214,10 @@ export function DishPage() {
           </div>
         )}
       </section>
+
+      {/* Bong bóng trợ lý — trang này có danh sách quán nên bộ lọc có tác dụng thật.
+          Bấm vào thì về trang kết quả gợi ý, nơi giữ bộ lọc. */}
+      <AssistantBubble onOpen={() => navigate(ROUTES.recommend)} />
     </div>
   );
 }

@@ -111,12 +111,25 @@ describe('RecommendPage', () => {
     expect(JSON.parse(String(fetchMock.mock.calls[0][1].body)).only_categories).toBe(false);
   });
 
-  it('hiện số món tìm được', async () => {
+  it('hiện tiêu đề và khối "phù hợp nhất" theo thiết kế', async () => {
+    // Thiết kế `Food recommend.jpg` bỏ dòng "N món phù hợp", thay bằng tiêu đề cố định
+    // và các khối có nhãn riêng.
     vi.stubGlobal('fetch', mockOk([MON]));
 
     renderTrang();
 
-    expect(await screen.findByText(/1 món phù hợp/)).toBeInTheDocument();
+    expect(await screen.findByText(/Món phù hợp với bạn hôm nay/)).toBeInTheDocument();
+    expect(screen.getByText(/Những món phù hợp nhất/i)).toBeInTheDocument();
+  });
+
+  it('chip bộ lọc đang bật gỡ được từng cái', async () => {
+    vi.stubGlobal('fetch', mockOk([MON]));
+
+    renderTrang('/recommend?thoi_tiet=rain&cach=nuong');
+
+    // Nhãn tiếng Việt do `chipDangBat` dịch từ mã backend.
+    expect(await screen.findByText('Trời mưa')).toBeInTheDocument();
+    expect(screen.getByText('Đồ nướng')).toBeInTheDocument();
   });
 
   it('không có món nào thì nói rõ cách gỡ, không để trang trắng', async () => {

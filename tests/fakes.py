@@ -169,10 +169,10 @@ class FakeEmailSender:
     def is_configured(self):
         return self._configured
 
-    def send(self, *, to, subject, body):
+    def send(self, *, to, subject, body, html=None):
         if self._loi is not None:
             raise self._loi
-        self.da_gui.append({"to": to, "subject": subject, "body": body})
+        self.da_gui.append({"to": to, "subject": subject, "body": body, "html": html})
 
     def status(self):
         return {"ready": self._configured, "source": "gia-lap", "error": None}

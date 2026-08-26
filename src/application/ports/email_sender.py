@@ -19,12 +19,16 @@ class EmailSender(Protocol):
         """False khi chưa khai báo máy chủ thư — tính năng phải TẮT chứ không giả vờ chạy."""
         ...
 
-    def send(self, *, to: str, subject: str, body: str) -> None:
-        """Gửi một lá thư chữ thuần.
+    def send(self, *, to: str, subject: str, body: str, html: str | None = None) -> None:
+        """Gửi một lá thư. `body` là bản chữ thuần, `html` là bản có định dạng.
 
         Ném `EmailSendFailed` nếu không gửi được. KHÔNG nuốt lỗi: người dùng bấm "gửi lại
         mật khẩu" mà thư không đi thì họ phải được biết, chứ không phải ngồi đợi mãi một
         lá thư không bao giờ tới.
+
+        ⚠️ `html` KHÔNG thay thế `body`, nó ĐI KÈM (multipart/alternative). Bản chữ thuần
+        luôn phải có: một số hộp thư tắt HTML, và thư chỉ-có-HTML bị nhiều bộ lọc chấm là
+        thư rác. Hai bản phải nói CÙNG một nội dung và chứa CÙNG một đường dẫn.
         """
         ...
 

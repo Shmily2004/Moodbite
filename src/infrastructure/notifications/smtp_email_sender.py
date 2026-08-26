@@ -61,7 +61,7 @@ class SmtpEmailSender:
         """Đủ 4 thứ mới gửi được. Thiếu một thứ là coi như TẮT hẳn tính năng."""
         return bool(self._host and self._port and self._username and self._password)
 
-    def send(self, *, to: str, subject: str, body: str) -> None:
+    def send(self, *, to: str, subject: str, body: str, html: str | None = None) -> None:
         if not self.is_configured:
             # Người gọi phải kiểm `is_configured` trước; tới được đây là lỗi lập trình.
             raise EmailSendFailed("Chưa cấu hình máy chủ thư.")
@@ -71,6 +71,11 @@ class SmtpEmailSender:
         thu["To"] = to
         thu["Subject"] = subject
         thu.set_content(body)
+        if html:
+            # multipart/alternative: hộp thư nào đọc được HTML thì hiện bản có NÚT BẤM,
+            # hộp thư tắt HTML vẫn còn bản chữ thuần ở trên. Gửi mỗi HTML là sai hai
+            # đường: bộ lọc thư rác chấm điểm xấu, và người tắt HTML thấy thư trống.
+            thu.add_alternative(html, subtype="html")
 
         try:
             with smtplib.SMTP(self._host, self._port, timeout=TIMEOUT_SECONDS) as smtp:

@@ -45,6 +45,7 @@ import { useRecentDishes } from '@/features/recent-dishes';
 import { useFavorites } from '@/features/save-favorite';
 import { ForYou } from '@/widgets/for-you';
 import { useUserSessionContext } from '@/entities/user';
+import { EmailVerificationStatus, useEmailVerification } from '@/features/auth-verify-email';
 import { ANH_GIAO_DIEN, dishRoute, ROUTES } from '@/shared/config';
 import {
   IconClock,
@@ -63,6 +64,9 @@ export function HomePage() {
   const session = useUserSessionContext();
   const recent = useRecentDishes();
   const savedDishes = useFavorites();
+  // Chuỗi rỗng = KHÔNG tự xác minh gì cả, chỉ mượn hàm `resend`. Trang chủ không phải
+  // chỗ tiêu token — token chỉ được dùng ở `/verify-email`, đúng một lần.
+  const xacMinhEmail = useEmailVerification('');
   /**
    * Hàng ngang (như bản thiết kế) hay lưới đầy đủ.
    *
@@ -158,6 +162,27 @@ export function HomePage() {
           // `/search`. Trang chủ không ôm hai đường gọi API cùng lúc.
           onSearch={(query) => navigate(`${ROUTES.search}?q=${encodeURIComponent(query)}`)}
         />
+
+        {/* NHẮC XÁC MINH EMAIL — chỉ người ĐÃ ĐĂNG NHẬP mới thấy, và chỉ khi chưa xác
+            minh. Đây là một trong những chỗ khách và người có tài khoản khác nhau THẬT:
+            khách không có email nào để mà xác minh.
+
+            Đặt ở trang chủ chứ không chỉ ở `/account` vì lá thư dễ rơi vào hộp spam và
+            bị quên; người dùng vào lại app thì phải thấy ngay là còn một việc dang dở,
+            kèm sẵn nút gửi lại thư. Tự ẩn khi đã xác minh xong. */}
+        {daDangNhap && session.user?.email && !session.user.email_verified && (
+          <section className="nhac-xac-minh">
+            <EmailVerificationStatus
+              status={xacMinhEmail.status}
+              message={xacMinhEmail.message}
+              error={xacMinhEmail.error}
+              verified={false}
+              hasEmail
+              variant="inline"
+              onResend={() => void xacMinhEmail.resend()}
+            />
+          </section>
+        )}
 
         <MoodQuickPick
           title={daDangNhap ? t('mood.titleLoggedIn') : t('mood.titleGuest')}

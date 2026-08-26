@@ -38,6 +38,17 @@ const vi = {
   'forYou.dishes': 'Món yêu thích',
   'forYou.places': 'Quán yêu thích',
   // --- Trang kết quả gợi ý món (thêm 2026-08-25) --------------------------
+  'recommend.back': 'Quay lại trang chủ',
+  'recommend.heading': 'Món phù hợp với bạn hôm nay',
+  'recommend.sub': 'Dựa trên mood, thời tiết và những gì bạn vừa chọn.',
+  'recommend.edit': 'Chỉnh sửa',
+  'recommend.bestTitle': 'Những món phù hợp nhất với bạn',
+  'recommend.bestSub': 'Xếp theo mức khớp với lựa chọn của bạn hôm nay.',
+  'recommend.nearbyCount': '{count} quán gần bạn có thể bán món này',
+  'recommend.explore': 'Khám phá {name}',
+  'recommend.mayLikeTitle': 'Có thể bạn sẽ thích',
+  'recommend.mayLikeSub':
+    'Những món xếp tiếp theo — chưa phải gợi ý riêng cho bạn, vì MoodBite chưa đủ dữ liệu thói quen.',
   'recommend.loading': 'Đang tìm món hợp với bạn…',
   'recommend.title': '{count} món phù hợp',
   'recommend.empty':
@@ -224,6 +235,17 @@ const en: Record<Khoa, string> = {
   'forYou.dishes': 'Favourite dishes',
   'forYou.places': 'Favourite places',
   // --- Dish recommendation results page (added 2026-08-25) ----------------
+  'recommend.back': 'Back to home',
+  'recommend.heading': 'Dishes that suit you today',
+  'recommend.sub': 'Based on your mood, the weather and what you just picked.',
+  'recommend.edit': 'Edit',
+  'recommend.bestTitle': 'Your best matches',
+  'recommend.bestSub': 'Ranked by how well they match what you picked today.',
+  'recommend.nearbyCount': '{count} places near you may serve it',
+  'recommend.explore': 'Explore {name}',
+  'recommend.mayLikeTitle': 'You may also like',
+  'recommend.mayLikeSub':
+    'The next-ranked dishes — not personalised yet, MoodBite does not have enough history.',
   'recommend.loading': 'Finding dishes for you…',
   'recommend.title': '{count} matching dishes',
   'recommend.empty':

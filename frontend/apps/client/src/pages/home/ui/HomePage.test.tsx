@@ -245,3 +245,67 @@ describe('HomePage - duong du lieu API -> the mon', () => {
     expect(screen.queryByText(/chả thịt lợn nướng than/i)).not.toBeInTheDocument();
   });
 });
+
+describe('HomePage - nhac xac minh email', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+  });
+
+  /** Giả lập một phiên đăng nhập với trạng thái email cho trước. */
+  function dangNhapVoi(email: string | null, daXacMinh: boolean) {
+    sessionStorage.setItem('moodbite.user.token', 'token-gia-lap');
+    return vi.fn().mockImplementation((url: string) => {
+      if (String(url).includes('/auth/me')) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: async () => ({
+            data: {
+              user_id: 'u1',
+              username: 'mung',
+              role: 'user',
+              display_name: 'Mừng',
+              email,
+              email_verified: daXacMinh,
+            },
+          }),
+        });
+      }
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          data: { search_query_id: 'q1', results: [BUN_CHA], context: [], warnings: [] },
+        }),
+      });
+    });
+  }
+
+  it('CHUA xac minh thi nhac ngay o trang chu, co nut gui lai thu', async () => {
+    vi.stubGlobal('fetch', dangNhapVoi('ai.do@vi.du.com', false));
+    renderHome();
+
+    expect(await screen.findByText(/Email chưa xác minh/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Gửi lại thư xác minh/i })).toBeInTheDocument();
+  });
+
+  it('DA xac minh thi KHONG nhac nua', async () => {
+    vi.stubGlobal('fetch', dangNhapVoi('ai.do@vi.du.com', true));
+    renderHome();
+
+    // Đợi phiên nạp xong rồi mới khẳng định là không có — không thì test xanh giả vì
+    // lúc kiểm trang còn chưa biết người dùng là ai.
+    await screen.findByText(/Gợi ý hôm nay dành cho Mừng/i);
+    expect(screen.queryByText(/Email chưa xác minh/i)).not.toBeInTheDocument();
+  });
+
+  it('KHACH thi khong bao gio thay dai nay', async () => {
+    // Khách chưa có email nào để mà xác minh.
+    vi.stubGlobal('fetch', mockSuggestResponse([BUN_CHA]));
+    renderHome();
+
+    await screen.findByText(/Món phổ biến hôm nay/i);
+    expect(screen.queryByText(/Email chưa xác minh/i)).not.toBeInTheDocument();
+  });
+});

@@ -9,3 +9,5 @@ export type {
   UseDishSuggestionsResult,
 } from './model/useDishSuggestions';
 export { ghiBoLocLenUrl, docBoLocTuUrl } from './model/boLocTuUrl';
+export { chipDangBat } from './model/chipDangBat';
+export type { ChipDangBat } from './model/chipDangBat';

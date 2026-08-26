@@ -943,27 +943,96 @@
 }
 
 /* ===========================================================================
-   TRANG KẾT QUẢ GỢI Ý MÓN — `/recommend` (thêm 2026-08-25)
-   ---------------------------------------------------------------------------
-   Trang này CHỈ có kết quả, không có phần khám phá, nên lưới được dùng trọn
-   chiều ngang. Đó cũng là lý do tách khỏi trang chủ.
+   TRANG KẾT QUẢ GỢI Ý MÓN — `/recommend`
+   Dựng theo `frontend/design/Food recommend.jpg` (2026-08-26).
    =========================================================================== */
 .recommend { padding-bottom: 2rem; }
 
-.recommend__head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: .75rem 1rem;
-  margin-bottom: 1.25rem;
+.recommend__quay-lai {
+  display: inline-block;
+  margin-bottom: .75rem;
+  color: inherit;
+  text-decoration: none;
+  font-size: .92rem;
+}
+.recommend__quay-lai:hover { text-decoration: underline; }
+
+/* Đầu trang: chữ bên trái, tranh minh hoạ bên phải. */
+.recommend__dau {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+@media (min-width: 900px) {
+  .recommend__dau { grid-template-columns: minmax(0, 1fr) minmax(0, .8fr); }
 }
 
-/* Nút "Lọc" bám sát mép phải và KHÔNG co lại khi tiêu đề dài — người dùng phải
-   luôn tìm thấy nó ở cùng một chỗ. */
-.recommend__head > .btn--filter { flex: 0 0 auto; }
+.recommend__tieu-de { margin: 0 0 .35rem; }
+.recommend__phu-de { margin: 0 0 .85rem; color: var(--ink-soft); }
 
-.recommend .notice { margin-bottom: 1rem; }
+.recommend__banner {
+  width: 100%;
+  height: auto;
+  max-height: 190px;
+  object-fit: contain;
+  justify-self: end;
+}
+
+.recommend__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .45rem;
+}
+
+/* Chip GỠ ĐƯỢC: nhãn + dấu ✕. Cả chip là một nút, bấm đâu cũng gỡ — vùng bấm to
+   hơn hẳn so với chỉ bấm trúng dấu ✕ nhỏ xíu. */
+.chip--go { gap: .3rem; }
+.chip__go { width: 14px; height: 14px; opacity: .75; }
+.chip--go:hover .chip__go { opacity: 1; }
+
+.recommend__khoi { margin-top: 2rem; }
+
+.recommend__nhan-khoi {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  margin: 0 0 .25rem;
+  font-size: 1.05rem;
+  text-transform: uppercase;
+  letter-spacing: .02em;
+}
+.recommend__nhan-khoi svg { width: 18px; height: 18px; color: var(--accent); }
+
+/* Khối "phù hợp nhất": thẻ lớn | thông tin | ô lý do. */
+.mon-noi-bat {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1rem 0 1.25rem;
+  align-items: start;
+}
+@media (min-width: 1000px) {
+  .mon-noi-bat { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, .9fr); }
+}
+
+.mon-noi-bat__info { display: flex; flex-direction: column; gap: .6rem; }
+.mon-noi-bat__ten { margin: 0; font-size: 1.5rem; }
+.mon-noi-bat__mo-ta { margin: 0; color: var(--ink-soft); line-height: 1.55; }
+.mon-noi-bat__so-quan { margin: 0; font-weight: 600; }
+.mon-noi-bat__info .btn { align-self: flex-start; }
+
+/* Ô "vì sao gợi ý" — nội dung là `reasons` do backend trả, không phải câu quảng cáo. */
+.mon-noi-bat__ly-do {
+  margin: 0;
+  padding: 1rem 1.15rem;
+  border-radius: 16px;
+  background: var(--surface-2);
+  font-size: 1.05rem;
+  line-height: 1.5;
+  font-style: italic;
+}
 
 /* ===========================================================================
    "DÀNH RIÊNG CHO BẠN" (thêm 2026-08-25)
@@ -1053,7 +1122,7 @@
   padding: .55rem .85rem;
   border-radius: 16px;
   background: var(--surface);
-  box-shadow: 0 6px 20px rgba(16, 32, 60, .14);
+  box-shadow: 0 3px 12px rgba(16, 32, 60, .10);
   font-size: .84rem;
   line-height: 1.4;
   color: var(--ink);
@@ -1083,14 +1152,14 @@
   border-radius: 999px;
   background: var(--surface);
   color: var(--ink);
-  box-shadow: 0 10px 28px rgba(16, 32, 60, .18);
+  box-shadow: 0 4px 14px rgba(16, 32, 60, .12);
   cursor: pointer;
   font: inherit;
   font-weight: 600;
   white-space: nowrap;
   pointer-events: auto;
 }
-.bubble__nut:hover { box-shadow: 0 12px 32px rgba(16, 32, 60, .24); }
+.bubble__nut:hover { box-shadow: 0 6px 18px rgba(16, 32, 60, .18); }
 
 /* Tia lấp lánh và mũi tên đều màu nhấn, đúng như ảnh mẫu. */
 .bubble__spark {
@@ -1128,4 +1197,23 @@
 
 /* Chừa chỗ cuối trang để bong bóng KHÔNG đè lên thẻ cuối cùng và nút tim của nó —
    lỗi này chỉ lộ ra khi cuộn tới đáy, nên rất dễ bỏ sót. */
-.page__body { padding-bottom: 8rem; }
+/* Chừa chỗ cho bong bóng KHÔNG đè lên nội dung cuối trang.
+   ⚠️ Bản đầu để `padding-bottom: 8rem` cho MỌI trang — 128px trắng trơn ở đáy, chủ dự
+   án nhìn thấy ngay (2026-08-26). Bong bóng chỉ chiếm góc phải dưới, nên chỉ cần chừa
+   vừa đủ và chỉ ở trang THỰC SỰ có bong bóng. */
+.page__body:has(.bubble) { padding-bottom: 4.5rem; }
+
+/* ===========================================================================
+   DẢI NHẮC XÁC MINH EMAIL — chỉ hiện với người đã đăng nhập mà chưa xác minh.
+   Dùng lại `.xac-minh-email--gon` (khai ở `account.css`), chỉ bọc thêm cái nền.
+   Cố ý dùng nền vàng nhạt chứ KHÔNG phải màu lỗi đỏ: đây là việc còn dang dở,
+   không phải chuyện hỏng — nhuộm đỏ chỉ làm người dùng hoảng vô cớ.
+   =========================================================================== */
+.nhac-xac-minh {
+  margin: 0 0 1.25rem;
+  padding: .85rem 1.1rem;
+  border-radius: 14px;
+  border: 1px solid var(--line-warm);
+  background: var(--surface-2);
+}
+.nhac-xac-minh .xac-minh-email--gon { margin: 0; }

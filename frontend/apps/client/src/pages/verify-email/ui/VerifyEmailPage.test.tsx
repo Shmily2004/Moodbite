@@ -10,6 +10,14 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { VerifyEmailPage } from '../index';
 
+const diToi = vi.fn();
+vi.mock('react-router-dom', async () => {
+  // Giữ nguyên mọi thứ khác của react-router (MemoryRouter, Link, useSearchParams);
+  // chỉ thay `useNavigate` để kiểm ĐÃ CHUYỂN ĐI ĐÂU mà không cần dựng cả router thật.
+  const that = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
+  return { ...that, useNavigate: () => diToi };
+});
+
 function mockOk(email: string) {
   return vi.fn().mockResolvedValue({
     ok: true,
@@ -44,6 +52,7 @@ function renderTrang(duongDan = '/verify-email?token=token-trong-thu') {
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  diToi.mockClear();
 });
 
 describe('VerifyEmailPage', () => {
@@ -102,5 +111,34 @@ describe('VerifyEmailPage', () => {
 
     expect(await screen.findByText(/thiếu mã xác minh/)).toBeInTheDocument();
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+  it('xác minh xong thì TỰ chuyển về trang chủ', async () => {
+    // Lỗi thật 2026-08-26: bấm link trong thư xong trang chỉ hiện một dòng chữ rồi đứng
+    // im, người dùng không biết đã xong hay chưa.
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.stubGlobal('fetch', mockOk('ai.do@vi.du.com'));
+
+    renderTrang();
+    await screen.findByText(/Đã xác minh email/);
+    expect(screen.getByText(/Đang đưa bạn về trang chủ/)).toBeInTheDocument();
+
+    await vi.advanceTimersByTimeAsync(3_000);
+
+    await waitFor(() => expect(diToi).toHaveBeenCalledWith('/', { replace: true }));
+    vi.useRealTimers();
+  });
+
+  it('xác minh HỎNG thì Ở LẠI để người dùng đọc được lỗi', async () => {
+    // Đá về trang chủ lúc lỗi là giấu mất câu lỗi và mất luôn nút gửi lại thư.
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.stubGlobal('fetch', mockLoi('UNAUTHORIZED', 'Đường dẫn đã hết hạn.', 401));
+
+    renderTrang();
+    await screen.findByText('Đường dẫn đã hết hạn.');
+
+    await vi.advanceTimersByTimeAsync(10_000);
+
+    expect(diToi).not.toHaveBeenCalled();
+    vi.useRealTimers();
   });
 });

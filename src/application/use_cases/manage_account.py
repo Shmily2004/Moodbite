@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from typing import Optional, Protocol
 
 from src.application.errors import InvalidCredentialsError
+from src.application.emails import thu_co_nut
 from src.application.ports.email_sender import EmailSender
 from src.application.ports.user_repository import UserRepository, UsernameAlreadyExists
 from src.domain.entities.user import (
@@ -148,30 +149,30 @@ class RequestPasswordResetUseCase:
         lien_ket = f"{self.app_base_url.rstrip('/')}/reset-password?token={token}"
         phut = max(1, self.token_ttl_seconds // 60)
 
-        # Soạn thư bằng cách NỐI DANH SÁCH DÒNG thay vì một chuỗi dài có "\n":
-        # thư này toàn tiếng Việt và sẽ còn phải sửa câu chữ nhiều lần, để dạng danh sách
-        # thì mỗi dòng nhìn thấy rõ, không ai đếm nhầm ký tự xuống dòng.
-        dong = [
-            f"Chào {user.display_name or user.username},",
-            "",
-            "Có người vừa yêu cầu đặt lại mật khẩu cho tài khoản MoodBite của bạn",
-            f"({user.username}).",
-            "",
-            "Mở đường dẫn dưới đây để đặt mật khẩu mới:",
-            lien_ket,
-            "",
-            f"Đường dẫn có hiệu lực trong {phut} phút và chỉ dùng được MỘT lần.",
-            "",
-            "Nếu không phải bạn yêu cầu thì cứ bỏ qua thư này — mật khẩu hiện tại vẫn",
-            "giữ nguyên.",
-            "",
-            "— MoodBite",
-        ]
+        # Thư có NÚT BẤM, không để đường dẫn trần giữa dòng — xem `application/emails`.
+        thu = thu_co_nut(
+            subject="Đặt lại mật khẩu MoodBite",
+            tren_nut=[
+                f"Chào {user.display_name or user.username},",
+                "",
+                "Có người vừa yêu cầu đặt lại mật khẩu cho tài khoản MoodBite của bạn "
+                f"({user.username}).",
+            ],
+            nhan_nut="Đặt mật khẩu mới",
+            lien_ket=lien_ket,
+            duoi_nut=[
+                f"Đường dẫn có hiệu lực trong {phut} phút và chỉ dùng được MỘT lần.",
+                "",
+                "Nếu không phải bạn yêu cầu thì cứ bỏ qua thư này — mật khẩu hiện tại "
+                "vẫn giữ nguyên.",
+            ],
+        )
 
         self.emails.send(
             to=user.email,
-            subject="Đặt lại mật khẩu MoodBite",
-            body=chr(10).join(dong),
+            subject=thu.subject,
+            body=thu.text,
+            html=thu.html,
         )
         logger.info("Đã gửi thư đặt lại mật khẩu cho %s", user.username)
         return True
@@ -221,24 +222,29 @@ class RequestEmailVerificationUseCase:
         lien_ket = f"{self.app_base_url.rstrip('/')}/verify-email?token={token}"
         gio = max(1, self.token_ttl_seconds // 3600)
 
-        dong = [
-            f"Chào {user.display_name or user.username},",
-            "",
-            "Hãy xác nhận đây đúng là hộp thư của bạn bằng cách mở đường dẫn dưới đây:",
-            lien_ket,
-            "",
-            f"Đường dẫn có hiệu lực trong {gio} giờ và chỉ dùng được MỘT lần.",
-            "",
-            "Xác minh xong, bạn mới lấy lại được mật khẩu qua email nếu lỡ quên.",
-            "",
-            "Nếu bạn không đăng ký MoodBite thì cứ bỏ qua thư này.",
-            "",
-            "— MoodBite",
-        ]
+        thu = thu_co_nut(
+            subject="Xác minh email MoodBite",
+            tren_nut=[
+                f"Chào {user.display_name or user.username},",
+                "",
+                "Hãy xác nhận đây đúng là hộp thư của bạn — bấm nút dưới đây là xong, "
+                "không cần nhập gì thêm.",
+            ],
+            nhan_nut="Xác minh email",
+            lien_ket=lien_ket,
+            duoi_nut=[
+                f"Đường dẫn có hiệu lực trong {gio} giờ và chỉ dùng được MỘT lần.",
+                "",
+                "Xác minh xong, bạn mới lấy lại được mật khẩu qua email nếu lỡ quên.",
+                "",
+                "Nếu bạn không đăng ký MoodBite thì cứ bỏ qua thư này.",
+            ],
+        )
         self.emails.send(
             to=user.email,
-            subject="Xác minh email MoodBite",
-            body=chr(10).join(dong),
+            subject=thu.subject,
+            body=thu.text,
+            html=thu.html,
         )
         logger.info("Đã gửi thư xác minh email cho %s", user.username)
         return True

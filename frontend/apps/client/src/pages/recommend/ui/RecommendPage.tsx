@@ -1,33 +1,53 @@
 /**
  * TRANG KẾT QUẢ GỢI Ý MÓN — `/recommend`.
  *
- * VÌ SAO TÁCH KHỎI TRANG CHỦ (chủ dự án chốt 2026-08-24):
- * Trước đó trang chủ ôm cả hai việc — khám phá (hero, mood, nhu cầu) VÀ kết quả lọc — và
- * nút "Xem tất cả" chỉ đổi bố cục row→grid TẠI CHỖ, khiến trang dài thêm hàng chục hàng
- * thẻ. Người dùng phải cuộn qua toàn bộ phần khám phá mỗi lần muốn xem lại kết quả.
- * Nay: trang chủ lo KHÁM PHÁ, trang này lo KẾT QUẢ.
+ * Dựng theo `frontend/design/Food recommend.jpg` (chủ dự án chốt 2026-08-26):
  *
- * ⚠️ KHÔNG PHẢI `/search`. Trang đó tìm QUÁN bằng câu tự nhiên và có bản đồ; trang này
- * xếp hạng MÓN theo bộ lọc + ngữ cảnh. Hai luồng khác nhau, đừng gộp.
+ *   ← Quay lại trang chủ
+ *   Món phù hợp với bạn hôm nay
+ *   [Trời mưa ✕] [Đồ nướng ✕] [Món nóng ✕]  [Chỉnh sửa]
  *
- * BỘ LỌC NẰM TRÊN URL, không phải trong bộ nhớ — xem `boLocTuUrl.ts`.
+ *   ★ NHỮNG MÓN PHÙ HỢP NHẤT VỚI BẠN
+ *     ┌────────┐  Bún chả              ┌──────────────┐
+ *     │ ảnh to │  86 quán gần bạn      │ vì sao gợi ý │
+ *     └────────┘  [Khám phá Bún chả]   └──────────────┘
+ *     [nhỏ][nhỏ][nhỏ][nhỏ][nhỏ]
+ *
+ *   ♥ CÓ THỂ BẠN SẼ THÍCH
+ *     [nhỏ][nhỏ][nhỏ][nhỏ][nhỏ]
+ *
+ * ⚠️ KHÔNG hiện ⭐ rating và km trên thẻ món, dù bản thiết kế có. Chủ dự án chốt
+ * 2026-08-25 rằng đó là lỗi thiết kế: MÓN không có trường rating (chỉ QUÁN mới có, và
+ * chỉ 2,2% quán có), còn km là của quán gần nhất nên đặt trên thẻ món thì đọc thành
+ * "món này cách 1,2 km" — vô nghĩa.
+ *
+ * ⚠️ KHÔNG PHẢI `/search`. Trang đó tìm QUÁN bằng câu tự nhiên và có bản đồ.
+ *
+ * BỘ LỌC NẰM TRÊN URL — xem `features/suggest-dishes/model/boLocTuUrl.ts`.
  */
 import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { SiteHeader } from '@/widgets/site-header';
 import { DishList, DishListSkeleton } from '@/widgets/dish-list';
 import { FilterDrawer } from '@/widgets/filter-drawer';
 import { AssistantBubble } from '@/widgets/assistant-bubble';
+import { DishCard } from '@/entities/dish';
+import type { ChipDangBat } from '@/features/suggest-dishes';
 import {
   DishFilters,
+  chipDangBat,
   docBoLocTuUrl,
   ghiBoLocLenUrl,
   useDishSuggestions,
 } from '@/features/suggest-dishes';
 import { useUserLocation } from '@/features/pick-location';
 import { useFavorites } from '@/features/save-favorite';
-import { ROUTES } from '@/shared/config';
+import { ANH_GIAO_DIEN, ROUTES } from '@/shared/config';
+import { IconClose, IconFilter, IconHeart, IconStar } from '@/shared/ui';
 import { useT } from '@/shared/i18n';
+
+/** Số món trong khối "phù hợp nhất": 1 thẻ lớn + 5 thẻ nhỏ, đúng như thiết kế. */
+const SO_MON_NOI_BAT = 6;
 
 export function RecommendPage() {
   const t = useT();
@@ -42,54 +62,85 @@ export function RecommendPage() {
   const savedDishes = useFavorites();
   const [moBoLoc, setMoBoLoc] = useState(false);
 
-  // Bộ lọc đổi -> ghi ngược lên URL. `replace` để mỗi lần bấm chip KHÔNG tạo một mục
-  // mới trong lịch sử: bấm 5 chip rồi bấm Back 5 lần mới ra khỏi trang là rất khó chịu.
+  // Bộ lọc đổi -> ghi ngược lên URL. `replace` để mỗi lần bấm chip KHÔNG tạo một mục mới
+  // trong lịch sử: bấm 5 chip rồi phải bấm Back 5 lần mới ra khỏi trang là rất khó chịu.
   useEffect(() => {
     setSearchParams(ghiBoLocLenUrl(suggestions.filters), { replace: true });
   }, [suggestions.filters, setSearchParams]);
 
   const dishes = suggestions.dishes ?? [];
-  const coMon = dishes.length > 0;
+  const noiBat = dishes.slice(0, SO_MON_NOI_BAT);
+  const monDau = noiBat[0] ?? null;
+  const monPhu = noiBat.slice(1);
+
+  // "Có thể bạn sẽ thích" = phần còn lại của danh sách ĐÃ XẾP HẠNG.
+  //
+  // ⚠️ ĐÂY KHÔNG PHẢI GỢI Ý CÁ NHÂN HOÁ, và câu phụ dưới tiêu đề nói đúng như vậy.
+  // Cá nhân hoá thật cần lịch sử hành vi, mà `interactions.jsonl` mới có vài bản ghi.
+  // Đặt tên "dành riêng cho bạn" lúc này là hứa thứ chưa có.
+  const coTheThich = dishes.slice(SO_MON_NOI_BAT);
+
+  const chips = chipDangBat(suggestions.filters);
+  const goChip = (chip: ChipDangBat) => {
+    if (chip.nhomNhieu) suggestions.toggle(chip.nhomNhieu, chip.giaTri);
+    else if (chip.nhomMot) suggestions.setSingle(chip.nhomMot, null);
+  };
+
+  const moMon = (dishId: string) => navigate(ROUTES.dish.replace(':dishId', dishId));
+  const daLuu = (dishId: string) => savedDishes.isSaved('dish', dishId);
+  const luuMon = (dishId: string, ten: string) =>
+    savedDishes.toggle({ itemType: 'dish', itemId: dishId, name: ten });
 
   return (
     <div className="page">
       <SiteHeader />
 
       <main className="page__body recommend">
-        <div className="recommend__head">
-          <div>
-            <h1 className="section-title">
-              {suggestions.loading
-                ? t('recommend.loading')
-                : t('recommend.title', { count: dishes.length })}
-            </h1>
-            {/* Ngữ cảnh do BACKEND đo (giờ + thời tiết), không phải frontend đoán. */}
-            {suggestions.context.length > 0 && (
-              <p className="section-sub">{suggestions.context.join(' · ')}</p>
-            )}
+        <Link className="recommend__quay-lai" to={ROUTES.home}>
+          ← {t('recommend.back')}
+        </Link>
+
+        <div className="recommend__dau">
+          <div className="recommend__dau-chu">
+            <h1 className="recommend__tieu-de">{t('recommend.heading')}</h1>
+            <p className="recommend__phu-de">{t('recommend.sub')}</p>
+
+            {/* Chip bộ lọc đang bật, gỡ được TỪNG CÁI — đúng như thiết kế. */}
+            <div className="recommend__chips">
+              {chips.map((chip) => (
+                <button
+                  key={chip.khoa}
+                  type="button"
+                  className="chip chip--active chip--go"
+                  onClick={() => goChip(chip)}
+                >
+                  {chip.nhan}
+                  <IconClose className="chip__go" />
+                </button>
+              ))}
+              <button
+                type="button"
+                className="chip chip--flat"
+                onClick={() => setMoBoLoc(true)}
+              >
+                <IconFilter /> {t('recommend.edit')}
+              </button>
+            </div>
           </div>
 
-          <button
-            type="button"
-            className={
-              suggestions.activeFilterCount > 0
-                ? 'btn btn--sm btn--filter btn--filter-on'
-                : 'btn btn--sm btn--filter'
-            }
-            onClick={() => setMoBoLoc(true)}
-          >
-            {t('filters.open')}
-            {suggestions.activeFilterCount > 0 && (
-              <span className="btn__badge">{suggestions.activeFilterCount}</span>
-            )}
-          </button>
+          {ANH_GIAO_DIEN.banner_trang_chu && (
+            <img
+              className="recommend__banner"
+              src={ANH_GIAO_DIEN.banner_trang_chu.src}
+              alt=""
+              loading="lazy"
+            />
+          )}
         </div>
 
-        {/* Điều server KHÔNG làm được — hiện lên thay vì im lặng bỏ qua.
-            VD "đã ẩn 48 món có quán bán nhưng nằm ngoài bán kính 3 km". */}
-        {suggestions.warnings.map((canh_bao, i) => (
+        {suggestions.warnings.map((canhBao, i) => (
           <p key={i} className="notice notice--warn">
-            {canh_bao}
+            {canhBao}
           </p>
         ))}
 
@@ -104,7 +155,7 @@ export function RecommendPage() {
 
         {suggestions.loading && <DishListSkeleton layout="grid" />}
 
-        {!suggestions.loading && !suggestions.error && !coMon && (
+        {!suggestions.loading && !suggestions.error && dishes.length === 0 && (
           <div className="notice">
             <p>{t('recommend.empty')}</p>
             {suggestions.activeFilterCount > 0 && (
@@ -115,23 +166,77 @@ export function RecommendPage() {
           </div>
         )}
 
-        {!suggestions.loading && coMon && (
-          <DishList
-            dishes={dishes}
-            layout="grid"
-            onOpen={(dish) => navigate(ROUTES.dish.replace(':dishId', dish.dish_id))}
-            isSaved={(dish) => savedDishes.isSaved('dish', dish.dish_id)}
-            onToggleSave={(dish) =>
-              savedDishes.toggle({
-                itemType: 'dish',
-                itemId: dish.dish_id,
-                name: dish.name,
-              })
-            }
-          />
+        {!suggestions.loading && monDau && (
+          <section className="recommend__khoi">
+            <h2 className="recommend__nhan-khoi">
+              <IconStar filled /> {t('recommend.bestTitle')}
+            </h2>
+            <p className="section-sub">{t('recommend.bestSub')}</p>
+
+            <div className="mon-noi-bat">
+              <DishCard
+                dish={monDau}
+                onOpen={() => moMon(monDau.dish_id)}
+                saved={daLuu(monDau.dish_id)}
+                onToggleSave={() => luuMon(monDau.dish_id, monDau.name)}
+              />
+
+              <div className="mon-noi-bat__info">
+                <h3 className="mon-noi-bat__ten">{monDau.name}</h3>
+                {monDau.has_description && (
+                  <p className="mon-noi-bat__mo-ta">{monDau.description}</p>
+                )}
+                <p className="mon-noi-bat__so-quan">
+                  {t('recommend.nearbyCount', { count: monDau.restaurant_count })}
+                </p>
+                <button
+                  type="button"
+                  className="btn btn--accent"
+                  onClick={() => moMon(monDau.dish_id)}
+                >
+                  {t('recommend.explore', { name: monDau.name })} →
+                </button>
+              </div>
+
+              {/* Ô "vì sao gợi ý" — dùng `reasons` do BACKEND trả, không phải câu quảng
+                  cáo tự chế. Thiết kế để một câu marketing ở đây; ta thay bằng lý do
+                  thật, vì đó mới là thứ giải thích được và không bịa. */}
+              {monDau.reasons.length > 0 && (
+                <blockquote className="mon-noi-bat__ly-do">
+                  {monDau.reasons.join(' · ')}
+                </blockquote>
+              )}
+            </div>
+
+            {monPhu.length > 0 && (
+              <DishList
+                dishes={monPhu}
+                layout="row"
+                onOpen={(dish) => moMon(dish.dish_id)}
+                isSaved={(dish) => daLuu(dish.dish_id)}
+                onToggleSave={(dish) => luuMon(dish.dish_id, dish.name)}
+              />
+            )}
+          </section>
         )}
 
-        {/* Bong bóng trợ lý — chỉ đặt ở trang CÓ MÓN. Xem `widgets/assistant-bubble`. */}
+        {!suggestions.loading && coTheThich.length > 0 && (
+          <section className="recommend__khoi">
+            <h2 className="recommend__nhan-khoi">
+              <IconHeart /> {t('recommend.mayLikeTitle')}
+            </h2>
+            <p className="section-sub">{t('recommend.mayLikeSub')}</p>
+
+            <DishList
+              dishes={coTheThich}
+              layout="grid"
+              onOpen={(dish) => moMon(dish.dish_id)}
+              isSaved={(dish) => daLuu(dish.dish_id)}
+              onToggleSave={(dish) => luuMon(dish.dish_id, dish.name)}
+            />
+          </section>
+        )}
+
         <AssistantBubble
           onOpen={() => setMoBoLoc(true)}
           activeCount={suggestions.activeFilterCount}

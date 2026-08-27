@@ -17,8 +17,11 @@ export function LoginPage() {
 
   if (session.isLoggedIn) {
     // Đã đăng nhập mà vẫn mở /login -> đẩy về nơi định đến, không hiện lại form.
+    //
+    // Đích MẶC ĐỊNH là TỔNG QUAN (đổi 2026-08-26). Trước đó là danh sách quán, nên đăng
+    // nhập xong đập thẳng vào bảng 52.854 dòng thay vì màn số liệu vận hành.
     const from = (location.state as LocationState | null)?.from;
-    return <Navigate to={from || ROUTES.restaurants} replace />;
+    return <Navigate to={from || ROUTES.overview} replace />;
   }
 
   return (

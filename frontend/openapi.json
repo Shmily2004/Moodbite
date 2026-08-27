@@ -1353,6 +1353,236 @@
         }
       }
     },
+    "/api/v1/admin/dishes": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "List Dishes",
+        "description": "Danh mục món cho trang quản trị.\n\n⚠️ KHÁC `/dishes/suggest`: ở đây thấy CẢ món chưa có quán (557 món) và CẢ danh mục\n(\"Bún\"). Người dùng cuối không được thấy hai nhóm đó, còn admin thì phải — việc của\nhọ chính là tìm những món đang thiếu.",
+        "operationId": "list_dishes_api_v1_admin_dishes_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Tìm theo tên hoặc mã món",
+              "title": "Q"
+            },
+            "description": "Tìm theo tên hoặc mã món"
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "all | with_restaurants | without_restaurants | missing_image | missing_description",
+              "default": "all",
+              "title": "Filter"
+            },
+            "description": "all | with_restaurants | without_restaurants | missing_image | missing_description"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDishListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/recommendation": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Admin Recommendation",
+        "description": "Trạng thái NĂM LỚP MÔ HÌNH của đề án (CLAUDE.md mục 4c).\n\nĐây là màn để KIỂM TRA và HIỂU hệ gợi ý, KHÔNG phải để chỉnh nó. Admin không được\nsửa trọng số hay điểm bằng tay — công thức là quy tắc nghiệp vụ và chỉ được nằm ở\n`domain/services/`. Sửa qua HTTP thì mỗi lần deploy lại một kết quả khác nhau và\nkhông ai tái hiện được.\n\n⚠️ Nói ĐÚNG độ phủ, kể cả khi xấu. Đo 2026-08-26: chỉ 1.193/52.854 quán (2,3%) có\ncụm trải nghiệm, vì phân cụm cần tín hiệu rating/giá/review mà chỉ ~2% quán có.\nPhần còn lại đi đường Cold Start với điểm trung tính 0,5 (rules.md mục 3.3) — hệ vẫn\nchạy đúng, nhưng con số này phải hiện ra chứ không được giấu sau chữ \"✅ Xong\".",
+        "operationId": "admin_recommendation_api_v1_admin_recommendation_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminRecommendationResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/system": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Admin System",
+        "description": "Cấu hình đang chạy + trạng thái từng kho dữ liệu. CHỈ ĐỌC.\n\n⚠️ KHÔNG trả secret nào (mật khẩu SMTP, khoá ký token, hash mật khẩu admin). Chỉ trả\ncờ \"đã cấu hình hay chưa\". Trang quản trị chạy trong trình duyệt — mọi thứ gửi ra đây\ncoi như đã lộ với bất kỳ ai xem được máy đó.\n\n⚠️ CŨNG KHÔNG SỬA ĐƯỢC. Cấu hình nằm ở biến môi trường / `.env.local`; cho sửa qua\nHTTP nghĩa là một lỗ hổng ở trang quản trị đổi được cả khoá ký token. Muốn đổi thì\nsửa `.env.local` rồi khởi động lại — xem `scripts/chuan_bi_may_moi.py`.",
+        "operationId": "admin_system_api_v1_admin_system_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminSystemResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/activity": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Admin Activity",
+        "description": "Nhật ký hoạt động quản trị, MỚI NHẤT ĐỨNG ĐẦU.\n\nKho nhật ký hỏng -> trả danh sách RỖNG kèm `available: false`, KHÔNG phải 503. Nhật\nký hỏng không ngăn được người quản trị làm việc, nên không có lý do gì chặn cả trang.\nGiao diện dùng `available` để nói đúng \"chưa ghi gì\" hay \"không mở được kho\".",
+        "operationId": "admin_activity_api_v1_admin_activity_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Lọc theo hành động: create_restaurant | update_restaurant | hide_restaurant | restore_restaurant",
+              "title": "Action"
+            },
+            "description": "Lọc theo hành động: create_restaurant | update_restaurant | hide_restaurant | restore_restaurant"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuditLogResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/overview": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Admin Overview",
+        "description": "Số liệu màn \"Tổng quan\" — đếm quán/món, độ phủ dữ liệu, việc cần xử lý.\n\nCó bộ đệm 5 phút ở use case; `?refresh=true` để tính lại ngay sau khi vừa sửa dữ liệu.\n\n⚠️ Router MỎNG, không tính toán gì: mọi quy tắc (\"thế nào là đủ thông tin cơ bản\")\nnằm ở `domain/services/data_quality.py`.",
+        "operationId": "admin_overview_api_v1_admin_overview_get",
+        "parameters": [
+          {
+            "name": "refresh",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Bỏ qua bộ đệm, tính lại ngay",
+              "default": false,
+              "title": "Refresh"
+            },
+            "description": "Bỏ qua bộ đệm, tính lại ngay"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOverviewResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/restaurants": {
       "get": {
         "tags": [
@@ -1749,6 +1979,112 @@
         "title": "AdminCreateRestaurantRequest",
         "description": "Thêm quán MỚI bằng tay.\n\nChỉ `name` + `lat` + `lng` là bắt buộc — đúng ba trường thiết yếu; thiếu là bản ghi\nvô dụng. Mọi trường khác điền được tới đâu thì điền, để trống là `null` (CHƯA CÓ\nDỮ LIỆU), tuyệt đối không tự điền giá trị mặc định cho có.\n\n⚠️ KHÔNG có `rating`, `reviews_count`, `mood_scores`: chúng do nguồn thu thập hoặc do\npipeline tính. Gõ tay vào là làm sai lệch chính những con số dùng để xếp hạng.\nGiới hạn toạ độ trong Hà Nội kiểm ở tầng domain, không kiểm ở đây."
       },
+      "AdminDishListData": {
+        "properties": {
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/AdminDishRow"
+            },
+            "type": "array",
+            "title": "Results"
+          },
+          "returned": {
+            "type": "integer",
+            "title": "Returned"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "results",
+          "returned",
+          "total"
+        ],
+        "title": "AdminDishListData"
+      },
+      "AdminDishListResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/AdminDishListData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "AdminDishListResponse"
+      },
+      "AdminDishRow": {
+        "properties": {
+          "dish_id": {
+            "type": "string",
+            "title": "Dish Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "cuisine": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cuisine"
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
+          },
+          "has_description": {
+            "type": "boolean",
+            "title": "Has Description"
+          },
+          "is_category": {
+            "type": "boolean",
+            "title": "Is Category",
+            "description": "True = DANH MỤC (\"Bún\"), không phải món cụ thể"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "description": "False = chưa tìm được quán nào ở Hà Nội bán món này"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          }
+        },
+        "type": "object",
+        "required": [
+          "dish_id",
+          "name",
+          "has_description",
+          "is_category",
+          "is_active"
+        ],
+        "title": "AdminDishRow"
+      },
       "AdminLoginData": {
         "properties": {
           "token": {
@@ -1806,6 +2142,148 @@
           "data"
         ],
         "title": "AdminLoginResponse"
+      },
+      "AdminOverviewData": {
+        "properties": {
+          "restaurants_total": {
+            "type": "integer",
+            "title": "Restaurants Total"
+          },
+          "restaurants_visible": {
+            "type": "integer",
+            "title": "Restaurants Visible"
+          },
+          "restaurants_hidden": {
+            "type": "integer",
+            "title": "Restaurants Hidden"
+          },
+          "dishes_total": {
+            "type": "integer",
+            "title": "Dishes Total"
+          },
+          "dishes_with_restaurants": {
+            "type": "integer",
+            "title": "Dishes With Restaurants"
+          },
+          "dishes_without_restaurants": {
+            "type": "integer",
+            "title": "Dishes Without Restaurants"
+          },
+          "interactions_total": {
+            "type": "integer",
+            "title": "Interactions Total"
+          },
+          "data_quality": {
+            "items": {
+              "$ref": "#/components/schemas/DoPhuTruongSchema"
+            },
+            "type": "array",
+            "title": "Data Quality"
+          },
+          "by_source": {
+            "items": {
+              "$ref": "#/components/schemas/ThongKeNguonSchema"
+            },
+            "type": "array",
+            "title": "By Source"
+          },
+          "needs_attention": {
+            "items": {
+              "$ref": "#/components/schemas/ViecCanXuLySchema"
+            },
+            "type": "array",
+            "title": "Needs Attention"
+          },
+          "needs_attention_total": {
+            "type": "integer",
+            "title": "Needs Attention Total"
+          },
+          "generated_at": {
+            "type": "string",
+            "title": "Generated At",
+            "description": "ISO 8601, lúc số liệu được tính"
+          }
+        },
+        "type": "object",
+        "required": [
+          "restaurants_total",
+          "restaurants_visible",
+          "restaurants_hidden",
+          "dishes_total",
+          "dishes_with_restaurants",
+          "dishes_without_restaurants",
+          "interactions_total",
+          "data_quality",
+          "by_source",
+          "needs_attention",
+          "needs_attention_total",
+          "generated_at"
+        ],
+        "title": "AdminOverviewData"
+      },
+      "AdminOverviewResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/AdminOverviewData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "AdminOverviewResponse"
+      },
+      "AdminRecommendationData": {
+        "properties": {
+          "layers": {
+            "items": {
+              "$ref": "#/components/schemas/LopMoHinhSchema"
+            },
+            "type": "array",
+            "title": "Layers"
+          },
+          "interactions_total": {
+            "type": "integer",
+            "title": "Interactions Total"
+          },
+          "clustered_restaurants": {
+            "type": "integer",
+            "title": "Clustered Restaurants"
+          },
+          "restaurants_total": {
+            "type": "integer",
+            "title": "Restaurants Total"
+          },
+          "cluster_labels": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Cluster Labels",
+            "description": "[{label, count}] — nhãn cụm và số quán"
+          }
+        },
+        "type": "object",
+        "required": [
+          "layers",
+          "interactions_total",
+          "clustered_restaurants",
+          "restaurants_total"
+        ],
+        "title": "AdminRecommendationData"
+      },
+      "AdminRecommendationResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/AdminRecommendationData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "AdminRecommendationResponse"
       },
       "AdminRestaurantListData": {
         "properties": {
@@ -1994,6 +2472,99 @@
         "title": "AdminRestaurantSummary",
         "description": "Một quán nhìn từ phía quản trị.\n\n`rating`/`reviews_count`/`price` để None khi CHƯA CÓ DỮ LIỆU — không đổi thành 0\nhay chuỗi rỗng, vì admin cần phân biệt \"thiếu dữ liệu\" với \"giá trị bằng 0\"."
       },
+      "AdminSystemData": {
+        "properties": {
+          "storage_backend": {
+            "type": "string",
+            "title": "Storage Backend"
+          },
+          "weather_enabled": {
+            "type": "boolean",
+            "title": "Weather Enabled"
+          },
+          "admin_token_ttl_seconds": {
+            "type": "integer",
+            "title": "Admin Token Ttl Seconds"
+          },
+          "user_token_ttl_seconds": {
+            "type": "integer",
+            "title": "User Token Ttl Seconds"
+          },
+          "email_configured": {
+            "type": "boolean",
+            "title": "Email Configured"
+          },
+          "app_base_url": {
+            "type": "string",
+            "title": "App Base Url"
+          },
+          "services": {
+            "items": {
+              "$ref": "#/components/schemas/AdminSystemService"
+            },
+            "type": "array",
+            "title": "Services"
+          }
+        },
+        "type": "object",
+        "required": [
+          "storage_backend",
+          "weather_enabled",
+          "admin_token_ttl_seconds",
+          "user_token_ttl_seconds",
+          "email_configured",
+          "app_base_url",
+          "services"
+        ],
+        "title": "AdminSystemData",
+        "description": "Cấu hình + trạng thái dịch vụ. CHỈ ĐỌC, và TUYỆT ĐỐI không có secret nào."
+      },
+      "AdminSystemResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/AdminSystemData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "AdminSystemResponse"
+      },
+      "AdminSystemService": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "ready": {
+            "type": "boolean",
+            "title": "Ready"
+          },
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "label",
+          "ready"
+        ],
+        "title": "AdminSystemService"
+      },
       "AdminUpdateRestaurantRequest": {
         "properties": {
           "name": {
@@ -2089,6 +2660,96 @@
         "type": "object",
         "title": "AdminUpdateRestaurantRequest",
         "description": "Chỉ những trường được gửi lên mới bị sửa (`exclude_unset=True` ở router).\n\nGửi `null` = XOÁ giá trị. Không gửi trường = giữ nguyên. Đây là hai ý định khác\nnhau nên không được gộp làm một."
+      },
+      "AuditEntrySchema": {
+        "properties": {
+          "actor": {
+            "type": "string",
+            "title": "Actor"
+          },
+          "action": {
+            "type": "string",
+            "title": "Action"
+          },
+          "action_label": {
+            "type": "string",
+            "title": "Action Label",
+            "description": "Nhãn tiếng Việt, do domain quyết"
+          },
+          "target_type": {
+            "type": "string",
+            "title": "Target Type"
+          },
+          "target_id": {
+            "type": "string",
+            "title": "Target Id"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "actor",
+          "action",
+          "action_label",
+          "target_type",
+          "target_id",
+          "summary"
+        ],
+        "title": "AuditEntrySchema"
+      },
+      "AuditLogData": {
+        "properties": {
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/AuditEntrySchema"
+            },
+            "type": "array",
+            "title": "Entries"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "description": "Số dòng TRẢ VỀ, không phải tổng cả nhật ký"
+          },
+          "available": {
+            "type": "boolean",
+            "title": "Available",
+            "description": "Kho nhật ký mở được không. False -> giao diện nói rõ lý do."
+          }
+        },
+        "type": "object",
+        "required": [
+          "entries",
+          "total",
+          "available"
+        ],
+        "title": "AuditLogData"
+      },
+      "AuditLogResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/AuditLogData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "AuditLogResponse"
       },
       "AuthData": {
         "properties": {
@@ -2552,6 +3213,50 @@
         ],
         "title": "DishSuggestResponseData"
       },
+      "DoPhuTruongSchema": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "covered": {
+            "type": "integer",
+            "title": "Covered"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "percent": {
+            "type": "number",
+            "title": "Percent"
+          },
+          "level": {
+            "type": "string",
+            "title": "Level",
+            "description": "tot | trung_binh | kem — để giao diện tô màu"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "label",
+          "description",
+          "covered",
+          "total",
+          "percent",
+          "level"
+        ],
+        "title": "DoPhuTruongSchema"
+      },
       "ErrorDetail": {
         "properties": {
           "code": {
@@ -2863,6 +3568,65 @@
           "password"
         ],
         "title": "LoginRequest"
+      },
+      "LopMoHinhSchema": {
+        "properties": {
+          "layer": {
+            "type": "integer",
+            "title": "Layer"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "chay | mot_phan | chua_lam"
+          },
+          "method": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Method"
+          },
+          "coverage": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coverage",
+            "description": "Độ phủ ở dạng câu chữ, VD '1.193/52.854 quán (2,3%)'"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "layer",
+          "name",
+          "status"
+        ],
+        "title": "LopMoHinhSchema",
+        "description": "Một trong năm lớp mô hình của đề án (CLAUDE.md mục 4c)."
       },
       "MeResponse": {
         "properties": {
@@ -3697,6 +4461,29 @@
         ],
         "title": "SuggestedDishSchema"
       },
+      "ThongKeNguonSchema": {
+        "properties": {
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "percent": {
+            "type": "number",
+            "title": "Percent"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source",
+          "count",
+          "percent"
+        ],
+        "title": "ThongKeNguonSchema"
+      },
       "UserSelf": {
         "properties": {
           "user_id": {
@@ -3889,6 +4676,40 @@
         ],
         "title": "VerifyEmailRequest",
         "description": "Xác minh email bằng token trong thư.\n\nKHÔNG có trường email: địa chỉ nằm sẵn trong token và đã được ký. Nhận email từ\nclient rồi tin theo là mở đường cho người ta xác minh hộ địa chỉ của người khác."
+      },
+      "ViecCanXuLySchema": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "severity": {
+            "type": "string",
+            "title": "Severity",
+            "description": "canh_bao | thong_tin"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "label",
+          "description",
+          "count",
+          "severity"
+        ],
+        "title": "ViecCanXuLySchema"
       }
     }
   }

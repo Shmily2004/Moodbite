@@ -10,5 +10,12 @@
  */
 export const ROUTES = {
   login: '/login',
-  restaurants: '/',
+  // Trang chủ khu quản trị = TỔNG QUAN (đổi 2026-08-26 theo `design/Dashboard admin.png`).
+  // Trước đó `/` là danh sách quán; đăng nhập xong đập ngay vào một bảng 52.854 dòng.
+  overview: '/',
+  restaurants: '/quan-an',
+  dishes: '/mon-an',
+  recommendation: '/goi-y',
+  activity: '/nhat-ky',
+  system: '/cai-dat',
 } as const;

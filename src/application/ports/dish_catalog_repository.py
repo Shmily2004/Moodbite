@@ -28,3 +28,16 @@ class DishCatalogRepository(Protocol):
     def get_dish(self, dish_id: str) -> Optional[Dish]:
         """Một món theo id, None nếu không có."""
         ...
+
+    def list_all_dishes(self) -> List[Dish]:
+        """TOÀN BỘ món, KỂ CẢ món đang tắt. Chỉ dùng cho trang quản trị.
+
+        ⚠️ ĐỪNG dùng cho endpoint công khai — `list_dishes()` mới là thứ người dùng được
+        thấy. Món tắt là món chưa có quán nào ở Hà Nội bán, hiện ra cho người dùng thì
+        bấm vào chỉ gặp danh sách quán rỗng.
+
+        Vì sao quản trị cần: đo được 855 món trong file nhưng chỉ 298 món đang bật
+        (2026-08-26). Trang quản trị phải nói được cả ba con số — tổng, có quán, chưa có
+        quán — nếu không thì người quản trị nhìn thấy 298 và tưởng mất 557 món.
+        """
+        ...

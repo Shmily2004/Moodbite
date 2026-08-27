@@ -131,6 +131,17 @@ class Dish:
     # loại bún"). Chỉ là lưới món và nút đề xuất phải bỏ qua chúng.
     is_category: bool = False
 
+    # BẬT / TẮT — soft-delete, cùng quy ước với quán.
+    #
+    # Trong `dish_catalog.json`, `is_active=false` nghĩa là CHƯA TÌM ĐƯỢC QUÁN NÀO ở Hà
+    # Nội bán món đó (đo 2026-08-26: 557/855 món, phần lớn là món quốc tế). Người dùng
+    # KHÔNG được thấy chúng — bấm vào chỉ gặp danh sách quán rỗng.
+    #
+    # Vì sao vẫn phải có trên entity dù người dùng không thấy: trang quản trị cần đếm
+    # được "855 tổng / 298 có quán / 557 chưa có quán". Trước 2026-08-26 trường này bị
+    # bỏ khi dựng entity, nên mọi phép đếm ở tầng trên đều tưởng mọi món đều đang bật.
+    is_active: bool = True
+
     @property
     def identifier(self) -> str:
         """`dish_id` đã đặt, hoặc slug suy từ tên."""

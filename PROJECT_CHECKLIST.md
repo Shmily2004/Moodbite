@@ -19,12 +19,14 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Frontend Client | ✅ **TypeScript + FSD** | 86 test, có bản đồ, steiger trong CI |
 | Bản đồ | ✅ **Xong** | Leaflet + OpenStreetMap, miễn phí, không cần key |
 | Kiến trúc | ✅ Sạch | Clean Architecture + checker tự động trong CI |
-| Test | ✅ **544 backend + 188 frontend** | tổng **732** (client 180 · admin 8). Đo bằng `python scripts/verify.py` ngày 2026-08-26 |
+| Test | ✅ **575 backend + 196 frontend** | tổng **771** (client 180 · admin 16). Đo bằng `python scripts/verify.py` ngày 2026-08-26 |
 | Giao diện | ✅ Theo bản duyệt · **trang chủ + tài khoản dựng lại 2026-08-22** | trang chủ = LƯỚI MÓN + chips lọc; trang món = giới thiệu + bản đồ + danh sách quán; `/tim-kiem` giữ bố cục bản đồ + rail cũ |
 | Router + layout | ✅ Xong | react-router v6, khung dùng chung, `RequireAuth` cho admin |
 | Chạy xem giao diện | ✅ **một lệnh** | `python scripts/run_dev.py --admin` |
 | Kho lưu trữ | ✅ CSV (mặc định) · ✅ SQLite (chọn được) | `MOODBITE_STORAGE=sqlite`, kết quả GIỐNG HỆT |
-| **Frontend Admin** | ✅ **Code xong + ĐÃ BẬT 2026-08-23** | sửa quán · ẩn/bỏ ẩn · **thêm quán mới**. `python scripts/run_dev.py --admin` |
+| **Frontend Admin** | ✅ **6/7 màn xong 2026-08-26** | Dựng lại theo `design/Dashboard admin.png`: cột trái + 6 trang. Tổng quan · Quản lý món · Quản lý quán · Gợi ý & Hệ thống · Nhật ký hoạt động · Cài đặt. Còn "Chất lượng dữ liệu" (chủ dự án chốt chưa làm). `python scripts/run_dev.py --admin` |
+| ↳ **Nhật ký hoạt động quản trị** | ✅ **Mới 2026-08-26** | Trước đó việc admin ẩn/sửa/thêm quán KHÔNG được ghi ở đâu — quán biến mất mà không truy được ai làm. Nay có bảng `audit_log`, ghi tóm tắt "cũ -> mới". Chỉ ghi thêm, không sửa. Ghi nhật ký hỏng KHÔNG làm hỏng thao tác chính |
+| ↳ **Quản lý món (admin)** | ✅ **Mới 2026-08-26** | `GET /admin/dishes` — thấy CẢ 557 món chưa có quán và 14 danh mục, tức đúng những thứ người dùng KHÔNG được thấy. Chỉ ĐỌC: `dish_catalog.json` là file sinh ra, sửa qua UI sẽ bị ghi đè |
 | Xác thực admin | ✅ Code xong | 1 tài khoản, token HMAC 1 giờ, fail-closed, **giới hạn 5 lần/15 phút (thêm 2026-08-24)** |
 | Phụ thuộc Python | ✅ 15 → **7** gói | gỡ torch/ultralytics/transformers/opencv (~2GB) khỏi CI |
 | **Làm việc trên 2 máy** | ✅ **Xong 2026-08-25** | `python scripts/chuan_bi_may_moi.py` (kiểm 4 thứ nằm ngoài git) + `dong_bo_du_lieu.py --tai/--day` (đồng bộ 39MB dữ liệu qua HuggingFace, miễn phí, không cần thẻ). Không còn phải điều khiển từ xa để chạy dự án |
@@ -1235,6 +1237,8 @@ dùng `reasons` thật thay câu quảng cáo, "Có thể bạn sẽ thích" kh�
 | A7 | Chưa có **tranh minh hoạ** bên phải phần đầu trang | `/dishes/:id` | — đã có `banner-trang-chu.png` |
 | A8 | Tag món là **chữ trơn**, thiết kế là chip có icon + nút "Chỉnh sửa" mở bộ lọc | `/dishes/:id` | — lập trình được |
 | A9 | **44 emoji còn lại** chưa thay bằng icon SVG | 14 file | — lập trình được, xem bảng dưới |
+| A10 | Màn **"Chất lượng dữ liệu"** của admin | — | chủ dự án chốt 2026-08-26: **chưa làm**. Phần lớn số liệu đã có ở "Tổng quan" |
+| A11 | Bảng quán ở admin vẫn là **bảng HTML thô** | — | lập trình được: thêm ảnh quán, nguồn, nhãn trạng thái như bảng món |
 
 **Emoji còn sót** (đo bằng lệnh ở cuối mục này) — mũi tên `←` `→` `✕` KHÔNG tính, đó là
 ký tự chữ chứ không phải emoji:

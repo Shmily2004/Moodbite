@@ -260,6 +260,14 @@ class FakeDishCatalog:
     def get_dish(self, dish_id):
         return next((d for d in self._dishes if d.identifier == dish_id), None)
 
+    def list_all_dishes(self):
+        """Bản giả KHÔNG phân biệt bật/tắt: mọi món truyền vào đều coi là đang bật.
+
+        Muốn test món tắt thì truyền `Dish(is_active=False)` — `viec_can_xu_ly` đọc
+        thẳng trường đó, không phụ thuộc kho.
+        """
+        return list(self._dishes)
+
     def status(self):
         return {"ready": self._ready, "dishes": len(self._dishes)}
 

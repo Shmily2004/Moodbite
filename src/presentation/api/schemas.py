@@ -547,6 +547,156 @@ class AdminRestaurantResponse(BaseModel):
     data: AdminRestaurantSummary
 
 
+# --- Tổng quan quản trị (2026-08-26) -----------------------------------------
+#
+# ⚠️ MỌI SỐ Ở ĐÂY ĐỀU ĐẾM ĐƯỢC TỪ DỮ LIỆU THẬT.
+# Bản thiết kế `Dashboard admin.png` còn vẽ "+1.248 so với tuần trước", "CTR 8.7%",
+# "Lượt gợi ý hôm nay". Dự án KHÔNG lưu ảnh chụp dữ liệu theo ngày và KHÔNG ghi nhật ký
+# lượt tìm kiếm, nên những trường đó CỐ TÌNH không có mặt — thà thiếu còn hơn bịa.
+
+
+class DoPhuTruongSchema(BaseModel):
+    key: str
+    label: str
+    description: str
+    covered: int
+    total: int
+    percent: float
+    level: str = Field(..., description="tot | trung_binh | kem — để giao diện tô màu")
+
+
+class ThongKeNguonSchema(BaseModel):
+    source: str
+    count: int
+    percent: float
+
+
+class ViecCanXuLySchema(BaseModel):
+    key: str
+    label: str
+    description: str
+    count: int
+    severity: str = Field(..., description="canh_bao | thong_tin")
+
+
+class AdminOverviewData(BaseModel):
+    restaurants_total: int
+    restaurants_visible: int
+    restaurants_hidden: int
+    dishes_total: int
+    dishes_with_restaurants: int
+    dishes_without_restaurants: int
+    interactions_total: int
+    data_quality: List[DoPhuTruongSchema]
+    by_source: List[ThongKeNguonSchema]
+    needs_attention: List[ViecCanXuLySchema]
+    needs_attention_total: int
+    generated_at: str = Field(..., description="ISO 8601, lúc số liệu được tính")
+
+
+class AdminOverviewResponse(BaseModel):
+    data: AdminOverviewData
+
+
+class AdminDishRow(BaseModel):
+    dish_id: str
+    name: str
+    cuisine: Optional[str] = None
+    image_url: Optional[str] = None
+    has_description: bool
+    is_category: bool = Field(
+        ..., description='True = DANH MỤC ("Bún"), không phải món cụ thể'
+    )
+    is_active: bool = Field(
+        ..., description="False = chưa tìm được quán nào ở Hà Nội bán món này"
+    )
+    source: Optional[str] = None
+
+
+class AdminDishListData(BaseModel):
+    results: List[AdminDishRow]
+    # Số dòng TRẢ VỀ khác TỔNG khớp bộ lọc: bảng bị cắt theo `limit`. Thiếu `total` thì
+    # giao diện hiện "50 món" trong khi bộ lọc khớp 557.
+    returned: int
+    total: int
+
+
+class AdminDishListResponse(BaseModel):
+    data: AdminDishListData
+
+
+class LopMoHinhSchema(BaseModel):
+    """Một trong năm lớp mô hình của đề án (CLAUDE.md mục 4c)."""
+
+    layer: int
+    name: str
+    status: str = Field(..., description="chay | mot_phan | chua_lam")
+    method: Optional[str] = None
+    coverage: Optional[str] = Field(
+        None, description="Độ phủ ở dạng câu chữ, VD '1.193/52.854 quán (2,3%)'"
+    )
+    note: Optional[str] = None
+
+
+class AdminRecommendationData(BaseModel):
+    layers: List[LopMoHinhSchema]
+    interactions_total: int
+    clustered_restaurants: int
+    restaurants_total: int
+    cluster_labels: List[dict] = Field(
+        default_factory=list, description="[{label, count}] — nhãn cụm và số quán"
+    )
+
+
+class AdminRecommendationResponse(BaseModel):
+    data: AdminRecommendationData
+
+
+class AdminSystemService(BaseModel):
+    key: str
+    label: str
+    ready: bool
+    detail: Optional[str] = None
+
+
+class AdminSystemData(BaseModel):
+    """Cấu hình + trạng thái dịch vụ. CHỈ ĐỌC, và TUYỆT ĐỐI không có secret nào."""
+
+    storage_backend: str
+    weather_enabled: bool
+    admin_token_ttl_seconds: int
+    user_token_ttl_seconds: int
+    email_configured: bool
+    app_base_url: str
+    services: List[AdminSystemService]
+
+
+class AdminSystemResponse(BaseModel):
+    data: AdminSystemData
+
+
+class AuditEntrySchema(BaseModel):
+    actor: str
+    action: str
+    action_label: str = Field(..., description="Nhãn tiếng Việt, do domain quyết")
+    target_type: str
+    target_id: str
+    summary: str
+    created_at: Optional[str] = None
+
+
+class AuditLogData(BaseModel):
+    entries: List[AuditEntrySchema]
+    total: int = Field(..., description="Số dòng TRẢ VỀ, không phải tổng cả nhật ký")
+    available: bool = Field(
+        ..., description="Kho nhật ký mở được không. False -> giao diện nói rõ lý do."
+    )
+
+
+class AuditLogResponse(BaseModel):
+    data: AuditLogData
+
+
 class AdminUpdateRestaurantRequest(BaseModel):
     """Chỉ những trường được gửi lên mới bị sửa (`exclude_unset=True` ở router).
 

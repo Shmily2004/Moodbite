@@ -7,7 +7,12 @@
  *   ├── /login               ← công khai (chưa đăng nhập cũng vào được)
  *   └── RequireAuth          ← chốt chặn: chưa đăng nhập thì đá về /login
  *       └── AdminLayout      ← khung: thanh trên + điều hướng + nút đăng xuất
- *           ├── /            ← danh sách quán
+ *           ├── /            ← TỔNG QUAN (số liệu vận hành)
+ *           ├── /quan-an     ← danh sách quán
+ *           ├── /mon-an      ← danh mục món
+ *           ├── /goi-y       ← năm lớp mô hình
+ *           ├── /nhat-ky     ← nhật ký hoạt động
+ *           ├── /cai-dat     ← cấu hình (chỉ đọc)
  *           └── *            ← 404 (vẫn nằm TRONG khung)
  *
  * Nhờ đặt `RequireAuth` ở tầng ngoài, THÊM TRANG MỚI là tự động được bảo vệ — không thể
@@ -23,6 +28,11 @@ import type { RouteObject } from 'react-router-dom';
 import { AdminSessionProvider } from '@/features/admin-login';
 import { LoginPage } from '@/pages/login';
 import { NotFoundPage } from '@/pages/not-found';
+import { ActivityPage } from '@/pages/activity';
+import { DishesPage } from '@/pages/dishes';
+import { OverviewPage } from '@/pages/overview';
+import { RecommendationPage } from '@/pages/recommendation';
+import { SystemPage } from '@/pages/system';
 import { RestaurantsPage } from '@/pages/restaurants';
 import { ROUTES } from '@/shared/config';
 import { AdminLayout } from './layout/AdminLayout';
@@ -44,7 +54,12 @@ export const routes: RouteObject[] = [
           {
             element: <AdminLayout />,
             children: [
-              { index: true, element: <RestaurantsPage /> },
+              { index: true, element: <OverviewPage /> },
+              { path: ROUTES.restaurants, element: <RestaurantsPage /> },
+              { path: ROUTES.dishes, element: <DishesPage /> },
+              { path: ROUTES.recommendation, element: <RecommendationPage /> },
+              { path: ROUTES.activity, element: <ActivityPage /> },
+              { path: ROUTES.system, element: <SystemPage /> },
               { path: '*', element: <NotFoundPage /> },
             ],
           },

@@ -78,11 +78,18 @@ describe('Chot chan dang nhap (RequireAuth)', () => {
     sessionStorage.clear();
   });
 
-  it('chua dang nhap ma vao trang quan ly -> bi da ve /login', () => {
+  it('chua dang nhap ma vao trang tong quan -> bi da ve /login', () => {
     renderAt('/');
 
     expect(screen.getByRole('button', { name: /Đăng nhập/i })).toBeInTheDocument();
     // Không được lộ nội dung trang quản trị.
+    expect(screen.queryByText(/trung tâm vận hành/i)).not.toBeInTheDocument();
+  });
+
+  it('chua dang nhap ma vao trang quan an -> bi da ve /login', () => {
+    renderAt('/quan-an');
+
+    expect(screen.getByRole('button', { name: /Đăng nhập/i })).toBeInTheDocument();
     expect(screen.queryByText(/Quản lý quán/i)).not.toBeInTheDocument();
   });
 
@@ -92,12 +99,27 @@ describe('Chot chan dang nhap (RequireAuth)', () => {
     expect(screen.getByRole('button', { name: /Đăng nhập/i })).toBeInTheDocument();
   });
 
-  it('co token thi vao duoc trang quan ly', () => {
+  it('co token thi vao duoc, va trang dau tien la TONG QUAN', () => {
+    // Chủ dự án hỏi thẳng 2026-08-26: "nhập tài khoản admin có hiện lên dashboard
+    // không?". Test này khoá đúng câu trả lời — `/` phải là TỔNG QUAN, không phải bảng
+    // 52.854 quán như trước.
     sessionStorage.setItem(TOKEN_KEY, 'token-gia-cho-test');
 
     renderAt('/');
 
-    expect(screen.getByRole('heading', { name: /Quản lý quán/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Tổng quan/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Xin chào, Admin/i })).toBeInTheDocument();
+  });
+
+  it('co token thi van vao duoc trang quan an o duong dan rieng', () => {
+    sessionStorage.setItem(TOKEN_KEY, 'token-gia-cho-test');
+
+    renderAt('/quan-an');
+
+    // Xuất hiện HAI lần là ĐÚNG: h1 ở thanh trên (layout suy từ đường dẫn) và h2 của
+    // chính trang. Kiểm theo cấp để nói rõ đang khẳng định cái nào.
+    expect(screen.getByRole('heading', { level: 1, name: /Quản lý quán ăn/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: /Quản lý quán/i })).toBeInTheDocument();
   });
 });
 
@@ -113,10 +135,49 @@ describe('Layout dung chung', () => {
     sessionStorage.clear();
   });
 
-  it('da dang nhap thi thay khung: dieu huong + nut dang xuat', () => {
+  it('da dang nhap thi thay khung: menu ben trai + nut dang xuat', () => {
     renderAt('/');
 
-    expect(screen.getByRole('link', { name: /Quán ăn/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Quản lý quán ăn/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Đăng xuất/i })).toBeInTheDocument();
+  });
+
+  it('muc menu CHUA DUNG khong phai link - bam vao khong ra 404', () => {
+    // "Chất lượng dữ liệu" là mục DUY NHẤT chưa dựng (chủ dự án chốt 2026-08-26).
+    // Làm link chết thì người dùng bấm vào gặp 404 mà không hiểu vì sao.
+    renderAt('/');
+
+    expect(
+      screen.queryByRole('link', { name: /Chất lượng dữ liệu/i }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText(/Chất lượng dữ liệu/i)).toBeInTheDocument();
+  });
+
+  it('sau mục còn lại đều là link that', () => {
+    renderAt('/');
+
+    for (const nhan of [
+      /Tổng quan/i,
+      /Quản lý món ăn/i,
+      /Quản lý quán ăn/i,
+      /Gợi ý & Hệ thống/i,
+      /Nhật ký hoạt động/i,
+      /Cài đặt hệ thống/i,
+    ]) {
+      expect(screen.getByRole('link', { name: nhan })).toBeInTheDocument();
+    }
+  });
+
+  it.each([
+    ['/mon-an', /Quản lý món ăn/i],
+    ['/goi-y', /Gợi ý & Hệ thống/i],
+    ['/nhat-ky', /Nhật ký hoạt động/i],
+    ['/cai-dat', /Cài đặt hệ thống/i],
+  ])('trang %s dung duoc va co tieu de tren thanh dau', (duongDan, ten) => {
+    // Backend đang tắt trong test (fetch reject) — trang VẪN phải dựng được, không trắng.
+    renderAt(duongDan);
+
+    expect(screen.getByRole('heading', { level: 1, name: ten })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Đăng xuất/i })).toBeInTheDocument();
   });
 
@@ -128,9 +189,9 @@ describe('Layout dung chung', () => {
     expect(screen.getByRole('button', { name: /Đăng xuất/i })).toBeInTheDocument();
   });
 
-  it('da dang nhap ma mo /login thi bi day ve trang quan ly', () => {
+  it('da dang nhap ma mo /login thi bi day ve TONG QUAN', () => {
     renderAt('/login');
 
-    expect(screen.getByRole('heading', { name: /Quản lý quán/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Xin chào, Admin/i })).toBeInTheDocument();
   });
 });

@@ -14,4 +14,17 @@ import { readToken } from '../lib';
 export const adminApi = createAdminApi(API_BASE, readToken);
 
 export { ApiError } from '@moodbite/api-client';
-export type { AdminRestaurantSummary } from '@moodbite/api-client';
+export type {
+  AdminRestaurantSummary,
+  AdminOverviewData,
+  DoPhuTruong,
+  ThongKeNguon,
+  ViecCanXuLy,
+  AdminDishRow,
+  AdminSystemData,
+  AdminSystemService,
+  AuditEntry,
+  LocMon,
+  AdminRecommendationData,
+  LopMoHinh,
+} from '@moodbite/api-client';

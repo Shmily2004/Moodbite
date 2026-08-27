@@ -16,6 +16,9 @@ from typing import Optional
 from fastapi import Depends, Request
 
 from src.application.ports.admin_restaurant_repository import AdminRestaurantRepository
+from src.application.use_cases.get_admin_overview import GetAdminOverviewUseCase
+from src.application.use_cases.list_dishes_admin import ListDishesForAdminUseCase
+from src.application.use_cases.manage_audit_log import DocNhatKyUseCase, GhiNhatKyUseCase
 from src.application.use_cases.get_restaurant_details import GetRestaurantDetailsUseCase
 from src.application.use_cases.log_interaction import LogInteractionUseCase
 from src.domain.services.activity_tally import ActivityTally
@@ -71,6 +74,9 @@ from src.infrastructure.auth.user_auth import UserTokenService
 from src.infrastructure.notifications.smtp_email_sender import SmtpEmailSender
 from src.infrastructure.auth.password_reset import PasswordResetTokenService
 from src.infrastructure.auth.email_verification import EmailVerificationTokenService
+from src.infrastructure.repositories.sqlite_audit_log_repository import (
+    SqliteAuditLogRepository,
+)
 from src.infrastructure.repositories.sqlite_saved_item_repository import (
     SqliteSavedItemRepository,
 )
@@ -138,6 +144,11 @@ class Container:
     # `None` khi kho lưu trữ không ghi được (CSV). Router admin phải kiểm và trả 503,
     # KHÔNG được để nổ AttributeError.
     admin_auth: AdminAuthService
+    admin_overview: GetAdminOverviewUseCase
+    list_dishes_for_admin: ListDishesForAdminUseCase
+    audit_log: object
+    ghi_nhat_ky: GhiNhatKyUseCase
+    doc_nhat_ky: DocNhatKyUseCase
     admin_restaurants: Optional[object]
     list_restaurants_for_admin: Optional[ListRestaurantsForAdminUseCase]
     create_restaurant: Optional[CreateRestaurantUseCase]
@@ -313,6 +324,8 @@ def build_container(settings: Optional[Settings] = None) -> Container:
     # CÙNG FILE CSDL với tài khoản, cố ý — cả hai đều là dữ liệu gốc. Xem ghi chú đầu
     # `sqlite_saved_item_repository.py`.
     saved_items = SqliteSavedItemRepository(settings.users_db)
+    # CÙNG FILE với tài khoản: nhật ký cũng là dữ liệu gốc, mất là mất hẳn.
+    audit_log = SqliteAuditLogRepository(settings.users_db)
 
     # Bộ đếm "lượt khám phá" cho cấp độ/huy hiệu. Dựng lại từ nhật ký tương tác đúng như
     # bộ đếm báo đóng cửa ở trên, để khởi động lại không xoá sạch cấp độ của người dùng.
@@ -369,6 +382,18 @@ def build_container(settings: Optional[Settings] = None) -> Container:
         settings=settings,
         admin_auth=admin_auth,
         admin_restaurants=admin_restaurants,
+        # KHÔNG phụ thuộc `admin_restaurants`: màn tổng quan chỉ ĐỌC, nên chạy được cả
+        # khi kho quán là bản CSV (không ghi được). Gắn vào nhánh ghi sẽ làm trang tổng
+        # quan chết theo một tính năng nó không dùng tới.
+        audit_log=audit_log,
+        ghi_nhat_ky=GhiNhatKyUseCase(audit_log),
+        doc_nhat_ky=DocNhatKyUseCase(audit_log),
+        list_dishes_for_admin=ListDishesForAdminUseCase(dish_catalog_repository),
+        admin_overview=GetAdminOverviewUseCase(
+            restaurant_repository=restaurant_repository,
+            dish_catalog_repository=dish_catalog_repository,
+            interaction_repository=interaction_repository,
+        ),
         list_restaurants_for_admin=(
             ListRestaurantsForAdminUseCase(admin_restaurants) if admin_restaurants else None
         ),

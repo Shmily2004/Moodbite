@@ -34,6 +34,13 @@ ROOT = Path(__file__).resolve().parent.parent
 NGUON = ROOT / "frontend" / "design" / "attribute"
 DICH = ROOT / "frontend" / "apps" / "client" / "public" / "anh"
 
+# App QUẢN TRỊ dùng chung LOGO với app người dùng (chủ dự án chốt 2026-08-26:
+# "logo MoodBite chính thức, không tự chế lại"). Hai app là hai bundle Vite riêng nên
+# không dùng chung được thư mục `public/` — phải chép sang. Chỉ chép logo + favicon,
+# KHÔNG chép cả bộ ảnh: khu quản trị không dùng mascot, banner hay icon mood.
+DICH_ADMIN = ROOT / "frontend" / "apps" / "admin" / "public" / "anh"
+ANH_CHO_ADMIN = ("logo.png", "favicon.png")
+
 # Ảnh chép nguyên trạng: đã có kênh trong suốt đúng, cũng không cần thu nhỏ vì chúng
 # trải kín màn hình.
 CHEP_NGUYEN = {
@@ -488,6 +495,20 @@ def main() -> int:
             f"{rong}×{cao} ({kb_truoc} KB) -> {r2}×{c2} ({kb_sau} KB)"
         )
         print(f"    -> khai ở images.ts: width: {r2}, height: {c2}")
+
+    # Chép sang app quản trị SAU KHI đã xử lý xong, để lấy đúng bản đã tối ưu.
+    DICH_ADMIN.mkdir(parents=True, exist_ok=True)
+    print()
+    for ten in ANH_CHO_ADMIN:
+        goc = DICH / ten if ten != "favicon.png" else DICH.parent / ten
+        if not goc.exists():
+            print(f"  [BỎ QUA] {ten} cho admin — chưa có bản đã xử lý")
+            continue
+        dich = DICH_ADMIN / ten if ten != "favicon.png" else DICH_ADMIN.parent / ten
+        dich.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(goc, dich)
+        print(f"  [ADMIN] {ten} -> {dich.relative_to(ROOT)}")
+    print()
 
     print("\nXong. Kích thước ảnh khai ở frontend/apps/client/src/shared/config/images.ts")
     print("— sửa file ảnh mà đổi kích thước thì nhớ sửa cả số ở đó.")

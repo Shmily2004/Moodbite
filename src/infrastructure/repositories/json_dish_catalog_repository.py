@@ -53,6 +53,23 @@ class JsonDishCatalogRepository:
         self._ensure_loaded()
         return self._by_id.get(dish_id)
 
+    def list_all_dishes(self) -> List[Dish]:
+        """Toàn bộ món kể cả món tắt — xem port. CHỈ cho trang quản trị.
+
+        Đọc lại file thay vì giữ thêm một danh sách nữa trong RAM: trang quản trị gọi
+        rất thưa, còn danh sách 855 món giữ thường trực thì mọi tiến trình đều phải mang
+        theo dù không bao giờ dùng tới.
+        """
+        self._ensure_loaded()
+        if self._load_error is not None:
+            return []
+        try:
+            raw = json.loads(self.json_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            logger.error("Không đọc lại được danh mục món: %s", exc)
+            return []
+        return [self._to_dish(entry) for entry in raw.get("dishes", [])]
+
     def _ensure_loaded(self) -> None:
         if self._dishes is not None or self._load_error is not None:
             return
@@ -105,4 +122,6 @@ class JsonDishCatalogRepository:
             data_confidence=raw.get("data_confidence"),
             # DANH MỤC ("Bún") hay MÓN cụ thể ("Bún chả") — xem `Dish.is_category`.
             is_category=bool(raw.get("is_category", False)),
+            # Thiếu trường = coi như đang BẬT. Món cũ trong file chưa có cờ này.
+            is_active=bool(raw.get("is_active", True)),
         )

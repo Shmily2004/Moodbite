@@ -23,6 +23,26 @@ export type AdminCreateRestaurantRequest =
   components['schemas']['AdminCreateRestaurantRequest'];
 export type AdminUpdateRestaurantRequest =
   components['schemas']['AdminUpdateRestaurantRequest'];
+export type AdminOverviewData = components['schemas']['AdminOverviewData'];
+export type DoPhuTruong = components['schemas']['DoPhuTruongSchema'];
+export type ThongKeNguon = components['schemas']['ThongKeNguonSchema'];
+export type ViecCanXuLy = components['schemas']['ViecCanXuLySchema'];
+export type AdminDishRow = components['schemas']['AdminDishRow'];
+export type AdminDishListData = components['schemas']['AdminDishListData'];
+export type AdminSystemData = components['schemas']['AdminSystemData'];
+export type AdminSystemService = components['schemas']['AdminSystemService'];
+export type AuditEntry = components['schemas']['AuditEntrySchema'];
+export type AuditLogData = components['schemas']['AuditLogData'];
+export type AdminRecommendationData = components['schemas']['AdminRecommendationData'];
+export type LopMoHinh = components['schemas']['LopMoHinhSchema'];
+
+/** Bộ lọc của bảng món quản trị. Giữ đồng bộ với `BO_LOC` ở `list_dishes_admin.py`. */
+export type LocMon =
+  | 'all'
+  | 'with_restaurants'
+  | 'without_restaurants'
+  | 'missing_image'
+  | 'missing_description';
 
 export interface AdminListParams {
   q?: string | null;
@@ -40,6 +60,68 @@ export class MoodbiteAdminApi {
       method: 'POST',
       body,
     });
+  }
+
+  /**
+   * Số liệu màn "Tổng quan": đếm quán/món, độ phủ dữ liệu, việc cần xử lý.
+   *
+   * Server đệm 5 phút. `refresh` để tính lại ngay sau khi vừa sửa dữ liệu.
+   *
+   * ⚠️ KHÔNG có trường xu hướng ("so với tuần trước", CTR, sparkline) dù bản thiết kế
+   * có vẽ: dự án không lưu ảnh chụp dữ liệu theo ngày nên không tính được. Đừng thêm
+   * vào ở frontend — có test backend chặn đúng chuyện này.
+   */
+  overview(refresh = false, options?: RequestOptions): Promise<AdminOverviewData> {
+    return this.http.request<AdminOverviewData>(
+      `/admin/overview${refresh ? '?refresh=true' : ''}`,
+      options,
+    );
+  }
+
+  /**
+   * Danh mục MÓN cho quản trị.
+   *
+   * ⚠️ KHÁC `/dishes/suggest` của app người dùng: ở đây thấy CẢ món chưa có quán và CẢ
+   * danh mục ("Bún"). Đó là chủ đích — việc của admin là tìm món đang thiếu.
+   */
+  listDishes(
+    params: { q?: string | null; filter?: LocMon; limit?: number } = {},
+    options?: RequestOptions,
+  ): Promise<AdminDishListData> {
+    const t = new URLSearchParams();
+    if (params.q) t.set('q', params.q);
+    if (params.filter) t.set('filter', params.filter);
+    if (params.limit) t.set('limit', String(params.limit));
+    const q = t.toString();
+    return this.http.request<AdminDishListData>(
+      `/admin/dishes${q ? `?${q}` : ''}`,
+      options,
+    );
+  }
+
+  /** Nhật ký hoạt động quản trị, mới nhất đứng đầu. */
+  activity(
+    params: { limit?: number; action?: string | null } = {},
+    options?: RequestOptions,
+  ): Promise<AuditLogData> {
+    const t = new URLSearchParams();
+    if (params.limit) t.set('limit', String(params.limit));
+    if (params.action) t.set('action', params.action);
+    const q = t.toString();
+    return this.http.request<AuditLogData>(`/admin/activity${q ? `?${q}` : ''}`, options);
+  }
+
+  /**
+   * Trạng thái NĂM LỚP MÔ HÌNH. Để XEM và KIỂM TRA, không phải để chỉnh.
+   * Trọng số xếp hạng là quy tắc nghiệp vụ, chỉ được nằm ở `domain/services/`.
+   */
+  recommendation(options?: RequestOptions): Promise<AdminRecommendationData> {
+    return this.http.request<AdminRecommendationData>('/admin/recommendation', options);
+  }
+
+  /** Cấu hình đang chạy + trạng thái từng kho. CHỈ ĐỌC, không có secret nào. */
+  system(options?: RequestOptions): Promise<AdminSystemData> {
+    return this.http.request<AdminSystemData>('/admin/system', options);
   }
 
   /** Danh sách quán. MẶC ĐỊNH kèm cả quán đã ẩn — admin cần thấy để bỏ ẩn lại. */

@@ -21,6 +21,14 @@ from src.application.errors import (
     InvalidCredentialsError,
 )
 from src.application.use_cases.get_restaurant_details import GetRestaurantDetailsUseCase
+from pathlib import Path
+
+from src.application.use_cases.get_admin_overview import GetAdminOverviewUseCase
+from src.application.use_cases.list_dishes_admin import ListDishesForAdminUseCase
+from src.application.use_cases.manage_audit_log import DocNhatKyUseCase, GhiNhatKyUseCase
+from src.infrastructure.repositories.sqlite_audit_log_repository import (
+    SqliteAuditLogRepository,
+)
 from src.application.use_cases.log_interaction import LogInteractionUseCase
 from src.application.use_cases.manage_restaurants import (
     CreateRestaurantUseCase,
@@ -129,6 +137,17 @@ def build_client(db_path, *, configured=True, writable=True):
     # Tài khoản người dùng cuối TẮT: file này chỉ test luồng quản trị.
     attach_disabled_auth(c)
     attach_dish_catalog(c)
+    # Nhật ký hoạt động: kho THẬT trong thư mục tạm, để test đi qua đúng đường ghi/đọc.
+    c.audit_log = SqliteAuditLogRepository(Path(db_path).parent / "audit.db")
+    c.ghi_nhat_ky = GhiNhatKyUseCase(c.audit_log)
+    c.doc_nhat_ky = DocNhatKyUseCase(c.audit_log)
+    c.list_dishes_for_admin = ListDishesForAdminUseCase(c.dish_catalog_repository)
+    # Màn "Tổng quan". Lắp SAU `attach_dish_catalog` vì nó cần kho món đã có.
+    c.admin_overview = GetAdminOverviewUseCase(
+        restaurant_repository=repo,
+        dish_catalog_repository=c.dish_catalog_repository,
+        interaction_repository=interactions,
+    )
 
     # Tiêm container thẳng vào: nếu để create_app() tự lắp, mỗi test sẽ nạp lại toàn
     # bộ dataset thật rồi bị ghi đè ngay - tốn ~1.5s mỗi test cho việc bị vứt đi.

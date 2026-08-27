@@ -493,6 +493,137 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/dishes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Dishes
+         * @description Danh mục món cho trang quản trị.
+         *
+         *     ⚠️ KHÁC `/dishes/suggest`: ở đây thấy CẢ món chưa có quán (557 món) và CẢ danh mục
+         *     ("Bún"). Người dùng cuối không được thấy hai nhóm đó, còn admin thì phải — việc của
+         *     họ chính là tìm những món đang thiếu.
+         */
+        get: operations["list_dishes_api_v1_admin_dishes_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/recommendation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Admin Recommendation
+         * @description Trạng thái NĂM LỚP MÔ HÌNH của đề án (CLAUDE.md mục 4c).
+         *
+         *     Đây là màn để KIỂM TRA và HIỂU hệ gợi ý, KHÔNG phải để chỉnh nó. Admin không được
+         *     sửa trọng số hay điểm bằng tay — công thức là quy tắc nghiệp vụ và chỉ được nằm ở
+         *     `domain/services/`. Sửa qua HTTP thì mỗi lần deploy lại một kết quả khác nhau và
+         *     không ai tái hiện được.
+         *
+         *     ⚠️ Nói ĐÚNG độ phủ, kể cả khi xấu. Đo 2026-08-26: chỉ 1.193/52.854 quán (2,3%) có
+         *     cụm trải nghiệm, vì phân cụm cần tín hiệu rating/giá/review mà chỉ ~2% quán có.
+         *     Phần còn lại đi đường Cold Start với điểm trung tính 0,5 (rules.md mục 3.3) — hệ vẫn
+         *     chạy đúng, nhưng con số này phải hiện ra chứ không được giấu sau chữ "✅ Xong".
+         */
+        get: operations["admin_recommendation_api_v1_admin_recommendation_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/system": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Admin System
+         * @description Cấu hình đang chạy + trạng thái từng kho dữ liệu. CHỈ ĐỌC.
+         *
+         *     ⚠️ KHÔNG trả secret nào (mật khẩu SMTP, khoá ký token, hash mật khẩu admin). Chỉ trả
+         *     cờ "đã cấu hình hay chưa". Trang quản trị chạy trong trình duyệt — mọi thứ gửi ra đây
+         *     coi như đã lộ với bất kỳ ai xem được máy đó.
+         *
+         *     ⚠️ CŨNG KHÔNG SỬA ĐƯỢC. Cấu hình nằm ở biến môi trường / `.env.local`; cho sửa qua
+         *     HTTP nghĩa là một lỗ hổng ở trang quản trị đổi được cả khoá ký token. Muốn đổi thì
+         *     sửa `.env.local` rồi khởi động lại — xem `scripts/chuan_bi_may_moi.py`.
+         */
+        get: operations["admin_system_api_v1_admin_system_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/activity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Admin Activity
+         * @description Nhật ký hoạt động quản trị, MỚI NHẤT ĐỨNG ĐẦU.
+         *
+         *     Kho nhật ký hỏng -> trả danh sách RỖNG kèm `available: false`, KHÔNG phải 503. Nhật
+         *     ký hỏng không ngăn được người quản trị làm việc, nên không có lý do gì chặn cả trang.
+         *     Giao diện dùng `available` để nói đúng "chưa ghi gì" hay "không mở được kho".
+         */
+        get: operations["admin_activity_api_v1_admin_activity_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Admin Overview
+         * @description Số liệu màn "Tổng quan" — đếm quán/món, độ phủ dữ liệu, việc cần xử lý.
+         *
+         *     Có bộ đệm 5 phút ở use case; `?refresh=true` để tính lại ngay sau khi vừa sửa dữ liệu.
+         *
+         *     ⚠️ Router MỎNG, không tính toán gì: mọi quy tắc ("thế nào là đủ thông tin cơ bản")
+         *     nằm ở `domain/services/data_quality.py`.
+         */
+        get: operations["admin_overview_api_v1_admin_overview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/restaurants": {
         parameters: {
             query?: never;
@@ -661,6 +792,44 @@ export interface components {
             /** Website */
             website?: string | null;
         };
+        /** AdminDishListData */
+        AdminDishListData: {
+            /** Results */
+            results: components["schemas"]["AdminDishRow"][];
+            /** Returned */
+            returned: number;
+            /** Total */
+            total: number;
+        };
+        /** AdminDishListResponse */
+        AdminDishListResponse: {
+            data: components["schemas"]["AdminDishListData"];
+        };
+        /** AdminDishRow */
+        AdminDishRow: {
+            /** Dish Id */
+            dish_id: string;
+            /** Name */
+            name: string;
+            /** Cuisine */
+            cuisine?: string | null;
+            /** Image Url */
+            image_url?: string | null;
+            /** Has Description */
+            has_description: boolean;
+            /**
+             * Is Category
+             * @description True = DANH MỤC ("Bún"), không phải món cụ thể
+             */
+            is_category: boolean;
+            /**
+             * Is Active
+             * @description False = chưa tìm được quán nào ở Hà Nội bán món này
+             */
+            is_active: boolean;
+            /** Source */
+            source?: string | null;
+        };
         /** AdminLoginData */
         AdminLoginData: {
             /** Token */
@@ -686,6 +855,62 @@ export interface components {
         /** AdminLoginResponse */
         AdminLoginResponse: {
             data: components["schemas"]["AdminLoginData"];
+        };
+        /** AdminOverviewData */
+        AdminOverviewData: {
+            /** Restaurants Total */
+            restaurants_total: number;
+            /** Restaurants Visible */
+            restaurants_visible: number;
+            /** Restaurants Hidden */
+            restaurants_hidden: number;
+            /** Dishes Total */
+            dishes_total: number;
+            /** Dishes With Restaurants */
+            dishes_with_restaurants: number;
+            /** Dishes Without Restaurants */
+            dishes_without_restaurants: number;
+            /** Interactions Total */
+            interactions_total: number;
+            /** Data Quality */
+            data_quality: components["schemas"]["DoPhuTruongSchema"][];
+            /** By Source */
+            by_source: components["schemas"]["ThongKeNguonSchema"][];
+            /** Needs Attention */
+            needs_attention: components["schemas"]["ViecCanXuLySchema"][];
+            /** Needs Attention Total */
+            needs_attention_total: number;
+            /**
+             * Generated At
+             * @description ISO 8601, lúc số liệu được tính
+             */
+            generated_at: string;
+        };
+        /** AdminOverviewResponse */
+        AdminOverviewResponse: {
+            data: components["schemas"]["AdminOverviewData"];
+        };
+        /** AdminRecommendationData */
+        AdminRecommendationData: {
+            /** Layers */
+            layers: components["schemas"]["LopMoHinhSchema"][];
+            /** Interactions Total */
+            interactions_total: number;
+            /** Clustered Restaurants */
+            clustered_restaurants: number;
+            /** Restaurants Total */
+            restaurants_total: number;
+            /**
+             * Cluster Labels
+             * @description [{label, count}] — nhãn cụm và số quán
+             */
+            cluster_labels?: {
+                [key: string]: unknown;
+            }[];
+        };
+        /** AdminRecommendationResponse */
+        AdminRecommendationResponse: {
+            data: components["schemas"]["AdminRecommendationData"];
         };
         /** AdminRestaurantListData */
         AdminRestaurantListData: {
@@ -741,6 +966,41 @@ export interface components {
             source?: string | null;
         };
         /**
+         * AdminSystemData
+         * @description Cấu hình + trạng thái dịch vụ. CHỈ ĐỌC, và TUYỆT ĐỐI không có secret nào.
+         */
+        AdminSystemData: {
+            /** Storage Backend */
+            storage_backend: string;
+            /** Weather Enabled */
+            weather_enabled: boolean;
+            /** Admin Token Ttl Seconds */
+            admin_token_ttl_seconds: number;
+            /** User Token Ttl Seconds */
+            user_token_ttl_seconds: number;
+            /** Email Configured */
+            email_configured: boolean;
+            /** App Base Url */
+            app_base_url: string;
+            /** Services */
+            services: components["schemas"]["AdminSystemService"][];
+        };
+        /** AdminSystemResponse */
+        AdminSystemResponse: {
+            data: components["schemas"]["AdminSystemData"];
+        };
+        /** AdminSystemService */
+        AdminSystemService: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Ready */
+            ready: boolean;
+            /** Detail */
+            detail?: string | null;
+        };
+        /**
          * AdminUpdateRestaurantRequest
          * @description Chỉ những trường được gửi lên mới bị sửa (`exclude_unset=True` ở router).
          *
@@ -767,6 +1027,45 @@ export interface components {
             phone?: string | null;
             /** Website */
             website?: string | null;
+        };
+        /** AuditEntrySchema */
+        AuditEntrySchema: {
+            /** Actor */
+            actor: string;
+            /** Action */
+            action: string;
+            /**
+             * Action Label
+             * @description Nhãn tiếng Việt, do domain quyết
+             */
+            action_label: string;
+            /** Target Type */
+            target_type: string;
+            /** Target Id */
+            target_id: string;
+            /** Summary */
+            summary: string;
+            /** Created At */
+            created_at?: string | null;
+        };
+        /** AuditLogData */
+        AuditLogData: {
+            /** Entries */
+            entries: components["schemas"]["AuditEntrySchema"][];
+            /**
+             * Total
+             * @description Số dòng TRẢ VỀ, không phải tổng cả nhật ký
+             */
+            total: number;
+            /**
+             * Available
+             * @description Kho nhật ký mở được không. False -> giao diện nói rõ lý do.
+             */
+            available: boolean;
+        };
+        /** AuditLogResponse */
+        AuditLogResponse: {
+            data: components["schemas"]["AuditLogData"];
         };
         /** AuthData */
         AuthData: {
@@ -969,6 +1268,26 @@ export interface components {
              */
             warnings: string[];
         };
+        /** DoPhuTruongSchema */
+        DoPhuTruongSchema: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Description */
+            description: string;
+            /** Covered */
+            covered: number;
+            /** Total */
+            total: number;
+            /** Percent */
+            percent: number;
+            /**
+             * Level
+             * @description tot | trung_binh | kem — để giao diện tô màu
+             */
+            level: string;
+        };
         /** ErrorDetail */
         ErrorDetail: {
             /** Code */
@@ -1086,6 +1405,30 @@ export interface components {
             username: string;
             /** Password */
             password: string;
+        };
+        /**
+         * LopMoHinhSchema
+         * @description Một trong năm lớp mô hình của đề án (CLAUDE.md mục 4c).
+         */
+        LopMoHinhSchema: {
+            /** Layer */
+            layer: number;
+            /** Name */
+            name: string;
+            /**
+             * Status
+             * @description chay | mot_phan | chua_lam
+             */
+            status: string;
+            /** Method */
+            method?: string | null;
+            /**
+             * Coverage
+             * @description Độ phủ ở dạng câu chữ, VD '1.193/52.854 quán (2,3%)'
+             */
+            coverage?: string | null;
+            /** Note */
+            note?: string | null;
         };
         /** MeResponse */
         MeResponse: {
@@ -1393,6 +1736,15 @@ export interface components {
             /** Reason */
             reason?: string | null;
         };
+        /** ThongKeNguonSchema */
+        ThongKeNguonSchema: {
+            /** Source */
+            source: string;
+            /** Count */
+            count: number;
+            /** Percent */
+            percent: number;
+        };
         /**
          * UserSelf
          * @description Bản hồ sơ CHÍNH CHỦ nhìn thấy — có thêm email và ngày tham gia.
@@ -1484,6 +1836,22 @@ export interface components {
              * @description Token lấy từ đường dẫn trong thư.
              */
             token: string;
+        };
+        /** ViecCanXuLySchema */
+        ViecCanXuLySchema: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Description */
+            description: string;
+            /** Count */
+            count: number;
+            /**
+             * Severity
+             * @description canh_bao | thong_tin
+             */
+            severity: string;
         };
     };
     responses: never;
@@ -2477,6 +2845,146 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AdminLoginResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_dishes_api_v1_admin_dishes_get: {
+        parameters: {
+            query?: {
+                /** @description Tìm theo tên hoặc mã món */
+                q?: string | null;
+                /** @description all | with_restaurants | without_restaurants | missing_image | missing_description */
+                filter?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminDishListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    admin_recommendation_api_v1_admin_recommendation_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminRecommendationResponse"];
+                };
+            };
+        };
+    };
+    admin_system_api_v1_admin_system_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminSystemResponse"];
+                };
+            };
+        };
+    };
+    admin_activity_api_v1_admin_activity_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                /** @description Lọc theo hành động: create_restaurant | update_restaurant | hide_restaurant | restore_restaurant */
+                action?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditLogResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    admin_overview_api_v1_admin_overview_get: {
+        parameters: {
+            query?: {
+                /** @description Bỏ qua bộ đệm, tính lại ngay */
+                refresh?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminOverviewResponse"];
                 };
             };
             /** @description Validation Error */

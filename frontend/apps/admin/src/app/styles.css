@@ -275,3 +275,427 @@ a { color: var(--accent); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+/* =========================================================================
+   KHUNG QUẢN TRỊ — cột trái + khu chính.
+   Dựng theo `frontend/design/Dashboard admin.png` (2026-08-26).
+   Trước đó điều hướng nằm trên một thanh ngang; bản thiết kế có 7 mục menu nên
+   hàng ngang sẽ tràn ngay ở màn hình laptop.
+   ========================================================================= */
+.quan-tri {
+  display: grid;
+  /* Cột trái CỐ ĐỊNH 260px: menu là danh sách nhãn tiếng Việt dài ngắn khác nhau,
+     để co giãn thì chữ nhảy mỗi trang một kiểu. */
+  grid-template-columns: 260px minmax(0, 1fr);
+  min-height: 100dvh;
+  background: var(--bg);
+}
+@media (max-width: 900px) {
+  /* Màn hẹp: cột trái thành một dải ngang trượt được. Khu quản trị vốn dùng trên máy
+     tính, nên đây chỉ là phương án cho vừa màn hình chứ không phải bản mobile đầy đủ. */
+  .quan-tri { grid-template-columns: 1fr; }
+}
+
+.canh-trai {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem 1rem;
+  background: var(--surface);
+  border-right: 1px solid var(--rule);
+}
+
+.canh-trai__logo { display: block; width: 150px; height: auto; }
+
+.canh-trai__nhom {
+  margin: .5rem 0 0;
+  font-size: var(--step--2);
+  letter-spacing: .08em;
+  color: var(--muted);
+}
+
+.canh-trai__menu { display: flex; flex-direction: column; gap: 2px; }
+@media (max-width: 900px) {
+  .canh-trai { border-right: 0; border-bottom: 1px solid var(--rule); }
+  .canh-trai__menu { flex-direction: row; overflow-x: auto; }
+  .canh-trai__chan, .canh-trai__nhom { display: none; }
+}
+
+.canh-trai__muc {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  padding: .6rem .8rem;
+  border-radius: var(--r-md);
+  color: var(--ink-soft);
+  text-decoration: none;
+  font-size: var(--step-0);
+  white-space: nowrap;
+}
+.canh-trai__muc:hover { background: var(--surface-2); }
+.canh-trai__muc--dang {
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+.canh-trai__muc--dang:hover { background: var(--accent); }
+
+/* Mục CHƯA DỰNG: mờ và không bấm được. Làm link chết thì người dùng bấm vào gặp 404
+   mà không hiểu vì sao; giấu hẳn thì không ai biết kế hoạch tới đâu. */
+.canh-trai__muc--tat { color: var(--muted); cursor: not-allowed; }
+.canh-trai__muc--tat:hover { background: none; }
+.canh-trai__chua {
+  font-size: var(--step--2);
+  font-style: normal;
+  padding: 1px 7px;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  color: var(--muted);
+}
+
+.canh-trai__chan {
+  margin-top: auto;
+  padding: .9rem;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+}
+.canh-trai__chan-ten { margin: 0 0 .25rem; font-weight: 600; }
+.canh-trai__chan-mo-ta { margin: 0; font-size: var(--step--1); color: var(--ink-soft); }
+
+.khu-chinh { display: flex; flex-direction: column; min-width: 0; }
+
+.thanh-tren {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .9rem 1.5rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--rule);
+}
+.thanh-tren__tieu-de { margin: 0; font-size: var(--step-1); }
+.thanh-tren__phai { display: flex; align-items: center; gap: .75rem; }
+.thanh-tren__ai { color: var(--muted); font-size: var(--step--1); }
+
+.khu-chinh__than { padding: 1.5rem; }
+
+/* =========================================================================
+   TRANG TỔNG QUAN
+   ========================================================================= */
+.tong-quan { display: flex; flex-direction: column; gap: 1.25rem; }
+
+.tong-quan__dau {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.tong-quan__chao { margin: 0 0 .2rem; font-size: var(--step-2); }
+.tong-quan__cap-nhat { display: flex; align-items: center; gap: .6rem; }
+
+.the-so {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: .9rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.the-so__o {
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
+  padding: 1rem 1.1rem;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  border: 1px solid var(--rule-soft);
+}
+/* Ô "Cần xử lý": viền màu cảnh báo. Đây là ô DUY NHẤT đòi hành động. */
+.the-so__o--nhan { border-color: var(--warn); background: var(--warn-soft); }
+.the-so__nhan { font-size: var(--step--1); color: var(--ink-soft); }
+.the-so__gia-tri { font-size: 1.8rem; font-weight: 700; line-height: 1.1; }
+.the-so__phu { font-size: var(--step--2); }
+
+.tong-quan__luoi {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+
+.panel {
+  padding: 1.1rem 1.2rem;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  border: 1px solid var(--rule-soft);
+}
+.panel--error { border-color: var(--error); background: var(--error-soft); }
+.panel__tieu-de { margin: 0 0 .9rem; font-size: var(--step-1); }
+.panel__ghi-chu { margin: .9rem 0 0; font-size: var(--step--2); }
+
+/* --- thanh độ phủ --- */
+.do-phu, .can-xu-ly, .nguon, .chua-co { margin: 0; padding: 0; list-style: none; }
+
+.do-phu__dong {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 90px 46px 78px;
+  align-items: center;
+  gap: .6rem;
+  padding: .5rem 0;
+}
+.do-phu__dong + .do-phu__dong { border-top: 1px solid var(--rule-soft); }
+.do-phu__chu { display: flex; flex-direction: column; min-width: 0; }
+.do-phu__nhan { font-size: var(--step-0); }
+.do-phu__mo-ta { font-size: var(--step--2); }
+
+.do-phu__thanh {
+  height: 7px;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.do-phu__day { height: 100%; border-radius: var(--r-pill); }
+/* Ba mức do BACKEND quyết (`domain/services/data_quality.py`), frontend chỉ tô màu.
+   Tự tính lại ngưỡng ở đây là đặt nghiệp vụ sai tầng và sẽ lệch khi backend đổi. */
+.do-phu__day--tot         { background: var(--open); }
+.do-phu__day--trung_binh  { background: var(--warn); }
+.do-phu__day--kem         { background: var(--error); }
+
+.do-phu__so { text-align: right; font-weight: 600; font-size: var(--step--1); }
+.do-phu__tuyet-doi { text-align: right; font-size: var(--step--2); }
+
+@media (max-width: 620px) {
+  /* Màn hẹp: bỏ cột số tuyệt đối, giữ phần trăm — đủ để so sánh nhanh. */
+  .do-phu__dong { grid-template-columns: minmax(0, 1fr) 70px 46px; }
+  .do-phu__tuyet-doi { display: none; }
+}
+
+/* --- cần xử lý --- */
+.can-xu-ly__dong {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  padding: .65rem .8rem;
+  border-radius: var(--r-md);
+  background: var(--warn-soft);
+}
+.can-xu-ly__dong + .can-xu-ly__dong { margin-top: .5rem; }
+/* Mức "thông tin": nền trung tính. Nhuộm vàng cảnh báo cho 557 món chưa có quán sẽ
+   biến một sự thật về thị trường thành 557 "việc phải làm" mà không ai làm được. */
+.can-xu-ly__dong--tin { background: var(--surface-2); }
+.can-xu-ly__nhan { margin: 0; font-size: var(--step-0); font-weight: 600; }
+.can-xu-ly__mo-ta { margin: .1rem 0 0; font-size: var(--step--2); }
+.can-xu-ly__so { font-size: var(--step-1); font-weight: 700; }
+
+/* --- nguồn dữ liệu --- */
+.nguon__dong {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 90px 120px;
+  align-items: center;
+  gap: .6rem;
+  padding: .45rem 0;
+}
+.nguon__ten { font-size: var(--step-0); word-break: break-word; }
+.nguon__so { text-align: right; font-size: var(--step--1); }
+
+/* --- khối "chưa có dữ liệu" --- */
+.panel--chua-co { background: var(--surface-2); }
+.chua-co li { margin-bottom: .5rem; font-size: var(--step--1); color: var(--ink-soft); }
+.chua-co li:last-child { margin-bottom: 0; }
+
+/* =========================================================================
+   BẢNG DỮ LIỆU dùng chung (món ăn, và sau này là quán).
+   ========================================================================= */
+.bang__dau {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .75rem;
+}
+
+.bang__loc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .75rem;
+  margin: 1rem 0;
+}
+
+.o-nhap {
+  flex: 1 1 240px;
+  min-width: 0;
+  padding: .55rem .8rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: var(--step-0);
+}
+.o-nhap:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.chip-hang { display: flex; flex-wrap: wrap; gap: .4rem; }
+
+.chip {
+  padding: .45rem .8rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  cursor: pointer;
+}
+.chip:hover { background: var(--surface-2); }
+.chip--dang {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+
+/* Bảng rộng phải TỰ CUỘN NGANG trong khung của nó. Không có lớp này thì cả trang trượt
+   ngang và cột trái cũng trôi theo. */
+.bang-cuon { overflow-x: auto; margin-top: .5rem; }
+
+.bang { width: 100%; border-collapse: collapse; font-size: var(--step-0); }
+.bang th, .bang td {
+  padding: .6rem .7rem;
+  text-align: left;
+  border-bottom: 1px solid var(--rule-soft);
+  vertical-align: top;
+}
+.bang th {
+  font-size: var(--step--1);
+  color: var(--muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.bang tbody tr:hover { background: var(--surface-2); }
+.bang__ten { font-weight: 600; }
+.bang__ma { font-size: var(--step--2); }
+
+.o-anh {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  display: block;
+}
+.o-anh--trong {
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+}
+
+/* Nhãn trạng thái. Bốn màu cho bốn nghĩa KHÁC NHAU — đừng gộp `tat` với `loi`:
+   "chưa có quán" là chuyện bình thường, "kho hỏng" thì không. */
+.nhan {
+  display: inline-block;
+  margin-left: .35rem;
+  padding: 1px 8px;
+  border-radius: var(--r-pill);
+  font-size: var(--step--2);
+  white-space: nowrap;
+}
+.nhan--ok        { background: var(--open-soft);  color: var(--open); }
+.nhan--canh-bao  { background: var(--warn-soft);  color: var(--warn); }
+.nhan--loi       { background: var(--error-soft); color: var(--error); }
+.nhan--tat       { background: var(--surface-2);  color: var(--muted); }
+.nhan--tin       { background: var(--accent-soft); color: var(--accent); }
+
+.thieu { color: var(--warn); font-size: var(--step--1); }
+
+/* =========================================================================
+   NHẬT KÝ HOẠT ĐỘNG
+   ========================================================================= */
+.nhat-ky { list-style: none; margin: 1rem 0 0; padding: 0; }
+
+.nhat-ky__dong {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: .75rem;
+  padding: .8rem 0;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.nhat-ky__chinh { min-width: 0; flex: 1 1 320px; }
+.nhat-ky__hanh-dong { margin: 0; font-weight: 600; }
+/* Tóm tắt có thể rất dài ("Đổi name: … -> …") — cho xuống dòng thay vì tràn khung. */
+.nhat-ky__tom-tat { margin: .15rem 0 0; word-break: break-word; }
+.nhat-ky__ma { margin: .15rem 0 0; font-size: var(--step--2); }
+.nhat-ky__ben {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: .25rem;
+}
+.nhat-ky__gio { font-size: var(--step--2); white-space: nowrap; }
+
+/* =========================================================================
+   NĂM LỚP MÔ HÌNH
+   ========================================================================= */
+.lop-mo-hinh {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.lop-mo-hinh__dau {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+}
+.lop-mo-hinh__so {
+  font-size: var(--step--2);
+  letter-spacing: .06em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.lop-mo-hinh__ten { margin: .35rem 0 .2rem; font-size: var(--step-1); }
+.lop-mo-hinh__cach { margin: 0; font-size: var(--step--1); }
+.lop-mo-hinh__phu { margin: .5rem 0 0; font-weight: 600; }
+.lop-mo-hinh__ghi { margin: .5rem 0 0; font-size: var(--step--2); line-height: 1.5; }
+
+/* =========================================================================
+   CÀI ĐẶT HỆ THỐNG (chỉ đọc)
+   ========================================================================= */
+.cau-hinh { margin: 0; }
+.cau-hinh__muc {
+  display: grid;
+  grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+  gap: .5rem 1rem;
+  padding: .55rem 0;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.cau-hinh__muc dt { color: var(--ink-soft); }
+.cau-hinh__muc dd { margin: 0; font-weight: 600; word-break: break-word; }
+.cau-hinh__ghi-chu {
+  display: block;
+  margin-top: .2rem;
+  font-size: var(--step--2);
+  font-weight: 400;
+  line-height: 1.5;
+}
+@media (max-width: 620px) {
+  .cau-hinh__muc { grid-template-columns: 1fr; }
+}
+
+.kho { list-style: none; margin: 0; padding: 0; }
+.kho__dong {
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr) minmax(0, auto);
+  align-items: center;
+  gap: .75rem;
+  padding: .5rem 0;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.kho__dong .nhan { margin-left: 0; text-align: center; }
+.kho__ten { font-size: var(--step-0); }
+.kho__chi-tiet { font-size: var(--step--1); text-align: right; word-break: break-word; }

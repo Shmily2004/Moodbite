@@ -91,6 +91,12 @@ class SearchResultItemSchema(BaseModel):
     price_range: Optional[str]
     rating: Optional[float]
     user_ratings_total: Optional[int]
+    # Nhãn "Nổi tiếng" trên bản thiết kế. Quy tắc ở `domain/services/restaurant_badges.py`.
+    #
+    # ⚠️ `false` KHÔNG có nghĩa là "quán không nổi tiếng" — chỉ 2,4% quán có dữ liệu
+    # review, nên phần lớn `false` nghĩa là TA KHÔNG BIẾT. Giao diện chỉ được dùng nhãn
+    # này để KHẲNG ĐỊNH, tuyệt đối không để phủ định, sắp xếp hay lọc.
+    is_famous: bool = False
     rank_position: int
     predicted_score: float
     # Vì sao quán này khớp: review / atmosphere / category / name / mood.
@@ -611,6 +617,33 @@ class AdminDishRow(BaseModel):
         ..., description="False = chưa tìm được quán nào ở Hà Nội bán món này"
     )
     source: Optional[str] = None
+
+
+class AdminDishDetail(BaseModel):
+    """Một món xem chi tiết ở trang quản trị. Nhiều trường hơn dòng trong bảng."""
+
+    dish_id: str
+    name: str
+    cuisine: Optional[str] = None
+    image_url: Optional[str] = None
+    description: Optional[str] = None
+    spice_level: Optional[int] = None
+    temperature: Optional[str] = None
+    cooking_method: Optional[str] = None
+    meal_times: List[str] = Field(default_factory=list)
+    match_keywords: List[str] = Field(
+        default_factory=list,
+        description="Từ khoá dùng để đối chiếu với TÊN QUÁN — thứ quyết định món này ra quán nào",
+    )
+    is_category: bool
+    is_active: bool
+    source: Optional[str] = None
+    source_url: Optional[str] = None
+    last_updated: Optional[str] = None
+
+
+class AdminDishDetailResponse(BaseModel):
+    data: AdminDishDetail
 
 
 class AdminDishListData(BaseModel):

@@ -15,7 +15,8 @@
  * xoá sạch. Muốn sửa được thì phải chuyển danh mục món sang SQLite trước. Trang nói
  * thẳng điều đó thay vì bày ra nút "Sửa" rồi báo lỗi.
  */
-import { useDishAdmin } from '@/features/manage-dishes';
+import { useState } from 'react';
+import { DishDetailPanel, useDishAdmin } from '@/features/manage-dishes';
 import type { AdminDishRow, LocMon } from '@/shared/api';
 
 const BO_LOC: { khoa: LocMon; nhan: string }[] = [
@@ -29,9 +30,11 @@ const BO_LOC: { khoa: LocMon; nhan: string }[] = [
 export function DishesPage() {
   const { rows, total, query, setQuery, filter, setFilter, loading, error } =
     useDishAdmin();
+  const [dangMo, setDangMo] = useState<string | null>(null);
 
   return (
-    <section className="panel">
+    <div className="mon-luoi">
+      <section className="panel">
       <div className="bang__dau">
         <h2 className="panel__tieu-de">Quản lý món ăn</h2>
         <p className="muted">
@@ -80,28 +83,47 @@ export function DishesPage() {
                 <th scope="col">Ẩm thực</th>
                 <th scope="col">Mô tả</th>
                 <th scope="col">Trạng thái</th>
+                <th scope="col">
+                  <span className="sr-only">Thao tác</span>
+                </th>
               </tr>
             </thead>
             <tbody>
               {rows.map((d) => (
-                <DongMon key={d.dish_id} mon={d} />
+                <DongMon
+                  key={d.dish_id}
+                  mon={d}
+                  dangMo={dangMo === d.dish_id}
+                  onMo={() => setDangMo(d.dish_id)}
+                />
               ))}
             </tbody>
           </table>
         </div>
       )}
 
-      <p className="muted panel__ghi-chu">
-        Chỉ xem, chưa sửa được: danh mục món là file do <code>build_dish_catalog.py</code>{' '}
-        sinh ra, sửa qua đây sẽ bị lần chạy sau ghi đè.
-      </p>
-    </section>
+        <p className="muted panel__ghi-chu">
+          Chỉ xem, chưa sửa được: danh mục món là file do{' '}
+          <code>build_dish_catalog.py</code> sinh ra, sửa qua đây sẽ bị lần chạy sau ghi đè.
+        </p>
+      </section>
+
+      {dangMo && <DishDetailPanel dishId={dangMo} onClose={() => setDangMo(null)} />}
+    </div>
   );
 }
 
-function DongMon({ mon }: { mon: AdminDishRow }) {
+function DongMon({
+  mon,
+  dangMo,
+  onMo,
+}: {
+  mon: AdminDishRow;
+  dangMo: boolean;
+  onMo: () => void;
+}) {
   return (
-    <tr>
+    <tr className={dangMo ? 'bang__dong--dang' : undefined}>
       <td>
         {mon.image_url ? (
           <img
@@ -137,6 +159,11 @@ function DongMon({ mon }: { mon: AdminDishRow }) {
         ) : (
           <span className="nhan nhan--tat">Chưa có quán</span>
         )}
+      </td>
+      <td>
+        <button className="ghost" onClick={onMo} aria-expanded={dangMo}>
+          Xem chi tiết →
+        </button>
       </td>
     </tr>
   );

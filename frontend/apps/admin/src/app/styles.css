@@ -699,3 +699,66 @@ a { color: var(--accent); }
 .kho__dong .nhan { margin-left: 0; text-align: center; }
 .kho__ten { font-size: var(--step-0); }
 .kho__chi-tiet { font-size: var(--step--1); text-align: right; word-break: break-word; }
+
+/* --- "Cần xử lý": dòng bấm được --- */
+.can-xu-ly__link {
+  display: flex;
+  text-decoration: none;
+  color: inherit;
+}
+.can-xu-ly__link:hover { filter: brightness(.97); }
+.can-xu-ly__mui-ten { margin-left: .35rem; opacity: .6; }
+
+/* --- Bảng món + ô chi tiết nằm cạnh nhau trên màn rộng --- */
+.mon-luoi {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+@media (min-width: 1100px) {
+  /* Ô chi tiết CỐ ĐỊNH 380px: nội dung là văn bản, để co giãn thì dòng chữ dài ngắn
+     khác nhau ở mỗi món và đọc rất mỏi. */
+  .mon-luoi:has(.chi-tiet) { grid-template-columns: minmax(0, 1fr) 380px; }
+}
+
+.bang__dong--dang { background: var(--accent-soft); }
+
+.chi-tiet {
+  padding: 1.1rem 1.2rem;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  /* Dính theo khi cuộn bảng — mở một món rồi cuộn xuống vẫn còn thấy chi tiết. */
+  position: sticky;
+  top: 1rem;
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+}
+.chi-tiet__dau {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .75rem;
+}
+.chi-tiet__than { margin-top: .5rem; }
+.chi-tiet__anh {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+}
+.chi-tiet__nhan-hang { display: flex; flex-wrap: wrap; gap: .35rem; margin: .75rem 0; }
+.chi-tiet__nhan-hang .nhan { margin-left: 0; }
+.chi-tiet__nhan {
+  margin: 1rem 0 .35rem;
+  font-size: var(--step--1);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--muted);
+}
+.chi-tiet__mo-ta { margin: 0; line-height: 1.6; }
+
+/* Dòng phụ dưới tên quán (khu vực · nguồn). */
+.bang__phu { display: block; margin-top: 2px; }

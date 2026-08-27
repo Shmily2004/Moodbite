@@ -861,3 +861,121 @@ body {
   color: inherit;
   cursor: pointer;
 }
+
+/* =========================================================================
+   TRANG CHI TIẾT MÓN — bổ sung theo `design/restaurance recommend.png` (2026-08-27)
+   ========================================================================= */
+
+/* Ẩn bản đồ -> danh sách chiếm trọn bề ngang. Ghi đè lưới 2 cột ở trên. */
+@media (min-width: 900px) {
+  .dish-restaurants__body--rong { grid-template-columns: minmax(0, 1fr); }
+}
+.dish-restaurants__ds { min-width: 0; }
+
+/* SỐ THỨ TỰ trên thẻ quán, khớp với ghim cùng số trên bản đồ. */
+.card__anh { position: relative; flex-shrink: 0; }
+.card__so {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: .82rem;
+  font-weight: 700;
+  /* Viền trắng để số nổi lên khỏi ảnh quán dù ảnh màu gì. */
+  box-shadow: 0 0 0 2px var(--surface);
+}
+
+/* Nhãn "Nổi tiếng".
+   ⚠️ Chỉ dùng để KHẲNG ĐỊNH — không có nhãn nghĩa là CHƯA BIẾT (97,6% quán chưa có dữ
+   liệu review), không phải "quán không nổi tiếng". Xem `restaurant_badges.py`. */
+.card__noi-tieng {
+  display: inline-block;
+  margin-left: .4rem;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--accent-soft, #FDEDE7);
+  color: var(--accent);
+  font-size: .72rem;
+  font-weight: 700;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+/* Nút "Xem chi tiết →" trên thẻ quán. */
+.card__xem {
+  margin-top: .6rem;
+  padding: .4rem .85rem;
+  border: 1px solid var(--line-warm);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--accent);
+  font-size: .86rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.card__xem:hover { background: var(--surface-2); }
+
+/* Nút rộng hết dòng: "Xem thêm N quán", "Hiện lại bản đồ". */
+.btn--rong {
+  display: block;
+  width: 100%;
+  margin-top: .75rem;
+}
+
+/* Nút "Xem danh sách" nổi trên bản đồ. */
+.map-pane__thu {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  /* Trên ô bản đồ Leaflet (z-index nội bộ của nó lên tới 400). */
+  z-index: 500;
+  padding: .45rem .85rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: .84rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .18);
+}
+.map-pane__thu:hover { background: var(--surface-2); }
+
+/* Chip "Chỉnh sửa" trong hàng thuộc tính món. */
+.tag--nut {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  border: 1px solid var(--line-warm);
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  font: inherit;
+}
+.tag--nut svg { width: 15px; height: 15px; }
+.tag--nut:hover { background: var(--surface-2); }
+
+/* GHIM MANG SỐ trên bản đồ. Dựng bằng divIcon nên phải tự tạo hình tròn ở đây. */
+.map-pin-so {
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: .78rem;
+  box-shadow: 0 0 0 2px #fff, 0 2px 6px rgba(0, 0, 0, .3);
+}
+.map-pin-so--dang {
+  background: var(--ink);
+  font-size: .86rem;
+  box-shadow: 0 0 0 3px #fff, 0 3px 10px rgba(0, 0, 0, .4);
+}
+.map-pin-so__so { line-height: 1; }

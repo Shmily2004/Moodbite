@@ -11,6 +11,7 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { AssistantBubble } from '@/widgets/assistant-bubble';
+import { FilterDrawer } from '@/widgets/filter-drawer';
 import { RestaurantList } from '@/widgets/restaurant-list';
 import { RestaurantMap } from '@/widgets/restaurant-map';
 import { useDishDetail } from '@/features/view-dish-detail';
@@ -25,11 +26,21 @@ import {
   describeTemperature,
 } from '@/entities/dish';
 import { DEFAULT_RADIUS_KM, ROUTES } from '@/shared/config';
+import { IconFilter } from '@/shared/ui';
 
 type KieuSapXep = 'gan' | 'hop';
 
+/** Số quán hiện lúc đầu. "Xem thêm quán" mở hết phần còn lại. */
+const SO_QUAN_BAN_DAU = 8;
+
 export function DishPage() {
   const [sapXep, setSapXep] = useState<KieuSapXep>('gan');
+  // Cắt bớt danh sách lúc đầu (bản thiết kế có nút "Xem thêm quán"): 20 thẻ quán đẩy
+  // bản đồ và mọi thứ dưới nó ra khỏi màn hình ngay lần đầu vào trang.
+  const [xemHet, setXemHet] = useState(false);
+  // Ẩn bản đồ để danh sách rộng ra (nút "Xem danh sách" trên bản đồ trong thiết kế).
+  const [anBanDo, setAnBanDo] = useState(false);
+  const [moBoLoc, setMoBoLoc] = useState(false);
   const navigate = useNavigate();
   const { dishId } = useParams<{ dishId: string }>();
   const location = useUserLocation();
@@ -65,6 +76,9 @@ export function DishPage() {
       (a, b) => (a.distance_m ?? Infinity) - (b.distance_m ?? Infinity),
     );
   }, [detail.restaurants, sapXep]);
+
+  const quanHien = xemHet ? quanDaSap : quanDaSap.slice(0, SO_QUAN_BAN_DAU);
+  const conLai = quanDaSap.length - quanHien.length;
 
   return (
     <div className="shell">
@@ -110,6 +124,18 @@ export function DishPage() {
               {describeMealTimes(dish.meal_times) && (
                 <li className="tag tag--muted">{describeMealTimes(dish.meal_times)}</li>
               )}
+              {/* NÚT "CHỈNH SỬA" cạnh hàng thuộc tính (bản thiết kế).
+                  Mở ngăn kéo bộ lọc ngay tại chỗ thay vì bắt quay về trang gợi ý —
+                  người dùng đang xem món này và muốn đổi tiêu chí, không muốn đi đâu cả. */}
+              <li>
+                <button
+                  type="button"
+                  className="tag tag--nut"
+                  onClick={() => setMoBoLoc(true)}
+                >
+                  <IconFilter /> Chỉnh sửa
+                </button>
+              </li>
             </ul>
 
             {/* GIỚI THIỆU NGẮN - nội dung chính của bước 2 trong luồng.
@@ -180,24 +206,69 @@ export function DishPage() {
         {detail.loading && <p className="muted">Đang tìm quán…</p>}
 
         {!detail.loading && detail.restaurants.length > 0 && (
-          <div className="dish-restaurants__body">
+          <div
+            className={
+              anBanDo
+                ? 'dish-restaurants__body dish-restaurants__body--rong'
+                : 'dish-restaurants__body'
+            }
+          >
             {/* Danh sách ĐỨNG TRƯỚC bản đồ trong DOM (đổi 2026-08-26 theo thiết kế):
                 nó là nội dung chính, và trình đọc màn hình nên gặp nó trước. Bố cục
                 trái/phải do CSS lo. */}
-            <RestaurantList
-              restaurants={quanDaSap}
-              searchQueryId={detail.searchQueryId}
-              queryText={dish?.name ?? null}
-            />
-            <div className="map-pane">
-              <RestaurantMap
-                restaurants={quanDaSap}
-                center={location.position}
-                userPosition={location.isDefault ? null : location.position}
-                activeId={null}
-                onSelect={() => undefined}
+            <div className="dish-restaurants__ds">
+              <RestaurantList
+                restaurants={quanHien}
+                searchQueryId={detail.searchQueryId}
+                queryText={dish?.name ?? null}
+                // Đánh số khớp ghim bản đồ — chỉ ở trang này, không ở trang tìm kiếm.
+                danhSo
               />
+
+              {/* "XEM THÊM QUÁN" (bản thiết kế). Nói rõ CÒN BAO NHIÊU, không chỉ ghi
+                  "xem thêm" — người dùng cần biết bấm vào thì dài thêm bao nhiêu. */}
+              {conLai > 0 && (
+                <button
+                  type="button"
+                  className="btn btn--rong"
+                  onClick={() => setXemHet(true)}
+                >
+                  Xem thêm {conLai} quán ▾
+                </button>
+              )}
             </div>
+
+            {!anBanDo && (
+              <div className="map-pane">
+                {/* "XEM DANH SÁCH" (bản thiết kế): thu bản đồ để danh sách rộng ra.
+                    Trên màn hẹp bản đồ chiếm gần nửa chiều cao mà lại là phần phụ. */}
+                <button
+                  type="button"
+                  className="map-pane__thu"
+                  onClick={() => setAnBanDo(true)}
+                >
+                  Xem danh sách
+                </button>
+                <RestaurantMap
+                  restaurants={quanHien}
+                  center={location.position}
+                  userPosition={location.isDefault ? null : location.position}
+                  activeId={null}
+                  onSelect={() => undefined}
+                  danhSo
+                />
+              </div>
+            )}
+
+            {anBanDo && (
+              <button
+                type="button"
+                className="btn btn--rong"
+                onClick={() => setAnBanDo(false)}
+              >
+                Hiện lại bản đồ
+              </button>
+            )}
           </div>
         )}
 
@@ -215,9 +286,29 @@ export function DishPage() {
         )}
       </section>
 
-      {/* Bong bóng trợ lý — trang này có danh sách quán nên bộ lọc có tác dụng thật.
-          Bấm vào thì về trang kết quả gợi ý, nơi giữ bộ lọc. */}
-      <AssistantBubble onOpen={() => navigate(ROUTES.recommend)} />
+      {/* Bong bóng trợ lý — trang này có danh sách quán nên bộ lọc có tác dụng thật. */}
+      <AssistantBubble onOpen={() => setMoBoLoc(true)} />
+
+      {/* Ngăn kéo bộ lọc mở NGAY TẠI TRANG này (nút "Chỉnh sửa" và bong bóng).
+          Bấm "Áp dụng" mới sang trang kết quả — vì bộ lọc đổi thì MÓN gợi ý cũng đổi,
+          mà trang này đã khoá vào đúng một món. */}
+      <FilterDrawer
+        open={moBoLoc}
+        onClose={() => setMoBoLoc(false)}
+        activeCount={0}
+        // Trang này chưa giữ state bộ lọc nào (nó khoá vào đúng một món), nên không có
+        // gì để đặt lại. Ngăn kéo vẫn cần hàm này nên truyền một hàm rỗng có chú thích,
+        // thay vì bày ra nút "Đặt lại" chẳng làm gì.
+        onReset={() => undefined}
+        onApply={() => {
+          setMoBoLoc(false);
+          navigate(ROUTES.recommend);
+        }}
+      >
+        <p className="section-sub">
+          Đổi tiêu chí sẽ đưa bạn về trang gợi ý món, vì món phù hợp cũng thay đổi theo.
+        </p>
+      </FilterDrawer>
     </div>
   );
 }

@@ -129,4 +129,30 @@ def _khop(d: Dish, tu_khoa: str) -> bool:
     return normalize(tu_khoa).replace(" ", "-") in d.identifier
 
 
-__all__ = ["ListDishesForAdminUseCase", "DishAdminRow", "DishCatalogNotReady", "BO_LOC"]
+@dataclass
+class GetDishForAdminUseCase:
+    """Một món cho trang quản trị, KỂ CẢ món đang tắt.
+
+    ⚠️ KHÔNG dùng lại `GET /dishes/{id}` của người dùng: endpoint đó đọc `list_dishes()`
+    nên 557 món chưa có quán sẽ trả 404 — đúng với người dùng, sai hoàn toàn với admin.
+    Admin mở trang quản lý món chính là để xem những món đó.
+    """
+
+    dish_catalog: object
+
+    def execute(self, dish_id: str) -> Optional[Dish]:
+        if not getattr(self.dish_catalog, "is_ready", False):
+            raise DishCatalogNotReady()
+        ma = (dish_id or "").strip()
+        return next(
+            (d for d in self.dish_catalog.list_all_dishes() if d.identifier == ma), None
+        )
+
+
+__all__ = [
+    "ListDishesForAdminUseCase",
+    "GetDishForAdminUseCase",
+    "DishAdminRow",
+    "DishCatalogNotReady",
+    "BO_LOC",
+]

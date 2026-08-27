@@ -248,40 +248,17 @@ def restaurants_for_dish(
     )
     payload = SearchResponseData(
         search_query_id=result.search_query_id,
-        results=[
-            {
-                "restaurant_id": item.restaurant_id,
-                "name": item.name,
-                "category": item.category,
-                "address": item.address,
-                "latitude": item.latitude,
-                "longitude": item.longitude,
-                "distance_m": item.distance_m,
-                "price_range": item.price_range,
-                "rating": item.rating,
-                "user_ratings_total": item.user_ratings_total,
-                "rank_position": item.rank_position,
-                "predicted_score": item.predicted_score,
-                "match_source": item.match_source,
-                "thumbnail_url": item.thumbnail_url,
-                "district": item.district,
-                "dietary": item.dietary,
-                "amenities": item.amenities,
-                "source": item.source,
-                "experience_cluster_id": item.experience_cluster_id,
-                "experience_cluster_label": item.experience_cluster_label,
-                "suggested_dish": {
-                    "dish_id": item.suggested_dish.dish_id,
-                    "name": item.suggested_dish.name,
-                    "cuisine": item.suggested_dish.cuisine,
-                    "spice_level": item.suggested_dish.spice_level,
-                    "temperature": item.suggested_dish.temperature,
-                    "confidence": item.suggested_dish.confidence,
-                    "reason": item.suggested_dish.reason,
-                } if item.suggested_dish else None,
-            }
-            for item in result.results
-        ],
+        # DÙNG LẠI `search_result_to_dict` thay vì chép tay lại 20 trường.
+        #
+        # ⚠️ Bản chép tay ở đây từng THIẾU 4 trường mà `/search` có:
+        # `temporarily_closed` · `source_updated_at` · `source_datasets` · `surveyed_at`.
+        # Hậu quả thật: trang chi tiết món — tức LUỒNG CHÍNH của sản phẩm — không hiện
+        # nhãn "quán đang tạm nghỉ", trong khi trang tìm kiếm thì có. Người dùng bị dẫn
+        # tới quán đang đóng cửa mà không được báo.
+        #
+        # Đây đúng là cái giá của việc dựng cùng một response ở hai nơi: thêm trường ở
+        # một nơi, quên nơi kia, và không có gì báo. Nay chỉ còn MỘT nguồn sự thật.
+        results=[search_result_to_dict(item) for item in result.results],
         context=result.context,
         warnings=result.warnings,
     )

@@ -46,12 +46,13 @@ class ListRestaurantsForAdminUseCase:
         query: Optional[str] = None,
         limit: int = 50,
         include_hidden: bool = True,
+        loc: Optional[str] = None,
     ) -> List[Restaurant]:
         _require_ready(self.restaurants)
         # Chặn trên số lượng: admin gõ limit=999999 sẽ kéo cả 4938 quán qua JSON.
         safe_limit = max(1, min(int(limit), MAX_ADMIN_PAGE_SIZE))
         return self.restaurants.list_for_admin(
-            query=query, limit=safe_limit, include_hidden=include_hidden
+            query=query, limit=safe_limit, include_hidden=include_hidden, loc=loc
         )
 
 

@@ -10,20 +10,24 @@
  * ⚠️ BỐN KHỐI TRONG BẢN THIẾT KẾ CỐ TÌNH KHÔNG DỰNG — vì không có dữ liệu thật:
  *
  *   1. "↗ +1.248 so với tuần trước" trên mỗi ô số
- *   2. "Hoạt động gần đây" (ẩn quán / sửa quán / thêm quán, kèm giờ)
- *   3. "Hệ thống gợi ý": Lượt gợi ý hôm nay · CTR 8.7% · các đường sparkline
- *   4. Chuông thông báo với số 12
+ *   2. "Hệ thống gợi ý": Lượt gợi ý hôm nay · CTR 8.7% · các đường sparkline
+ *   3. Chuông thông báo với số 12
  *
  * Lý do cho từng cái:
- *   (1) và (3) cần ẢNH CHỤP DỮ LIỆU THEO NGÀY — dự án không lưu, nên không có cách nào
+ *   (1) và (2) cần ẢNH CHỤP DỮ LIỆU THEO NGÀY — dự án không lưu, nên không có cách nào
  *       biết "so với tuần trước". CTR cần lượt click; `interactions.jsonl` có 3 bản ghi.
- *   (2) cần NHẬT KÝ HOẠT ĐỘNG — chưa có bảng nào ghi lại việc admin ẩn/sửa/thêm quán.
- *   (4) không có nguồn thông báo nào. Số "cần xử lý" đã nằm ngay trên đầu trang rồi.
+ *   (3) không có nguồn thông báo nào. Số "cần xử lý" đã nằm ngay trên đầu trang rồi.
+ *
+ * "Hoạt động gần đây" TRƯỚC ĐÂY cũng nằm trong danh sách này. Nay đã dựng thật — xem
+ * `HoatDongGanDay` ở cuối file và `domain/entities/audit_log.py`.
  *
  * Vẽ ra bằng số minh hoạ sẽ là bịa dữ liệu ngay trên màn hình dùng để KIỂM TRA dữ liệu —
  * CLAUDE.md mục 0 và mục 4. Ba mục còn thiếu đã ghi vào `PROJECT_CHECKLIST.md`.
  */
+import { Link } from 'react-router-dom';
+import { useActivity } from '@/features/view-activity';
 import { useOverview } from '@/features/view-overview';
+import { DUONG_DAN_CAN_XU_LY, ROUTES } from '@/shared/config';
 import type {
   AdminOverviewData,
   DoPhuTruong,
@@ -133,26 +137,9 @@ function NoiDung({ data }: { data: AdminOverviewData }) {
           <h3 className="panel__tieu-de">Cần xử lý</h3>
           <ul className="can-xu-ly">
             {data.needs_attention.map((v: ViecCanXuLy) => (
-              <li
-                key={v.key}
-                className={
-                  v.severity === 'thong_tin'
-                    ? 'can-xu-ly__dong can-xu-ly__dong--tin'
-                    : 'can-xu-ly__dong'
-                }
-              >
-                <div>
-                  <p className="can-xu-ly__nhan">{v.label}</p>
-                  <p className="muted can-xu-ly__mo-ta">{v.description}</p>
-                </div>
-                <span className="can-xu-ly__so">{soVN(v.count)}</span>
-              </li>
+              <DongCanXuLy key={v.key} viec={v} />
             ))}
           </ul>
-          {/* Nói thẳng vì sao chưa bấm vào được, thay vì làm nút chết. */}
-          <p className="muted panel__ghi-chu">
-            Chưa bấm vào được — màn danh sách lọc theo từng nhóm chưa dựng.
-          </p>
         </section>
 
         <section className="panel">
@@ -177,15 +164,13 @@ function NoiDung({ data }: { data: AdminOverviewData }) {
         </section>
       </div>
 
+      <HoatDongGanDay />
+
       {/* Nói rõ thứ CHƯA có, ngay trên màn hình. Người quản trị phải biết mình đang không
           nhìn thấy gì — im lặng sẽ khiến họ tưởng "không có hoạt động nào". */}
       <section className="panel panel--chua-co">
         <h3 className="panel__tieu-de">Chưa có dữ liệu để hiện</h3>
         <ul className="chua-co">
-          <li>
-            <strong>Hoạt động gần đây</strong> — chưa có bảng nhật ký, nên việc admin
-            ẩn/sửa/thêm quán hiện không được ghi lại ở đâu cả.
-          </li>
           <li>
             <strong>So sánh với tuần trước</strong> — dự án không lưu ảnh chụp dữ liệu
             theo ngày, nên không tính được xu hướng.
@@ -198,6 +183,99 @@ function NoiDung({ data }: { data: AdminOverviewData }) {
         </ul>
       </section>
     </>
+  );
+}
+
+/**
+ * Một dòng trong hộp "Cần xử lý".
+ *
+ * Bấm được -> `<Link>` sang danh sách ĐÃ LỌC SẴN. Chưa có đường dẫn -> `<li>` thường,
+ * KHÔNG phải link chết: dẫn tới một danh sách không lọc đúng thứ vừa hứa còn tệ hơn là
+ * không bấm được.
+ */
+function DongCanXuLy({ viec }: { viec: ViecCanXuLy }) {
+  const duongDan = DUONG_DAN_CAN_XU_LY[viec.key];
+  const lop =
+    viec.severity === 'thong_tin'
+      ? 'can-xu-ly__dong can-xu-ly__dong--tin'
+      : 'can-xu-ly__dong';
+
+  const noiDung = (
+    <>
+      <div>
+        <p className="can-xu-ly__nhan">{viec.label}</p>
+        <p className="muted can-xu-ly__mo-ta">{viec.description}</p>
+      </div>
+      <span className="can-xu-ly__so">
+        {soVN(viec.count)}
+        {duongDan && <span className="can-xu-ly__mui-ten" aria-hidden="true">›</span>}
+      </span>
+    </>
+  );
+
+  if (!duongDan) {
+    return <li className={lop}>{noiDung}</li>;
+  }
+  return (
+    <li>
+      <Link className={`${lop} can-xu-ly__link`} to={duongDan}>
+        {noiDung}
+      </Link>
+    </li>
+  );
+}
+
+/**
+ * "Hoạt động gần đây" — nay CÓ dữ liệu thật.
+ *
+ * Bản đầu của trang này ghi "chưa có bảng nhật ký". Câu đó ĐÚNG lúc viết nhưng SAI ngay
+ * sau khi dựng `audit_log` (cùng ngày 2026-08-26), nên đã gỡ. Giữ lại một câu tài liệu
+ * sai còn nguy hiểm hơn không viết gì.
+ *
+ * Gọi `useActivity` riêng thay vì nhét vào `/admin/overview`: nhật ký đổi mỗi lần admin
+ * thao tác, còn số liệu tổng quan được đệm 5 phút — gộp lại thì hoặc nhật ký cũ, hoặc
+ * mất bộ đệm.
+ */
+function HoatDongGanDay() {
+  const { entries, available, loading } = useActivity();
+  const SO_HIEN = 5;
+
+  return (
+    <section className="panel">
+      <div className="bang__dau">
+        <h3 className="panel__tieu-de">Hoạt động gần đây</h3>
+        <Link className="linkish" to={ROUTES.activity}>
+          Xem tất cả →
+        </Link>
+      </div>
+
+      {loading && <p className="muted">Đang tải…</p>}
+      {!loading && !available && (
+        <p className="notice notice--warn">
+          Không mở được kho nhật ký — đây <strong>không phải</strong> là "chưa có hoạt
+          động nào".
+        </p>
+      )}
+      {!loading && available && entries.length === 0 && (
+        <p className="muted">Chưa có thao tác nào được ghi lại.</p>
+      )}
+
+      {entries.length > 0 && (
+        <ul className="nhat-ky">
+          {entries.slice(0, SO_HIEN).map((e, i) => (
+            <li key={`${e.created_at}-${i}`} className="nhat-ky__dong">
+              <div className="nhat-ky__chinh">
+                <p className="nhat-ky__hanh-dong">{e.action_label}</p>
+                <p className="muted nhat-ky__tom-tat">{e.summary}</p>
+              </div>
+              <span className="muted nhat-ky__gio">
+                {e.created_at ? new Date(e.created_at).toLocaleString('vi-VN') : '—'}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }
 

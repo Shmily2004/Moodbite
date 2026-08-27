@@ -19,3 +19,18 @@ export const ROUTES = {
   activity: '/nhat-ky',
   system: '/cai-dat',
 } as const;
+
+/**
+ * "Cần xử lý" ở trang Tổng quan bấm sang đâu.
+ *
+ * Khoá là `key` do BACKEND đặt (`domain/services/data_quality.py`). Khoá nào không có ở
+ * đây thì dòng đó KHÔNG bấm được — cố ý: thà không bấm được còn hơn dẫn tới một danh
+ * sách không lọc đúng thứ vừa hứa.
+ */
+export const DUONG_DAN_CAN_XU_LY: Record<string, string> = {
+  dong_tam: `${ROUTES.restaurants}?loc=dong_tam`,
+  thieu_lien_he: `${ROUTES.restaurants}?loc=thieu_lien_he`,
+  mon_thieu_anh: `${ROUTES.dishes}?filter=missing_image`,
+  mon_thieu_mo_ta: `${ROUTES.dishes}?filter=missing_description`,
+  mon_khong_quan: `${ROUTES.dishes}?filter=without_restaurants`,
+};

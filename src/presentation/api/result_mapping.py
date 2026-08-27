@@ -19,6 +19,7 @@ from __future__ import annotations
 from typing import Any, Dict, Optional
 
 from src.application.use_cases.search_restaurants import SearchResultItem, SuggestedDish
+from src.domain.services.restaurant_badges import la_quan_noi_tieng
 
 
 def suggested_dish_to_dict(dish: Optional[SuggestedDish]) -> Optional[Dict[str, Any]]:
@@ -53,6 +54,9 @@ def search_result_to_dict(item: SearchResultItem) -> Dict[str, Any]:
         # `None` = CHƯA CÓ DỮ LIỆU, không phải 0. Giao diện nói "chưa có đánh giá".
         "rating": item.rating,
         "user_ratings_total": item.user_ratings_total,
+        # Tính Ở ĐÂY chứ không ở frontend: "thế nào là nổi tiếng" là quy tắc nghiệp vụ
+        # (CLAUDE.md mục 1b). Ngưỡng và số đo ghi ở `domain/services/restaurant_badges.py`.
+        "is_famous": la_quan_noi_tieng(item.rating, item.user_ratings_total),
         "rank_position": item.rank_position,
         "predicted_score": item.predicted_score,
         "match_source": item.match_source,

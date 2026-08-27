@@ -21,6 +21,7 @@ export type {
   ThongKeNguon,
   ViecCanXuLy,
   AdminDishRow,
+  AdminDishDetail,
   AdminSystemData,
   AdminSystemService,
   AuditEntry,

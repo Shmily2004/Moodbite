@@ -90,22 +90,38 @@ export function RestaurantRow({ restaurant, onToggleHidden, onSave }: Restaurant
   return (
     <tr className={restaurant.is_active ? 'row' : 'row row--hidden'}>
       <td>
-        <b>{restaurant.name}</b>
+        <span className="bang__ten">{restaurant.name}</span>
         <br />
         <span className="muted small">{restaurant.address ?? 'chưa có địa chỉ'}</span>
+        {/* Khu vực và NGUỒN ngay dưới tên: admin cần biết bản ghi này ở đâu ra trước
+            khi quyết định sửa hay ẩn. Quán `manual:` là do người gõ tay, sửa thoải mái;
+            quán từ Overture/OSM thì lần chạy pipeline sau có thể ghi đè. */}
+        <span className="bang__phu muted small">
+          {restaurant.district ?? 'chưa rõ khu vực'}
+          {restaurant.source && ` · ${restaurant.source}`}
+        </span>
       </td>
       <td>{restaurant.category ?? '—'}</td>
       {/* `null` = CHƯA CÓ DỮ LIỆU, không phải 0 sao. Không bao giờ hiện "0". */}
       <td>
-        {restaurant.rating != null
-          ? `${restaurant.rating}★`
-          : <span className="muted">chưa có đánh giá</span>}
+        {restaurant.rating != null ? (
+          <>
+            <span className="bang__ten">{restaurant.rating}</span>
+            {restaurant.reviews_count != null && (
+              <span className="muted small"> ({restaurant.reviews_count})</span>
+            )}
+          </>
+        ) : (
+          <span className="muted">chưa có đánh giá</span>
+        )}
       </td>
       <td>
+        {/* Dùng chung lớp `nhan--*` với bảng món, thay cho `pill--*` riêng của bảng này.
+            Hai bảng cùng ý nghĩa "trạng thái" thì phải nhìn giống nhau. */}
         {restaurant.is_active ? (
-          <span className="pill pill--on">Đang hiện</span>
+          <span className="nhan nhan--ok">Đang hiện</span>
         ) : (
-          <span className="pill pill--off">Đã ẩn</span>
+          <span className="nhan nhan--tat">Đã ẩn</span>
         )}
       </td>
       <td className="actions">

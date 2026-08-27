@@ -5,6 +5,7 @@
  * (`domain/value_objects/restaurant_edit.py`); ở đây chỉ gửi đi và hiển thị lỗi trả về.
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import type {
   AdminCreateRestaurantRequest,
   AdminRestaurantSummary,
@@ -21,6 +22,10 @@ export interface UseRestaurantAdminOptions {
 export interface UseRestaurantAdminResult {
   restaurants: AdminRestaurantSummary[];
   total: number;
+  /** Bộ lọc "việc cần xử lý" đang bật, đọc từ URL. `null` = không lọc. */
+  loc: string | null;
+  /** Bỏ bộ lọc "việc cần xử lý" mà không đụng tới từ khoá tìm. */
+  clearLoc: () => void;
   query: string;
   setQuery: (value: string) => void;
   includeHidden: boolean;
@@ -41,6 +46,17 @@ export interface UseRestaurantAdminResult {
 export function useRestaurantAdmin({
   onExpired,
 }: UseRestaurantAdminOptions): UseRestaurantAdminResult {
+  // `loc` NẰM TRÊN URL để hộp "Cần xử lý" ở trang Tổng quan bấm sang được đúng danh
+  // sách đã lọc. Từ khoá tìm vẫn để trong bộ nhớ — nó là thứ người dùng gõ tại chỗ,
+  // không phải thứ gửi link cho nhau.
+  const [thamSo, setThamSo] = useSearchParams();
+  const loc = thamSo.get('loc');
+  const clearLoc = useCallback(() => {
+    const moi = new URLSearchParams(thamSo);
+    moi.delete('loc');
+    setThamSo(moi, { replace: true });
+  }, [thamSo, setThamSo]);
+
   const [restaurants, setRestaurants] = useState<AdminRestaurantSummary[]>([]);
   const [total, setTotal] = useState(0);
   const [query, setQuery] = useState('');
@@ -74,7 +90,7 @@ export function useRestaurantAdmin({
     setError(null);
     try {
       const data = await adminApi.listRestaurants(
-        { q: query || null, limit: ADMIN_PAGE_SIZE, includeHidden },
+        { q: query || null, limit: ADMIN_PAGE_SIZE, includeHidden, loc },
         { signal: controller.signal },
       );
       setRestaurants(data.results);
@@ -85,7 +101,7 @@ export function useRestaurantAdmin({
     } finally {
       if (abortRef.current === controller) setLoading(false);
     }
-  }, [query, includeHidden, handleError]);
+  }, [query, includeHidden, loc, handleError]);
 
   useEffect(() => {
     void reload();
@@ -161,6 +177,8 @@ export function useRestaurantAdmin({
   return {
     restaurants,
     total,
+    loc,
+    clearLoc,
     query,
     setQuery,
     includeHidden,

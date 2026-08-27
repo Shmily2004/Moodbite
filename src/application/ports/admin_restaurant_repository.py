@@ -19,9 +19,16 @@ class RestaurantAlreadyExists(Exception):
 @runtime_checkable
 class AdminRestaurantRepository(Protocol):
     def list_for_admin(
-        self, query: Optional[str] = None, limit: int = 50, include_hidden: bool = True
+        self,
+        query: Optional[str] = None,
+        limit: int = 50,
+        include_hidden: bool = True,
+        loc: Optional[str] = None,
     ) -> List[Restaurant]:
-        """Danh sách cho trang quản trị.
+        """Danh sách cho trang quản trị. `loc` lọc theo VIỆC CẦN XỬ LÝ.
+
+        `loc` hợp lệ: `dong_tam` (nguồn báo đóng tạm) · `thieu_lien_he` (không có cả
+        điện thoại lẫn website). Giá trị lạ = không lọc, không báo lỗi.
 
         KHÁC `list_all()` ở chỗ MẶC ĐỊNH có cả quán đã ẩn — admin phải nhìn thấy quán
         mình vừa ẩn, nếu không sẽ không có cách nào bỏ ẩn lại.

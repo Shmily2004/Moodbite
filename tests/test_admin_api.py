@@ -24,7 +24,10 @@ from src.application.use_cases.get_restaurant_details import GetRestaurantDetail
 from pathlib import Path
 
 from src.application.use_cases.get_admin_overview import GetAdminOverviewUseCase
-from src.application.use_cases.list_dishes_admin import ListDishesForAdminUseCase
+from src.application.use_cases.list_dishes_admin import (
+    GetDishForAdminUseCase,
+    ListDishesForAdminUseCase,
+)
 from src.application.use_cases.manage_audit_log import DocNhatKyUseCase, GhiNhatKyUseCase
 from src.infrastructure.repositories.sqlite_audit_log_repository import (
     SqliteAuditLogRepository,
@@ -142,6 +145,7 @@ def build_client(db_path, *, configured=True, writable=True):
     c.ghi_nhat_ky = GhiNhatKyUseCase(c.audit_log)
     c.doc_nhat_ky = DocNhatKyUseCase(c.audit_log)
     c.list_dishes_for_admin = ListDishesForAdminUseCase(c.dish_catalog_repository)
+    c.get_dish_for_admin = GetDishForAdminUseCase(c.dish_catalog_repository)
     # Màn "Tổng quan". Lắp SAU `attach_dish_catalog` vì nó cần kho món đã có.
     c.admin_overview = GetAdminOverviewUseCase(
         restaurant_repository=repo,

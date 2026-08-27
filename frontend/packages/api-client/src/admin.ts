@@ -29,6 +29,7 @@ export type ThongKeNguon = components['schemas']['ThongKeNguonSchema'];
 export type ViecCanXuLy = components['schemas']['ViecCanXuLySchema'];
 export type AdminDishRow = components['schemas']['AdminDishRow'];
 export type AdminDishListData = components['schemas']['AdminDishListData'];
+export type AdminDishDetail = components['schemas']['AdminDishDetail'];
 export type AdminSystemData = components['schemas']['AdminSystemData'];
 export type AdminSystemService = components['schemas']['AdminSystemService'];
 export type AuditEntry = components['schemas']['AuditEntrySchema'];
@@ -48,6 +49,11 @@ export interface AdminListParams {
   q?: string | null;
   limit?: number;
   includeHidden?: boolean;
+  /**
+   * Lọc VIỆC CẦN XỬ LÝ: `dong_tam` | `thieu_lien_he`.
+   * Khoá do `domain/services/data_quality.py` đặt tên — giữ đồng bộ với nó.
+   */
+  loc?: string | null;
 }
 
 export class MoodbiteAdminApi {
@@ -99,6 +105,19 @@ export class MoodbiteAdminApi {
     );
   }
 
+  /**
+   * Chi tiết MỘT món cho quản trị.
+   *
+   * ⚠️ KHÁC `GET /dishes/{id}` của app client: món đang TẮT vẫn trả 200 ở đây. Đó là
+   * chủ đích — admin mở trang món chính là để xem 557 món chưa có quán.
+   */
+  getDish(dishId: string, options?: RequestOptions): Promise<AdminDishDetail> {
+    return this.http.request<AdminDishDetail>(
+      `/admin/dishes/${encodeURIComponent(dishId)}`,
+      options,
+    );
+  }
+
   /** Nhật ký hoạt động quản trị, mới nhất đứng đầu. */
   activity(
     params: { limit?: number; action?: string | null } = {},
@@ -135,6 +154,7 @@ export class MoodbiteAdminApi {
     if (params.includeHidden != null) {
       search.set('include_hidden', String(params.includeHidden));
     }
+    if (params.loc) search.set('loc', params.loc);
     const query = search.toString();
     return this.http.request<AdminRestaurantListData>(
       `/admin/restaurants${query ? `?${query}` : ''}`,

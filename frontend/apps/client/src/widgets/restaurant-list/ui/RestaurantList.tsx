@@ -20,6 +20,8 @@ interface RestaurantListProps {
   activeId?: string | null;
   /** Báo lên trên khi người dùng bấm một thẻ, để bản đồ làm nổi ghim tương ứng. */
   onActivate?: (id: string | null) => void;
+  /** Đánh số 1, 2, 3… trên từng thẻ, khớp với ghim cùng số trên bản đồ. */
+  danhSo?: boolean;
 }
 
 export function RestaurantList({
@@ -28,6 +30,7 @@ export function RestaurantList({
   queryText,
   activeId,
   onActivate,
+  danhSo = false,
 }: RestaurantListProps) {
   const { detail, loading, error, load, clear } = useRestaurantDetail();
   const { log, startViewTimer } = useInteractionLogger();
@@ -53,10 +56,13 @@ export function RestaurantList({
 
   return (
     <ul className="results">
-      {restaurants.map((restaurant) => (
+      {restaurants.map((restaurant, chiSo) => (
         <RestaurantCard
           key={restaurant.restaurant_id ?? restaurant.rank_position}
           restaurant={restaurant}
+          // Số theo VỊ TRÍ TRONG DANH SÁCH ĐANG NHÌN, không phải `rank_position` — sắp
+          // lại theo "gần nhất" thì số phải đổi theo, để còn khớp với ghim bản đồ.
+          soThuTu={danhSo ? chiSo + 1 : undefined}
           queryText={queryText}
           active={activeId != null && restaurant.restaurant_id === activeId}
           onOpenDetail={openId === restaurant.restaurant_id ? undefined : open}

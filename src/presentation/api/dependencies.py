@@ -17,7 +17,10 @@ from fastapi import Depends, Request
 
 from src.application.ports.admin_restaurant_repository import AdminRestaurantRepository
 from src.application.use_cases.get_admin_overview import GetAdminOverviewUseCase
-from src.application.use_cases.list_dishes_admin import ListDishesForAdminUseCase
+from src.application.use_cases.list_dishes_admin import (
+    GetDishForAdminUseCase,
+    ListDishesForAdminUseCase,
+)
 from src.application.use_cases.manage_audit_log import DocNhatKyUseCase, GhiNhatKyUseCase
 from src.application.use_cases.get_restaurant_details import GetRestaurantDetailsUseCase
 from src.application.use_cases.log_interaction import LogInteractionUseCase
@@ -146,6 +149,7 @@ class Container:
     admin_auth: AdminAuthService
     admin_overview: GetAdminOverviewUseCase
     list_dishes_for_admin: ListDishesForAdminUseCase
+    get_dish_for_admin: GetDishForAdminUseCase
     audit_log: object
     ghi_nhat_ky: GhiNhatKyUseCase
     doc_nhat_ky: DocNhatKyUseCase
@@ -389,6 +393,7 @@ def build_container(settings: Optional[Settings] = None) -> Container:
         ghi_nhat_ky=GhiNhatKyUseCase(audit_log),
         doc_nhat_ky=DocNhatKyUseCase(audit_log),
         list_dishes_for_admin=ListDishesForAdminUseCase(dish_catalog_repository),
+        get_dish_for_admin=GetDishForAdminUseCase(dish_catalog_repository),
         admin_overview=GetAdminOverviewUseCase(
             restaurant_repository=restaurant_repository,
             dish_catalog_repository=dish_catalog_repository,

@@ -1451,6 +1451,49 @@
         }
       }
     },
+    "/api/v1/admin/dishes/{dish_id}": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Get Dish",
+        "description": "Chi tiết một món cho trang quản trị.\n\n⚠️ KHÁC `GET /dishes/{id}` của người dùng: ở đây món đang TẮT vẫn trả về 200. Admin\nmở trang này chính là để xem 557 món chưa có quán.",
+        "operationId": "get_dish_api_v1_admin_dishes__dish_id__get",
+        "parameters": [
+          {
+            "name": "dish_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dish Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDishDetailResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/system": {
       "get": {
         "tags": [
@@ -1633,6 +1676,24 @@
               "title": "Include Hidden"
             },
             "description": "Có kèm quán đã ẩn hay không"
+          },
+          {
+            "name": "loc",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Lọc việc cần xử lý: dong_tam | thieu_lien_he. Khoá lạ = không lọc.",
+              "title": "Loc"
+            },
+            "description": "Lọc việc cần xử lý: dong_tam | thieu_lien_he. Khoá lạ = không lọc."
           }
         ],
         "responses": {
@@ -1978,6 +2039,161 @@
         ],
         "title": "AdminCreateRestaurantRequest",
         "description": "Thêm quán MỚI bằng tay.\n\nChỉ `name` + `lat` + `lng` là bắt buộc — đúng ba trường thiết yếu; thiếu là bản ghi\nvô dụng. Mọi trường khác điền được tới đâu thì điền, để trống là `null` (CHƯA CÓ\nDỮ LIỆU), tuyệt đối không tự điền giá trị mặc định cho có.\n\n⚠️ KHÔNG có `rating`, `reviews_count`, `mood_scores`: chúng do nguồn thu thập hoặc do\npipeline tính. Gõ tay vào là làm sai lệch chính những con số dùng để xếp hạng.\nGiới hạn toạ độ trong Hà Nội kiểm ở tầng domain, không kiểm ở đây."
+      },
+      "AdminDishDetail": {
+        "properties": {
+          "dish_id": {
+            "type": "string",
+            "title": "Dish Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "cuisine": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cuisine"
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "spice_level": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spice Level"
+          },
+          "temperature": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temperature"
+          },
+          "cooking_method": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cooking Method"
+          },
+          "meal_times": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Meal Times"
+          },
+          "match_keywords": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Match Keywords",
+            "description": "Từ khoá dùng để đối chiếu với TÊN QUÁN — thứ quyết định món này ra quán nào"
+          },
+          "is_category": {
+            "type": "boolean",
+            "title": "Is Category"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          },
+          "source_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Url"
+          },
+          "last_updated": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Updated"
+          }
+        },
+        "type": "object",
+        "required": [
+          "dish_id",
+          "name",
+          "is_category",
+          "is_active"
+        ],
+        "title": "AdminDishDetail",
+        "description": "Một món xem chi tiết ở trang quản trị. Nhiều trường hơn dòng trong bảng."
+      },
+      "AdminDishDetailResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/AdminDishDetail"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "AdminDishDetailResponse"
       },
       "AdminDishListData": {
         "properties": {
@@ -4240,6 +4456,11 @@
               }
             ],
             "title": "User Ratings Total"
+          },
+          "is_famous": {
+            "type": "boolean",
+            "title": "Is Famous",
+            "default": false
           },
           "rank_position": {
             "type": "integer",

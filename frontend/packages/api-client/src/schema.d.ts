@@ -547,6 +547,29 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/dishes/{dish_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Dish
+         * @description Chi tiết một món cho trang quản trị.
+         *
+         *     ⚠️ KHÁC `GET /dishes/{id}` của người dùng: ở đây món đang TẮT vẫn trả về 200. Admin
+         *     mở trang này chính là để xem 557 món chưa có quán.
+         */
+        get: operations["get_dish_api_v1_admin_dishes__dish_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/system": {
         parameters: {
             query?: never;
@@ -791,6 +814,49 @@ export interface components {
             phone?: string | null;
             /** Website */
             website?: string | null;
+        };
+        /**
+         * AdminDishDetail
+         * @description Một món xem chi tiết ở trang quản trị. Nhiều trường hơn dòng trong bảng.
+         */
+        AdminDishDetail: {
+            /** Dish Id */
+            dish_id: string;
+            /** Name */
+            name: string;
+            /** Cuisine */
+            cuisine?: string | null;
+            /** Image Url */
+            image_url?: string | null;
+            /** Description */
+            description?: string | null;
+            /** Spice Level */
+            spice_level?: number | null;
+            /** Temperature */
+            temperature?: string | null;
+            /** Cooking Method */
+            cooking_method?: string | null;
+            /** Meal Times */
+            meal_times?: string[];
+            /**
+             * Match Keywords
+             * @description Từ khoá dùng để đối chiếu với TÊN QUÁN — thứ quyết định món này ra quán nào
+             */
+            match_keywords?: string[];
+            /** Is Category */
+            is_category: boolean;
+            /** Is Active */
+            is_active: boolean;
+            /** Source */
+            source?: string | null;
+            /** Source Url */
+            source_url?: string | null;
+            /** Last Updated */
+            last_updated?: string | null;
+        };
+        /** AdminDishDetailResponse */
+        AdminDishDetailResponse: {
+            data: components["schemas"]["AdminDishDetail"];
         };
         /** AdminDishListData */
         AdminDishListData: {
@@ -1680,6 +1746,11 @@ export interface components {
             rating: number | null;
             /** User Ratings Total */
             user_ratings_total: number | null;
+            /**
+             * Is Famous
+             * @default false
+             */
+            is_famous: boolean;
             /** Rank Position */
             rank_position: number;
             /** Predicted Score */
@@ -2913,6 +2984,37 @@ export interface operations {
             };
         };
     };
+    get_dish_api_v1_admin_dishes__dish_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                dish_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminDishDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     admin_system_api_v1_admin_system_get: {
         parameters: {
             query?: never;
@@ -3006,6 +3108,8 @@ export interface operations {
                 limit?: number;
                 /** @description Có kèm quán đã ẩn hay không */
                 include_hidden?: boolean;
+                /** @description Lọc việc cần xử lý: dong_tam | thieu_lien_he. Khoá lạ = không lọc. */
+                loc?: string | null;
             };
             header?: never;
             path?: never;

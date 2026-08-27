@@ -58,6 +58,25 @@ function RecenterOnChange({ center }: { center: Coordinates }) {
   return null;
 }
 
+/**
+ * GHIM MANG SỐ, khớp với số thứ tự trên thẻ quán bên danh sách.
+ *
+ * Chủ dự án chốt 2026-08-27 theo `design/restaurance recommend.png`. Trước đó ghim là
+ * chấm tròn trơn, nên nhìn 20 chấm giống hệt nhau trên bản đồ mà không biết chấm nào
+ * ứng với quán nào trong danh sách — bản đồ và danh sách là hai thứ rời rạc.
+ *
+ * Dựng bằng `divIcon` (HTML thuần) thay vì file ảnh: số thay đổi theo từng quán nên
+ * không thể là ảnh tĩnh, và cách này không thêm phụ thuộc nào.
+ */
+function ghimSo(so: number, dangChon: boolean) {
+  return L.divIcon({
+    className: dangChon ? 'map-pin-so map-pin-so--dang' : 'map-pin-so',
+    html: `<span class="map-pin-so__so">${so}</span>`,
+    iconSize: dangChon ? [30, 30] : [26, 26],
+    iconAnchor: dangChon ? [15, 15] : [13, 13],
+  });
+}
+
 interface RestaurantMapProps {
   restaurants: SearchResultItem[];
   center: Coordinates;
@@ -65,6 +84,13 @@ interface RestaurantMapProps {
   /** placeId của quán đang chọn - ghim tương ứng sẽ được làm nổi. */
   activeId?: string | null;
   onSelect?: (restaurant: SearchResultItem) => void;
+  /**
+   * Đánh số ghim 1, 2, 3… theo ĐÚNG thứ tự danh sách bên cạnh.
+   *
+   * Mặc định `false` để trang tìm kiếm giữ nguyên ghim chấm — ở đó danh sách cuộn độc
+   * lập với bản đồ nên số thứ tự không nối được hai bên với nhau.
+   */
+  danhSo?: boolean;
 }
 
 export function RestaurantMap({
@@ -73,8 +99,13 @@ export function RestaurantMap({
   userPosition,
   activeId,
   onSelect,
+  danhSo = false,
 }: RestaurantMapProps) {
-  const withCoordinates = restaurants.filter(hasCoordinates);
+  // ⚠️ Đánh số TRƯỚC khi lọc toạ độ, để số trên ghim khớp số trên thẻ.
+  // Lọc trước rồi mới đánh số thì một quán thiếu toạ độ sẽ làm lệch toàn bộ số phía sau:
+  // thẻ số 5 ứng với ghim số 4, và không ai hiểu vì sao.
+  const daDanhSo = restaurants.map((r, i) => ({ quan: r, so: i + 1 }));
+  const withCoordinates = daDanhSo.filter((x) => hasCoordinates(x.quan));
 
   return (
     <MapContainer
@@ -97,14 +128,16 @@ export function RestaurantMap({
           </Marker>
         )}
 
-        {withCoordinates.map((restaurant) => (
+        {withCoordinates.map(({ quan: restaurant, so }) => (
           <Marker
             key={restaurant.restaurant_id ?? `${restaurant.latitude},${restaurant.longitude}`}
             position={[restaurant.latitude, restaurant.longitude]}
             icon={
-              activeId && restaurant.restaurant_id === activeId
-                ? activeIcon
-                : restaurantIcon
+              danhSo
+                ? ghimSo(so, restaurant.restaurant_id === activeId)
+                : activeId && restaurant.restaurant_id === activeId
+                  ? activeIcon
+                  : restaurantIcon
             }
             eventHandlers={onSelect ? { click: () => onSelect(restaurant) } : undefined}
           >

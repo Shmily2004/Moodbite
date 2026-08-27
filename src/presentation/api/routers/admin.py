@@ -19,6 +19,7 @@ from typing import Optional
 from fastapi import APIRouter, Body, Depends, Query, Request
 
 from src.application.errors import DataNotReadyError
+from src.application.use_cases.find_restaurants_for_dish import DishNotFoundError
 from src.domain.entities.audit_log import tom_tat_thay_doi
 from src.presentation.api.dependencies import (
     Container,
@@ -32,6 +33,7 @@ from src.presentation.api.schemas import (
     AdminLoginRequest,
     AdminLoginResponse,
     AdminOverviewResponse,
+    AdminDishDetailResponse,
     AdminDishListResponse,
     AdminRecommendationResponse,
     AdminSystemResponse,
@@ -254,6 +256,41 @@ def _ty_le(phan: int, tong: int, don_vi: str) -> str:
     return f"{phan:,}/{tong:,} {don_vi} ({phan / tong * 100:.1f}%)".replace(",", ".")
 
 
+@router.get("/dishes/{dish_id}", response_model=AdminDishDetailResponse)
+def get_dish(
+    dish_id: str,
+    container: Container = Depends(get_container),
+    _admin: str = Depends(require_admin),
+):
+    """Chi tiết một món cho trang quản trị.
+
+    ⚠️ KHÁC `GET /dishes/{id}` của người dùng: ở đây món đang TẮT vẫn trả về 200. Admin
+    mở trang này chính là để xem 557 món chưa có quán.
+    """
+    mon = container.get_dish_for_admin.execute(dish_id)
+    if mon is None:
+        raise DishNotFoundError(dish_id)
+    return success(
+        {
+            "dish_id": mon.identifier,
+            "name": mon.name,
+            "cuisine": mon.cuisine,
+            "image_url": mon.image_url,
+            "description": mon.description,
+            "spice_level": mon.spice_level,
+            "temperature": mon.temperature,
+            "cooking_method": mon.cooking_method,
+            "meal_times": list(mon.meal_times or []),
+            "match_keywords": list(mon.match_keywords or []),
+            "is_category": mon.is_category,
+            "is_active": mon.is_active,
+            "source": mon.source,
+            "source_url": mon.source_url,
+            "last_updated": mon.last_updated,
+        }
+    )
+
+
 @router.get("/system", response_model=AdminSystemResponse)
 def admin_system(
     container: Container = Depends(get_container),
@@ -418,6 +455,10 @@ def list_restaurants(
     q: Optional[str] = Query(None, description="Lọc theo tên, địa chỉ hoặc placeId"),
     limit: int = Query(50, ge=1, le=200),
     include_hidden: bool = Query(True, description="Có kèm quán đã ẩn hay không"),
+    loc: Optional[str] = Query(
+        None,
+        description="Lọc việc cần xử lý: dong_tam | thieu_lien_he. Khoá lạ = không lọc.",
+    ),
 ):
     """Danh sách quán cho trang quản trị.
 
@@ -426,7 +467,7 @@ def list_restaurants(
     """
     _require_writable(container)
     results = container.list_restaurants_for_admin.execute(
-        query=q, limit=limit, include_hidden=include_hidden
+        query=q, limit=limit, include_hidden=include_hidden, loc=loc
     )
     return success(
         {

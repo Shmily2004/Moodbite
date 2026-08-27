@@ -64,6 +64,7 @@ export type {
   ViecCanXuLy,
   AdminDishRow,
   AdminDishListData,
+  AdminDishDetail,
   AdminSystemData,
   AdminSystemService,
   AuditEntry,

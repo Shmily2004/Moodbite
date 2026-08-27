@@ -12,6 +12,12 @@ import {
   useRestaurantAdmin,
 } from '@/features/manage-restaurants';
 
+/** Nhãn tiếng Việt cho `?loc=`. Khoá do backend đặt — xem `data_quality.py`. */
+const NHAN_LOC: Record<string, string> = {
+  dong_tam: 'Quán có khả năng đã đóng cửa',
+  thieu_lien_he: 'Quán không có cách nào liên hệ',
+};
+
 export function RestaurantsPage() {
   const session = useAdminSessionContext();
   const admin = useRestaurantAdmin({ onExpired: session.handleExpired });
@@ -26,8 +32,20 @@ export function RestaurantsPage() {
         </p>
       </div>
 
-      <div className="toolbar">
+      {/* Đang xem một danh sách ĐÃ LỌC (bấm từ hộp "Cần xử lý" ở trang Tổng quan).
+          Phải nói rõ, nếu không người quản trị tưởng cả dataset chỉ có ngần này quán. */}
+      {admin.loc && (
+        <p className="notice">
+          Đang lọc: <strong>{NHAN_LOC[admin.loc] ?? admin.loc}</strong>{' '}
+          <button type="button" className="linkish" onClick={admin.clearLoc}>
+            bỏ lọc
+          </button>
+        </p>
+      )}
+
+      <div className="bang__loc">
         <input
+          className="o-nhap"
           placeholder="Tìm theo tên, địa chỉ hoặc placeId…"
           value={admin.query}
           onChange={(event) => admin.setQuery(event.target.value)}
@@ -54,15 +72,15 @@ export function RestaurantsPage() {
       {admin.restaurants.length > 0 && (
         <>
           <p className="muted small">Đang hiển thị {admin.total} quán.</p>
-          <div className="table-scroll">
-            <table>
+          <div className="bang-cuon">
+            <table className="bang">
               <thead>
                 <tr>
-                  <th>Quán</th>
-                  <th>Loại hình</th>
-                  <th>Đánh giá</th>
-                  <th>Trạng thái</th>
-                  <th>Thao tác</th>
+                  <th scope="col">Quán</th>
+                  <th scope="col">Loại hình</th>
+                  <th scope="col">Đánh giá</th>
+                  <th scope="col">Trạng thái</th>
+                  <th scope="col">Thao tác</th>
                 </tr>
               </thead>
               <tbody>

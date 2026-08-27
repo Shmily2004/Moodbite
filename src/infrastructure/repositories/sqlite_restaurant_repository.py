@@ -197,11 +197,28 @@ class SqliteRestaurantRepository:
     # không còn cách nào bỏ ẩn.
 
     def list_for_admin(
-        self, query: Optional[str] = None, limit: int = 50, include_hidden: bool = True
+        self,
+        query: Optional[str] = None,
+        limit: int = 50,
+        include_hidden: bool = True,
+        loc: Optional[str] = None,
     ) -> List[Restaurant]:
+        """`loc` là bộ lọc VIỆC CẦN XỬ LÝ, để hộp "Cần xử lý" ở trang Tổng quan bấm sang
+        được đúng danh sách. Giá trị hợp lệ do `domain/services/data_quality.py` đặt tên;
+        giá trị lạ thì BỎ QUA (không lọc) chứ không báo lỗi — một khoá cũ trong đường dẫn
+        đã lưu không đáng làm hỏng cả trang.
+        """
         sql = f"SELECT {_COLUMNS} FROM restaurants"
         conditions: List[str] = []
         params: List[object] = []
+        if loc == "dong_tam":
+            conditions.append("COALESCE(temporarily_closed, 0) = 1")
+        elif loc == "thieu_lien_he":
+            # Thiếu CẢ HAI mới tính. Có website mà không có điện thoại thì vẫn liên hệ
+            # được — cùng quy tắc với `viec_can_xu_ly` ở domain, đừng để hai nơi lệch nhau.
+            conditions.append(
+                "COALESCE(TRIM(phone), '') = '' AND COALESCE(TRIM(website), '') = ''"
+            )
         if not include_hidden:
             conditions.append("is_active = 1")
             # Quán đã đóng HẲN không bao giờ trả cho người dùng (xem `Restaurant.is_visible`).

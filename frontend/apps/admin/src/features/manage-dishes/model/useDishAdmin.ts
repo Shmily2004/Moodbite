@@ -10,6 +10,7 @@
  * quả cũ. `LUOT_HOAN_MS` đủ ngắn để không thấy giật, đủ dài để gộp một lần gõ.
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { adminApi, ApiError } from '@/shared/api';
 import type { AdminDishRow, LocMon } from '@/shared/api';
 
@@ -30,9 +31,39 @@ export interface UseDishAdminResult {
   reload: () => void;
 }
 
+/** Khoá hợp lệ trên URL. Khoá lạ -> `all`, không báo lỗi: một đường dẫn đã lưu từ bản
+ *  cũ không đáng làm hỏng cả trang. */
+const HOP_LE: LocMon[] = [
+  'all',
+  'with_restaurants',
+  'without_restaurants',
+  'missing_image',
+  'missing_description',
+];
+
 export function useDishAdmin(): UseDishAdminResult {
-  const [query, setQuery] = useState('');
-  const [filter, setFilter] = useState<LocMon>('all');
+  // BỘ LỌC NẰM TRÊN URL, không phải state trong bộ nhớ. Nhờ vậy hộp "Cần xử lý" ở trang
+  // Tổng quan bấm sang được đúng danh sách đã lọc, và người quản trị gửi link cho nhau
+  // được. Cùng lý do đã ghi ở `features/suggest-dishes/model/boLocTuUrl.ts` của app client.
+  const [thamSo, setThamSo] = useSearchParams();
+  const query = thamSo.get('q') ?? '';
+  const tuUrl = thamSo.get('filter') as LocMon | null;
+  const filter: LocMon = tuUrl && HOP_LE.includes(tuUrl) ? tuUrl : 'all';
+
+  const ghiUrl = useCallback(
+    (q: string, f: LocMon) => {
+      const moi = new URLSearchParams();
+      if (q) moi.set('q', q);
+      if (f !== 'all') moi.set('filter', f);
+      // `replace` để mỗi ký tự gõ vào ô tìm KHÔNG tạo một mục mới trong lịch sử —
+      // gõ 7 chữ rồi phải bấm Back 7 lần mới thoát được là rất khó chịu.
+      setThamSo(moi, { replace: true });
+    },
+    [setThamSo],
+  );
+
+  const setQuery = useCallback((q: string) => ghiUrl(q, filter), [ghiUrl, filter]);
+  const setFilter = useCallback((f: LocMon) => ghiUrl(query, f), [ghiUrl, query]);
   const [rows, setRows] = useState<AdminDishRow[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);

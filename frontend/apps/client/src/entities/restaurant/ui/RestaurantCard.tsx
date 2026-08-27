@@ -36,6 +36,17 @@ interface RestaurantCardProps {
   active?: boolean;
   onOpenDetail?: (restaurant: SearchResultItem) => void;
   children?: ReactNode;
+  /**
+   * Số thứ tự 1, 2, 3… KHỚP với ghim cùng số trên bản đồ.
+   *
+   * Chủ dự án chốt 2026-08-27 theo `design/restaurance recommend.png`. Bỏ trống thì
+   * không hiện số — trang tìm kiếm giữ nguyên như cũ.
+   *
+   * ⚠️ KHÁC `rank_position`: `rank_position` là THỨ HẠNG do backend chấm và không đổi
+   * khi người dùng sắp lại danh sách; số này là VỊ TRÍ TRONG DANH SÁCH ĐANG NHÌN, nên
+   * sắp theo "gần nhất" thì nó đổi theo. Hai thứ khác nhau, đừng dùng lẫn.
+   */
+  soThuTu?: number;
 }
 
 export function RestaurantCard({
@@ -44,6 +55,7 @@ export function RestaurantCard({
   active = false,
   onOpenDetail,
   children,
+  soThuTu,
 }: RestaurantCardProps) {
   const dish = restaurant.suggested_dish;
   const price = formatPrice(restaurant.price_range);
@@ -71,15 +83,27 @@ export function RestaurantCard({
           }
         }}
       >
-        <RestaurantThumb
-          name={restaurant.name}
-          category={restaurant.category}
-          thumbnailUrl={restaurant.thumbnail_url}
-        />
+        <div className="card__anh">
+          <RestaurantThumb
+            name={restaurant.name}
+            category={restaurant.category}
+            thumbnailUrl={restaurant.thumbnail_url}
+          />
+          {soThuTu != null && (
+            <span className="card__so" aria-hidden="true">
+              {soThuTu}
+            </span>
+          )}
+        </div>
 
         <div className="card__body">
           <h3 className="card__title">
             <span className="card__name">{restaurant.name}</span>
+            {/* NHÃN "NỔI TIẾNG" — quy tắc ở `domain/services/restaurant_badges.py`.
+                ⚠️ Không có nhãn KHÔNG có nghĩa là "quán không nổi tiếng": chỉ 2,4% quán
+                có dữ liệu review. Nhãn này chỉ để KHẲNG ĐỊNH, không bao giờ để phủ định,
+                và không được đem đi sắp xếp hay lọc. */}
+            {restaurant.is_famous && <span className="card__noi-tieng">Nổi tiếng</span>}
             <span className="card__rank tnum">#{restaurant.rank_position}</span>
           </h3>
 
@@ -161,6 +185,26 @@ export function RestaurantCard({
             <p className={freshness?.stale ? 'card__origin card__origin--stale' : 'card__origin'}>
               {[freshness?.text, verification, survey].filter(Boolean).join(' · ')}
             </p>
+          )}
+
+          {/* NÚT "XEM CHI TIẾT" — có trong bản thiết kế.
+              Cả thẻ vốn đã bấm được, nhưng một nút NHÌN THẤY ĐƯỢC là thứ nói cho người
+              dùng biết bấm vào thì có gì. Không có nó thì thẻ trông như một khối chữ
+              tĩnh và rất nhiều người không thử bấm.
+              Chỉ hiện khi thật sự có chỗ để mở — không bày nút chết. */}
+          {onOpenDetail && (
+            <button
+              type="button"
+              className="card__xem"
+              // Thẻ cha cũng bắt click; không chặn nổi bọt thì một cú bấm thành hai lần
+              // mở, và bộ đếm thời gian xem bị ghi hai lượt.
+              onClick={(event) => {
+                event.stopPropagation();
+                onOpenDetail(restaurant);
+              }}
+            >
+              Xem chi tiết →
+            </button>
           )}
         </div>
       </div>

@@ -1,6 +1,6 @@
 # MoodBite — Bảng theo dõi tiến độ
 
-**Cập nhật:** 2026-08-26
+**Cập nhật:** 2026-08-27
 **Nguyên tắc:** file này chỉ ghi thứ đã **chạy thật và kiểm chứng được**. Không ghi theo
 kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh để tự kiểm lại.
 
@@ -19,7 +19,7 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Frontend Client | ✅ **TypeScript + FSD** | 86 test, có bản đồ, steiger trong CI |
 | Bản đồ | ✅ **Xong** | Leaflet + OpenStreetMap, miễn phí, không cần key |
 | Kiến trúc | ✅ Sạch | Clean Architecture + checker tự động trong CI |
-| Test | ✅ **575 backend + 196 frontend** | tổng **771** (client 180 · admin 16). Đo bằng `python scripts/verify.py` ngày 2026-08-26 |
+| Test | ✅ **585 backend + 203 frontend** | tổng **788** (client 187 · admin 16). Đo bằng `python scripts/verify.py` ngày 2026-08-27 |
 | Giao diện | ✅ Theo bản duyệt · **trang chủ + tài khoản dựng lại 2026-08-22** | trang chủ = LƯỚI MÓN + chips lọc; trang món = giới thiệu + bản đồ + danh sách quán; `/tim-kiem` giữ bố cục bản đồ + rail cũ |
 | Router + layout | ✅ Xong | react-router v6, khung dùng chung, `RequireAuth` cho admin |
 | Chạy xem giao diện | ✅ **một lệnh** | `python scripts/run_dev.py --admin` |
@@ -1226,19 +1226,20 @@ máy" — phần dễ bị hỏi nhất khi bảo vệ. Nhắc lại ở mỗi l
 qua những thứ đã cố ý làm khác và đã ghi lý do trong code (⭐ và km trên thẻ món, ô lý do
 dùng `reasons` thật thay câu quảng cáo, "Có thể bạn sẽ thích" không hứa cá nhân hoá).
 
-| # | Chỗ lệch | Màn | Chặn bởi |
+| # | Chỗ lệch | Màn | Trạng thái |
 |---|---|---|---|
-| A1 | Thẻ quán **chưa có số thứ tự** khớp ghim bản đồ (1·2·3·4) | `/dishes/:id` | — lập trình được |
-| A2 | Ghim bản đồ là **chấm tròn trơn**, chưa mang số | `/dishes/:id` | — lập trình được |
-| A3 | Chưa có nhãn **"Nổi tiếng"** | `/dishes/:id` | ⛔ **backend chưa có trường này**. Suy ra từ `rating`/`user_ratings_total` ở frontend là đặt nghiệp vụ sai tầng (CLAUDE.md 1b) → phải thêm ở `domain/` trước |
-| A4 | Chưa có nút **"Xem chi tiết →"** trên từng thẻ quán | `/dishes/:id` | 🟡 dính mục 3 bảng dưới — bấm vào thì đi đâu? Hiện chỉ có panel trượt |
-| A5 | Chưa có **"Xem thêm quán"** ở cuối danh sách | `/dishes/:id` | — lập trình được |
-| A6 | Chưa có **"Xem danh sách"** trên bản đồ (thu gọn bản đồ) | `/dishes/:id` | — lập trình được |
-| A7 | Chưa có **tranh minh hoạ** bên phải phần đầu trang | `/dishes/:id` | — đã có `banner-trang-chu.png` |
-| A8 | Tag món là **chữ trơn**, thiết kế là chip có icon + nút "Chỉnh sửa" mở bộ lọc | `/dishes/:id` | — lập trình được |
-| A9 | **44 emoji còn lại** chưa thay bằng icon SVG | 14 file | — lập trình được, xem bảng dưới |
-| A10 | Màn **"Chất lượng dữ liệu"** của admin | — | chủ dự án chốt 2026-08-26: **chưa làm**. Phần lớn số liệu đã có ở "Tổng quan" |
-| A11 | Bảng quán ở admin vẫn là **bảng HTML thô** | — | lập trình được: thêm ảnh quán, nguồn, nhãn trạng thái như bảng món |
+| ~~A1~~ | ~~Thẻ quán chưa có số thứ tự khớp ghim bản đồ~~ | `/dishes/:id` | ✅ **Xong 2026-08-27** |
+| ~~A2~~ | ~~Ghim bản đồ là chấm tròn trơn~~ | `/dishes/:id` | ✅ **Xong 2026-08-27** — `divIcon` mang số |
+| ~~A3~~ | ~~Chưa có nhãn "Nổi tiếng"~~ | `/dishes/:id` | ✅ **Xong 2026-08-27** — `domain/services/restaurant_badges.py`, ngưỡng ≥300 review VÀ ≥4,0 sao → **151 quán**. ⚠️ Không có nhãn = CHƯA BIẾT (97,6% quán thiếu dữ liệu review), không phải "không nổi tiếng" |
+| ~~A4~~ | ~~Chưa có nút "Xem chi tiết →" trên thẻ quán~~ | `/dishes/:id` | ✅ **Xong 2026-08-27** |
+| ~~A5~~ | ~~Chưa có "Xem thêm quán"~~ | `/dishes/:id` | ✅ **Xong 2026-08-27** — hiện 8 quán đầu, nút nói rõ còn bao nhiêu |
+| ~~A6~~ | ~~Chưa có "Xem danh sách" trên bản đồ~~ | `/dishes/:id` | ✅ **Xong 2026-08-27** — thu bản đồ, danh sách rộng hết trang |
+| ~~A7~~ | ~~Chưa có tranh minh hoạ đầu trang~~ | `/dishes/:id` | ✅ ảnh món đã có sẵn ở vị trí đó |
+| ~~A8~~ | ~~Tag món là chữ trơn, thiếu nút "Chỉnh sửa"~~ | `/dishes/:id` | ✅ **Xong 2026-08-27** — chip + nút mở ngăn kéo bộ lọc tại chỗ |
+| A9 | **44 emoji còn lại** chưa thay bằng icon SVG | 14 file | ⏸️ chủ dự án chốt 2026-08-27: **để sau** |
+| A10 | Màn **"Chất lượng dữ liệu"** của admin | admin | ⏸️ chủ dự án chốt 2026-08-27: **chưa làm** |
+| ~~A11~~ | ~~Bảng quán ở admin là bảng HTML thô~~ | admin | ✅ **Xong 2026-08-27** — thêm khu vực + nguồn, nhãn trạng thái dùng chung với bảng món |
+| ~~A12~~ | ~~Các link "Xem tất cả / Xem chi tiết" ở admin chưa nối~~ | admin | ✅ **Xong 2026-08-27** — "Cần xử lý" bấm sang danh sách đã lọc sẵn; bảng món có ô chi tiết |
 
 **Emoji còn sót** (đo bằng lệnh ở cuối mục này) — mũi tên `←` `→` `✕` KHÔNG tính, đó là
 ký tự chữ chứ không phải emoji:
@@ -1274,9 +1275,9 @@ ký tự chữ chứ không phải emoji:
 | 19 | "Có thể bạn sẽ thích" thành gợi ý cá nhân hoá THẬT | mục 13 | ⛔ `interactions.jsonl` mới có **2 bản ghi** |
 
 **Đọc nhanh:**
-- Làm được ngay, không chờ ai: **A1 · A2 · A5 · A6 · A7 · A8 · A9**.
-- Cần backend trước: **A3** (trường "nổi tiếng").
-- Cần bản vẽ: **9** (trang chi tiết quán riêng), và nó chặn luôn **A4**.
+- Phần giao diện A1–A8, A11, A12 đã xong ngày 2026-08-27.
+- Còn lại: **A9** (44 emoji) và **A10** (màn Chất lượng dữ liệu) — chủ dự án chốt để sau.
+- Cần bản vẽ: **9** (trang chi tiết QUÁN riêng, `/restaurants/:id`).
 - **13 vẫn là thứ quan trọng nhất và không code thay được** — mọi mục ML phía sau đều đợi nó.
 
 Tự đếm lại emoji còn sót bất cứ lúc nào:

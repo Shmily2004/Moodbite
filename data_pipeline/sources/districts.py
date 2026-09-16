@@ -58,7 +58,13 @@ Ring = List[Point]
 # là của tỉnh khác ("Phường Ninh Xá", "Phường Hạp Lĩnh", "Huyện Yên Phong"...).
 #
 # Đệm 0.01 độ (~1,1km) để điểm sát biên không bị rơi ra ngoài do làm tròn toạ độ.
-HANOI_BBOX = (20.55, 105.28, 21.40, 106.03)
+#
+# ⬇ NAY LẤY TỪ `src/domain/value_objects/location.py` — MỘT nguồn sự thật duy nhất.
+# Trang quản trị (màn "Chất lượng dữ liệu") cũng phải đếm được quán lọt ra ngoài
+# phạm vi, mà tầng domain thì không được import `data_pipeline`. Khai báo lại con số
+# ở hai nơi là cách chắc chắn để chúng lệch nhau — đúng thứ chính file này đã cảnh báo
+# ở dòng 44 khi gỡ bản sao trong `osm_overpass.py`.
+from src.domain.value_objects.location import HANOI_BBOX  # noqa: E402
 
 # Định danh ranh giới Hà Nội trên OSM. Dùng ID thay vì tra theo tên vì tên OSM là
 # "Thành phố Hà Nội"; tra `["name"="Hà Nội"]` trả về RỖNG (đã đo 2026-08-24).

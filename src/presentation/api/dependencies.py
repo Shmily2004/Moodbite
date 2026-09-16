@@ -17,6 +17,12 @@ from fastapi import Depends, Request
 
 from src.application.ports.admin_restaurant_repository import AdminRestaurantRepository
 from src.application.use_cases.get_admin_overview import GetAdminOverviewUseCase
+from src.application.use_cases.get_data_quality import GetDataQualityUseCase
+from src.application.use_cases.manage_issues import (
+    DanhDauXongUseCase,
+    LietKeVanDeUseCase,
+    XemChiTietVanDeUseCase,
+)
 from src.application.use_cases.list_dishes_admin import (
     GetDishForAdminUseCase,
     ListDishesForAdminUseCase,
@@ -77,6 +83,12 @@ from src.infrastructure.auth.user_auth import UserTokenService
 from src.infrastructure.notifications.smtp_email_sender import SmtpEmailSender
 from src.infrastructure.auth.password_reset import PasswordResetTokenService
 from src.infrastructure.auth.email_verification import EmailVerificationTokenService
+from src.infrastructure.repositories.sqlite_issue_resolution_repository import (
+    SqliteIssueResolutionRepository,
+)
+from src.infrastructure.repositories.sqlite_quality_snapshot_repository import (
+    SqliteQualitySnapshotRepository,
+)
 from src.infrastructure.repositories.sqlite_audit_log_repository import (
     SqliteAuditLogRepository,
 )
@@ -148,6 +160,13 @@ class Container:
     # KHÔNG được để nổ AttributeError.
     admin_auth: AdminAuthService
     admin_overview: GetAdminOverviewUseCase
+    # Màn "Chất lượng dữ liệu" + màn "Cần xử lý" (design 2026-09-08).
+    data_quality: GetDataQualityUseCase
+    liet_ke_van_de: LietKeVanDeUseCase
+    chi_tiet_van_de: XemChiTietVanDeUseCase
+    danh_dau_xong: DanhDauXongUseCase
+    quality_snapshots: object
+    issue_resolutions: object
     list_dishes_for_admin: ListDishesForAdminUseCase
     get_dish_for_admin: GetDishForAdminUseCase
     audit_log: object
@@ -330,6 +349,18 @@ def build_container(settings: Optional[Settings] = None) -> Container:
     saved_items = SqliteSavedItemRepository(settings.users_db)
     # CÙNG FILE với tài khoản: nhật ký cũng là dữ liệu gốc, mất là mất hẳn.
     audit_log = SqliteAuditLogRepository(settings.users_db)
+    # Cùng lý do: lịch sử chất lượng và trạng thái "đã xử lý" KHÔNG dựng lại được
+    # từ dataset hiện tại — dataset hôm nay không nói được hôm qua nó trông thế nào.
+    quality_snapshots = SqliteQualitySnapshotRepository(settings.users_db)
+    issue_resolutions = SqliteIssueResolutionRepository(settings.users_db)
+
+    # Dựng TRƯỚC vì `GetDataQualityUseCase` dùng lại chính thể hiện này (xem ghi chú ở
+    # chỗ lắp Container bên dưới).
+    admin_overview = GetAdminOverviewUseCase(
+        restaurant_repository=restaurant_repository,
+        dish_catalog_repository=dish_catalog_repository,
+        interaction_repository=interaction_repository,
+    )
 
     # Bộ đếm "lượt khám phá" cho cấp độ/huy hiệu. Dựng lại từ nhật ký tương tác đúng như
     # bộ đếm báo đóng cửa ở trên, để khởi động lại không xoá sạch cấp độ của người dùng.
@@ -394,11 +425,30 @@ def build_container(settings: Optional[Settings] = None) -> Container:
         doc_nhat_ky=DocNhatKyUseCase(audit_log),
         list_dishes_for_admin=ListDishesForAdminUseCase(dish_catalog_repository),
         get_dish_for_admin=GetDishForAdminUseCase(dish_catalog_repository),
-        admin_overview=GetAdminOverviewUseCase(
+        admin_overview=admin_overview,
+        quality_snapshots=quality_snapshots,
+        issue_resolutions=issue_resolutions,
+        # DÙNG LẠI đúng thể hiện `admin_overview` ở trên, không dựng cái thứ hai: hai màn
+        # đọc chung một bộ số, mà mỗi use case lại có bộ đệm riêng — hai thể hiện sẽ hết
+        # hạn lệch nhau và hiện hai con số khác nhau trong cùng một phiên.
+        data_quality=GetDataQualityUseCase(
+            admin_overview_use_case=admin_overview,
             restaurant_repository=restaurant_repository,
             dish_catalog_repository=dish_catalog_repository,
-            interaction_repository=interaction_repository,
+            snapshot_repository=quality_snapshots,
+            issue_resolution_repository=issue_resolutions,
         ),
+        liet_ke_van_de=LietKeVanDeUseCase(
+            restaurant_repository=restaurant_repository,
+            dish_catalog_repository=dish_catalog_repository,
+            issue_resolution_repository=issue_resolutions,
+        ),
+        chi_tiet_van_de=XemChiTietVanDeUseCase(
+            restaurant_repository=restaurant_repository,
+            dish_catalog_repository=dish_catalog_repository,
+            issue_resolution_repository=issue_resolutions,
+        ),
+        danh_dau_xong=DanhDauXongUseCase(issue_resolutions),
         list_restaurants_for_admin=(
             ListRestaurantsForAdminUseCase(admin_restaurants) if admin_restaurants else None
         ),

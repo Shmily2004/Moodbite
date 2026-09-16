@@ -30,6 +30,11 @@ from src.presentation.api.dependencies import (
 from src.presentation.api.envelope import success
 from src.presentation.api.schemas import (
     AdminCreateRestaurantRequest,
+    AdminDataQualityResponse,
+    AdminIssueDetailResponse,
+    AdminIssuesResponse,
+    AdminResolveIssueRequest,
+    AdminResolveIssueResponse,
     AdminLoginRequest,
     AdminLoginResponse,
     AdminOverviewResponse,
@@ -574,3 +579,213 @@ def restore_restaurant(
         summary=f'Khôi phục quán "{updated.name}"',
     )
     return success(_to_summary(updated).model_dump())
+
+
+# ---------------------------------------------------------------------------
+# Màn "Chất lượng dữ liệu" và màn "Cần xử lý"
+# ---------------------------------------------------------------------------
+
+
+def _thay_doi_dict(x) -> dict:
+    """`ThayDoi` -> dict. `delta`/`baseline` là `None` khi CHƯA CÓ mốc để so."""
+    return {
+        "current": x.hien_tai,
+        "baseline": x.moc,
+        "baseline_date": x.ngay_moc,
+        "delta": x.chenh_lech,
+    }
+
+
+def _nhom_van_de_dict(v) -> dict:
+    return {
+        "key": v.khoa,
+        "label": v.nhan,
+        "description": v.mo_ta,
+        "count": v.so_luong,
+        "severity": v.muc_do,
+        "priority": v.uu_tien,
+        "target_type": v.loai,
+    }
+
+
+def _ban_ghi_dict(b, da_xong: Optional[dict] = None) -> dict:
+    danh_dau = (da_xong or {}).get(b.id)
+    return {
+        "key": b.khoa,
+        "id": b.id,
+        "name": b.ten,
+        "description": b.mo_ta,
+        "image_url": b.anh_url,
+        "source_updated_at": b.cap_nhat,
+        "resolved_at": (
+            danh_dau.resolved_at.isoformat()
+            if danh_dau is not None and danh_dau.resolved_at is not None
+            else None
+        ),
+        "resolved_by": danh_dau.actor if danh_dau is not None else None,
+    }
+
+
+@router.get("/quality", response_model=AdminDataQualityResponse)
+def admin_data_quality(
+    container: Container = Depends(get_container),
+    _admin: str = Depends(require_admin),
+    refresh: bool = Query(False, description="Bỏ qua bộ đệm, tính lại ngay"),
+):
+    """Số liệu màn "Chất lượng dữ liệu".
+
+    ⚠️ Lượt gọi này CÓ GHI: nó lưu ảnh chụp chỉ số của HÔM NAY (một dòng mỗi ngày, ghi
+    đè nếu đã có). Đó là cách duy nhất để biểu đồ xu hướng có dữ liệu mà không cần máy
+    chủ chạy nền — xem docstring `application/use_cases/get_data_quality.py`.
+    """
+    kq = container.data_quality.execute(bo_qua_dem=refresh)
+    return success(
+        {
+            "restaurants_total": _thay_doi_dict(kq.tong_quan),
+            "dishes_total": _thay_doi_dict(kq.tong_mon),
+            "restaurants_in_hanoi": kq.quan_trong_ha_noi,
+            "restaurants_in_hanoi_percent": kq.phan_tram_ha_noi,
+            "completeness_percent": kq.hoan_thien_phan_tram,
+            "critical": kq.dem_uu_tien.get("nghiem_trong", 0),
+            "important": kq.dem_uu_tien.get("quan_trong", 0),
+            "to_review": kq.dem_uu_tien.get("can_kiem_tra", 0),
+            "data_quality": [
+                {
+                    "key": x.khoa,
+                    "label": x.nhan,
+                    "description": x.mo_ta,
+                    "covered": x.so_co,
+                    "total": x.tong,
+                    "percent": x.phan_tram,
+                    "level": x.muc,
+                }
+                for x in kq.do_phu
+            ],
+            "by_source": [
+                {"source": x.nguon, "count": x.so_luong, "percent": x.phan_tram}
+                for x in kq.nguon
+            ],
+            "needs_attention": [_nhom_van_de_dict(v) for v in kq.can_xu_ly],
+            "needs_attention_now": [_ban_ghi_dict(b) for b in kq.can_xu_ly_ngay],
+            "trend": [
+                {
+                    "date": a.ngay,
+                    "restaurants_total": a.tong_quan,
+                    "dishes_total": a.tong_mon,
+                    "completeness_percent": a.hoan_thien_phan_tram,
+                    "critical": a.nghiem_trong,
+                    "important": a.quan_trong,
+                    "to_review": a.can_kiem_tra,
+                }
+                for a in kq.xu_huong
+            ],
+            "resolved_today": kq.da_xu_ly_hom_nay,
+            "history_available": kq.co_lich_su,
+            # Đổi sang ISO Ở ĐÂY, không ở use case: định dạng ngày giờ là việc trình bày.
+            "generated_at": datetime.fromtimestamp(
+                kq.tinh_luc, tz=timezone.utc
+            ).isoformat(),
+        }
+    )
+
+
+@router.get("/issues", response_model=AdminIssuesResponse)
+def admin_issues(
+    container: Container = Depends(get_container),
+    _admin: str = Depends(require_admin),
+    priority: Optional[str] = Query(
+        None,
+        description=(
+            "Lọc theo mức gấp: nghiem_trong | quan_trong | can_kiem_tra. "
+            "Khoá lạ = KHÔNG lọc (trả về tất cả), để tham số gõ sai không làm bảng "
+            "trống trơn và khiến người quản trị tưởng hệ thống sạch lỗi."
+        ),
+    ),
+):
+    """Bảng các NHÓM vấn đề + năm thẻ số ở đầu màn "Cần xử lý"."""
+    kq = container.liet_ke_van_de.execute(uu_tien=priority)
+    return success(
+        {
+            "groups": [_nhom_van_de_dict(v) for v in kq.nhom],
+            "critical": kq.dem_uu_tien.get("nghiem_trong", 0),
+            "important": kq.dem_uu_tien.get("quan_trong", 0),
+            "to_review": kq.dem_uu_tien.get("can_kiem_tra", 0),
+            "total": kq.tong_van_de,
+            "resolved_today": kq.da_xu_ly_hom_nay,
+            "resolved_total": kq.da_xu_ly_tong,
+            "can_resolve": kq.co_the_danh_dau,
+        }
+    )
+
+
+@router.get("/issues/{key}", response_model=AdminIssueDetailResponse)
+def admin_issue_detail(
+    key: str,
+    container: Container = Depends(get_container),
+    _admin: str = Depends(require_admin),
+    limit: int = Query(50, ge=1, le=200),
+):
+    """Các bản ghi CỤ THỂ của một nhóm — nút "Xem danh sách" của bản thiết kế.
+
+    Khoá lạ trả danh sách RỖNG kèm `total: 0`, KHÔNG phải 404: đây là một khối phụ của
+    trang, và một khoá gõ sai không đáng làm trắng cả màn quản trị.
+    """
+    kq = container.chi_tiet_van_de.execute(khoa=key, limit=limit)
+    return success(
+        {
+            "key": kq.khoa,
+            "total": kq.tong,
+            "results": [_ban_ghi_dict(b, kq.da_xong) for b in kq.ban_ghi],
+        }
+    )
+
+
+@router.post("/issues/resolve", response_model=AdminResolveIssueResponse)
+def admin_resolve_issue(
+    body: AdminResolveIssueRequest,
+    container: Container = Depends(get_container),
+    admin: str = Depends(require_admin),
+):
+    """Đánh dấu một bản ghi ĐÃ XỬ LÝ.
+
+    ⚠️ KHÔNG sửa dữ liệu quán/món. Nó chỉ ghi lại rằng người quản trị đã xem và kết luận
+    không phải làm gì thêm — xem `domain/entities/issue_resolution.py`.
+    """
+    ban_ghi = container.danh_dau_xong.danh_dau(
+        khoa=body.key, target_id=body.target_id, actor=admin, ghi_chu=body.note
+    )
+    return success(
+        {
+            "key": ban_ghi.khoa,
+            "target_id": ban_ghi.target_id,
+            "resolved": True,
+            "resolved_at": (
+                ban_ghi.resolved_at.isoformat() if ban_ghi.resolved_at else None
+            ),
+            "resolved_by": ban_ghi.actor,
+        }
+    )
+
+
+@router.delete("/issues/resolve", response_model=AdminResolveIssueResponse)
+def admin_unresolve_issue(
+    key: str = Query(..., min_length=1),
+    target_id: str = Query(..., min_length=1),
+    container: Container = Depends(get_container),
+    _admin: str = Depends(require_admin),
+):
+    """Gỡ đánh dấu — người ta bấm nhầm được, nên phải gỡ ra được.
+
+    Gỡ một dòng chưa từng được đánh dấu vẫn trả 200 với `resolved: false`, KHÔNG phải
+    404: kết quả mong muốn ("dòng này hiện không bị đánh dấu") đã đạt được rồi.
+    """
+    container.danh_dau_xong.bo_danh_dau(key, target_id)
+    return success(
+        {
+            "key": key,
+            "target_id": target_id,
+            "resolved": False,
+            "resolved_at": None,
+            "resolved_by": None,
+        }
+    )

@@ -1,6 +1,6 @@
 # MoodBite — Bảng theo dõi tiến độ
 
-**Cập nhật:** 2026-08-27
+**Cập nhật:** 2026-09-08
 **Nguyên tắc:** file này chỉ ghi thứ đã **chạy thật và kiểm chứng được**. Không ghi theo
 kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh để tự kiểm lại.
 
@@ -19,13 +19,16 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Frontend Client | ✅ **TypeScript + FSD** | 86 test, có bản đồ, steiger trong CI |
 | Bản đồ | ✅ **Xong** | Leaflet + OpenStreetMap, miễn phí, không cần key |
 | Kiến trúc | ✅ Sạch | Clean Architecture + checker tự động trong CI |
-| Test | ✅ **585 backend + 203 frontend** | tổng **788** (client 187 · admin 16). Đo bằng `python scripts/verify.py` ngày 2026-08-27 |
+| Test | ✅ **617 backend + 217 frontend** | tổng **834** (client 187 · admin 30). Đo bằng `python scripts/verify.py` ngày 2026-09-08 |
 | Giao diện | ✅ Theo bản duyệt · **trang chủ + tài khoản dựng lại 2026-08-22** | trang chủ = LƯỚI MÓN + chips lọc; trang món = giới thiệu + bản đồ + danh sách quán; `/tim-kiem` giữ bố cục bản đồ + rail cũ |
 | Router + layout | ✅ Xong | react-router v6, khung dùng chung, `RequireAuth` cho admin |
 | Chạy xem giao diện | ✅ **một lệnh** | `python scripts/run_dev.py --admin` |
 | Kho lưu trữ | ✅ CSV (mặc định) · ✅ SQLite (chọn được) | `MOODBITE_STORAGE=sqlite`, kết quả GIỐNG HỆT |
-| **Frontend Admin** | ✅ **6/7 màn xong 2026-08-26** | Dựng lại theo `design/Dashboard admin.png`: cột trái + 6 trang. Tổng quan · Quản lý món · Quản lý quán · Gợi ý & Hệ thống · Nhật ký hoạt động · Cài đặt. Còn "Chất lượng dữ liệu" (chủ dự án chốt chưa làm). `python scripts/run_dev.py --admin` |
+| **Frontend Admin** | ✅ **8/8 màn xong 2026-09-08** | Cột trái + 8 trang, KHÔNG còn mục nào "chưa dựng". Tổng quan · Quản lý món · Quản lý quán · **Chất lượng dữ liệu** · **Cần xử lý** · Gợi ý & Hệ thống · Nhật ký hoạt động · Cài đặt. `python scripts/run_dev.py --admin` |
 | ↳ **Nhật ký hoạt động quản trị** | ✅ **Mới 2026-08-26** | Trước đó việc admin ẩn/sửa/thêm quán KHÔNG được ghi ở đâu — quán biến mất mà không truy được ai làm. Nay có bảng `audit_log`, ghi tóm tắt "cũ -> mới". Chỉ ghi thêm, không sửa. Ghi nhật ký hỏng KHÔNG làm hỏng thao tác chính |
+| ↳ **Chất lượng dữ liệu (admin)** | ✅ **Mới 2026-09-08** | `/chat-luong` theo `design/quality data admin.png`. Độ phủ · vòng tròn hoàn thiện · theo nguồn · **biểu đồ xu hướng 7 ngày** · "so với tháng trước". Hai thứ sau dựa trên bảng `quality_snapshot` ghi **mỗi ngày một dòng** — trước đây không dựng được vì không có ảnh chụp theo ngày. Chưa đủ mốc thì hiện "chưa đủ dữ liệu để so sánh", **không** hiện `+0` |
+| ↳ **Cần xử lý (admin)** | ✅ **Mới 2026-09-08** | `/can-xu-ly` theo `design/needs to be handled admin.png`. **7 nhóm** vấn đề (thêm `trung_lap` và `ngoai_ha_noi`), 3 mức ưu tiên, mở ra bản ghi cụ thể và **đánh dấu đã xử lý** (bảng `issue_resolution`, gỡ ra được). Đánh dấu **KHÔNG** sửa dữ liệu gốc |
+| ↳ **Đo thật ngày 2026-09-08** | 🟡 **9.655 vấn đề** | nghiêm trọng **16** (quán nghi đã đóng cửa) · quan trọng **8.920** (không có cách nào liên hệ) · cần kiểm tra **719**. `trung_lap` = **0** và `ngoai_ha_noi` = **0** — tức khâu khử trùng lặp và làm sạch phạm vi Hà Nội đang đúng |
 | ↳ **Quản lý món (admin)** | ✅ **Mới 2026-08-26** | `GET /admin/dishes` — thấy CẢ 557 món chưa có quán và 14 danh mục, tức đúng những thứ người dùng KHÔNG được thấy. Chỉ ĐỌC: `dish_catalog.json` là file sinh ra, sửa qua UI sẽ bị ghi đè |
 | Xác thực admin | ✅ Code xong | 1 tài khoản, token HMAC 1 giờ, fail-closed, **giới hạn 5 lần/15 phút (thêm 2026-08-24)** |
 | Phụ thuộc Python | ✅ 15 → **7** gói | gỡ torch/ultralytics/transformers/opencv (~2GB) khỏi CI |
@@ -181,6 +184,26 @@ Kiểm lại (mục 4 của `python scripts/verify.py` đã tự kiểm việc n
 - [x] Khớp không dấu: "Pho Bo", "O Bun Cha", "Banh mi" nay đều nhận đúng món
 
 ### Bug đã sửa (đều kiểm chứng được)
+
+**`dishes.py` ĐĂNG KÝ TRÙNG 2 ROUTE — sửa 2026-09-08.** 82 dòng chết nằm im trong router.
+
+`GET /dishes/{id}` và `GET /dishes/{id}/restaurants` mỗi cái được khai **HAI LẦN** trong
+cùng một file (dòng 111/186 và 150/222). FastAPI khớp route theo THỨ TỰ đăng ký nên bản
+thứ hai không bao giờ chạy — nó là code chết.
+
+- **Đo được:** đếm route lúc `create_app()` — trước khi sửa
+  `{('GET','/api/v1/dishes/{dish_id}'): 2, ('GET','/api/v1/dishes/{dish_id}/restaurants'): 2}`;
+  sau khi sửa không còn cặp nào trùng.
+- **May mà chưa gây hậu quả:** hai bản gần như giống hệt nhau, nên hành vi không sai.
+  Nhưng bản CHẾT lại là bản mang đoạn comment giải thích vì sao phải dùng
+  `search_result_to_dict` — tức là lời cảnh báo quý nhất trong file đang nằm ở chỗ không
+  ai đọc tới. Đã chuyển comment sang bản còn sống trước khi xoá.
+- **Vì sao không test nào bắt được:** mọi test đều gọi qua HTTP và nhận đúng kết quả của
+  bản ĐẦU, nên xanh cả. Không có test nào hỏi "app này đăng ký bao nhiêu route".
+- **Chốt chặn mới:** không thêm test riêng cho việc này; thay vào đó `scripts/verify.py`
+  mục 1 vẫn dựng app thật, và cách phát hiện (đếm `app.routes`) được ghi lại ở đây để lần
+  sau nghi ngờ thì chạy lại được.
+
 
 **HAI ROUTER LÀM RƠI 4 TRƯỜNG — sửa 2026-08-20.** Bug im lặng nhất từ trước tới nay.
 
@@ -1161,7 +1184,7 @@ Chia theo hạng mục của đề án, chấm theo *chạy được thật*, kh
 | Lớp 5 gợi ý món | **100%** | |
 | Giao diện người dùng | **88%** | bản mobile xong 2026-08-23. Còn: trang chi tiết quán riêng (chờ bản vẽ), 8 chỗ lệch thiết kế + 44 emoji — xem mục 🚧 VIỆC TIẾP THEO phần A |
 | Tài khoản + cá nhân hoá | **95%** | ✅ **xác minh email xong 2026-08-24** (`/auth/verify-email/*`, trang `/verify-email`, 15 test). Còn: thu hồi token |
-| Trang quản trị | **70%** | code xong, **chưa bật trên máy**, chưa thêm mới quán được |
+| Trang quản trị | **100%** | 8/8 màn theo bản thiết kế, chạy thật trên dữ liệu thật (đo 2026-09-08) |
 | Triển khai (deploy) | **10%** | mới có `Procfile`, chưa deploy lần nào |
 | Báo cáo / tài liệu bảo vệ | **?** | ngoài phạm vi file này — **tự đánh giá** |
 
@@ -1237,7 +1260,7 @@ dùng `reasons` thật thay câu quảng cáo, "Có thể bạn sẽ thích" kh�
 | ~~A7~~ | ~~Chưa có tranh minh hoạ đầu trang~~ | `/dishes/:id` | ✅ ảnh món đã có sẵn ở vị trí đó |
 | ~~A8~~ | ~~Tag món là chữ trơn, thiếu nút "Chỉnh sửa"~~ | `/dishes/:id` | ✅ **Xong 2026-08-27** — chip + nút mở ngăn kéo bộ lọc tại chỗ |
 | A9 | **44 emoji còn lại** chưa thay bằng icon SVG | 14 file | ⏸️ chủ dự án chốt 2026-08-27: **để sau** |
-| A10 | Màn **"Chất lượng dữ liệu"** của admin | admin | ⏸️ chủ dự án chốt 2026-08-27: **chưa làm** |
+| ~~A10~~ | ~~Màn **"Chất lượng dữ liệu"** của admin~~ | admin | ✅ **Xong 2026-09-08** — kèm cả màn **"Cần xử lý"** (bản vẽ mới `needs to be handled admin.png`) |
 | ~~A11~~ | ~~Bảng quán ở admin là bảng HTML thô~~ | admin | ✅ **Xong 2026-08-27** — thêm khu vực + nguồn, nhãn trạng thái dùng chung với bảng món |
 | ~~A12~~ | ~~Các link "Xem tất cả / Xem chi tiết" ở admin chưa nối~~ | admin | ✅ **Xong 2026-08-27** — "Cần xử lý" bấm sang danh sách đã lọc sẵn; bảng món có ô chi tiết |
 
@@ -1275,8 +1298,8 @@ ký tự chữ chứ không phải emoji:
 | 19 | "Có thể bạn sẽ thích" thành gợi ý cá nhân hoá THẬT | mục 13 | ⛔ `interactions.jsonl` mới có **2 bản ghi** |
 
 **Đọc nhanh:**
-- Phần giao diện A1–A8, A11, A12 đã xong ngày 2026-08-27.
-- Còn lại: **A9** (44 emoji) và **A10** (màn Chất lượng dữ liệu) — chủ dự án chốt để sau.
+- Phần giao diện A1–A8, A11, A12 đã xong ngày 2026-08-27; **A10 xong 2026-09-08**.
+- Còn lại: **A9** (45 emoji — đếm lại ngày 2026-09-08) — chủ dự án chốt để sau.
 - Cần bản vẽ: **9** (trang chi tiết QUÁN riêng, `/restaurants/:id`).
 - **13 vẫn là thứ quan trọng nhất và không code thay được** — mọi mục ML phía sau đều đợi nó.
 

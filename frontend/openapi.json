@@ -1899,6 +1899,253 @@
         }
       }
     },
+    "/api/v1/admin/quality": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Admin Data Quality",
+        "description": "Số liệu màn \"Chất lượng dữ liệu\".\n\n⚠️ Lượt gọi này CÓ GHI: nó lưu ảnh chụp chỉ số của HÔM NAY (một dòng mỗi ngày, ghi\nđè nếu đã có). Đó là cách duy nhất để biểu đồ xu hướng có dữ liệu mà không cần máy\nchủ chạy nền — xem docstring `application/use_cases/get_data_quality.py`.",
+        "operationId": "admin_data_quality_api_v1_admin_quality_get",
+        "parameters": [
+          {
+            "name": "refresh",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Bỏ qua bộ đệm, tính lại ngay",
+              "default": false,
+              "title": "Refresh"
+            },
+            "description": "Bỏ qua bộ đệm, tính lại ngay"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDataQualityResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/issues": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Admin Issues",
+        "description": "Bảng các NHÓM vấn đề + năm thẻ số ở đầu màn \"Cần xử lý\".",
+        "operationId": "admin_issues_api_v1_admin_issues_get",
+        "parameters": [
+          {
+            "name": "priority",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Lọc theo mức gấp: nghiem_trong | quan_trong | can_kiem_tra. Khoá lạ = KHÔNG lọc (trả về tất cả), để tham số gõ sai không làm bảng trống trơn và khiến người quản trị tưởng hệ thống sạch lỗi.",
+              "title": "Priority"
+            },
+            "description": "Lọc theo mức gấp: nghiem_trong | quan_trong | can_kiem_tra. Khoá lạ = KHÔNG lọc (trả về tất cả), để tham số gõ sai không làm bảng trống trơn và khiến người quản trị tưởng hệ thống sạch lỗi."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminIssuesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/issues/{key}": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Admin Issue Detail",
+        "description": "Các bản ghi CỤ THỂ của một nhóm — nút \"Xem danh sách\" của bản thiết kế.\n\nKhoá lạ trả danh sách RỖNG kèm `total: 0`, KHÔNG phải 404: đây là một khối phụ của\ntrang, và một khoá gõ sai không đáng làm trắng cả màn quản trị.",
+        "operationId": "admin_issue_detail_api_v1_admin_issues__key__get",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Key"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminIssueDetailResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/issues/resolve": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Admin Resolve Issue",
+        "description": "Đánh dấu một bản ghi ĐÃ XỬ LÝ.\n\n⚠️ KHÔNG sửa dữ liệu quán/món. Nó chỉ ghi lại rằng người quản trị đã xem và kết luận\nkhông phải làm gì thêm — xem `domain/entities/issue_resolution.py`.",
+        "operationId": "admin_resolve_issue_api_v1_admin_issues_resolve_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminResolveIssueRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminResolveIssueResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Admin Unresolve Issue",
+        "description": "Gỡ đánh dấu — người ta bấm nhầm được, nên phải gỡ ra được.\n\nGỡ một dòng chưa từng được đánh dấu vẫn trả 200 với `resolved: false`, KHÔNG phải\n404: kết quả mong muốn (\"dòng này hiện không bị đánh dấu\") đã đạt được rồi.",
+        "operationId": "admin_unresolve_issue_api_v1_admin_issues_resolve_delete",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "title": "Key"
+            }
+          },
+          {
+            "name": "target_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "title": "Target Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminResolveIssueResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/health": {
       "get": {
         "tags": [
@@ -2039,6 +2286,121 @@
         ],
         "title": "AdminCreateRestaurantRequest",
         "description": "Thêm quán MỚI bằng tay.\n\nChỉ `name` + `lat` + `lng` là bắt buộc — đúng ba trường thiết yếu; thiếu là bản ghi\nvô dụng. Mọi trường khác điền được tới đâu thì điền, để trống là `null` (CHƯA CÓ\nDỮ LIỆU), tuyệt đối không tự điền giá trị mặc định cho có.\n\n⚠️ KHÔNG có `rating`, `reviews_count`, `mood_scores`: chúng do nguồn thu thập hoặc do\npipeline tính. Gõ tay vào là làm sai lệch chính những con số dùng để xếp hạng.\nGiới hạn toạ độ trong Hà Nội kiểm ở tầng domain, không kiểm ở đây."
+      },
+      "AdminDataQualityData": {
+        "properties": {
+          "restaurants_total": {
+            "$ref": "#/components/schemas/ThayDoiSchema"
+          },
+          "dishes_total": {
+            "$ref": "#/components/schemas/ThayDoiSchema"
+          },
+          "restaurants_in_hanoi": {
+            "type": "integer",
+            "title": "Restaurants In Hanoi"
+          },
+          "restaurants_in_hanoi_percent": {
+            "type": "number",
+            "title": "Restaurants In Hanoi Percent"
+          },
+          "completeness_percent": {
+            "type": "number",
+            "title": "Completeness Percent"
+          },
+          "critical": {
+            "type": "integer",
+            "title": "Critical"
+          },
+          "important": {
+            "type": "integer",
+            "title": "Important"
+          },
+          "to_review": {
+            "type": "integer",
+            "title": "To Review"
+          },
+          "data_quality": {
+            "items": {
+              "$ref": "#/components/schemas/DoPhuTruongSchema"
+            },
+            "type": "array",
+            "title": "Data Quality"
+          },
+          "by_source": {
+            "items": {
+              "$ref": "#/components/schemas/ThongKeNguonSchema"
+            },
+            "type": "array",
+            "title": "By Source"
+          },
+          "needs_attention": {
+            "items": {
+              "$ref": "#/components/schemas/VanDeNhomSchema"
+            },
+            "type": "array",
+            "title": "Needs Attention"
+          },
+          "needs_attention_now": {
+            "items": {
+              "$ref": "#/components/schemas/BanGhiVanDeSchema"
+            },
+            "type": "array",
+            "title": "Needs Attention Now",
+            "description": "Vài bản ghi cụ thể, ưu tiên nhóm gấp nhất"
+          },
+          "trend": {
+            "items": {
+              "$ref": "#/components/schemas/AnhChupChatLuongSchema"
+            },
+            "type": "array",
+            "title": "Trend"
+          },
+          "resolved_today": {
+            "type": "integer",
+            "title": "Resolved Today"
+          },
+          "history_available": {
+            "type": "boolean",
+            "title": "History Available",
+            "description": "Kho lịch sử mở được không. False -> giao diện nói 'chưa theo dõi được' thay vì vẽ biểu đồ trống trông như 'không có vấn đề gì'."
+          },
+          "generated_at": {
+            "type": "string",
+            "title": "Generated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "restaurants_total",
+          "dishes_total",
+          "restaurants_in_hanoi",
+          "restaurants_in_hanoi_percent",
+          "completeness_percent",
+          "critical",
+          "important",
+          "to_review",
+          "data_quality",
+          "by_source",
+          "needs_attention",
+          "needs_attention_now",
+          "trend",
+          "resolved_today",
+          "history_available",
+          "generated_at"
+        ],
+        "title": "AdminDataQualityData"
+      },
+      "AdminDataQualityResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/AdminDataQualityData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "AdminDataQualityResponse"
       },
       "AdminDishDetail": {
         "properties": {
@@ -2301,6 +2663,109 @@
         ],
         "title": "AdminDishRow"
       },
+      "AdminIssueDetailData": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "description": "Tổng bản ghi dính lỗi, có thể lớn hơn `results`"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/BanGhiVanDeSchema"
+            },
+            "type": "array",
+            "title": "Results"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "total",
+          "results"
+        ],
+        "title": "AdminIssueDetailData"
+      },
+      "AdminIssueDetailResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/AdminIssueDetailData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "AdminIssueDetailResponse"
+      },
+      "AdminIssuesData": {
+        "properties": {
+          "groups": {
+            "items": {
+              "$ref": "#/components/schemas/VanDeNhomSchema"
+            },
+            "type": "array",
+            "title": "Groups"
+          },
+          "critical": {
+            "type": "integer",
+            "title": "Critical"
+          },
+          "important": {
+            "type": "integer",
+            "title": "Important"
+          },
+          "to_review": {
+            "type": "integer",
+            "title": "To Review"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "resolved_today": {
+            "type": "integer",
+            "title": "Resolved Today"
+          },
+          "resolved_total": {
+            "type": "integer",
+            "title": "Resolved Total"
+          },
+          "can_resolve": {
+            "type": "boolean",
+            "title": "Can Resolve",
+            "description": "Kho đánh dấu mở được không. False -> nút đánh dấu phải bị vô hiệu hoá."
+          }
+        },
+        "type": "object",
+        "required": [
+          "groups",
+          "critical",
+          "important",
+          "to_review",
+          "total",
+          "resolved_today",
+          "resolved_total",
+          "can_resolve"
+        ],
+        "title": "AdminIssuesData"
+      },
+      "AdminIssuesResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/AdminIssuesData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "AdminIssuesResponse"
+      },
       "AdminLoginData": {
         "properties": {
           "token": {
@@ -2500,6 +2965,98 @@
           "data"
         ],
         "title": "AdminRecommendationResponse"
+      },
+      "AdminResolveIssueData": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "target_id": {
+            "type": "string",
+            "title": "Target Id"
+          },
+          "resolved": {
+            "type": "boolean",
+            "title": "Resolved",
+            "description": "True = vừa đánh dấu, False = vừa gỡ"
+          },
+          "resolved_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolved At"
+          },
+          "resolved_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolved By"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "target_id",
+          "resolved"
+        ],
+        "title": "AdminResolveIssueData"
+      },
+      "AdminResolveIssueRequest": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Key",
+            "description": "Khoá loại vấn đề, ví dụ `dong_tam`"
+          },
+          "target_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Target Id"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note",
+            "description": "Ghi chú tuỳ chọn, ví dụ 'đã gọi điện, quán vẫn mở'"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "target_id"
+        ],
+        "title": "AdminResolveIssueRequest"
+      },
+      "AdminResolveIssueResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/AdminResolveIssueData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "AdminResolveIssueResponse"
       },
       "AdminRestaurantListData": {
         "properties": {
@@ -2877,6 +3434,50 @@
         "title": "AdminUpdateRestaurantRequest",
         "description": "Chỉ những trường được gửi lên mới bị sửa (`exclude_unset=True` ở router).\n\nGửi `null` = XOÁ giá trị. Không gửi trường = giữ nguyên. Đây là hai ý định khác\nnhau nên không được gộp làm một."
       },
+      "AnhChupChatLuongSchema": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "restaurants_total": {
+            "type": "integer",
+            "title": "Restaurants Total"
+          },
+          "dishes_total": {
+            "type": "integer",
+            "title": "Dishes Total"
+          },
+          "completeness_percent": {
+            "type": "number",
+            "title": "Completeness Percent"
+          },
+          "critical": {
+            "type": "integer",
+            "title": "Critical"
+          },
+          "important": {
+            "type": "integer",
+            "title": "Important"
+          },
+          "to_review": {
+            "type": "integer",
+            "title": "To Review"
+          }
+        },
+        "type": "object",
+        "required": [
+          "date",
+          "restaurants_total",
+          "dishes_total",
+          "completeness_percent",
+          "critical",
+          "important",
+          "to_review"
+        ],
+        "title": "AnhChupChatLuongSchema",
+        "description": "Một điểm trên biểu đồ \"Xu hướng dữ liệu\"."
+      },
       "AuditEntrySchema": {
         "properties": {
           "actor": {
@@ -3049,6 +3650,81 @@
           "earned"
         ],
         "title": "BadgeSchema"
+      },
+      "BanGhiVanDeSchema": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "default": ""
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
+          },
+          "source_updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Updated At",
+            "description": "Ngày NGUỒN cập nhật bản ghi, KHÔNG phải ngày phát hiện lỗi. null = chưa biết, giao diện phải im lặng chứ không đoán."
+          },
+          "resolved_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolved At",
+            "description": "Đã được đánh dấu xử lý lúc nào. null = chưa đánh dấu."
+          },
+          "resolved_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolved By"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "id",
+          "name"
+        ],
+        "title": "BanGhiVanDeSchema",
+        "description": "Một bản ghi CỤ THỂ đang dính lỗi."
       },
       "ChangePasswordRequest": {
         "properties": {
@@ -4682,6 +5358,53 @@
         ],
         "title": "SuggestedDishSchema"
       },
+      "ThayDoiSchema": {
+        "properties": {
+          "current": {
+            "type": "integer",
+            "title": "Current"
+          },
+          "baseline": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baseline"
+          },
+          "baseline_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baseline Date"
+          },
+          "delta": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "current"
+        ],
+        "title": "ThayDoiSchema",
+        "description": "Chênh lệch so với một mốc trong quá khứ.\n\n`delta = null` nghĩa là CHƯA CÓ ảnh chụp nào đủ cũ để so — giao diện phải nói \"chưa\nđủ dữ liệu để so sánh\", KHÔNG được hiện mũi tên hay số 0."
+      },
       "ThongKeNguonSchema": {
         "properties": {
           "source": {
@@ -4881,6 +5604,53 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "VanDeNhomSchema": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "severity": {
+            "type": "string",
+            "title": "Severity",
+            "description": "canh_bao | thong_tin — có phải việc phải làm"
+          },
+          "priority": {
+            "type": "string",
+            "title": "Priority",
+            "description": "nghiem_trong | quan_trong | can_kiem_tra — gấp tới đâu"
+          },
+          "target_type": {
+            "type": "string",
+            "title": "Target Type",
+            "description": "quan_an | mon_an | du_lieu"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "label",
+          "description",
+          "count",
+          "severity",
+          "priority",
+          "target_type"
+        ],
+        "title": "VanDeNhomSchema",
+        "description": "Một NHÓM vấn đề (một dòng của bảng \"Cần xử lý\")."
       },
       "VerifyEmailRequest": {
         "properties": {

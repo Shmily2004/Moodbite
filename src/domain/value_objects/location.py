@@ -42,3 +42,25 @@ class Location:
 
 
 HANOI_CENTER = Location(lat=HANOI_CENTER_LAT, lng=HANOI_CENTER_LNG)
+
+
+# Khung bao Hà Nội (nam, tây, bắc, đông) — MỘT nguồn sự thật duy nhất cho cả dự án.
+#
+# VÌ SAO NẰM Ở DOMAIN: "quán này có nằm trong Hà Nội không" là một QUY TẮC NGHIỆP VỤ
+# (phạm vi sản phẩm, chốt 2026-08-19), không phải chi tiết của khâu thu thập. Trước đây
+# hằng số này chỉ có ở `data_pipeline/sources/districts.py`, nên tầng domain không có
+# cách nào tự kiểm mà không vi phạm hướng phụ thuộc.
+#
+# ⚠️ Bbox là hình CHỮ NHẬT nên rộng hơn ranh giới thật một chút (góc đông-bắc chạm rìa
+# Bắc Ninh). Dùng nó để phát hiện quán LẠC HẲN khỏi thành phố, KHÔNG dùng để khẳng định
+# một quán chắc chắn thuộc Hà Nội — việc đó phải đối chiếu ranh giới thật.
+HANOI_BBOX = (20.55, 105.28, 21.40, 106.03)
+
+
+def trong_ha_noi(lat: float, lng: float) -> bool:
+    """Toạ độ có nằm trong khung bao Hà Nội không.
+
+    Dùng cho màn "Chất lượng dữ liệu": đếm bản ghi lọt ra ngoài phạm vi sản phẩm.
+    """
+    nam, tay, bac, dong = HANOI_BBOX
+    return nam <= lat <= bac and tay <= lng <= dong

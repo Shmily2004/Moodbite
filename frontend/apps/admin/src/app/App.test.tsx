@@ -142,24 +142,27 @@ describe('Layout dung chung', () => {
     expect(screen.getByRole('button', { name: /Đăng xuất/i })).toBeInTheDocument();
   });
 
-  it('muc menu CHUA DUNG khong phai link - bam vao khong ra 404', () => {
-    // "Chất lượng dữ liệu" là mục DUY NHẤT chưa dựng (chủ dự án chốt 2026-08-26).
-    // Làm link chết thì người dùng bấm vào gặp 404 mà không hiểu vì sao.
+  it('khong con muc menu nao o trang thai CHUA DUNG', () => {
+    // Trước 2026-09-08, "Chất lượng dữ liệu" hiện mờ kèm chữ "chưa dựng" và KHÔNG phải
+    // link — làm link chết thì người dùng bấm vào gặp 404 mà không hiểu vì sao.
+    //
+    // Nay cả 8 mục đều có trang thật. Test đổi chiều: canh đúng chữ "chưa dựng" thay vì
+    // canh một mục cụ thể, để mai này thêm một mục chưa xong thì test này đỏ ngay và
+    // buộc người sửa phải nói rõ mục đó là gì.
     renderAt('/');
 
-    expect(
-      screen.queryByRole('link', { name: /Chất lượng dữ liệu/i }),
-    ).not.toBeInTheDocument();
-    expect(screen.getByText(/Chất lượng dữ liệu/i)).toBeInTheDocument();
+    expect(screen.queryByText(/chưa dựng/i)).not.toBeInTheDocument();
   });
 
-  it('sau mục còn lại đều là link that', () => {
+  it('ca TAM muc menu deu la link that', () => {
     renderAt('/');
 
     for (const nhan of [
       /Tổng quan/i,
       /Quản lý món ăn/i,
       /Quản lý quán ăn/i,
+      /Chất lượng dữ liệu/i,
+      /Cần xử lý/i,
       /Gợi ý & Hệ thống/i,
       /Nhật ký hoạt động/i,
       /Cài đặt hệ thống/i,
@@ -173,6 +176,8 @@ describe('Layout dung chung', () => {
     ['/goi-y', /Gợi ý & Hệ thống/i],
     ['/nhat-ky', /Nhật ký hoạt động/i],
     ['/cai-dat', /Cài đặt hệ thống/i],
+    ['/chat-luong', /Chất lượng dữ liệu/i],
+    ['/can-xu-ly', /Cần xử lý/i],
   ])('trang %s dung duoc va co tieu de tren thanh dau', (duongDan, ten) => {
     // Backend đang tắt trong test (fetch reject) — trang VẪN phải dựng được, không trắng.
     renderAt(duongDan);

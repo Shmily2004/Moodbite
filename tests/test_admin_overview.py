@@ -104,7 +104,20 @@ def test_can_xu_ly_giu_lai_ca_dong_bang_0():
     viec = viec_can_xu_ly([_Quan(phone="0123")], [_Mon(description="x", image_url="x")])
 
     assert all(v.so_luong == 0 for v in viec)
-    assert len(viec) == 5, "Không được lọc bỏ dòng có số 0"
+    # So theo TẬP KHOÁ chứ không chỉ đếm số dòng: đếm thì thêm một nhóm và bỏ quên một
+    # nhóm khác sẽ triệt tiêu nhau và test vẫn xanh.
+    #
+    # 5 -> 7 nhóm ngày 2026-09-08: thêm `trung_lap` và `ngoai_ha_noi` cho màn "Cần xử lý"
+    # (`frontend/design/needs to be handled admin.png`).
+    assert {v.khoa for v in viec} == {
+        "dong_tam",
+        "thieu_lien_he",
+        "trung_lap",
+        "mon_thieu_anh",
+        "mon_thieu_mo_ta",
+        "ngoai_ha_noi",
+        "mon_khong_quan",
+    }, "Không được lọc bỏ dòng có số 0"
 
 
 def test_thieu_lien_he_la_thieu_CA_HAI():

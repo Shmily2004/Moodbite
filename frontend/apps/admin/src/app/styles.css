@@ -762,3 +762,184 @@ a { color: var(--accent); }
 
 /* Dòng phụ dưới tên quán (khu vực · nguồn). */
 .bang__phu { display: block; margin-top: 2px; }
+
+/* =========================================================================
+   TRANG "CHẤT LƯỢNG DỮ LIỆU" và TRANG "CẦN XỬ LÝ"
+   `design/quality data admin.png` · `design/needs to be handled admin.png`
+   ========================================================================= */
+.chat-luong,
+.can-xu-ly-trang { display: flex; flex-direction: column; gap: 1.25rem; }
+
+/* Hai cột KHÔNG bằng nhau: cột trái là danh sách việc (đọc nhiều), cột phải là
+   biểu đồ (liếc qua). Chia đôi đều làm cột trái chật mà cột phải thừa chỗ trống. */
+.chat-luong__luoi {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+.chat-luong__cot { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+
+@media (max-width: 900px) {
+  .chat-luong__luoi { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Mũi tên tăng: chỉ tô màu khi CÓ mốc để so. Trường hợp `delta === null` dùng
+   `.muted` bình thường — xem `TheSoCoMoc` trong QualityPage.tsx. */
+.the-so__phu--tang { color: var(--open); font-size: var(--step--2); }
+
+/* --- Cần xử lý ngay (bản ghi cụ thể) ------------------------------------- */
+.viec-ngay, .van-de-khac, .ban-ghi, .vong-tron__chu-thich, .xu-huong__chu-thich {
+  margin: 0; padding: 0; list-style: none;
+}
+
+.viec-ngay__dong {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: .75rem;
+  padding: .6rem 0;
+}
+.viec-ngay__dong + .viec-ngay__dong { border-top: 1px solid var(--rule-soft); }
+.viec-ngay__anh {
+  width: 56px; height: 44px;
+  object-fit: cover;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+}
+/* Không có ảnh = ô xám trống, KHÔNG phải ảnh mẫu. Chèn ảnh mẫu là nói dối rằng
+   đã biết quán trông thế nào. */
+.viec-ngay__anh--trong { display: block; border: 1px dashed var(--rule); }
+.viec-ngay__chu { min-width: 0; }
+.viec-ngay__ten { margin: 0 0 .15rem; font-weight: 600; }
+.viec-ngay__nut { white-space: nowrap; }
+
+/* --- Các vấn đề khác ------------------------------------------------------ */
+.van-de-khac {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: .75rem;
+}
+.van-de-khac__o {
+  display: flex; flex-direction: column; gap: .2rem;
+  padding: .8rem .9rem;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+}
+.van-de-khac__nhan { font-size: var(--step--1); color: var(--ink-soft); }
+.van-de-khac__so { font-size: var(--step-2); font-weight: 700; line-height: 1.1; }
+
+/* --- Vòng tròn hoàn thiện -------------------------------------------------- */
+/* `conic-gradient` thuần CSS thay vì thư viện biểu đồ: cả trang chỉ có một vòng
+   tròn và một đường gấp khúc, thêm ~50KB JavaScript cho hai hình đó không đáng. */
+.vong-tron { display: flex; align-items: center; gap: 1.1rem; flex-wrap: wrap; }
+.vong-tron__hinh {
+  width: 128px; height: 128px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  flex: 0 0 auto;
+}
+.vong-tron__ruot {
+  width: 92px; height: 92px;
+  border-radius: 50%;
+  background: var(--surface);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.vong-tron__so { font-size: var(--step-2); line-height: 1.1; }
+.vong-tron__chu-thich { display: flex; flex-direction: column; gap: .5rem; font-size: var(--step--1); }
+
+.cham {
+  display: inline-block;
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  margin-right: .45rem;
+}
+.cham--tot   { background: var(--open); }
+.cham--thieu { background: var(--warn); }
+.cham--loi   { background: var(--error); }
+
+/* --- Biểu đồ xu hướng ----------------------------------------------------- */
+.xu-huong {
+  width: 100%; height: 110px;
+  margin: .3rem 0 .6rem;
+  overflow: visible;
+}
+/* `vector-effect` giữ nét mảnh đều dù `preserveAspectRatio="none"` kéo giãn ngang. */
+.xu-huong polyline {
+  fill: none;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.xu-huong__nghiem-trong { stroke: var(--error); }
+.xu-huong__quan-trong   { stroke: var(--warn); }
+.xu-huong__chu-thich { display: flex; gap: 1rem; font-size: var(--step--1); flex-wrap: wrap; }
+
+/* --- Trang "Cần xử lý" ---------------------------------------------------- */
+.huy-hieu-so {
+  display: inline-block;
+  min-width: 1.6rem;
+  padding: .1rem .45rem;
+  border-radius: var(--r-pill);
+  background: var(--error-soft);
+  color: var(--error);
+  font-size: var(--step--1);
+  font-weight: 700;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.tab-loc {
+  display: flex; align-items: center; gap: .35rem;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--rule-soft);
+  padding-bottom: .5rem;
+}
+.tab-loc__nut {
+  border: 0;
+  background: none;
+  padding: .45rem .7rem;
+  border-radius: var(--r-sm);
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: var(--step--1);
+  cursor: pointer;
+}
+.tab-loc__nut:hover { background: var(--surface-2); }
+.tab-loc__nut--dang { color: var(--accent); font-weight: 700; background: var(--accent-soft); }
+.tab-loc__da-xong { margin-left: auto; }
+
+.bang-van-de { width: 100%; border-collapse: collapse; }
+.bang-van-de th, .bang-van-de td {
+  text-align: left;
+  padding: .7rem .6rem;
+  border-bottom: 1px solid var(--rule-soft);
+  vertical-align: top;
+}
+.bang-van-de th { font-size: var(--step--1); color: var(--muted); font-weight: 600; }
+.bang-van-de td p { margin: .2rem 0 0; }
+/* Nhóm 0 bản ghi vẫn hiện (đó là câu trả lời "đã kiểm, không có gì") nhưng mờ đi
+   để mắt không dừng lại ở dòng không cần làm gì. */
+.row--rong { color: var(--muted); }
+
+.pill--nghiem_trong { background: var(--error-soft); color: var(--error); }
+.pill--quan_trong   { background: var(--warn-soft);  color: var(--warn); }
+.pill--can_kiem_tra { background: var(--accent-soft); color: var(--accent); }
+
+.chi-tiet-nhom {
+  margin-top: 1rem;
+  padding-top: .9rem;
+  border-top: 2px solid var(--rule);
+}
+.ban-ghi__dong {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem;
+  padding: .6rem 0;
+}
+.ban-ghi__dong + .ban-ghi__dong { border-top: 1px solid var(--rule-soft); }
+.ban-ghi__chu { min-width: 0; }
+.ban-ghi__ten { margin: 0 0 .15rem; font-weight: 600; }
+/* Dòng đã đánh dấu vẫn HIỆN, chỉ mờ — giấu đi thì người bấm nhầm không tìm lại được. */
+.ban-ghi__dong--xong { opacity: .55; }
+.ban-ghi__dong--xong .ban-ghi__ten { text-decoration: line-through; }

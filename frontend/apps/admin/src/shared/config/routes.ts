@@ -15,6 +15,8 @@ export const ROUTES = {
   overview: '/',
   restaurants: '/quan-an',
   dishes: '/mon-an',
+  quality: '/chat-luong',
+  issues: '/can-xu-ly',
   recommendation: '/goi-y',
   activity: '/nhat-ky',
   system: '/cai-dat',

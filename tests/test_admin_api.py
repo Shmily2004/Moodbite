@@ -24,6 +24,18 @@ from src.application.use_cases.get_restaurant_details import GetRestaurantDetail
 from pathlib import Path
 
 from src.application.use_cases.get_admin_overview import GetAdminOverviewUseCase
+from src.application.use_cases.get_data_quality import GetDataQualityUseCase
+from src.application.use_cases.manage_issues import (
+    DanhDauXongUseCase,
+    LietKeVanDeUseCase,
+    XemChiTietVanDeUseCase,
+)
+from src.infrastructure.repositories.sqlite_issue_resolution_repository import (
+    SqliteIssueResolutionRepository,
+)
+from src.infrastructure.repositories.sqlite_quality_snapshot_repository import (
+    SqliteQualitySnapshotRepository,
+)
 from src.application.use_cases.list_dishes_admin import (
     GetDishForAdminUseCase,
     ListDishesForAdminUseCase,
@@ -152,6 +164,31 @@ def build_client(db_path, *, configured=True, writable=True):
         dish_catalog_repository=c.dish_catalog_repository,
         interaction_repository=interactions,
     )
+
+    # Màn "Chất lượng dữ liệu" + màn "Cần xử lý". Kho THẬT trong thư mục tạm, đúng như
+    # nhật ký ở trên: test phải đi qua đường ghi/đọc thật, không phải một bản giả luôn
+    # trả rỗng — kho giả sẽ giấu đúng loại lỗi mà hai màn này dễ mắc nhất.
+    kho_tam = Path(db_path).parent
+    c.quality_snapshots = SqliteQualitySnapshotRepository(kho_tam / "quality.db")
+    c.issue_resolutions = SqliteIssueResolutionRepository(kho_tam / "issues.db")
+    c.data_quality = GetDataQualityUseCase(
+        admin_overview_use_case=c.admin_overview,
+        restaurant_repository=repo,
+        dish_catalog_repository=c.dish_catalog_repository,
+        snapshot_repository=c.quality_snapshots,
+        issue_resolution_repository=c.issue_resolutions,
+    )
+    c.liet_ke_van_de = LietKeVanDeUseCase(
+        restaurant_repository=repo,
+        dish_catalog_repository=c.dish_catalog_repository,
+        issue_resolution_repository=c.issue_resolutions,
+    )
+    c.chi_tiet_van_de = XemChiTietVanDeUseCase(
+        restaurant_repository=repo,
+        dish_catalog_repository=c.dish_catalog_repository,
+        issue_resolution_repository=c.issue_resolutions,
+    )
+    c.danh_dau_xong = DanhDauXongUseCase(c.issue_resolutions)
 
     # Tiêm container thẳng vào: nếu để create_app() tự lắp, mỗi test sẽ nạp lại toàn
     # bộ dataset thật rồi bị ghi đè ngay - tốn ~1.5s mỗi test cho việc bị vứt đi.

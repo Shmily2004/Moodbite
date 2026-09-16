@@ -1,7 +1,10 @@
 """QUY TẮC NGHIỆP VỤ: đo CHẤT LƯỢNG DỮ LIỆU của dataset.
 
 Đây là ruột của màn "Tổng quan" và "Chất lượng dữ liệu" ở trang quản trị
-(`frontend/design/Dashboard admin.png`, chủ dự án gửi 2026-08-26).
+(`frontend/design/Dashboard admin.png` · `frontend/design/quality data admin.png`).
+
+PHẠM VI: file này chỉ trả lời "dữ liệu ĐẦY tới đâu" (độ phủ theo trường, theo nguồn).
+Câu "phải đi sửa cái gì trước" nằm ở `data_issues.py` — xem docstring bên đó.
 
 VÌ SAO NẰM Ở `domain/` CHỨ KHÔNG PHẢI `infrastructure/`
 --------------------------------------------------------
@@ -29,7 +32,15 @@ Số đo thật ngày 2026-08-26 (để người sau đối chiếu khi nghi ng�
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Callable, Iterable, List, Optional, Sequence
+from typing import List, Optional, Sequence
+
+# Hộp việc "Cần xử lý" ĐÃ CHUYỂN sang `data_issues.py` (file này chỉ còn lo ĐỘ PHỦ).
+# Vẫn xuất lại ở đây để code cũ `from ...data_quality import viec_can_xu_ly` không gãy.
+from src.domain.services.data_issues import (  # noqa: F401
+    ViecCanXuLy,
+    co_gia_tri,
+    viec_can_xu_ly,
+)
 
 # Ngưỡng tô màu cho thanh tiến độ ở giao diện. Đặt tên thay vì rải số 80/50 trong code.
 #
@@ -83,32 +94,6 @@ class ThongKeNguon:
         return round(self.so_luong / self.tong * 100, 1)
 
 
-@dataclass(frozen=True)
-class ViecCanXuLy:
-    """Một nhóm việc trong hộp "Cần xử lý" — inbox của người quản trị.
-
-    `so_luong = 0` vẫn được giữ lại chứ KHÔNG lọc bỏ: "0 quán có khả năng đã đóng cửa"
-    là một câu trả lời có ích ("đã kiểm rồi, không có gì"), khác hẳn với việc dòng đó
-    biến mất khiến người dùng không biết hệ thống có kiểm hay không.
-    """
-
-    khoa: str
-    nhan: str
-    mo_ta: str
-    so_luong: int
-    # `muc_do`: 'canh_bao' (cần làm) hoặc 'thong_tin' (biết cho biết).
-    muc_do: str = "canh_bao"
-
-
-def _co_gia_tri(x: Optional[str]) -> bool:
-    """Chuỗi rỗng và chuỗi toàn khoảng trắng đều tính là CHƯA CÓ.
-
-    Nguồn dữ liệu hay trả `""` thay vì bỏ trống hẳn; coi `""` là "có" sẽ thổi phồng độ
-    phủ — đúng loại sai mà cả bảng thống kê này sinh ra để tránh.
-    """
-    return bool(x and str(x).strip())
-
-
 # Các trường được đo, theo đúng thứ tự hiện lên giao diện.
 #
 # ⚠️ `rating` và `price` CỐ Ý không nằm trong nhóm "thông tin cơ bản": chúng đến từ nguồn
@@ -137,7 +122,7 @@ def do_phu_quan(restaurants: Sequence) -> List[DoPhuTruong]:
     du_co_ban = sum(
         1
         for r in restaurants
-        if all(_co_gia_tri(getattr(r, ten, None)) for ten, _, _ in _TRUONG_CO_BAN)
+        if all(co_gia_tri(getattr(r, ten, None)) for ten, _, _ in _TRUONG_CO_BAN)
     )
     ket_qua.append(
         DoPhuTruong(
@@ -155,7 +140,7 @@ def do_phu_quan(restaurants: Sequence) -> List[DoPhuTruong]:
                 khoa=ten,
                 nhan=f"Quán có {nhan.lower()}",
                 mo_ta=mo_ta,
-                so_co=sum(1 for r in restaurants if _co_gia_tri(getattr(r, ten, None))),
+                so_co=sum(1 for r in restaurants if co_gia_tri(getattr(r, ten, None))),
                 tong=tong,
             )
         )
@@ -171,14 +156,14 @@ def do_phu_mon(dishes: Sequence) -> List[DoPhuTruong]:
             khoa="mon_mo_ta",
             nhan="Món ăn có mô tả",
             mo_ta="Giới thiệu món",
-            so_co=sum(1 for d in dishes if _co_gia_tri(getattr(d, "description", None))),
+            so_co=sum(1 for d in dishes if co_gia_tri(getattr(d, "description", None))),
             tong=tong,
         ),
         DoPhuTruong(
             khoa="mon_anh",
             nhan="Món ăn có ảnh",
             mo_ta="Hình ảnh đại diện",
-            so_co=sum(1 for d in dishes if _co_gia_tri(getattr(d, "image_url", None))),
+            so_co=sum(1 for d in dishes if co_gia_tri(getattr(d, "image_url", None))),
             tong=tong,
         ),
     ]
@@ -199,63 +184,6 @@ def thong_ke_nguon(restaurants: Sequence) -> List[ThongKeNguon]:
     return [
         ThongKeNguon(nguon=ten, so_luong=so, tong=tong)
         for ten, so in sorted(dem.items(), key=lambda x: (-x[1], x[0]))
-    ]
-
-
-def viec_can_xu_ly(restaurants: Sequence, dishes: Sequence) -> List[ViecCanXuLy]:
-    """Hộp "Cần xử lý" — mỗi dòng là một nhóm bản ghi người quản trị nên xem lại.
-
-    ⚠️ MỖI DÒNG PHẢI ĐẾM ĐƯỢC TỪ DỮ LIỆU THẬT. Bản thiết kế có dòng "9 dữ liệu cần kiểm
-    tra" không nói rõ là gì — cố tình KHÔNG dựng, vì một con số không định nghĩa được thì
-    người quản trị bấm vào cũng không biết phải làm gì.
-    """
-    thieu_lien_he = sum(
-        1
-        for r in restaurants
-        if not _co_gia_tri(getattr(r, "phone", None))
-        and not _co_gia_tri(getattr(r, "website", None))
-    )
-
-    return [
-        ViecCanXuLy(
-            khoa="dong_tam",
-            nhan="Quán có khả năng đã đóng cửa",
-            mo_ta="Nguồn đánh dấu đóng tạm thời — cần kiểm tra và xác nhận",
-            so_luong=sum(1 for r in restaurants if getattr(r, "temporarily_closed", None)),
-        ),
-        ViecCanXuLy(
-            khoa="thieu_lien_he",
-            nhan="Quán không có cách nào liên hệ",
-            mo_ta="Thiếu CẢ số điện thoại lẫn website",
-            so_luong=thieu_lien_he,
-        ),
-        ViecCanXuLy(
-            khoa="mon_thieu_anh",
-            nhan="Món chưa có ảnh",
-            mo_ta="Thiếu hình ảnh đại diện món",
-            so_luong=sum(
-                1 for d in dishes if not _co_gia_tri(getattr(d, "image_url", None))
-            ),
-        ),
-        ViecCanXuLy(
-            khoa="mon_thieu_mo_ta",
-            nhan="Món chưa có mô tả",
-            mo_ta="Chưa tra được giới thiệu từ Wikipedia",
-            so_luong=sum(
-                1 for d in dishes if not _co_gia_tri(getattr(d, "description", None))
-            ),
-        ),
-        ViecCanXuLy(
-            khoa="mon_khong_quan",
-            nhan="Món chưa tìm được quán",
-            mo_ta="Chưa có quán nào ở Hà Nội bán món này",
-            so_luong=sum(
-                1 for d in dishes if not getattr(d, "is_active", True)
-            ),
-            # THÔNG TIN, không phải cảnh báo: phần lớn là món quốc tế chưa quán nào ở Hà
-            # Nội bán. Đây là sự thật về thị trường, không phải lỗi dữ liệu cần đi sửa.
-            muc_do="thong_tin",
-        ),
     ]
 
 

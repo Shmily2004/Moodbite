@@ -35,6 +35,22 @@ export type AdminSystemService = components['schemas']['AdminSystemService'];
 export type AuditEntry = components['schemas']['AuditEntrySchema'];
 export type AuditLogData = components['schemas']['AuditLogData'];
 export type AdminRecommendationData = components['schemas']['AdminRecommendationData'];
+
+// --- Màn "Chất lượng dữ liệu" và màn "Cần xử lý" ---
+export type AdminDataQualityData = components['schemas']['AdminDataQualityData'];
+export type AdminIssuesData = components['schemas']['AdminIssuesData'];
+export type AdminIssueDetailData = components['schemas']['AdminIssueDetailData'];
+export type VanDeNhom = components['schemas']['VanDeNhomSchema'];
+export type BanGhiVanDe = components['schemas']['BanGhiVanDeSchema'];
+export type AnhChupChatLuong = components['schemas']['AnhChupChatLuongSchema'];
+export type ThayDoi = components['schemas']['ThayDoiSchema'];
+export type AdminResolveIssueData = components['schemas']['AdminResolveIssueData'];
+
+/**
+ * Mức GẤP của một vấn đề — khác `severity` ("có phải việc phải làm không").
+ * Do backend đặt ở `domain/services/data_issues.py`; đừng khai lại danh sách này ở nơi khác.
+ */
+export type UuTienVanDe = 'nghiem_trong' | 'quan_trong' | 'can_kiem_tra';
 export type LopMoHinh = components['schemas']['LopMoHinhSchema'];
 
 /** Bộ lọc của bảng món quản trị. Giữ đồng bộ với `BO_LOC` ở `list_dishes_admin.py`. */
@@ -73,9 +89,13 @@ export class MoodbiteAdminApi {
    *
    * Server đệm 5 phút. `refresh` để tính lại ngay sau khi vừa sửa dữ liệu.
    *
-   * ⚠️ KHÔNG có trường xu hướng ("so với tuần trước", CTR, sparkline) dù bản thiết kế
-   * có vẽ: dự án không lưu ảnh chụp dữ liệu theo ngày nên không tính được. Đừng thêm
-   * vào ở frontend — có test backend chặn đúng chuyện này.
+   * ⚠️ KHÔNG có trường xu hướng ở endpoint NÀY, và đừng tự tính ở frontend.
+   *
+   * Cập nhật 2026-09-08: xu hướng theo ngày và "so với tháng trước" NAY CÓ THẬT, nhưng
+   * ở `dataQuality()` bên dưới — chúng dựa trên bảng `quality_snapshot` ghi mỗi ngày
+   * một dòng. Màn Tổng quan cố ý không lấy, để nó không phải chờ một lượt ghi đĩa.
+   *
+   * Vẫn KHÔNG có nguồn cho: CTR, "lượt gợi ý hôm nay". Đừng bịa (CLAUDE.md mục 4).
    */
   overview(refresh = false, options?: RequestOptions): Promise<AdminOverviewData> {
     return this.http.request<AdminOverviewData>(
@@ -216,5 +236,82 @@ export class MoodbiteAdminApi {
       `/admin/restaurants/${encodeURIComponent(restaurantId)}/restore`,
       { ...options, method: 'POST' },
     );
+  }
+
+  /**
+   * Số liệu màn "Chất lượng dữ liệu".
+   *
+   * ⚠️ Lượt gọi này khiến SERVER GHI một dòng ảnh chụp cho hôm nay (bất biến theo ngày:
+   * gọi 50 lần vẫn một dòng). Đó là cách biểu đồ xu hướng có dữ liệu mà không cần máy
+   * chủ chạy nền — xem `application/use_cases/get_data_quality.py`.
+   *
+   * `restaurants_total.delta === null` nghĩa là CHƯA đủ dữ liệu để so sánh. Phải hiện
+   * "chưa đủ dữ liệu", KHÔNG được coi là 0 và vẽ mũi tên đi ngang.
+   */
+  dataQuality(refresh = false, options?: RequestOptions): Promise<AdminDataQualityData> {
+    return this.http.request<AdminDataQualityData>(
+      `/admin/quality${refresh ? '?refresh=true' : ''}`,
+      options,
+    );
+  }
+
+  /**
+   * Bảng các NHÓM vấn đề + năm thẻ số của màn "Cần xử lý".
+   *
+   * Năm thẻ số luôn tính trên TOÀN BỘ dữ liệu, không đổi theo `priority` — bấm tab lọc
+   * mà các thẻ kia tụt về 0 là hiểu sai con số.
+   */
+  issues(
+    params: { priority?: UuTienVanDe | null } = {},
+    options?: RequestOptions,
+  ): Promise<AdminIssuesData> {
+    const t = new URLSearchParams();
+    if (params.priority) t.set('priority', params.priority);
+    const q = t.toString();
+    return this.http.request<AdminIssuesData>(`/admin/issues${q ? `?${q}` : ''}`, options);
+  }
+
+  /** Các bản ghi CỤ THỂ của một nhóm vấn đề — nút "Xem danh sách". */
+  issueDetail(
+    key: string,
+    params: { limit?: number } = {},
+    options?: RequestOptions,
+  ): Promise<AdminIssueDetailData> {
+    const t = new URLSearchParams();
+    if (params.limit != null) t.set('limit', String(params.limit));
+    const q = t.toString();
+    return this.http.request<AdminIssueDetailData>(
+      `/admin/issues/${encodeURIComponent(key)}${q ? `?${q}` : ''}`,
+      options,
+    );
+  }
+
+  /**
+   * Đánh dấu một bản ghi ĐÃ XỬ LÝ.
+   *
+   * ⚠️ KHÔNG sửa dữ liệu quán/món — chỉ ghi lại "tôi đã xem, không phải làm gì thêm".
+   */
+  resolveIssue(
+    body: { key: string; target_id: string; note?: string | null },
+    options?: RequestOptions,
+  ): Promise<AdminResolveIssueData> {
+    return this.http.request<AdminResolveIssueData>('/admin/issues/resolve', {
+      ...options,
+      method: 'POST',
+      body,
+    });
+  }
+
+  /** Gỡ đánh dấu — người ta bấm nhầm được. Gỡ dòng chưa từng đánh dấu vẫn thành công. */
+  unresolveIssue(
+    key: string,
+    targetId: string,
+    options?: RequestOptions,
+  ): Promise<AdminResolveIssueData> {
+    const t = new URLSearchParams({ key, target_id: targetId });
+    return this.http.request<AdminResolveIssueData>(`/admin/issues/resolve?${t}`, {
+      ...options,
+      method: 'DELETE',
+    });
   }
 }

@@ -864,6 +864,159 @@ class UserStatsResponse(BaseModel):
     data: UserStatsData
 
 
+
+# ---------------------------------------------------------------------------
+# Màn "Chất lượng dữ liệu" và màn "Cần xử lý" của trang quản trị
+# (`frontend/design/quality data admin.png` · `needs to be handled admin.png`).
+#
+# ⚠️ ĐỌC TRƯỚC KHI THÊM TRƯỜNG: bản thiết kế vẽ vài con số mà dự án không có nguồn dữ
+# liệu để tính (`CTR 8.7%`, `Lượt gợi ý hôm nay`). Đừng thêm trường cho chúng — thà thiếu
+# còn hơn bịa (CLAUDE.md mục 4). Hai thứ TRƯỚC ĐÂY thiếu nguồn là "so với tháng trước"
+# và biểu đồ xu hướng thì NAY CÓ THẬT, nhờ bảng `quality_snapshot` ghi mỗi ngày một dòng.
+# ---------------------------------------------------------------------------
+
+
+class ThayDoiSchema(BaseModel):
+    """Chênh lệch so với một mốc trong quá khứ.
+
+    `delta = null` nghĩa là CHƯA CÓ ảnh chụp nào đủ cũ để so — giao diện phải nói "chưa
+    đủ dữ liệu để so sánh", KHÔNG được hiện mũi tên hay số 0.
+    """
+
+    current: int
+    baseline: Optional[int] = None
+    baseline_date: Optional[str] = None
+    delta: Optional[int] = None
+
+
+class BanGhiVanDeSchema(BaseModel):
+    """Một bản ghi CỤ THỂ đang dính lỗi."""
+
+    key: str
+    id: str
+    name: str
+    description: str = ""
+    image_url: Optional[str] = None
+    source_updated_at: Optional[str] = Field(
+        None,
+        description=(
+            "Ngày NGUỒN cập nhật bản ghi, KHÔNG phải ngày phát hiện lỗi. "
+            "null = chưa biết, giao diện phải im lặng chứ không đoán."
+        ),
+    )
+    resolved_at: Optional[str] = Field(
+        None, description="Đã được đánh dấu xử lý lúc nào. null = chưa đánh dấu."
+    )
+    resolved_by: Optional[str] = None
+
+
+class VanDeNhomSchema(BaseModel):
+    """Một NHÓM vấn đề (một dòng của bảng "Cần xử lý")."""
+
+    key: str
+    label: str
+    description: str
+    count: int
+    severity: str = Field(..., description="canh_bao | thong_tin — có phải việc phải làm")
+    priority: str = Field(
+        ..., description="nghiem_trong | quan_trong | can_kiem_tra — gấp tới đâu"
+    )
+    target_type: str = Field(..., description="quan_an | mon_an | du_lieu")
+
+
+class AnhChupChatLuongSchema(BaseModel):
+    """Một điểm trên biểu đồ "Xu hướng dữ liệu"."""
+
+    date: str
+    restaurants_total: int
+    dishes_total: int
+    completeness_percent: float
+    critical: int
+    important: int
+    to_review: int
+
+
+class AdminDataQualityData(BaseModel):
+    restaurants_total: ThayDoiSchema
+    dishes_total: ThayDoiSchema
+    restaurants_in_hanoi: int
+    restaurants_in_hanoi_percent: float
+    completeness_percent: float
+    critical: int
+    important: int
+    to_review: int
+    data_quality: List[DoPhuTruongSchema]
+    by_source: List[ThongKeNguonSchema]
+    needs_attention: List[VanDeNhomSchema]
+    needs_attention_now: List[BanGhiVanDeSchema] = Field(
+        ..., description="Vài bản ghi cụ thể, ưu tiên nhóm gấp nhất"
+    )
+    trend: List[AnhChupChatLuongSchema]
+    resolved_today: int
+    history_available: bool = Field(
+        ...,
+        description=(
+            "Kho lịch sử mở được không. False -> giao diện nói 'chưa theo dõi được' "
+            "thay vì vẽ biểu đồ trống trông như 'không có vấn đề gì'."
+        ),
+    )
+    generated_at: str
+
+
+class AdminDataQualityResponse(BaseModel):
+    data: AdminDataQualityData
+
+
+class AdminIssuesData(BaseModel):
+    groups: List[VanDeNhomSchema]
+    critical: int
+    important: int
+    to_review: int
+    total: int
+    resolved_today: int
+    resolved_total: int
+    can_resolve: bool = Field(
+        ...,
+        description="Kho đánh dấu mở được không. False -> nút đánh dấu phải bị vô hiệu hoá.",
+    )
+
+
+class AdminIssuesResponse(BaseModel):
+    data: AdminIssuesData
+
+
+class AdminIssueDetailData(BaseModel):
+    key: str
+    total: int = Field(..., description="Tổng bản ghi dính lỗi, có thể lớn hơn `results`")
+    results: List[BanGhiVanDeSchema]
+
+
+class AdminIssueDetailResponse(BaseModel):
+    data: AdminIssueDetailData
+
+
+class AdminResolveIssueRequest(BaseModel):
+    key: str = Field(..., min_length=1, description="Khoá loại vấn đề, ví dụ `dong_tam`")
+    target_id: str = Field(..., min_length=1)
+    note: Optional[str] = Field(
+        None,
+        max_length=500,
+        description="Ghi chú tuỳ chọn, ví dụ 'đã gọi điện, quán vẫn mở'",
+    )
+
+
+class AdminResolveIssueData(BaseModel):
+    key: str
+    target_id: str
+    resolved: bool = Field(..., description="True = vừa đánh dấu, False = vừa gỡ")
+    resolved_at: Optional[str] = None
+    resolved_by: Optional[str] = None
+
+
+class AdminResolveIssueResponse(BaseModel):
+    data: AdminResolveIssueData
+
+
 # Mô tả lỗi dùng chung cho mọi endpoint, để OpenAPI ghi rõ hình dạng lỗi.
 ERROR_RESPONSES = {
     400: {"model": ErrorEnvelope, "description": "INVALID_REQUEST"},

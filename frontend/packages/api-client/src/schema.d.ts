@@ -743,6 +743,103 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/quality": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Admin Data Quality
+         * @description Số liệu màn "Chất lượng dữ liệu".
+         *
+         *     ⚠️ Lượt gọi này CÓ GHI: nó lưu ảnh chụp chỉ số của HÔM NAY (một dòng mỗi ngày, ghi
+         *     đè nếu đã có). Đó là cách duy nhất để biểu đồ xu hướng có dữ liệu mà không cần máy
+         *     chủ chạy nền — xem docstring `application/use_cases/get_data_quality.py`.
+         */
+        get: operations["admin_data_quality_api_v1_admin_quality_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/issues": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Admin Issues
+         * @description Bảng các NHÓM vấn đề + năm thẻ số ở đầu màn "Cần xử lý".
+         */
+        get: operations["admin_issues_api_v1_admin_issues_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/issues/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Admin Issue Detail
+         * @description Các bản ghi CỤ THỂ của một nhóm — nút "Xem danh sách" của bản thiết kế.
+         *
+         *     Khoá lạ trả danh sách RỖNG kèm `total: 0`, KHÔNG phải 404: đây là một khối phụ của
+         *     trang, và một khoá gõ sai không đáng làm trắng cả màn quản trị.
+         */
+        get: operations["admin_issue_detail_api_v1_admin_issues__key__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/issues/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Admin Resolve Issue
+         * @description Đánh dấu một bản ghi ĐÃ XỬ LÝ.
+         *
+         *     ⚠️ KHÔNG sửa dữ liệu quán/món. Nó chỉ ghi lại rằng người quản trị đã xem và kết luận
+         *     không phải làm gì thêm — xem `domain/entities/issue_resolution.py`.
+         */
+        post: operations["admin_resolve_issue_api_v1_admin_issues_resolve_post"];
+        /**
+         * Admin Unresolve Issue
+         * @description Gỡ đánh dấu — người ta bấm nhầm được, nên phải gỡ ra được.
+         *
+         *     Gỡ một dòng chưa từng được đánh dấu vẫn trả 200 với `resolved: false`, KHÔNG phải
+         *     404: kết quả mong muốn ("dòng này hiện không bị đánh dấu") đã đạt được rồi.
+         */
+        delete: operations["admin_unresolve_issue_api_v1_admin_issues_resolve_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -814,6 +911,49 @@ export interface components {
             phone?: string | null;
             /** Website */
             website?: string | null;
+        };
+        /** AdminDataQualityData */
+        AdminDataQualityData: {
+            restaurants_total: components["schemas"]["ThayDoiSchema"];
+            dishes_total: components["schemas"]["ThayDoiSchema"];
+            /** Restaurants In Hanoi */
+            restaurants_in_hanoi: number;
+            /** Restaurants In Hanoi Percent */
+            restaurants_in_hanoi_percent: number;
+            /** Completeness Percent */
+            completeness_percent: number;
+            /** Critical */
+            critical: number;
+            /** Important */
+            important: number;
+            /** To Review */
+            to_review: number;
+            /** Data Quality */
+            data_quality: components["schemas"]["DoPhuTruongSchema"][];
+            /** By Source */
+            by_source: components["schemas"]["ThongKeNguonSchema"][];
+            /** Needs Attention */
+            needs_attention: components["schemas"]["VanDeNhomSchema"][];
+            /**
+             * Needs Attention Now
+             * @description Vài bản ghi cụ thể, ưu tiên nhóm gấp nhất
+             */
+            needs_attention_now: components["schemas"]["BanGhiVanDeSchema"][];
+            /** Trend */
+            trend: components["schemas"]["AnhChupChatLuongSchema"][];
+            /** Resolved Today */
+            resolved_today: number;
+            /**
+             * History Available
+             * @description Kho lịch sử mở được không. False -> giao diện nói 'chưa theo dõi được' thay vì vẽ biểu đồ trống trông như 'không có vấn đề gì'.
+             */
+            history_available: boolean;
+            /** Generated At */
+            generated_at: string;
+        };
+        /** AdminDataQualityResponse */
+        AdminDataQualityResponse: {
+            data: components["schemas"]["AdminDataQualityData"];
         };
         /**
          * AdminDishDetail
@@ -896,6 +1036,48 @@ export interface components {
             /** Source */
             source?: string | null;
         };
+        /** AdminIssueDetailData */
+        AdminIssueDetailData: {
+            /** Key */
+            key: string;
+            /**
+             * Total
+             * @description Tổng bản ghi dính lỗi, có thể lớn hơn `results`
+             */
+            total: number;
+            /** Results */
+            results: components["schemas"]["BanGhiVanDeSchema"][];
+        };
+        /** AdminIssueDetailResponse */
+        AdminIssueDetailResponse: {
+            data: components["schemas"]["AdminIssueDetailData"];
+        };
+        /** AdminIssuesData */
+        AdminIssuesData: {
+            /** Groups */
+            groups: components["schemas"]["VanDeNhomSchema"][];
+            /** Critical */
+            critical: number;
+            /** Important */
+            important: number;
+            /** To Review */
+            to_review: number;
+            /** Total */
+            total: number;
+            /** Resolved Today */
+            resolved_today: number;
+            /** Resolved Total */
+            resolved_total: number;
+            /**
+             * Can Resolve
+             * @description Kho đánh dấu mở được không. False -> nút đánh dấu phải bị vô hiệu hoá.
+             */
+            can_resolve: boolean;
+        };
+        /** AdminIssuesResponse */
+        AdminIssuesResponse: {
+            data: components["schemas"]["AdminIssuesData"];
+        };
         /** AdminLoginData */
         AdminLoginData: {
             /** Token */
@@ -977,6 +1159,41 @@ export interface components {
         /** AdminRecommendationResponse */
         AdminRecommendationResponse: {
             data: components["schemas"]["AdminRecommendationData"];
+        };
+        /** AdminResolveIssueData */
+        AdminResolveIssueData: {
+            /** Key */
+            key: string;
+            /** Target Id */
+            target_id: string;
+            /**
+             * Resolved
+             * @description True = vừa đánh dấu, False = vừa gỡ
+             */
+            resolved: boolean;
+            /** Resolved At */
+            resolved_at?: string | null;
+            /** Resolved By */
+            resolved_by?: string | null;
+        };
+        /** AdminResolveIssueRequest */
+        AdminResolveIssueRequest: {
+            /**
+             * Key
+             * @description Khoá loại vấn đề, ví dụ `dong_tam`
+             */
+            key: string;
+            /** Target Id */
+            target_id: string;
+            /**
+             * Note
+             * @description Ghi chú tuỳ chọn, ví dụ 'đã gọi điện, quán vẫn mở'
+             */
+            note?: string | null;
+        };
+        /** AdminResolveIssueResponse */
+        AdminResolveIssueResponse: {
+            data: components["schemas"]["AdminResolveIssueData"];
         };
         /** AdminRestaurantListData */
         AdminRestaurantListData: {
@@ -1094,6 +1311,26 @@ export interface components {
             /** Website */
             website?: string | null;
         };
+        /**
+         * AnhChupChatLuongSchema
+         * @description Một điểm trên biểu đồ "Xu hướng dữ liệu".
+         */
+        AnhChupChatLuongSchema: {
+            /** Date */
+            date: string;
+            /** Restaurants Total */
+            restaurants_total: number;
+            /** Dishes Total */
+            dishes_total: number;
+            /** Completeness Percent */
+            completeness_percent: number;
+            /** Critical */
+            critical: number;
+            /** Important */
+            important: number;
+            /** To Review */
+            to_review: number;
+        };
         /** AuditEntrySchema */
         AuditEntrySchema: {
             /** Actor */
@@ -1169,6 +1406,37 @@ export interface components {
             current: number;
             /** Earned */
             earned: boolean;
+        };
+        /**
+         * BanGhiVanDeSchema
+         * @description Một bản ghi CỤ THỂ đang dính lỗi.
+         */
+        BanGhiVanDeSchema: {
+            /** Key */
+            key: string;
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /**
+             * Description
+             * @default
+             */
+            description: string;
+            /** Image Url */
+            image_url?: string | null;
+            /**
+             * Source Updated At
+             * @description Ngày NGUỒN cập nhật bản ghi, KHÔNG phải ngày phát hiện lỗi. null = chưa biết, giao diện phải im lặng chứ không đoán.
+             */
+            source_updated_at?: string | null;
+            /**
+             * Resolved At
+             * @description Đã được đánh dấu xử lý lúc nào. null = chưa đánh dấu.
+             */
+            resolved_at?: string | null;
+            /** Resolved By */
+            resolved_by?: string | null;
         };
         /**
          * ChangePasswordRequest
@@ -1807,6 +2075,23 @@ export interface components {
             /** Reason */
             reason?: string | null;
         };
+        /**
+         * ThayDoiSchema
+         * @description Chênh lệch so với một mốc trong quá khứ.
+         *
+         *     `delta = null` nghĩa là CHƯA CÓ ảnh chụp nào đủ cũ để so — giao diện phải nói "chưa
+         *     đủ dữ liệu để so sánh", KHÔNG được hiện mũi tên hay số 0.
+         */
+        ThayDoiSchema: {
+            /** Current */
+            current: number;
+            /** Baseline */
+            baseline?: number | null;
+            /** Baseline Date */
+            baseline_date?: string | null;
+            /** Delta */
+            delta?: number | null;
+        };
         /** ThongKeNguonSchema */
         ThongKeNguonSchema: {
             /** Source */
@@ -1893,6 +2178,35 @@ export interface components {
             msg: string;
             /** Error Type */
             type: string;
+        };
+        /**
+         * VanDeNhomSchema
+         * @description Một NHÓM vấn đề (một dòng của bảng "Cần xử lý").
+         */
+        VanDeNhomSchema: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Description */
+            description: string;
+            /** Count */
+            count: number;
+            /**
+             * Severity
+             * @description canh_bao | thong_tin — có phải việc phải làm
+             */
+            severity: string;
+            /**
+             * Priority
+             * @description nghiem_trong | quan_trong | can_kiem_tra — gấp tới đâu
+             */
+            priority: string;
+            /**
+             * Target Type
+             * @description quan_an | mon_an | du_lieu
+             */
+            target_type: string;
         };
         /**
          * VerifyEmailRequest
@@ -3254,6 +3568,168 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AdminRestaurantResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    admin_data_quality_api_v1_admin_quality_get: {
+        parameters: {
+            query?: {
+                /** @description Bỏ qua bộ đệm, tính lại ngay */
+                refresh?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminDataQualityResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    admin_issues_api_v1_admin_issues_get: {
+        parameters: {
+            query?: {
+                /** @description Lọc theo mức gấp: nghiem_trong | quan_trong | can_kiem_tra. Khoá lạ = KHÔNG lọc (trả về tất cả), để tham số gõ sai không làm bảng trống trơn và khiến người quản trị tưởng hệ thống sạch lỗi. */
+                priority?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminIssuesResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    admin_issue_detail_api_v1_admin_issues__key__get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminIssueDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    admin_resolve_issue_api_v1_admin_issues_resolve_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminResolveIssueRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminResolveIssueResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    admin_unresolve_issue_api_v1_admin_issues_resolve_delete: {
+        parameters: {
+            query: {
+                key: string;
+                target_id: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminResolveIssueResponse"];
                 };
             };
             /** @description Validation Error */

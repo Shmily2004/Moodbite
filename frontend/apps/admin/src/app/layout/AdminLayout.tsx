@@ -8,10 +8,13 @@
  * mục menu — hàng ngang 7 mục sẽ tràn ngay ở màn hình laptop, và khu quản trị vốn là
  * màn hình rộng dùng trên máy tính.
  *
- * ⚠️ MỘT MỤC CHƯA DỰNG: "Chất lượng dữ liệu" (chủ dự án chốt 2026-08-26 là chưa làm).
- * Nó hiện dạng MỜ + không bấm được, kèm chữ "chưa dựng". Làm thành link chết thì người
- * dùng bấm vào gặp 404 và không hiểu vì sao — còn giấu hẳn thì không ai biết kế hoạch
- * tới đâu. Sáu mục còn lại đều chạy thật.
+ * TOÀN BỘ 8 MỤC NAY ĐỀU CHẠY THẬT (2026-09-08). Trước đó "Chất lượng dữ liệu" hiện mờ
+ * kèm chữ "chưa dựng"; nay đã có trang thật, và có thêm "Cần xử lý" theo bản thiết kế
+ * `frontend/design/needs to be handled admin.png`.
+ *
+ * Cơ chế `chuaDung` (hiện mờ, không bấm được) VẪN GIỮ LẠI dù hiện không mục nào dùng:
+ * nó là cách đúng để thêm một mục đã có bản vẽ nhưng chưa có trang. Link chết thì người
+ * dùng bấm vào gặp 404 và không hiểu vì sao; giấu hẳn thì không ai biết kế hoạch tới đâu.
  */
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAdminSessionContext } from '@/features/admin-login';
@@ -29,9 +32,8 @@ const MENU: MucMenu[] = [
   { duongDan: ROUTES.overview, nhan: 'Tổng quan' },
   { duongDan: ROUTES.dishes, nhan: 'Quản lý món ăn' },
   { duongDan: ROUTES.restaurants, nhan: 'Quản lý quán ăn' },
-  // Chủ dự án chốt 2026-08-26: chưa làm màn này. Phần lớn số liệu của nó đã hiện ở
-  // "Tổng quan" (khối "Tình trạng dữ liệu" và "Cần xử lý").
-  { duongDan: '#chat-luong', nhan: 'Chất lượng dữ liệu', chuaDung: true },
+  { duongDan: ROUTES.quality, nhan: 'Chất lượng dữ liệu' },
+  { duongDan: ROUTES.issues, nhan: 'Cần xử lý' },
   { duongDan: ROUTES.recommendation, nhan: 'Gợi ý & Hệ thống' },
   { duongDan: ROUTES.activity, nhan: 'Nhật ký hoạt động' },
   { duongDan: ROUTES.system, nhan: 'Cài đặt hệ thống' },

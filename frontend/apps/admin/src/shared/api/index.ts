@@ -28,4 +28,14 @@ export type {
   LocMon,
   AdminRecommendationData,
   LopMoHinh,
+  // Màn "Chất lượng dữ liệu" + "Cần xử lý"
+  AdminDataQualityData,
+  AdminIssuesData,
+  AdminIssueDetailData,
+  AdminResolveIssueData,
+  VanDeNhom,
+  BanGhiVanDe,
+  AnhChupChatLuong,
+  ThayDoi,
+  UuTienVanDe,
 } from '@moodbite/api-client';

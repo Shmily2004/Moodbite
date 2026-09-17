@@ -45,6 +45,20 @@ export type BanGhiVanDe = components['schemas']['BanGhiVanDeSchema'];
 export type AnhChupChatLuong = components['schemas']['AnhChupChatLuongSchema'];
 export type ThayDoi = components['schemas']['ThayDoiSchema'];
 export type AdminResolveIssueData = components['schemas']['AdminResolveIssueData'];
+export type AdminResolvedIssuesData = components['schemas']['AdminResolvedIssuesData'];
+export type AdminResolvedIssue = components['schemas']['AdminResolvedIssueSchema'];
+
+// --- Phân trang, thẻ số, thao tác hàng loạt, khối "Hệ thống gợi ý" (2026-09-16) ---
+export type AdminRestaurantStatsData = components['schemas']['AdminRestaurantStatsData'];
+export type FacetValue = components['schemas']['FacetValueSchema'];
+export type AdminBulkVisibilityData = components['schemas']['AdminBulkVisibilityData'];
+export type AdminDishRestaurantsData = components['schemas']['AdminDishRestaurantsData'];
+export type AdminDishRestaurant = components['schemas']['AdminDishRestaurant'];
+/**
+ * Thống kê nhật ký tương tác. ⚠️ KHÔNG có CTR: dự án không ghi lượt hiển thị (impression),
+ * nên không có mẫu số — xem `domain/services/interaction_stats.py`.
+ */
+export type AdminInteractionStatsData = components['schemas']['AdminInteractionStatsData'];
 
 /**
  * Mức GẤP của một vấn đề — khác `severity` ("có phải việc phải làm không").
@@ -64,6 +78,15 @@ export type LocMon =
 export interface AdminListParams {
   q?: string | null;
   limit?: number;
+  /** Trang, bắt đầu từ 1. Có `page` thì server trả `total_matched` để phân trang. */
+  page?: number;
+  pageSize?: number;
+  /** Khu vực — giá trị lấy từ `restaurantStats().districts`. */
+  district?: string | null;
+  /** Nguồn. `manual` gộp cả quán nhập tay (manual/admin). */
+  source?: string | null;
+  /** `visible` | `hidden`. */
+  status?: 'visible' | 'hidden' | null;
   includeHidden?: boolean;
   /**
    * Lọc VIỆC CẦN XỬ LÝ: `dong_tam` | `thieu_lien_he`.
@@ -111,13 +134,21 @@ export class MoodbiteAdminApi {
    * danh mục ("Bún"). Đó là chủ đích — việc của admin là tìm món đang thiếu.
    */
   listDishes(
-    params: { q?: string | null; filter?: LocMon; limit?: number } = {},
+    params: {
+      q?: string | null;
+      filter?: LocMon;
+      limit?: number;
+      page?: number;
+      pageSize?: number;
+    } = {},
     options?: RequestOptions,
   ): Promise<AdminDishListData> {
     const t = new URLSearchParams();
     if (params.q) t.set('q', params.q);
     if (params.filter) t.set('filter', params.filter);
     if (params.limit) t.set('limit', String(params.limit));
+    if (params.page) t.set('page', String(params.page));
+    if (params.pageSize) t.set('page_size', String(params.pageSize));
     const q = t.toString();
     return this.http.request<AdminDishListData>(
       `/admin/dishes${q ? `?${q}` : ''}`,
@@ -138,14 +169,40 @@ export class MoodbiteAdminApi {
     );
   }
 
-  /** Nhật ký hoạt động quản trị, mới nhất đứng đầu. */
+  /**
+   * Quán khớp một món (tab "Danh sách quán" ở trang chi tiết món).
+   *
+   * Món là SUY LUẬN theo tên quán, không phải thực đơn thật — mỗi dòng có `matched_by`.
+   */
+  dishRestaurants(
+    dishId: string,
+    params: { limit?: number } = {},
+    options?: RequestOptions,
+  ): Promise<AdminDishRestaurantsData> {
+    const t = new URLSearchParams();
+    if (params.limit) t.set('limit', String(params.limit));
+    const q = t.toString();
+    return this.http.request<AdminDishRestaurantsData>(
+      `/admin/dishes/${encodeURIComponent(dishId)}/restaurants${q ? `?${q}` : ''}`,
+      options,
+    );
+  }
+
+  /** Nhật ký hoạt động quản trị, mới nhất đứng đầu. `targetId` = lịch sử của MỘT bản ghi. */
   activity(
-    params: { limit?: number; action?: string | null } = {},
+    params: {
+      limit?: number;
+      action?: string | null;
+      targetType?: string | null;
+      targetId?: string | null;
+    } = {},
     options?: RequestOptions,
   ): Promise<AuditLogData> {
     const t = new URLSearchParams();
     if (params.limit) t.set('limit', String(params.limit));
     if (params.action) t.set('action', params.action);
+    if (params.targetType) t.set('target_type', params.targetType);
+    if (params.targetId) t.set('target_id', params.targetId);
     const q = t.toString();
     return this.http.request<AuditLogData>(`/admin/activity${q ? `?${q}` : ''}`, options);
   }
@@ -175,11 +232,37 @@ export class MoodbiteAdminApi {
       search.set('include_hidden', String(params.includeHidden));
     }
     if (params.loc) search.set('loc', params.loc);
+    if (params.page) search.set('page', String(params.page));
+    if (params.pageSize) search.set('page_size', String(params.pageSize));
+    if (params.district) search.set('district', params.district);
+    if (params.source) search.set('source', params.source);
+    if (params.status) search.set('status', params.status);
     const query = search.toString();
     return this.http.request<AdminRestaurantListData>(
       `/admin/restaurants${query ? `?${query}` : ''}`,
       options,
     );
+  }
+
+  /** Thẻ số + giá trị ô chọn (khu vực, nguồn) của trang quản lý quán — toàn bộ bảng. */
+  restaurantStats(options?: RequestOptions): Promise<AdminRestaurantStatsData> {
+    return this.http.request<AdminRestaurantStatsData>('/admin/restaurants/stats', options);
+  }
+
+  /**
+   * Ẩn / bỏ ẩn NHIỀU quán một lần (tối đa 200). Server ghi nhật ký TỪNG quán.
+   * `not_found` = mã gửi lên nhưng không có trong CSDL — phải báo lại cho người dùng.
+   */
+  bulkSetVisibility(
+    restaurantIds: string[],
+    isActive: boolean,
+    options?: RequestOptions,
+  ): Promise<AdminBulkVisibilityData> {
+    return this.http.request<AdminBulkVisibilityData>('/admin/restaurants/bulk-visibility', {
+      ...options,
+      method: 'POST',
+      body: { restaurant_ids: restaurantIds, is_active: isActive },
+    });
   }
 
   /**
@@ -269,6 +352,25 @@ export class MoodbiteAdminApi {
     if (params.priority) t.set('priority', params.priority);
     const q = t.toString();
     return this.http.request<AdminIssuesData>(`/admin/issues${q ? `?${q}` : ''}`, options);
+  }
+
+  /** Tab "Đã xử lý" — các bản ghi đã được đánh dấu, mới nhất đứng đầu. */
+  resolvedIssues(
+    params: { limit?: number } = {},
+    options?: RequestOptions,
+  ): Promise<AdminResolvedIssuesData> {
+    const t = new URLSearchParams();
+    if (params.limit != null) t.set('limit', String(params.limit));
+    const q = t.toString();
+    return this.http.request<AdminResolvedIssuesData>(
+      `/admin/issues/resolved${q ? `?${q}` : ''}`,
+      options,
+    );
+  }
+
+  /** Khối "Hệ thống gợi ý" ở màn Tổng quan. Không có CTR — xem kiểu dữ liệu. */
+  interactionStats(options?: RequestOptions): Promise<AdminInteractionStatsData> {
+    return this.http.request<AdminInteractionStatsData>('/admin/interactions/stats', options);
   }
 
   /** Các bản ghi CỤ THỂ của một nhóm vấn đề — nút "Xem danh sách". */

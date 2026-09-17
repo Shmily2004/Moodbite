@@ -27,6 +27,12 @@ from src.application.ports.semantic_search import SemanticSearchPort
 from src.domain.entities.dish import CONFIDENCE_ML, Dish
 from src.domain.entities.restaurant import Restaurant
 from src.domain.services import search_ranking, text_relevance
+from src.domain.services.query_location import (
+    WardCentroid,
+    build_ward_centroids,
+    find_ward,
+    split_location_phrase,
+)
 from src.domain.services.closure_reports import ClosureReportTally
 from src.domain.services.search_ranking import DEFAULT_MAX_DISTANCE_KM
 from src.domain.value_objects.opening_hours import parse_opening_hours
@@ -131,6 +137,9 @@ class SearchRestaurantsUseCase:
         self._rule_predictor = rule_predictor
         self._semantic_search = semantic_search
         self._closure_tally = closure_tally
+        # Tâm phường dựng LƯỜI ở lần đầu cần tới, rồi giữ lại: quét 52.871 quán cho mỗi
+        # lượt tìm là phí, còn toạ độ quán thì gần như không đổi trong một phiên chạy.
+        self._ward_centroids: Optional[List[WardCentroid]] = None
 
     @property
     def _bi_bao_dong(self):
@@ -151,9 +160,13 @@ class SearchRestaurantsUseCase:
             )
 
         warnings: List[str] = []
-        origin = Location(lat=query.latitude, lng=query.longitude)
+        # Tách cụm địa điểm TRƯỚC mọi bước khớp chữ. Bug thật 2026-09-16: "bún chả gần hồ
+        # gươm" đem "hồ gươm" đi khớp TÊN QUÁN nên top-3 là "Ho Guom Bar", "GóC HỒ GƯƠM"...
+        # Từ đây trở xuống chỉ dùng `query_text` (đã bỏ cụm địa điểm), không dùng lại
+        # `query.query_text`.
+        query_text, origin = self._resolve_location(query, warnings)
 
-        mood_weights = self._resolve_mood_weights(query, warnings)
+        mood_weights = self._resolve_mood_weights(query, query_text, warnings)
         context = self._resolve_context(origin)
 
         candidates = self._apply_hard_filters(
@@ -163,16 +176,16 @@ class SearchRestaurantsUseCase:
         ranked = search_ranking.rank_restaurants(
             restaurants=candidates,
             origin=origin,
-            query_text=query.query_text,
+            query_text=query_text,
             mood_weights=mood_weights,
             context=context,
             max_distance_km=query.max_distance_km,
             is_reported_closed=self._bi_bao_dong,
             limit=max(1, min(query.limit, MAX_LIMIT)),
-            semantic_scores=self._semantic_scores(query.query_text),
+            semantic_scores=self._semantic_scores(query_text),
         )
 
-        if query.query_text and not any(r.text_score > 0 for r in ranked):
+        if query_text and not any(r.text_score > 0 for r in ranked):
             warnings.append(
                 "Không quán nào khớp trực tiếp nội dung tìm kiếm - kết quả dưới đây xếp "
                 "theo mức phù hợp chung, khoảng cách và đánh giá."
@@ -191,12 +204,51 @@ class SearchRestaurantsUseCase:
 
     # --- các bước con -------------------------------------------------------
 
-    def _resolve_mood_weights(
+    def _resolve_location(
         self, query: SearchQuery, warnings: List[str]
+    ) -> tuple[Optional[str], Location]:
+        """(câu đã bỏ cụm địa điểm, tâm tìm kiếm).
+
+        Địa điểm là TÊN PHƯỜNG có trong dữ liệu -> tìm quanh tâm phường đó. Địa danh khác
+        (Hồ Gươm, Lotte...) -> KHÔNG đoán toạ độ vì repo không có bảng toạ độ địa danh;
+        chỉ bỏ cụm đó khỏi phần khớp tên quán và NÓI RA là đang dùng vị trí gửi lên.
+        """
+        origin = Location(lat=query.latitude, lng=query.longitude)
+        if not query.query_text:
+            return query.query_text, origin
+
+        wards = self._wards()
+        parsed = split_location_phrase(
+            query.query_text, is_known_place=lambda place: find_ward(place, wards) is not None
+        )
+        if parsed.place is None:
+            return parsed.text, origin
+
+        ward = find_ward(parsed.place, wards)
+        if ward is None:
+            warnings.append(
+                f"Chưa hỗ trợ tìm theo tên địa điểm '{parsed.place}' - cụm này không được "
+                "dùng để khớp tên quán, kết quả xếp theo khoảng cách tới vị trí bạn gửi lên."
+            )
+            return parsed.text, origin
+
+        warnings.append(
+            f"Đang tìm quanh {ward.name}: tâm phường ƯỚC LƯỢNG từ toạ độ "
+            f"{ward.restaurant_count} quán trong dữ liệu, thay cho vị trí bạn gửi lên."
+        )
+        return parsed.text, ward.location
+
+    def _wards(self) -> List[WardCentroid]:
+        if self._ward_centroids is None:
+            self._ward_centroids = build_ward_centroids(self._restaurants.list_all())
+        return self._ward_centroids
+
+    def _resolve_mood_weights(
+        self, query: SearchQuery, query_text: Optional[str], warnings: List[str]
     ) -> Optional[Dict[str, float]]:
         """Ưu tiên mood suy ra từ CÂU TỰ DO; nếu câu không gợi mood nào thì mới dùng
         tham số `mood` (nút bấm) nếu client có gửi."""
-        inferred = text_relevance.infer_mood_weights(query.query_text)
+        inferred = text_relevance.infer_mood_weights(query_text)
         if inferred:
             return inferred
 

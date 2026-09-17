@@ -247,6 +247,76 @@ def test_matching_mood_beats_mismatching_mood():
     assert ranked[0].dish.name == "Cháo"
 
 
+# Bug thật 2026-09-16 (gọi API thật): mood "sad" và "excited" ra top-5 gần như y hệt
+# (Đồ nhắm, Gà rán, Lẩu Thái...), điểm chỉ lệch ở chữ số thứ 4; "sad" và "relaxed" trùng
+# 10/10 món. Nguyên nhân: `_score_mood` cũ là NHỊ PHÂN (có chung 1 tag -> 1.0), món tag
+# ['cozy','spicy'] ăn trọn điểm cho CẢ sad lẫn excited, và sad/relaxed dùng CÙNG bộ tag.
+
+CHAO = make_dish("Cháo nóng", mood_keywords=["comfort", "cozy"], temperature="hot",
+                 cooking_method=METHOD_SOUP, spice_level=0, portion_size="regular")
+LAU_THAI = make_dish("Lẩu Thái", mood_keywords=["spicy", "cozy"], temperature="hot",
+                     cooking_method=METHOD_SOUP, spice_level=3, portion_size="heavy")
+DO_NHAM = make_dish("Đồ nhắm", mood_keywords=["cozy", "spicy"], temperature="hot",
+                    spice_level=1, portion_size="regular")
+SALAD = make_dish("Salad", mood_keywords=["fresh"], temperature="cold",
+                  cooking_method="tron", spice_level=0)
+TRA_SUA = make_dish("Trà sữa trân châu", mood_keywords=["sweet"], temperature="cold",
+                    spice_level=0, meal_times=["an_vat"])
+MON_THEO_MOOD = [CHAO, LAU_THAI, DO_NHAM, SALAD, TRA_SUA]
+
+
+@pytest.mark.parametrize("mood, expected_top", [
+    ("sad", "Cháo nóng"),
+    ("excited", "Lẩu Thái"),
+    ("happy", "Salad"),
+    ("relaxed", "Trà sữa trân châu"),
+])
+def test_moi_mood_dua_mot_mon_khac_len_dau(mood, expected_top):
+    ranked = rank(MON_THEO_MOOD, DishFilter(mood=mood))
+    assert ranked[0].dish.name == expected_top
+
+
+def test_mood_cham_diem_co_BAC_khong_nhi_phan():
+    """Hai món cùng có tag 'cozy' không được bằng điểm nhau cho mood sad."""
+    chao, _ = dish_ranking._score_mood(CHAO, "sad")
+    do_nham, _ = dish_ranking._score_mood(DO_NHAM, "sad")
+    lau_thai, _ = dish_ranking._score_mood(LAU_THAI, "sad")
+    assert chao > do_nham
+    assert chao > lau_thai
+
+
+def test_do_nham_khong_dung_dau_khi_buon():
+    """Đồ nhắm (tag cozy+spicy) từng đứng #1 cho sad. Không loại cứng - chỉ là ánh xạ
+    thuộc tính không còn cho nó trọn điểm."""
+    ranked = rank(MON_THEO_MOOD, DishFilter(mood="sad"))
+    assert ranked[0].dish.name != "Đồ nhắm"
+
+
+def test_mood_affinity_chi_dung_gia_tri_thuoc_tinh_co_that():
+    """Khoá ánh xạ vào đúng bộ giá trị của entity: đổi tên hằng số bên Dish mà quên sửa
+    ánh xạ thì mood âm thầm mất tác dụng."""
+    from src.domain.entities.dish import COOKING_METHODS, MEAL_TIMES
+    from src.domain.value_objects.mood import (
+        DISH_MOOD_KEYWORDS,
+        MOOD_DISH_AFFINITY,
+        SUPPORTED_MOODS,
+    )
+
+    assert set(MOOD_DISH_AFFINITY) == set(SUPPORTED_MOODS)
+    for features in MOOD_DISH_AFFINITY.values():
+        for feature in features:
+            kind, _, value = feature.partition(":")
+            allowed = {
+                "kw": DISH_MOOD_KEYWORDS,
+                "temp": {"hot", "cold", "room"},
+                "method": set(COOKING_METHODS),
+                "meal": set(MEAL_TIMES),
+                "portion": {"light", "small", "regular", "heavy"},
+                "spice": {"none", "hot"},
+            }[kind]
+            assert value in allowed, feature
+
+
 # --- Entity Dish -------------------------------------------------------------
 
 

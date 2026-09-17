@@ -19,6 +19,7 @@ from typing import Optional
 from fastapi import APIRouter, Body, Depends, Query, Request
 
 from src.application.errors import DataNotReadyError
+from src.application.ports.admin_restaurant_repository import AdminRestaurantFilter
 from src.application.use_cases.find_restaurants_for_dish import DishNotFoundError
 from src.domain.entities.audit_log import tom_tat_thay_doi
 from src.presentation.api.dependencies import (
@@ -29,8 +30,14 @@ from src.presentation.api.dependencies import (
 )
 from src.presentation.api.envelope import success
 from src.presentation.api.schemas import (
+    AdminBulkVisibilityRequest,
+    AdminBulkVisibilityResponse,
     AdminCreateRestaurantRequest,
     AdminDataQualityResponse,
+    AdminDishRestaurantsResponse,
+    AdminInteractionStatsResponse,
+    AdminResolvedIssuesResponse,
+    AdminRestaurantStatsResponse,
     AdminIssueDetailResponse,
     AdminIssuesResponse,
     AdminResolveIssueRequest,
@@ -83,6 +90,8 @@ def _to_summary(restaurant) -> AdminRestaurantSummary:
         reviews_count=restaurant.reviews_count,
         is_active=restaurant.is_active,
         source=restaurant.source,
+        source_updated_at=restaurant.source_updated_at,
+        thumbnail_url=restaurant.thumbnail_url,
     )
 
 
@@ -126,22 +135,31 @@ def list_dishes(
         description="all | with_restaurants | without_restaurants | missing_image | "
         "missing_description",
     ),
-    limit: int = Query(50, ge=1, le=200),
+    page: int = Query(1, ge=1, description="Trang, bắt đầu từ 1"),
+    page_size: Optional[int] = Query(None, ge=1, le=200, description="Số dòng mỗi trang"),
+    limit: Optional[int] = Query(
+        None, ge=1, le=200, description="TÊN CŨ của page_size — giữ cho client cũ"
+    ),
 ):
-    """Danh mục món cho trang quản trị.
+    """Danh mục món cho trang quản trị, PHÂN TRANG ở server.
 
     ⚠️ KHÁC `/dishes/suggest`: ở đây thấy CẢ món chưa có quán (557 món) và CẢ danh mục
     ("Bún"). Người dùng cuối không được thấy hai nhóm đó, còn admin thì phải — việc của
     họ chính là tìm những món đang thiếu.
     """
-    results, total = container.list_dishes_for_admin.execute(
-        query=q, loc=filter, limit=limit
+    kq = container.list_dishes_for_admin.execute(
+        query=q, loc=filter, page=page, page_size=page_size or limit or 20
     )
     return success(
         {
-            "results": [asdict(r) for r in results],
-            "returned": len(results),
-            "total": total,
+            "results": [asdict(r) for r in kq.rows],
+            "returned": len(kq.rows),
+            "total": kq.total,
+            "page": kq.page,
+            "page_size": kq.page_size,
+            "counts": kq.counts,
+            "dishes_total": kq.dishes_total,
+            "dishes_with_restaurants": kq.dishes_with_restaurants,
         }
     )
 
@@ -292,6 +310,45 @@ def get_dish(
             "source": mon.source,
             "source_url": mon.source_url,
             "last_updated": mon.last_updated,
+            "restaurant_count": container.get_dish_for_admin.restaurant_count(mon),
+        }
+    )
+
+
+@router.get("/dishes/{dish_id}/restaurants", response_model=AdminDishRestaurantsResponse)
+def get_dish_restaurants(
+    dish_id: str,
+    container: Container = Depends(get_container),
+    _admin: str = Depends(require_admin),
+    limit: int = Query(20, ge=1, le=100),
+):
+    """Quán khớp một món — tab "Danh sách quán" ở trang chi tiết món quản trị.
+
+    CÙNG chỉ mục với `/dishes/{id}/restaurants` của người dùng, nhưng KHÔNG xếp theo vị trí
+    (admin không đứng ở đâu cả). Món là SUY LUẬN theo tên quán, nên trả kèm `matched_by`.
+    """
+    mon = container.get_dish_for_admin.execute(dish_id)
+    if mon is None:
+        raise DishNotFoundError(dish_id)
+    kq = container.get_dish_for_admin.restaurants(mon, limit=limit)
+    return success(
+        {
+            "dish_id": mon.identifier,
+            "total": kq.total,
+            "results": [
+                {
+                    "restaurant_id": m.restaurant.place_id,
+                    "name": m.restaurant.name,
+                    "address": m.restaurant.address,
+                    "district": m.restaurant.district,
+                    "rating": m.restaurant.rating,
+                    "reviews_count": m.restaurant.reviews_count,
+                    "source": m.restaurant.source,
+                    "thumbnail_url": m.restaurant.thumbnail_url,
+                    "matched_by": m.matched_by,
+                }
+                for m in kq.results
+            ],
         }
     )
 
@@ -332,6 +389,8 @@ def admin_system(
                 getattr(container.emails, "is_configured", False)
             ),
             "app_base_url": getattr(settings, "app_base_url", ""),
+            # Cờ DỮ LIỆU GIẢ LẬP — trang quản trị dựa vào đây để hiện banner cảnh báo.
+            "synthetic_data": bool(getattr(settings, "synthetic_data", False)),
             "services": [
                 {
                     "key": khoa,
@@ -376,6 +435,10 @@ def admin_activity(
         description="Lọc theo hành động: create_restaurant | update_restaurant | "
         "hide_restaurant | restore_restaurant",
     ),
+    target_type: Optional[str] = Query(None, description="restaurant | dish"),
+    target_id: Optional[str] = Query(
+        None, description="Mã đối tượng — lịch sử của MỘT bản ghi"
+    ),
 ):
     """Nhật ký hoạt động quản trị, MỚI NHẤT ĐỨNG ĐẦU.
 
@@ -383,7 +446,9 @@ def admin_activity(
     ký hỏng không ngăn được người quản trị làm việc, nên không có lý do gì chặn cả trang.
     Giao diện dùng `available` để nói đúng "chưa ghi gì" hay "không mở được kho".
     """
-    entries = container.doc_nhat_ky.execute(limit=limit, action=action)
+    entries = container.doc_nhat_ky.execute(
+        limit=limit, action=action, target_type=target_type, target_id=target_id
+    )
     kho = getattr(container, "audit_log", None)
     return success(
         {
@@ -453,6 +518,76 @@ def admin_overview(
     )
 
 
+@router.get("/interactions/stats", response_model=AdminInteractionStatsResponse)
+def admin_interaction_stats(
+    container: Container = Depends(get_container),
+    _admin: str = Depends(require_admin),
+):
+    """Khối "Hệ thống gợi ý" ở màn Tổng quan — đếm từ nhật ký tương tác.
+
+    ⚠️ KHÔNG có CTR: dự án không ghi lượt hiển thị (impression) nên không có mẫu số.
+    Tách riêng khỏi `/overview` vì số này đổi theo từng lượt người dùng bấm, còn số tổng
+    quan được đệm 5 phút.
+    """
+    kq = container.interaction_stats.execute()
+    tk = kq.thong_ke
+    return success(
+        {
+            "available": kq.available,
+            "total": tk.tong if tk else 0,
+            "positive_rate": tk.ty_le_tich_cuc if tk else None,
+            "sessions": tk.so_phien if tk else 0,
+            "users": tk.so_tai_khoan if tk else 0,
+            "by_action": [
+                {"action_type": k, "count": v}
+                for k, v in (tk.theo_hanh_dong.items() if tk else [])
+            ],
+            "last_7_days": [
+                {"date": d.ngay, "count": d.so_luot} for d in (tk.theo_ngay if tk else [])
+            ],
+        }
+    )
+
+
+@router.get("/restaurants/stats", response_model=AdminRestaurantStatsResponse)
+def restaurant_stats(
+    container: Container = Depends(get_container),
+    _admin: str = Depends(require_admin),
+):
+    """Thẻ số + giá trị ô chọn (khu vực, nguồn) của trang quản lý quán. Toàn bộ bảng."""
+    _require_writable(container)
+    kq = container.list_restaurant_page_for_admin.stats()
+    return success(
+        {
+            "total": kq.total,
+            "visible": kq.visible,
+            "hidden": kq.hidden,
+            "manual": kq.manual,
+            "districts": [{"value": v, "count": n} for v, n in kq.districts],
+            "sources": [{"value": v, "count": n} for v, n in kq.sources],
+        }
+    )
+
+
+@router.post("/restaurants/bulk-visibility", response_model=AdminBulkVisibilityResponse)
+def bulk_restaurant_visibility(
+    payload: AdminBulkVisibilityRequest = Body(...),
+    container: Container = Depends(get_container),
+    _admin: str = Depends(require_admin),
+):
+    """Ẩn / bỏ ẩn NHIỀU quán một lần. Mỗi quán vẫn có MỘT dòng nhật ký riêng."""
+    _require_writable(container)
+    kq = container.bulk_restaurant_visibility.execute(
+        payload.restaurant_ids, is_active=payload.is_active, actor=_admin
+    )
+    return success(
+        {
+            "updated": [_to_summary(r).model_dump() for r in kq.updated],
+            "not_found": kq.not_found,
+        }
+    )
+
+
 @router.get("/restaurants", response_model=AdminRestaurantListResponse)
 def list_restaurants(
     container: Container = Depends(get_container),
@@ -464,20 +599,41 @@ def list_restaurants(
         None,
         description="Lọc việc cần xử lý: dong_tam | thieu_lien_he. Khoá lạ = không lọc.",
     ),
+    page: int = Query(1, ge=1),
+    page_size: Optional[int] = Query(
+        None, ge=1, le=200, description="Số dòng mỗi trang. Bỏ trống = dùng `limit`"
+    ),
+    district: Optional[str] = Query(None, description="Khu vực (giá trị từ /restaurants/stats)"),
+    source: Optional[str] = Query(
+        None, description="Nguồn. `manual` gộp cả quán nhập tay (manual/admin)"
+    ),
+    status: Optional[str] = Query(None, description="visible | hidden. Khoá lạ = không lọc"),
 ):
-    """Danh sách quán cho trang quản trị.
+    """Danh sách quán cho trang quản trị, PHÂN TRANG ở server.
 
     MẶC ĐỊNH có cả quán đã ẩn — khác với `/search` của người dùng cuối. Không có nó thì
     ẩn xong sẽ không còn cách nào tìm lại để bỏ ẩn.
     """
     _require_writable(container)
-    results = container.list_restaurants_for_admin.execute(
-        query=q, limit=limit, include_hidden=include_hidden, loc=loc
+    kq = container.list_restaurant_page_for_admin.execute(
+        AdminRestaurantFilter(
+            query=q,
+            include_hidden=include_hidden,
+            loc=loc,
+            district=district or None,
+            source=source or None,
+            status=status or None,
+        ),
+        page=page,
+        page_size=page_size or limit,
     )
     return success(
         {
-            "total": len(results),
-            "results": [_to_summary(r).model_dump() for r in results],
+            "total": len(kq.rows),
+            "results": [_to_summary(r).model_dump() for r in kq.rows],
+            "total_matched": kq.total,
+            "page": kq.page,
+            "page_size": kq.page_size,
         }
     )
 
@@ -596,8 +752,10 @@ def _thay_doi_dict(x) -> dict:
     }
 
 
-def _nhom_van_de_dict(v) -> dict:
+def _nhom_van_de_dict(v, xu_ly_gan_nhat: Optional[dict] = None) -> dict:
+    luc = (xu_ly_gan_nhat or {}).get(v.khoa)
     return {
+        "last_resolved_at": luc.isoformat() if luc is not None else None,
         "key": v.khoa,
         "label": v.nhan,
         "description": v.mo_ta,
@@ -706,7 +864,7 @@ def admin_issues(
     kq = container.liet_ke_van_de.execute(uu_tien=priority)
     return success(
         {
-            "groups": [_nhom_van_de_dict(v) for v in kq.nhom],
+            "groups": [_nhom_van_de_dict(v, kq.xu_ly_gan_nhat) for v in kq.nhom],
             "critical": kq.dem_uu_tien.get("nghiem_trong", 0),
             "important": kq.dem_uu_tien.get("quan_trong", 0),
             "to_review": kq.dem_uu_tien.get("can_kiem_tra", 0),
@@ -714,6 +872,40 @@ def admin_issues(
             "resolved_today": kq.da_xu_ly_hom_nay,
             "resolved_total": kq.da_xu_ly_tong,
             "can_resolve": kq.co_the_danh_dau,
+        }
+    )
+
+
+# ⚠️ PHẢI khai TRƯỚC `/issues/{key}`: FastAPI khớp theo thứ tự khai báo, để sau thì
+# "resolved" bị hiểu là một khoá nhóm vấn đề và trả danh sách rỗng.
+@router.get("/issues/resolved", response_model=AdminResolvedIssuesResponse)
+def admin_resolved_issues(
+    container: Container = Depends(get_container),
+    _admin: str = Depends(require_admin),
+    limit: int = Query(50, ge=1, le=200),
+):
+    """Tab "Đã xử lý" — các bản ghi đã được đánh dấu, mới nhất đứng đầu."""
+    dong = container.liet_ke_da_xu_ly.execute(limit=limit)
+    return success(
+        {
+            "results": [
+                {
+                    "key": d.danh_dau.khoa,
+                    "group_label": d.nhan_nhom,
+                    "target_type": d.loai,
+                    "target_id": d.danh_dau.target_id,
+                    "name": d.ten,
+                    "resolved_by": d.danh_dau.actor,
+                    "note": d.danh_dau.ghi_chu,
+                    "resolved_at": (
+                        d.danh_dau.resolved_at.isoformat()
+                        if d.danh_dau.resolved_at
+                        else None
+                    ),
+                }
+                for d in dong
+            ],
+            "total": len(dong),
         }
     )
 

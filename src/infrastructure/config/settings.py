@@ -44,6 +44,15 @@ def describe_path(path) -> str:
         return resolved.name
 
 
+def parse_synthetic_flag(raw: str | None) -> bool:
+    """`MOODBITE_SYNTHETIC_DATA` -> bool. CHỈ "1" (bỏ khoảng trắng hai đầu) là bật.
+
+    Tách thành hàm riêng để test được mà không phải dựng cả `Settings.from_env()` (hàm đó
+    còn nạp `.env.local` của máy đang chạy).
+    """
+    return (raw or "").strip() == "1"
+
+
 def _path_from_env(env_key: str, default_relative: str) -> Path:
     raw = os.getenv(env_key)
     if raw:
@@ -116,6 +125,15 @@ class Settings:
     # Địa chỉ gốc của FRONTEND, dùng để dựng đường dẫn trong thư. Chạy máy mình thì là
     # http://localhost:5173; deploy thật thì đổi bằng biến môi trường.
     app_base_url: str
+    # --- Chế độ DỮ LIỆU GIẢ LẬP -------------------------------------------------
+    # True khi app đang chạy trên người dùng/tương tác do `scripts/gia_lap_nguoi_dung.py`
+    # sinh ra. Chỉ là CỜ BÁO để giao diện (banner admin) và /health nói thật với người xem:
+    # số liệu tương tác lúc này KHÔNG phải của người dùng thật. Cờ này KHÔNG tự đổi đường dẫn
+    # file — việc trỏ sang thư mục giả lập vẫn làm bằng MOODBITE_INTERACTIONS /
+    # MOODBITE_USERS_DB, để không có "phép màu" nào ghi nhầm vào dữ liệu thật.
+    # Có giá trị mặc định (False) vì đây là trường MỚI: nơi nào dựng Settings bằng tay
+    # (test, script cũ) không phải sửa theo.
+    synthetic_data: bool = False
 
     @staticmethod
     def from_env() -> "Settings":
@@ -217,4 +235,7 @@ class Settings:
                 or DEFAULT_RESET_TTL_SECONDS
             ),
             app_base_url=os.getenv("MOODBITE_APP_URL", "http://localhost:5173").strip(),
+            # Chỉ đúng chuỗi "1" mới bật, giống MOODBITE_ENABLE_WEATHER: gõ "true"/"yes" mà
+            # tưởng đã bật còn đỡ nguy hiểm hơn là vô tình bật vì một giá trị rác.
+            synthetic_data=parse_synthetic_flag(os.getenv("MOODBITE_SYNTHETIC_DATA")),
         )

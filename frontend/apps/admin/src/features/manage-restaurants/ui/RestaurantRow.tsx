@@ -9,6 +9,11 @@ import type {
   AdminRestaurantSummary,
   AdminUpdateRestaurantRequest,
 } from '@moodbite/api-client';
+import { NHAN_NGUON_QUAN, nhanTheoMa } from '@/shared/config';
+import { ngayGioVN, soVN } from '@/shared/lib';
+
+/** Số cột của bảng — dòng đang sửa phải trải hết chiều ngang. */
+const SO_COT = 10;
 
 /** Trường admin sửa được — khớp với EDITABLE_FIELDS ở backend. */
 const EDITABLE: Array<{ key: keyof AdminUpdateRestaurantRequest; label: string }> = [
@@ -24,11 +29,20 @@ const EDITABLE: Array<{ key: keyof AdminUpdateRestaurantRequest; label: string }
 
 export interface RestaurantRowProps {
   restaurant: AdminRestaurantSummary;
+  /** Có ô chọn hàng loạt hay không (quán thiếu mã thì không chọn được). */
+  selected?: boolean;
+  onToggleSelected?: (id: string) => void;
   onToggleHidden: (restaurant: AdminRestaurantSummary) => void;
   onSave: (id: string, changes: AdminUpdateRestaurantRequest) => Promise<boolean>;
 }
 
-export function RestaurantRow({ restaurant, onToggleHidden, onSave }: RestaurantRowProps) {
+export function RestaurantRow({
+  restaurant,
+  selected = false,
+  onToggleSelected,
+  onToggleHidden,
+  onSave,
+}: RestaurantRowProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<AdminUpdateRestaurantRequest>({});
   const [saving, setSaving] = useState(false);
@@ -56,7 +70,7 @@ export function RestaurantRow({ restaurant, onToggleHidden, onSave }: Restaurant
   if (editing) {
     return (
       <tr className="row row--editing">
-        <td colSpan={5}>
+        <td colSpan={SO_COT}>
           <div className="edit-grid">
             {EDITABLE.map(({ key, label }) => (
               <label key={key}>
@@ -90,39 +104,61 @@ export function RestaurantRow({ restaurant, onToggleHidden, onSave }: Restaurant
   return (
     <tr className={restaurant.is_active ? 'row' : 'row row--hidden'}>
       <td>
-        <span className="bang__ten">{restaurant.name}</span>
-        <br />
-        <span className="muted small">{restaurant.address ?? 'chưa có địa chỉ'}</span>
-        {/* Khu vực và NGUỒN ngay dưới tên: admin cần biết bản ghi này ở đâu ra trước
-            khi quyết định sửa hay ẩn. Quán `manual:` là do người gõ tay, sửa thoải mái;
-            quán từ Overture/OSM thì lần chạy pipeline sau có thể ghi đè. */}
-        <span className="bang__phu muted small">
-          {restaurant.district ?? 'chưa rõ khu vực'}
-          {restaurant.source && ` · ${restaurant.source}`}
-        </span>
-      </td>
-      <td>{restaurant.category ?? '—'}</td>
-      {/* `null` = CHƯA CÓ DỮ LIỆU, không phải 0 sao. Không bao giờ hiện "0". */}
-      <td>
-        {restaurant.rating != null ? (
-          <>
-            <span className="bang__ten">{restaurant.rating}</span>
-            {restaurant.reviews_count != null && (
-              <span className="muted small"> ({restaurant.reviews_count})</span>
-            )}
-          </>
-        ) : (
-          <span className="muted">chưa có đánh giá</span>
+        {restaurant.restaurant_id && onToggleSelected && (
+          <input
+            type="checkbox"
+            checked={selected}
+            onChange={() => onToggleSelected(restaurant.restaurant_id ?? '')}
+            aria-label={`Chọn ${restaurant.name}`}
+          />
         )}
       </td>
       <td>
-        {/* Dùng chung lớp `nhan--*` với bảng món, thay cho `pill--*` riêng của bảng này.
-            Hai bảng cùng ý nghĩa "trạng thái" thì phải nhìn giống nhau. */}
+        <div className="o-mon">
+          {restaurant.thumbnail_url ? (
+            <img className="o-anh" src={restaurant.thumbnail_url} alt="" loading="lazy" />
+          ) : (
+            <span className="o-anh o-anh--trong" aria-hidden="true" />
+          )}
+          <div>
+            <span className="bang__ten">{restaurant.name}</span>
+            <span className="bang__phu muted small">
+              {restaurant.category ?? 'chưa rõ loại hình'}
+            </span>
+          </div>
+        </div>
+      </td>
+      <td className="small">{restaurant.address ?? <span className="muted">chưa có địa chỉ</span>}</td>
+      <td className="small">{restaurant.district ?? <span className="muted">—</span>}</td>
+      {/* `null` = CHƯA CÓ DỮ LIỆU, không phải 0 sao. Không bao giờ hiện "0". */}
+      <td className="tnum">
+        {restaurant.rating != null ? (
+          <span className="bang__ten">{restaurant.rating.toLocaleString('vi-VN')} ★</span>
+        ) : (
+          <span className="muted small">chưa có</span>
+        )}
+      </td>
+      <td className="tnum small muted">
+        {restaurant.reviews_count != null ? `(${soVN(restaurant.reviews_count)})` : '—'}
+      </td>
+      <td>
+        {/* NGUỒN ngay trên dòng: quán `manual:` do người gõ tay, sửa thoải mái; quán từ
+            Overture/OSM thì lần chạy pipeline sau có thể ghi đè. */}
+        <span className={restaurant.source === 'manual' ? 'nhan nhan--tin' : 'nhan nhan--tat'}>
+          {nhanTheoMa(NHAN_NGUON_QUAN, restaurant.source)}
+        </span>
+      </td>
+      <td>
         {restaurant.is_active ? (
           <span className="nhan nhan--ok">Đang hiện</span>
         ) : (
-          <span className="nhan nhan--tat">Đã ẩn</span>
+          <span className="nhan nhan--loi">Đã ẩn</span>
         )}
+      </td>
+      {/* Ngày NGUỒN cập nhật bản ghi (quán nhập tay: ngày nhập). Không có thì "—" —
+          KHÔNG thay bằng ngày dựng CSDL, vì đó là nói sai tuổi dữ liệu. */}
+      <td className="small muted" title="Ngày nguồn dữ liệu cập nhật bản ghi">
+        {ngayGioVN(restaurant.source_updated_at)}
       </td>
       <td className="actions">
         <button className="ghost" onClick={startEdit}>

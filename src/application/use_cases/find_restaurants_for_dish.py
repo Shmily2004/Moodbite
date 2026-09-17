@@ -132,6 +132,12 @@ class FindRestaurantsForDishUseCase:
         theo_tang: dict = {}
         for m in matches:
             theo_tang.setdefault(m.strength, []).append(m.restaurant)
+        # NGUỒN KHỚP THẬT của từng quán, lấy từ chỉ mục món. Bug thật 2026-09-16: trang món
+        # trả `match_source="mood"` cho MỌI quán dù không gửi mood - vì ở đây xếp hạng
+        # không có câu tìm kiếm nên danh sách nguồn rỗng, và `RankedRestaurant` gán nhãn
+        # mặc định "mood" cho danh sách rỗng. Tra theo `id()` vì chỉ mục giữ đúng đối
+        # tượng quán được đưa vào xếp hạng (không phải bản sao).
+        nguon_khop = {id(m.restaurant): m.match_source for m in matches}
 
         ranked: List = []
         so_quan_yeu = 0
@@ -148,7 +154,13 @@ class FindRestaurantsForDishUseCase:
                 so_quan_yeu = len(phan)
             # Đánh lại số thứ tự cho liền mạch sau khi ghép các tầng.
             ranked = ranked + [
-                replace(item, rank_position=len(ranked) + i + 1)
+                replace(
+                    item,
+                    rank_position=len(ranked) + i + 1,
+                    match_sources=self._match_sources(
+                        nguon_khop.get(id(item.restaurant)), mood_weights
+                    ),
+                )
                 for i, item in enumerate(phan)
             ]
 
@@ -202,6 +214,14 @@ class FindRestaurantsForDishUseCase:
                 f"{query.max_distance_km} km. Đang hiện quán gần nhất, cách khoảng "
                 f"{nearest_km:.1f} km."
             )
+
+    @staticmethod
+    def _match_sources(dish_match_source: Optional[str], mood_weights) -> List[str]:
+        """Nguồn khớp món + "mood" CHỈ KHI người dùng thật sự gửi mood hợp lệ."""
+        sources = [dish_match_source] if dish_match_source else []
+        if mood_weights:
+            sources.append("mood")
+        return sources
 
     @staticmethod
     def _mood_weights(mood: Optional[str], warnings: List[str]):

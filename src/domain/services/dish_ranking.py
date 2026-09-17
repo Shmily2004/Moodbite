@@ -31,7 +31,7 @@ from src.domain.value_objects.context_signal import (
     MealTime,
     WeatherCondition,
 )
-from src.domain.value_objects.mood import MOOD_TO_DISH_KEYWORDS
+from src.domain.value_objects.mood import MOOD_DISH_AFFINITY
 
 # Điểm khi CHƯA BIẾT - dùng lại đúng quy ước Cold Start của rules.md mục 3.3:
 # chưa có dữ liệu thì cho điểm trung tính, TUYỆT ĐỐI không cho 0.
@@ -317,25 +317,59 @@ def _score_context(
     return _clamp(score), reasons
 
 
-def _score_mood(dish: Dish, mood: Optional[str]) -> tuple[float, List[str]]:
-    """Món có mang tag mood người dùng chọn không.
+# Quy đổi tổng trọng số thuộc tính (`MOOD_DISH_AFFINITY`) ra điểm [0, 1]:
+# điểm = NEUTRAL + tổng x hệ số. 0.4 để món hợp nhất (tổng ~1.2-1.4, VD Cháo nóng cho sad)
+# chạm 1.0, còn món chỉ trùng một tag phụ (tổng ~0.2-0.4) chỉ nhích nhẹ trên trung tính.
+MOOD_AFFINITY_SCALE = 0.4
+# Tổng trọng số từ ngưỡng này mới ghi lý do "hợp tâm trạng": trùng một tag phụ (cozy 0.2)
+# mà cũng khoe "hợp tâm trạng" là nói quá.
+MOOD_REASON_MIN_AFFINITY = 0.5
 
-    Không chọn mood -> trung tính. Chọn mood nhưng món chưa gắn tag nào -> cũng trung
-    tính, KHÔNG phải 0: món chưa gắn tag là thiếu dữ liệu, không phải không hợp.
+
+def dish_mood_features(dish: Dish) -> List[str]:
+    """Các thuộc tính CÓ THẬT của món, viết theo khoá của `MOOD_DISH_AFFINITY`.
+
+    Thiếu dữ liệu ở chiều nào thì chiều đó không sinh khoá - không đoán.
+    """
+    features = [f"kw:{k}" for k in dish.mood_keywords]
+    if dish.temperature:
+        features.append(f"temp:{dish.temperature}")
+    if dish.cooking_method:
+        features.append(f"method:{dish.cooking_method}")
+    if dish.portion_size:
+        features.append(f"portion:{dish.portion_size}")
+    features.extend(f"meal:{m}" for m in dish.meal_times)
+    if dish.spice_level is not None:
+        if dish.spice_level == 0:
+            features.append("spice:none")
+        elif dish.spice_level >= 2:
+            features.append("spice:hot")
+    return features
+
+
+def _score_mood(dish: Dish, mood: Optional[str]) -> tuple[float, List[str]]:
+    """Món hợp tâm trạng người dùng chọn tới đâu - CÓ BẬC, không nhị phân.
+
+    Không chọn mood / mood lạ -> trung tính. Món không có thuộc tính nào -> cũng trung
+    tính, KHÔNG phải 0: thiếu dữ liệu không phải không hợp.
+
+    Bản cũ cho 1.0 hễ trùng MỘT tag: món tag ['cozy','spicy'] ăn trọn điểm cho cả sad lẫn
+    excited, nên bốn mood ra top-5 gần như y hệt (xem `MOOD_DISH_AFFINITY`).
     """
     if not mood:
         return NEUTRAL_SCORE, []
-
-    wanted = MOOD_TO_DISH_KEYWORDS.get(mood.strip().lower())
-    if not wanted:
+    weights = MOOD_DISH_AFFINITY.get(mood.strip().lower())
+    if not weights:
         return NEUTRAL_SCORE, []
-    if not dish.mood_keywords:
+    features = dish_mood_features(dish)
+    if not features:
         return NEUTRAL_SCORE, []
 
-    overlap = set(dish.mood_keywords) & set(wanted)
-    if not overlap:
-        return 0.2, []
-    return 1.0, ["hợp tâm trạng bạn chọn"]
+    affinity = sum(weights.get(feature, 0.0) for feature in features)
+    reasons = (
+        ["hợp tâm trạng bạn chọn"] if affinity >= MOOD_REASON_MIN_AFFINITY else []
+    )
+    return _clamp(NEUTRAL_SCORE + affinity * MOOD_AFFINITY_SCALE), reasons
 
 
 def _score_availability(count: int) -> float:

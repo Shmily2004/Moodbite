@@ -10,10 +10,14 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import List, Mapping, Optional
+from typing import List, Mapping, Optional, Sequence
 
 from src.application.errors import DataNotReadyError
-from src.application.ports.admin_restaurant_repository import AdminRestaurantRepository
+from src.application.ports.admin_restaurant_repository import (
+    AdminRestaurantFilter,
+    AdminRestaurantRepository,
+    AdminRestaurantStats,
+)
 
 # Dùng lại đúng lớp lỗi mà `/interactions` đang dùng, để `error_handlers.py` ánh xạ
 # sang 404 RESTAURANT_NOT_FOUND ở MỘT chỗ duy nhất.
@@ -26,6 +30,10 @@ from src.domain.value_objects.restaurant_new import NewRestaurant
 logger = logging.getLogger("moodbite.admin")
 
 MAX_ADMIN_PAGE_SIZE = 200
+# Số quán tối đa một lần ẩn/bỏ ẩn hàng loạt = đúng một trang lớn nhất. Chọn "tất cả" trên
+# giao diện chỉ chọn trang đang xem, nên không có lý do gì để nhận nhiều hơn — và một
+# request lạc tay không được phép ẩn cả chục nghìn quán cùng lúc.
+MAX_BULK_IDS = MAX_ADMIN_PAGE_SIZE
 
 
 def _require_ready(repository: object) -> None:
@@ -53,6 +61,105 @@ class ListRestaurantsForAdminUseCase:
         safe_limit = max(1, min(int(limit), MAX_ADMIN_PAGE_SIZE))
         return self.restaurants.list_for_admin(
             query=query, limit=safe_limit, include_hidden=include_hidden, loc=loc
+        )
+
+
+@dataclass(frozen=True)
+class AdminRestaurantPage:
+    rows: List[Restaurant]
+    total: int
+    page: int
+    page_size: int
+
+
+@dataclass
+class ListRestaurantPageForAdminUseCase:
+    """Bảng quán PHÂN TRANG ở server + thẻ số đầu trang.
+
+    Tách khỏi `ListRestaurantsForAdminUseCase` (giữ nguyên cho chỗ đang dùng) vì trả về
+    hình dạng khác: có tổng để phân trang.
+    """
+
+    restaurants: AdminRestaurantRepository
+
+    def execute(
+        self, filters: AdminRestaurantFilter, page: int = 1, page_size: int = 20
+    ) -> AdminRestaurantPage:
+        _require_ready(self.restaurants)
+        co = max(1, min(int(page_size), MAX_ADMIN_PAGE_SIZE))
+        trang = max(1, int(page))
+        rows, total = self.restaurants.page_for_admin(
+            filters, offset=(trang - 1) * co, limit=co
+        )
+        return AdminRestaurantPage(rows=rows, total=total, page=trang, page_size=co)
+
+    def stats(self) -> AdminRestaurantStats:
+        _require_ready(self.restaurants)
+        return self.restaurants.stats_for_admin()
+
+
+class InvalidBulkRequest(ValueError):
+    """Danh sách rỗng hoặc quá dài -> 400 INVALID_REQUEST (ánh xạ chung cho ValueError)."""
+
+
+@dataclass(frozen=True)
+class BulkVisibilityResult:
+    updated: List[Restaurant]
+    # Mã gửi lên nhưng không có trong CSDL. Báo lại chứ không nuốt: admin chọn 20 quán mà
+    # chỉ 19 đổi trạng thái thì phải biết quán nào hụt.
+    not_found: List[str]
+
+
+@dataclass
+class BulkSetRestaurantVisibilityUseCase:
+    """Ẩn / bỏ ẩn NHIỀU quán một lần — thanh thao tác hàng loạt của bản thiết kế.
+
+    GHI NHẬT KÝ TỪNG QUÁN, đúng như thao tác đơn lẻ: nhật ký trả lời "ai đã ẩn quán X",
+    một dòng "ẩn 20 quán" không trả lời được câu đó. `audit` là `GhiNhatKyUseCase` — nó
+    tự nuốt lỗi, nên nhật ký hỏng không làm hỏng thao tác chính.
+    """
+
+    restaurants: AdminRestaurantRepository
+    audit: Optional[object] = None
+
+    def execute(
+        self, place_ids: Sequence[str], is_active: bool, actor: str
+    ) -> BulkVisibilityResult:
+        _require_ready(self.restaurants)
+        ma = list(dict.fromkeys(str(p).strip() for p in place_ids if str(p).strip()))
+        if not ma:
+            raise InvalidBulkRequest("Chưa chọn quán nào.")
+        if len(ma) > MAX_BULK_IDS:
+            raise InvalidBulkRequest(
+                f"Chỉ được ẩn/bỏ ẩn tối đa {MAX_BULK_IDS} quán một lần (gửi {len(ma)})."
+            )
+
+        co_that = set(self.restaurants.set_active_many(ma, is_active))
+        updated: List[Restaurant] = []
+        for place_id in ma:
+            if place_id not in co_that:
+                continue
+            quan = self.restaurants.get_for_admin(place_id)
+            if quan is None:  # pragma: no cover - chỉ xảy ra nếu bị xoá xen giữa
+                continue
+            updated.append(quan)
+            if self.audit is not None:
+                self.audit.ghi(
+                    actor=actor,
+                    action="restore_restaurant" if is_active else "hide_restaurant",
+                    target_type="restaurant",
+                    target_id=place_id,
+                    summary=(
+                        f'Khôi phục quán "{quan.name}" (hàng loạt)'
+                        if is_active
+                        else f'Ẩn quán "{quan.name}" (hàng loạt)'
+                    ),
+                )
+        logger.info(
+            "Admin %s %d quán hàng loạt", "bỏ ẩn" if is_active else "ẩn", len(updated)
+        )
+        return BulkVisibilityResult(
+            updated=updated, not_found=[p for p in ma if p not in co_that]
         )
 
 
@@ -144,6 +251,12 @@ class SetRestaurantVisibilityUseCase:
 
 
 __all__ = [
+    "AdminRestaurantPage",
+    "BulkSetRestaurantVisibilityUseCase",
+    "BulkVisibilityResult",
+    "InvalidBulkRequest",
+    "ListRestaurantPageForAdminUseCase",
+    "MAX_BULK_IDS",
     "ListRestaurantsForAdminUseCase",
     "UpdateRestaurantUseCase",
     "SetRestaurantVisibilityUseCase",

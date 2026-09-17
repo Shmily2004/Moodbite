@@ -86,16 +86,28 @@ class SqliteAuditLogRepository:
         return ban_ghi
 
     def list_recent(
-        self, limit: int = 50, action: Optional[str] = None
+        self,
+        limit: int = 50,
+        action: Optional[str] = None,
+        target_type: Optional[str] = None,
+        target_id: Optional[str] = None,
     ) -> List[AuditEntry]:
         if self._error is not None:
             return []
         so = max(1, min(int(limit), MAX_TRA_VE))
-        where = ""
+        dieu_kien: list = []
         params: list = []
-        if action:
-            where = "WHERE action = ?"
-            params.append(action)
+        for cot, gia_tri in (
+            ("action", action),
+            ("target_type", target_type),
+            ("target_id", target_id),
+        ):
+            # Tên cột là HẰNG trong vòng lặp này, không đến từ input -> không có đường
+            # SQL injection; giá trị vẫn đi qua tham số `?`.
+            if gia_tri:
+                dieu_kien.append(f"{cot} = ?")
+                params.append(gia_tri)
+        where = ("WHERE " + " AND ".join(dieu_kien)) if dieu_kien else ""
         try:
             with sqlite3.connect(self.db_path) as conn:
                 conn.row_factory = sqlite3.Row

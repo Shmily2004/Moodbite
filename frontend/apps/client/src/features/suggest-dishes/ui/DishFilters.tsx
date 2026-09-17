@@ -16,7 +16,8 @@
  *   2. SVG trong `shared/ui/icons.tsx` cho phần còn lại.
  */
 import type { ReactNode } from 'react';
-import type { DishFilterState, MultiSelectGroup, SingleSelectGroup } from '../model/useDishSuggestions';
+import type { DishFilterState, MultiSelectGroup, SingleSelectGroup } from '../model/useDishFilterState';
+import { DistanceSlider } from './DistanceSlider';
 import { ICON_MOOD } from '@/shared/config';
 import {
   IconBoil,
@@ -94,8 +95,6 @@ const MOOD_OPTIONS = [
   { value: 'relaxed', label: 'Thư giãn', icon: <AnhMood khoa="relaxed" /> },
 ];
 
-const RADIUS_OPTIONS = [2, 5, 10, 20];
-
 interface DishFiltersProps {
   filters: DishFilterState;
   onToggle: (group: MultiSelectGroup, value: string) => void;
@@ -168,24 +167,7 @@ export function DishFilters(props: DishFiltersProps) {
       </FilterRow>
 
       <div className="filters__foot">
-        <label className="filters__radius">
-          Trong vòng{' '}
-          <select
-            value={filters.maxDistanceKm ?? ''}
-            onChange={(event) =>
-              props.onSetMaxDistanceKm(
-                event.target.value ? Number(event.target.value) : null,
-              )
-            }
-          >
-            {RADIUS_OPTIONS.map((km) => (
-              <option key={km} value={km}>
-                {km} km
-              </option>
-            ))}
-            <option value="">Không giới hạn</option>
-          </select>
-        </label>
+        <DistanceSlider value={filters.maxDistanceKm} onChange={props.onSetMaxDistanceKm} />
 
         <button
           className="btn"

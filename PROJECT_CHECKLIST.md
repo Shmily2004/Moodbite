@@ -1,6 +1,6 @@
 # MoodBite — Bảng theo dõi tiến độ
 
-**Cập nhật:** 2026-09-08
+**Cập nhật:** 2026-09-16
 **Nguyên tắc:** file này chỉ ghi thứ đã **chạy thật và kiểm chứng được**. Không ghi theo
 kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh để tự kiểm lại.
 
@@ -19,7 +19,7 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Frontend Client | ✅ **TypeScript + FSD** | 86 test, có bản đồ, steiger trong CI |
 | Bản đồ | ✅ **Xong** | Leaflet + OpenStreetMap, miễn phí, không cần key |
 | Kiến trúc | ✅ Sạch | Clean Architecture + checker tự động trong CI |
-| Test | ✅ **617 backend + 217 frontend** | tổng **834** (client 187 · admin 30). Đo bằng `python scripts/verify.py` ngày 2026-09-08 |
+| Test | ✅ **689 backend + 293 frontend** | client 228 · admin 65. Đo bằng `python scripts/verify.py` ngày 2026-09-16 |
 | Giao diện | ✅ Theo bản duyệt · **trang chủ + tài khoản dựng lại 2026-08-22** | trang chủ = LƯỚI MÓN + chips lọc; trang món = giới thiệu + bản đồ + danh sách quán; `/tim-kiem` giữ bố cục bản đồ + rail cũ |
 | Router + layout | ✅ Xong | react-router v6, khung dùng chung, `RequireAuth` cho admin |
 | Chạy xem giao diện | ✅ **một lệnh** | `python scripts/run_dev.py --admin` |
@@ -1235,6 +1235,33 @@ nhịp tốt.
 **Chậm ở đúng một chỗ: thu thập tương tác người dùng.** Và đó lại là thứ chặn phần "học
 máy" — phần dễ bị hỏi nhất khi bảo vệ. Nhắc lại ở mỗi lần cập nhật file này cho tới khi
 `interactions.jsonl` có ít nhất **500 bản ghi từ người thật**.
+
+---
+
+## 🆕 Đợt rà soát + sửa 2026-09-16
+
+Mọi số dưới đây đo thật trong ngày. Lệnh kiểm lại ghi ở từng dòng.
+
+| Việc | Kết quả | Kiểm lại |
+|---|---|---|
+| `httpx` thiếu trong `requirements.txt` | ✅ Đã thêm (`>=0.24,<0.28`). Trước đó `.venv` cài từ file này không import được TestClient → **13 file test API lỗi collect** | `pip install -r requirements.txt` rồi `python -m pytest -q` |
+| **Bug: trang chi tiết món trả 404** | ✅ Router cũ tìm món trong TOP 100 của lượt gợi ý → món hạng >100 (`mi-cay`, 74 quán quanh trung tâm) và **mọi danh mục** (`pho`, `bun`…) đều 404. Nay `SuggestDishesUseCase.describe_dish` chấm đúng 1 món. Gọi thật: **298/298** món đang bật mở được | `tests/test_dish_api.py -k "beyond_suggest_limit or category_dish"` |
+| Bug: "bún chả gần hồ gươm" ra quán tên Hồ Gươm | ✅ `domain/services/query_location.py` tách cụm địa điểm. Tên phường → tìm quanh tâm phường (suy từ cột `district`); địa danh khác → bỏ khỏi khớp tên + `warnings`. Gọi thật: top 5 đều là quán bún chả | `tests/test_query_location.py` |
+| Bug: trang món luôn `match_source="mood"` | ✅ Nay lấy nguồn khớp thật (`name`/`category`/`review`), `+mood` chỉ khi client gửi mood | `tests/test_dish_api.py` |
+| Mood gần như không đổi gợi ý món | ✅ `MOOD_DISH_AFFINITY` trong `mood.py`, chấm có bậc. Trước: sad/relaxed trùng top-10 **10/10**; sau: hai mood bất kỳ trùng top-5 **≤2/5** (ngữ cảnh bữa tối cố định). ⚠️ Chỉ 79/855 món có thuộc tính cấu trúc → món còn lại vẫn điểm trung tính 0.5, KHÔNG bịa thuộc tính | `tests/test_dish_ranking.py` |
+| Quán cà phê không dấu ở trang Phở | ✅ Tầng xếp hạng riêng cho quán đồ uống chỉ khớp không dấu — "Pho Co Coffee" từ #2 ra ngoài top 50. **Luật dấu KHÔNG đổi** | `tests/test_dish_matching.py` |
+| **Dữ liệu người dùng GIẢ LẬP** | ✅ `scripts/gia_lap_nguoi_dung.py` → `data_pipeline/data_synthetic/` (gitignore). 60 người × 14 ngày: 303 phiên, 567 sự kiện, 77,4% dương. Dữ liệu thật **không đổi** (sha256). Bật app ở chế độ giả lập: xem `scripts/README.md` — admin hiện banner "DỮ LIỆU GIẢ LẬP" | `tests/test_gia_lap_nguoi_dung.py` |
+| Đánh giá xếp hạng trên dữ liệu giả lập | 🟡 `scripts/danh_gia_xep_hang.py`. NDCG@10: MoodBite **0,490** · chỉ khoảng cách **0,602** · ngẫu nhiên **0,346**. ⚠️ **GIẢ LẬP, KHÔNG trích như kết quả người dùng thật**; persona được định nghĩa coi trọng khoảng cách nên baseline khoảng cách có lợi thế sẵn. Nhưng là tín hiệu nên xem lại `W_DISTANCE` khi có dữ liệu thật | `python scripts/danh_gia_xep_hang.py` |
+| UI client theo bản vẽ | ✅ `/recommend` có cột lọc trái (≥1024px) + đếm + sắp xếp + lưới 3 cột + thanh trượt km · `SiteHeader` cho `/dishes/:id` và `/search` · tài khoản: thẻ ảnh, radar "Khẩu vị", dải CTA · thanh tab dưới (<768px) · 2 bug `DishPage` (hook sau `return`, ngăn kéo "Chỉnh sửa" rỗng). Đã chụp màn hình thật bằng Edge headless: sửa thêm lỗi cột lọc tràn (`.distance min-width`) | `npm run test --workspace @moodbite/client` |
+| UI admin theo bản vẽ | ✅ Phân trang server + thẻ số + lọc cho bảng món/quán · trang `/mon-an/:dishId` 4 tab · ẩn/hiện hàng loạt · tab "Đã xử lý" + xuất CSV · biểu đồ vành khuyên + khối "Hệ thống gợi ý" · icon menu, breadcrumb. ⚠️ **Chưa chụp màn hình admin** (cần mật khẩu admin) | `npm run test --workspace @moodbite/admin` |
+
+**Cần chủ dự án quyết (chưa làm):**
+- Tìm "phở" vẫn ra "Nhà Hàng Phố Cổ", "Gà Phố": `_overlap` trong `text_relevance.py` so tập từ đã bỏ dấu, không qua `tokens_match` (vi phạm CLAUDE.md §4.5). Sửa sẽ đổi xếp hạng `/search` diện rộng và phải bỏ test `test_accent_stripping_can_collide_but_ranking_still_correct`.
+- Trang Phở còn "Tra da Tao pho" (#5) — loại hình "Nhà hàng ăn nhanh", chỉ đổi được nếu siết luật "một vế không dấu".
+- Bộ sưu tập · Địa chỉ · Thông báo · số điện thoại · thu hồi token: đều cần **đổi lược đồ DB**.
+- Công tắc "Chỉ hiện quán có ghi giá" (`Filler.png`): API gợi ý món chưa có tham số lọc giá.
+- CTR ở admin: không ghi lượt HIỂN THỊ nên không có mẫu số.
+- Sở thích khẩu vị chỉ lưu localStorage và chưa dùng để lọc, dù câu chữ trên trang hứa "bật sẵn bộ lọc".
 
 ---
 

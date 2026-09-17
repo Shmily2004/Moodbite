@@ -11,13 +11,22 @@
  * endpoint nào đọc/ghi. Làm ở server là ĐỔI LƯỢC ĐỒ DỮ LIỆU — việc phải chốt trước
  * (CLAUDE.md mục 8). Bản localStorage này đổi lại được ngay và nói đúng thứ nó làm.
  */
-import { useTastePreferences } from '../model/useTastePreferences';
+import type { UseTastePreferencesResult } from '../model/useTastePreferences';
 import { SO_THICH } from '../model/danh_sach';
 import { useT } from '@/shared/i18n';
 
-export function TastePicker() {
+export interface TastePickerProps {
+  /**
+   * State sở thích do TRANG giữ (đổi 2026-09-16). Trước đó component tự gọi
+   * `useTastePreferences()`, nên biểu đồ "Khẩu vị của bạn" cùng trang giữ một bản state
+   * RIÊNG và không đổi theo khi người dùng bấm chip — hai chỗ nói hai chuyện.
+   */
+  prefs: UseTastePreferencesResult;
+}
+
+export function TastePicker({ prefs }: TastePickerProps) {
   const t = useT();
-  const { chon, dangChon, xoaHet, soLuong } = useTastePreferences();
+  const { chon, dangChon, xoaHet, soLuong } = prefs;
 
   return (
     <section className="panel">

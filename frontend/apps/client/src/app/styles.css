@@ -135,6 +135,8 @@ body {
   background: var(--bg);
   overflow: hidden;
 }
+/* Trang `/search` có thêm `SiteHeader` chung ở trên cùng (2026-09-16) -> thêm một hàng. */
+.shell--search { grid-template-rows: auto auto auto 1fr; }
 
 /* --- Thanh trên ----------------------------------------------------------- */
 

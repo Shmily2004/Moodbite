@@ -1359,7 +1359,7 @@
           "admin"
         ],
         "summary": "List Dishes",
-        "description": "Danh mục món cho trang quản trị.\n\n⚠️ KHÁC `/dishes/suggest`: ở đây thấy CẢ món chưa có quán (557 món) và CẢ danh mục\n(\"Bún\"). Người dùng cuối không được thấy hai nhóm đó, còn admin thì phải — việc của\nhọ chính là tìm những món đang thiếu.",
+        "description": "Danh mục món cho trang quản trị, PHÂN TRANG ở server.\n\n⚠️ KHÁC `/dishes/suggest`: ở đây thấy CẢ món chưa có quán (557 món) và CẢ danh mục\n(\"Bún\"). Người dùng cuối không được thấy hai nhóm đó, còn admin thì phải — việc của\nhọ chính là tìm những món đang thiếu.",
         "operationId": "list_dishes_api_v1_admin_dishes_get",
         "parameters": [
           {
@@ -1393,16 +1393,57 @@
             "description": "all | with_restaurants | without_restaurants | missing_image | missing_description"
           },
           {
-            "name": "limit",
+            "name": "page",
             "in": "query",
             "required": false,
             "schema": {
               "type": "integer",
-              "maximum": 200,
               "minimum": 1,
-              "default": 50,
+              "description": "Trang, bắt đầu từ 1",
+              "default": 1,
+              "title": "Page"
+            },
+            "description": "Trang, bắt đầu từ 1"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 200,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Số dòng mỗi trang",
+              "title": "Page Size"
+            },
+            "description": "Số dòng mỗi trang"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 200,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "TÊN CŨ của page_size — giữ cho client cũ",
               "title": "Limit"
-            }
+            },
+            "description": "TÊN CŨ của page_size — giữ cho client cũ"
           }
         ],
         "responses": {
@@ -1494,6 +1535,61 @@
         }
       }
     },
+    "/api/v1/admin/dishes/{dish_id}/restaurants": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Get Dish Restaurants",
+        "description": "Quán khớp một món — tab \"Danh sách quán\" ở trang chi tiết món quản trị.\n\nCÙNG chỉ mục với `/dishes/{id}/restaurants` của người dùng, nhưng KHÔNG xếp theo vị trí\n(admin không đứng ở đâu cả). Món là SUY LUẬN theo tên quán, nên trả kèm `matched_by`.",
+        "operationId": "get_dish_restaurants_api_v1_admin_dishes__dish_id__restaurants_get",
+        "parameters": [
+          {
+            "name": "dish_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dish Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDishRestaurantsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/system": {
       "get": {
         "tags": [
@@ -1554,6 +1650,42 @@
               "title": "Action"
             },
             "description": "Lọc theo hành động: create_restaurant | update_restaurant | hide_restaurant | restore_restaurant"
+          },
+          {
+            "name": "target_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "restaurant | dish",
+              "title": "Target Type"
+            },
+            "description": "restaurant | dish"
+          },
+          {
+            "name": "target_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Mã đối tượng — lịch sử của MỘT bản ghi",
+              "title": "Target Id"
+            },
+            "description": "Mã đối tượng — lịch sử của MỘT bản ghi"
           }
         ],
         "responses": {
@@ -1626,13 +1758,99 @@
         }
       }
     },
+    "/api/v1/admin/interactions/stats": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Admin Interaction Stats",
+        "description": "Khối \"Hệ thống gợi ý\" ở màn Tổng quan — đếm từ nhật ký tương tác.\n\n⚠️ KHÔNG có CTR: dự án không ghi lượt hiển thị (impression) nên không có mẫu số.\nTách riêng khỏi `/overview` vì số này đổi theo từng lượt người dùng bấm, còn số tổng\nquan được đệm 5 phút.",
+        "operationId": "admin_interaction_stats_api_v1_admin_interactions_stats_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminInteractionStatsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/restaurants/stats": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Restaurant Stats",
+        "description": "Thẻ số + giá trị ô chọn (khu vực, nguồn) của trang quản lý quán. Toàn bộ bảng.",
+        "operationId": "restaurant_stats_api_v1_admin_restaurants_stats_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminRestaurantStatsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/restaurants/bulk-visibility": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Bulk Restaurant Visibility",
+        "description": "Ẩn / bỏ ẩn NHIỀU quán một lần. Mỗi quán vẫn có MỘT dòng nhật ký riêng.",
+        "operationId": "bulk_restaurant_visibility_api_v1_admin_restaurants_bulk_visibility_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminBulkVisibilityRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminBulkVisibilityResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/restaurants": {
       "get": {
         "tags": [
           "admin"
         ],
         "summary": "List Restaurants",
-        "description": "Danh sách quán cho trang quản trị.\n\nMẶC ĐỊNH có cả quán đã ẩn — khác với `/search` của người dùng cuối. Không có nó thì\nẩn xong sẽ không còn cách nào tìm lại để bỏ ẩn.",
+        "description": "Danh sách quán cho trang quản trị, PHÂN TRANG ở server.\n\nMẶC ĐỊNH có cả quán đã ẩn — khác với `/search` của người dùng cuối. Không có nó thì\nẩn xong sẽ không còn cách nào tìm lại để bỏ ẩn.",
         "operationId": "list_restaurants_api_v1_admin_restaurants_get",
         "parameters": [
           {
@@ -1694,6 +1912,91 @@
               "title": "Loc"
             },
             "description": "Lọc việc cần xử lý: dong_tam | thieu_lien_he. Khoá lạ = không lọc."
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 200,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Số dòng mỗi trang. Bỏ trống = dùng `limit`",
+              "title": "Page Size"
+            },
+            "description": "Số dòng mỗi trang. Bỏ trống = dùng `limit`"
+          },
+          {
+            "name": "district",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Khu vực (giá trị từ /restaurants/stats)",
+              "title": "District"
+            },
+            "description": "Khu vực (giá trị từ /restaurants/stats)"
+          },
+          {
+            "name": "source",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Nguồn. `manual` gộp cả quán nhập tay (manual/admin)",
+              "title": "Source"
+            },
+            "description": "Nguồn. `manual` gộp cả quán nhập tay (manual/admin)"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "visible | hidden. Khoá lạ = không lọc",
+              "title": "Status"
+            },
+            "description": "visible | hidden. Khoá lạ = không lọc"
           }
         ],
         "responses": {
@@ -1997,6 +2300,52 @@
         }
       }
     },
+    "/api/v1/admin/issues/resolved": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Admin Resolved Issues",
+        "description": "Tab \"Đã xử lý\" — các bản ghi đã được đánh dấu, mới nhất đứng đầu.",
+        "operationId": "admin_resolved_issues_api_v1_admin_issues_resolved_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminResolvedIssuesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/issues/{key}": {
       "get": {
         "tags": [
@@ -2179,6 +2528,66 @@
           "report_closed"
         ],
         "title": "ActionType"
+      },
+      "AdminBulkVisibilityData": {
+        "properties": {
+          "updated": {
+            "items": {
+              "$ref": "#/components/schemas/AdminRestaurantSummary"
+            },
+            "type": "array",
+            "title": "Updated"
+          },
+          "not_found": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Not Found",
+            "description": "Mã gửi lên nhưng không có trong CSDL"
+          }
+        },
+        "type": "object",
+        "required": [
+          "updated"
+        ],
+        "title": "AdminBulkVisibilityData"
+      },
+      "AdminBulkVisibilityRequest": {
+        "properties": {
+          "restaurant_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 200,
+            "minItems": 1,
+            "title": "Restaurant Ids"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "description": "false = ẩn, true = bỏ ẩn"
+          }
+        },
+        "type": "object",
+        "required": [
+          "restaurant_ids",
+          "is_active"
+        ],
+        "title": "AdminBulkVisibilityRequest"
+      },
+      "AdminBulkVisibilityResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/AdminBulkVisibilityData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "AdminBulkVisibilityResponse"
       },
       "AdminCreateRestaurantRequest": {
         "properties": {
@@ -2533,6 +2942,17 @@
               }
             ],
             "title": "Last Updated"
+          },
+          "restaurant_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Restaurant Count"
           }
         },
         "type": "object",
@@ -2573,6 +2993,59 @@
           "total": {
             "type": "integer",
             "title": "Total"
+          },
+          "page": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page"
+          },
+          "page_size": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page Size"
+          },
+          "counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Counts",
+            "description": "Số món của TỪNG bộ lọc (sau từ khoá, trước bộ lọc) — số trên nút lọc"
+          },
+          "dishes_total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dishes Total",
+            "description": "Toàn bộ danh mục, không theo bộ lọc"
+          },
+          "dishes_with_restaurants": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dishes With Restaurants"
           }
         },
         "type": "object",
@@ -2594,6 +3067,142 @@
           "data"
         ],
         "title": "AdminDishListResponse"
+      },
+      "AdminDishRestaurant": {
+        "properties": {
+          "restaurant_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Restaurant Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address"
+          },
+          "district": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "District"
+          },
+          "rating": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rating",
+            "description": "null = chưa có đánh giá, KHÔNG phải 0"
+          },
+          "reviews_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviews Count"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          },
+          "thumbnail_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Thumbnail Url"
+          },
+          "matched_by": {
+            "type": "string",
+            "title": "Matched By",
+            "description": "dish_name | name | review — khớp theo TÊN QUÁN, không phải thực đơn thật"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "matched_by"
+        ],
+        "title": "AdminDishRestaurant",
+        "description": "Một quán khớp món (tab \"Danh sách quán\" ở trang chi tiết món quản trị)."
+      },
+      "AdminDishRestaurantsData": {
+        "properties": {
+          "dish_id": {
+            "type": "string",
+            "title": "Dish Id"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/AdminDishRestaurant"
+            },
+            "type": "array",
+            "title": "Results"
+          }
+        },
+        "type": "object",
+        "required": [
+          "dish_id",
+          "total",
+          "results"
+        ],
+        "title": "AdminDishRestaurantsData"
+      },
+      "AdminDishRestaurantsResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/AdminDishRestaurantsData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "AdminDishRestaurantsResponse"
       },
       "AdminDishRow": {
         "properties": {
@@ -2651,6 +3260,42 @@
               }
             ],
             "title": "Source"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description",
+            "description": "Đoạn giới thiệu đầy đủ; giao diện tự cắt khi hiển thị"
+          },
+          "last_updated": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Updated",
+            "description": "Ngày nguồn cập nhật giới thiệu món. null = không có ngày"
+          },
+          "restaurant_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Restaurant Count",
+            "description": "Số quán khớp món — CÙNG chỉ mục với /dishes/{id}/restaurants. null = chỉ mục chưa được lắp (khác 0)."
           }
         },
         "type": "object",
@@ -2662,6 +3307,76 @@
           "is_active"
         ],
         "title": "AdminDishRow"
+      },
+      "AdminInteractionStatsData": {
+        "properties": {
+          "available": {
+            "type": "boolean",
+            "title": "Available",
+            "description": "false = không đọc được nhật ký — KHÁC với 'chưa có tương tác nào'"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "positive_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Positive Rate",
+            "description": "% tín hiệu tích cực. null = chưa có bản ghi mang nhãn"
+          },
+          "sessions": {
+            "type": "integer",
+            "title": "Sessions"
+          },
+          "users": {
+            "type": "integer",
+            "title": "Users",
+            "description": "Số tài khoản đã đăng nhập khác nhau"
+          },
+          "by_action": {
+            "items": {
+              "$ref": "#/components/schemas/InteractionActionCount"
+            },
+            "type": "array",
+            "title": "By Action"
+          },
+          "last_7_days": {
+            "items": {
+              "$ref": "#/components/schemas/InteractionDayCount"
+            },
+            "type": "array",
+            "title": "Last 7 Days"
+          }
+        },
+        "type": "object",
+        "required": [
+          "available",
+          "total",
+          "sessions",
+          "users",
+          "by_action",
+          "last_7_days"
+        ],
+        "title": "AdminInteractionStatsData"
+      },
+      "AdminInteractionStatsResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/AdminInteractionStatsData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "AdminInteractionStatsResponse"
       },
       "AdminIssueDetailData": {
         "properties": {
@@ -3058,11 +3773,127 @@
         ],
         "title": "AdminResolveIssueResponse"
       },
+      "AdminResolvedIssueSchema": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "group_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group Label",
+            "description": "null = khoá không còn trong domain"
+          },
+          "target_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Type"
+          },
+          "target_id": {
+            "type": "string",
+            "title": "Target Id"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name",
+            "description": "null = không còn tra được tên (quán đã ẩn, món đổi mã)"
+          },
+          "resolved_by": {
+            "type": "string",
+            "title": "Resolved By"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "resolved_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolved At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "target_id",
+          "resolved_by"
+        ],
+        "title": "AdminResolvedIssueSchema",
+        "description": "Một dòng của tab \"Đã xử lý\"."
+      },
+      "AdminResolvedIssuesData": {
+        "properties": {
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/AdminResolvedIssueSchema"
+            },
+            "type": "array",
+            "title": "Results"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "description": "Số dòng TRẢ VỀ (tổng đã xử lý nằm ở /admin/issues)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "results",
+          "total"
+        ],
+        "title": "AdminResolvedIssuesData"
+      },
+      "AdminResolvedIssuesResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/AdminResolvedIssuesData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "AdminResolvedIssuesResponse"
+      },
       "AdminRestaurantListData": {
         "properties": {
           "total": {
             "type": "integer",
-            "title": "Total"
+            "title": "Total",
+            "description": "Số dòng TRẢ VỀ trong trang này"
           },
           "results": {
             "items": {
@@ -3070,6 +3901,40 @@
             },
             "type": "array",
             "title": "Results"
+          },
+          "total_matched": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total Matched",
+            "description": "Tổng số quán khớp bộ lọc — để phân trang"
+          },
+          "page": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page"
+          },
+          "page_size": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page Size"
           }
         },
         "type": "object",
@@ -3102,6 +3967,64 @@
           "data"
         ],
         "title": "AdminRestaurantResponse"
+      },
+      "AdminRestaurantStatsData": {
+        "properties": {
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "visible": {
+            "type": "integer",
+            "title": "Visible"
+          },
+          "hidden": {
+            "type": "integer",
+            "title": "Hidden"
+          },
+          "manual": {
+            "type": "integer",
+            "title": "Manual",
+            "description": "Quán nhập tay qua trang quản trị (source manual/admin)"
+          },
+          "districts": {
+            "items": {
+              "$ref": "#/components/schemas/FacetValueSchema"
+            },
+            "type": "array",
+            "title": "Districts"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/FacetValueSchema"
+            },
+            "type": "array",
+            "title": "Sources"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total",
+          "visible",
+          "hidden",
+          "manual",
+          "districts",
+          "sources"
+        ],
+        "title": "AdminRestaurantStatsData",
+        "description": "Thẻ số + giá trị ô chọn ở đầu trang quản lý quán. Tính trên TOÀN BỘ bảng."
+      },
+      "AdminRestaurantStatsResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/AdminRestaurantStatsData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "AdminRestaurantStatsResponse"
       },
       "AdminRestaurantSummary": {
         "properties": {
@@ -3234,6 +4157,29 @@
               }
             ],
             "title": "Source"
+          },
+          "source_updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Updated At",
+            "description": "Ngày NGUỒN cập nhật bản ghi (quán nhập tay: ngày nhập). null = chưa biết — giao diện hiện '—', không đoán."
+          },
+          "thumbnail_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Thumbnail Url"
           }
         },
         "type": "object",
@@ -3271,6 +4217,11 @@
             "type": "string",
             "title": "App Base Url"
           },
+          "synthetic_data": {
+            "type": "boolean",
+            "title": "Synthetic Data",
+            "description": "True = đang chạy trên dữ liệu người dùng GIẢ LẬP. Giao diện quản trị phải hiện banner cảnh báo để không ai nhầm số liệu giả là hành vi người dùng thật."
+          },
           "services": {
             "items": {
               "$ref": "#/components/schemas/AdminSystemService"
@@ -3287,6 +4238,7 @@
           "user_token_ttl_seconds",
           "email_configured",
           "app_base_url",
+          "synthetic_data",
           "services"
         ],
         "title": "AdminSystemData",
@@ -4185,6 +5137,24 @@
         ],
         "title": "ErrorEnvelope"
       },
+      "FacetValueSchema": {
+        "properties": {
+          "value": {
+            "type": "string",
+            "title": "Value"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "value",
+          "count"
+        ],
+        "title": "FacetValueSchema"
+      },
       "FavoritesData": {
         "properties": {
           "items": {
@@ -4261,6 +5231,12 @@
             "additionalProperties": true,
             "type": "object",
             "title": "Services"
+          },
+          "synthetic_data": {
+            "type": "boolean",
+            "title": "Synthetic Data",
+            "description": "True = app đang chạy trên người dùng & tương tác GIẢ LẬP (MOODBITE_SYNTHETIC_DATA=1). Số liệu tương tác lúc này không phải của người thật.",
+            "default": false
           }
         },
         "type": "object",
@@ -4282,6 +5258,43 @@
           "data"
         ],
         "title": "HealthResponse"
+      },
+      "InteractionActionCount": {
+        "properties": {
+          "action_type": {
+            "type": "string",
+            "title": "Action Type"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "action_type",
+          "count"
+        ],
+        "title": "InteractionActionCount"
+      },
+      "InteractionDayCount": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "title": "Date",
+            "description": "YYYY-MM-DD (UTC)"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "date",
+          "count"
+        ],
+        "title": "InteractionDayCount"
       },
       "InteractionRequest": {
         "properties": {
@@ -5637,6 +6650,18 @@
             "type": "string",
             "title": "Target Type",
             "description": "quan_an | mon_an | du_lieu"
+          },
+          "last_resolved_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Resolved At",
+            "description": "Lần GẦN NHẤT một bản ghi trong nhóm được đánh dấu xử lý. KHÔNG phải lúc phát hiện vấn đề (dự án không lưu thời điểm đó). null = chưa ai đánh dấu."
           }
         },
         "type": "object",

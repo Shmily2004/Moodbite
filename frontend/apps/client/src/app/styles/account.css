@@ -376,3 +376,81 @@
 .xac-minh-email__ok { color: var(--open); }
 .xac-minh-email__trang-thai { color: var(--muted); }
 .xac-minh-email__chan { margin-top: 1rem; }
+
+/* =========================================================================
+   THẺ NHỎ đã lưu / đã xem + biểu đồ KHẨU VỊ (2026-09-16, `design/profile.png`)
+   ========================================================================= */
+.item-strip {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 136px;
+  gap: 12px;
+  margin: 8px 0 0;
+  padding: 0 0 6px;
+  list-style: none;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+}
+.item-card { position: relative; scroll-snap-align: start; }
+.item-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: inherit;
+  text-decoration: none;
+}
+.item-card__media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+/* Ô màu sinh từ tên làm nền; ảnh thật (nếu có) phủ kín lên trên. */
+.item-card__media .thumb { width: 100%; height: 100%; border-radius: 0; }
+.item-card__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.item-card__name {
+  font-weight: 700;
+  font-size: .86rem;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.item-card__type {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--auth-ink-soft);
+  font-size: .74rem;
+}
+.item-card__type svg { width: 14px; height: 14px; }
+.item-card__remove {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .18);
+}
+.item-card__remove svg { width: 14px; height: 14px; }
+
+.taste-radar__svg { display: block; width: 100%; max-width: 260px; margin: 0 auto; }
+.taste-radar__vong { fill: none; stroke: var(--line-warm); stroke-width: 1; }
+.taste-radar__truc { stroke: var(--line-warm); stroke-width: 1; }
+.taste-radar__vung {
+  fill: var(--accent-soft);
+  stroke: var(--brand-orange);
+  stroke-width: 2;
+  fill-opacity: .8;
+}
+.taste-radar__nhan { fill: var(--auth-ink-soft); font-size: 11px; }
+.taste-radar__nut { margin-top: 10px; }

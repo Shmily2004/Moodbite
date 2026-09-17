@@ -22,11 +22,16 @@ import json
 import logging
 import sqlite3
 from pathlib import Path
-from typing import Dict, List, Mapping, Optional
+from typing import Dict, List, Mapping, Optional, Sequence, Tuple
 
 from src.domain.entities.restaurant import Restaurant
 from src.domain.value_objects.location import Location
 from src.application.ports.admin_restaurant_repository import (
+    ADMIN_STATUS_HIDDEN,
+    ADMIN_STATUS_VISIBLE,
+    MANUAL_SOURCES,
+    AdminRestaurantFilter,
+    AdminRestaurantStats,
     RestaurantAlreadyExists,
 )
 from src.domain.value_objects.mood import MOOD_SCORE_COLUMNS
@@ -208,34 +213,119 @@ class SqliteRestaurantRepository:
         giá trị lạ thì BỎ QUA (không lọc) chứ không báo lỗi — một khoá cũ trong đường dẫn
         đã lưu không đáng làm hỏng cả trang.
         """
-        sql = f"SELECT {_COLUMNS} FROM restaurants"
+        rows, _ = self.page_for_admin(
+            AdminRestaurantFilter(query=query, include_hidden=include_hidden, loc=loc),
+            offset=0,
+            limit=limit,
+        )
+        return rows
+
+    @staticmethod
+    def _admin_where(filters: AdminRestaurantFilter) -> Tuple[str, List[object]]:
+        """Mệnh đề WHERE dùng CHUNG cho trang dữ liệu và câu COUNT.
+
+        Dùng chung là bắt buộc: hai bản điều kiện viết riêng sẽ có ngày lệch nhau, và
+        "Hiển thị 1-20 của 4.933" sẽ nói sai số trang.
+        """
         conditions: List[str] = []
         params: List[object] = []
-        if loc == "dong_tam":
+        if filters.loc == "dong_tam":
             conditions.append("COALESCE(temporarily_closed, 0) = 1")
-        elif loc == "thieu_lien_he":
+        elif filters.loc == "thieu_lien_he":
             # Thiếu CẢ HAI mới tính. Có website mà không có điện thoại thì vẫn liên hệ
             # được — cùng quy tắc với `viec_can_xu_ly` ở domain, đừng để hai nơi lệch nhau.
             conditions.append(
                 "COALESCE(TRIM(phone), '') = '' AND COALESCE(TRIM(website), '') = ''"
             )
-        if not include_hidden:
+        if not filters.include_hidden:
             conditions.append("is_active = 1")
             # Quán đã đóng HẲN không bao giờ trả cho người dùng (xem `Restaurant.is_visible`).
             conditions.append("COALESCE(permanently_closed, 0) = 0")
-        if query:
+        if filters.status == ADMIN_STATUS_VISIBLE:
+            conditions.append("is_active = 1")
+        elif filters.status == ADMIN_STATUS_HIDDEN:
+            conditions.append("is_active = 0")
+        if filters.district:
+            conditions.append("district = ?")
+            params.append(filters.district)
+        if filters.source:
+            if filters.source in MANUAL_SOURCES:
+                cho = ", ".join("?" for _ in MANUAL_SOURCES)
+                conditions.append(f"source IN ({cho})")
+                params.extend(MANUAL_SOURCES)
+            else:
+                conditions.append("source = ?")
+                params.append(filters.source)
+        if filters.query:
             # LIKE không phân biệt hoa thường cho ASCII; tiếng Việt có dấu vẫn khớp
             # được vì admin thường gõ đúng tên hiển thị. Tìm kiếm cho NGƯỜI DÙNG mới
             # cần bỏ dấu - đó là việc của domain, không phải của lớp quản trị.
             conditions.append("(name LIKE ? OR place_id LIKE ? OR address LIKE ?)")
-            params.extend([f"%{query}%"] * 3)
-        if conditions:
-            sql += " WHERE " + " AND ".join(conditions)
-        sql += " ORDER BY name LIMIT ?"
-        params.append(int(limit))
+            params.extend([f"%{filters.query}%"] * 3)
+        where = (" WHERE " + " AND ".join(conditions)) if conditions else ""
+        return where, params
 
-        rows = self._read(sql, params)
-        return [r for r in (self._to_entity(row) for row in rows) if r]
+    def page_for_admin(
+        self, filters: AdminRestaurantFilter, offset: int, limit: int
+    ) -> Tuple[List[Restaurant], int]:
+        where, params = self._admin_where(filters)
+        rows = self._read(
+            f"SELECT {_COLUMNS} FROM restaurants{where} ORDER BY name LIMIT ? OFFSET ?",
+            [*params, int(limit), max(0, int(offset))],
+        )
+        dem = self._read(f"SELECT COUNT(*) AS n FROM restaurants{where}", params)
+        tong = int(dem[0]["n"]) if dem else 0
+        return [r for r in (self._to_entity(row) for row in rows) if r], tong
+
+    def stats_for_admin(self) -> AdminRestaurantStats:
+        cho = ", ".join("?" for _ in MANUAL_SOURCES)
+        tong = self._read(
+            "SELECT COUNT(*) AS n, "
+            "COALESCE(SUM(is_active = 1), 0) AS hien, "
+            "COALESCE(SUM(is_active = 0), 0) AS an, "
+            f"COALESCE(SUM(source IN ({cho})), 0) AS tay FROM restaurants",
+            list(MANUAL_SOURCES),
+        )
+        khu_vuc = self._read(
+            "SELECT district AS v, COUNT(*) AS n FROM restaurants "
+            "WHERE COALESCE(TRIM(district), '') <> '' GROUP BY district ORDER BY n DESC, v",
+            [],
+        )
+        nguon = self._read(
+            "SELECT source AS v, COUNT(*) AS n FROM restaurants "
+            "WHERE COALESCE(TRIM(source), '') <> '' GROUP BY source ORDER BY n DESC, v",
+            [],
+        )
+        dong = tong[0] if tong else None
+        return AdminRestaurantStats(
+            total=int(dong["n"]) if dong else 0,
+            visible=int(dong["hien"]) if dong else 0,
+            hidden=int(dong["an"]) if dong else 0,
+            manual=int(dong["tay"]) if dong else 0,
+            districts=[(r["v"], int(r["n"])) for r in khu_vuc],
+            sources=[(r["v"], int(r["n"])) for r in nguon],
+        )
+
+    def set_active_many(self, place_ids: Sequence[str], is_active: bool) -> List[str]:
+        ma = list(dict.fromkeys(str(p) for p in place_ids if p))
+        if not ma:
+            return []
+        cho = ", ".join("?" for _ in ma)
+        co_that = [
+            r["place_id"]
+            for r in self._read(
+                f"SELECT place_id FROM restaurants WHERE place_id IN ({cho})", ma
+            )
+        ]
+        if co_that:
+            cho_that = ", ".join("?" for _ in co_that)
+            # MỘT câu UPDATE + MỘT lần nạp lại bộ đệm (trong `_write`), bất kể chọn bao
+            # nhiêu quán — xem docstring của port.
+            self._write(
+                f"UPDATE restaurants SET is_active = ? WHERE place_id IN ({cho_that})",
+                [1 if is_active else 0, *co_that],
+            )
+        return co_that
 
     def get_for_admin(self, place_id: str) -> Optional[Restaurant]:
         rows = self._read(

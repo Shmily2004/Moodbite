@@ -1,9 +1,12 @@
 /**
  * VIEWMODEL của màn "Quản lý món ăn".
  *
- * Chỉ điều phối: giữ từ khoá + bộ lọc, gọi API, giữ trạng thái tải/lỗi. Không lọc và
- * không xếp lại ở đây — backend đã làm (`list_dishes_admin.py`). Lọc thêm ở frontend sẽ
- * lệch với con số `total` mà chính backend trả về.
+ * Chỉ điều phối: giữ từ khoá + bộ lọc + trang, gọi API, giữ trạng thái tải/lỗi. Không lọc,
+ * không đếm và không xếp lại ở đây — backend đã làm (`list_dishes_admin.py`). Lọc hay đếm
+ * thêm ở frontend sẽ lệch với `total`/`counts` mà chính backend trả về.
+ *
+ * PHÂN TRANG Ở SERVER (2026-09-16). Trước đó bảng bị cắt cứng 50 dòng: 805 món còn lại
+ * không có cách nào xem ngoài việc gõ tìm.
  *
  * ⚠️ TÌM KIẾM CÓ HOÃN (debounce). Gõ "bún chả" là 7 lần đổi state; không hoãn thì thành
  * 7 request, và request về sau có thể tới TRƯỚC request trước đó khiến bảng nhảy về kết
@@ -15,17 +18,26 @@ import { adminApi, ApiError } from '@/shared/api';
 import type { AdminDishRow, LocMon } from '@/shared/api';
 
 const LUOT_HOAN_MS = 300;
-/** Bảng chỉ hiện tối đa ngần này; `total` cho biết bộ lọc khớp bao nhiêu. */
-const SO_DONG = 50;
+export const CO_TRANG_MON_MAC_DINH = 20;
+const CAC_CO_TRANG = [10, 20, 50, 100];
 
 export interface UseDishAdminResult {
   rows: AdminDishRow[];
-  /** Tổng khớp bộ lọc — có thể LỚN HƠN `rows.length`. */
+  /** Tổng khớp (từ khoá + bộ lọc) — để phân trang. */
   total: number;
+  /** Số món của từng bộ lọc — số trên nút lọc. Rỗng khi chưa tải. */
+  counts: Partial<Record<LocMon, number>>;
+  /** Hai thẻ số đầu trang, trên TOÀN BỘ danh mục. `null` = chưa tải. */
+  dishesTotal: number | null;
+  dishesWithRestaurants: number | null;
   query: string;
   setQuery: (q: string) => void;
   filter: LocMon;
   setFilter: (f: LocMon) => void;
+  page: number;
+  setPage: (p: number) => void;
+  pageSize: number;
+  setPageSize: (n: number) => void;
   loading: boolean;
   error: string | null;
   reload: () => void;
@@ -41,37 +53,57 @@ const HOP_LE: LocMon[] = [
   'missing_description',
 ];
 
+function soDuong(chu: string | null, macDinh: number): number {
+  const n = Number(chu);
+  return Number.isInteger(n) && n > 0 ? n : macDinh;
+}
+
 export function useDishAdmin(): UseDishAdminResult {
-  // BỘ LỌC NẰM TRÊN URL, không phải state trong bộ nhớ. Nhờ vậy hộp "Cần xử lý" ở trang
-  // Tổng quan bấm sang được đúng danh sách đã lọc, và người quản trị gửi link cho nhau
-  // được. Cùng lý do đã ghi ở `features/suggest-dishes/model/boLocTuUrl.ts` của app client.
+  // BỘ LỌC + TRANG NẰM TRÊN URL, không phải state trong bộ nhớ. Nhờ vậy hộp "Cần xử lý" ở
+  // trang Tổng quan bấm sang được đúng danh sách đã lọc, người quản trị gửi link cho nhau
+  // được, và bấm Back từ trang chi tiết món quay về ĐÚNG trang đang xem.
   const [thamSo, setThamSo] = useSearchParams();
   const query = thamSo.get('q') ?? '';
   const tuUrl = thamSo.get('filter') as LocMon | null;
   const filter: LocMon = tuUrl && HOP_LE.includes(tuUrl) ? tuUrl : 'all';
+  const page = soDuong(thamSo.get('trang'), 1);
+  const coTuUrl = soDuong(thamSo.get('so_dong'), CO_TRANG_MON_MAC_DINH);
+  const pageSize = CAC_CO_TRANG.includes(coTuUrl) ? coTuUrl : CO_TRANG_MON_MAC_DINH;
 
   const ghiUrl = useCallback(
-    (q: string, f: LocMon) => {
+    (thay: { q?: string; f?: LocMon; trang?: number; co?: number }) => {
+      const q = thay.q ?? query;
+      const f = thay.f ?? filter;
+      const co = thay.co ?? pageSize;
+      const trang = thay.trang ?? page;
       const moi = new URLSearchParams();
       if (q) moi.set('q', q);
       if (f !== 'all') moi.set('filter', f);
-      // `replace` để mỗi ký tự gõ vào ô tìm KHÔNG tạo một mục mới trong lịch sử —
-      // gõ 7 chữ rồi phải bấm Back 7 lần mới thoát được là rất khó chịu.
+      if (trang > 1) moi.set('trang', String(trang));
+      if (co !== CO_TRANG_MON_MAC_DINH) moi.set('so_dong', String(co));
+      // `replace` để mỗi ký tự gõ vào ô tìm KHÔNG tạo một mục mới trong lịch sử.
       setThamSo(moi, { replace: true });
     },
-    [setThamSo],
+    [setThamSo, query, filter, page, pageSize],
   );
 
-  const setQuery = useCallback((q: string) => ghiUrl(q, filter), [ghiUrl, filter]);
-  const setFilter = useCallback((f: LocMon) => ghiUrl(query, f), [ghiUrl, query]);
+  // Đổi từ khoá / bộ lọc / cỡ trang thì VỀ TRANG 1: ở lại trang 7 của một kết quả chỉ có
+  // 2 trang là màn hình trống không giải thích được.
+  const setQuery = useCallback((q: string) => ghiUrl({ q, trang: 1 }), [ghiUrl]);
+  const setFilter = useCallback((f: LocMon) => ghiUrl({ f, trang: 1 }), [ghiUrl]);
+  const setPage = useCallback((trang: number) => ghiUrl({ trang }), [ghiUrl]);
+  const setPageSize = useCallback((co: number) => ghiUrl({ co, trang: 1 }), [ghiUrl]);
+
   const [rows, setRows] = useState<AdminDishRow[]>([]);
   const [total, setTotal] = useState(0);
+  const [counts, setCounts] = useState<Partial<Record<LocMon, number>>>({});
+  const [dishesTotal, setDishesTotal] = useState<number | null>(null);
+  const [dishesWithRestaurants, setDishesWithRestaurants] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lan, setLan] = useState(0);
 
-  // Đánh số mỗi lần gọi. Chỉ nhận kết quả của lần gọi MỚI NHẤT — chống chuyện response
-  // của từ khoá cũ về sau và ghi đè kết quả đúng.
+  // Đánh số mỗi lần gọi. Chỉ nhận kết quả của lần gọi MỚI NHẤT.
   const soLuot = useRef(0);
 
   useEffect(() => {
@@ -81,11 +113,14 @@ export function useDishAdmin(): UseDishAdminResult {
 
     const hen = setTimeout(() => {
       adminApi
-        .listDishes({ q: query || null, filter, limit: SO_DONG })
+        .listDishes({ q: query || null, filter, page, pageSize })
         .then((kq) => {
           if (!conSong || luot !== soLuot.current) return;
           setRows(kq.results);
           setTotal(kq.total);
+          setCounts((kq.counts ?? {}) as Partial<Record<LocMon, number>>);
+          setDishesTotal(kq.dishes_total ?? null);
+          setDishesWithRestaurants(kq.dishes_with_restaurants ?? null);
           setError(null);
         })
         .catch((err: unknown) => {
@@ -101,9 +136,26 @@ export function useDishAdmin(): UseDishAdminResult {
       conSong = false;
       clearTimeout(hen);
     };
-  }, [query, filter, lan]);
+  }, [query, filter, page, pageSize, lan]);
 
   const reload = useCallback(() => setLan((n) => n + 1), []);
 
-  return { rows, total, query, setQuery, filter, setFilter, loading, error, reload };
+  return {
+    rows,
+    total,
+    counts,
+    dishesTotal,
+    dishesWithRestaurants,
+    query,
+    setQuery,
+    filter,
+    setFilter,
+    page,
+    setPage,
+    pageSize,
+    setPageSize,
+    loading,
+    error,
+    reload,
+  };
 }

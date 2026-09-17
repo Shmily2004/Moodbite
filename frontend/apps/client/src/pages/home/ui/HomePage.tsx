@@ -44,15 +44,15 @@ import { useUserLocation } from '@/features/pick-location';
 import { useRecentDishes } from '@/features/recent-dishes';
 import { useFavorites } from '@/features/save-favorite';
 import { ForYou } from '@/widgets/for-you';
+import { SignupCta } from '@/widgets/signup-cta';
 import { useUserSessionContext } from '@/entities/user';
 import { EmailVerificationStatus, useEmailVerification } from '@/features/auth-verify-email';
-import { ANH_GIAO_DIEN, dishRoute, ROUTES } from '@/shared/config';
+import { dishRoute, ROUTES } from '@/shared/config';
 import {
   IconClock,
   IconFilter,
   IconFlame,
   IconSparkle,
-  IconTarget,
 } from '@/shared/ui';
 import { useT } from '@/shared/i18n';
 
@@ -394,38 +394,7 @@ export function HomePage() {
           Nội dung nói đúng thứ đăng ký ĐEM LẠI THẬT (lưu mood, gợi ý theo lựa chọn), không
           hứa "98% phù hợp" hay "dành riêng cho bạn" — những thứ chưa có ở backend.
         */}
-        {!daDangNhap && (
-          <section className="cta">
-            {ANH_GIAO_DIEN.mascot && (
-              <img
-                className="cta__mascot"
-                src={ANH_GIAO_DIEN.mascot.src}
-                alt=""
-                width={ANH_GIAO_DIEN.mascot.width}
-                height={ANH_GIAO_DIEN.mascot.height}
-                aria-hidden="true"
-              />
-            )}
-            <div className="cta__text">
-              <p className="cta__title">
-                <IconTarget /> {t('cta.title')}
-              </p>
-              <p className="cta__sub">{t('cta.sub')}</p>
-            </div>
-            <div className="cta__actions">
-              <button type="button" className="btn" onClick={keoToiKetQua}>
-                {t('cta.explore')}
-              </button>
-              <button
-                type="button"
-                className="btn btn--accent"
-                onClick={() => navigate(ROUTES.register)}
-              >
-                {t('cta.register')}
-              </button>
-            </div>
-          </section>
-        )}
+        {!daDangNhap && <SignupCta onExplore={keoToiKetQua} />}
       </main>
     </div>
   );

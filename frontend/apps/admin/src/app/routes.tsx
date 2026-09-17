@@ -10,6 +10,7 @@
  *           ├── /            ← TỔNG QUAN (số liệu vận hành)
  *           ├── /quan-an     ← danh sách quán
  *           ├── /mon-an      ← danh mục món
+ *           ├── /mon-an/:id  ← chi tiết một món (route thật từ 2026-09-16)
  *           ├── /chat-luong  ← chất lượng dữ liệu (độ phủ + xu hướng)
  *           ├── /can-xu-ly   ← inbox vấn đề dữ liệu
  *           ├── /goi-y       ← năm lớp mô hình
@@ -32,6 +33,7 @@ import { LoginPage } from '@/pages/login';
 import { NotFoundPage } from '@/pages/not-found';
 import { ActivityPage } from '@/pages/activity';
 import { DishesPage } from '@/pages/dishes';
+import { DishDetailPage } from '@/pages/dish-detail';
 import { IssuesPage } from '@/pages/issues';
 import { OverviewPage } from '@/pages/overview';
 import { QualityPage } from '@/pages/quality';
@@ -61,6 +63,7 @@ export const routes: RouteObject[] = [
               { index: true, element: <OverviewPage /> },
               { path: ROUTES.restaurants, element: <RestaurantsPage /> },
               { path: ROUTES.dishes, element: <DishesPage /> },
+              { path: ROUTES.dishDetail, element: <DishDetailPage /> },
               { path: ROUTES.quality, element: <QualityPage /> },
               { path: ROUTES.issues, element: <IssuesPage /> },
               { path: ROUTES.recommendation, element: <RecommendationPage /> },

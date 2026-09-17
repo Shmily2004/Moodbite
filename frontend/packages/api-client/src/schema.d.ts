@@ -502,7 +502,7 @@ export interface paths {
         };
         /**
          * List Dishes
-         * @description Danh mục món cho trang quản trị.
+         * @description Danh mục món cho trang quản trị, PHÂN TRANG ở server.
          *
          *     ⚠️ KHÁC `/dishes/suggest`: ở đây thấy CẢ món chưa có quán (557 món) và CẢ danh mục
          *     ("Bún"). Người dùng cuối không được thấy hai nhóm đó, còn admin thì phải — việc của
@@ -562,6 +562,29 @@ export interface paths {
          *     mở trang này chính là để xem 557 món chưa có quán.
          */
         get: operations["get_dish_api_v1_admin_dishes__dish_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/dishes/{dish_id}/restaurants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Dish Restaurants
+         * @description Quán khớp một món — tab "Danh sách quán" ở trang chi tiết món quản trị.
+         *
+         *     CÙNG chỉ mục với `/dishes/{id}/restaurants` của người dùng, nhưng KHÔNG xếp theo vị trí
+         *     (admin không đứng ở đâu cả). Món là SUY LUẬN theo tên quán, nên trả kèm `matched_by`.
+         */
+        get: operations["get_dish_restaurants_api_v1_admin_dishes__dish_id__restaurants_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -647,6 +670,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/interactions/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Admin Interaction Stats
+         * @description Khối "Hệ thống gợi ý" ở màn Tổng quan — đếm từ nhật ký tương tác.
+         *
+         *     ⚠️ KHÔNG có CTR: dự án không ghi lượt hiển thị (impression) nên không có mẫu số.
+         *     Tách riêng khỏi `/overview` vì số này đổi theo từng lượt người dùng bấm, còn số tổng
+         *     quan được đệm 5 phút.
+         */
+        get: operations["admin_interaction_stats_api_v1_admin_interactions_stats_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/restaurants/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Restaurant Stats
+         * @description Thẻ số + giá trị ô chọn (khu vực, nguồn) của trang quản lý quán. Toàn bộ bảng.
+         */
+        get: operations["restaurant_stats_api_v1_admin_restaurants_stats_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/restaurants/bulk-visibility": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Bulk Restaurant Visibility
+         * @description Ẩn / bỏ ẩn NHIỀU quán một lần. Mỗi quán vẫn có MỘT dòng nhật ký riêng.
+         */
+        post: operations["bulk_restaurant_visibility_api_v1_admin_restaurants_bulk_visibility_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/restaurants": {
         parameters: {
             query?: never;
@@ -656,7 +743,7 @@ export interface paths {
         };
         /**
          * List Restaurants
-         * @description Danh sách quán cho trang quản trị.
+         * @description Danh sách quán cho trang quản trị, PHÂN TRANG ở server.
          *
          *     MẶC ĐỊNH có cả quán đã ẩn — khác với `/search` của người dùng cuối. Không có nó thì
          *     ẩn xong sẽ không còn cách nào tìm lại để bỏ ẩn.
@@ -787,6 +874,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/issues/resolved": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Admin Resolved Issues
+         * @description Tab "Đã xử lý" — các bản ghi đã được đánh dấu, mới nhất đứng đầu.
+         */
+        get: operations["admin_resolved_issues_api_v1_admin_issues_resolved_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/issues/{key}": {
         parameters: {
             query?: never;
@@ -866,6 +973,30 @@ export interface components {
          * @enum {string}
          */
         ActionType: "view_detail" | "get_directions" | "save" | "explicit_positive" | "explicit_negative" | "report_closed";
+        /** AdminBulkVisibilityData */
+        AdminBulkVisibilityData: {
+            /** Updated */
+            updated: components["schemas"]["AdminRestaurantSummary"][];
+            /**
+             * Not Found
+             * @description Mã gửi lên nhưng không có trong CSDL
+             */
+            not_found?: string[];
+        };
+        /** AdminBulkVisibilityRequest */
+        AdminBulkVisibilityRequest: {
+            /** Restaurant Ids */
+            restaurant_ids: string[];
+            /**
+             * Is Active
+             * @description false = ẩn, true = bỏ ẩn
+             */
+            is_active: boolean;
+        };
+        /** AdminBulkVisibilityResponse */
+        AdminBulkVisibilityResponse: {
+            data: components["schemas"]["AdminBulkVisibilityData"];
+        };
         /**
          * AdminCreateRestaurantRequest
          * @description Thêm quán MỚI bằng tay.
@@ -993,6 +1124,8 @@ export interface components {
             source_url?: string | null;
             /** Last Updated */
             last_updated?: string | null;
+            /** Restaurant Count */
+            restaurant_count?: number | null;
         };
         /** AdminDishDetailResponse */
         AdminDishDetailResponse: {
@@ -1006,10 +1139,71 @@ export interface components {
             returned: number;
             /** Total */
             total: number;
+            /** Page */
+            page?: number | null;
+            /** Page Size */
+            page_size?: number | null;
+            /**
+             * Counts
+             * @description Số món của TỪNG bộ lọc (sau từ khoá, trước bộ lọc) — số trên nút lọc
+             */
+            counts?: {
+                [key: string]: number;
+            };
+            /**
+             * Dishes Total
+             * @description Toàn bộ danh mục, không theo bộ lọc
+             */
+            dishes_total?: number | null;
+            /** Dishes With Restaurants */
+            dishes_with_restaurants?: number | null;
         };
         /** AdminDishListResponse */
         AdminDishListResponse: {
             data: components["schemas"]["AdminDishListData"];
+        };
+        /**
+         * AdminDishRestaurant
+         * @description Một quán khớp món (tab "Danh sách quán" ở trang chi tiết món quản trị).
+         */
+        AdminDishRestaurant: {
+            /** Restaurant Id */
+            restaurant_id?: string | null;
+            /** Name */
+            name: string;
+            /** Address */
+            address?: string | null;
+            /** District */
+            district?: string | null;
+            /**
+             * Rating
+             * @description null = chưa có đánh giá, KHÔNG phải 0
+             */
+            rating?: number | null;
+            /** Reviews Count */
+            reviews_count?: number | null;
+            /** Source */
+            source?: string | null;
+            /** Thumbnail Url */
+            thumbnail_url?: string | null;
+            /**
+             * Matched By
+             * @description dish_name | name | review — khớp theo TÊN QUÁN, không phải thực đơn thật
+             */
+            matched_by: string;
+        };
+        /** AdminDishRestaurantsData */
+        AdminDishRestaurantsData: {
+            /** Dish Id */
+            dish_id: string;
+            /** Total */
+            total: number;
+            /** Results */
+            results: components["schemas"]["AdminDishRestaurant"][];
+        };
+        /** AdminDishRestaurantsResponse */
+        AdminDishRestaurantsResponse: {
+            data: components["schemas"]["AdminDishRestaurantsData"];
         };
         /** AdminDishRow */
         AdminDishRow: {
@@ -1035,6 +1229,51 @@ export interface components {
             is_active: boolean;
             /** Source */
             source?: string | null;
+            /**
+             * Description
+             * @description Đoạn giới thiệu đầy đủ; giao diện tự cắt khi hiển thị
+             */
+            description?: string | null;
+            /**
+             * Last Updated
+             * @description Ngày nguồn cập nhật giới thiệu món. null = không có ngày
+             */
+            last_updated?: string | null;
+            /**
+             * Restaurant Count
+             * @description Số quán khớp món — CÙNG chỉ mục với /dishes/{id}/restaurants. null = chỉ mục chưa được lắp (khác 0).
+             */
+            restaurant_count?: number | null;
+        };
+        /** AdminInteractionStatsData */
+        AdminInteractionStatsData: {
+            /**
+             * Available
+             * @description false = không đọc được nhật ký — KHÁC với 'chưa có tương tác nào'
+             */
+            available: boolean;
+            /** Total */
+            total: number;
+            /**
+             * Positive Rate
+             * @description % tín hiệu tích cực. null = chưa có bản ghi mang nhãn
+             */
+            positive_rate?: number | null;
+            /** Sessions */
+            sessions: number;
+            /**
+             * Users
+             * @description Số tài khoản đã đăng nhập khác nhau
+             */
+            users: number;
+            /** By Action */
+            by_action: components["schemas"]["InteractionActionCount"][];
+            /** Last 7 Days */
+            last_7_days: components["schemas"]["InteractionDayCount"][];
+        };
+        /** AdminInteractionStatsResponse */
+        AdminInteractionStatsResponse: {
+            data: components["schemas"]["AdminInteractionStatsData"];
         };
         /** AdminIssueDetailData */
         AdminIssueDetailData: {
@@ -1195,12 +1434,66 @@ export interface components {
         AdminResolveIssueResponse: {
             data: components["schemas"]["AdminResolveIssueData"];
         };
+        /**
+         * AdminResolvedIssueSchema
+         * @description Một dòng của tab "Đã xử lý".
+         */
+        AdminResolvedIssueSchema: {
+            /** Key */
+            key: string;
+            /**
+             * Group Label
+             * @description null = khoá không còn trong domain
+             */
+            group_label?: string | null;
+            /** Target Type */
+            target_type?: string | null;
+            /** Target Id */
+            target_id: string;
+            /**
+             * Name
+             * @description null = không còn tra được tên (quán đã ẩn, món đổi mã)
+             */
+            name?: string | null;
+            /** Resolved By */
+            resolved_by: string;
+            /** Note */
+            note?: string | null;
+            /** Resolved At */
+            resolved_at?: string | null;
+        };
+        /** AdminResolvedIssuesData */
+        AdminResolvedIssuesData: {
+            /** Results */
+            results: components["schemas"]["AdminResolvedIssueSchema"][];
+            /**
+             * Total
+             * @description Số dòng TRẢ VỀ (tổng đã xử lý nằm ở /admin/issues)
+             */
+            total: number;
+        };
+        /** AdminResolvedIssuesResponse */
+        AdminResolvedIssuesResponse: {
+            data: components["schemas"]["AdminResolvedIssuesData"];
+        };
         /** AdminRestaurantListData */
         AdminRestaurantListData: {
-            /** Total */
+            /**
+             * Total
+             * @description Số dòng TRẢ VỀ trong trang này
+             */
             total: number;
             /** Results */
             results: components["schemas"]["AdminRestaurantSummary"][];
+            /**
+             * Total Matched
+             * @description Tổng số quán khớp bộ lọc — để phân trang
+             */
+            total_matched?: number | null;
+            /** Page */
+            page?: number | null;
+            /** Page Size */
+            page_size?: number | null;
         };
         /** AdminRestaurantListResponse */
         AdminRestaurantListResponse: {
@@ -1209,6 +1502,31 @@ export interface components {
         /** AdminRestaurantResponse */
         AdminRestaurantResponse: {
             data: components["schemas"]["AdminRestaurantSummary"];
+        };
+        /**
+         * AdminRestaurantStatsData
+         * @description Thẻ số + giá trị ô chọn ở đầu trang quản lý quán. Tính trên TOÀN BỘ bảng.
+         */
+        AdminRestaurantStatsData: {
+            /** Total */
+            total: number;
+            /** Visible */
+            visible: number;
+            /** Hidden */
+            hidden: number;
+            /**
+             * Manual
+             * @description Quán nhập tay qua trang quản trị (source manual/admin)
+             */
+            manual: number;
+            /** Districts */
+            districts: components["schemas"]["FacetValueSchema"][];
+            /** Sources */
+            sources: components["schemas"]["FacetValueSchema"][];
+        };
+        /** AdminRestaurantStatsResponse */
+        AdminRestaurantStatsResponse: {
+            data: components["schemas"]["AdminRestaurantStatsData"];
         };
         /**
          * AdminRestaurantSummary
@@ -1247,6 +1565,13 @@ export interface components {
             is_active: boolean;
             /** Source */
             source?: string | null;
+            /**
+             * Source Updated At
+             * @description Ngày NGUỒN cập nhật bản ghi (quán nhập tay: ngày nhập). null = chưa biết — giao diện hiện '—', không đoán.
+             */
+            source_updated_at?: string | null;
+            /** Thumbnail Url */
+            thumbnail_url?: string | null;
         };
         /**
          * AdminSystemData
@@ -1265,6 +1590,11 @@ export interface components {
             email_configured: boolean;
             /** App Base Url */
             app_base_url: string;
+            /**
+             * Synthetic Data
+             * @description True = đang chạy trên dữ liệu người dùng GIẢ LẬP. Giao diện quản trị phải hiện banner cảnh báo để không ai nhầm số liệu giả là hành vi người dùng thật.
+             */
+            synthetic_data: boolean;
             /** Services */
             services: components["schemas"]["AdminSystemService"][];
         };
@@ -1640,6 +1970,13 @@ export interface components {
         ErrorEnvelope: {
             error: components["schemas"]["ErrorDetail"];
         };
+        /** FacetValueSchema */
+        FacetValueSchema: {
+            /** Value */
+            value: string;
+            /** Count */
+            count: number;
+        };
         /** FavoritesData */
         FavoritesData: {
             /** Items */
@@ -1674,10 +2011,33 @@ export interface components {
             services: {
                 [key: string]: unknown;
             };
+            /**
+             * Synthetic Data
+             * @description True = app đang chạy trên người dùng & tương tác GIẢ LẬP (MOODBITE_SYNTHETIC_DATA=1). Số liệu tương tác lúc này không phải của người thật.
+             * @default false
+             */
+            synthetic_data: boolean;
         };
         /** HealthResponse */
         HealthResponse: {
             data: components["schemas"]["HealthData"];
+        };
+        /** InteractionActionCount */
+        InteractionActionCount: {
+            /** Action Type */
+            action_type: string;
+            /** Count */
+            count: number;
+        };
+        /** InteractionDayCount */
+        InteractionDayCount: {
+            /**
+             * Date
+             * @description YYYY-MM-DD (UTC)
+             */
+            date: string;
+            /** Count */
+            count: number;
         };
         /** InteractionRequest */
         InteractionRequest: {
@@ -2207,6 +2567,11 @@ export interface components {
              * @description quan_an | mon_an | du_lieu
              */
             target_type: string;
+            /**
+             * Last Resolved At
+             * @description Lần GẦN NHẤT một bản ghi trong nhóm được đánh dấu xử lý. KHÔNG phải lúc phát hiện vấn đề (dự án không lưu thời điểm đó). null = chưa ai đánh dấu.
+             */
+            last_resolved_at?: string | null;
         };
         /**
          * VerifyEmailRequest
@@ -3250,7 +3615,12 @@ export interface operations {
                 q?: string | null;
                 /** @description all | with_restaurants | without_restaurants | missing_image | missing_description */
                 filter?: string;
-                limit?: number;
+                /** @description Trang, bắt đầu từ 1 */
+                page?: number;
+                /** @description Số dòng mỗi trang */
+                page_size?: number | null;
+                /** @description TÊN CŨ của page_size — giữ cho client cũ */
+                limit?: number | null;
             };
             header?: never;
             path?: never;
@@ -3329,6 +3699,39 @@ export interface operations {
             };
         };
     };
+    get_dish_restaurants_api_v1_admin_dishes__dish_id__restaurants_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                dish_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminDishRestaurantsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     admin_system_api_v1_admin_system_get: {
         parameters: {
             query?: never;
@@ -3355,6 +3758,10 @@ export interface operations {
                 limit?: number;
                 /** @description Lọc theo hành động: create_restaurant | update_restaurant | hide_restaurant | restore_restaurant */
                 action?: string | null;
+                /** @description restaurant | dish */
+                target_type?: string | null;
+                /** @description Mã đối tượng — lịch sử của MỘT bản ghi */
+                target_id?: string | null;
             };
             header?: never;
             path?: never;
@@ -3414,6 +3821,79 @@ export interface operations {
             };
         };
     };
+    admin_interaction_stats_api_v1_admin_interactions_stats_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminInteractionStatsResponse"];
+                };
+            };
+        };
+    };
+    restaurant_stats_api_v1_admin_restaurants_stats_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminRestaurantStatsResponse"];
+                };
+            };
+        };
+    };
+    bulk_restaurant_visibility_api_v1_admin_restaurants_bulk_visibility_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminBulkVisibilityRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminBulkVisibilityResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_restaurants_api_v1_admin_restaurants_get: {
         parameters: {
             query?: {
@@ -3424,6 +3904,15 @@ export interface operations {
                 include_hidden?: boolean;
                 /** @description Lọc việc cần xử lý: dong_tam | thieu_lien_he. Khoá lạ = không lọc. */
                 loc?: string | null;
+                page?: number;
+                /** @description Số dòng mỗi trang. Bỏ trống = dùng `limit` */
+                page_size?: number | null;
+                /** @description Khu vực (giá trị từ /restaurants/stats) */
+                district?: string | null;
+                /** @description Nguồn. `manual` gộp cả quán nhập tay (manual/admin) */
+                source?: string | null;
+                /** @description visible | hidden. Khoá lạ = không lọc */
+                status?: string | null;
             };
             header?: never;
             path?: never;
@@ -3632,6 +4121,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AdminIssuesResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    admin_resolved_issues_api_v1_admin_issues_resolved_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminResolvedIssuesResponse"];
                 };
             };
             /** @description Validation Error */

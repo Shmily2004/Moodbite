@@ -25,8 +25,10 @@ from pathlib import Path
 
 from src.application.use_cases.get_admin_overview import GetAdminOverviewUseCase
 from src.application.use_cases.get_data_quality import GetDataQualityUseCase
+from src.application.use_cases.get_interaction_stats import GetInteractionStatsUseCase
 from src.application.use_cases.manage_issues import (
     DanhDauXongUseCase,
+    LietKeDaXuLyUseCase,
     LietKeVanDeUseCase,
     XemChiTietVanDeUseCase,
 )
@@ -46,7 +48,9 @@ from src.infrastructure.repositories.sqlite_audit_log_repository import (
 )
 from src.application.use_cases.log_interaction import LogInteractionUseCase
 from src.application.use_cases.manage_restaurants import (
+    BulkSetRestaurantVisibilityUseCase,
     CreateRestaurantUseCase,
+    ListRestaurantPageForAdminUseCase,
     ListRestaurantsForAdminUseCase,
     SetRestaurantVisibilityUseCase,
     UpdateRestaurantUseCase,
@@ -145,6 +149,9 @@ def build_client(db_path, *, configured=True, writable=True):
     c.list_restaurants_for_admin = (
         ListRestaurantsForAdminUseCase(admin_repo) if admin_repo else None
     )
+    c.list_restaurant_page_for_admin = (
+        ListRestaurantPageForAdminUseCase(admin_repo) if admin_repo else None
+    )
     c.update_restaurant = UpdateRestaurantUseCase(admin_repo) if admin_repo else None
     c.set_restaurant_visibility = (
         SetRestaurantVisibilityUseCase(admin_repo) if admin_repo else None
@@ -189,6 +196,18 @@ def build_client(db_path, *, configured=True, writable=True):
         issue_resolution_repository=c.issue_resolutions,
     )
     c.danh_dau_xong = DanhDauXongUseCase(c.issue_resolutions)
+    c.liet_ke_da_xu_ly = LietKeDaXuLyUseCase(
+        restaurant_repository=repo,
+        dish_catalog_repository=c.dish_catalog_repository,
+        issue_resolution_repository=c.issue_resolutions,
+    )
+    c.interaction_stats = GetInteractionStatsUseCase(interactions)
+    # Lắp SAU nhật ký: thao tác hàng loạt ghi nhật ký từng quán qua đúng use case đó.
+    c.bulk_restaurant_visibility = (
+        BulkSetRestaurantVisibilityUseCase(admin_repo, audit=c.ghi_nhat_ky)
+        if admin_repo
+        else None
+    )
 
     # Tiêm container thẳng vào: nếu để create_app() tự lắp, mỗi test sẽ nạp lại toàn
     # bộ dataset thật rồi bị ghi đè ngay - tốn ~1.5s mỗi test cho việc bị vứt đi.

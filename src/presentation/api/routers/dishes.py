@@ -126,22 +126,14 @@ def dish_detail(
     Nhận toạ độ vì `restaurant_count` phải tính theo bán kính của NGƯỜI ĐANG XEM: món có
     1700 quán toàn thành phố nhưng 0 quán quanh đây vẫn là ngõ cụt.
     """
-    # Dùng lại use case gợi ý với `include_unavailable=True`: trang chi tiết phải mở được
-    # kể cả khi món không có quán nào gần (người dùng có thể vào từ liên kết đã chia sẻ).
-    result = use_case.execute(
-        DishSuggestionQuery(
-            session_id=f"dish-detail:{dish_id}",
-            latitude=latitude,
-            longitude=longitude,
-            max_distance_km=max_distance_km,
-            include_unavailable=True,
-            # Trang chi tiết phải mở được CẢ danh mục lẫn món cụ thể — người dùng có thể
-            # vào từ liên kết đã chia sẻ. Nên KHÔNG lọc theo `only_categories` ở đây.
-            only_categories=False,
-            limit=100,
-        )
+    # Mở được cả khi món không có quán nào gần, và cả DANH MỤC lẫn món cụ thể — người
+    # dùng có thể vào từ liên kết đã chia sẻ. Xem `describe_dish` về bug 404 cũ.
+    item = use_case.describe_dish(
+        dish_id,
+        latitude=latitude,
+        longitude=longitude,
+        max_distance_km=max_distance_km,
     )
-    item = next((r for r in result.results if r.dish_id == dish_id), None)
     if item is None:
         raise DishNotFoundError(dish_id)
     return success(DishItemSchema(**_dish_item_dict(item)).model_dump())

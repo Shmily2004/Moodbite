@@ -4,53 +4,57 @@
  * Dựng theo `frontend/design/Dashboard admin.png` (chủ dự án gửi 2026-08-26):
  *
  *   Xin chào, Admin!                                  [cập nhật lúc] [⟳]
- *   [Tổng quán] [Tổng món] [Món có quán] [Món chưa có quán] [Cần xử lý]
- *   ┌ Tình trạng dữ liệu ┐ ┌ Cần xử lý ┐ ┌ Nguồn dữ liệu ┐
+ *   [Tổng quán] [Tổng món] [Món có quán] [Món chưa có quán] [Cần xử lý → Xem chi tiết]
+ *   ┌ Tình trạng dữ liệu ┐ ┌ Cần xử lý ┐ ┌ Hoạt động gần đây ┐
+ *   ┌ Nguồn dữ liệu (vành khuyên) ┐ ┌ Hệ thống gợi ý ┐
  *
- * ⚠️ BỐN KHỐI TRONG BẢN THIẾT KẾ CỐ TÌNH KHÔNG DỰNG — vì không có dữ liệu thật:
+ * CẬP NHẬT 2026-09-16:
+ *   - "Thống kê theo nguồn" vẽ bằng BIỂU ĐỒ VÀNH KHUYÊN SVG (giữ nguyên số + chú thích).
+ *   - Khối "Hệ thống gợi ý" NAY CÓ THẬT, đếm từ nhật ký tương tác
+ *     (`GET /admin/interactions/stats`): tổng lượt, tỷ lệ tín hiệu tích cực, số phiên /
+ *     tài khoản, theo loại hành động, sparkline 7 ngày.
+ *   - Các link "Xem chi tiết →" của bản thiết kế, CHỈ những link có trang thật để tới.
  *
- *   1. "↗ +1.248 so với tuần trước" trên mỗi ô số
- *   2. "Hệ thống gợi ý": Lượt gợi ý hôm nay · CTR 8.7% · các đường sparkline
- *   3. Chuông thông báo với số 12
- *
- * Lý do cho từng cái:
- *   (1) và (2) cần ẢNH CHỤP DỮ LIỆU THEO NGÀY — dự án không lưu, nên không có cách nào
- *       biết "so với tuần trước". CTR cần lượt click; `interactions.jsonl` có 3 bản ghi.
- *   (3) không có nguồn thông báo nào. Số "cần xử lý" đã nằm ngay trên đầu trang rồi.
- *
- * "Hoạt động gần đây" TRƯỚC ĐÂY cũng nằm trong danh sách này. Nay đã dựng thật — xem
- * `HoatDongGanDay` ở cuối file và `domain/entities/audit_log.py`.
+ * ⚠️ VẪN CỐ TÌNH KHÔNG DỰNG — vì không có dữ liệu thật:
+ *   1. "↗ +1.248 so với tuần trước" trên ô số: màn Tổng quan không đọc ảnh chụp theo ngày
+ *      (xu hướng có ở trang "Chất lượng dữ liệu").
+ *   2. "Tỷ lệ click (CTR) 8.7%": CTR = lượt bấm / lượt HIỂN THỊ, mà dự án KHÔNG ghi lượt
+ *      hiển thị (impression) — không có mẫu số thì mọi con số CTR đều là bịa.
+ *   3. "Lượt gợi ý hôm nay 1.306": lượt tìm kiếm không được ghi lại.
+ *   4. Chuông thông báo: không có nguồn thông báo nào.
  *
  * Vẽ ra bằng số minh hoạ sẽ là bịa dữ liệu ngay trên màn hình dùng để KIỂM TRA dữ liệu —
- * CLAUDE.md mục 0 và mục 4. Ba mục còn thiếu đã ghi vào `PROJECT_CHECKLIST.md`.
+ * CLAUDE.md mục 0 và mục 4.
  */
 import { Link } from 'react-router-dom';
 import { useActivity } from '@/features/view-activity';
-import { useOverview } from '@/features/view-overview';
-import { DUONG_DAN_CAN_XU_LY, ROUTES } from '@/shared/config';
+import { useInteractionStats, useOverview } from '@/features/view-overview';
+import {
+  DUONG_DAN_CAN_XU_LY,
+  NHAN_HANH_DONG_TUONG_TAC,
+  NHAN_NGUON_QUAN,
+  ROUTES,
+  nhanTheoMa,
+} from '@/shared/config';
 import type {
+  AdminInteractionStatsData,
   AdminOverviewData,
   DoPhuTruong,
-  ThongKeNguon,
   ViecCanXuLy,
 } from '@/shared/api';
+import { ngayGioVN, phanTramVN, soVN } from '@/shared/lib';
+import { Sparkline, VanhKhuyen } from '@/shared/ui';
 
-/** Số nhóm nguồn hiện thành thanh; phần còn lại gộp — tránh bảng dài vì nguồn lặt vặt. */
+/** Số nguồn vẽ thành phần riêng; phần còn lại gộp "Khác" — tránh vành khuyên vụn. */
 const SO_NGUON_HIEN = 5;
-
-function soVN(n: number): string {
-  return n.toLocaleString('vi-VN');
-}
 
 export function OverviewPage() {
   const { data, loading, error, reload } = useOverview();
 
   return (
     <div className="tong-quan">
-      {/* PHẦN ĐẦU LUÔN HIỆN, kể cả khi tải lỗi.
-          Bản đầu trả về sớm khi chưa có `data`, nên backend tắt là cả trang trắng — người
-          quản trị không còn biết mình đang ở màn nào và cũng không có nút thử lại nào
-          ngoài F5. */}
+      {/* PHẦN ĐẦU LUÔN HIỆN, kể cả khi tải lỗi — backend tắt thì người quản trị vẫn biết
+          mình đang ở màn nào và có nút thử lại. */}
       <header className="tong-quan__dau">
         <div>
           <h2 className="tong-quan__chao">Xin chào, Admin!</h2>
@@ -68,8 +72,7 @@ export function OverviewPage() {
         </div>
       </header>
 
-      {/* Lỗi: báo và GIỮ NGUYÊN bảng cũ nếu còn. Xoá sạch màn hình vì một lần tải lại
-          hỏng thì người quản trị mất luôn số liệu vừa đọc. */}
+      {/* Lỗi: báo và GIỮ NGUYÊN bảng cũ nếu còn. */}
       {error && (
         <p className={data ? 'notice notice--warn' : 'panel panel--error'}>{error}</p>
       )}
@@ -89,22 +92,36 @@ export function OverviewPage() {
 function NoiDung({ data }: { data: AdminOverviewData }) {
   return (
     <>
-
       <ul className="the-so">
         <TheSo nhan="Tổng số quán" so={data.restaurants_total} />
         <TheSo nhan="Tổng số món" so={data.dishes_total} />
         <TheSo
           nhan="Món có quán tại Hà Nội"
           so={data.dishes_with_restaurants}
-          phu={`${phanTram(data.dishes_with_restaurants, data.dishes_total)} tổng số món`}
+          phu={`${phanTramVN(data.dishes_with_restaurants, data.dishes_total)} tổng số món`}
         />
         <TheSo
           nhan="Món chưa có quán"
           so={data.dishes_without_restaurants}
-          phu={`${phanTram(data.dishes_without_restaurants, data.dishes_total)} tổng số món`}
+          phu={`${phanTramVN(data.dishes_without_restaurants, data.dishes_total)} tổng số món`}
         />
-        <TheSo nhan="Cần xử lý" so={data.needs_attention_total} nhanManh />
+        <li className="the-so__o the-so__o--nhan">
+          <span className="the-so__nhan">Cần xử lý</span>
+          <span className="the-so__gia-tri">{soVN(data.needs_attention_total)}</span>
+          <Link className="linkish the-so__phu" to={ROUTES.issues}>
+            Xem chi tiết →
+          </Link>
+        </li>
       </ul>
+      {/* Nói rõ thứ CHƯA có ngay trên màn hình: im lặng thì người quản trị tưởng số không
+          đổi so với tuần trước. */}
+      <p className="muted small">
+        Màn này không so sánh với tuần trước. Xu hướng theo ngày nằm ở{' '}
+        <Link className="linkish" to={ROUTES.quality}>
+          Chất lượng dữ liệu
+        </Link>
+        .
+      </p>
 
       <div className="tong-quan__luoi">
         <section className="panel">
@@ -123,18 +140,28 @@ function NoiDung({ data }: { data: AdminOverviewData }) {
                   />
                 </div>
                 <span className="do-phu__so">{x.percent}%</span>
-                {/* Số tuyệt đối để cạnh phần trăm: "26,1%" một mình không cho biết là
-                    13.812 hay 13 quán, mà hai con số đó dẫn tới hai quyết định khác nhau. */}
+                {/* Số tuyệt đối cạnh phần trăm: "26,1%" một mình không cho biết là
+                    13.812 hay 13 quán. */}
                 <span className="muted do-phu__tuyet-doi">
                   {soVN(x.covered)}/{soVN(x.total)}
                 </span>
               </li>
             ))}
           </ul>
+          <p className="panel__chan">
+            <Link className="linkish" to={ROUTES.quality}>
+              Xem chi tiết báo cáo chất lượng dữ liệu →
+            </Link>
+          </p>
         </section>
 
         <section className="panel">
-          <h3 className="panel__tieu-de">Cần xử lý</h3>
+          <div className="bang__dau">
+            <h3 className="panel__tieu-de">Cần xử lý</h3>
+            <Link className="linkish" to={ROUTES.issues}>
+              Xem tất cả →
+            </Link>
+          </div>
           <ul className="can-xu-ly">
             {data.needs_attention.map((v: ViecCanXuLy) => (
               <DongCanXuLy key={v.key} viec={v} />
@@ -142,46 +169,176 @@ function NoiDung({ data }: { data: AdminOverviewData }) {
           </ul>
         </section>
 
-        <section className="panel">
-          <h3 className="panel__tieu-de">Thống kê theo nguồn dữ liệu</h3>
-          <ul className="nguon">
-            {data.by_source.slice(0, SO_NGUON_HIEN).map((n: ThongKeNguon) => (
-              <li key={n.source} className="nguon__dong">
-                <span className="nguon__ten">{n.source}</span>
-                <div className="do-phu__thanh">
-                  <div className="do-phu__day do-phu__day--tot" style={{ width: `${n.percent}%` }} />
-                </div>
-                <span className="nguon__so">
-                  {n.percent}% <span className="muted">({soVN(n.count)})</span>
-                </span>
-              </li>
-            ))}
-          </ul>
-          <p className="muted panel__ghi-chu">
-            Tổng {soVN(data.restaurants_total)} quán
-            {data.restaurants_hidden > 0 && `, trong đó ${soVN(data.restaurants_hidden)} đã ẩn`}.
-          </p>
-        </section>
+        <HoatDongGanDay />
       </div>
 
-      <HoatDongGanDay />
+      <div className="tong-quan__luoi tong-quan__luoi--hai">
+        <NguonDuLieu data={data} />
+        <HeThongGoiY data={data} />
+      </div>
+    </>
+  );
+}
 
-      {/* Nói rõ thứ CHƯA có, ngay trên màn hình. Người quản trị phải biết mình đang không
-          nhìn thấy gì — im lặng sẽ khiến họ tưởng "không có hoạt động nào". */}
-      <section className="panel panel--chua-co">
-        <h3 className="panel__tieu-de">Chưa có dữ liệu để hiện</h3>
-        <ul className="chua-co">
-          <li>
-            <strong>So sánh với tuần trước</strong> — dự án không lưu ảnh chụp dữ liệu
-            theo ngày, nên không tính được xu hướng.
-          </li>
-          <li>
-            <strong>Hệ thống gợi ý (lượt gợi ý, tỷ lệ click)</strong> — mới có{' '}
-            {soVN(data.interactions_total)} lượt tương tác được ghi. Cần người dùng thật
-            trước đã.
-          </li>
+/**
+ * "Thống kê theo nguồn dữ liệu" — vành khuyên + chú thích có SỐ.
+ * Nguồn nhỏ gộp thành "Khác" để vành không vụn; số của "Khác" vẫn cộng đúng.
+ */
+function NguonDuLieu({ data }: { data: AdminOverviewData }) {
+  const dau = data.by_source.slice(0, SO_NGUON_HIEN);
+  const conLai = data.by_source.slice(SO_NGUON_HIEN);
+  const phan = [
+    ...dau.map((n) => ({
+      nhan: nhanTheoMa(NHAN_NGUON_QUAN, n.source),
+      giaTri: n.count,
+      phanTram: n.percent,
+    })),
+    ...(conLai.length
+      ? [
+          {
+            nhan: 'Khác',
+            giaTri: conLai.reduce((s, n) => s + n.count, 0),
+            phanTram: Math.round(conLai.reduce((s, n) => s + n.percent, 0) * 10) / 10,
+          },
+        ]
+      : []),
+  ];
+
+  return (
+    <section className="panel">
+      <h3 className="panel__tieu-de">Thống kê theo nguồn dữ liệu</h3>
+      <div className="nguon-vanh">
+        <VanhKhuyen
+          phan={phan}
+          chuGiua={soVN(data.restaurants_total)}
+          chuPhu="Tổng quán"
+          nhan={`Tỷ lệ quán theo nguồn: ${phan
+            .map((p) => `${p.nhan} ${p.phanTram}%`)
+            .join(', ')}`}
+        />
+        <ul className="nguon-vanh__chu-thich">
+          {phan.map((p, i) => (
+            <li key={p.nhan}>
+              <span className={`cham mau-nen-bieu-do-${(i % 6) + 1}`} />
+              <span className="nguon-vanh__ten">{p.nhan}</span>
+              <span className="tnum">
+                {p.phanTram.toLocaleString('vi-VN')}%{' '}
+                <span className="muted">({soVN(p.giaTri)})</span>
+              </span>
+            </li>
+          ))}
         </ul>
-      </section>
+      </div>
+      <p className="muted panel__ghi-chu">
+        Tổng {soVN(data.restaurants_total)} quán
+        {data.restaurants_hidden > 0 && `, trong đó ${soVN(data.restaurants_hidden)} đã ẩn`}.
+      </p>
+      <p className="panel__chan">
+        <Link className="linkish" to={ROUTES.quality}>
+          Xem báo cáo dữ liệu đầy đủ →
+        </Link>
+      </p>
+    </section>
+  );
+}
+
+/**
+ * "Hệ thống gợi ý" — đếm THẬT từ nhật ký tương tác.
+ *
+ * ⚠️ KHÔNG có ô CTR, và đây là chủ đích: CTR cần số lượt HIỂN THỊ làm mẫu số, dự án không
+ * ghi lượt hiển thị. Ô "Độ phủ món" lấy từ `/admin/overview` (đã có sẵn trên trang).
+ */
+function HeThongGoiY({ data }: { data: AdminOverviewData }) {
+  const { data: tk, loading, error } = useInteractionStats();
+
+  return (
+    <section className="panel">
+      <h3 className="panel__tieu-de">Hệ thống gợi ý</h3>
+      {loading && !tk && <p className="muted">Đang tải…</p>}
+      {error && <p className="notice notice--warn">{error}</p>}
+      {tk && !tk.available && (
+        <p className="notice notice--warn">
+          Không đọc được nhật ký tương tác — đây <strong>không phải</strong> là "chưa có ai
+          dùng".
+        </p>
+      )}
+      {tk && tk.available && tk.total === 0 && (
+        <p className="muted">
+          Chưa có lượt tương tác nào được ghi. Khối này sẽ có số khi người dùng bắt đầu xem,
+          lưu hoặc chỉ đường tới quán.
+        </p>
+      )}
+      {tk && tk.available && tk.total > 0 && <NoiDungGoiY tk={tk} data={data} />}
+      <p className="muted panel__ghi-chu">
+        Chưa có "Tỷ lệ click (CTR)" và "Lượt gợi ý hôm nay": hệ thống chưa ghi lượt quán được
+        hiển thị và lượt tìm kiếm, nên không có mẫu số để tính.
+      </p>
+      <p className="panel__chan">
+        <Link className="linkish" to={ROUTES.recommendation}>
+          Xem chi tiết hệ thống gợi ý →
+        </Link>
+      </p>
+    </section>
+  );
+}
+
+function NoiDungGoiY({
+  tk,
+  data,
+}: {
+  tk: AdminInteractionStatsData;
+  data: AdminOverviewData;
+}) {
+  const ngay = tk.last_7_days;
+  const tongTuan = ngay.reduce((s, d) => s + d.count, 0);
+  return (
+    <>
+      <ul className="o-goi-y">
+        <li className="o-goi-y__o">
+          <span className="the-so__nhan">Lượt tương tác</span>
+          <span className="the-so__gia-tri">{soVN(tk.total)}</span>
+          <span className="muted small">{soVN(tongTuan)} lượt trong 7 ngày</span>
+          <Sparkline
+            giaTri={ngay.map((d) => d.count)}
+            nhan={`Lượt tương tác 7 ngày: ${ngay
+              .map((d) => `${ngayGioVN(d.date)} ${d.count}`)
+              .join(', ')}`}
+          />
+        </li>
+        <li className="o-goi-y__o">
+          <span className="the-so__nhan">Tín hiệu tích cực</span>
+          <span className="the-so__gia-tri">
+            {tk.positive_rate == null ? '—' : `${tk.positive_rate.toLocaleString('vi-VN')}%`}
+          </span>
+          <span className="muted small">
+            {tk.positive_rate == null
+              ? 'chưa có bản ghi mang nhãn'
+              : 'lưu, chỉ đường, thích, xem lâu'}
+          </span>
+        </li>
+        <li className="o-goi-y__o">
+          <span className="the-so__nhan">Phiên / tài khoản</span>
+          <span className="the-so__gia-tri">
+            {soVN(tk.sessions)} <span className="muted small">/ {soVN(tk.users)}</span>
+          </span>
+          <span className="muted small">phiên trình duyệt / tài khoản đăng nhập</span>
+        </li>
+        <li className="o-goi-y__o">
+          <span className="the-so__nhan">Độ phủ món</span>
+          <span className="the-so__gia-tri">{soVN(data.dishes_with_restaurants)}</span>
+          <span className="muted small">
+            {phanTramVN(data.dishes_with_restaurants, data.dishes_total)} tổng món
+          </span>
+        </li>
+      </ul>
+      <ul className="goi-y-hanh-dong">
+        {tk.by_action.map((a) => (
+          <li key={a.action_type}>
+            <span>{nhanTheoMa(NHAN_HANH_DONG_TUONG_TAC, a.action_type)}</span>
+            <span className="tnum">{soVN(a.count)}</span>
+          </li>
+        ))}
+      </ul>
     </>
   );
 }
@@ -190,8 +347,7 @@ function NoiDung({ data }: { data: AdminOverviewData }) {
  * Một dòng trong hộp "Cần xử lý".
  *
  * Bấm được -> `<Link>` sang danh sách ĐÃ LỌC SẴN. Chưa có đường dẫn -> `<li>` thường,
- * KHÔNG phải link chết: dẫn tới một danh sách không lọc đúng thứ vừa hứa còn tệ hơn là
- * không bấm được.
+ * KHÔNG phải link chết.
  */
 function DongCanXuLy({ viec }: { viec: ViecCanXuLy }) {
   const duongDan = DUONG_DAN_CAN_XU_LY[viec.key];
@@ -226,15 +382,10 @@ function DongCanXuLy({ viec }: { viec: ViecCanXuLy }) {
 }
 
 /**
- * "Hoạt động gần đây" — nay CÓ dữ liệu thật.
- *
- * Bản đầu của trang này ghi "chưa có bảng nhật ký". Câu đó ĐÚNG lúc viết nhưng SAI ngay
- * sau khi dựng `audit_log` (cùng ngày 2026-08-26), nên đã gỡ. Giữ lại một câu tài liệu
- * sai còn nguy hiểm hơn không viết gì.
+ * "Hoạt động gần đây" — dữ liệu thật từ nhật ký hoạt động.
  *
  * Gọi `useActivity` riêng thay vì nhét vào `/admin/overview`: nhật ký đổi mỗi lần admin
- * thao tác, còn số liệu tổng quan được đệm 5 phút — gộp lại thì hoặc nhật ký cũ, hoặc
- * mất bộ đệm.
+ * thao tác, còn số liệu tổng quan được đệm 5 phút.
  */
 function HoatDongGanDay() {
   const { entries, available, loading } = useActivity();
@@ -268,9 +419,7 @@ function HoatDongGanDay() {
                 <p className="nhat-ky__hanh-dong">{e.action_label}</p>
                 <p className="muted nhat-ky__tom-tat">{e.summary}</p>
               </div>
-              <span className="muted nhat-ky__gio">
-                {e.created_at ? new Date(e.created_at).toLocaleString('vi-VN') : '—'}
-              </span>
+              <span className="muted nhat-ky__gio">{ngayGioVN(e.created_at)}</span>
             </li>
           ))}
         </ul>
@@ -279,24 +428,9 @@ function HoatDongGanDay() {
   );
 }
 
-function phanTram(phan: number, tong: number): string {
-  if (tong <= 0) return '0%';
-  return `${Math.round((phan / tong) * 1000) / 10}%`;
-}
-
-function TheSo({
-  nhan,
-  so,
-  phu,
-  nhanManh = false,
-}: {
-  nhan: string;
-  so: number;
-  phu?: string;
-  nhanManh?: boolean;
-}) {
+function TheSo({ nhan, so, phu }: { nhan: string; so: number; phu?: string }) {
   return (
-    <li className={nhanManh ? 'the-so__o the-so__o--nhan' : 'the-so__o'}>
+    <li className="the-so__o">
       <span className="the-so__nhan">{nhan}</span>
       <span className="the-so__gia-tri">{soVN(so)}</span>
       {phu && <span className="muted the-so__phu">{phu}</span>}

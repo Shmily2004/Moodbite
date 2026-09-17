@@ -18,12 +18,19 @@ from dataclasses import dataclass
 from typing import Dict, List, Sequence, Tuple
 
 from src.domain.entities.dish import Dish
-from src.domain.value_objects.text import Token, token_sequence_at, tokenize_pairs
+from src.domain.value_objects.text import (
+    Token,
+    contains_phrase,
+    token_sequence_at,
+    tokenize_pairs,
+)
 
 # Món khớp quán BẰNG CÁCH NÀO. Thứ tự này là thứ tự ĐỘ TIN CẬY giảm dần.
 MATCHED_BY_DISH_NAME = "dish_name"  # tên quán chứa ĐÚNG TÊN MÓN ("Phở Gà Nguyệt")
 MATCHED_BY_NAME = "name"            # tên quán/loại hình khớp TỪ KHOÁ chung ("phở")
 MATCHED_BY_REVIEW = "review"        # chỉ có review nhắc tới -> yếu hơn nhiều
+# Quán ĐỒ UỐNG khớp tên CHỈ nhờ chữ không dấu - xem `_is_ambiguous_drink_venue_match`.
+MATCHED_BY_UNACCENTED_AT_DRINK_VENUE = "unaccented_name_at_drink_venue"
 
 # Độ mạnh để XẾP HẠNG. Số lớn = đáng tin hơn.
 #
@@ -36,11 +43,36 @@ MATCHED_BY_REVIEW = "review"        # chỉ có review nhắc tới -> yếu hơ
 # Vẫn KHÔNG khẳng định quán chỉ bán đúng món đó - ta chưa bao giờ đọc thực đơn thật
 # (CLAUDE.md mục 4 quy tắc 4). Chỉ là: quán tên "Phở Gà Nguyệt" đáng đứng trên quán tên
 # "Phở Thìn" ở TRANG MÓN PHỞ GÀ. Cả hai vẫn có mặt.
+#
+# TẦNG "QUÁN ĐỒ UỐNG KHỚP TÊN KHÔNG DẤU" (thêm 2026-09-16). Đo trên trang món Phở thật:
+# 1491 quán, 39 quán có loại hình đồ uống, 19 quán trong đó khớp CHỈ nhờ chữ "pho" không
+# dấu ("Pho Co Coffee", "Ca phe pho", "Cafe Goc pho" - gần như chắc là "phố"), và hai quán
+# như thế đứng hạng 2 và 5. Quy tắc "dấu là bằng chứng" KHÔNG đổi (chủ dự án chưa chốt):
+# quán vẫn CÓ MẶT, chỉ xếp dưới quán khớp tên có bằng chứng, và vẫn trên quán chỉ được
+# review nhắc tới. Quán đồ uống ghi CÓ DẤU ("Phở Cuốn Hoa Lan" - Quán cà phê) giữ nguyên tầng.
 MATCH_STRENGTH = {
-    MATCHED_BY_DISH_NAME: 3,
-    MATCHED_BY_NAME: 2,
+    MATCHED_BY_DISH_NAME: 4,
+    MATCHED_BY_NAME: 3,
+    MATCHED_BY_UNACCENTED_AT_DRINK_VENUE: 2,
     MATCHED_BY_REVIEW: 1,
 }
+
+# Trường dữ liệu đã khớp, dùng làm `match_source` trả cho client. Dùng ĐÚNG bộ từ vựng của
+# `text_relevance` ("name"/"category"/"review") để giao diện chỉ cần một bảng nhãn.
+FIELD_NAME = "name"
+FIELD_CATEGORY = "category"
+FIELD_REVIEW = "review"
+
+# Loại hình quán ĐỒ UỐNG (so qua `contains_phrase` với `categoryName`). Giá trị thật đo
+# 2026-09-16 trên trang món Phở: "Quán cà phê" (32 quán), "Quán bar" (4), "Quán trà" (3).
+DRINK_VENUE_CATEGORY_PHRASES: tuple[str, ...] = (
+    "cà phê", "cafe", "coffee", "quán trà", "trà sữa", "quán bar", "quán rượu", "pub",
+    "giải khát",
+)
+# Món mà bản thân nó là ĐỒ UỐNG: quán cà phê bán cà phê là đương nhiên, không được hạ.
+DRINK_DISH_PHRASES: tuple[str, ...] = (
+    "cà phê", "cafe", "coffee", "trà", "bia", "rượu", "cocktail", "sinh tố", "nước ép",
+)
 
 
 @dataclass(frozen=True)
@@ -55,6 +87,16 @@ class DishMatch:
 
     restaurant: object
     matched_by: str
+    # Khớp ở TÊN hay LOẠI HÌNH quán. Mặc định "name" để mọi chỗ dựng `DishMatch(quán,
+    # MATCHED_BY_NAME)` cũ vẫn đúng nghĩa. Với khớp qua review thì trường này bị bỏ qua.
+    matched_field: str = FIELD_NAME
+
+    @property
+    def match_source(self) -> str:
+        """Nguồn khớp để trả cho client: "name" / "category" / "review"."""
+        if self.matched_by == MATCHED_BY_REVIEW:
+            return FIELD_REVIEW
+        return self.matched_field
 
     @property
     def is_strong(self) -> bool:
@@ -115,15 +157,32 @@ def build_dish_restaurant_index(
         else {}
     )
 
+    drink_dish_ids = {
+        dish.identifier for dish in dishes
+        if any(
+            contains_phrase(text, phrase)
+            for text in [dish.name, *dish.restaurant_match_keywords]
+            for phrase in DRINK_DISH_PHRASES
+        )
+    }
+    drink_venue_cache: Dict[str, bool] = {}
+
     for restaurant in restaurants:
         by_dish_name = _matching_dish_ids(restaurant, name_buckets)
         by_name = _matching_dish_ids(restaurant, buckets)
-        for dish_id in by_name | by_dish_name:
-            cach = (
-                MATCHED_BY_DISH_NAME if dish_id in by_dish_name else MATCHED_BY_NAME
-            )
-            index[dish_id].append(DishMatch(restaurant, cach))
-        by_name = by_name | by_dish_name
+        for dish_id in by_name.keys() | by_dish_name.keys():
+            if dish_id in by_dish_name:
+                cach, (field_name, has_evidence) = MATCHED_BY_DISH_NAME, by_dish_name[dish_id]
+            else:
+                cach, (field_name, has_evidence) = MATCHED_BY_NAME, by_name[dish_id]
+            if (
+                not has_evidence
+                and dish_id not in drink_dish_ids
+                and _is_drink_venue(restaurant, drink_venue_cache)
+            ):
+                cach = MATCHED_BY_UNACCENTED_AT_DRINK_VENUE
+            index[dish_id].append(DishMatch(restaurant, cach, field_name))
+        by_name = by_name.keys() | by_dish_name.keys()
 
         if review_buckets:
             # Chỉ ghi nhận qua review nếu tên quán CHƯA khớp - tránh đếm một quán hai lần.
@@ -185,9 +244,40 @@ def _matching_dish_ids_in_review(
     return matched
 
 
+def _is_drink_venue(restaurant, cache: Dict[str, bool]) -> bool:
+    """Loại hình quán là đồ uống. Nhớ theo chuỗi loại hình: cả kho chỉ có vài trăm giá trị
+    khác nhau, không cần dò lại cụm từ cho từng quán."""
+    category = getattr(restaurant, "category", None)
+    if not category:
+        return False
+    if category not in cache:
+        cache[category] = any(
+            contains_phrase(category, phrase) for phrase in DRINK_VENUE_CATEGORY_PHRASES
+        )
+    return cache[category]
+
+
+def _has_accent_evidence(window: List[Token], needle: List[Token]) -> bool:
+    """Chỗ khớp này có BẰNG CHỨNG DẤU không.
+
+    Từ khoá có từ mang dấu ("phở") mà ở tên quán TẤT CẢ các từ đó đều viết không dấu
+    ("Pho") -> không có bằng chứng: "Pho Co Coffee" có thể là phở, cũng có thể là phố.
+    Từ khoá vốn không dấu ("pizza") thì không có gì mơ hồ -> coi là có bằng chứng.
+
+    KHÔNG thay `tokens_match`: quán không dấu VẪN khớp như cũ. Hàm này chỉ trả lời câu
+    hỏi phụ "khớp chắc tới đâu" để xếp tầng.
+    """
+    accented = [
+        (found, wanted) for found, wanted in zip(window, needle) if wanted[0] != wanted[1]
+    ]
+    if not accented:
+        return True
+    return any(found[0] != found[1] for found, _ in accented)
+
+
 def _matching_dish_ids(
     restaurant, buckets: Dict[str, List[Tuple[str, List[Token]]]]
-) -> set:
+) -> Dict[str, Tuple[str, bool]]:
     """Món mà quán này bán. TÊN QUÁN trước, LOẠI HÌNH sau.
 
     Đo trên dataset thật: 144 quán có "phở" trong TÊN nhưng chỉ 14 quán có trong
@@ -197,18 +287,28 @@ def _matching_dish_ids(
     Xét tên và loại hình thành HAI danh sách từ RIÊNG, không nối lại: nối vào nhau thì một
     cụm từ có thể vắt qua ranh giới (tên kết thúc bằng "bún", loại hình mở đầu bằng "chả"
     -> khớp nhầm "bún chả").
+
+    Trả {dish_id: (trường đã khớp, có bằng chứng dấu không)}. Một món có thể khớp nhiều
+    chỗ; chỉ cần MỘT chỗ có bằng chứng dấu là đủ ("Pho Co - Phở Bò" vẫn là quán phở).
+    Tên quán được xét trước nên thắng loại hình khi cả hai cùng khớp.
     """
-    matched: set = set()
+    matched: Dict[str, Tuple[str, bool]] = {}
     name_tokens = tokenize_pairs(restaurant.name, min_length=1)
     category_tokens = tokenize_pairs(getattr(restaurant, "category", None), min_length=1)
 
-    for tokens in (name_tokens, category_tokens):
+    for field_name, tokens in ((FIELD_NAME, name_tokens), (FIELD_CATEGORY, category_tokens)):
         for position, (plain, _) in enumerate(tokens):
             for dish_id, needle_tokens in buckets.get(plain, ()):
-                if dish_id in matched:
+                if dish_id in matched and matched[dish_id][1]:
                     continue
                 if token_sequence_at(tokens, position, needle_tokens):
-                    matched.add(dish_id)
+                    window = tokens[position : position + len(needle_tokens)]
+                    evidence = _has_accent_evidence(window, needle_tokens)
+                    if dish_id not in matched or evidence:
+                        matched[dish_id] = (
+                            matched[dish_id][0] if dish_id in matched else field_name,
+                            evidence,
+                        )
     return matched
 
 

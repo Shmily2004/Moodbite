@@ -6,8 +6,11 @@
  * trường (`is_famous`, `distance_m`…) là test đỏ ngay.
  */
 import { describe, expect, it, vi, afterEach } from 'vitest';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { MemoryRouter, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import type { NavigateFunction } from 'react-router-dom';
+import { UserSessionProvider } from '@/entities/user';
+import { LanguageProvider } from '@/shared/i18n';
 import { DishPage } from '../index';
 
 /** Bản đồ Leaflet không dựng được trong jsdom — thay bằng ô trống có nhãn nhận biết. */
@@ -66,6 +69,16 @@ function quan(i: number, extra: Record<string, unknown> = {}) {
 function mockApi(quanList: unknown[]) {
   return vi.fn().mockImplementation((url: string) => {
     const s = String(url);
+    // Món đã bị gỡ khỏi danh mục -> đúng envelope lỗi 404 mà backend trả.
+    if (s.includes('mon-da-go')) {
+      return Promise.resolve({
+        ok: false,
+        status: 404,
+        json: async () => ({
+          error: { code: 'DISH_NOT_FOUND', message: 'Không tìm thấy món', details: {} },
+        }),
+      });
+    }
     const data = s.includes('/restaurants')
       ? { search_query_id: 'q1', results: quanList, context: [], warnings: [] }
       : MON;
@@ -73,12 +86,32 @@ function mockApi(quanList: unknown[]) {
   });
 }
 
-function renderTrang() {
+/** Lộ `navigate` ra ngoài để test đổi `:dishId` mà KHÔNG gỡ `DishPage` khỏi cây. */
+let dieuHuong: NavigateFunction = () => undefined;
+function LayNavigate() {
+  dieuHuong = useNavigate();
+  return null;
+}
+
+/** Trang `/recommend` giả: chỉ in ra query string nhận được. */
+function TrangGoiYGia() {
+  const { search } = useLocation();
+  return <p data-testid="recommend-search">{search}</p>;
+}
+
+function renderTrang(duongDan = '/dishes/bun-cha') {
+  // `SiteHeader` đọc phiên đăng nhập + từ điển -> bọc provider y như `RootLayout`.
   return render(
-    <MemoryRouter initialEntries={['/dishes/bun-cha']}>
-      <Routes>
-        <Route path="/dishes/:dishId" element={<DishPage />} />
-      </Routes>
+    <MemoryRouter initialEntries={[duongDan]}>
+      <LanguageProvider>
+        <UserSessionProvider>
+          <LayNavigate />
+          <Routes>
+            <Route path="/dishes/:dishId" element={<DishPage />} />
+            <Route path="/recommend" element={<TrangGoiYGia />} />
+          </Routes>
+        </UserSessionProvider>
+      </LanguageProvider>
     </MemoryRouter>,
   );
 }
@@ -160,13 +193,91 @@ describe('DishPage — theo bản thiết kế', () => {
     expect(screen.getByTestId('ban-do')).toBeInTheDocument();
   });
 
+  it('dùng thanh trên CHUNG (SiteHeader) và vẫn giữ đường dẫn phân cấp', async () => {
+    vi.stubGlobal('fetch', mockApi([quan(1)]));
+    const { container } = renderTrang();
+
+    await screen.findByText('Quán số 1');
+    expect(container.querySelector('.site-header')).not.toBeNull();
+    expect(screen.getByRole('navigation', { name: 'Đường dẫn' })).toBeInTheDocument();
+  });
+
   it('nút "Chỉnh sửa" mở ngăn kéo bộ lọc ngay tại trang', async () => {
     vi.stubGlobal('fetch', mockApi([quan(1)]));
     renderTrang();
 
     fireEvent.click(await screen.findByRole('button', { name: /Chỉnh sửa/ }));
 
-    // Không rời trang: tên món vẫn còn.
+    // Không rời trang: câu giải thích của ngăn kéo hiện ra.
     expect(screen.getByText(/Đổi tiêu chí sẽ đưa bạn về trang gợi ý món/)).toBeInTheDocument();
+  });
+
+  it('ngăn kéo KHÔNG rỗng: có bộ lọc thật, bật sẵn thuộc tính của món', async () => {
+    // Lỗi thật 2026-09-16: ngăn kéo chỉ có một câu chữ, không có ô lọc nào.
+    vi.stubGlobal('fetch', mockApi([quan(1)]));
+    renderTrang();
+
+    fireEvent.click(await screen.findByRole('button', { name: /Chỉnh sửa/ }));
+    const hopThoai = screen.getByRole('dialog');
+
+    // Bún chả: `temperature: hot`, `cooking_method: nuong` -> hai ô này bật sẵn.
+    const nut = (ten: RegExp) => within(hopThoai).getByRole('button', { name: ten });
+    expect(nut(/Đồ nóng/)).toHaveAttribute('aria-pressed', 'true');
+    expect(nut(/Đồ nướng/)).toHaveAttribute('aria-pressed', 'true');
+    expect(nut(/Trời mưa/)).toHaveAttribute('aria-pressed', 'false');
+    // Thanh trượt bán kính thay cho ô chọn cũ.
+    expect(within(hopThoai).getByRole('slider')).toBeInTheDocument();
+  });
+
+  it('bộ lọc trên URL thắng thuộc tính của món', async () => {
+    // Đi từ `/recommend?thoi_tiet=rain` sang: người dùng đã chọn "trời mưa", không chọn
+    // "đồ nướng" — không được tự bật thêm thứ họ chưa chọn.
+    vi.stubGlobal('fetch', mockApi([quan(1)]));
+    renderTrang('/dishes/bun-cha?thoi_tiet=rain&km=3');
+
+    fireEvent.click(await screen.findByRole('button', { name: /Chỉnh sửa/ }));
+    const hopThoai = screen.getByRole('dialog');
+
+    const nut = (ten: RegExp) => within(hopThoai).getByRole('button', { name: ten });
+    expect(nut(/Trời mưa/)).toHaveAttribute('aria-pressed', 'true');
+    expect(nut(/Đồ nướng/)).toHaveAttribute('aria-pressed', 'false');
+    expect(within(hopThoai).getByText('3 km', { selector: 'strong' })).toBeInTheDocument();
+  });
+
+  it('"Xem kết quả" sang /recommend MANG THEO bộ lọc đã chọn', async () => {
+    // Lỗi thật 2026-09-16: nút này nhảy sang `/recommend` trắng trơn.
+    vi.stubGlobal('fetch', mockApi([quan(1)]));
+    renderTrang();
+
+    fireEvent.click(await screen.findByRole('button', { name: /Chỉnh sửa/ }));
+    const hopThoai = screen.getByRole('dialog');
+    fireEvent.click(within(hopThoai).getByRole('button', { name: /Bữa tối/ }));
+    fireEvent.click(within(hopThoai).getByRole('button', { name: /Xem kết quả/ }));
+
+    const search = await screen.findByTestId('recommend-search');
+    const params = new URLSearchParams(search.textContent ?? '');
+    // Đúng tên tham số mà `docBoLocTuUrl` ở trang `/recommend` đọc.
+    expect(params.get('nhiet')).toBe('hot');
+    expect(params.get('cach')).toBe('nuong');
+    expect(params.get('bua')).toBe('toi');
+  });
+
+  it('đổi sang món ĐÃ BỊ GỠ (notFound) rồi quay lại KHÔNG sập trang', async () => {
+    // Lỗi thật 2026-09-16 (Rules of Hooks): `useMemo` đứng sau `return` sớm, nên số hook
+    // đổi giữa hai lần render -> "Rendered fewer hooks than expected".
+    vi.stubGlobal('fetch', mockApi([quan(1)]));
+    renderTrang();
+    await screen.findByText('Quán số 1');
+
+    act(() => {
+      dieuHuong('/dishes/mon-da-go');
+    });
+    expect(await screen.findByText('Không tìm thấy món này')).toBeInTheDocument();
+
+    act(() => {
+      dieuHuong('/dishes/bun-cha');
+    });
+    expect(await screen.findByText('Quán số 1')).toBeInTheDocument();
+    expect(screen.queryByText('Không tìm thấy món này')).not.toBeInTheDocument();
   });
 });

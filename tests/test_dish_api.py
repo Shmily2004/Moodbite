@@ -252,6 +252,44 @@ def test_dish_detail_opens_even_when_no_restaurant_nearby(client):
     assert response.json()["data"]["restaurant_count"] == 0
 
 
+def test_dish_detail_opens_dish_ranked_beyond_suggest_limit():
+    """Bug thật 2026-09-16: `/dishes/mi-cay` trả 404 dù món có 99 quán.
+
+    Router cũ chạy lại cả lượt gợi ý với `limit=100` rồi tìm món TRONG 100 kết quả đầu.
+    Danh mục có 298 món đang bật, nên món xếp hạng >100 (theo ngữ cảnh lúc đó) mở ra là
+    "không tìm thấy" - trong khi người dùng vừa thấy nó ở lưới gợi ý đã lọc "cay".
+    """
+    # Mọi món bằng điểm -> xếp theo TÊN. Tên bắt đầu bằng "Zzz" chắc chắn đứng sau 150
+    # món "Món 000…149", tức là nằm ngoài 100 kết quả đầu.
+    many = [
+        Dish(name=f"Món {i:03d}", dish_id=f"mon-{i}", temperature="hot",
+             match_keywords=[f"mon{i}"])
+        for i in range(150)
+    ]
+    cuoi_bang = Dish(name="Zzz món cuối bảng", dish_id="mon-cuoi", temperature="hot",
+                     match_keywords=["zzz"])
+    dishes = many + [cuoi_bang]
+    client = make_client(dishes=dishes, index={d.identifier: [] for d in dishes})
+
+    response = client.get(f"{API}/dishes/mon-cuoi")
+
+    assert response.status_code == 200
+    assert response.json()["data"]["dish_id"] == "mon-cuoi"
+
+
+def test_dish_detail_opens_category_dish():
+    """Cùng bug: `/dishes/pho` (DANH MỤC) trả 404 vì lượt gợi ý lọc `is_category == False`,
+    dù comment trong router nói trang chi tiết phải mở được cả danh mục."""
+    pho = Dish(name="Phở", dish_id="pho", temperature="hot",
+               match_keywords=["phở"], is_category=True)
+    client = make_client(dishes=[pho], index={"pho": []})
+
+    response = client.get(f"{API}/dishes/pho")
+
+    assert response.status_code == 200
+    assert response.json()["data"]["name"] == "Phở"
+
+
 def test_unknown_dish_returns_404_with_its_own_code(client):
     """Mã RIÊNG, không dùng chung với RESTAURANT_NOT_FOUND: client xử lý hai ca khác nhau."""
     response = client.get(f"{API}/dishes/mon-khong-ton-tai")
@@ -410,6 +448,41 @@ def test_rank_positions_stay_continuous_across_the_two_tiers(client):
     assert [r["rank_position"] for r in data["results"]] == [1, 2, 3]
 
 
+def test_match_source_cua_trang_mon_la_nguon_khop_that_khong_phai_mood():
+    """Bug thật 2026-09-16: GET /dishes/pho/restaurants trả `match_source="mood"` cho
+    MỌI quán dù không gửi mood - giao diện hiện "Hợp về không gian và cảm giác" cho quán
+    chỉ khớp tên. Nguyên nhân: xếp hạng không có câu tìm kiếm nên danh sách nguồn rỗng,
+    và rỗng thì nhãn mặc định là "mood"."""
+    from src.domain.services.dish_matching import (
+        MATCHED_BY_NAME,
+        MATCHED_BY_REVIEW,
+        DishMatch,
+    )
+
+    client = make_client(
+        dishes=[BUN_CHA],
+        index={"bun-cha": [
+            DishMatch(make_restaurant("Bún Chả A"), MATCHED_BY_NAME),
+            DishMatch(make_restaurant("Quán B"), MATCHED_BY_REVIEW),
+        ]},
+    )
+
+    khong_mood = client.get(
+        f"{API}/dishes/bun-cha/restaurants", params={"session_id": SESSION}
+    ).json()["data"]["results"]
+    assert {r["name"]: r["match_source"] for r in khong_mood} == {
+        "Bún Chả A": "name", "Quán B": "review",
+    }
+
+    co_mood = client.get(
+        f"{API}/dishes/bun-cha/restaurants", params={"session_id": SESSION, "mood": "sad"}
+    ).json()["data"]["results"]
+    # Mood CÓ tham gia xếp hạng thì mới được nhắc tới.
+    assert {r["name"]: r["match_source"] for r in co_mood} == {
+        "Bún Chả A": "name+mood", "Quán B": "review+mood",
+    }
+
+
 # ==========================================================================
 # KHOẢNG CÁCH TỚI QUÁN GẦN NHẤT (thêm 2026-08-23)
 #
@@ -466,3 +539,26 @@ def test_khoang_cach_lam_tron_MOT_chu_so_thap_phan(client):
         km = mon["nearest_restaurant_km"]
         if km is not None:
             assert round(km, 1) == km, f"{mon['name']}: {km}"
+
+
+def test_suggest_mood_khac_nhau_dua_mon_khac_nhau_len_dau():
+    """Bug thật 2026-09-16: sad/excited/relaxed ra top-5 gần như y hệt, điểm lệch ở chữ
+    số thứ 4. Mood phải thật sự đổi được thứ tự món qua HTTP."""
+    chao = Dish(name="Cháo nóng", dish_id="chao-nong", mood_keywords=["comfort", "cozy"],
+                temperature="hot", cooking_method=METHOD_SOUP, spice_level=0)
+    lau_thai = Dish(name="Lẩu Thái", dish_id="lau-thai", mood_keywords=["spicy", "cozy"],
+                    temperature="hot", cooking_method=METHOD_SOUP, spice_level=3,
+                    portion_size="heavy")
+    quan = make_restaurant("Quán Tổng Hợp", lat=21.0285, lng=105.8542)
+    client = make_client(
+        dishes=[chao, lau_thai], index={"chao-nong": [quan], "lau-thai": [quan]}
+    )
+
+    def diem(mood):
+        results = suggest(client, mood=mood).json()["data"]["results"]
+        return {r["name"]: r["score"] for r in results}
+
+    buon, hao_hung = diem("sad"), diem("excited")
+    # Bản cũ: cả hai món cùng có tag "cozy" nên BẰNG ĐIỂM NHAU khi buồn.
+    assert buon["Cháo nóng"] > buon["Lẩu Thái"]
+    assert hao_hung["Lẩu Thái"] > hao_hung["Cháo nóng"]

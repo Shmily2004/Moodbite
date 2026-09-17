@@ -1,115 +1,66 @@
 /**
  * TRANG KẾT QUẢ GỢI Ý MÓN — `/recommend`.
  *
- * Dựng theo `frontend/design/Food recommend.jpg` (chủ dự án chốt 2026-08-26):
+ * Dựng theo `frontend/design/Filler.png` (đổi 2026-09-16, thay bố cục `Food recommend.jpg`):
  *
  *   ← Quay lại trang chủ
- *   Món phù hợp với bạn hôm nay
- *   [Trời mưa ✕] [Đồ nướng ✕] [Món nóng ✕]  [Chỉnh sửa]
+ *   ┌ BỘ LỌC ─────────┐  24 món ăn phù hợp                  Sắp xếp: [Phù hợp nhất ▾]
+ *   │ (cột cố định,   │  Đang lọc theo: [3 km ✕] [Tối ✕]  Xoá tất cả
+ *   │  chỉ ≥1024px)   │  [món][món][món]
+ *   │                 │  [món][món][món]      <- 3 cột / 2 cột máy tính bảng / 1 cột
+ *   └─────────────────┘  [Xem thêm N món]
+ *   ♥ Dành riêng cho bạn · dải mời đăng ký (chỉ khách)
  *
- *   ★ NHỮNG MÓN PHÙ HỢP NHẤT VỚI BẠN
- *     ┌────────┐  Bún chả              ┌──────────────┐
- *     │ ảnh to │  86 quán gần bạn      │ vì sao gợi ý │
- *     └────────┘  [Khám phá Bún chả]   └──────────────┘
- *     [nhỏ][nhỏ][nhỏ][nhỏ][nhỏ]
- *
- *   ♥ CÓ THỂ BẠN SẼ THÍCH   (5 món, hàng ngang trượt — KHÔNG phải lưới)
- *     [nhỏ][nhỏ][nhỏ][nhỏ][nhỏ]
- *
- *   ♥ DÀNH RIÊNG CHO BẠN    (món/quán đã lưu — tự ẩn khi chưa lưu gì)
+ * CỘT LỌC VÀ NGĂN KÉO LÀ CÙNG MỘT `FilterDrawer` (xem lý do ở chính widget đó). Màn rộng
+ * hiện `variant="inline"`, màn hẹp ẩn cột bằng CSS và dùng nút "Lọc" mở ngăn kéo.
  *
  * ⚠️ KHÔNG hiện ⭐ rating và km trên thẻ món, dù bản thiết kế có. Chủ dự án chốt
- * 2026-08-25 rằng đó là lỗi thiết kế: MÓN không có trường rating (chỉ QUÁN mới có, và
- * chỉ 2,2% quán có), còn km là của quán gần nhất nên đặt trên thẻ món thì đọc thành
- * "món này cách 1,2 km" — vô nghĩa.
+ * 2026-08-25 rằng đó là lỗi thiết kế: MÓN không có trường rating, còn km là của quán gần
+ * nhất nên đặt trên thẻ món thì đọc thành "món này cách 1,2 km" — vô nghĩa.
+ *
+ * ⛔ CHƯA LÀM "Chỉ hiện quán có ghi giá (x%)" của bản thiết kế: `/dishes/suggest` không có
+ * tham số lọc theo giá (đã kiểm `DishSuggestRequest`, 2026-09-16). Vẽ một công tắc bấm
+ * vào mà kết quả không đổi là nói dối người dùng.
  *
  * ⚠️ KHÔNG PHẢI `/search`. Trang đó tìm QUÁN bằng câu tự nhiên và có bản đồ.
- *
- * BỘ LỌC NẰM TRÊN URL — xem `features/suggest-dishes/model/boLocTuUrl.ts`.
  */
-import { useEffect, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { SiteHeader } from '@/widgets/site-header';
 import { DishList, DishListSkeleton } from '@/widgets/dish-list';
 import { FilterDrawer } from '@/widgets/filter-drawer';
 import { AssistantBubble } from '@/widgets/assistant-bubble';
 import { ForYou } from '@/widgets/for-you';
-import { DishCard } from '@/entities/dish';
-import type { ChipDangBat } from '@/features/suggest-dishes';
-import {
-  DishFilters,
-  chipDangBat,
-  docBoLocTuUrl,
-  ghiBoLocLenUrl,
-  useDishSuggestions,
-} from '@/features/suggest-dishes';
-import { useUserLocation } from '@/features/pick-location';
-import { useFavorites } from '@/features/save-favorite';
-import { ANH_GIAO_DIEN, ROUTES } from '@/shared/config';
-import { IconClose, IconFilter, IconHeart, IconStar } from '@/shared/ui';
+import { SignupCta } from '@/widgets/signup-cta';
+import { DishFilters } from '@/features/suggest-dishes';
+import { ROUTES } from '@/shared/config';
 import { useT } from '@/shared/i18n';
+import { useRecommendPage } from '../model/useRecommendPage';
+import { ResultsToolbar } from './ResultsToolbar';
 
-/** Số món trong khối "phù hợp nhất": 1 thẻ lớn + 5 thẻ nhỏ, đúng như thiết kế. */
-const SO_MON_NOI_BAT = 6;
-
-/**
- * Số món trong khối "Có thể bạn sẽ thích" — chủ dự án chốt 2026-08-26: "chỉ hiển thị
- * khoảng 4-5 thôi, như giờ đang là quá nhiều".
- *
- * Bản cũ đổ TOÀN BỘ phần đuôi danh sách (có thể vài chục món) thành một lưới, làm trang
- * dài gấp mấy lần và đẩy mọi thứ khác ra khỏi màn hình. Đây là khối GỢI Ý THÊM, không
- * phải kết quả chính — kết quả chính nằm ở khối "phù hợp nhất" ngay trên.
- */
-const SO_MON_CO_THE_THICH = 5;
+/** Cột lọc luôn hiển thị nên không có gì để "đóng". */
+const KHONG_DONG = () => undefined;
 
 export function RecommendPage() {
   const t = useT();
-  const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const location = useUserLocation();
+  const vm = useRecommendPage();
+  const { suggestions, location } = vm;
 
-  // Đọc bộ lọc từ URL đúng MỘT LẦN lúc dựng. Sau đó state trong hook là nguồn sự thật;
-  // đọc lại mỗi lần URL đổi sẽ ghi đè thứ người dùng vừa bấm.
-  const [boLocBanDau] = useState(() => docBoLocTuUrl(searchParams));
-  const suggestions = useDishSuggestions(location.position, boLocBanDau);
-  const savedDishes = useFavorites();
-  const [moBoLoc, setMoBoLoc] = useState(false);
+  // Nội dung bộ lọc dựng MỘT LẦN, đặt được ở hai chỗ (cột trái và ngăn kéo).
+  const noiDungBoLoc = (
+    <DishFilters
+      filters={suggestions.filters}
+      onToggle={suggestions.toggle}
+      onSetSingle={suggestions.setSingle}
+      onSetMaxDistanceKm={suggestions.setMaxDistanceKm}
+      onReset={suggestions.reset}
+      activeFilterCount={suggestions.activeFilterCount}
+      locationIsDefault={location.isDefault}
+      locationLoading={location.loading}
+      onRequestLocation={location.request}
+    />
+  );
 
-  // Bộ lọc đổi -> ghi ngược lên URL. `replace` để mỗi lần bấm chip KHÔNG tạo một mục mới
-  // trong lịch sử: bấm 5 chip rồi phải bấm Back 5 lần mới ra khỏi trang là rất khó chịu.
-  useEffect(() => {
-    setSearchParams(ghiBoLocLenUrl(suggestions.filters), { replace: true });
-  }, [suggestions.filters, setSearchParams]);
-
-  const dishes = suggestions.dishes ?? [];
-  const noiBat = dishes.slice(0, SO_MON_NOI_BAT);
-  const monDau = noiBat[0] ?? null;
-  const monPhu = noiBat.slice(1);
-
-  // "Có thể bạn sẽ thích" = phần còn lại của danh sách ĐÃ XẾP HẠNG.
-  //
-  // ⚠️ ĐÂY KHÔNG PHẢI GỢI Ý CÁ NHÂN HOÁ, và câu phụ dưới tiêu đề nói đúng như vậy.
-  // Cá nhân hoá thật cần lịch sử hành vi, mà `interactions.jsonl` mới có vài bản ghi.
-  // Đặt tên "dành riêng cho bạn" lúc này là hứa thứ chưa có.
-  const coTheThich = dishes.slice(SO_MON_NOI_BAT, SO_MON_NOI_BAT + SO_MON_CO_THE_THICH);
-
-  const chips = chipDangBat(suggestions.filters);
-  const goChip = (chip: ChipDangBat) => {
-    if (chip.nhomNhieu) suggestions.toggle(chip.nhomNhieu, chip.giaTri);
-    else if (chip.nhomMot) suggestions.setSingle(chip.nhomMot, null);
-  };
-
-  const moMon = (dishId: string) => navigate(ROUTES.dish.replace(':dishId', dishId));
-
-  // HAI danh sách tách bạch: trái tim ("Món yêu thích") và dấu trang ("Đã lưu").
-  // Xem `features/save-favorite` — bỏ cái này không đụng tới cái kia.
-  const daThich = (dishId: string) => savedDishes.isSaved('dish', dishId, 'favorite');
-  const daDanhDau = (dishId: string) => savedDishes.isSaved('dish', dishId, 'bookmark');
-  const doiTrangThai = (
-    dishId: string,
-    ten: string,
-    listType: 'favorite' | 'bookmark',
-  ) => savedDishes.toggle({ itemType: 'dish', itemId: dishId, name: ten, listType });
+  const coMon = vm.monHien.length > 0;
 
   return (
     <div className="page">
@@ -120,186 +71,99 @@ export function RecommendPage() {
           ← {t('recommend.back')}
         </Link>
 
-        <div className="recommend__dau">
-          <div className="recommend__dau-chu">
-            <h1 className="recommend__tieu-de">{t('recommend.heading')}</h1>
-            <p className="recommend__phu-de">{t('recommend.sub')}</p>
+        <div className="recommend-layout">
+          <FilterDrawer
+            variant="inline"
+            open
+            onClose={KHONG_DONG}
+            activeCount={suggestions.activeFilterCount}
+            onReset={suggestions.reset}
+          >
+            {noiDungBoLoc}
+          </FilterDrawer>
 
-            {/* Chip bộ lọc đang bật, gỡ được TỪNG CÁI — đúng như thiết kế. */}
-            <div className="recommend__chips">
-              {chips.map((chip) => (
-                <button
-                  key={chip.khoa}
-                  type="button"
-                  className="chip chip--active chip--go"
-                  onClick={() => goChip(chip)}
-                >
-                  {chip.nhan}
-                  <IconClose className="chip__go" />
-                </button>
-              ))}
-              <button
-                type="button"
-                className="chip chip--flat"
-                onClick={() => setMoBoLoc(true)}
-              >
-                <IconFilter /> {t('recommend.edit')}
-              </button>
-            </div>
-          </div>
-
-          {ANH_GIAO_DIEN.banner_trang_chu && (
-            <img
-              className="recommend__banner"
-              src={ANH_GIAO_DIEN.banner_trang_chu.src}
-              alt=""
-              loading="lazy"
+          <section id="ket-qua" className="recommend__ket-qua">
+            <ResultsToolbar
+              loading={suggestions.loading}
+              count={vm.tongSoMon}
+              chips={vm.chips}
+              onRemoveChip={vm.goChip}
+              onClearAll={suggestions.reset}
+              sort={vm.sapXep}
+              onSortChange={vm.setSapXep}
+              onOpenFilters={() => vm.setMoBoLoc(true)}
+              activeFilterCount={suggestions.activeFilterCount}
             />
-          )}
-        </div>
 
-        {suggestions.warnings.map((canhBao, i) => (
-          <p key={i} className="notice notice--warn">
-            {canhBao}
-          </p>
-        ))}
+            {suggestions.warnings.map((canhBao, i) => (
+              <p key={i} className="notice notice--warn">
+                {canhBao}
+              </p>
+            ))}
 
-        {suggestions.error && (
-          <div className="notice notice--error">
-            <p>{suggestions.error}</p>
-            <button className="btn" onClick={suggestions.reload}>
-              {t('results.retry')}
-            </button>
-          </div>
-        )}
-
-        {suggestions.loading && <DishListSkeleton layout="grid" />}
-
-        {!suggestions.loading && !suggestions.error && dishes.length === 0 && (
-          <div className="notice">
-            <p>{t('recommend.empty')}</p>
-            {suggestions.activeFilterCount > 0 && (
-              <button className="btn" onClick={suggestions.reset}>
-                {t('results.clearFilters')}
-              </button>
-            )}
-          </div>
-        )}
-
-        {!suggestions.loading && monDau && (
-          <section className="recommend__khoi">
-            <h2 className="recommend__nhan-khoi">
-              <IconStar filled /> {t('recommend.bestTitle')}
-            </h2>
-            <p className="section-sub">{t('recommend.bestSub')}</p>
-
-            <div className="mon-noi-bat">
-              <DishCard
-                dish={monDau}
-                onOpen={() => moMon(monDau.dish_id)}
-                saved={daThich(monDau.dish_id)}
-                onToggleSave={() => doiTrangThai(monDau.dish_id, monDau.name, 'favorite')}
-                bookmarked={daDanhDau(monDau.dish_id)}
-                onToggleBookmark={() =>
-                  doiTrangThai(monDau.dish_id, monDau.name, 'bookmark')
-                }
-              />
-
-              <div className="mon-noi-bat__info">
-                <h3 className="mon-noi-bat__ten">{monDau.name}</h3>
-                {monDau.has_description && (
-                  <p className="mon-noi-bat__mo-ta">{monDau.description}</p>
-                )}
-                <p className="mon-noi-bat__so-quan">
-                  {t('recommend.nearbyCount', { count: monDau.restaurant_count })}
-                </p>
-                <button
-                  type="button"
-                  className="btn btn--accent"
-                  onClick={() => moMon(monDau.dish_id)}
-                >
-                  {t('recommend.explore', { name: monDau.name })} →
+            {suggestions.error && (
+              <div className="notice notice--error">
+                <p>{suggestions.error}</p>
+                <button className="btn" onClick={suggestions.reload}>
+                  {t('results.retry')}
                 </button>
               </div>
+            )}
 
-              {/* Ô "vì sao gợi ý" — dùng `reasons` do BACKEND trả, không phải câu quảng
-                  cáo tự chế. Thiết kế để một câu marketing ở đây; ta thay bằng lý do
-                  thật, vì đó mới là thứ giải thích được và không bịa. */}
-              {monDau.reasons.length > 0 && (
-                <blockquote className="mon-noi-bat__ly-do">
-                  {monDau.reasons.join(' · ')}
-                </blockquote>
-              )}
-            </div>
+            {suggestions.loading && <DishListSkeleton layout="grid" />}
 
-            {monPhu.length > 0 && (
-              <DishList
-                dishes={monPhu}
-                layout="row"
-                onOpen={(dish) => moMon(dish.dish_id)}
-                isSaved={(dish) => daThich(dish.dish_id)}
-                onToggleSave={(dish) => doiTrangThai(dish.dish_id, dish.name, 'favorite')}
-                isBookmarked={(dish) => daDanhDau(dish.dish_id)}
-                onToggleBookmark={(dish) =>
-                  doiTrangThai(dish.dish_id, dish.name, 'bookmark')
-                }
-              />
+            {!suggestions.loading && !suggestions.error && !coMon && (
+              <div className="notice">
+                <p>{t('recommend.empty')}</p>
+                {vm.chips.length > 0 && (
+                  <button className="btn" onClick={suggestions.reset}>
+                    {t('results.clearFilters')}
+                  </button>
+                )}
+              </div>
+            )}
+
+            {!suggestions.loading && coMon && (
+              <div className="recommend__luoi">
+                <DishList
+                  dishes={vm.monHien}
+                  layout="grid"
+                  onOpen={vm.moMon}
+                  isSaved={(dish) => vm.daLuu(dish, 'favorite')}
+                  onToggleSave={(dish) => vm.doiLuu(dish, 'favorite')}
+                  isBookmarked={(dish) => vm.daLuu(dish, 'bookmark')}
+                  onToggleBookmark={(dish) => vm.doiLuu(dish, 'bookmark')}
+                />
+              </div>
+            )}
+
+            {!suggestions.loading && vm.conLai > 0 && (
+              <button type="button" className="btn btn--rong" onClick={vm.xemThem}>
+                {t('recommend.showMore', { n: vm.conLai })} ▾
+              </button>
             )}
           </section>
-        )}
+        </div>
 
-        {!suggestions.loading && coTheThich.length > 0 && (
-          <section className="recommend__khoi">
-            <h2 className="recommend__nhan-khoi">
-              <IconHeart /> {t('recommend.mayLikeTitle')}
-            </h2>
-            <p className="section-sub">{t('recommend.mayLikeSub')}</p>
+        {/* Món & quán đã lưu — widget tự ẩn khi chưa lưu gì. */}
+        <ForYou favorites={vm.savedDishes} />
 
-            {/* HÀNG NGANG TRƯỢT, không phải lưới: khối này là gợi ý thêm, nó không
-                được quyền chiếm chiều cao của cả trang. */}
-            <DishList
-              dishes={coTheThich}
-              layout="row"
-              onOpen={(dish) => moMon(dish.dish_id)}
-              isSaved={(dish) => daThich(dish.dish_id)}
-              onToggleSave={(dish) => doiTrangThai(dish.dish_id, dish.name, 'favorite')}
-              isBookmarked={(dish) => daDanhDau(dish.dish_id)}
-              onToggleBookmark={(dish) =>
-                doiTrangThai(dish.dish_id, dish.name, 'bookmark')
-              }
-            />
-          </section>
-        )}
-
-        {/* MÓN & QUÁN ĐÃ LƯU — đặt SAU các khối gợi ý.
-            Trang này người dùng vào để tìm món MỚI, nên thứ họ đã lưu là để đối chiếu
-            ("mình từng thích gì rồi nhỉ"), không phải thứ cần thấy đầu tiên. Widget tự
-            ẩn khi chưa lưu gì, nên trang không phình ra với người mới. */}
-        <ForYou favorites={savedDishes} />
+        {/* Dải mời đăng ký, CHỈ cho khách — giống hệt trang chủ. */}
+        {!vm.daDangNhap && <SignupCta onExplore={vm.keoToiKetQua} />}
 
         <AssistantBubble
-          onOpen={() => setMoBoLoc(true)}
+          onOpen={() => vm.setMoBoLoc(true)}
           activeCount={suggestions.activeFilterCount}
         />
 
         <FilterDrawer
-          open={moBoLoc}
-          onClose={() => setMoBoLoc(false)}
+          open={vm.moBoLoc}
+          onClose={() => vm.setMoBoLoc(false)}
           activeCount={suggestions.activeFilterCount}
           onReset={suggestions.reset}
         >
           <p className="section-sub">{t('filters.sub')}</p>
-          <DishFilters
-            filters={suggestions.filters}
-            onToggle={suggestions.toggle}
-            onSetSingle={suggestions.setSingle}
-            onSetMaxDistanceKm={suggestions.setMaxDistanceKm}
-            onReset={suggestions.reset}
-            activeFilterCount={suggestions.activeFilterCount}
-            locationIsDefault={location.isDefault}
-            locationLoading={location.loading}
-            onRequestLocation={location.request}
-          />
+          {noiDungBoLoc}
         </FilterDrawer>
       </main>
     </div>

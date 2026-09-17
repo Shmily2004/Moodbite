@@ -5,6 +5,9 @@ numpy
 scikit-learn
 requests
 pytest
+# TestClient cua starlette 0.27 (fastapi 0.104.1) can httpx; httpx 0.28 bo tham so `app`
+# ma TestClient cu dang dung, nen chan duoi 0.28. Thieu goi nay thi moi test API loi import.
+httpx>=0.24,<0.28
 
 # ĐÃ GỠ 2026-08-17 (xem archive/spatial-3d/README.md):
 #   opencv-python-headless, torch, transformers, ultralytics, Pillow,

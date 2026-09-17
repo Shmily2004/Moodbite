@@ -10,7 +10,8 @@
  * mà nó là component "ngu" không nên gánh thêm việc đó. Chọn cách rẻ hơn: để chung một
  * file, và ghi rõ ràng buộc này ở cả hai đầu.
  */
-import type { DishFilterState, MultiSelectGroup, SingleSelectGroup } from './useDishSuggestions';
+import type { DishFilterState, MultiSelectGroup, SingleSelectGroup } from './useDishFilterState';
+import { DEFAULT_RADIUS_KM } from '@/shared/config';
 
 export interface ChipDangBat {
   /** Khoá duy nhất để React dựng danh sách. */
@@ -19,6 +20,12 @@ export interface ChipDangBat {
   /** Gỡ chip này: nhóm nhiều lựa chọn thì `toggle`, nhóm một lựa chọn thì `setSingle(null)`. */
   nhomNhieu?: MultiSelectGroup;
   nhomMot?: SingleSelectGroup;
+  /**
+   * Chip BÁN KÍNH (thêm 2026-09-16, theo `design/Filler.png`: "Trong vòng 3km ✕").
+   * Gỡ chip này = trả bán kính về MẶC ĐỊNH, không phải "không giới hạn" — người dùng
+   * bấm ✕ để bỏ điều kiện mình đã đặt, chứ không phải để tìm khắp thành phố.
+   */
+  khoangCach?: true;
   giaTri: string;
 }
 
@@ -43,6 +50,15 @@ const NHAN: Record<string, Record<string, string>> = {
     an_vat: 'Ăn vặt',
   },
 };
+
+/**
+ * Giá trị này có NHÃN trong bảng không — tức là có ô bấm tương ứng trong `DishFilters`.
+ * Dùng khi suy bộ lọc từ món đang xem: đưa vào một mã không có ô bấm thì người dùng mở
+ * ngăn kéo ra sẽ không thấy (và không tắt được) điều kiện đó.
+ */
+export function coNhan(nhom: string, gia_tri: string): boolean {
+  return Boolean(NHAN[nhom]?.[gia_tri]);
+}
 
 /** Mã lạ (backend thêm giá trị mới) thì hiện chính mã đó, đừng nuốt mất chip. */
 function nhanCua(nhom: string, gia_tri: string): string {
@@ -86,6 +102,20 @@ export function chipDangBat(filters: DishFilterState): ChipDangBat[] {
         giaTri: gia_tri,
       });
     }
+  }
+
+  // Bán kính chỉ thành chip khi KHÁC mặc định: chip "Trong vòng 10 km" luôn nằm đó mà
+  // người dùng chưa từng chọn thì chỉ là nhiễu.
+  if (filters.maxDistanceKm !== DEFAULT_RADIUS_KM) {
+    ket_qua.push({
+      khoa: 'km',
+      nhan:
+        filters.maxDistanceKm === null
+          ? 'Không giới hạn khoảng cách'
+          : `Trong vòng ${filters.maxDistanceKm} km`,
+      khoangCach: true,
+      giaTri: String(filters.maxDistanceKm ?? ''),
+    });
   }
 
   return ket_qua;

@@ -17,9 +17,11 @@ from fastapi import Depends, Request
 
 from src.application.ports.admin_restaurant_repository import AdminRestaurantRepository
 from src.application.use_cases.get_admin_overview import GetAdminOverviewUseCase
+from src.application.use_cases.get_interaction_stats import GetInteractionStatsUseCase
 from src.application.use_cases.get_data_quality import GetDataQualityUseCase
 from src.application.use_cases.manage_issues import (
     DanhDauXongUseCase,
+    LietKeDaXuLyUseCase,
     LietKeVanDeUseCase,
     XemChiTietVanDeUseCase,
 )
@@ -33,7 +35,9 @@ from src.application.use_cases.log_interaction import LogInteractionUseCase
 from src.domain.services.activity_tally import ActivityTally
 from src.domain.services.closure_reports import ClosureReportTally
 from src.application.use_cases.manage_restaurants import (
+    BulkSetRestaurantVisibilityUseCase,
     CreateRestaurantUseCase,
+    ListRestaurantPageForAdminUseCase,
     ListRestaurantsForAdminUseCase,
     SetRestaurantVisibilityUseCase,
     UpdateRestaurantUseCase,
@@ -165,6 +169,9 @@ class Container:
     liet_ke_van_de: LietKeVanDeUseCase
     chi_tiet_van_de: XemChiTietVanDeUseCase
     danh_dau_xong: DanhDauXongUseCase
+    liet_ke_da_xu_ly: LietKeDaXuLyUseCase
+    # Khối "Hệ thống gợi ý" ở màn Tổng quan — đọc nhật ký tương tác.
+    interaction_stats: GetInteractionStatsUseCase
     quality_snapshots: object
     issue_resolutions: object
     list_dishes_for_admin: ListDishesForAdminUseCase
@@ -174,6 +181,8 @@ class Container:
     doc_nhat_ky: DocNhatKyUseCase
     admin_restaurants: Optional[object]
     list_restaurants_for_admin: Optional[ListRestaurantsForAdminUseCase]
+    list_restaurant_page_for_admin: Optional[ListRestaurantPageForAdminUseCase]
+    bulk_restaurant_visibility: Optional[BulkSetRestaurantVisibilityUseCase]
     create_restaurant: Optional[CreateRestaurantUseCase]
     update_restaurant: Optional[UpdateRestaurantUseCase]
     set_restaurant_visibility: Optional[SetRestaurantVisibilityUseCase]
@@ -423,8 +432,15 @@ def build_container(settings: Optional[Settings] = None) -> Container:
         audit_log=audit_log,
         ghi_nhat_ky=GhiNhatKyUseCase(audit_log),
         doc_nhat_ky=DocNhatKyUseCase(audit_log),
-        list_dishes_for_admin=ListDishesForAdminUseCase(dish_catalog_repository),
-        get_dish_for_admin=GetDishForAdminUseCase(dish_catalog_repository),
+        # CÙNG chỉ mục món -> quán với `/dishes/{id}/restaurants`, để cột "Có quán (số)"
+        # của trang quản trị không bao giờ lệch với số quán người dùng thật sự thấy.
+        list_dishes_for_admin=ListDishesForAdminUseCase(
+            dish_catalog_repository, dish_restaurant_index
+        ),
+        get_dish_for_admin=GetDishForAdminUseCase(
+            dish_catalog_repository, dish_restaurant_index
+        ),
+        interaction_stats=GetInteractionStatsUseCase(interaction_repository),
         admin_overview=admin_overview,
         quality_snapshots=quality_snapshots,
         issue_resolutions=issue_resolutions,
@@ -449,8 +465,25 @@ def build_container(settings: Optional[Settings] = None) -> Container:
             issue_resolution_repository=issue_resolutions,
         ),
         danh_dau_xong=DanhDauXongUseCase(issue_resolutions),
+        liet_ke_da_xu_ly=LietKeDaXuLyUseCase(
+            restaurant_repository=restaurant_repository,
+            dish_catalog_repository=dish_catalog_repository,
+            issue_resolution_repository=issue_resolutions,
+        ),
         list_restaurants_for_admin=(
             ListRestaurantsForAdminUseCase(admin_restaurants) if admin_restaurants else None
+        ),
+        list_restaurant_page_for_admin=(
+            ListRestaurantPageForAdminUseCase(admin_restaurants)
+            if admin_restaurants
+            else None
+        ),
+        bulk_restaurant_visibility=(
+            BulkSetRestaurantVisibilityUseCase(
+                admin_restaurants, audit=GhiNhatKyUseCase(audit_log)
+            )
+            if admin_restaurants
+            else None
         ),
         create_restaurant=(
             CreateRestaurantUseCase(admin_restaurants) if admin_restaurants else None

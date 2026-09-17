@@ -10,7 +10,7 @@
  * HttpClient thật — envelope `{data: …}` đọc sai là test đỏ.
  */
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { UserSessionProvider } from '@/entities/user';
 import { LanguageProvider } from '@/shared/i18n';
@@ -56,7 +56,11 @@ const STATS_RONG = {
   ],
 };
 
-function gia_lap_fetch(stats = STATS_RONG, favorites: unknown[] = []) {
+function gia_lap_fetch(
+  stats = STATS_RONG,
+  favorites: unknown[] = [],
+  anhMon: Record<string, string> = {},
+) {
   return vi.fn().mockImplementation((url: string) => {
     const duong_dan = String(url);
     const tra = (data: unknown) =>
@@ -66,6 +70,9 @@ function gia_lap_fetch(stats = STATS_RONG, favorites: unknown[] = []) {
     if (duong_dan.includes('/me/stats')) return tra(stats);
     if (duong_dan.includes('/me/favorites'))
       return tra({ items: favorites, total: favorites.length });
+    // `GET /dishes/{id}` — trang tra ảnh món cho thẻ đã lưu / đã xem.
+    const mon = duong_dan.match(/\/dishes\/([^/?]+)/);
+    if (mon) return tra({ dish_id: mon[1], name: mon[1], image_url: anhMon[mon[1]] ?? null });
     return tra({});
   });
 }
@@ -150,17 +157,80 @@ describe('AccountPage', () => {
     expect(screen.getByText('0/20')).toBeInTheDocument();
   });
 
-  it('danh sach da luu lay tu SERVER khi da dang nhap', async () => {
+  it('danh sach da luu lay tu SERVER, hien thanh THE co anh, "Xem tat ca" sang tab', async () => {
     vi.stubGlobal(
       'fetch',
-      gia_lap_fetch(STATS_RONG, [
-        { item_type: 'dish', item_id: 'bun-cha', name: 'Bún chả', created_at: null },
-      ]),
+      gia_lap_fetch(
+        STATS_RONG,
+        [{ item_type: 'dish', item_id: 'bun-cha', name: 'Bún chả', created_at: null }],
+        { 'bun-cha': 'https://anh.example/bun-cha.jpg' },
+      ),
     );
+    const { container } = renderAccount();
+
+    expect(await screen.findByText('Bún chả')).toBeInTheDocument();
+    // THẺ (không còn là chip chữ): có nhãn loại, dẫn tới trang món, và ảnh lấy từ API.
+    const the = container.querySelector('.item-card');
+    expect(the).not.toBeNull();
+    expect(within(the as HTMLElement).getByText(/Món ăn/)).toBeInTheDocument();
+    expect(within(the as HTMLElement).getByRole('link')).toHaveAttribute('href', '/dishes/bun-cha');
+    await waitFor(() =>
+      expect(the?.querySelector('img.item-card__img')).toHaveAttribute(
+        'src',
+        'https://anh.example/bun-cha.jpg',
+      ),
+    );
+
+    // "Xem tất cả" CHUYỂN TAB chứ không đi trang khác.
+    fireEvent.click(screen.getAllByRole('button', { name: /Xem tất cả/ })[0]);
+    // Nói đúng nơi dữ liệu đang nằm.
+    expect(await screen.findByText(/Đã đồng bộ với tài khoản/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Yêu thích/ })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+  });
+
+  it('KHAU VI: chua chon gi thi hien trang thai rong + nut sang tab khau vi', async () => {
+    vi.stubGlobal('fetch', gia_lap_fetch());
     renderAccount();
 
-    expect(await screen.findByText(/Bún chả/)).toBeInTheDocument();
-    // Nói đúng nơi dữ liệu đang nằm.
-    expect(screen.getByText(/Đã đồng bộ với tài khoản/)).toBeInTheDocument();
+    expect(await screen.findByText('Bạn chưa chọn khẩu vị nào.')).toBeInTheDocument();
+    expect(screen.queryByTestId('taste-radar-vung')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Cập nhật khẩu vị' }));
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /Sở thích & khẩu vị/ })).toHaveAttribute(
+        'aria-current',
+        'page',
+      ),
+    );
+  });
+
+  it('KHAU VI: ve radar tu dung so thich da luu, va doi ngay khi bam chip', async () => {
+    localStorage.setItem('moodbite.taste', JSON.stringify(['nuong']));
+    vi.stubGlobal('fetch', gia_lap_fetch());
+    renderAccount();
+
+    expect(await screen.findByTestId('taste-radar-vung')).toBeInTheDocument();
+    // Số đọc được cho trình đọc màn hình: 1/5 cách chế biến.
+    expect(screen.getByText('Cách chế biến: 1/5')).toBeInTheDocument();
+
+    // Cùng một state với ô chọn phía trên -> bấm chip là biểu đồ đổi theo.
+    fireEvent.click(screen.getByRole('button', { name: /Món nước/ }));
+    expect(await screen.findByText('Cách chế biến: 2/5')).toBeInTheDocument();
+  });
+
+  it('dai "Cai thien goi y" dan sang tab khau vi', async () => {
+    vi.stubGlobal('fetch', gia_lap_fetch());
+    renderAccount();
+
+    fireEvent.click(await screen.findByRole('button', { name: /Cập nhật ngay/ }));
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /Sở thích & khẩu vị/ })).toHaveAttribute(
+        'aria-current',
+        'page',
+      ),
+    );
   });
 });

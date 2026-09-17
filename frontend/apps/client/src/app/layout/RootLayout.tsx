@@ -9,6 +9,7 @@
  */
 import { Outlet, useLocation } from 'react-router-dom';
 import { SiteFooter } from '@/widgets/site-footer';
+import { BottomTabBar } from '@/widgets/bottom-tab-bar';
 import { ROUTES } from '@/shared/config';
 import { UserSessionProvider } from '@/entities/user';
 import { LanguageProvider } from '@/shared/i18n';
@@ -37,6 +38,15 @@ export function RootLayout() {
   ];
   const coChanTrang = !KHONG_CHAN_TRANG.includes(pathname);
 
+  /**
+   * Những trang KHÔNG có thanh tab dưới đáy (điện thoại): nhóm trang tài khoản/đăng nhập.
+   * Cùng lý do với chân trang — `.auth` trải kín màn hình, thêm một thanh cố định ở đáy là
+   * che mất nút gửi form. `/search` THÌ CÓ thanh tab (khác chân trang): thanh tab nằm cố
+   * định chứ không đẩy bản đồ, CSS đã trừ chiều cao của nó khỏi khung bản đồ.
+   */
+  const KHONG_THANH_TAB: string[] = KHONG_CHAN_TRANG.filter((duong) => duong !== ROUTES.search);
+  const coThanhTab = !KHONG_THANH_TAB.includes(pathname);
+
   // Provider bọc TOÀN BỘ route: trang đăng nhập và các trang khác là route ANH EM, không
   // có cha chung nào khác để chia sẻ state phiên. Nó chỉ đọc token trong storage lúc dựng
   // - không gọi mạng, nên trang chưa cần tài khoản cũng không tốn gì.
@@ -49,6 +59,8 @@ export function RootLayout() {
         {/* Chân trang KHÔNG hiện ở trang bản đồ: `SearchPage` là bản đồ tràn màn hình,
             thêm một khối chữ ở dưới là đẩy bản đồ lên và phá đúng bố cục đã chốt. */}
         {coChanTrang && <SiteFooter />}
+        {/* Chỉ HIỆN dưới 768px — ẩn/hiện theo bề rộng do CSS lo. */}
+        {coThanhTab && <BottomTabBar />}
       </UserSessionProvider>
     </LanguageProvider>
   );

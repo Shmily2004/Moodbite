@@ -1,8 +1,8 @@
 /**
  * Trang tìm quán — tầng `pages`: GHÉP các widget/feature, giữ state điều phối.
  *
- * BỐ CỤC (chốt với chủ dự án 2026-08-17):
- *   thanh trên (thương hiệu + ô tìm) → hàng chip lọc → [ BẢN ĐỒ | RAIL ĐỀ XUẤT ]
+ * BỐ CỤC (chốt với chủ dự án 2026-08-17; thanh trên chung `SiteHeader` từ 2026-09-16):
+ *   SiteHeader → ô tìm → hàng chip lọc → [ BẢN ĐỒ | RAIL ĐỀ XUẤT ]
  *
  * Bản đồ CỐ TÌNH không chiếm cả màn hình. MoodBite không phải Google Maps clone: khi
  * người dùng gõ "quán lẩu ấm cúng gần đây", thứ họ cần thấy trước là QUÁN NÀO PHÙ HỢP,
@@ -12,6 +12,7 @@
  */
 import { useEffect, useRef, useState } from 'react';
 import { RestaurantList } from '@/widgets/restaurant-list';
+import { SiteHeader } from '@/widgets/site-header';
 import { RestaurantMap } from '@/widgets/restaurant-map';
 import { SearchForm, useSearch } from '@/features/search-restaurants';
 import { useUserLocation } from '@/features/pick-location';
@@ -52,13 +53,12 @@ export function SearchPage() {
   }, [activeId]);
 
   return (
-    <div className="shell">
-      <header className="topbar">
-        <span className="brand">
-          <span className="brand__dot" />
-          <span className="brand__name">MoodBite</span>
-        </span>
+    <div className="shell shell--search">
+      {/* Thanh trên DÙNG CHUNG (đổi 2026-09-16): trước đây trang này có nhãn thương hiệu
+          riêng, nên người dùng sang đây là mất điều hướng + tài khoản, chỉ còn nút Back. */}
+      <SiteHeader />
 
+      <div className="topbar">
         <SearchForm
           queryText={search.queryText}
           onQueryTextChange={search.setQueryText}
@@ -69,7 +69,7 @@ export function SearchPage() {
         {search.context.length > 0 && (
           <span className="topbar__ctx">{search.context.join(' · ')}</span>
         )}
-      </header>
+      </div>
 
       <div className="filterbar">
         <SearchForm.Filters

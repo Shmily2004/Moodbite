@@ -54,7 +54,7 @@ const vi = {
   'recommend.mayLikeSub':
     'Những món xếp tiếp theo — chưa phải gợi ý riêng cho bạn, vì MoodBite chưa đủ dữ liệu thói quen.',
   'recommend.loading': 'Đang tìm món hợp với bạn…',
-  'recommend.title': '{count} món phù hợp',
+  'recommend.title': '{count} món ăn phù hợp',
   'recommend.empty':
     'Không có món nào khớp bộ lọc hiện tại. Thử bỏ bớt một điều kiện hoặc nới bán kính nhé.',
   // --- Chân trang (thêm 2026-08-24) ---------------------------------------
@@ -221,6 +221,40 @@ const vi = {
   'common.viewAll': 'Xem tất cả',
   'common.loading': 'Đang tải…',
   'common.km': '{n} km',
+
+  // --- Bổ sung 2026-09-16: cột lọc trang kết quả, thanh tab di động, trang tài khoản ---
+  'filters.distance': 'Trong vòng',
+  'filters.unlimited': 'Không giới hạn',
+  'recommend.filteringBy': 'Đang lọc theo:',
+  'recommend.clearAll': 'Xoá tất cả',
+  'recommend.sortLabel': 'Sắp xếp:',
+  'recommend.sort.best': 'Phù hợp nhất',
+  'recommend.sort.name': 'Tên A–Z',
+  'recommend.sort.restaurants': 'Nhiều quán gần bạn nhất',
+  'recommend.showMore': 'Xem thêm {n} món',
+  'dish.filtersSub':
+    'Đổi tiêu chí sẽ đưa bạn về trang gợi ý món, vì món phù hợp cũng thay đổi theo.',
+  'tabbar.label': 'Điều hướng nhanh',
+  'tabbar.home': 'Trang chủ',
+  'tabbar.suggest': 'Gợi ý',
+  'tabbar.favorites': 'Yêu thích',
+  'tabbar.me': 'Cá nhân',
+  'account.overview.savedTitle': 'Quán & món đã lưu',
+  'account.item.dish': 'Món ăn',
+  'account.item.restaurant': 'Quán ăn',
+  'account.item.remove': 'Bỏ {name} khỏi {list}',
+  'account.radar.title': 'KHẨU VỊ CỦA BẠN',
+  'account.radar.sub': 'Vẽ từ những sở thích bạn đã chọn: mỗi trục là số ô đã chọn trong nhóm đó.',
+  'account.radar.empty': 'Bạn chưa chọn khẩu vị nào.',
+  'account.radar.update': 'Cập nhật khẩu vị',
+  'account.radar.axis.cookingMethods': 'Cách chế biến',
+  'account.radar.axis.temperatures': 'Nóng / mát',
+  'account.radar.axis.mood': 'Tâm trạng',
+  'account.radar.axis.cuisines': 'Ẩm thực',
+  'account.radar.value': '{label}: {picked}/{total}',
+  'account.improve.title': 'Cải thiện gợi ý cho bạn',
+  'account.improve.sub': 'Cập nhật sở thích và khẩu vị của bạn trong tab Sở thích & khẩu vị.',
+  'account.improve.cta': 'Cập nhật ngay',
 } as const;
 
 export type Khoa = keyof typeof vi;
@@ -411,6 +445,40 @@ const en: Record<Khoa, string> = {
   'common.viewAll': 'View all',
   'common.loading': 'Loading…',
   'common.km': '{n} km',
+
+  // --- Added 2026-09-16: results filter column, mobile tab bar, account page ---------
+  'filters.distance': 'Within',
+  'filters.unlimited': 'No limit',
+  'recommend.filteringBy': 'Filtering by:',
+  'recommend.clearAll': 'Clear all',
+  'recommend.sortLabel': 'Sort:',
+  'recommend.sort.best': 'Best match',
+  'recommend.sort.name': 'Name A–Z',
+  'recommend.sort.restaurants': 'Most places near you',
+  'recommend.showMore': 'Show {n} more dishes',
+  'dish.filtersSub':
+    'Changing the criteria takes you to the dish suggestions page, since the matching dishes change too.',
+  'tabbar.label': 'Quick navigation',
+  'tabbar.home': 'Home',
+  'tabbar.suggest': 'Ideas',
+  'tabbar.favorites': 'Favourites',
+  'tabbar.me': 'Me',
+  'account.overview.savedTitle': 'Saved dishes & places',
+  'account.item.dish': 'Dish',
+  'account.item.restaurant': 'Place',
+  'account.item.remove': 'Remove {name} from {list}',
+  'account.radar.title': 'YOUR TASTE',
+  'account.radar.sub': 'Drawn from the preferences you picked: each axis counts the options picked in that group.',
+  'account.radar.empty': "You haven't picked any taste yet.",
+  'account.radar.update': 'Update your taste',
+  'account.radar.axis.cookingMethods': 'Cooking style',
+  'account.radar.axis.temperatures': 'Hot / cold',
+  'account.radar.axis.mood': 'Mood',
+  'account.radar.axis.cuisines': 'Cuisine',
+  'account.radar.value': '{label}: {picked}/{total}',
+  'account.improve.title': 'Improve your suggestions',
+  'account.improve.sub': 'Update your preferences and taste in the Taste & preferences tab.',
+  'account.improve.cta': 'Update now',
 };
 
 export const TU_DIEN: Record<NgonNgu, Record<Khoa, string>> = { vi, en };

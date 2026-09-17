@@ -5,7 +5,7 @@ DUY NHẤT ở file này.
 """
 from __future__ import annotations
 
-from typing import Dict, List
+from typing import Dict
 
 # Tên 5 cột mood-score do data_pipeline/feature_engineering.py sinh ra.
 MOOD_SCORE_COLUMNS: tuple[str, ...] = (
@@ -45,13 +45,73 @@ MOOD_TO_SCORE_COLUMN: Dict[str, str] = {
     mood: max(weights, key=weights.get) for mood, weights in MOOD_PROFILES.items()
 }
 
-# Tag mood_keywords cấp MÓN trong dish_knowledge_base.json - dùng để chọn món nào
-# đáng đề xuất cho mood này. Giữ nhất quán Ý NGHĨA với MOOD_PROFILES ở trên.
-MOOD_TO_DISH_KEYWORDS: Dict[str, List[str]] = {
-    "happy": ["fresh", "sweet"],
-    "sad": ["comfort", "cozy"],
-    "excited": ["spicy"],
-    "relaxed": ["comfort", "cozy"],
+# Tag mood_keywords cấp MÓN có trong dữ liệu thật (dish_catalog.json, đo 2026-09-16).
+DISH_MOOD_KEYWORDS = frozenset(
+    {"comfort", "cozy", "quick", "cheap", "fresh", "sweet", "spicy"}
+)
+
+# ÁNH XẠ MOOD -> THUỘC TÍNH MÓN, có TRỌNG SỐ. Dùng ở `dish_ranking._score_mood`.
+#
+# THAY CHO `MOOD_TO_DISH_KEYWORDS` (mood -> danh sách tag, chấm NHỊ PHÂN). Bug thật
+# 2026-09-16 khi gọi POST /dishes/suggest trên dữ liệu thật:
+#   - "sad" và "relaxed" cùng trỏ vào ["comfort","cozy"] -> top-10 trùng 10/10 món.
+#   - Món tag ['cozy','spicy'] (Đồ nhắm, Lẩu Thái) ăn TRỌN điểm cho cả sad lẫn excited,
+#     nên "Đồ nhắm" đứng #1 cho CẢ BA mood sad/excited/relaxed; điểm top-5 chỉ lệch ở chữ
+#     số thứ 4 (0.674 - 0.675) vì mọi món "khớp" đều được đúng 1.0.
+#
+# CÁCH MỚI: cộng trọng số của từng thuộc tính món CÓ THẬT trong danh mục (tag, nóng/lạnh,
+# cách chế biến, độ cay, khẩu phần, bữa). KHÔNG bịa gì về món - chỉ quyết định thuộc tính
+# nào hợp mood nào, cùng ý nghĩa với `MOOD_PROFILES` và `MOOD_KEYWORDS` (text_relevance):
+#   sad     = ấm bụng, an ủi, rẻ   -> món nước nóng, comfort; cay xé lưỡi thì không an ủi.
+#   excited = cay, lẩu, nướng      -> độ cay cao, đồ nướng; món không cay thì bị trừ.
+#   happy   = tươi, nhẹ, healthy   -> fresh, gỏi/trộn, khẩu phần nhẹ; đồ chiên thì trừ.
+#   relaxed = chill, ngồi lâu, cà phê -> đồ ngọt/đồ uống nhâm nhi, cozy; KHÔNG phải "rẻ,
+#             nhanh" (đúng dấu âm của cheap/quick trong MOOD_PROFILES["relaxed"]).
+#
+# ⚠️ GIỚI HẠN ĐO ĐƯỢC: thuộc tính có cấu trúc chỉ có ở ĐÚNG 79/855 món (70/285 món đang
+# bật) - và đó CHÍNH LÀ 79 món có mood_keywords (cả hai cùng đến từ dish_seed_manual.json).
+# Nên ánh xạ này làm mood PHÂN BIỆT ĐƯỢC NHAU, nhưng KHÔNG nâng được độ phủ. Món không có
+# thuộc tính nào vẫn nhận điểm trung tính. Muốn phủ rộng hơn phải nhập thêm thuộc tính món.
+#
+# Khoá thuộc tính: "kw:<tag>" · "temp:<hot|cold|room>" · "method:<Dish.cooking_method>" ·
+# "meal:<Dish.meal_times>" · "portion:<light|small|regular|heavy>" ·
+# "spice:none" (spice_level = 0) · "spice:hot" (spice_level >= 2).
+# Có test khoá mọi giá trị phải thuộc bộ giá trị thật của entity Dish.
+#
+# Số trọng số chọn theo SỐ ĐO (POST /dishes/suggest, dữ liệu thật, bán kính 10km quanh
+# trung tâm, ngữ cảnh cố định "bữa tối, 27°C"), mục tiêu: bốn mood ra top-5 khác nhau và
+# món đầu bảng đúng tinh thần mood.
+#   TRƯỚC: sad/relaxed trùng top-5 5/5; sad/excited 2/5; top-5 mọi mood điểm 0.724-0.725.
+#     sad: Đồ nhắm · Gà rán · Lẩu Thái · Lẩu gà lá é · Nem nướng
+#   SAU  : trùng top-5 lớn nhất 2/5 (excited/relaxed), sad/relaxed 0/5.
+#     sad    : Phở bò · Phở gà · Ramen · Lẩu gà lá é · Lẩu nướng
+#     excited: Chân gà nướng · Lẩu Thái · Thịt nướng vỉ · Hải sản nướng · Tom Yum
+#     happy  : Sushi · Phở cuốn · Nem nướng · Phở gà · Ốc luộc
+#     relaxed: Thịt nướng vỉ · Lẩu hải sản · Pizza hải sản · Đồ nhắm · Lẩu Thái
+# Đã thử relaxed = {sweet .4, cozy .4, comfort .1, an_vat .2, quick -.1, cheap -.2}: bữa
+# tối vẫn trùng sad 4/5 vì điểm giờ ăn (+0.2) lấn át -> thêm "portion:heavy" (lẩu/nướng
+# ngồi lâu) và trừ "spice:hot" để không trùng excited.
+MOOD_DISH_AFFINITY: Dict[str, Dict[str, float]] = {
+    "sad": {
+        "kw:comfort": 0.5, "kw:cozy": 0.2, "kw:cheap": 0.2,
+        "temp:hot": 0.2, "method:nuoc": 0.3,
+        "spice:hot": -0.3, "temp:cold": -0.2,
+    },
+    "excited": {
+        "kw:spicy": 0.5, "spice:hot": 0.3, "method:nuong": 0.3,
+        "kw:cozy": 0.1, "portion:heavy": 0.1,
+        "spice:none": -0.2,
+    },
+    "happy": {
+        "kw:fresh": 0.5, "kw:sweet": 0.3, "kw:quick": 0.1,
+        "method:song": 0.3, "method:tron": 0.3,
+        "portion:light": 0.2, "portion:small": 0.2, "temp:cold": 0.1,
+        "portion:heavy": -0.2, "method:chien": -0.2,
+    },
+    "relaxed": {
+        "kw:sweet": 0.4, "kw:cozy": 0.4, "meal:an_vat": 0.2, "portion:heavy": 0.2,
+        "kw:quick": -0.2, "kw:cheap": -0.2, "spice:hot": -0.2,
+    },
 }
 
 SUPPORTED_MOODS: tuple[str, ...] = tuple(MOOD_PROFILES.keys())
@@ -83,5 +143,5 @@ def weights_for(mood: str) -> Dict[str, float]:
 
 # ⚠️ ĐÃ XOÁ `score_column_for()` và `dish_keywords_for()` ngày 2026-08-25.
 # Cả hai là wrapper một dòng quanh hai dict ngay phía trên và KHÔNG chỗ nào gọi. Nơi cần
-# thì đọc thẳng dict (`dish_ranking.py` dùng `MOOD_TO_DISH_KEYWORDS.get`), nên giữ lại
-# chỉ tạo hai đường làm cùng một việc.
+# thì đọc thẳng dict, nên giữ lại chỉ tạo hai đường làm cùng một việc.
+# ⚠️ ĐÃ THAY `MOOD_TO_DISH_KEYWORDS` bằng `MOOD_DISH_AFFINITY` ngày 2026-09-16 (xem trên).

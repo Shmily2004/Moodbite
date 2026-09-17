@@ -8,7 +8,7 @@ không theo convention camelCase phổ biến của JSON.
 """
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -294,6 +294,13 @@ class HealthData(BaseModel):
     status: str
     api_version: str
     services: dict
+    synthetic_data: bool = Field(
+        default=False,
+        description=(
+            "True = app đang chạy trên người dùng & tương tác GIẢ LẬP "
+            "(MOODBITE_SYNTHETIC_DATA=1). Số liệu tương tác lúc này không phải của người thật."
+        ),
+    )
 
 
 class MoodsData(BaseModel):
@@ -538,11 +545,61 @@ class AdminRestaurantSummary(BaseModel):
     reviews_count: Optional[int] = None
     is_active: bool
     source: Optional[str] = None
+    source_updated_at: Optional[str] = Field(
+        None,
+        description=(
+            "Ngày NGUỒN cập nhật bản ghi (quán nhập tay: ngày nhập). null = chưa biết — "
+            "giao diện hiện '—', không đoán."
+        ),
+    )
+    thumbnail_url: Optional[str] = None
 
 
 class AdminRestaurantListData(BaseModel):
-    total: int
+    total: int = Field(..., description="Số dòng TRẢ VỀ trong trang này")
     results: List[AdminRestaurantSummary]
+    # Ba trường phân trang. Thêm sau (2026-09-16) nên để tuỳ chọn cho hợp đồng cũ.
+    total_matched: Optional[int] = Field(
+        None, description="Tổng số quán khớp bộ lọc — để phân trang"
+    )
+    page: Optional[int] = None
+    page_size: Optional[int] = None
+
+
+class FacetValueSchema(BaseModel):
+    value: str
+    count: int
+
+
+class AdminRestaurantStatsData(BaseModel):
+    """Thẻ số + giá trị ô chọn ở đầu trang quản lý quán. Tính trên TOÀN BỘ bảng."""
+
+    total: int
+    visible: int
+    hidden: int
+    manual: int = Field(..., description="Quán nhập tay qua trang quản trị (source manual/admin)")
+    districts: List[FacetValueSchema]
+    sources: List[FacetValueSchema]
+
+
+class AdminRestaurantStatsResponse(BaseModel):
+    data: AdminRestaurantStatsData
+
+
+class AdminBulkVisibilityRequest(BaseModel):
+    restaurant_ids: List[str] = Field(..., min_length=1, max_length=200)
+    is_active: bool = Field(..., description="false = ẩn, true = bỏ ẩn")
+
+
+class AdminBulkVisibilityData(BaseModel):
+    updated: List[AdminRestaurantSummary]
+    not_found: List[str] = Field(
+        default_factory=list, description="Mã gửi lên nhưng không có trong CSDL"
+    )
+
+
+class AdminBulkVisibilityResponse(BaseModel):
+    data: AdminBulkVisibilityData
 
 
 class AdminRestaurantListResponse(BaseModel):
@@ -617,6 +674,19 @@ class AdminDishRow(BaseModel):
         ..., description="False = chưa tìm được quán nào ở Hà Nội bán món này"
     )
     source: Optional[str] = None
+    description: Optional[str] = Field(
+        None, description="Đoạn giới thiệu đầy đủ; giao diện tự cắt khi hiển thị"
+    )
+    last_updated: Optional[str] = Field(
+        None, description="Ngày nguồn cập nhật giới thiệu món. null = không có ngày"
+    )
+    restaurant_count: Optional[int] = Field(
+        None,
+        description=(
+            "Số quán khớp món — CÙNG chỉ mục với /dishes/{id}/restaurants. "
+            "null = chỉ mục chưa được lắp (khác 0)."
+        ),
+    )
 
 
 class AdminDishDetail(BaseModel):
@@ -640,10 +710,40 @@ class AdminDishDetail(BaseModel):
     source: Optional[str] = None
     source_url: Optional[str] = None
     last_updated: Optional[str] = None
+    restaurant_count: Optional[int] = None
 
 
 class AdminDishDetailResponse(BaseModel):
     data: AdminDishDetail
+
+
+class AdminDishRestaurant(BaseModel):
+    """Một quán khớp món (tab "Danh sách quán" ở trang chi tiết món quản trị)."""
+
+    restaurant_id: Optional[str] = None
+    name: str
+    address: Optional[str] = None
+    district: Optional[str] = None
+    rating: Optional[float] = Field(None, description="null = chưa có đánh giá, KHÔNG phải 0")
+    reviews_count: Optional[int] = None
+    source: Optional[str] = None
+    thumbnail_url: Optional[str] = None
+    matched_by: str = Field(
+        ...,
+        description=(
+            "dish_name | name | review — khớp theo TÊN QUÁN, không phải thực đơn thật"
+        ),
+    )
+
+
+class AdminDishRestaurantsData(BaseModel):
+    dish_id: str
+    total: int
+    results: List[AdminDishRestaurant]
+
+
+class AdminDishRestaurantsResponse(BaseModel):
+    data: AdminDishRestaurantsData
 
 
 class AdminDishListData(BaseModel):
@@ -652,6 +752,15 @@ class AdminDishListData(BaseModel):
     # giao diện hiện "50 món" trong khi bộ lọc khớp 557.
     returned: int
     total: int
+    # Phân trang ở server (2026-09-16). Tuỳ chọn để không phá hợp đồng cũ.
+    page: Optional[int] = None
+    page_size: Optional[int] = None
+    counts: Dict[str, int] = Field(
+        default_factory=dict,
+        description="Số món của TỪNG bộ lọc (sau từ khoá, trước bộ lọc) — số trên nút lọc",
+    )
+    dishes_total: Optional[int] = Field(None, description="Toàn bộ danh mục, không theo bộ lọc")
+    dishes_with_restaurants: Optional[int] = None
 
 
 class AdminDishListResponse(BaseModel):
@@ -701,6 +810,13 @@ class AdminSystemData(BaseModel):
     user_token_ttl_seconds: int
     email_configured: bool
     app_base_url: str
+    synthetic_data: bool = Field(
+        ...,
+        description=(
+            "True = đang chạy trên dữ liệu người dùng GIẢ LẬP. Giao diện quản trị phải hiện "
+            "banner cảnh báo để không ai nhầm số liệu giả là hành vi người dùng thật."
+        ),
+    )
     services: List[AdminSystemService]
 
 
@@ -922,6 +1038,13 @@ class VanDeNhomSchema(BaseModel):
         ..., description="nghiem_trong | quan_trong | can_kiem_tra — gấp tới đâu"
     )
     target_type: str = Field(..., description="quan_an | mon_an | du_lieu")
+    last_resolved_at: Optional[str] = Field(
+        None,
+        description=(
+            "Lần GẦN NHẤT một bản ghi trong nhóm được đánh dấu xử lý. KHÔNG phải lúc phát "
+            "hiện vấn đề (dự án không lưu thời điểm đó). null = chưa ai đánh dấu."
+        ),
+    )
 
 
 class AnhChupChatLuongSchema(BaseModel):
@@ -1015,6 +1138,67 @@ class AdminResolveIssueData(BaseModel):
 
 class AdminResolveIssueResponse(BaseModel):
     data: AdminResolveIssueData
+
+
+class AdminResolvedIssueSchema(BaseModel):
+    """Một dòng của tab "Đã xử lý"."""
+
+    key: str
+    group_label: Optional[str] = Field(None, description="null = khoá không còn trong domain")
+    target_type: Optional[str] = None
+    target_id: str
+    name: Optional[str] = Field(
+        None, description="null = không còn tra được tên (quán đã ẩn, món đổi mã)"
+    )
+    resolved_by: str
+    note: Optional[str] = None
+    resolved_at: Optional[str] = None
+
+
+class AdminResolvedIssuesData(BaseModel):
+    results: List[AdminResolvedIssueSchema]
+    total: int = Field(..., description="Số dòng TRẢ VỀ (tổng đã xử lý nằm ở /admin/issues)")
+
+
+class AdminResolvedIssuesResponse(BaseModel):
+    data: AdminResolvedIssuesData
+
+
+# ---------------------------------------------------------------------------
+# Khối "Hệ thống gợi ý" ở màn Tổng quan quản trị.
+#
+# ⚠️ KHÔNG CÓ CTR. CTR cần số lượt HIỂN THỊ (impression) làm mẫu số, mà dự án chỉ ghi
+# hành động của người dùng, không ghi lượt quán được hiện ra. Xem
+# `domain/services/interaction_stats.py`. Đừng thêm trường `ctr` khi chưa ghi impression.
+# ---------------------------------------------------------------------------
+
+
+class InteractionActionCount(BaseModel):
+    action_type: str
+    count: int
+
+
+class InteractionDayCount(BaseModel):
+    date: str = Field(..., description="YYYY-MM-DD (UTC)")
+    count: int
+
+
+class AdminInteractionStatsData(BaseModel):
+    available: bool = Field(
+        ..., description="false = không đọc được nhật ký — KHÁC với 'chưa có tương tác nào'"
+    )
+    total: int
+    positive_rate: Optional[float] = Field(
+        None, description="% tín hiệu tích cực. null = chưa có bản ghi mang nhãn"
+    )
+    sessions: int
+    users: int = Field(..., description="Số tài khoản đã đăng nhập khác nhau")
+    by_action: List[InteractionActionCount]
+    last_7_days: List[InteractionDayCount]
+
+
+class AdminInteractionStatsResponse(BaseModel):
+    data: AdminInteractionStatsData
 
 
 # Mô tả lỗi dùng chung cho mọi endpoint, để OpenAPI ghi rõ hình dạng lỗi.

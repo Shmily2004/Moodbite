@@ -6,9 +6,10 @@
  * mà không có gì báo lỗi.
  */
 import { describe, expect, it, vi, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { UserSessionProvider } from '@/entities/user';
+import { LanguageProvider } from '@/shared/i18n';
 import { RecommendPage } from '../index';
 import { docBoLocTuUrl, ghiBoLocLenUrl } from '@/features/suggest-dishes';
 import { EMPTY_FILTERS } from '@/features/suggest-dishes';
@@ -35,14 +36,25 @@ const MON = {
   is_category: false,
 };
 
+/** Trang món giả: in ra đường dẫn + query nhận được. */
+function TrangMonGia() {
+  const { pathname, search } = useLocation();
+  return <p data-testid="trang-mon">{pathname + search}</p>;
+}
+
 function renderTrang(duongDan = '/recommend') {
   // `SiteHeader` bên trong trang đọc phiên đăng nhập -> phải bọc provider, đúng như
   // `RootLayout` làm lúc chạy thật.
   return render(
     <MemoryRouter initialEntries={[duongDan]}>
-      <UserSessionProvider>
-        <RecommendPage />
-      </UserSessionProvider>
+      <LanguageProvider>
+        <UserSessionProvider>
+          <Routes>
+            <Route path="/recommend" element={<RecommendPage />} />
+            <Route path="/dishes/:dishId" element={<TrangMonGia />} />
+          </Routes>
+        </UserSessionProvider>
+      </LanguageProvider>
     </MemoryRouter>,
   );
 }
@@ -111,37 +123,92 @@ describe('RecommendPage', () => {
     expect(JSON.parse(String(fetchMock.mock.calls[0][1].body)).only_categories).toBe(false);
   });
 
-  it('hiện tiêu đề và khối "phù hợp nhất" theo thiết kế', async () => {
-    // Thiết kế `Food recommend.jpg` bỏ dòng "N món phù hợp", thay bằng tiêu đề cố định
-    // và các khối có nhãn riêng.
-    vi.stubGlobal('fetch', mockOk([MON]));
+  it('tiêu đề đếm số món: "N món ăn phù hợp" (Filler.png)', async () => {
+    vi.stubGlobal('fetch', mockOk([MON, { ...MON, dish_id: 'pho-bo', name: 'Phở bò' }]));
 
     renderTrang();
 
-    expect(await screen.findByText(/Món phù hợp với bạn hôm nay/)).toBeInTheDocument();
-    expect(screen.getByText(/Những món phù hợp nhất/i)).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { level: 1, name: '2 món ăn phù hợp' }),
+    ).toBeInTheDocument();
   });
 
-  it('chip bộ lọc đang bật gỡ được từng cái', async () => {
+  it('có CỘT LỌC cố định (FilterDrawer inline) và lưới món', async () => {
     vi.stubGlobal('fetch', mockOk([MON]));
 
-    renderTrang('/recommend?thoi_tiet=rain&cach=nuong');
+    const { container } = renderTrang();
+    await screen.findAllByText('Bún chả');
 
+    // Cột trái là `aside` inline — ẩn/hiện theo bề rộng do CSS lo (≥1024px).
+    expect(container.querySelector('aside.drawer--inline')).not.toBeNull();
+    // Kết quả là LƯỚI (3/2/1 cột do CSS), không còn hàng ngang trượt.
+    expect(container.querySelector('.recommend__luoi .dishes--grid')).not.toBeNull();
+    // Cột lọc dùng thanh trượt bán kính.
+    expect(screen.getByRole('slider')).toBeInTheDocument();
+  });
+
+  it('"Đang lọc theo:" liệt kê chip (kể cả bán kính) và gỡ được từng cái', async () => {
+    vi.stubGlobal('fetch', mockOk([MON]));
+
+    renderTrang('/recommend?thoi_tiet=rain&cach=nuong&km=3');
+
+    const dangLoc = await screen.findByRole('group', { name: 'Đang lọc theo:' });
     // Nhãn tiếng Việt do `chipDangBat` dịch từ mã backend.
-    expect(await screen.findByText('Trời mưa')).toBeInTheDocument();
-    expect(screen.getByText('Đồ nướng')).toBeInTheDocument();
+    expect(within(dangLoc).getByText('Trời mưa')).toBeInTheDocument();
+    expect(within(dangLoc).getByText('Đồ nướng')).toBeInTheDocument();
+    expect(within(dangLoc).getByText('Trong vòng 3 km')).toBeInTheDocument();
+
+    fireEvent.click(within(dangLoc).getByRole('button', { name: /Trời mưa/ }));
+    await waitFor(() =>
+      expect(within(dangLoc).queryByText('Trời mưa')).not.toBeInTheDocument(),
+    );
   });
 
-  it('không có món nào thì nói rõ cách gỡ, không để trang trắng', async () => {
-    vi.stubGlobal('fetch', mockOk([]));
+  it('"Xoá tất cả" gỡ hết chip đang lọc', async () => {
+    vi.stubGlobal('fetch', mockOk([MON]));
 
-    renderTrang();
+    renderTrang('/recommend?thoi_tiet=rain&bua=toi');
 
-    expect(await screen.findByText(/Không có món nào khớp/)).toBeInTheDocument();
+    const dangLoc = await screen.findByRole('group', { name: 'Đang lọc theo:' });
+    fireEvent.click(within(dangLoc).getByRole('button', { name: 'Xoá tất cả' }));
+
+    await waitFor(() =>
+      expect(screen.queryByRole('group', { name: 'Đang lọc theo:' })).not.toBeInTheDocument(),
+    );
   });
-  it('"Có thể bạn sẽ thích" chỉ hiện 5 món, KHÔNG đổ hết danh sách ra', async () => {
-    // Lỗi thật 2026-08-26, chủ dự án báo: "đang hiển thị quá nhiều". Bản cũ đổ toàn bộ
-    // phần đuôi (ở đây là 24 món) thành một lưới dài lê thê.
+
+  it('ô sắp xếp CHỈ có kiểu làm được thật, và sắp lại theo tên', async () => {
+    // API không có tham số sort -> không được vẽ "Gần nhất" / "Đánh giá cao".
+    vi.stubGlobal(
+      'fetch',
+      mockOk([
+        { ...MON, dish_id: 'pho', name: 'Phở bò', restaurant_count: 5 },
+        { ...MON, dish_id: 'bun', name: 'Bún chả', restaurant_count: 50 },
+      ]),
+    );
+    const { container } = renderTrang();
+    await screen.findAllByText('Phở bò');
+
+    const oSapXep = screen.getByRole('combobox', { name: /Sắp xếp/ });
+    expect(within(oSapXep).getAllByRole('option').map((o) => o.textContent)).toEqual([
+      'Phù hợp nhất',
+      'Tên A–Z',
+      'Nhiều quán gần bạn nhất',
+    ]);
+
+    const tenTrongLuoi = () =>
+      [...container.querySelectorAll('.recommend__luoi .dishcard__name')].map(
+        (n) => n.textContent,
+      );
+    // Mặc định giữ NGUYÊN thứ tự backend.
+    expect(tenTrongLuoi()).toEqual(['Phở bò', 'Bún chả']);
+
+    fireEvent.change(oSapXep, { target: { value: 'ten' } });
+    expect(tenTrongLuoi()).toEqual(['Bún chả', 'Phở bò']);
+  });
+
+  it('lưới chỉ hiện 9 món đầu, có nút "Xem thêm N món"', async () => {
+    // Chủ dự án từng chê trang này "hiển thị quá nhiều" (2026-08-26).
     const nhieuMon = Array.from({ length: 30 }, (_, i) => ({
       ...MON,
       dish_id: `mon-${i}`,
@@ -151,33 +218,41 @@ describe('RecommendPage', () => {
     vi.stubGlobal('fetch', mockOk(nhieuMon));
 
     renderTrang();
-    // Món đầu xuất hiện hai lần: trên thẻ lớn và trong ô thông tin bên cạnh.
-    await screen.findAllByText('Món số 0');
+    await screen.findByText('Món số 0');
 
-    // 6 món đầu thuộc khối "phù hợp nhất" (1 lớn + 5 nhỏ), 5 món tiếp là "có thể thích".
-    expect(screen.getByText('Món số 10')).toBeInTheDocument();  // món thứ 11 = cuối khối
-    expect(screen.queryByText('Món số 11')).not.toBeInTheDocument();
-    expect(screen.queryByText('Món số 29')).not.toBeInTheDocument();
+    expect(screen.getByText('Món số 8')).toBeInTheDocument();
+    expect(screen.queryByText('Món số 9')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /Xem thêm 21 món/ }));
+    expect(screen.getByText('Món số 29')).toBeInTheDocument();
   });
 
-  it('khối "có thể thích" bày HÀNG NGANG trượt, không phải lưới', async () => {
-    const nhieuMon = Array.from({ length: 12 }, (_, i) => ({
-      ...MON,
-      dish_id: `mon-${i}`,
-      name: `Món số ${i}`,
-    }));
-    const { container } = render_(nhieuMon);
-    // Món đầu xuất hiện hai lần: trên thẻ lớn và trong ô thông tin bên cạnh.
-    await screen.findAllByText('Món số 0');
+  it('mở một món thì MANG THEO bộ lọc sang trang món (để "Chỉnh sửa" mở lại đúng)', async () => {
+    vi.stubGlobal('fetch', mockOk([MON]));
 
-    // Lưới đẩy mọi thứ phía dưới (kể cả khối "đã lưu") ra khỏi màn hình.
-    expect(container.querySelector('.dishes--grid')).toBeNull();
-    expect(container.querySelectorAll('.dishes--row').length).toBeGreaterThan(0);
+    const { container } = renderTrang('/recommend?thoi_tiet=rain&km=3');
+    await screen.findByText('Bún chả');
+    fireEvent.click(container.querySelector('.recommend__luoi article.dishcard') as HTMLElement);
+
+    const dich = await screen.findByTestId('trang-mon');
+    expect(dich.textContent).toMatch(/^\/dishes\/bun-cha\?/);
+    expect(dich.textContent).toContain('thoi_tiet=rain');
+    expect(dich.textContent).toContain('km=3');
+  });
+
+  it('KHÁCH thấy dải "Muốn MoodBite hiểu bạn hơn?"', async () => {
+    vi.stubGlobal('fetch', mockOk([MON]));
+
+    renderTrang();
+
+    expect(await screen.findByText(/Muốn MoodBite hiểu bạn hơn/)).toBeInTheDocument();
+  });
+
+  it('không có món nào thì nói rõ cách gỡ, không để trang trắng', async () => {
+    vi.stubGlobal('fetch', mockOk([]));
+
+    renderTrang();
+
+    expect(await screen.findByText(/Không có món nào khớp/)).toBeInTheDocument();
   });
 });
-
-/** Như `renderTrang` nhưng trả `container` để soi class bày trí. */
-function render_(monList: unknown[]) {
-  vi.stubGlobal('fetch', mockOk(monList));
-  return renderTrang();
-}

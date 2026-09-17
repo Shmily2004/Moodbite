@@ -14,6 +14,7 @@ import { adminApi, ApiError } from '@/shared/api';
 import type {
   AdminIssueDetailData,
   AdminIssuesData,
+  AdminResolvedIssuesData,
   UuTienVanDe,
 } from '@/shared/api';
 
@@ -146,4 +147,44 @@ export function useIssueDetail(khoa: string | null): UseIssueDetailResult {
   );
 
   return { data, loading, error, dangGui, danhDau };
+}
+
+export interface UseResolvedIssuesResult {
+  data: AdminResolvedIssuesData | null;
+  loading: boolean;
+  error: string | null;
+}
+
+/**
+ * Tab "Đã xử lý" — chỉ tải khi tab được MỞ (`bat === true`): phần lớn lượt vào trang
+ * không bấm sang tab này, gọi sẵn là tốn một lượt đọc CSDL vô ích.
+ */
+export function useResolvedIssues(bat: boolean): UseResolvedIssuesResult {
+  const [data, setData] = useState<AdminResolvedIssuesData | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!bat) return undefined;
+    let conSong = true;
+    setLoading(true);
+    adminApi
+      .resolvedIssues({ limit: 200 })
+      .then((kq) => {
+        if (!conSong) return;
+        setData(kq);
+        setError(null);
+      })
+      .catch((err: unknown) => {
+        if (conSong) setError(loiThanhChu(err));
+      })
+      .finally(() => {
+        if (conSong) setLoading(false);
+      });
+    return () => {
+      conSong = false;
+    };
+  }, [bat]);
+
+  return { data, loading, error };
 }

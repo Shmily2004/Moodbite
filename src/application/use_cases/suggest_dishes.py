@@ -155,6 +155,43 @@ class SuggestDishesUseCase:
             warnings=warnings,
         )
 
+    def describe_dish(
+        self,
+        dish_id: str,
+        latitude: float = HANOI_CENTER_LAT,
+        longitude: float = HANOI_CENTER_LNG,
+        max_distance_km: Optional[float] = DEFAULT_MAX_DISTANCE_KM,
+    ) -> Optional[SuggestedDishItem]:
+        """Một món theo id, kèm số quán gần người đang xem. None nếu món không tồn tại/tắt.
+
+        VÌ SAO KHÔNG DÙNG `execute()` RỒI TÌM TRONG KẾT QUẢ (cách cũ, bug 2026-09-16):
+          - `execute()` cắt ở `MAX_LIMIT`=100, danh mục có ~300 món đang bật -> món xếp
+            hạng >100 theo ngữ cảnh lúc đó mở ra là 404 (đo thật: `mi-cay`, 99 quán).
+          - `execute()` lọc `is_category == only_categories` -> MỌI danh mục (`pho`,
+            `bun`, `com`…) đều 404 ở trang chi tiết.
+        Trang chi tiết hỏi "món NÀY là gì", không hỏi "món này xếp thứ mấy" - nên chấm
+        riêng đúng một món, không đem cả danh mục ra xếp hạng.
+        """
+        if not self._catalog.is_ready:
+            raise DataNotReadyError(
+                "danh mục món ăn",
+                "chạy python scripts/build_dish_catalog.py",
+            )
+        dish = self._catalog.get_dish(dish_id)
+        if dish is None:
+            return None
+
+        origin = Location(lat=latitude, lng=longitude)
+        counts, nearest = self._count_nearby([dish], origin, max_distance_km)
+        ranked = dish_ranking.rank_dishes(
+            dishes=[dish],
+            f=DishFilter(),
+            context=self._resolve_context(origin),
+            restaurant_counts=counts,
+            limit=1,
+        )
+        return self._to_item(ranked[0], nearest)
+
     # --- các bước con -------------------------------------------------------
 
     @staticmethod

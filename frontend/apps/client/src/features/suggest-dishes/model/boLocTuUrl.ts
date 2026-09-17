@@ -16,7 +16,7 @@
  * Nhãn chỉ nằm ở `DishFilters`. Nếu đưa nhãn lên URL thì đổi chữ hiển thị sẽ làm chết
  * mọi đường dẫn đã chia sẻ.
  */
-import type { DishFilterState } from './useDishSuggestions';
+import type { DishFilterState } from './useDishFilterState';
 
 /** Tên tham số trên URL -> nhóm lọc. Ngắn gọn vì nó hiện trên thanh địa chỉ. */
 const NHOM_NHIEU = {
@@ -66,4 +66,19 @@ export function ghiBoLocLenUrl(filters: DishFilterState): URLSearchParams {
   else if (filters.maxDistanceKm !== undefined) params.set('km', String(filters.maxDistanceKm));
 
   return params;
+}
+
+/**
+ * URL có mang ít nhất một ĐIỀU KIỆN LỌC không (bán kính KHÔNG tính).
+ *
+ * Trang chi tiết món cần phân biệt "người dùng đi từ trang gợi ý sang, kèm bộ lọc" với
+ * "mở thẳng đường dẫn món" — chỉ trường hợp sau mới được suy bộ lọc từ chính món đó.
+ *
+ * Bỏ qua `km` vì trang chủ/trang gợi ý LUÔN ghi bán kính lên URL (mặc định 10 km). Tính cả
+ * nó thì mọi đường dẫn đều "có bộ lọc" và nhánh suy từ món không bao giờ chạy.
+ */
+export function urlCoBoLoc(params: URLSearchParams): boolean {
+  const dieuKien = docBoLocTuUrl(params);
+  delete dieuKien.maxDistanceKm;
+  return Object.keys(dieuKien).length > 0;
 }

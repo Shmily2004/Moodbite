@@ -796,7 +796,8 @@
         gì cả, chỉ tổ khoá chiều cao.
    Nay: KHÔNG khung, KHÔNG cuộn riêng, cột hẹp hơn và chip nhỏ lại cho 3 chip/hàng.
    =========================================================================== */
-.home-layout {
+.home-layout,
+.recommend-layout {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1.5rem;
@@ -808,8 +809,11 @@
    chúng vẫn lọt vào thứ tự Tab và trình đọc màn hình vẫn đọc ra. */
 .drawer--inline { display: none; }
 
-@media (min-width: 1100px) {
-  .home-layout {
+/* 1024px (đổi từ 1100px, 2026-09-16): mốc "máy tính" của trang `/recommend` theo
+   `Filler.png`. Dưới mốc này lưới món chỉ còn 2 cột, thêm cột lọc 244px là bóp nghẹt. */
+@media (min-width: 1024px) {
+  .home-layout,
+  .recommend-layout {
     grid-template-columns: 244px minmax(0, 1fr);
     gap: 2rem;
   }
@@ -862,15 +866,23 @@
     gap: .5rem;
   }
 
-  .home-layout .results { min-width: 0; }
+  /* `.distance` có `min-width: 200px` cho ngăn kéo nằm ngang. Trong cột 244px, trừ
+     padding còn ~186px -> thanh trượt, nhãn "10 km" và nút "Vị trí của tôi" lòi ra
+     ngoài khung (thấy trên ảnh chụp thật 2026-09-16, jsdom không bắt được). */
+  .drawer--inline .distance { min-width: 0; }
+
+  .home-layout .results,
+  .recommend__ket-qua { min-width: 0; }
 
   /* Nút "Lọc" thành thừa khi bộ lọc đã nằm ngay bên cạnh. */
-  .results__actions .btn--filter { display: none; }
+  .results__actions .btn--filter,
+  .ket-qua-dau__mo-loc { display: none; }
 }
 
 /* Màn rất rộng: nới cột một chút cho nhãn dài không phải xuống dòng. */
 @media (min-width: 1500px) {
-  .home-layout { grid-template-columns: 280px minmax(0, 1fr); }
+  .home-layout,
+  .recommend-layout { grid-template-columns: 280px minmax(0, 1fr); }
 }
 
 /* Chip có icon (2026-08-24, thay cho emoji) — icon và chữ nằm cùng một dòng,
@@ -1246,3 +1258,119 @@
   background: var(--surface-2);
 }
 .nhac-xac-minh .xac-minh-email--gon { margin: 0; }
+
+/* ===========================================================================
+   TRANG `/recommend` THEO `design/Filler.png` (2026-09-16)
+   Cột lọc trái dùng lại `.drawer--inline` ở trên; phần dưới đây là khối kết quả.
+   =========================================================================== */
+.recommend__ket-qua { display: flex; flex-direction: column; gap: 1rem; }
+
+.ket-qua-dau { display: flex; flex-direction: column; gap: .75rem; }
+.ket-qua-dau__hang {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem 1rem;
+}
+.ket-qua-dau__tieu-de { margin: 0; font-size: clamp(1.3rem, 2.2vw, 1.7rem); }
+.ket-qua-dau__cong-cu { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.ket-qua-dau__sap-xep { display: inline-flex; align-items: center; gap: .4rem; font-size: .9rem; }
+.ket-qua-dau__sap-xep select {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line-warm);
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+/* Dải "Đang lọc theo:" — nền nhạt để tách khỏi tiêu đề, đúng như bản thiết kế. */
+.ket-qua-dau__dang-loc {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .4rem .5rem;
+  padding: .55rem .8rem;
+  border-radius: 14px;
+  background: var(--surface-2);
+}
+.ket-qua-dau__nhan { font-weight: 600; font-size: .88rem; margin-right: .25rem; }
+
+/* LƯỚI MÓN: 1 cột điện thoại · 2 cột máy tính bảng · 3 cột máy tính.
+   Ghi đè `auto-fill` của `.dishes--grid`: với `auto-fill` số cột phụ thuộc bề rộng cột
+   phải (đã trừ cột lọc), nên cùng một màn hình có lúc ra 2, có lúc ra 4 cột. */
+.recommend__luoi .dishes--grid { grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 600px) {
+  .recommend__luoi .dishes--grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 1024px) {
+  .recommend__luoi .dishes--grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* --- Thanh trượt bán kính (thay ô chọn, 2026-09-16) ---------------------- */
+.distance { display: flex; flex-direction: column; gap: .25rem; min-width: 200px; flex: 1; }
+.distance__head { display: flex; justify-content: space-between; align-items: baseline; gap: .5rem; }
+.distance__value { color: var(--brand-orange); }
+.distance__range { width: 100%; accent-color: var(--brand-orange); cursor: pointer; }
+.distance__ticks {
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  padding: 0 2px;
+  list-style: none;
+  color: var(--muted);
+  font-size: .72rem;
+}
+
+/* ===========================================================================
+   TRANG CHI TIẾT MÓN dùng `SiteHeader` chung (2026-09-16). Trước đó trang dùng khung
+   `.shell` của màn bản đồ (cao đúng 100dvh, `overflow: hidden`).
+   =========================================================================== */
+.dish-page { max-width: 1240px; margin: 0 auto; padding-bottom: 4.5rem; }
+
+/* ===========================================================================
+   THANH TAB DƯỚI ĐÁY — chỉ điện thoại (< 768px), `design/Home.jpg` bản di động.
+   =========================================================================== */
+.tabbar { display: none; }
+
+@media (max-width: 767px) {
+  .tabbar {
+    display: block;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 60;
+    border-top: 1px solid var(--line-warm);
+    background: var(--surface);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .tabbar__list {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .tabbar__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 4px 6px;
+    color: var(--muted);
+    font-size: .72rem;
+    text-decoration: none;
+  }
+  .tabbar__item--on { color: var(--brand-orange); font-weight: 700; }
+  .tabbar__icon { width: 22px; height: 22px; }
+
+  /* Chừa chỗ cho thanh tab: không có dòng này thì chân trang và nút cuối trang nằm
+     khuất dưới thanh. `:has` để chỉ áp khi thanh tab thực sự có mặt. */
+  body:has(.tabbar) #root { padding-bottom: 62px; }
+  /* Bong bóng trợ lý và khung bản đồ `/search` cũng phải nhích lên trên thanh tab. */
+  body:has(.tabbar) .bubble { bottom: 74px; }
+  body:has(.tabbar) .shell { height: calc(100dvh - 62px); }
+}

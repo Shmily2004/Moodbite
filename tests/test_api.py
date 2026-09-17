@@ -192,6 +192,45 @@ def test_search_returns_503_when_data_missing():
     assert "data_pipeline" in resp.json()["error"]["message"]
 
 
+# --- Cụm địa điểm trong câu tự do (bug thật 2026-09-16) --------------------------
+
+
+def test_search_cum_gan_dia_danh_khong_bi_dem_di_khop_ten_quan():
+    """Gọi API thật: "bún chả gần hồ gươm" trả top-3 là "Ho Guom Bar", "GóC HỒ GƯƠM"...
+    - không quán nào bán bún chả. Món trong câu phải thắng."""
+    c = make_client(restaurants=[
+        make_restaurant("Ho Guom Bar", category="Quán bar", lat=21.0290, lng=105.8525),
+        make_restaurant("Góc Hồ Gươm", lat=21.0291, lng=105.8526),
+        make_restaurant("Bún Chả Hàng Mành", lat=21.0330, lng=105.8480),
+    ])
+    data = c.post(f"{API}/search", json={
+        "session_id": SESSION, "query_text": "bún chả gần hồ gươm",
+        "latitude": 21.0288, "longitude": 105.8525, "limit": 3,
+    }).json()["data"]
+
+    assert data["results"][0]["name"] == "Bún Chả Hàng Mành"
+    # Không im lặng bỏ qua (CLAUDE.md mục 5): nói rõ chưa tìm được theo tên địa danh.
+    assert any("hồ gươm" in w for w in data["warnings"])
+
+
+def test_search_cum_o_ten_phuong_doi_tam_tim_kiem_ve_phuong_do():
+    """Tên phường có trong dữ liệu -> tìm quanh tâm phường (ước lượng từ toạ độ quán)."""
+    c = make_client(restaurants=[
+        # Cạnh người dùng (Hoàn Kiếm) nhưng KHÔNG ở Cầu Giấy.
+        make_restaurant("Lẩu Gần Nhà", lat=21.0288, lng=105.8525,
+                        district="Phường Hoàn Kiếm"),
+        make_restaurant("Lẩu Cầu Giấy", lat=21.0330, lng=105.7900,
+                        district="Phường Cầu Giấy"),
+    ])
+    data = c.post(f"{API}/search", json={
+        "session_id": SESSION, "query_text": "lẩu ở cầu giấy",
+        "latitude": 21.0288, "longitude": 105.8525, "max_distance_km": 2, "limit": 2,
+    }).json()["data"]
+
+    assert [r["name"] for r in data["results"]] == ["Lẩu Cầu Giấy"]
+    assert any("Phường Cầu Giấy" in w for w in data["warnings"])
+
+
 # --- POST /interactions ------------------------------------------------------
 
 

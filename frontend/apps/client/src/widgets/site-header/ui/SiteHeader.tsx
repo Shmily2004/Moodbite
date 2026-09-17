@@ -1,8 +1,9 @@
 /**
  * THANH TRÊN của trang chủ: logo · điều hướng · khu vực · nền tối · tài khoản.
  *
- * Là `widget` chứ không phải `app/layout` vì mới chỉ trang chủ dùng — trang bản đồ
- * (`/search`) cố tình không có thanh này để dành trọn màn hình cho bản đồ.
+ * Là `widget` chứ không phải `app/layout`: từng trang tự đặt nó. Từ 2026-09-16 MỌI
+ * trang nội dung đều dùng (kể cả `/dishes/:id` và `/search`, trước đó có thanh riêng) —
+ * chỉ nhóm trang đăng nhập/đăng ký là không.
  *
  * ⚠️ CHỈ ĐƯA VÀO ĐÂY THỨ BẤM ĐƯỢC THẬT.
  * Bản thiết kế `design/Home.jpg` có thêm "Theo mood", "Theo thời tiết", "Bộ sưu tập",

@@ -30,6 +30,9 @@ def health(container: Container = Depends(get_container)):
         status="ok" if core_ready else "degraded",
         api_version=API_VERSION,
         services=services,
+        # `getattr` vì test tiêm container có `settings=None`. Không có cấu hình = dữ liệu
+        # thật (mặc định an toàn: không bao giờ tự nhận là giả lập khi không chắc).
+        synthetic_data=bool(getattr(container.settings, "synthetic_data", False)),
     )
     return success(payload.model_dump())
 

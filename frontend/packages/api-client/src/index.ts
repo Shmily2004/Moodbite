@@ -82,6 +82,14 @@ export type {
   UuTienVanDe,
   LopMoHinh,
   AdminUpdateRestaurantRequest,
+  AdminResolvedIssuesData,
+  AdminResolvedIssue,
+  AdminRestaurantStatsData,
+  FacetValue,
+  AdminBulkVisibilityData,
+  AdminDishRestaurantsData,
+  AdminDishRestaurant,
+  AdminInteractionStatsData,
 } from './admin';
 
 export type { components, paths } from './schema';

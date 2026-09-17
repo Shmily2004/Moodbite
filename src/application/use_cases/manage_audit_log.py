@@ -76,7 +76,13 @@ class DocNhatKyUseCase:
 
     audit_log: Optional[AuditLogRepository] = None
 
-    def execute(self, limit: int = 50, action: Optional[str] = None) -> List[AuditEntry]:
+    def execute(
+        self,
+        limit: int = 50,
+        action: Optional[str] = None,
+        target_type: Optional[str] = None,
+        target_id: Optional[str] = None,
+    ) -> List[AuditEntry]:
         """Kho chưa mở được -> trả DANH SÁCH RỖNG, không ném lỗi.
 
         Nhật ký rỗng và nhật ký hỏng nhìn giống nhau với người dùng, nhưng khác nhau ở
@@ -86,6 +92,12 @@ class DocNhatKyUseCase:
         if self.audit_log is None or not self.audit_log.is_ready:
             return []
         so = max(1, min(int(limit), MAX_TRANG))
+        if target_type or target_id:
+            return self.audit_log.list_recent(
+                limit=so, action=action, target_type=target_type, target_id=target_id
+            )
+        # Không lọc đối tượng -> gọi đúng chữ ký cũ, để kho cũ/giả chưa có hai tham số
+        # mới vẫn chạy được.
         return self.audit_log.list_recent(limit=so, action=action)
 
 

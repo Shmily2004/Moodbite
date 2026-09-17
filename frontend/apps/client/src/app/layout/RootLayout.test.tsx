@@ -7,7 +7,7 @@
  * bên dưới là hỏng. Chủ dự án phát hiện, không phải test.
  */
 import { describe, expect, it } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { RootLayout } from './RootLayout';
 import { ROUTES } from '@/shared/config';
@@ -60,5 +60,44 @@ describe('RootLayout — chân trang', () => {
     expect(screen.getByText(/OpenStreetMap/)).toBeInTheDocument();
     expect(screen.getByText(/Overture Maps/)).toBeInTheDocument();
     expect(screen.getByText(/Wikimedia Commons/)).toBeInTheDocument();
+  });
+});
+
+describe('RootLayout — thanh tab dưới đáy (điện thoại)', () => {
+  const coThanhTab = () => screen.queryByRole('navigation', { name: 'Điều hướng nhanh' }) !== null;
+
+  it.each([
+    ['đăng nhập', ROUTES.login],
+    ['đăng ký', ROUTES.register],
+    ['quên mật khẩu', ROUTES.forgotPassword],
+    ['đặt lại mật khẩu', ROUTES.resetPassword],
+    ['xác minh email', ROUTES.verifyEmail],
+  ])('KHÔNG hiện ở trang %s', (_ten, duongDan) => {
+    renderTai(duongDan);
+
+    expect(coThanhTab()).toBe(false);
+  });
+
+  it.each([
+    ['trang chủ', ROUTES.home],
+    ['kết quả gợi ý', ROUTES.recommend],
+    ['tài khoản', ROUTES.account],
+  ])('CÓ ở trang %s, đủ 4 mục', (_ten, duongDan) => {
+    renderTai(duongDan);
+
+    const thanh = screen.getByRole('navigation', { name: 'Điều hướng nhanh' });
+    expect(within(thanh).getAllByRole('link').map((a) => a.getAttribute('href'))).toEqual([
+      '/',
+      '/recommend',
+      '/account?tab=saved',
+      '/account',
+    ]);
+  });
+
+  it('tô sáng tab của trang đang đứng', () => {
+    renderTai(`${ROUTES.account}?tab=saved`);
+
+    expect(screen.getByRole('link', { name: /Yêu thích/ })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('link', { name: /Cá nhân/ })).not.toHaveAttribute('aria-current');
   });
 });

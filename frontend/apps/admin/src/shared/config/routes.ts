@@ -15,6 +15,10 @@ export const ROUTES = {
   overview: '/',
   restaurants: '/quan-an',
   dishes: '/mon-an',
+  // Trang chi tiết món là ROUTE THẬT (2026-09-16), thay cho ô trượt bên cạnh bảng: có
+  // đường dẫn riêng thì gửi link cho nhau được, và nút Back của trình duyệt quay về đúng
+  // bảng đang lọc.
+  dishDetail: '/mon-an/:dishId',
   quality: '/chat-luong',
   issues: '/can-xu-ly',
   recommendation: '/goi-y',
@@ -36,3 +40,8 @@ export const DUONG_DAN_CAN_XU_LY: Record<string, string> = {
   mon_thieu_mo_ta: `${ROUTES.dishes}?filter=missing_description`,
   mon_khong_quan: `${ROUTES.dishes}?filter=without_restaurants`,
 };
+
+/** Đường dẫn trang chi tiết một món. Mã món được mã hoá để ký tự lạ không làm gãy URL. */
+export function duongDanMon(dishId: string): string {
+  return `${ROUTES.dishes}/${encodeURIComponent(dishId)}`;
+}

@@ -29,9 +29,17 @@ class AuditLogRepository(Protocol):
         ...
 
     def list_recent(
-        self, limit: int = 50, action: Optional[str] = None
+        self,
+        limit: int = 50,
+        action: Optional[str] = None,
+        target_type: Optional[str] = None,
+        target_id: Optional[str] = None,
     ) -> List[AuditEntry]:
-        """Nhật ký gần nhất, MỚI NHẤT ĐỨNG ĐẦU."""
+        """Nhật ký gần nhất, MỚI NHẤT ĐỨNG ĐẦU.
+
+        `target_type` + `target_id` lọc lịch sử của MỘT đối tượng — tab "Lịch sử cập nhật"
+        ở trang chi tiết món/quán.
+        """
         ...
 
     def count(self) -> int:

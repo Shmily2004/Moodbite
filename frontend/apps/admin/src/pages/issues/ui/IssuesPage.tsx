@@ -12,8 +12,9 @@
  * ⚠️ HAI CHỖ KHÁC BẢN THIẾT KẾ, CÓ LÝ DO:
  *
  *  1. Cột "Cập nhật gần nhất" — bản thiết kế ghi giờ cụ thể cho từng NHÓM. Dự án không
- *     lưu thời điểm phát hiện vấn đề, nên con số đó sẽ phải bịa. Cột này bị bỏ; thay vào
- *     đó mỗi BẢN GHI cụ thể hiện ngày NGUỒN cập nhật (thứ đo được thật) khi mở chi tiết.
+ *     lưu thời điểm phát hiện vấn đề, nên con số đó sẽ phải bịa. Thay bằng cột "Xử lý gần
+ *     nhất" (2026-09-16): lần gần nhất một bản ghi trong nhóm được ĐÁNH DẤU XỬ LÝ — thời
+ *     điểm duy nhất dự án thật sự lưu cho một nhóm. Chưa ai đánh dấu thì "—".
  *
  *  2. Phân trang "1 2 … 23" — bản thiết kế phân trang theo NHÓM, nhưng chỉ có 7 nhóm nên
  *     không cần trang thứ hai. Phần cần giới hạn là danh sách BẢN GHI bên trong một nhóm
@@ -22,9 +23,25 @@
  * ⚠️ NĂM THẺ SỐ KHÔNG ĐỔI KHI BẤM TAB. Chúng luôn tính trên toàn bộ dữ liệu; nếu chúng
  * tụt theo tab thì bấm "Nghiêm trọng" sẽ trông như vừa xử lý xong mọi thứ khác.
  */
+import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useIssueDetail, useIssues } from '@/features/manage-issues';
-import type { BanGhiVanDe, UuTienVanDe, VanDeNhom } from '@/shared/api';
+import {
+  NHAN_CACH_SAP,
+  locVaSapNhom,
+  useIssueDetail,
+  useIssues,
+  useResolvedIssues,
+  type CachSap,
+  type LoaiVanDe,
+} from '@/features/manage-issues';
+import type {
+  AdminResolvedIssue,
+  BanGhiVanDe,
+  UuTienVanDe,
+  VanDeNhom,
+} from '@/shared/api';
+import { ngayGioVN, taiCsv, taoCsv } from '@/shared/lib';
+import { Icon } from '@/shared/ui';
 
 /** Nhãn tiếng Việt của mức ưu tiên. Khoá do backend đặt (`data_issues.py`). */
 const NHAN_UU_TIEN: Record<UuTienVanDe, string> = {
@@ -53,6 +70,11 @@ function soVN(n: number): string {
 
 export function IssuesPage() {
   const { data, loading, error, uuTien, chonUuTien, reload } = useIssues();
+  // Tab "Đã xử lý" là DANH SÁCH KHÁC (bản ghi đã đánh dấu), không phải một mức ưu tiên.
+  const [xemDaXuLy, setXemDaXuLy] = useState(false);
+  const daXuLy = useResolvedIssues(xemDaXuLy);
+  const [loai, setLoai] = useState<LoaiVanDe | null>(null);
+  const [cachSap, setCachSap] = useState<CachSap>('uu_tien');
   // Nhóm đang mở chi tiết. Lấy từ query string để chia sẻ được link và F5 không mất —
   // đúng như trang `/recommend` của app client đã làm.
   const [thamSo, datThamSo] = useSearchParams();
@@ -63,6 +85,45 @@ export function IssuesPage() {
     if (khoa) moi.set('nhom', khoa);
     else moi.delete('nhom');
     datThamSo(moi);
+  };
+
+  const nhomHien = data ? locVaSapNhom(data.groups, loai, cachSap) : [];
+
+  const xuatDanhSach = () => {
+    // Xuất ĐÚNG thứ đang hiện trên màn hình (đã lọc + đã sắp), không gọi thêm API.
+    const hom = new Date().toISOString().slice(0, 10);
+    if (xemDaXuLy) {
+      const dong = daXuLy.data?.results ?? [];
+      taiCsv(
+        `da-xu-ly-${hom}.csv`,
+        taoCsv(
+          ['Nhóm vấn đề', 'Mã bản ghi', 'Tên', 'Người xử lý', 'Ghi chú', 'Thời điểm'],
+          dong.map((d) => [
+            d.group_label ?? d.key,
+            d.target_id,
+            d.name,
+            d.resolved_by,
+            d.note,
+            d.resolved_at,
+          ]),
+        ),
+      );
+      return;
+    }
+    taiCsv(
+      `can-xu-ly-${hom}.csv`,
+      taoCsv(
+        ['Vấn đề', 'Mô tả', 'Loại', 'Độ ưu tiên', 'Số lượng', 'Xử lý gần nhất'],
+        nhomHien.map((v) => [
+          v.label,
+          v.description,
+          NHAN_LOAI[v.target_type] ?? v.target_type,
+          NHAN_UU_TIEN[v.priority as UuTienVanDe] ?? v.priority,
+          v.count,
+          v.last_resolved_at,
+        ]),
+      ),
+    );
   };
 
   return (
@@ -115,9 +176,14 @@ export function IssuesPage() {
                 key={t.nhan}
                 type="button"
                 className={
-                  uuTien === t.khoa ? 'tab-loc__nut tab-loc__nut--dang' : 'tab-loc__nut'
+                  !xemDaXuLy && uuTien === t.khoa
+                    ? 'tab-loc__nut tab-loc__nut--dang'
+                    : 'tab-loc__nut'
                 }
-                onClick={() => chonUuTien(t.khoa)}
+                onClick={() => {
+                  setXemDaXuLy(false);
+                  chonUuTien(t.khoa);
+                }}
               >
                 {t.nhan}
                 {t.khoa === null && ` (${soVN(data.total)})`}
@@ -126,19 +192,108 @@ export function IssuesPage() {
                 {t.khoa === 'can_kiem_tra' && ` (${soVN(data.to_review)})`}
               </button>
             ))}
-            <span className="muted small tab-loc__da-xong">
-              Đã đánh dấu xử lý: {soVN(data.resolved_total)}
-            </span>
+            <button
+              type="button"
+              className={xemDaXuLy ? 'tab-loc__nut tab-loc__nut--dang' : 'tab-loc__nut'}
+              onClick={() => setXemDaXuLy(true)}
+            >
+              Đã xử lý ({soVN(data.resolved_total)})
+            </button>
+
+            <div className="tab-loc__cong-cu">
+              {!xemDaXuLy && (
+                <>
+                  <select
+                    className="o-chon"
+                    value={loai ?? ''}
+                    onChange={(e) => setLoai((e.target.value || null) as LoaiVanDe | null)}
+                    aria-label="Lọc theo loại vấn đề"
+                  >
+                    <option value="">Tất cả loại vấn đề</option>
+                    <option value="quan_an">Quán ăn</option>
+                    <option value="mon_an">Món ăn</option>
+                    <option value="du_lieu">Dữ liệu</option>
+                  </select>
+                  <select
+                    className="o-chon"
+                    value={cachSap}
+                    onChange={(e) => setCachSap(e.target.value as CachSap)}
+                    aria-label="Sắp xếp"
+                  >
+                    {(Object.keys(NHAN_CACH_SAP) as CachSap[]).map((k) => (
+                      <option key={k} value={k}>
+                        {NHAN_CACH_SAP[k]}
+                      </option>
+                    ))}
+                  </select>
+                </>
+              )}
+              <button type="button" className="ghost" onClick={xuatDanhSach}>
+                <Icon ten="tai-xuong" /> Xuất danh sách
+              </button>
+            </div>
           </nav>
 
-          <BangNhom
-            nhom={data.groups}
-            nhomDangMo={nhomDangMo}
-            onMo={moNhom}
-          />
+          {xemDaXuLy ? (
+            <BangDaXuLy
+              dong={daXuLy.data?.results ?? null}
+              loading={daXuLy.loading}
+              error={daXuLy.error}
+            />
+          ) : (
+            <BangNhom nhom={nhomHien} nhomDangMo={nhomDangMo} onMo={moNhom} />
+          )}
         </>
       )}
     </div>
+  );
+}
+
+/** Tab "Đã xử lý": bản ghi đã được đánh dấu, mới nhất đứng đầu. */
+function BangDaXuLy({
+  dong,
+  loading,
+  error,
+}: {
+  dong: AdminResolvedIssue[] | null;
+  loading: boolean;
+  error: string | null;
+}) {
+  if (loading && !dong) return <p className="panel muted">Đang tải…</p>;
+  if (error) return <p className="notice notice--warn">{error}</p>;
+  if (!dong) return null;
+  if (dong.length === 0) {
+    return <p className="panel muted">Chưa có bản ghi nào được đánh dấu đã xử lý.</p>;
+  }
+  return (
+    <section className="panel">
+      <div className="table-scroll">
+        <table className="bang-van-de">
+          <thead>
+            <tr>
+              <th>Bản ghi</th>
+              <th>Nhóm vấn đề</th>
+              <th>Người xử lý</th>
+              <th>Thời điểm</th>
+            </tr>
+          </thead>
+          <tbody>
+            {dong.map((d) => (
+              <tr key={`${d.key}-${d.target_id}`} className="row">
+                <td>
+                  {/* Không tra được tên (quán đã ẩn, món đổi mã) thì hiện MÃ, không bịa tên. */}
+                  <b>{d.name ?? d.target_id}</b>
+                  {d.note && <p className="muted small">{d.note}</p>}
+                </td>
+                <td>{d.group_label ?? d.key}</td>
+                <td>{d.resolved_by}</td>
+                <td className="small">{ngayGioVN(d.resolved_at)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
   );
 }
 
@@ -152,7 +307,7 @@ function BangNhom({
   onMo: (khoa: string | null) => void;
 }) {
   if (nhom.length === 0) {
-    return <p className="panel muted">Không có nhóm vấn đề nào ở mức đã chọn.</p>;
+    return <p className="panel muted">Không có nhóm vấn đề nào khớp bộ lọc đã chọn.</p>;
   }
 
   return (
@@ -165,6 +320,9 @@ function BangNhom({
               <th>Loại</th>
               <th>Độ ưu tiên</th>
               <th className="tnum">Số lượng</th>
+              <th title="Lần gần nhất một bản ghi trong nhóm được đánh dấu xử lý">
+                Xử lý gần nhất
+              </th>
               <th>Thao tác</th>
             </tr>
           </thead>
@@ -186,6 +344,7 @@ function BangNhom({
                   </span>
                 </td>
                 <td className="tnum">{soVN(v.count)}</td>
+                <td className="small muted">{ngayGioVN(v.last_resolved_at)}</td>
                 <td>
                   {/* Nhóm 0 bản ghi vẫn hiện dòng (đó là câu trả lời "đã kiểm, không có
                       gì") nhưng KHÔNG mở được danh sách rỗng — bấm vào chỉ để thấy trống. */}

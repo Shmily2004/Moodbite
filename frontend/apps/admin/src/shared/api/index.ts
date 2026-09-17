@@ -38,4 +38,15 @@ export type {
   AnhChupChatLuong,
   ThayDoi,
   UuTienVanDe,
+  // Phân trang, thẻ số, hàng loạt, "Hệ thống gợi ý" (2026-09-16)
+  AdminResolvedIssuesData,
+  AdminResolvedIssue,
+  AdminRestaurantStatsData,
+  FacetValue,
+  AdminBulkVisibilityData,
+  AdminDishRestaurantsData,
+  AdminDishRestaurant,
+  AdminInteractionStatsData,
+  AdminRestaurantListData,
+  AdminListParams,
 } from '@moodbite/api-client';

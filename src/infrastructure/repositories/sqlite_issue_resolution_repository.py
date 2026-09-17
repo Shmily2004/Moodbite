@@ -154,5 +154,20 @@ class SqliteIssueResolutionRepository:
             ).fetchall()
         return [_tu_row(r) for r in rows]
 
+    def moi_nhat_theo_khoa(self) -> Dict[str, datetime]:
+        if self._error is not None:
+            return {}
+        with sqlite3.connect(self.db_path) as conn:
+            rows = conn.execute(
+                "SELECT khoa, MAX(resolved_at) FROM issue_resolution GROUP BY khoa"
+            ).fetchall()
+        ket_qua: Dict[str, datetime] = {}
+        for khoa, luc in rows:
+            try:
+                ket_qua[khoa] = datetime.fromisoformat(luc)
+            except (TypeError, ValueError):
+                continue  # dòng hỏng ngày -> bỏ, không đoán
+        return ket_qua
+
 
 __all__ = ["SqliteIssueResolutionRepository", "SCHEMA", "MAX_TRA_VE"]

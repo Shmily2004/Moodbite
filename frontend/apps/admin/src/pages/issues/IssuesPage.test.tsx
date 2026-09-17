@@ -13,14 +13,15 @@ import { MemoryRouter } from 'react-router-dom';
 import { mocVanDe } from '@/shared/test';
 
 // Xem ghi chú `vi.hoisted` ở `pages/quality/QualityPage.test.tsx`.
-const { issues, issueDetail } = vi.hoisted(() => ({
+const { issues, issueDetail, resolvedIssues } = vi.hoisted(() => ({
   issues: vi.fn(),
   issueDetail: vi.fn(),
+  resolvedIssues: vi.fn(),
 }));
 
 vi.mock('@/shared/api', async () => {
   const that = await vi.importActual<typeof import('@/shared/api')>('@/shared/api');
-  return { ...that, adminApi: { issues, issueDetail } };
+  return { ...that, adminApi: { issues, issueDetail, resolvedIssues } };
 });
 
 import { IssuesPage } from './ui/IssuesPage';

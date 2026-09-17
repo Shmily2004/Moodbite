@@ -21,16 +21,15 @@
 import { useMemo } from 'react';
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { SiteHeader } from '@/widgets/site-header';
-import { LevelCard, BadgeGrid, StatTiles } from '@/widgets/user-progress';
+import { StatTiles } from '@/widgets/user-progress';
 import { AvatarPicker } from '@/features/change-avatar';
 import { EmailVerificationStatus, useEmailVerification } from '@/features/auth-verify-email';
-import { TastePicker } from '@/features/taste-preferences';
+import { TastePicker, useTastePreferences } from '@/features/taste-preferences';
 import { useFavorites } from '@/features/save-favorite';
 import { useRecentDishes } from '@/features/recent-dishes';
-import { ThemeToggle } from '@/features/switch-theme';
-import { ChangePasswordForm } from '@/features/change-password';
 import { useUserSessionContext, useUserStats } from '@/entities/user';
-import { LanguageSelect,
+import { useDishImages } from '@/entities/dish';
+import {
   IconBadge,
   IconClock,
   IconDining,
@@ -42,7 +41,9 @@ import { LanguageSelect,
 import { useT } from '@/shared/i18n';
 import type { Khoa } from '@/shared/i18n';
 import { ROUTES } from '@/shared/config';
-import { BadgesTab, ProfileTab, RecentTab, SavedTab, thangNam } from './tabs';
+import { BadgesTab, ProfileTab, SettingsPanel, thangNam } from './tabs';
+import { RecentTab, SavedTab } from './savedTabs';
+import { OverviewTab } from './OverviewTab';
 
 /**
  * Mã tab nằm trên URL. Đổi giá trị ở đây là đổi đường dẫn — cân nhắc trước khi sửa.
@@ -75,6 +76,13 @@ export function AccountPage() {
   const t = useT();
   const favorites = useFavorites();
   const recent = useRecentDishes();
+  // MỘT state sở thích cho cả trang: ô chọn và biểu đồ radar phải luôn nói cùng một chuyện.
+  const taste = useTastePreferences();
+  // Ảnh món cho các thẻ đã lưu / đã xem — chỉ tra món, quán không có endpoint ảnh riêng.
+  const anh = useDishImages([
+    ...favorites.items.filter((m) => m.itemType === 'dish').map((m) => m.itemId),
+    ...recent.recent.map((m) => m.dishId),
+  ]);
   const { stats, loading: dangTaiStats } = useUserStats();
   const [params, setParams] = useSearchParams();
 
@@ -165,65 +173,35 @@ export function AccountPage() {
             <StatTiles stats={stats} viewedLocal={recent.recent.length} />
           </section>
 
-          <div className={tab === 'overview' ? 'account-body account-body--two' : 'account-body'}>
-            <div className="account-col">
-              {tab === 'overview' && (
-                <>
-                  <TastePicker />
-                  <SavedTab favorites={favorites} />
-                  <RecentTab recent={recent} />
-                </>
-              )}
-              {tab === 'profile' && <ProfileTab user={session.user ?? null} />}
-              {tab === 'taste' && <TastePicker />}
-              {tab === 'saved' && <SavedTab favorites={favorites} />}
-              {tab === 'recent' && <RecentTab recent={recent} />}
-              {tab === 'badges' && <BadgesTab stats={stats} loading={dangTaiStats} />}
-              {tab === 'settings' && (
-                <section className="panel">
-                  <h2 className="panel__title">
-                    <span aria-hidden="true">⚙️</span> {t('account.settings.title')}
-                  </h2>
-                  <div className="account__settings">
-                    <div className="account__setting">
-                      <span>{t('account.settings.dark')}</span>
-                      <ThemeToggle />
-                    </div>
-                    <div className="account__setting">
-                      <span>{t('account.settings.language')}</span>
-                      <LanguageSelect />
-                    </div>
-                    <div className="account__setting account__setting--doc">
-                      <span>{t('account.settings.password')}</span>
-                      <ChangePasswordForm />
-                    </div>
-                    <div className="account__setting">
-                      <span>{t('account.settings.logout')}</span>
-                      <button
-                        type="button"
-                        className="btn btn--sm"
-                        onClick={() => {
-                          session.logout();
-                          navigate(ROUTES.home);
-                        }}
-                      >
-                        {t('nav.logout')}
-                      </button>
-                    </div>
-                  </div>
-                </section>
-              )}
+          {tab === 'overview' ? (
+            <OverviewTab
+              favorites={favorites}
+              recent={recent}
+              taste={taste}
+              anh={anh}
+              stats={stats}
+              dangTaiStats={dangTaiStats}
+              onDoiTab={doiTab}
+            />
+          ) : (
+            <div className="account-body">
+              <div className="account-col">
+                {tab === 'profile' && <ProfileTab user={session.user ?? null} />}
+                {tab === 'taste' && <TastePicker prefs={taste} />}
+                {tab === 'saved' && <SavedTab favorites={favorites} anh={anh} />}
+                {tab === 'recent' && <RecentTab recent={recent} anh={anh} />}
+                {tab === 'badges' && <BadgesTab stats={stats} loading={dangTaiStats} />}
+                {tab === 'settings' && (
+                  <SettingsPanel
+                    onLogout={() => {
+                      session.logout();
+                      navigate(ROUTES.home);
+                    }}
+                  />
+                )}
+              </div>
             </div>
-
-            {/* Cột phải chỉ ở Tổng quan — đúng bản thiết kế. Tab "Cấp độ & huy hiệu" đã
-                có nguyên hai thẻ này ở cột chính rồi, lặp lại là thừa. */}
-            {tab === 'overview' && (
-              <aside className="account-aside">
-                <LevelCard stats={stats} loading={dangTaiStats} />
-                <BadgeGrid stats={stats} loading={dangTaiStats} />
-              </aside>
-            )}
-          </div>
+          )}
         </main>
       </div>
     </div>

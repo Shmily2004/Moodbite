@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import List, Optional, Tuple
 
 from src.domain.entities.interaction import ActionType, InteractionEvent
+from src.domain.services.interaction_stats import BanGhiTuongTac
 from src.infrastructure.config.settings import describe_path
 
 logger = logging.getLogger("moodbite.interactions")
@@ -139,6 +140,45 @@ class JsonlInteractionRepository:
                     out.append(rec)
         except OSError as exc:
             logger.warning("Không đọc lại được nhật ký tương tác: %s", exc)
+        return out
+
+    def read_records(self) -> List[BanGhiTuongTac]:
+        """Toàn bộ nhật ký dưới dạng bản ghi thống kê — cho khối "Hệ thống gợi ý".
+
+        ĐỌC LẠI FILE mỗi lần gọi, khác `replay_*` (đọc một lần lúc khởi động): màn quản
+        trị gọi rất thưa, và người quản trị cần thấy số mới chứ không phải số lúc bật máy.
+        Đo 2026-09-16: nhật ký thật có 3 dòng; kể cả 100.000 dòng thì một lượt đọc vẫn
+        dưới một giây, chấp nhận được cho một màn chỉ admin mở.
+
+        Dòng hỏng thì bỏ qua dòng đó — cùng quy ước với `replay_closure_reports`.
+        """
+        if not self.path.exists():
+            return []
+        out: List[BanGhiTuongTac] = []
+        try:
+            with open(self.path, encoding="utf-8") as fh:
+                for line in fh:
+                    if not line.strip():
+                        continue
+                    try:
+                        rec = json.loads(line)
+                    except ValueError:
+                        continue
+                    if not isinstance(rec, dict) or not rec.get("action_type"):
+                        continue
+                    nhan = rec.get("is_positive_signal")
+                    out.append(
+                        BanGhiTuongTac(
+                            action_type=str(rec["action_type"]),
+                            created_at=rec.get("created_at"),
+                            session_id=rec.get("session_id"),
+                            # Bản ghi trước 2026-08-22 không có khoá này -> `.get`.
+                            user_id=rec.get("user_id"),
+                            is_positive_signal=nhan if isinstance(nhan, bool) else None,
+                        )
+                    )
+        except OSError as exc:
+            logger.warning("Không đọc được nhật ký tương tác: %s", exc)
         return out
 
     def count(self) -> int:

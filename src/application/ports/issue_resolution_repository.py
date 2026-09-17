@@ -17,6 +17,7 @@ CHỈ GHI THÊM. Kho này ghi *vấn đề nào đã được đánh dấu XONG*
 """
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Dict, List, Optional, Protocol, runtime_checkable
 
 from src.domain.entities.issue_resolution import DanhDauXong
@@ -58,6 +59,15 @@ class IssueResolutionRepository(Protocol):
 
     def liet_ke(self, limit: int = 50) -> List[DanhDauXong]:
         """Các bản ghi đã xử lý, MỚI NHẤT ĐỨNG ĐẦU — cho tab "Đã xử lý"."""
+        ...
+
+    def moi_nhat_theo_khoa(self) -> Dict[str, datetime]:
+        """{khoa: lần đánh dấu xử lý GẦN NHẤT trong nhóm} — cột "Xử lý gần nhất".
+
+        Đây là thời điểm DUY NHẤT gắn với một nhóm vấn đề mà dự án thật sự lưu. Dự án
+        KHÔNG lưu lúc vấn đề được phát hiện, nên không được dùng cột này để nói "cập nhật".
+        Nhóm chưa ai đánh dấu thì vắng mặt trong kết quả.
+        """
         ...
 
 

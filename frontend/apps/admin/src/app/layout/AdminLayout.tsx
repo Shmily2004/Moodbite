@@ -2,54 +2,85 @@
  * LAYOUT của app quản trị — khung dùng chung cho mọi trang SAU KHI đăng nhập.
  *
  * Dựng theo `frontend/design/Dashboard admin.png` (chủ dự án gửi 2026-08-26):
- * CỘT TRÁI cố định (logo + menu) và thanh trên mỏng (tên trang + tài khoản).
+ * CỘT TRÁI cố định (logo + menu có biểu tượng) và thanh trên (breadcrumb + tài khoản).
  *
- * Trước đó điều hướng nằm trên một thanh ngang. Đổi sang cột trái vì bản thiết kế có 7
- * mục menu — hàng ngang 7 mục sẽ tràn ngay ở màn hình laptop, và khu quản trị vốn là
- * màn hình rộng dùng trên máy tính.
+ * Bổ sung 2026-09-16:
+ *   - Biểu tượng SVG nội tuyến cho từng mục menu (không emoji — xem `shared/ui/Icon.tsx`).
+ *   - Breadcrumb trên thanh đầu: "Quản lý món ăn › Bún chả". Nhãn cuối do trang con đặt
+ *     qua `useDatNhanBreadcrumb` (chỉ trang chi tiết mới biết tên món).
+ *   - Dòng "Phiên bản x.y.z" đọc từ `apps/admin/package.json`, không gõ tay.
+ *   - BANNER "DỮ LIỆU GIẢ LẬP" khi `GET /admin/system` trả `synthetic_data === true`.
  *
- * TOÀN BỘ 8 MỤC NAY ĐỀU CHẠY THẬT (2026-09-08). Trước đó "Chất lượng dữ liệu" hiện mờ
- * kèm chữ "chưa dựng"; nay đã có trang thật, và có thêm "Cần xử lý" theo bản thiết kế
- * `frontend/design/needs to be handled admin.png`.
+ * ⚠️ HAI THỨ TRONG BẢN THIẾT KẾ CỐ TÌNH KHÔNG DỰNG:
+ *   - Ô "Tìm kiếm nhanh… Ctrl K": backend không có endpoint tìm chung quán + món + vấn đề.
+ *     Mỗi trang đã có ô tìm riêng; một ô tìm ở thanh đầu không tìm được gì là nói dối.
+ *   - Chuông thông báo (số 12): không có nguồn thông báo nào. Số việc cần xử lý đã nằm ở
+ *     menu "Cần xử lý" và trang Tổng quan.
  *
  * Cơ chế `chuaDung` (hiện mờ, không bấm được) VẪN GIỮ LẠI dù hiện không mục nào dùng:
- * nó là cách đúng để thêm một mục đã có bản vẽ nhưng chưa có trang. Link chết thì người
- * dùng bấm vào gặp 404 và không hiểu vì sao; giấu hẳn thì không ai biết kế hoạch tới đâu.
+ * nó là cách đúng để thêm một mục đã có bản vẽ nhưng chưa có trang.
  */
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, Link } from 'react-router-dom';
 import { useAdminSessionContext } from '@/features/admin-login';
-import { ROUTES } from '@/shared/config';
+import { useSystem } from '@/features/view-system';
+import { APP_VERSION, ROUTES } from '@/shared/config';
+import { BreadcrumbProvider, useNhanBreadcrumb } from '@/shared/lib';
+import { Icon, type TenIcon } from '@/shared/ui';
 
 interface MucMenu {
   duongDan: string;
   nhan: string;
+  icon: TenIcon;
   /** Chưa dựng -> hiện mờ, không bấm được. */
   chuaDung?: boolean;
 }
 
-/** Thứ tự đúng như bản thiết kế, kể cả mục chưa dựng. */
+/** Thứ tự đúng như bản thiết kế. */
 const MENU: MucMenu[] = [
-  { duongDan: ROUTES.overview, nhan: 'Tổng quan' },
-  { duongDan: ROUTES.dishes, nhan: 'Quản lý món ăn' },
-  { duongDan: ROUTES.restaurants, nhan: 'Quản lý quán ăn' },
-  { duongDan: ROUTES.quality, nhan: 'Chất lượng dữ liệu' },
-  { duongDan: ROUTES.issues, nhan: 'Cần xử lý' },
-  { duongDan: ROUTES.recommendation, nhan: 'Gợi ý & Hệ thống' },
-  { duongDan: ROUTES.activity, nhan: 'Nhật ký hoạt động' },
-  { duongDan: ROUTES.system, nhan: 'Cài đặt hệ thống' },
+  { duongDan: ROUTES.overview, nhan: 'Tổng quan', icon: 'tong-quan' },
+  { duongDan: ROUTES.dishes, nhan: 'Quản lý món ăn', icon: 'mon-an' },
+  { duongDan: ROUTES.restaurants, nhan: 'Quản lý quán ăn', icon: 'quan-an' },
+  { duongDan: ROUTES.quality, nhan: 'Chất lượng dữ liệu', icon: 'chat-luong' },
+  { duongDan: ROUTES.issues, nhan: 'Cần xử lý', icon: 'can-xu-ly' },
+  { duongDan: ROUTES.recommendation, nhan: 'Gợi ý & Hệ thống', icon: 'goi-y' },
+  { duongDan: ROUTES.activity, nhan: 'Nhật ký hoạt động', icon: 'nhat-ky' },
+  { duongDan: ROUTES.system, nhan: 'Cài đặt hệ thống', icon: 'cai-dat' },
 ];
 
-/** Tên trang hiện lên thanh đầu — suy từ đường dẫn, không truyền qua từng trang. */
-function tenTrang(duongDan: string): string {
-  // Suy từ MENU thay vì viết lại danh sách: thêm trang mới chỉ phải sửa MENU, không thể
-  // quên cập nhật tên trên thanh đầu.
-  const muc = MENU.find((m) => !m.chuaDung && m.duongDan === duongDan);
-  return muc?.nhan ?? 'Quản trị';
+/**
+ * Mục menu chứa đường dẫn hiện tại. Khớp cả TRANG CON (`/mon-an/bun-cha` thuộc "Quản lý
+ * món ăn"), chọn tiền tố DÀI NHẤT; `/` chỉ khớp đúng `/`, nếu không mọi trang đều thuộc
+ * "Tổng quan".
+ */
+function mucHienTai(duongDan: string): MucMenu | null {
+  const ung = MENU.filter(
+    (m) =>
+      !m.chuaDung &&
+      (m.duongDan === duongDan ||
+        (m.duongDan !== '/' && duongDan.startsWith(`${m.duongDan}/`))),
+  );
+  return ung.sort((a, b) => b.duongDan.length - a.duongDan.length)[0] ?? null;
 }
 
 export function AdminLayout() {
+  return (
+    <BreadcrumbProvider>
+      <Khung />
+    </BreadcrumbProvider>
+  );
+}
+
+function Khung() {
   const session = useAdminSessionContext();
   const location = useLocation();
+  const muc = mucHienTai(location.pathname);
+  const laTrangCon = muc != null && muc.duongDan !== location.pathname;
+  const nhanCuoi = useNhanBreadcrumb();
+  const { data: heThong } = useSystem();
+  // Trường có thể CHƯA có ở backend cũ -> coi như false. Chỉ `=== true` mới hiện banner:
+  // hiện nhầm banner giả lập trên dữ liệu thật cũng sai y như giấu nó đi.
+  const gia = (heThong as { synthetic_data?: boolean } | null)?.synthetic_data === true;
+  const soKhoLoi = heThong ? heThong.services.filter((s) => !s.ready).length : null;
 
   return (
     <div className="quan-tri">
@@ -60,22 +91,30 @@ export function AdminLayout() {
 
         <p className="canh-trai__nhom">MENU QUẢN TRỊ</p>
         <nav className="canh-trai__menu">
-          {MENU.map((muc) =>
-            muc.chuaDung ? (
-              <span key={muc.nhan} className="canh-trai__muc canh-trai__muc--tat">
-                {muc.nhan}
+          {MENU.map((m) =>
+            m.chuaDung ? (
+              <span key={m.nhan} className="canh-trai__muc canh-trai__muc--tat">
+                <span className="canh-trai__trai">
+                  <Icon ten={m.icon} />
+                  {m.nhan}
+                </span>
                 <em className="canh-trai__chua">chưa dựng</em>
               </span>
             ) : (
               <NavLink
-                key={muc.nhan}
-                to={muc.duongDan}
-                end
+                key={m.nhan}
+                to={m.duongDan}
+                // `end` CHỈ cho Tổng quan: mục khác phải còn sáng khi đang ở trang con
+                // (`/mon-an/bun-cha` vẫn thuộc "Quản lý món ăn").
+                end={m.duongDan === ROUTES.overview}
                 className={({ isActive }) =>
                   isActive ? 'canh-trai__muc canh-trai__muc--dang' : 'canh-trai__muc'
                 }
               >
-                {muc.nhan}
+                <span className="canh-trai__trai">
+                  <Icon ten={m.icon} />
+                  {m.nhan}
+                </span>
               </NavLink>
             ),
           )}
@@ -87,11 +126,44 @@ export function AdminLayout() {
             Trung tâm vận hành dữ liệu, giúp MoodBite luôn chính xác và đáng tin cậy.
           </p>
         </div>
+        <div className="canh-trai__phien-ban small muted">
+          <p>Phiên bản {APP_VERSION}</p>
+          {/* Trạng thái lấy từ `/admin/system` thật; chưa tải được thì im lặng, KHÔNG
+              mặc định "hoạt động tốt". */}
+          {soKhoLoi != null && (
+            <p>
+              <span className={soKhoLoi === 0 ? 'cham cham--tot' : 'cham cham--thieu'} />
+              {soKhoLoi === 0
+                ? 'Mọi kho dữ liệu sẵn sàng'
+                : `${soKhoLoi} kho dữ liệu chưa sẵn sàng`}
+            </p>
+          )}
+        </div>
       </aside>
 
       <div className="khu-chinh">
+        {gia && (
+          <div className="banner-gia-lap" role="alert">
+            <Icon ten="canh-bao" />
+            <strong>DỮ LIỆU GIẢ LẬP</strong> — số liệu không phải người dùng thật
+          </div>
+        )}
         <header className="thanh-tren">
-          <h1 className="thanh-tren__tieu-de">{tenTrang(location.pathname)}</h1>
+          <div className="thanh-tren__trai">
+            {/* Breadcrumb CHỈ ở trang con. Ở trang cấp một nó chỉ lặp lại đúng tiêu đề
+                ngay bên dưới, thêm nhiễu mà không thêm thông tin. */}
+            {laTrangCon && muc && (
+              <nav aria-label="Breadcrumb" className="duong-dan">
+                <ol>
+                  <li>
+                    <Link to={muc.duongDan}>{muc.nhan}</Link>
+                  </li>
+                  <li aria-current="page">{nhanCuoi ?? 'Chi tiết'}</li>
+                </ol>
+              </nav>
+            )}
+            <h1 className="thanh-tren__tieu-de">{muc?.nhan ?? 'Quản trị'}</h1>
+          </div>
           <div className="thanh-tren__phai">
             <span className="thanh-tren__ai">Quản trị viên</span>
             <button className="ghost" onClick={session.logout}>

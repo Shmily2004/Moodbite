@@ -15,13 +15,14 @@ lại rằng người quản trị đã xem và kết luận không phải làm 
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
 from typing import List, Optional
 
 from src.application.errors import DataNotReadyError
 from src.domain.entities.issue_resolution import DanhDauXong
 from src.domain.services.data_issues import (
+    LOAI_MON,
     THU_TU_UU_TIEN,
     BanGhiVanDe,
     ViecCanXuLy,
@@ -57,6 +58,9 @@ class BangVanDe:
     # `False` khi kho đánh dấu không mở được — nút "Đánh dấu đã xử lý" phải bị vô hiệu
     # hoá kèm lý do, chứ không bấm được rồi im lặng không lưu.
     co_the_danh_dau: bool
+    # {khoa: datetime} lần đánh dấu xử lý gần nhất của từng nhóm. Rỗng khi chưa ai đánh
+    # dấu hoặc kho hỏng — giao diện hiện "—", không đoán.
+    xu_ly_gan_nhat: dict = field(default_factory=dict)
 
 
 class LietKeVanDeUseCase:
@@ -105,7 +109,18 @@ class LietKeVanDeUseCase:
                 self._resolutions is not None
                 and getattr(self._resolutions, "is_ready", False)
             ),
+            xu_ly_gan_nhat=self._moi_nhat_an_toan(),
         )
+
+    def _moi_nhat_an_toan(self) -> dict:
+        """Kho hỏng / kho cũ chưa có hàm -> {} chứ không làm trắng bảng vì một cột phụ."""
+        lay = getattr(self._resolutions, "moi_nhat_theo_khoa", None)
+        if not callable(lay):
+            return {}
+        try:
+            return dict(lay())
+        except Exception:  # noqa: BLE001 - xem docstring
+            return {}
 
     @staticmethod
     def _sap_theo_uu_tien(nhom: List[ViecCanXuLy]) -> List[ViecCanXuLy]:
@@ -173,6 +188,70 @@ class XemChiTietVanDeUseCase:
         return ChiTietVanDe(khoa=khoa, tong=tong, ban_ghi=ban_ghi, da_xong=da_xong)
 
 
+@dataclass(frozen=True)
+class DongDaXuLy:
+    """Một dòng của tab "Đã xử lý"."""
+
+    danh_dau: DanhDauXong
+    # Nhãn nhóm vấn đề ("Món chưa có ảnh"). `None` khi khoá không còn trong domain.
+    nhan_nhom: Optional[str]
+    loai: Optional[str]
+    # Tên bản ghi tra được lúc xem. `None` = không còn tìm thấy (quán đã ẩn, món đã đổi mã)
+    # -> giao diện hiện mã, không bịa tên.
+    ten: Optional[str]
+
+
+class LietKeDaXuLyUseCase:
+    """Tab "Đã xử lý (N)" — các bản ghi đã được đánh dấu, mới nhất đứng đầu.
+
+    Kho đánh dấu hỏng -> danh sách rỗng kèm `co_the_danh_dau=False` ở `LietKeVanDeUseCase`;
+    ở đây chỉ trả rỗng, KHÔNG 503: tab phụ không đáng làm trắng cả màn.
+    """
+
+    def __init__(
+        self,
+        restaurant_repository,
+        dish_catalog_repository,
+        issue_resolution_repository=None,
+    ) -> None:
+        self._restaurants = restaurant_repository
+        self._dishes = dish_catalog_repository
+        self._resolutions = issue_resolution_repository
+
+    def execute(self, limit: int = 50) -> List[DongDaXuLy]:
+        if self._resolutions is None or not getattr(self._resolutions, "is_ready", False):
+            return []
+        try:
+            danh_dau = self._resolutions.liet_ke(limit=min(max(limit, 1), MAX_CHI_TIET))
+        except Exception:  # noqa: BLE001 - xem docstring
+            return []
+
+        quan = self._restaurants.list_all() if getattr(self._restaurants, "is_ready", False) else []
+        mon = self._dishes.list_all_dishes() if self._dishes is not None else []
+        nhom = {v.khoa: v for v in viec_can_xu_ly(quan, mon)}
+        ten_mon = {d.identifier: d.name for d in mon}
+
+        ket_qua: List[DongDaXuLy] = []
+        for d in danh_dau:
+            v = nhom.get(d.khoa)
+            # Tra theo LOẠI của nhóm: mã quán và mã món là hai không gian tên khác nhau,
+            # đoán mò thứ tự có thể gắn nhầm tên món cho một quán trùng mã.
+            if v is not None and v.loai == LOAI_MON:
+                ten = ten_mon.get(d.target_id)
+            else:
+                r = self._restaurants.get_by_place_id(d.target_id) if quan else None
+                ten = getattr(r, "name", None)
+            ket_qua.append(
+                DongDaXuLy(
+                    danh_dau=d,
+                    nhan_nhom=v.nhan if v else None,
+                    loai=v.loai if v else None,
+                    ten=ten,
+                )
+            )
+        return ket_qua
+
+
 class DanhDauXongUseCase:
     """Đánh dấu / gỡ đánh dấu. Kho chưa sẵn sàng thì BÁO LỖI RÕ, không nuốt."""
 
@@ -200,6 +279,8 @@ __all__ = [
     "BangVanDe",
     "ChiTietVanDe",
     "DanhDauXongUseCase",
+    "DongDaXuLy",
+    "LietKeDaXuLyUseCase",
     "IssuesNotAvailable",
     "LietKeVanDeUseCase",
     "XemChiTietVanDeUseCase",

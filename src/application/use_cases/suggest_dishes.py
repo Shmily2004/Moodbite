@@ -28,6 +28,7 @@ from src.domain.services.closure_reports import ClosureReportTally
 from src.domain.services.dish_ranking import DishFilter
 from src.domain.services.search_ranking import DEFAULT_MAX_DISTANCE_KM
 from src.domain.value_objects.context_signal import NEUTRAL_CONTEXT, ContextSignal
+from src.domain.value_objects.price import has_known_price
 from src.domain.value_objects.location import (
     HANOI_CENTER_LAT,
     HANOI_CENTER_LNG,
@@ -63,6 +64,13 @@ class DishSuggestionQuery:
     # tôi một bát bún" — họ gọi bún chả, bún cá, bún đậu.
     # True = chỉ trả DANH MỤC, để frontend dựng thanh điều hướng theo nhóm.
     only_categories: bool = False
+    # Chỉ đếm quán CÓ GHI GIÁ (công tắc "Chỉ hiện quán có ghi giá" ở bản vẽ `Filler.png`).
+    #
+    # ⚠️ RẤT ĐẮT. Đo 2026-09-23 trên dataset thật: 671/52.872 quán (1,3%) có ô giá đọc
+    # được, vì OSM/Overture/Wikidata đều không có trường giá — chỉ lớp làm giàu Apify mới
+    # có. Bật lên thì món quanh trung tâm Hà Nội tụt 282 -> 156. Vì vậy use case PHẢI nói
+    # ra số món bị ẩn, không được lặng lẽ trả về danh sách ngắn hơn.
+    only_with_price: bool = False
 
 
 @dataclass(frozen=True)
@@ -92,6 +100,27 @@ class SuggestedDishItem:
     source: Optional[str]
     source_url: Optional[str]
     data_confidence: Optional[str]
+
+
+@dataclass(frozen=True)
+class _DemQuanQuanhDay:
+    """Kết quả MỘT lượt quét chỉ mục món-quán.
+
+    Đếm CẢ HAI kiểu trong CÙNG một lượt (mọi quán / chỉ quán có ghi giá) thay vì quét
+    thêm lần nữa khi bật bộ lọc giá: chỉ mục có ~47.000 cặp quán-món trong bán kính 10km,
+    quét lại là trả giá gấp đôi cho con số vốn đã nằm sẵn trong tầm tay của vòng lặp.
+    """
+
+    tong: Dict[str, int]
+    tong_co_gia: Dict[str, int]
+    gan_nhat: Dict[str, float]
+    gan_nhat_co_gia: Dict[str, float]
+
+    def counts(self, only_with_price: bool) -> Dict[str, int]:
+        return self.tong_co_gia if only_with_price else self.tong
+
+    def nearest(self, only_with_price: bool) -> Dict[str, float]:
+        return self.gan_nhat_co_gia if only_with_price else self.gan_nhat
 
 
 @dataclass(frozen=True)
@@ -131,12 +160,25 @@ class SuggestDishesUseCase:
         # bỏ đi là tốn công vô ích, và quan trọng hơn là cảnh báo "đã ẩn N món" phải nói
         # về đúng nhóm người dùng đang xem.
         dishes = [d for d in dishes if d.is_category == query.only_categories]
-        counts, nearest = self._count_nearby(dishes, origin, query.max_distance_km)
+        gan_day = self._count_nearby(dishes, origin, query.max_distance_km)
         # Đếm KHÔNG giới hạn bán kính, để phân biệt "quán ở xa" với "cả kho không có quán
         # nào bán món này" - hai chuyện đó cần hai lời khuyên khác hẳn nhau.
-        counts_anywhere, _ = self._count_nearby(dishes, origin, None)
+        moi_noi = self._count_nearby(dishes, origin, None)
 
-        available = self._drop_dead_ends(dishes, counts, counts_anywhere, query, warnings)
+        counts = gan_day.counts(query.only_with_price)
+        nearest = gan_day.nearest(query.only_with_price)
+        # Đếm TRƯỚC khi bỏ món, để `_drop_dead_ends` không quy nhầm phần này thành
+        # "khu vực không có quán bán" — đó là hai lý do khác nhau và hai lời khuyên khác
+        # nhau (xem `_warn_price_filter`).
+        an_boi_gia = self._warn_price_filter(dishes, gan_day, moi_noi, query, warnings)
+        available = self._drop_dead_ends(
+            dishes,
+            counts,
+            moi_noi.counts(query.only_with_price),
+            query,
+            warnings,
+            an_boi_gia,
+        )
         dish_filter = self._to_filter(query)
         candidates = dish_ranking.filter_dishes(available, dish_filter)
 
@@ -161,6 +203,7 @@ class SuggestDishesUseCase:
         latitude: float = HANOI_CENTER_LAT,
         longitude: float = HANOI_CENTER_LNG,
         max_distance_km: Optional[float] = DEFAULT_MAX_DISTANCE_KM,
+        only_with_price: bool = False,
     ) -> Optional[SuggestedDishItem]:
         """Một món theo id, kèm số quán gần người đang xem. None nếu món không tồn tại/tắt.
 
@@ -182,7 +225,11 @@ class SuggestDishesUseCase:
             return None
 
         origin = Location(lat=latitude, lng=longitude)
-        counts, nearest = self._count_nearby([dish], origin, max_distance_km)
+        # Cùng bộ lọc với danh sách quán bên dưới, nếu không trang chi tiết sẽ hứa
+        # "12 quán gần đây" rồi danh sách chỉ hiện 1.
+        dem = self._count_nearby([dish], origin, max_distance_km)
+        counts = dem.counts(only_with_price)
+        nearest = dem.nearest(only_with_price)
         ranked = dish_ranking.rank_dishes(
             dishes=[dish],
             f=DishFilter(),
@@ -217,7 +264,7 @@ class SuggestDishesUseCase:
 
     def _count_nearby(
         self, dishes: Sequence[Dish], origin: Location, max_distance_km: Optional[float]
-    ) -> tuple[Dict[str, int], Dict[str, float]]:
+    ) -> _DemQuanQuanhDay:
         """Số quán bán từng món TRONG BÁN KÍNH, và khoảng cách tới quán GẦN NHẤT.
 
         Quán thiếu toạ độ không đếm được nên bị bỏ qua ở đây - nhưng đó là trường hợp
@@ -229,9 +276,13 @@ class SuggestDishesUseCase:
         """
         counts: Dict[str, int] = {}
         nearest: Dict[str, float] = {}
+        counts_co_gia: Dict[str, int] = {}
+        nearest_co_gia: Dict[str, float] = {}
         for dish in dishes:
             nearby = 0
+            nearby_co_gia = 0
             gan_nhat: Optional[float] = None
+            gan_nhat_co_gia: Optional[float] = None
             for match in self._index.get(dish.identifier, ()):
                 restaurant = match.restaurant
                 if not restaurant.is_visible:
@@ -248,12 +299,61 @@ class SuggestDishesUseCase:
                 nearby += 1
                 if gan_nhat is None or khoang_cach < gan_nhat:
                     gan_nhat = khoang_cach
+                if has_known_price(restaurant.price):
+                    nearby_co_gia += 1
+                    if gan_nhat_co_gia is None or khoang_cach < gan_nhat_co_gia:
+                        gan_nhat_co_gia = khoang_cach
             counts[dish.identifier] = nearby
+            counts_co_gia[dish.identifier] = nearby_co_gia
             if gan_nhat is not None:
                 # Một chữ số thập phân: sai số của haversine và của toạ độ nguồn đều lớn
                 # hơn 100m, nên "1,23 km" là độ chính xác giả.
                 nearest[dish.identifier] = round(gan_nhat, 1)
-        return counts, nearest
+            if gan_nhat_co_gia is not None:
+                nearest_co_gia[dish.identifier] = round(gan_nhat_co_gia, 1)
+        return _DemQuanQuanhDay(
+            tong=counts,
+            tong_co_gia=counts_co_gia,
+            gan_nhat=nearest,
+            gan_nhat_co_gia=nearest_co_gia,
+        )
+
+    @staticmethod
+    def _warn_price_filter(
+        dishes: Sequence[Dish],
+        gan_day: _DemQuanQuanhDay,
+        moi_noi: _DemQuanQuanhDay,
+        query: DishSuggestionQuery,
+        warnings: List[str],
+    ) -> int:
+        """Nói ra cái giá của công tắc "chỉ quán có ghi giá", và trả về số món nó đã ẩn.
+
+        CHỈ đếm những món mà bộ lọc giá là lý do DUY NHẤT: quanh đây có quán bán, nhưng
+        không quán nào ghi giá - kể cả mở bán kính ra vô hạn. Món có quán ghi giá ở xa thì
+        không tính vào đây, vì `_drop_dead_ends` đã khuyên đúng việc (nới bán kính) rồi;
+        đếm cả hai chỗ sẽ trừ hai lần và hai cảnh báo sẽ chửi nhau.
+
+        Vì sao phải cảnh báo: chỉ 1,3% quán trong dữ liệu có giá (đo 2026-09-23), nên danh
+        sách ngắn lại là do TA THIẾU DỮ LIỆU GIÁ chứ không phải khu này ít quán. Để người
+        dùng tự suy ra vế sai là đúng lỗi `/suggest-dish` cũ từng mắc (CLAUDE.md mục 5).
+        """
+        if not query.only_with_price:
+            return 0
+
+        an_boi_gia = sum(
+            1
+            for d in dishes
+            if gan_day.tong.get(d.identifier, 0) > 0
+            and gan_day.tong_co_gia.get(d.identifier, 0) == 0
+            and moi_noi.tong_co_gia.get(d.identifier, 0) == 0
+        )
+        if an_boi_gia:
+            warnings.append(
+                f"Bộ lọc “chỉ quán có ghi giá” đã ẩn {an_boi_gia} món: quanh "
+                "đây có quán bán nhưng chưa quán nào trong dữ liệu ghi giá. Không có giá "
+                "nghĩa là ta CHƯA BIẾT giá, không phải quán không niêm yết."
+            )
+        return an_boi_gia
 
     @staticmethod
     def _drop_dead_ends(
@@ -262,6 +362,7 @@ class SuggestDishesUseCase:
         counts_anywhere: Mapping[str, int],
         query: DishSuggestionQuery,
         warnings: List[str],
+        an_boi_gia: int = 0,
     ) -> List[Dish]:
         """Bỏ món không có quán nào gần đây.
 
@@ -285,14 +386,17 @@ class SuggestDishesUseCase:
             1 for d in dishes
             if counts.get(d.identifier, 0) == 0 and counts_anywhere.get(d.identifier, 0) > 0
         )
-        hidden_nowhere = (len(dishes) - len(available)) - hidden_far
+        # Trừ phần đã được `_warn_price_filter` nhận trách nhiệm: nếu không, bật bộ lọc
+        # giá sẽ sinh ra câu "khu vực này chưa có quán nào bán" cho những món mà khu vực
+        # này có đầy quán bán - chỉ là ta không biết giá của chúng.
+        hidden_nowhere = (len(dishes) - len(available)) - hidden_far - an_boi_gia
 
         if hidden_far:
             warnings.append(
                 f"Đã ẩn {hidden_far} món có quán bán nhưng nằm ngoài bán kính "
                 f"{query.max_distance_km} km. Mở rộng bán kính để thấy thêm."
             )
-        if hidden_nowhere:
+        if hidden_nowhere > 0:
             warnings.append(
                 f"Danh mục còn {hidden_nowhere} món chưa tìm được quán nào bán ở khu vực "
                 "này - mở rộng bán kính cũng không thấy."

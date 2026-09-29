@@ -34,6 +34,12 @@ export function useDishDetail(
   dishId: string | undefined,
   position: Coordinates,
   maxDistanceKm: number | null,
+  /**
+   * Công tắc "chỉ quán có ghi giá". Đi vào CẢ HAI lượt gọi bên dưới qua cùng một object
+   * `params`: nếu chỉ truyền cho một bên thì phần giới thiệu món hứa "62 quán" còn danh
+   * sách ngay dưới nó hiện 1 quán.
+   */
+  onlyWithPrice = false,
 ): UseDishDetailResult {
   const [dish, setDish] = useState<DishItem | null>(null);
   const [restaurants, setRestaurants] = useState<SearchResultItem[]>([]);
@@ -66,6 +72,7 @@ export function useDishDetail(
       latitude: position.lat,
       longitude: position.lng,
       ...(maxDistanceKm != null ? { max_distance_km: maxDistanceKm } : {}),
+      only_with_price: onlyWithPrice,
     };
 
     const dishPromise = api
@@ -115,7 +122,7 @@ export function useDishDetail(
     });
 
     return () => controller.abort();
-  }, [dishId, position.lat, position.lng, maxDistanceKm, reloadToken]);
+  }, [dishId, position.lat, position.lng, maxDistanceKm, onlyWithPrice, reloadToken]);
 
   return {
     dish,

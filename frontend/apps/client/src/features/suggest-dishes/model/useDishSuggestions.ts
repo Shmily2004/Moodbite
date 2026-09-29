@@ -89,6 +89,7 @@ export function useDishSuggestions(
           // đói; họ gọi bún chả, bún cá, bún đậu. Danh mục lấy riêng qua
           // `only_categories: true` để dựng thanh điều hướng.
           only_categories: false,
+          only_with_price: filters.onlyWithPrice,
           limit: 30,
         },
         { signal: controller.signal },

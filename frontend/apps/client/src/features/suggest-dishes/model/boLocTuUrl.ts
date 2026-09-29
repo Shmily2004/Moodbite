@@ -43,6 +43,10 @@ export function docBoLocTuUrl(params: URLSearchParams): Partial<DishFilterState>
   const thoi_tiet = params.get('thoi_tiet');
   if (thoi_tiet) ket_qua.weather = thoi_tiet;
 
+  // `gia=1` là BẬT; không có tham số = tắt. Chỉ nhận đúng '1' để một đường dẫn cũ ghi
+  // `gia=0` không vô tình bật bộ lọc nặng nhất của sản phẩm.
+  if (params.get('gia') === '1') ket_qua.onlyWithPrice = true;
+
   const km = params.get('km');
   if (km !== null) {
     // `km=` (rỗng) nghĩa là NGƯỜI DÙNG CHỌN "không giới hạn" — khác hẳn với không có
@@ -62,6 +66,9 @@ export function ghiBoLocLenUrl(filters: DishFilterState): URLSearchParams {
   }
   if (filters.mood) params.set('mood', filters.mood);
   if (filters.weather) params.set('thoi_tiet', filters.weather);
+  // Chỉ ghi khi BẬT: trạng thái tắt là mặc định, ghi `gia=0` vào mọi đường dẫn chia sẻ
+  // chỉ làm URL dài thêm mà không mang thông tin gì.
+  if (filters.onlyWithPrice) params.set('gia', '1');
   if (filters.maxDistanceKm === null) params.set('km', '');
   else if (filters.maxDistanceKm !== undefined) params.set('km', String(filters.maxDistanceKm));
 

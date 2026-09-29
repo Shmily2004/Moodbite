@@ -43,6 +43,7 @@ export function DishFilterPanel({
         onToggle={boLoc.toggle}
         onSetSingle={boLoc.setSingle}
         onSetMaxDistanceKm={boLoc.setMaxDistanceKm}
+        onSetOnlyWithPrice={boLoc.setOnlyWithPrice}
         onReset={boLoc.reset}
         activeFilterCount={boLoc.activeFilterCount}
         locationIsDefault={locationIsDefault}

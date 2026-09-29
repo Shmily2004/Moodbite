@@ -29,6 +29,13 @@ export interface DishLocationParams {
   latitude?: number;
   longitude?: number;
   max_distance_km?: number;
+  /**
+   * Chỉ tính/hiện quán ĐỌC ĐƯỢC giá.
+   *
+   * ⚠️ Hai endpoint dùng chung tham số này phải được gọi với CÙNG giá trị, nếu không
+   * trang chi tiết món hứa "62 quán" rồi danh sách bên dưới hiện 1 quán.
+   */
+  only_with_price?: boolean;
 }
 
 export interface RestaurantsForDishParams extends DishLocationParams {

@@ -97,6 +97,7 @@ def suggest_dishes(
             max_distance_km=body.max_distance_km,
             limit=body.limit,
             only_categories=body.only_categories,
+            only_with_price=body.only_with_price,
         )
     )
     payload = DishSuggestResponseData(
@@ -115,6 +116,12 @@ def dish_detail(
     latitude: float = Query(default=HANOI_CENTER_LAT, ge=-90, le=90),
     longitude: float = Query(default=HANOI_CENTER_LNG, ge=-180, le=180),
     max_distance_km: float = Query(default=DEFAULT_MAX_DISTANCE_KM, gt=0, le=100),
+    only_with_price: bool = Query(
+        default=False,
+        description="Chỉ đếm quán có ghi giá — phải khớp với tham số cùng tên của "
+                    "/dishes/{id}/restaurants, nếu không trang chi tiết hứa một con số "
+                    "rồi danh sách bên dưới hiện một con số khác.",
+    ),
     use_case: SuggestDishesUseCase = Depends(get_suggest_dishes),
 ):
     """Giới thiệu ngắn về món + số quán bán món này gần bạn.
@@ -133,6 +140,7 @@ def dish_detail(
         latitude=latitude,
         longitude=longitude,
         max_distance_km=max_distance_km,
+        only_with_price=only_with_price,
     )
     if item is None:
         raise DishNotFoundError(dish_id)
@@ -148,6 +156,11 @@ def restaurants_for_dish(
     longitude: float = Query(default=HANOI_CENTER_LNG, ge=-180, le=180),
     max_distance_km: float = Query(default=DEFAULT_MAX_DISTANCE_KM, gt=0, le=100),
     mood: str | None = Query(default=None),
+    only_with_price: bool = Query(
+        default=False,
+        description="Chỉ hiện quán ĐỌC ĐƯỢC giá. Số quán bị bỏ luôn được nói ra ở "
+                    "`data.warnings` — im lặng cắt danh sách xuống 2,7% là nói dối.",
+    ),
     limit: int = Query(default=20, ge=1, le=50),
     use_case: FindRestaurantsForDishUseCase = Depends(get_find_restaurants_for_dish),
 ):
@@ -163,6 +176,7 @@ def restaurants_for_dish(
             longitude=longitude,
             max_distance_km=max_distance_km,
             mood=mood,
+            only_with_price=only_with_price,
             limit=limit,
         )
     )

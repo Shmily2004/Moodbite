@@ -94,3 +94,18 @@ def parse_price(raw: Optional[str]) -> Optional[PriceRange]:
             break
 
     return PriceRange(raw=text, level=level, approx_vnd=int(midpoint))
+
+
+def has_known_price(raw: Optional[str]) -> bool:
+    """Quán này có GHI GIÁ đọc được không?
+
+    Dùng cho bộ lọc "chỉ hiện quán có ghi giá". Định nghĩa CỐ Ý khắt khe: phải
+    `parse_price` ra được một mức, không chỉ là "ô giá khác rỗng". Lý do: ô giá có thể
+    chứa chữ không mang con số nào, và hiện một quán như thế cho người đang lọc theo giá
+    là không giữ lời hứa của chính bộ lọc.
+
+    `None`/rỗng -> False, đúng quy ước "None là CHƯA CÓ DỮ LIỆU" (CLAUDE.md mục 4 quy tắc
+    1). Chú ý: False ở đây nghĩa là "ta KHÔNG BIẾT giá", KHÔNG phải "quán này không có
+    giá" - nên bộ lọc phải nói rõ là nó đang lọc theo thứ ta biết, không phải theo thực tế.
+    """
+    return parse_price(raw) is not None

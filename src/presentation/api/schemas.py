@@ -179,6 +179,14 @@ class DishSuggestRequest(BaseModel):
         description="null = tắt lọc khoảng cách. Ảnh hưởng tới `restaurant_count`.",
     )
     limit: int = Field(default=20, ge=1, le=100)
+    only_with_price: bool = Field(
+        default=False,
+        description=(
+            "True = chỉ tính quán ĐỌC ĐƯỢC giá khi đếm quán cho từng món. "
+            "⚠️ Rất đắt: chỉ 1,3% quán trong dữ liệu có giá (đo 2026-09-23), nên bật lên "
+            "sẽ ẩn nhiều món. Số món bị ẩn luôn được nói ra ở `data.warnings`."
+        ),
+    )
     only_categories: bool = Field(
         default=False,
         description=(

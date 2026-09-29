@@ -1,6 +1,6 @@
 # MoodBite — Bảng theo dõi tiến độ
 
-**Cập nhật:** 2026-09-16
+**Cập nhật:** 2026-09-23
 **Nguyên tắc:** file này chỉ ghi thứ đã **chạy thật và kiểm chứng được**. Không ghi theo
 kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh để tự kiểm lại.
 
@@ -19,7 +19,7 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Frontend Client | ✅ **TypeScript + FSD** | 86 test, có bản đồ, steiger trong CI |
 | Bản đồ | ✅ **Xong** | Leaflet + OpenStreetMap, miễn phí, không cần key |
 | Kiến trúc | ✅ Sạch | Clean Architecture + checker tự động trong CI |
-| Test | ✅ **689 backend + 293 frontend** | client 228 · admin 65. Đo bằng `python scripts/verify.py` ngày 2026-09-16 |
+| Test | ✅ **709 backend + 313 frontend** | client 248 · admin 65. Đo bằng `python scripts/verify.py` ngày 2026-09-23 |
 | Giao diện | ✅ Theo bản duyệt · **trang chủ + tài khoản dựng lại 2026-08-22** | trang chủ = LƯỚI MÓN + chips lọc; trang món = giới thiệu + bản đồ + danh sách quán; `/tim-kiem` giữ bố cục bản đồ + rail cũ |
 | Router + layout | ✅ Xong | react-router v6, khung dùng chung, `RequireAuth` cho admin |
 | Chạy xem giao diện | ✅ **một lệnh** | `python scripts/run_dev.py --admin` |
@@ -1259,9 +1259,82 @@ Mọi số dưới đây đo thật trong ngày. Lệnh kiểm lại ghi ở t�
 - Tìm "phở" vẫn ra "Nhà Hàng Phố Cổ", "Gà Phố": `_overlap` trong `text_relevance.py` so tập từ đã bỏ dấu, không qua `tokens_match` (vi phạm CLAUDE.md §4.5). Sửa sẽ đổi xếp hạng `/search` diện rộng và phải bỏ test `test_accent_stripping_can_collide_but_ranking_still_correct`.
 - Trang Phở còn "Tra da Tao pho" (#5) — loại hình "Nhà hàng ăn nhanh", chỉ đổi được nếu siết luật "một vế không dấu".
 - Bộ sưu tập · Địa chỉ · Thông báo · số điện thoại · thu hồi token: đều cần **đổi lược đồ DB**.
-- Công tắc "Chỉ hiện quán có ghi giá" (`Filler.png`): API gợi ý món chưa có tham số lọc giá.
 - CTR ở admin: không ghi lượt HIỂN THỊ nên không có mẫu số.
-- Sở thích khẩu vị chỉ lưu localStorage và chưa dùng để lọc, dù câu chữ trên trang hứa "bật sẵn bộ lọc".
+- **Tách `categoryName` xuống bậc thấp hơn trong `MATCH_STRENGTH`** (đo 2026-09-23, xem mục dưới): CLAUDE.md §4.6 đã chốt ưu tiên tên quán, nhưng bậc xếp hạng chưa làm. Sửa sẽ đổi thứ tự `/dishes/{id}/restaurants` trên diện rộng (10/120 trang món đổi top-20).
+
+---
+
+## 🆕 Đợt 2026-09-23 — hai việc "làm được ngay" đã xong
+
+Cả hai đều nằm trong danh sách *Cần chủ dự án quyết* của đợt 16/09 nhưng thực ra **không
+cần quyết gì** — chúng chỉ cần làm. Đã gỡ khỏi danh sách đó.
+
+| Việc | Kết quả | Kiểm lại |
+|---|---|---|
+| **Công tắc "Chỉ hiện quán có ghi giá"** (`Filler.png`) | ✅ Xong. Tham số `only_with_price` có ở cả 3 endpoint của luồng món (`POST /dishes/suggest`, `GET /dishes/{id}`, `GET /dishes/{id}/restaurants`) nên số quán hứa ở trang chi tiết **luôn khớp** danh sách bên dưới. Công tắc đi kèm URL (`?gia=1`) nên chia sẻ link và F5 không mất | `pytest tests/test_loc_theo_gia.py` · `npm run test --workspace @moodbite/client -- --run boLocGia` |
+| ↳ **Đo thật cái giá của bộ lọc này** | 🟡 **671/52.872 quán (1,3%)** có ô giá đọc được. Trong bán kính 10km quanh trung tâm Hà Nội: **47.571 → 1.293 cặp quán-món (2,7%)**, **285 → 156 món**. Lý do: OSM/Overture/Wikidata đều KHÔNG có trường giá, chỉ lớp làm giàu Apify mới có | `python scripts/data_report.py` |
+| ↳ Vì vậy KHÔNG im lặng | ✅ Backend trả số món/quán bị ẩn vào `data.warnings`, và câu chữ nói rõ "không có giá = ta CHƯA BIẾT", không phải "quán không niêm yết". UI còn nói trước cái giá phải trả ngay cạnh ô tick | 7 test khoá riêng phần cảnh báo |
+| ↳ Bug đã chặn luôn | ✅ Khi bộ lọc giá vét sạch danh sách, bản đầu dán thêm câu "chưa quán nào khớp món" — một chẩn đoán SAI đổ tội cho khâu đối chiếu tên quán. Nay câu đó chỉ nói khi chỉ mục món-quán thật sự rỗng | `tests/test_loc_theo_gia.py -k "vet_sach"` |
+| ↳ Trên TRANG MÓN thì áp NGAY TẠI CHỖ | ✅ Khác mọi ô lọc khác trong cùng ngăn kéo (chúng đợi nút "Xem kết quả" rồi sang `/recommend`). Lý do: trang này đã khoá vào một món, danh sách quán cần lọc đang nằm ngay dưới tay người dùng — đẩy họ sang lưới món là không đưa tới thứ vừa yêu cầu. Ghi vào URL nên nút Back vẫn đúng | `pages/dish/ui/DishLocGia.test.tsx` |
+| **Sở thích khẩu vị dùng để lọc thật** | ✅ Xong. Trang tài khoản hứa "MoodBite sẽ bật sẵn các bộ lọc này" từ 2026-08-23 nhưng sở thích chỉ nằm im trong localStorage. Nay trang chủ đọc ra và bật sẵn bộ lọc tương ứng | `npm run test --workspace @moodbite/client -- --run boLocTuSoThich` |
+| ↳ **Nguyên nhân gốc** | ✅ `useTastePreferences` nạp localStorage trong `useEffect`, nên lần dựng ĐẦU TIÊN luôn trả mảng rỗng — mà `useDishFilterState` chỉ đọc giá trị khởi tạo đúng một lần. Nay đọc đồng bộ ngay lúc dựng (`useState(doc)`); `localStorage` vốn là API đồng bộ, không có lý do hoãn | `pages/home/ui/HomeSoThich.test.tsx` |
+| ↳ Và cũng KHÔNG im lặng | ✅ Trang chủ hiện "Đã bật sẵn N bộ lọc theo sở thích của bạn" kèm nút tắt tại chỗ. Bộ lọc tự bật mà người dùng không biết thì họ sẽ đổ cho dữ liệu, không đổ cho bộ lọc | 5 test khoá |
+
+### Kiểm bằng TRÌNH DUYỆT THẬT (không phải jsdom)
+
+Chụp ở viewport mobile thật qua CDP, không dùng `--window-size`:
+
+| Đã kiểm | Kết quả |
+|---|---|
+| `/recommend?gia=1` màn 1440px | ✅ ô tick bật sẵn từ URL · cảnh báo "đã ẩn 115 món" · huy hiệu "Xoá 1 bộ lọc" · Gà rán 1542 → 62 quán |
+| `/dishes/ga-ran?gia=1` | ✅ "62 quán gần bạn" KHỚP danh sách bên dưới · mọi quán đều hiện giá · thẻ ghi "Khớp loại hình" |
+| Bản mobile 420px | ✅ **KHÔNG tràn ngang** (`document.scrollWidth = 420`). Cảnh báo xuống dòng đúng |
+
+⚠️ **Bài học về cách chụp màn hình.** `msedge --headless --window-size=420,900` cho ảnh
+TRÔNG NHƯ tràn ngang (chữ và thẻ bị cắt mép phải) — nhưng đó là **ảo giác của công cụ**,
+không phải lỗi giao diện. Phải đặt viewport bằng `Emulation.setDeviceMetricsOverride`
+(CDP, `mobile: true`) rồi `Page.captureScreenshot`; lúc đó `document.scrollWidth` đúng
+bằng bề rộng màn hình.
+
+Đã đóng gói thành công cụ dùng lại được, **không thêm phụ thuộc nào** (WebSocket tự viết
+bằng thư viện chuẩn Python):
+
+```
+python scripts/run_dev.py
+python scripts/chup_man_hinh.py http://localhost:5173/recommend --rong 420 --mobile
+```
+
+### 🔎 Phát hiện mới — khớp bằng `categoryName` đang NGANG HÀNG với khớp bằng tên quán
+
+Đo 2026-09-23 trên dữ liệu thật:
+
+| Số đo | Giá trị |
+|---|---|
+| Cặp quán-món khớp bằng **TÊN quán** | **32.118** |
+| Cặp quán-món chỉ khớp bằng **`categoryName`** | **14.353** |
+| Bậc `MATCH_STRENGTH` của hai loại | **BẰNG NHAU** (đều là `MATCHED_BY_NAME` = 3) |
+| Trang món (trong 120 trang đo) có quán khớp loại hình lọt top-20 dù vẫn còn quán khớp tên | **10 trang · 71 quán** |
+| Trang "Gà rán" khi BẬT lọc giá | **62/62 quán đều là khớp loại hình** — đầu danh sách là quán trứng nướng, bánh tráng |
+
+CLAUDE.md mục 4 quy tắc 6 đã chốt **"ưu tiên TÊN QUÁN hơn `categoryName`"** (kèm số đo:
+144 quán có "phở" trong tên vs 14 trong `categoryName`), nhưng bậc xếp hạng **chưa thực
+hiện điều đó**.
+
+- ✅ **Đã làm ngay (an toàn, không đổi thứ tự):** `/dishes/{id}/restaurants` nay đếm và
+  NÓI RA số quán chỉ khớp loại hình. Thẻ quán vốn đã ghi "Khớp loại hình" nhưng không ai
+  đếm hộ người dùng xem cả danh sách yếu tới mức nào. 5 test khoá
+  (`tests/test_canh_bao_loai_hinh.py`).
+- ⬜ **CHỜ CHỦ DỰ ÁN QUYẾT:** tách `categoryName` thành một bậc THẤP HƠN trong
+  `MATCH_STRENGTH`. Đây là thay đổi xếp hạng diện rộng nên không tự làm — xem mục
+  "Cần chủ dự án quyết" ở trên.
+
+**Đặt code ở đâu (để lần sau khỏi tìm):**
+- Quy tắc "quán này có ghi giá không" → `domain/value_objects/price.py::has_known_price`
+  (dùng `parse_price`, KHÔNG phải kiểm tra chuỗi rỗng — ô giá có chữ mà không có số thì
+  vẫn là chưa biết giá).
+- Ánh xạ sở thích → bộ lọc nằm ở `pages/home/model/boLocTuSoThich.ts`, **không** ở trong
+  feature nào: nó ghép hai feature lại, mà luật FSD cấm feature import ngang. Đây là
+  ánh xạ giao diện, **không phải quy tắc nghiệp vụ** — việc lọc/xếp hạng vẫn ở backend.
 
 ---
 

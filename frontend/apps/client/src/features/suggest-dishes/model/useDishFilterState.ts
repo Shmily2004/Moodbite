@@ -24,6 +24,14 @@ export interface DishFilterState {
   /** null = để hệ thống tự đo thời tiết. 'rain'/'clear' = người dùng tự khai. */
   weather: string | null;
   maxDistanceKm: number | null;
+  /**
+   * Công tắc "Chỉ hiện quán có ghi giá" (bản vẽ `Filler.png`).
+   *
+   * ⚠️ ĐẮT NHẤT trong các bộ lọc: backend đo được chỉ 1,3% quán có giá đọc được, nên bật
+   * lên là cắt phần lớn kết quả. Vì thế nó KHÔNG nằm chung hàng chip với các bộ lọc nhẹ
+   * — đặt riêng ở chân bộ lọc, kèm câu nói rõ cái giá phải trả.
+   */
+  onlyWithPrice: boolean;
 }
 
 export const EMPTY_FILTERS: DishFilterState = {
@@ -34,6 +42,7 @@ export const EMPTY_FILTERS: DishFilterState = {
   mood: null,
   weather: null,
   maxDistanceKm: DEFAULT_RADIUS_KM,
+  onlyWithPrice: false,
 };
 
 export type MultiSelectGroup =
@@ -60,6 +69,7 @@ export interface UseDishFilterStateResult {
   /** Đặt giá trị cho nhóm chỉ chọn một (mood, weather) - bấm lại chính nó thì bỏ chọn. */
   setSingle: (group: SingleSelectGroup, value: string | null) => void;
   setMaxDistanceKm: (value: number | null) => void;
+  setOnlyWithPrice: (value: boolean) => void;
   /** Bật/tắt một gợi ý nhanh. Đang bật sẵn thì bấm lại là tắt. */
   applyPreset: (preset: FilterPreset) => void;
   /** Gợi ý nhanh này có đang bật đủ mọi vế của nó không (để tô sáng chip). */
@@ -121,6 +131,10 @@ export function useDishFilterState(
     setFilters((current) => ({ ...current, maxDistanceKm: value }));
   }, []);
 
+  const setOnlyWithPrice = useCallback((value: boolean) => {
+    setFilters((current) => ({ ...current, onlyWithPrice: value }));
+  }, []);
+
   const isPresetActive = useCallback(
     (preset: FilterPreset) =>
       Object.entries(preset).every(([khoa, gia_tri]) =>
@@ -161,13 +175,19 @@ export function useDishFilterState(
     filters.mealTimes.length +
     filters.cuisines.length +
     (filters.mood ? 1 : 0) +
-    (filters.weather ? 1 : 0);
+    (filters.weather ? 1 : 0) +
+    // ĐẾM, khác với bán kính: bán kính luôn có sẵn một giá trị mặc định nên đếm nó thì
+    // huy hiệu không bao giờ về 0, còn công tắc giá thì mặc định TẮT và khi bật nó đổi
+    // kết quả mạnh hơn mọi chip khác — không đếm thì người dùng mất dấu thứ đang cắt
+    // danh sách của mình.
+    (filters.onlyWithPrice ? 1 : 0);
 
   return {
     filters,
     toggle,
     setSingle,
     setMaxDistanceKm,
+    setOnlyWithPrice,
     applyPreset,
     isPresetActive,
     reset,

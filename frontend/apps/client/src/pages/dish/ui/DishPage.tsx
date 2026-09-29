@@ -14,7 +14,7 @@
  * hook giảm và ném "Rendered fewer hooks than expected" — trang trắng. Có test khoá lại.
  */
 import { useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { AssistantBubble } from '@/widgets/assistant-bubble';
 import { RestaurantList } from '@/widgets/restaurant-list';
 import { RestaurantMap } from '@/widgets/restaurant-map';
@@ -40,8 +40,18 @@ export function DishPage() {
   const [anBanDo, setAnBanDo] = useState(false);
   const [moBoLoc, setMoBoLoc] = useState(false);
   const { dishId } = useParams<{ dishId: string }>();
+  const [urlParams] = useSearchParams();
   const location = useUserLocation();
-  const detail = useDishDetail(dishId, location.position, DEFAULT_RADIUS_KM);
+  // Công tắc giá THEO ĐƯỢC từ trang gợi ý sang: đi từ `/recommend?gia=1` mà tới đây rồi
+  // thấy lại đủ quán không giá thì người dùng tưởng bộ lọc tự tắt. Cùng tham số `gia=1`
+  // mà `ghiBoLocLenUrl` sinh ra, nên hai trang không thể nói lệch nhau.
+  const chiQuanCoGia = urlParams.get('gia') === '1';
+  const detail = useDishDetail(
+    dishId,
+    location.position,
+    DEFAULT_RADIUS_KM,
+    chiQuanCoGia,
+  );
 
   /**
    * Thứ tự hiển thị danh sách quán.

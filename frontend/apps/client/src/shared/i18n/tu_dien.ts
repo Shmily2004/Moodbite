@@ -202,6 +202,8 @@ const vi = {
   'account.taste.title': 'Sở thích của bạn',
   'account.taste.sub': 'Chọn vài thứ bạn hay ăn. MoodBite sẽ bật sẵn các bộ lọc này.',
   'account.taste.clear': 'Xoá hết',
+  'taste.applied': 'Đã bật sẵn {n} bộ lọc theo sở thích của bạn.',
+  'taste.applied.off': 'Bỏ lọc theo sở thích',
   'account.profile.title': 'Hồ sơ cá nhân',
   'account.profile.username': 'Tên đăng nhập',
   'account.profile.displayName': 'Tên hiển thị',
@@ -427,6 +429,8 @@ const en: Record<Khoa, string> = {
   'account.taste.sub':
     'Pick a few things you eat often. MoodBite will pre-apply those filters.',
   'account.taste.clear': 'Clear all',
+  'taste.applied': '{n} filters pre-applied from your saved taste.',
+  'taste.applied.off': 'Stop filtering by taste',
   'account.profile.title': 'Profile',
   'account.profile.username': 'Username',
   'account.profile.displayName': 'Display name',

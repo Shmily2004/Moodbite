@@ -12,6 +12,23 @@ Guidelines:
 - Prefer scripts under `scripts/` for non-production utilities. Production code belongs in `src/`.
 - When consolidating, keep the most general, well-documented script and archive the rest.
 
+## Chụp màn hình + đo TRÀN NGANG bằng trình duyệt thật
+
+```
+python scripts/chup_man_hinh.py http://localhost:5173/
+python scripts/chup_man_hinh.py http://localhost:5173/recommend --rong 420 --mobile
+```
+
+Mở app trước bằng `python scripts/run_dev.py`. Script in ra `scrollWidth` kèm đường dẫn
+ảnh: **ảnh để nhìn, số để kết luận**.
+
+⚠️ **Đừng dùng `msedge --headless --screenshot --window-size=...`.** Nó cho ảnh TRÔNG NHƯ
+tràn ngang (chữ bị cắt mép phải) vì không đặt viewport bố cục như điện thoại thật — đã
+suýt khiến có người đi sửa một lỗi không tồn tại (2026-09-23). Script này đặt viewport qua
+DevTools Protocol nên số đo tin được.
+
+Không cần cài thêm gói nào: WebSocket tự viết bằng thư viện chuẩn của Python.
+
 ## Dữ liệu người dùng GIẢ LẬP + đánh giá xếp hạng offline
 
 Sinh người dùng demo, cho họ "dùng app" bằng cách gọi API thật (qua FastAPI TestClient),

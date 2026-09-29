@@ -38,6 +38,7 @@ from src.domain.value_objects.location import (
     Location,
 )
 from src.domain.value_objects.mood import MOOD_PROFILES, normalize_mood
+from src.domain.value_objects.price import has_known_price
 
 DEFAULT_LIMIT = 20
 MAX_LIMIT = 50
@@ -66,6 +67,9 @@ class RestaurantsForDishQuery:
     max_distance_km: Optional[float] = DEFAULT_MAX_DISTANCE_KM
     mood: Optional[str] = None
     limit: int = DEFAULT_LIMIT
+    # Công tắc "Chỉ hiện quán có ghi giá" (bản vẽ `Filler.png`). Xem `_loc_theo_gia` về
+    # việc vì sao nó phải kèm cảnh báo thay vì lặng lẽ cắt danh sách.
+    only_with_price: bool = False
 
 
 class FindRestaurantsForDishUseCase:
@@ -103,9 +107,13 @@ class FindRestaurantsForDishUseCase:
         origin = Location(lat=query.latitude, lng=query.longitude)
         context = self._resolve_context(origin)
 
-        matches = list(self._index.get(dish.identifier, ()))
-        candidates = [m.restaurant for m in matches]
-        if not candidates:
+        tat_ca = list(self._index.get(dish.identifier, ()))
+        matches = self._loc_theo_gia(tat_ca, query, warnings)
+        # Câu này nói về CHỈ MỤC MÓN-QUÁN, nên phải hỏi `tat_ca` chứ không phải `matches`:
+        # khi bộ lọc giá vét sạch danh sách thì lý do là THIẾU DỮ LIỆU GIÁ, và
+        # `_loc_theo_gia` đã nói đúng lý do đó rồi. Dán thêm câu "chưa quán nào khớp món"
+        # vào đấy là đổ tội cho khâu đối chiếu tên quán, một chẩn đoán sai.
+        if not tat_ca:
             # Không có quán nào là kết quả THẬT, không phải lỗi. Nói rõ thay vì trả 404:
             # món vẫn tồn tại, chỉ là chưa quán nào trong dataset khớp.
             warnings.append(
@@ -170,6 +178,8 @@ class FindRestaurantsForDishUseCase:
                 f"là có '{dish.name}', chưa chắc chắn bằng quán ghi rõ tên món."
             )
 
+        self._warn_if_matched_by_category(ranked, nguon_khop, dish, warnings)
+
         self._warn_if_radius_was_widened(ranked, query, dish, warnings)
 
         return SearchResult(
@@ -180,6 +190,32 @@ class FindRestaurantsForDishUseCase:
         )
 
     # --- các bước con -------------------------------------------------------
+
+    @staticmethod
+    def _loc_theo_gia(matches, query: RestaurantsForDishQuery, warnings: List[str]):
+        """Giữ lại quán ĐỌC ĐƯỢC giá, và nói ra đã bỏ bao nhiêu quán.
+
+        ⚠️ ĐÂY LÀ BỘ LỌC ĐẮT NHẤT CỦA SẢN PHẨM. Đo 2026-09-23: chỉ 671/52.872 quán (1,3%)
+        có ô giá đọc được, và trong bán kính 10km quanh trung tâm Hà Nội thì 47.571 cặp
+        quán-món chỉ còn 1.293 (2,7%). Ba nguồn quán chính (OSM, Overture, Wikidata) đều
+        KHÔNG có trường giá; giá chỉ đến từ lớp làm giàu Apify.
+
+        Vì vậy phải NÓI RA con số bị bỏ. Danh sách 40 quán tụt còn 1 mà không giải thích
+        thì người dùng kết luận sai là "món này hiếm quán bán", trong khi sự thật là ta
+        thiếu dữ liệu giá (CLAUDE.md mục 4 quy tắc 1 và mục 5).
+        """
+        if not query.only_with_price:
+            return matches
+
+        giu = [m for m in matches if has_known_price(m.restaurant.price)]
+        bo = len(matches) - len(giu)
+        if bo:
+            warnings.append(
+                f"Đang bật “chỉ quán có ghi giá”: đã bỏ {bo} quán vì dữ liệu chưa có giá "
+                "của họ. Chưa có giá nghĩa là ta CHƯA BIẾT, không phải quán không niêm "
+                "yết — tắt công tắc này để xem đầy đủ."
+            )
+        return giu
 
     def _resolve_context(self, origin: Location) -> ContextSignal:
         if self._context_provider is None:
@@ -213,6 +249,45 @@ class FindRestaurantsForDishUseCase:
                 f"Không có quán nào bán '{dish.name}' trong bán kính "
                 f"{query.max_distance_km} km. Đang hiện quán gần nhất, cách khoảng "
                 f"{nearest_km:.1f} km."
+            )
+
+    @staticmethod
+    def _warn_if_matched_by_category(
+        ranked: List,
+        nguon_khop: Mapping[int, Optional[str]],
+        dish: Dish,
+        warnings: List[str],
+    ) -> None:
+        """Nói ra số quán chỉ khớp bằng LOẠI HÌNH, không phải bằng tên quán.
+
+        VÌ SAO CẦN (đo 2026-09-23 trên dữ liệu thật): trong chỉ mục món-quán có 32.118 cặp
+        khớp bằng TÊN quán và 14.353 cặp chỉ khớp bằng `categoryName` — nhưng cả hai nằm
+        CÙNG một bậc `MATCH_STRENGTH`, nên khi xếp hạng chúng cạnh tranh ngang nhau. Đo
+        trên 120 trang món: 10 trang có quán chỉ khớp loại hình lọt top-20 trong khi vẫn
+        còn quán khớp tên (71 quán). Bật bộ lọc "chỉ quán có ghi giá" thì tỷ lệ này thành
+        áp đảo: trang "Gà rán" còn lại 62 quán thì CẢ 62 đều là khớp loại hình, đầu danh
+        sách là quán trứng nướng và bánh tráng.
+
+        CLAUDE.md mục 4 quy tắc 6 đã chốt "ưu tiên TÊN QUÁN hơn `categoryName`", nhưng bậc
+        xếp hạng hiện chưa thực hiện điều đó. Sửa bậc sẽ đổi thứ tự trên diện rộng nên phải
+        hỏi chủ dự án trước; trong lúc chờ, ít nhất KHÔNG ĐƯỢC im lặng — thẻ quán đã ghi
+        "Khớp loại hình" nhưng không ai đếm hộ người dùng xem cả danh sách yếu tới mức nào.
+        """
+        so_quan = sum(
+            1 for r in ranked if nguon_khop.get(id(r.restaurant)) == dish_matching.FIELD_CATEGORY
+        )
+        if not so_quan:
+            return
+        if so_quan == len(ranked):
+            warnings.append(
+                f"CẢ {so_quan} quán trong danh sách chỉ khớp theo LOẠI HÌNH quán "
+                f"(ví dụ 'Nhà hàng ăn nhanh'), không quán nào ghi '{dish.name}' trong tên. "
+                "Đây là tín hiệu yếu — rất có thể quán không bán đúng món bạn chọn."
+            )
+        else:
+            warnings.append(
+                f"{so_quan} quán trong danh sách chỉ khớp theo LOẠI HÌNH quán, không phải "
+                f"theo tên quán — yếu hơn quán ghi rõ '{dish.name}'."
             )
 
     @staticmethod

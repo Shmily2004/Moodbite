@@ -6,6 +6,7 @@ export type { UseDishFilterStateResult } from './model/useDishFilterState';
 export type {
   Coordinates,
   DishFilterState,
+  FilterPreset,
   MultiSelectGroup,
   SingleSelectGroup,
   UseDishSuggestionsResult,

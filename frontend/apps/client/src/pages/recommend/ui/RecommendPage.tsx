@@ -52,6 +52,7 @@ export function RecommendPage() {
       onToggle={suggestions.toggle}
       onSetSingle={suggestions.setSingle}
       onSetMaxDistanceKm={suggestions.setMaxDistanceKm}
+      onSetOnlyWithPrice={suggestions.setOnlyWithPrice}
       onReset={suggestions.reset}
       activeFilterCount={suggestions.activeFilterCount}
       locationIsDefault={location.isDefault}

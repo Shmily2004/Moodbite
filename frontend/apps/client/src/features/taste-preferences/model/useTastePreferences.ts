@@ -1,7 +1,7 @@
 /**
  * VIEWMODEL của "Sở thích của bạn". Lưu ở localStorage — xem lý do ở `ui/TastePicker.tsx`.
  */
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { SO_THICH } from './danh_sach';
 import type { SoThich } from './danh_sach';
 
@@ -34,11 +34,19 @@ export interface UseTastePreferencesResult {
 }
 
 export function useTastePreferences(): UseTastePreferencesResult {
-  const [ids, setIds] = useState<string[]>([]);
-
-  useEffect(() => {
-    setIds(doc());
-  }, []);
+  /**
+   * Đọc NGAY lúc dựng, không đợi `useEffect` (đổi 2026-09-23).
+   *
+   * ⚠️ ĐÂY LÀ LÝ DO SỞ THÍCH TỪNG KHÔNG LỌC ĐƯỢC GÌ. Bản cũ khởi tạo `[]` rồi mới nạp ở
+   * `useEffect`, nên ở lần dựng ĐẦU TIÊN danh sách luôn rỗng. Trang chủ lại dùng sở thích
+   * làm bộ lọc BAN ĐẦU cho `useDishFilterState`, mà hook đó chỉ đọc giá trị khởi tạo đúng
+   * một lần — nghĩa là nó luôn nhận đúng cái mảng rỗng đó và mọi lựa chọn của người dùng
+   * rơi mất, đúng lúc câu chữ trên trang tài khoản đang hứa "sẽ bật sẵn các bộ lọc này".
+   *
+   * `localStorage` là API ĐỒNG BỘ nên không có lý do gì phải hoãn; `doc()` đã bọc
+   * try/catch sẵn cho chế độ riêng tư.
+   */
+  const [ids, setIds] = useState<string[]>(doc);
 
   const luu = (moi: string[]) => {
     try {

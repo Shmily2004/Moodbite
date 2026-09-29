@@ -1905,6 +1905,12 @@ export interface components {
              */
             limit: number;
             /**
+             * Only With Price
+             * @description True = chỉ tính quán ĐỌC ĐƯỢC giá khi đếm quán cho từng món. ⚠️ Rất đắt: chỉ 1,3% quán trong dữ liệu có giá (đo 2026-09-23), nên bật lên sẽ ẩn nhiều món. Số món bị ẩn luôn được nói ra ở `data.warnings`.
+             * @default false
+             */
+            only_with_price: boolean;
+            /**
              * Only Categories
              * @description False (mặc định) = chỉ trả MÓN CỤ THỂ, bỏ qua danh mục. True = chỉ trả DANH MỤC ('Bún', 'Phở'...) để dựng thanh điều hướng. Chủ dự án chốt 2026-08-24: lưới món và đề xuất nhanh không được hiện danh mục — 'Bún — 2.370 quán' không giúp gì cho người đang đói.
              * @default false
@@ -2756,6 +2762,8 @@ export interface operations {
                 latitude?: number;
                 longitude?: number;
                 max_distance_km?: number;
+                /** @description Chỉ đếm quán có ghi giá — phải khớp với tham số cùng tên của /dishes/{id}/restaurants, nếu không trang chi tiết hứa một con số rồi danh sách bên dưới hiện một con số khác. */
+                only_with_price?: boolean;
             };
             header?: never;
             path: {
@@ -2829,6 +2837,8 @@ export interface operations {
                 longitude?: number;
                 max_distance_km?: number;
                 mood?: string | null;
+                /** @description Chỉ hiện quán ĐỌC ĐƯỢC giá. Số quán bị bỏ luôn được nói ra ở `data.warnings` — im lặng cắt danh sách xuống 2,7% là nói dối. */
+                only_with_price?: boolean;
                 limit?: number;
             };
             header?: never;

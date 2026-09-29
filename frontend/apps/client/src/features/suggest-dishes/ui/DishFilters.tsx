@@ -100,6 +100,7 @@ interface DishFiltersProps {
   onToggle: (group: MultiSelectGroup, value: string) => void;
   onSetSingle: (group: SingleSelectGroup, value: string | null) => void;
   onSetMaxDistanceKm: (value: number | null) => void;
+  onSetOnlyWithPrice: (value: boolean) => void;
   onReset: () => void;
   activeFilterCount: number;
   locationIsDefault: boolean;
@@ -165,6 +166,28 @@ export function DishFilters(props: DishFiltersProps) {
           />
         ))}
       </FilterRow>
+
+      {/* CÔNG TẮC GIÁ đứng RIÊNG một khối, không trộn vào hàng chip phía trên.
+          Lý do: nó không cùng hạng với "Đồ nướng" hay "Bữa tối". Backend đo được chỉ
+          1,3% quán trong dữ liệu có giá đọc được, nên bật lên là cắt phần lớn kết quả —
+          một chip nhỏ nằm lẫn giữa 20 chip khác sẽ khiến người dùng bật nhầm rồi tưởng
+          khu mình ở không có gì ăn. Câu chú thích nói thẳng cái giá phải trả, và cảnh báo
+          CHÍNH XÁC (bao nhiêu món/quán bị ẩn) do backend trả về trong `warnings`. */}
+      <div className="filters__row filters__row--price">
+        <label className="switch">
+          <input
+            type="checkbox"
+            checked={filters.onlyWithPrice}
+            onChange={(e) => props.onSetOnlyWithPrice(e.target.checked)}
+          />
+          <span className="switch__label">Chỉ hiện quán có ghi giá</span>
+        </label>
+        <p className="switch__note muted small">
+          Phần lớn quán trong dữ liệu chưa có giá (nguồn OpenStreetMap và Overture không
+          có trường này), nên bật lên sẽ còn ít kết quả hơn nhiều. Không có giá nghĩa là
+          <strong> chưa biết</strong>, không phải quán không niêm yết.
+        </p>
+      </div>
 
       <div className="filters__foot">
         <DistanceSlider value={filters.maxDistanceKm} onChange={props.onSetMaxDistanceKm} />

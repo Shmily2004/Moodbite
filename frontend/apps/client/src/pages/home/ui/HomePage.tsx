@@ -41,6 +41,7 @@ import { ExploreNeeds } from '@/widgets/explore-needs';
 import type { NeedPreset } from '@/widgets/explore-needs';
 import { DishFilters, ghiBoLocLenUrl, useDishSuggestions } from '@/features/suggest-dishes';
 import { useUserLocation } from '@/features/pick-location';
+import { useTastePreferences } from '@/features/taste-preferences';
 import { useRecentDishes } from '@/features/recent-dishes';
 import { useFavorites } from '@/features/save-favorite';
 import { ForYou } from '@/widgets/for-you';
@@ -55,12 +56,29 @@ import {
   IconSparkle,
 } from '@/shared/ui';
 import { useT } from '@/shared/i18n';
+import { boLocTuSoThich, coBoLocTuSoThich } from '../model/boLocTuSoThich';
 
 export function HomePage() {
   const t = useT();
   const navigate = useNavigate();
   const location = useUserLocation();
-  const suggestions = useDishSuggestions(location.position);
+  /**
+   * SỞ THÍCH ĐÃ LƯU -> BỘ LỌC BẬT SẴN (làm thật 2026-09-23).
+   *
+   * Trước đó trang tài khoản hứa "MoodBite sẽ bật sẵn các bộ lọc này" nhưng sở thích chỉ
+   * nằm im trong localStorage, không chỗ nào đọc ra để lọc — lời hứa suông.
+   *
+   * Chỉ dùng làm giá trị BAN ĐẦU: sau khi vào trang, thứ người dùng bấm tại chỗ phải
+   * thắng. Đổi sở thích ở trang tài khoản thì lần vào trang chủ SAU mới thấy, và đó là
+   * hành vi đúng — kéo bộ lọc đổi dưới tay người đang bấm mới là bất ngờ khó chịu.
+   */
+  const soThich = useTastePreferences();
+  const boLocSoThich = boLocTuSoThich(soThich.daChon);
+  const suggestions = useDishSuggestions(location.position, boLocSoThich);
+  // Sở thích ĐANG thật sự được áp hay người dùng đã tự tắt? Hỏi chính state bộ lọc chứ
+  // không giữ thêm một cờ riêng — hai nguồn sự thật thì sẽ có ngày lệch nhau.
+  const dangLocTheoSoThich =
+    coBoLocTuSoThich(boLocSoThich) && suggestions.isPresetActive(boLocSoThich);
   const session = useUserSessionContext();
   const recent = useRecentDishes();
   const savedDishes = useFavorites();
@@ -141,6 +159,7 @@ export function HomePage() {
         onToggle={suggestions.toggle}
         onSetSingle={suggestions.setSingle}
         onSetMaxDistanceKm={suggestions.setMaxDistanceKm}
+        onSetOnlyWithPrice={suggestions.setOnlyWithPrice}
         onReset={suggestions.reset}
         activeFilterCount={suggestions.activeFilterCount}
         locationIsDefault={location.isDefault}
@@ -296,6 +315,22 @@ export function HomePage() {
           <p className="section-sub">
             {daDangNhap ? t('results.subLoggedIn') : t('results.subGuest')}
           </p>
+
+          {/* NÓI RA việc đã tự bật bộ lọc. Im lặng lọc hộ người dùng là đúng cái lỗi
+              CLAUDE.md mục 5 cấm: danh sách ngắn đi mà không ai biết vì sao, và người
+              dùng sẽ đổ cho dữ liệu thay vì cho bộ lọc mình từng chọn. */}
+          {dangLocTheoSoThich && (
+            <p className="notice">
+              {t('taste.applied', { n: soThich.daChon.length })}{' '}
+              <button
+                type="button"
+                className="linkish"
+                onClick={() => suggestions.applyPreset(boLocSoThich)}
+              >
+                {t('taste.applied.off')}
+              </button>
+            </p>
+          )}
 
           {location.error && <p className="notice notice--warn">{location.error}</p>}
 

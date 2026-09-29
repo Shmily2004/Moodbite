@@ -56,6 +56,24 @@ def test_tang_manh_hon_thi_strength_lon_hon():
     assert diem["Phở Gà Nguyệt"] > diem["Phở Thìn"]
 
 
+def test_chi_khop_LOAI_HINH_thi_xep_duoi_quan_khop_TEN():
+    """CLAUDE.md mục 4 quy tắc 6: ưu tiên TÊN QUÁN hơn `categoryName`. Trước 2026-09-29
+    hai loại cùng bậc - đo thật: 10/298 trang món có quán chỉ khớp loại hình chen lên trên
+    quán khớp tên còn đang bị ẩn."""
+    theo_ten = make_restaurant("Phở Thìn")
+    theo_loai_hinh = make_restaurant("Quán Cô Hoa", category="Quán phở")
+    index = _chi_muc([theo_ten, theo_loai_hinh])
+
+    ten = _match(index, PHO_GA.identifier, "Phở Thìn")
+    loai_hinh = _match(index, PHO_GA.identifier, "Quán Cô Hoa")
+    assert loai_hinh.match_source == "category"
+    assert loai_hinh.strength < ten.strength
+    # Vẫn là khớp trên dữ liệu có cấu trúc -> đứng trên quán chỉ được review nhắc tới.
+    assert loai_hinh.strength > MATCH_STRENGTH[MATCHED_BY_REVIEW]
+    # Hạ bậc KHÔNG đổi `matched_by` - trường đó là hợp đồng API của trang quản trị.
+    assert loai_hinh.matched_by == MATCHED_BY_NAME
+
+
 def test_hai_mon_chung_TU_KHOA_van_phan_biet_duoc_nhau():
     """Đây là lý do tầng "đúng tên món" ra đời: Phở bò và Phở gà cùng từ khoá "phở",
     trước đó hai trang món trả về danh sách y hệt nhau."""

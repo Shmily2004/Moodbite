@@ -261,17 +261,15 @@ class FindRestaurantsForDishUseCase:
         """Nói ra số quán chỉ khớp bằng LOẠI HÌNH, không phải bằng tên quán.
 
         VÌ SAO CẦN (đo 2026-09-23 trên dữ liệu thật): trong chỉ mục món-quán có 32.118 cặp
-        khớp bằng TÊN quán và 14.353 cặp chỉ khớp bằng `categoryName` — nhưng cả hai nằm
-        CÙNG một bậc `MATCH_STRENGTH`, nên khi xếp hạng chúng cạnh tranh ngang nhau. Đo
-        trên 120 trang món: 10 trang có quán chỉ khớp loại hình lọt top-20 trong khi vẫn
-        còn quán khớp tên (71 quán). Bật bộ lọc "chỉ quán có ghi giá" thì tỷ lệ này thành
-        áp đảo: trang "Gà rán" còn lại 62 quán thì CẢ 62 đều là khớp loại hình, đầu danh
-        sách là quán trứng nướng và bánh tráng.
+        khớp bằng TÊN quán và 14.353 cặp chỉ khớp bằng `categoryName`. Bật bộ lọc "chỉ
+        quán có ghi giá" thì có trang còn lại TOÀN quán khớp loại hình (trang "Gà rán" đo
+        ngày đó: 62/62, đầu danh sách là quán trứng nướng và bánh tráng).
 
-        CLAUDE.md mục 4 quy tắc 6 đã chốt "ưu tiên TÊN QUÁN hơn `categoryName`", nhưng bậc
-        xếp hạng hiện chưa thực hiện điều đó. Sửa bậc sẽ đổi thứ tự trên diện rộng nên phải
-        hỏi chủ dự án trước; trong lúc chờ, ít nhất KHÔNG ĐƯỢC im lặng — thẻ quán đã ghi
-        "Khớp loại hình" nhưng không ai đếm hộ người dùng xem cả danh sách yếu tới mức nào.
+        Từ 2026-09-29 khớp loại hình đã xuống bậc thấp hơn khớp tên
+        (`CATEGORY_ONLY_MATCH_STRENGTH`), nên quán loại hình chỉ còn lấp chỗ trống khi
+        quán khớp tên không đủ. Cảnh báo này VẪN CẦN: khi đó người dùng phải biết phần
+        đuôi danh sách là tín hiệu yếu - thẻ quán ghi "Khớp loại hình" nhưng không ai đếm
+        hộ xem cả danh sách yếu tới mức nào.
         """
         so_quan = sum(
             1 for r in ranked if nguon_khop.get(id(r.restaurant)) == dish_matching.FIELD_CATEGORY

@@ -21,5 +21,12 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: './src/shared/test/setup.ts',
+    // `afterEach` chạy THEO THỨ TỰ ĐĂNG KÝ, không đảo ngược (mặc định của vitest 2 là
+    // 'stack' = đảo ngược). Bug thật 2026-09-29, đỏ ~1/10 lần chạy: `afterEach` của file
+    // test (`vi.restoreAllMocks()`) chạy TRƯỚC cleanup của Testing Library, nên trong khe
+    // hở đó promise của test vừa xong resolve, mount khối "Hoạt động", gọi `adminApi.
+    // activity()` đã bị gỡ mock -> `undefined.then`. Lỗi đổ lên test ngẫu nhiên nên rất
+    // khó lần. Với 'list', cleanup (đăng ký lúc import) unmount xong rồi mới gỡ mock.
+    sequence: { hooks: 'list' },
   },
 });

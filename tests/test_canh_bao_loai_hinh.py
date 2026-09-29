@@ -1,4 +1,4 @@
-"""Cảnh báo "quán này chỉ khớp theo LOẠI HÌNH, không phải theo tên".
+﻿"""Cảnh báo "quán này chỉ khớp theo LOẠI HÌNH, không phải theo tên".
 
 VÌ SAO CÓ (đo 2026-09-23 trên dữ liệu thật):
   - Chỉ mục món-quán: 32.118 cặp khớp bằng TÊN quán, 14.353 cặp chỉ khớp bằng
@@ -10,10 +10,9 @@ VÌ SAO CÓ (đo 2026-09-23 trên dữ liệu thật):
   - Bật bộ lọc "chỉ quán có ghi giá" thì thành áp đảo: trang "Gà rán" còn 62 quán và
     CẢ 62 đều là khớp loại hình.
 
-CLAUDE.md mục 4 quy tắc 6 đã chốt "ưu tiên TÊN QUÁN hơn `categoryName`" nhưng bậc xếp
-hạng chưa thực hiện. Sửa bậc sẽ đổi thứ tự diện rộng → phải hỏi chủ dự án. Trong lúc chờ,
-điều BẮT BUỘC là không im lặng (CLAUDE.md mục 5): thẻ quán đã ghi "Khớp loại hình" nhưng
-chưa ai đếm hộ người dùng xem cả danh sách yếu tới mức nào.
+2026-09-29: khớp loại hình đã xuống bậc thấp hơn khớp tên (CLAUDE.md mục 4 quy tắc 6),
+xem `CATEGORY_ONLY_MATCH_STRENGTH`. Cảnh báo vẫn giữ (CLAUDE.md mục 5): khi quán khớp tên
+không đủ, phần đuôi danh sách là loại hình và người dùng phải biết điều đó.
 """
 from src.domain.services.dish_matching import (
     FIELD_CATEGORY,
@@ -90,6 +89,26 @@ def test_canh_bao_dem_theo_DANH_SACH_TRA_VE_chu_khong_phai_ca_chi_muc():
 
     assert len(data["results"]) == 2
     assert "CẢ 2 quán" in " ".join(data["warnings"])
+
+
+def test_quan_khop_TEN_o_xa_van_dung_tren_quan_khop_LOAI_HINH_o_gan():
+    """Sửa 2026-09-29: khớp loại hình xuống bậc thấp hơn khớp tên (CLAUDE.md mục 4 quy
+    tắc 6). Trước đó hai quán cùng bậc nên quán loại hình ở gần thắng nhờ khoảng cách."""
+    xa = make_restaurant("Bún Chả Hương Liên", lat=21.0485, lng=105.8542)
+    gan = DishMatch(
+        make_restaurant("Nhà Hàng Ăn Nhanh A", lat=21.0285, lng=105.8542, rating=4.9),
+        MATCHED_BY_NAME, matched_field=FIELD_CATEGORY,
+    )
+    client = make_client(
+        dishes=[BUN_CHA],
+        index={"bun-cha": [gan, DishMatch(xa, MATCHED_BY_NAME)]},
+    )
+
+    data = goi(client, latitude=21.0285, longitude=105.8542)
+
+    assert [r["name"] for r in data["results"]] == [
+        "Bún Chả Hương Liên", "Nhà Hàng Ăn Nhanh A",
+    ]
 
 
 def test_match_source_tra_ve_van_la_category():

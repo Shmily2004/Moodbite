@@ -1,6 +1,6 @@
 # MoodBite — Bảng theo dõi tiến độ
 
-**Cập nhật:** 2026-09-23
+**Cập nhật:** 2026-09-29
 **Nguyên tắc:** file này chỉ ghi thứ đã **chạy thật và kiểm chứng được**. Không ghi theo
 kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh để tự kiểm lại.
 
@@ -19,7 +19,7 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Frontend Client | ✅ **TypeScript + FSD** | 86 test, có bản đồ, steiger trong CI |
 | Bản đồ | ✅ **Xong** | Leaflet + OpenStreetMap, miễn phí, không cần key |
 | Kiến trúc | ✅ Sạch | Clean Architecture + checker tự động trong CI |
-| Test | ✅ **709 backend + 313 frontend** | client 248 · admin 65. Đo bằng `python scripts/verify.py` ngày 2026-09-23 |
+| Test | ✅ **711 backend + 313 frontend** | client 248 · admin 65. Đo bằng `python scripts/verify.py` ngày 2026-09-29 |
 | Giao diện | ✅ Theo bản duyệt · **trang chủ + tài khoản dựng lại 2026-08-22** | trang chủ = LƯỚI MÓN + chips lọc; trang món = giới thiệu + bản đồ + danh sách quán; `/tim-kiem` giữ bố cục bản đồ + rail cũ |
 | Router + layout | ✅ Xong | react-router v6, khung dùng chung, `RequireAuth` cho admin |
 | Chạy xem giao diện | ✅ **một lệnh** | `python scripts/run_dev.py --admin` |
@@ -1260,7 +1260,8 @@ Mọi số dưới đây đo thật trong ngày. Lệnh kiểm lại ghi ở t�
 - Trang Phở còn "Tra da Tao pho" (#5) — loại hình "Nhà hàng ăn nhanh", chỉ đổi được nếu siết luật "một vế không dấu".
 - Bộ sưu tập · Địa chỉ · Thông báo · số điện thoại · thu hồi token: đều cần **đổi lược đồ DB**.
 - CTR ở admin: không ghi lượt HIỂN THỊ nên không có mẫu số.
-- **Tách `categoryName` xuống bậc thấp hơn trong `MATCH_STRENGTH`** (đo 2026-09-23, xem mục dưới): CLAUDE.md §4.6 đã chốt ưu tiên tên quán, nhưng bậc xếp hạng chưa làm. Sửa sẽ đổi thứ tự `/dishes/{id}/restaurants` trên diện rộng (10/120 trang món đổi top-20).
+- ~~Tách `categoryName` xuống bậc thấp hơn trong `MATCH_STRENGTH`~~ → ✅ **xong 2026-09-29**, xem mục "Đợt 2026-09-29" bên dưới.
+- **MoodBite thua baseline "chỉ khoảng cách"** trên dữ liệu giả lập (NDCG@10 **0,4895** vs **0,6023**, chạy lại 2026-09-29, không đổi sau khi hạ bậc loại hình). Cần quyết: xem lại `W_DISTANCE`, hay xem lại cách persona giả lập được định nghĩa — trước khi bảo vệ.
 
 ---
 
@@ -1324,9 +1325,8 @@ hiện điều đó**.
   NÓI RA số quán chỉ khớp loại hình. Thẻ quán vốn đã ghi "Khớp loại hình" nhưng không ai
   đếm hộ người dùng xem cả danh sách yếu tới mức nào. 5 test khoá
   (`tests/test_canh_bao_loai_hinh.py`).
-- ⬜ **CHỜ CHỦ DỰ ÁN QUYẾT:** tách `categoryName` thành một bậc THẤP HƠN trong
-  `MATCH_STRENGTH`. Đây là thay đổi xếp hạng diện rộng nên không tự làm — xem mục
-  "Cần chủ dự án quyết" ở trên.
+- ✅ **Xong 2026-09-29:** khớp loại hình xuống bậc thấp hơn khớp tên — xem mục
+  "Đợt 2026-09-29" ngay dưới.
 
 **Đặt code ở đâu (để lần sau khỏi tìm):**
 - Quy tắc "quán này có ghi giá không" → `domain/value_objects/price.py::has_known_price`
@@ -1335,6 +1335,21 @@ hiện điều đó**.
 - Ánh xạ sở thích → bộ lọc nằm ở `pages/home/model/boLocTuSoThich.ts`, **không** ở trong
   feature nào: nó ghép hai feature lại, mà luật FSD cấm feature import ngang. Đây là
   ánh xạ giao diện, **không phải quy tắc nghiệp vụ** — việc lọc/xếp hạng vẫn ở backend.
+
+---
+
+## 🆕 Đợt 2026-09-29
+
+| Việc | Kết quả | Kiểm lại |
+|---|---|---|
+| **Khớp `categoryName` xuống bậc thấp hơn khớp tên quán** (CLAUDE.md §4.6) | ✅ Bậc mới: đúng tên món 5 · từ khoá trong tên 4 · **chỉ loại hình 3** · quán đồ uống khớp không dấu 2 · review 1. Tính trong `DishMatch.strength` từ `matched_field` — **KHÔNG thêm giá trị `matched_by` mới** vì trường đó là hợp đồng API admin. Trang quản trị cũng xếp theo `strength` nên hai nơi không lệch | `pytest tests/test_dish_matching.py tests/test_canh_bao_loai_hinh.py` |
+| ↳ Đo trước / sau trên 298 trang món (tâm Hà Nội, bán kính mặc định, top-20) | Trang có quán loại hình chen trên quán khớp tên còn bị ẩn: **10 → 0** (84 → 0 quán). Khi bật lọc giá: **6 → 0** (18 → 0 quán). Đổi thứ tự: 13 trang (không lọc) + 27 trang (lọc giá); 23 trang đổi tập quán | script đo tạm, chưa đưa vào `scripts/` |
+| ↳ Cảnh báo "khớp loại hình" | ✅ Giữ nguyên: giờ quán loại hình chỉ lấp phần đuôi khi quán khớp tên không đủ, người dùng vẫn phải biết phần đuôi yếu | 6 test |
+| **Test admin chập chờn** (~1/10 lần đỏ, rơi vào test ngẫu nhiên của `QualityPage`) | ✅ Nguyên nhân: vitest 2 chạy `afterEach` đảo ngược, nên `vi.restoreAllMocks()` chạy TRƯỚC cleanup của Testing Library; promise resolve trong khe hở → mount khối "Hoạt động" → gọi mock đã gỡ → `undefined.then`. Sửa gốc một chỗ: `sequence.hooks: 'list'` trong `apps/admin/vite.config.ts` (9 file admin cùng mẫu). Trước: 1/11 lần đỏ · sau: **0/30** (file) + **0/5** (cả bộ) | `npm run test --workspace @moodbite/admin` |
+| Môi trường: venv thiếu `httpx` | ✅ Đã khai báo sẵn trong `requirements.txt`, chỉ chưa cài. `pip install -r requirements.txt` | `python scripts/verify.py` mục 2 và 9 |
+
+⚠️ Client (`apps/client`) có 2 file cùng mẫu `restoreAllMocks` trong `afterEach` nhưng **chưa
+thấy đỏ** nên chưa đổi cấu hình bên đó.
 
 ---
 

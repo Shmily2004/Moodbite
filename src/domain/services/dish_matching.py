@@ -51,11 +51,26 @@ MATCHED_BY_UNACCENTED_AT_DRINK_VENUE = "unaccented_name_at_drink_venue"
 # quán vẫn CÓ MẶT, chỉ xếp dưới quán khớp tên có bằng chứng, và vẫn trên quán chỉ được
 # review nhắc tới. Quán đồ uống ghi CÓ DẤU ("Phở Cuốn Hoa Lan" - Quán cà phê) giữ nguyên tầng.
 MATCH_STRENGTH = {
-    MATCHED_BY_DISH_NAME: 4,
-    MATCHED_BY_NAME: 3,
+    MATCHED_BY_DISH_NAME: 5,
+    MATCHED_BY_NAME: 4,
     MATCHED_BY_UNACCENTED_AT_DRINK_VENUE: 2,
     MATCHED_BY_REVIEW: 1,
 }
+
+# Bậc của quán CHỈ khớp qua LOẠI HÌNH (`categoryName`), không qua tên quán (sửa 2026-09-29).
+#
+# VÌ SAO: CLAUDE.md mục 4 quy tắc 6 chốt "ưu tiên TÊN QUÁN hơn `categoryName`" (144 quán có
+# "phở" trong tên, chỉ 14 trong loại hình; quán "Bún Chả - Nem Cua Bê" bị Google gắn "Nhà
+# hàng ăn nhanh"). Nhưng trước ngày này khớp loại hình dùng CHUNG bậc với khớp tên. Đo thật
+# trên 298 trang món: 10 trang có quán chỉ khớp loại hình lọt top-20 trong khi quán khớp
+# tên trong bán kính vẫn bị ẩn (84 quán).
+#
+# Đặt TRÊN quán đồ uống khớp không dấu và quán chỉ được review nhắc: loại hình vẫn là dữ
+# liệu có cấu trúc, còn hai tầng kia là bằng chứng mơ hồ.
+#
+# Không tách thành giá trị `matched_by` mới: trường đó là hợp đồng API của trang quản trị.
+# Nguồn khớp đã có sẵn ở `matched_field`, nên chỉ cần `strength` đọc nó.
+CATEGORY_ONLY_MATCH_STRENGTH = 3
 
 # Trường dữ liệu đã khớp, dùng làm `match_source` trả cho client. Dùng ĐÚNG bộ từ vựng của
 # `text_relevance` ("name"/"category"/"review") để giao diện chỉ cần một bảng nhãn.
@@ -106,7 +121,10 @@ class DishMatch:
     @property
     def strength(self) -> int:
         """Số càng lớn càng đáng tin. Dùng để xếp hạng theo tầng."""
-        return MATCH_STRENGTH.get(self.matched_by, 0)
+        strength = MATCH_STRENGTH.get(self.matched_by, 0)
+        if self.matched_field == FIELD_CATEGORY and self.matched_by != MATCHED_BY_REVIEW:
+            return min(strength, CATEGORY_ONLY_MATCH_STRENGTH)
+        return strength
 
 
 # Số từ TỐI THIỂU của tên món để được phép khớp vào REVIEW.

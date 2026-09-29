@@ -30,7 +30,6 @@ from typing import Dict, List, Mapping, Optional, Sequence, Tuple
 
 from src.application.errors import DataNotReadyError
 from src.domain.entities.dish import Dish
-from src.domain.services.dish_matching import MATCH_STRENGTH
 from src.domain.value_objects.text import contains_phrase, normalize
 
 MAX_TRANG = 200
@@ -250,7 +249,7 @@ class GetDishForAdminUseCase:
 
         KHÔNG xếp theo khoảng cách hay ngữ cảnh như luồng người dùng — admin không đứng ở
         vị trí nào cả. Thứ tự: khớp MẠNH trước (tên quán ghi đúng tên món > từ khoá chung >
-        chỉ review nhắc), cùng mức thì quán CÓ đánh giá trước, rồi theo số lượt đánh giá.
+        chỉ khớp loại hình > chỉ review nhắc, xem `DishMatch.strength`), cùng mức thì quán CÓ đánh giá trước, rồi theo số lượt đánh giá.
         Quán chưa có đánh giá (`None`) xếp sau chứ KHÔNG bị coi là 0 sao.
         """
         khop = list(self._index.get(dish.identifier, ())) if self._index else []
@@ -260,7 +259,7 @@ class GetDishForAdminUseCase:
             rating = getattr(r, "rating", None)
             so_danh_gia = getattr(r, "reviews_count", None)
             return (
-                -MATCH_STRENGTH.get(m.matched_by, 0),
+                -m.strength,
                 rating is None,
                 -(rating or 0.0),
                 -(so_danh_gia or 0),

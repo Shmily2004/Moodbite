@@ -6,7 +6,7 @@ VÌ SAO CÓ FILE NÀY: trang quản trị cố tình FAIL-CLOSED — thiếu c�
 `/api/v1/admin/*` trả 503. Đó là hành vi ĐÚNG, nhưng nhìn từ ngoài rất dễ tưởng là hỏng.
 Script này nói rõ thiếu đúng cái gì và phải làm gì tiếp.
 
-Không sửa gì, chỉ đọc và in ra. In hash mật khẩu ở dạng cắt ngắn, KHÔNG in secret.
+Không sửa gì, chỉ đọc và in ra. KHÔNG in secret.
 """
 from __future__ import annotations
 
@@ -16,7 +16,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
+import os  # noqa: E402
+
+from src.domain.entities.user import UserRole  # noqa: E402
 from src.infrastructure.config.settings import Settings  # noqa: E402
+from src.infrastructure.repositories.sqlite_user_repository import (  # noqa: E402
+    SqliteUserRepository,
+)
 
 # Console Windows mặc định là cp1252 và sẽ NỔ khi in chữ tiếng Việt — script
 # đang chạy dở bị dừng giữa chừng. Lỗi này đã xảy ra thật với
@@ -35,22 +41,29 @@ def main() -> int:
     print("KIEM TRA QUYEN QUAN TRI MOODBITE")
     print("=" * 70)
 
-    checks = [
-        ("MOODBITE_ADMIN_USER", settings.admin_username, "ten dang nhap"),
-        ("MOODBITE_ADMIN_PASSWORD_HASH", settings.admin_password_hash, "hash mat khau"),
-        ("MOODBITE_ADMIN_SECRET", settings.admin_token_secret, "khoa ky token"),
-    ]
-
     thieu = []
     print("\n-- Bien moi truong --")
-    for name, value, mo_ta in checks:
-        if value:
-            # Cat ngan: du de nhan ra da dat dung chua, khong du de lo bi mat.
-            hien = value[:10] + "..." if len(value) > 10 else value
-            print(f"  {OK} {name:32} {hien:16} {mo_ta}")
-        else:
-            thieu.append(name)
-            print(f"  {MISSING} {name:32} {'(rong)':16} {mo_ta}")
+    if settings.admin_token_secret:
+        # KHONG in secret, ke ca cat ngan: chi can biet da dat hay chua.
+        print(f"  {OK} {'MOODBITE_ADMIN_SECRET':32} {'(da dat)':16} khoa ky token")
+    else:
+        thieu.append("MOODBITE_ADMIN_SECRET")
+        print(f"  {MISSING} {'MOODBITE_ADMIN_SECRET':32} {'(rong)':16} khoa ky token")
+    # Tu 2026-09-29 hai bien nay KHONG con tac dung - con sot thi nhac xoa di.
+    for cu in ("MOODBITE_ADMIN_USER", "MOODBITE_ADMIN_PASSWORD_HASH"):
+        if os.environ.get(cu):
+            print(f"  [CANH BAO] {cu} con trong moi truong nhung KHONG con tac dung.")
+            print("             Chuyen sang bang users: python scripts/make_admin_user.py --tu-env")
+
+    # Tai khoan quan tri nam trong bang users (role='admin'), khong con o bien moi truong.
+    print("\n-- Tai khoan quan tri (bang users) --")
+    users = SqliteUserRepository(settings.users_db)
+    so_admin = users.count_by_role(UserRole.ADMIN) if users.is_ready else 0
+    if so_admin:
+        print(f"  {OK} {so_admin} tai khoan co vai admin trong {settings.users_db.name}")
+    else:
+        thieu.append("tai khoan admin")
+        print(f"  {MISSING} Chua co tai khoan nao co vai admin trong {settings.users_db.name}")
 
     print("\n-- Kho luu tru --")
     ghi_duoc = settings.storage_backend == "sqlite"
@@ -85,7 +98,7 @@ def main() -> int:
         print("  Chay app admin: cd frontend  ->  npm run dev:admin  (cong 5174)")
         return 0
 
-    print("KET QUA: CHUA CAU HINH XONG - /api/v1/admin/* dang tra 503 (dung nhu thiet ke).")
+    print("KET QUA: CHUA CAU HINH XONG - trang quan tri chua dang nhap duoc (dung nhu thiet ke).")
     print("\nCAN LAM:")
     buoc = 1
     if not co_db:
@@ -93,8 +106,8 @@ def main() -> int:
         print("       python scripts/build_sqlite.py")
         buoc += 1
     if thieu:
-        print(f"  {buoc}. Sinh tai khoan quan tri (in ra 3 bien can dat):")
-        print("       python scripts/make_admin_password.py")
+        print(f"  {buoc}. Tao tai khoan quan tri + secret (ghi vao .env.local):")
+        print("       python scripts/make_admin_user.py        # hoac --tu-env neu co tai khoan cu")
         buoc += 1
     if not ghi_duoc:
         print(f"  {buoc}. Bat kho SQLite (PowerShell):")

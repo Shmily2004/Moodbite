@@ -19,7 +19,7 @@ Ba bước, chạy ở thư mục gốc dự án:
 
 ```powershell
 python scripts/build_sqlite.py        # 1. dựng CSDL ghi được (CSV chỉ đọc)
-python scripts/make_admin_password.py # 2. sinh 3 biến môi trường, làm theo hướng dẫn in ra
+python scripts/make_admin_user.py     # 2. tạo tài khoản admin (bảng users) + ghi secret vào .env.local
 $env:MOODBITE_STORAGE = "sqlite"      # 3. bật kho SQLite rồi khởi động lại backend
 ```
 

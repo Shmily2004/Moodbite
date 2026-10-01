@@ -20,6 +20,8 @@ from src.presentation.api.routers import (
     dishes,
     interactions,
     me,
+    me_addresses,
+    me_collections,
     meta,
     restaurants,
     search,
@@ -82,6 +84,9 @@ def create_app(
     # `/me` tự yêu cầu token qua `Depends(get_current_user)`.
     app.include_router(auth.router, prefix=API_PREFIX)
     app.include_router(me.router, prefix=API_PREFIX)
+    # "Bộ sưu tập" + "Địa chỉ của tôi" — cũng dưới `/me`, cũng bắt buộc token.
+    app.include_router(me_collections.router, prefix=API_PREFIX)
+    app.include_router(me_addresses.router, prefix=API_PREFIX)
     # Quản trị: `public_router` chỉ có /login (nơi phát token), `router` yêu cầu token.
     app.include_router(admin.public_router, prefix=API_PREFIX)
     app.include_router(admin.router, prefix=API_PREFIX)

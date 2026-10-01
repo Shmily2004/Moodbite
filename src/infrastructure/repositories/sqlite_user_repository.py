@@ -43,7 +43,10 @@ CREATE TABLE IF NOT EXISTS users (
     -- 0/1. SQLite không có kiểu BOOLEAN riêng; INTEGER là cách chuẩn của nó.
     -- NOT NULL DEFAULT 0: tài khoản cũ mặc định là CHƯA xác minh — đúng sự thật, vì
     -- chưa ai từng bấm vào đường dẫn nào cả.
-    email_verified INTEGER NOT NULL DEFAULT 0
+    email_verified INTEGER NOT NULL DEFAULT 0,
+    -- Phiên bản phiên đăng nhập - xem `User.token_version`. Tài khoản cũ bắt đầu ở 0,
+    -- khớp với token cũ không mang `tv`, nên nâng cấp KHÔNG đăng xuất ai cả.
+    token_version INTEGER NOT NULL DEFAULT 0
 );
 CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
 """
@@ -54,7 +57,7 @@ CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
 
 _COLUMNS = (
     "user_id, username, password_hash, role, display_name, created_at, "
-    "email, email_verified"
+    "email, email_verified, token_version"
 )
 
 
@@ -105,6 +108,12 @@ class SqliteUserRepository:
             conn.execute(
                 "ALTER TABLE users ADD COLUMN email_verified INTEGER NOT NULL DEFAULT 0"
             )
+        if cot and "token_version" not in cot:
+            # Thêm 2026-09-29 (thu hồi token). DEFAULT 0 = khớp token cũ không có `tv`.
+            logger.info("Nâng cấp kho tài khoản: thêm cột token_version.")
+            conn.execute(
+                "ALTER TABLE users ADD COLUMN token_version INTEGER NOT NULL DEFAULT 0"
+            )
         # Tạo index SAU khi chắc chắn đã có cột. `IF NOT EXISTS` nên chạy lại vô hại.
         conn.execute("CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)")
 
@@ -134,13 +143,29 @@ class SqliteUserRepository:
         try:
             with sqlite3.connect(self.db_path) as conn:
                 cur = conn.execute(
-                    "UPDATE users SET password_hash = ? WHERE user_id = ?",
+                    "UPDATE users SET password_hash = ?, "
+                    "token_version = token_version + 1 WHERE user_id = ?",
                     (password_hash, str(user_id)),
                 )
                 conn.commit()
                 return cur.rowcount > 0
         except sqlite3.Error as exc:
             logger.error("Lỗi đổi mật khẩu: %s", exc)
+            return False
+
+    def revoke_tokens(self, user_id: str) -> bool:
+        if self._error is not None:
+            return False
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                cur = conn.execute(
+                    "UPDATE users SET token_version = token_version + 1 WHERE user_id = ?",
+                    (str(user_id),),
+                )
+                conn.commit()
+                return cur.rowcount > 0
+        except sqlite3.Error as exc:
+            logger.error("Lỗi thu hồi token: %s", exc)
             return False
 
     def mark_email_verified(self, user_id: str, email: str) -> bool:
@@ -178,11 +203,12 @@ class SqliteUserRepository:
             created_at=user.created_at or datetime.now(timezone.utc),
             email=user.email,
             email_verified=user.email_verified,
+            token_version=user.token_version,
         )
         try:
             with sqlite3.connect(self.db_path) as conn:
                 conn.execute(
-                    f"INSERT INTO users ({_COLUMNS}) VALUES (?,?,?,?,?,?,?,?)",
+                    f"INSERT INTO users ({_COLUMNS}) VALUES (?,?,?,?,?,?,?,?,?)",
                     (
                         record.user_id,
                         record.username,
@@ -192,6 +218,7 @@ class SqliteUserRepository:
                         record.created_at.isoformat(),
                         record.email,
                         int(record.email_verified),
+                        int(record.token_version),
                     ),
                 )
                 conn.commit()
@@ -204,6 +231,41 @@ class SqliteUserRepository:
         try:
             with sqlite3.connect(self.db_path) as conn:
                 return conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]
+        except sqlite3.Error:
+            return 0
+
+    # -- Chỉ cho script vận hành (`scripts/make_admin_user.py`, `check_permissions.py`) --
+    # KHÔNG nằm trong port `UserRepository`: không use case nào của ứng dụng được phép
+    # tự nâng quyền ai lên admin. Đổi vai là việc của người vận hành, chạy tay trên máy chủ.
+
+    def set_role(self, user_id: str, role: UserRole) -> bool:
+        """Đổi vai VÀ thu hồi mọi token đang sống của tài khoản đó.
+
+        Thu hồi kèm theo vì token quản trị cũ mang theo quyền cũ; hạ quyền mà không thu hồi
+        thì phiên đang mở vẫn thao tác được tới lúc token hết hạn - dù `verify` đã đọc lại
+        vai, thu hồi luôn là chốt thứ hai rẻ tiền.
+        """
+        if self._error is not None:
+            return False
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                cur = conn.execute(
+                    "UPDATE users SET role = ?, token_version = token_version + 1 "
+                    "WHERE user_id = ?",
+                    (role.value, str(user_id)),
+                )
+                conn.commit()
+                return cur.rowcount > 0
+        except sqlite3.Error as exc:
+            logger.error("Lỗi đổi vai: %s", exc)
+            return False
+
+    def count_by_role(self, role: UserRole) -> int:
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                return conn.execute(
+                    "SELECT COUNT(*) FROM users WHERE role = ?", (role.value,)
+                ).fetchone()[0]
         except sqlite3.Error:
             return 0
 
@@ -236,6 +298,7 @@ class SqliteUserRepository:
             created_at=datetime.fromisoformat(created) if created else None,
             email=row["email"],
             email_verified=bool(row["email_verified"]),
+            token_version=int(row["token_version"] or 0),
         )
 
     def status(self) -> dict:

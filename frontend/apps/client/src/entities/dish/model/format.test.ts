@@ -23,12 +23,12 @@ describe('describeSpice - phan biet CHUA BIET voi KHONG CAY', () => {
   });
 
   it('0 la KHONG CAY - mot khang dinh that su, khac han chua biet', () => {
-    expect(describeSpice(0)).toBe('Không cay');
+    expect(describeSpice(0)).toEqual({ chilies: 0, label: 'Không cay' });
   });
 
   it('muc cay thanh so qua ot, chan tren 3 de khong tran ra ca dong', () => {
-    expect(describeSpice(2)).toBe('🌶️🌶️');
-    expect(describeSpice(9)).toBe('🌶️🌶️🌶️');
+    expect(describeSpice(2)).toEqual({ chilies: 2, label: 'Độ cay 2/3' });
+    expect(describeSpice(9)).toEqual({ chilies: 3, label: 'Độ cay 3/3' });
   });
 });
 

@@ -100,7 +100,7 @@ afterEach(() => {
 });
 
 describe('AccountPage', () => {
-  it('hien du BAY tab ben trai', async () => {
+  it('hien du CHIN tab ben trai (them Dia chi + Bo suu tap 2026-09-29)', async () => {
     vi.stubGlobal('fetch', gia_lap_fetch());
     renderAccount();
 
@@ -111,6 +111,8 @@ describe('AccountPage', () => {
       // Đổi nhãn 2026-08-25: chủ dự án gọi đây là "yêu thích", không phải "đã lưu".
       /Yêu thích/,
       /Đã xem gần đây/,
+      /Địa chỉ của tôi/,
+      /Bộ sưu tập của tôi/,
       /Cấp độ & huy hiệu/,
       /Cài đặt/,
     ]) {

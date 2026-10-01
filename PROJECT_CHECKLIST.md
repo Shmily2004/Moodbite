@@ -19,7 +19,7 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Frontend Client | ✅ **TypeScript + FSD** | 86 test, có bản đồ, steiger trong CI |
 | Bản đồ | ✅ **Xong** | Leaflet + OpenStreetMap, miễn phí, không cần key |
 | Kiến trúc | ✅ Sạch | Clean Architecture + checker tự động trong CI |
-| Test | ✅ **711 backend + 313 frontend** | client 248 · admin 65. Đo bằng `python scripts/verify.py` ngày 2026-09-29 |
+| Test | ✅ **791 backend + 341 frontend** | client 276 · admin 65. Đo bằng `python scripts/verify.py` ngày 2026-09-29 (cuối ngày) |
 | Giao diện | ✅ Theo bản duyệt · **trang chủ + tài khoản dựng lại 2026-08-22** | trang chủ = LƯỚI MÓN + chips lọc; trang món = giới thiệu + bản đồ + danh sách quán; `/tim-kiem` giữ bố cục bản đồ + rail cũ |
 | Router + layout | ✅ Xong | react-router v6, khung dùng chung, `RequireAuth` cho admin |
 | Chạy xem giao diện | ✅ **một lệnh** | `python scripts/run_dev.py --admin` |
@@ -67,7 +67,7 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Ma trận truy vết | ✅ Viết lại 2026-08-19 | bản cũ có 9/10 đường dẫn KHÔNG tồn tại — xem `traceability.md` |
 | **Lớp 4 — Tóm tắt review** | ✅ **XONG 2026-08-19** | Trích rút TF-IDF centroid, **851/1310 quán** có nhận xét tổng hợp (339 quán có cả điểm yếu). Mọi câu TRÍCH NGUYÊN VĂN, không sinh chữ. `python -m data_pipeline.review_summary` |
 | Đăng nhập / tài khoản | ✅ **Đăng nhập · đăng ký · quên mật khẩu · TRANG TÀI KHOẢN 7 TAB (2026-08-23)** | `/api/v1/auth/*` + `/api/v1/me/*`. Trang `/account` có thanh bên 7 mục, ảnh đại diện, số liệu thật, cấp độ, huy hiệu. Đổi phạm vi có chủ đích so với SRS mục 8 — xem ghi chú dưới bảng |
-| Phân quyền (`role`) | 🟡 Có `user`/`admin` + guard 403 | admin VẪN dùng biến môi trường, chưa chuyển sang bảng `users` |
+| Phân quyền (`role`) | ✅ Admin = tài khoản `role='admin'` trong bảng `users` (2026-09-29) | tạo bằng `python scripts/make_admin_user.py`; hạ quyền/đăng xuất có hiệu lực ngay |
 | **Quán & món yêu thích (server)** | ✅ **Xong 2026-08-23** | bảng `saved_items`, `GET/POST/DELETE /me/favorites`. Khách vẫn lưu ở máy và được ĐỒNG BỘ LÊN khi đăng nhập |
 | **Lượt khám phá · cấp độ · huy hiệu** | ✅ **Xong 2026-08-23** | `GET /me/stats`. `POST /interactions` nay ghi thêm `user_id` (LẤY TỪ TOKEN, không nhận từ body) |
 | **Song ngữ Việt–Anh** | ✅ **Giao diện xong 2026-08-23** · ⬜ dữ liệu vẫn tiếng Việt | `shared/i18n/tu_dien.ts` — 1 file, kiểm kiểu lúc biên dịch. Tên món/quán và chữ do máy chủ sinh KHÔNG dịch (cần i18n ở backend) |
@@ -1104,8 +1104,8 @@ Những màn hình dưới đây **chưa có bản thiết kế**, nên chưa d�
 | ~~1~~ | ~~**Bộ lọc dạng ngăn kéo (drawer)**~~ | — | ✅ **XONG 2026-08-24** — chọn phương án A, `widgets/filter-drawer` |
 | ~~2~~ | ~~**Thanh ☰ cho điện thoại**~~ | — | ✅ **XONG 2026-08-23** |
 | 3 | **Trang chi tiết QUÁN** (`/restaurants/:id`) | Chi tiết quán vẫn chỉ là panel trượt trong trang bản đồ — không gửi link được, không có địa chỉ riêng | ✅ `GET /restaurants/{id}` đã đủ review · ảnh · giá · giờ. ⚠️ `restaurance recommend.png` KHÔNG phải bản vẽ cho màn này — đó là trang CHI TIẾT MÓN kèm danh sách quán (`/dishes/:id`) |
-| 4 | "Bộ sưu tập của tôi" | Có trong `design/profile.png` và trên thanh điều hướng của `design/Home.jpg` | ❌ cần bảng `collections` + endpoint |
-| 5 | "Địa chỉ của tôi" | Có trong `design/profile.png` | ❌ cần bảng địa chỉ |
+| 4 | "Bộ sưu tập của tôi" | Có trong `design/profile.png` và trên thanh điều hướng của `design/Home.jpg` | ✅ **Xong 2026-09-29** — tab `?tab=collections`, `/me/collections` |
+| 5 | "Địa chỉ của tôi" | Có trong `design/profile.png` | ✅ **Xong 2026-09-29** — tab `?tab=addresses`, `/me/addresses`, dùng làm vị trí dự phòng |
 | 6 | "Thông báo" (chuông đỏ) | Có trong cả hai bản thiết kế | ❌ không có nguồn thông báo nào |
 | 7 | "Theo mood" · "Theo thời tiết" (trang riêng) | Có trên thanh điều hướng `design/Home.jpg` | 🟡 lọc được rồi, nhưng hiện nằm TRONG trang chủ |
 | 8 | "Blog" | Có trên thanh điều hướng | ❌ không có nội dung |
@@ -1256,12 +1256,12 @@ Mọi số dưới đây đo thật trong ngày. Lệnh kiểm lại ghi ở t�
 | UI admin theo bản vẽ | ✅ Phân trang server + thẻ số + lọc cho bảng món/quán · trang `/mon-an/:dishId` 4 tab · ẩn/hiện hàng loạt · tab "Đã xử lý" + xuất CSV · biểu đồ vành khuyên + khối "Hệ thống gợi ý" · icon menu, breadcrumb. ⚠️ **Chưa chụp màn hình admin** (cần mật khẩu admin) | `npm run test --workspace @moodbite/admin` |
 
 **Cần chủ dự án quyết (chưa làm):**
-- Tìm "phở" vẫn ra "Nhà Hàng Phố Cổ", "Gà Phố": `_overlap` trong `text_relevance.py` so tập từ đã bỏ dấu, không qua `tokens_match` (vi phạm CLAUDE.md §4.5). Sửa sẽ đổi xếp hạng `/search` diện rộng và phải bỏ test `test_accent_stripping_can_collide_but_ranking_still_correct`.
-- Trang Phở còn "Tra da Tao pho" (#5) — loại hình "Nhà hàng ăn nhanh", chỉ đổi được nếu siết luật "một vế không dấu".
-- Bộ sưu tập · Địa chỉ · Thông báo · số điện thoại · thu hồi token: đều cần **đổi lược đồ DB**.
+- ~~Tìm "phở" vẫn ra "Nhà Hàng Phố Cổ"~~ → ✅ **xong 2026-09-29** (mục "Đợt 2026-09-29").
+- Trang Phở còn "Tra da Tao pho" (#5) — **CỐ Ý KHÔNG SỬA**: CLAUDE.md §4.5 chốt "một vế không dấu là không đủ bằng chứng để loại". Chỉ đổi nếu chủ dự án đổi luật đó.
+- Thông báo · số điện thoại: cần **đổi lược đồ DB** + nguồn thông báo. (Bộ sưu tập · Địa chỉ · thu hồi token: ✅ xong 2026-09-29.)
 - CTR ở admin: không ghi lượt HIỂN THỊ nên không có mẫu số.
 - ~~Tách `categoryName` xuống bậc thấp hơn trong `MATCH_STRENGTH`~~ → ✅ **xong 2026-09-29**, xem mục "Đợt 2026-09-29" bên dưới.
-- **MoodBite thua baseline "chỉ khoảng cách"** trên dữ liệu giả lập (NDCG@10 **0,4895** vs **0,6023**, chạy lại 2026-09-29, không đổi sau khi hạ bậc loại hình). Cần quyết: xem lại `W_DISTANCE`, hay xem lại cách persona giả lập được định nghĩa — trước khi bảo vệ.
+- **MoodBite thua baseline "chỉ khoảng cách"** trên dữ liệu giả lập (NDCG@10 **0,4895** vs **0,6023**). Đã PHÂN TÍCH 2026-09-29 (xem mục "Đợt 2026-09-29"): nguyên nhân chủ yếu ở NHÃN giả lập, không phải trọng số. Cần chủ dự án chọn: làm lại nhãn, hay giữ nguyên và báo cáo tách theo luồng.
 
 ---
 
@@ -1348,8 +1348,42 @@ hiện điều đó**.
 | **Test admin chập chờn** (~1/10 lần đỏ, rơi vào test ngẫu nhiên của `QualityPage`) | ✅ Nguyên nhân: vitest 2 chạy `afterEach` đảo ngược, nên `vi.restoreAllMocks()` chạy TRƯỚC cleanup của Testing Library; promise resolve trong khe hở → mount khối "Hoạt động" → gọi mock đã gỡ → `undefined.then`. Sửa gốc một chỗ: `sequence.hooks: 'list'` trong `apps/admin/vite.config.ts` (9 file admin cùng mẫu). Trước: 1/11 lần đỏ · sau: **0/30** (file) + **0/5** (cả bộ) | `npm run test --workspace @moodbite/admin` |
 | Môi trường: venv thiếu `httpx` | ✅ Đã khai báo sẵn trong `requirements.txt`, chỉ chưa cài. `pip install -r requirements.txt` | `python scripts/verify.py` mục 2 và 9 |
 
-⚠️ Client (`apps/client`) có 2 file cùng mẫu `restoreAllMocks` trong `afterEach` nhưng **chưa
-thấy đỏ** nên chưa đổi cấu hình bên đó.
+✅ Client (`apps/client`) cũng đã đặt `sequence.hooks: 'list'` (phòng ngừa, cùng lý do).
+
+
+### Đợt 2026-09-29 (chiều) — "fix hết tồn đọng" theo quyết định của chủ dự án
+
+Chủ dự án chốt: sửa phở/Phố · làm thu hồi token + Bộ sưu tập + Địa chỉ + admin dùng bảng
+`users` · NDCG chỉ PHÂN TÍCH (không chỉnh trọng số) · thay hết emoji.
+
+| Việc | Kết quả | Kiểm lại |
+|---|---|---|
+| **`/search` tìm "phở" ra quán "Phố"** (§4.5) | ✅ `_overlap` đi qua `tokens_match`, thưởng cụm cũng xét dấu. Trùng âm trong top-20 của 8 truy vấn: **7 → 0** | `python scripts/do_trung_am_tim_kiem.py` |
+| ↳ **Bug mới: tên quán dạng Unicode tổ hợp (NFD)** | ✅ **560/48.991** tên lưu dấu rời ("ơ" + U+0309) → "Phở" bị cắt thành "phơ" → không khớp "phở" ở bất kỳ đâu. `tokenize_pairs` gộp NFC trước khi cắt từ. Chỉ mục món-quán **66.223 → 66.506 cặp (+283)** | `pytest tests/test_text_matching.py` |
+| **Trang món nới bán kính THEO TỪNG TẦNG** (phát hiện khi phân tích NDCG) | ✅ Tầng chỉ có quán xa tự nới → chọn 2km mà quán 8km đứng hạng 1. Nay quyết định nới MỘT LẦN cho cả danh sách | `pytest tests/test_dish_api.py -k noi_ban_kinh` |
+| **Thu hồi token** (`token_version`, phương án A) | ✅ `POST /auth/logout` (mọi thiết bị) · đổi/đặt lại mật khẩu thu hồi, máy đang dùng nhận token mới · token cũ không có `tv` = 0 nên nâng cấp không đăng xuất ai. CSDL tài khoản thật đã tự thêm cột khi khởi động | `pytest tests/test_auth_api.py` |
+| **Admin dùng bảng `users`** | ✅ `role='admin'`, đọc lại tài khoản + `tv` mỗi request (hạ quyền có hiệu lực ngay). Bỏ `MOODBITE_ADMIN_USER/_PASSWORD_HASH`; `make_admin_password.py` → `archive/scripts/`. Admin cũ trên máy này đã chuyển bằng `--tu-env`: chuỗi băm TRÙNG khớp nên mật khẩu không đổi | `python scripts/check_permissions.py` |
+| **Bộ sưu tập của tôi** | ✅ bảng `collections` + `collection_items`, 6 endpoint `/me/collections…`, tab `?tab=collections`, nút "Thêm vào bộ sưu tập" ở tab Yêu thích | `pytest tests/test_collections.py` (25 test) |
+| **Địa chỉ của tôi** | ✅ bảng `user_addresses` (chỉ Hà Nội, tối đa 1 mặc định), 4 endpoint `/me/addresses…`, chọn điểm trên bản đồ Leaflet/OSM hoặc vị trí hiện tại, KHÔNG geocoding. Vị trí dự phòng: trình duyệt → địa chỉ mặc định → Hồ Gươm, giao diện nói rõ đang dùng vị trí nào | `pytest tests/test_user_addresses.py` (28 test) |
+| **Emoji A9** | ✅ 45 → 0 | `python scripts/dem_emoji.py` |
+| Bộ mẫu frontend | ✅ sinh lại vì kết quả `/search` đổi (lệch ảnh 5,1% → 0,1%) | `python scripts/verify_ui_data.py` |
+
+**Phân tích NDCG (không sửa trọng số — theo chủ dự án):** nhãn giả lập
+(`scripts/synthetic/persona.py` `restaurant_utility`) chỉ gồm khoảng cách + khẩu vị +
+rating + giá, KHÔNG có mood/ngữ nghĩa/cụm — trong khi các tín hiệu đó chiếm 52% trọng số
+MoodBite. Luồng món: khẩu vị không đổi trong 96/122 phiên nên nhãn gần như chỉ còn khoảng
+cách. Tách theo luồng: tìm kiếm **0,486 vs 0,501** (gần hoà), món **0,494 vs 0,717**. Thêm:
+`moodbite_rank` trong phiên đã lưu từ 16/09 (code hiện tại cho 0,500), và ngữ cảnh bữa ăn lấy
+theo giờ chạy script. ⚠️ Số từ script phân tích tạm, CHƯA đưa vào `scripts/`.
+**Chờ chủ dự án chọn:** (a) làm lại nhãn độc lập với công thức MoodBite, hay (b) giữ nguyên,
+báo cáo tách theo luồng + ghi rõ giới hạn.
+
+**Chưa làm / chưa kiểm:**
+- Chưa mở trình duyệt thật cho tab Địa chỉ (bản đồ chọn điểm) và Bộ sưu tập — test jsdom thay
+  Leaflet bằng nút giả.
+- App admin chưa có nút đăng xuất phía server (token admin sống tối đa 1 giờ).
+- Tên bộ sưu tập trùng nhau vẫn cho phép; ô thống kê thứ 4 vẫn là "Lượt khám phá".
+- `DEFAULT_USER_TOKEN_TTL_SECONDS` vẫn 24h — nâng lên được vì đã có thu hồi, nhưng là quyết định sản phẩm.
 
 ---
 
@@ -1374,7 +1408,7 @@ dùng `reasons` thật thay câu quảng cáo, "Có thể bạn sẽ thích" kh�
 | ~~A6~~ | ~~Chưa có "Xem danh sách" trên bản đồ~~ | `/dishes/:id` | ✅ **Xong 2026-08-27** — thu bản đồ, danh sách rộng hết trang |
 | ~~A7~~ | ~~Chưa có tranh minh hoạ đầu trang~~ | `/dishes/:id` | ✅ ảnh món đã có sẵn ở vị trí đó |
 | ~~A8~~ | ~~Tag món là chữ trơn, thiếu nút "Chỉnh sửa"~~ | `/dishes/:id` | ✅ **Xong 2026-08-27** — chip + nút mở ngăn kéo bộ lọc tại chỗ |
-| A9 | **44 emoji còn lại** chưa thay bằng icon SVG | 14 file | ⏸️ chủ dự án chốt 2026-08-27: **để sau** |
+| ~~A9~~ | ~~44 emoji còn lại~~ | 15 file | ✅ **Xong 2026-09-29** — 45 → 0, dùng bộ icon `shared/ui/icons.tsx` (`python scripts/dem_emoji.py`) |
 | ~~A10~~ | ~~Màn **"Chất lượng dữ liệu"** của admin~~ | admin | ✅ **Xong 2026-09-08** — kèm cả màn **"Cần xử lý"** (bản vẽ mới `needs to be handled admin.png`) |
 | ~~A11~~ | ~~Bảng quán ở admin là bảng HTML thô~~ | admin | ✅ **Xong 2026-08-27** — thêm khu vực + nguồn, nhãn trạng thái dùng chung với bảng món |
 | ~~A12~~ | ~~Các link "Xem tất cả / Xem chi tiết" ở admin chưa nối~~ | admin | ✅ **Xong 2026-08-27** — "Cần xử lý" bấm sang danh sách đã lọc sẵn; bảng món có ô chi tiết |
@@ -1401,7 +1435,7 @@ ký tự chữ chứ không phải emoji:
 | ~~7~~ | ~~Bản mobile: thanh ☰~~ | — | ✅ **XONG 2026-08-23** |
 | ~~8~~ | ~~Xác minh email lúc đăng ký~~ | — | ✅ **XONG 2026-08-24**, sửa lá thư 2026-08-26 |
 | 9 | **Trang chi tiết QUÁN riêng** (`/restaurants/:id`) | **chờ bản thiết kế** — `restaurance recommend.png` là bản vẽ cho trang CHI TIẾT MÓN, không phải màn này | chờ chủ dự án |
-| 10 | Thu hồi token khi đăng xuất (cột `token_version`) | **cần chốt đổi lược đồ** | chờ quyết định |
+| ~~10~~ | ~~Thu hồi token khi đăng xuất~~ | — | ✅ **Xong 2026-09-29** — `token_version` + `POST /auth/logout` |
 | 11 | Bổ sung dữ liệu qua Apify | tài khoản + credit | cần người thật — xem `docs/apify_huong_dan.md` |
 | 12 | Nhập tay 50-100 quán Hoàn Kiếm | — (admin đã bật) | cần người thật |
 | 13 | **Thu tương tác từ người dùng thật** | **cần người thật** | ⬅ **ƯU TIÊN CAO NHẤT** |
@@ -1414,7 +1448,7 @@ ký tự chữ chứ không phải emoji:
 
 **Đọc nhanh:**
 - Phần giao diện A1–A8, A11, A12 đã xong ngày 2026-08-27; **A10 xong 2026-09-08**.
-- Còn lại: **A9** (45 emoji — đếm lại ngày 2026-09-08) — chủ dự án chốt để sau.
+- **A9 xong 2026-09-29** (45 → 0 emoji).
 - Cần bản vẽ: **9** (trang chi tiết QUÁN riêng, `/restaurants/:id`).
 - **13 vẫn là thứ quan trọng nhất và không code thay được** — mọi mục ML phía sau đều đợi nó.
 
@@ -1427,7 +1461,7 @@ python scripts/dem_emoji.py
 ### Đổi mật khẩu quản trị
 
 ```powershell
-python scripts/make_admin_password.py --write-env
+python scripts/make_admin_user.py
 ```
 
 Ghi thẳng vào `.env.local` (đã .gitignore), rồi khởi động lại backend.

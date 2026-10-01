@@ -93,6 +93,7 @@
   list-style: none;
 }
 .stat__icon { display: block; font-size: 1.1rem; }
+.stat__icon svg { display: block; width: 1em; height: 1em; }
 
 /* --- Cấp độ -------------------------------------------------------------- */
 
@@ -106,7 +107,10 @@
   border-radius: 50%;
   background: var(--accent-soft, #FBEDE4);
   font-size: 1.8rem;
+  /* Ngôi sao là SVG `currentColor` (thay emoji ⭐ 2026-09-29): cùng màu cam với dòng "Cấp n". */
+  color: var(--brand-orange);
 }
+.level__badge svg { width: 1em; height: 1em; }
 .level__body { flex: 1; min-width: 0; }
 .level__name { margin: 0; font-weight: 800; }
 .level__rank { margin: 2px 0 10px; color: var(--brand-orange); font-weight: 700; font-size: .9rem; }

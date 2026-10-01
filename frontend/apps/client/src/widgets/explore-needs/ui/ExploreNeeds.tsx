@@ -1,5 +1,5 @@
 /**
- * "🧭 Khám phá theo nhu cầu" — lối vào nhanh cho người CHƯA đăng nhập.
+ * "Khám phá theo nhu cầu" (kèm icon la bàn) — lối vào nhanh cho người CHƯA đăng nhập.
  *
  * Chủ dự án đề xuất 6 thẻ: Ăn dưới 50K · Ăn gần đây · Ăn một mình · Đi ăn cùng bạn ·
  * Ăn đêm · Quán đang hot. Đã đối chiếu với dữ liệu thật (2026-08-22), CHỈ 2 thẻ có thứ
@@ -22,6 +22,7 @@ import type { Khoa } from '@/shared/i18n';
 
 import {
   IconCold,
+  IconCompass,
   IconNight,
   IconPin,
   IconSnack,
@@ -102,7 +103,7 @@ export function ExploreNeeds({ onPick }: ExploreNeedsProps) {
   return (
     <section className="needs">
       <h2 className="section-title">
-        <span aria-hidden="true">🧭</span> {t('needs.title')}
+        <IconCompass /> {t('needs.title')}
       </h2>
       <p className="section-sub">{t('needs.sub')}</p>
 

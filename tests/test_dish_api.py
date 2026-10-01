@@ -103,7 +103,7 @@ def make_client(dishes=None, index=None, catalog_ready=True):
     c.search_restaurants = SearchRestaurantsUseCase(repo, knowledge, context, predictor)
     c.get_restaurant_details = GetRestaurantDetailsUseCase(details_repo, repo)
     c.log_interaction = LogInteractionUseCase(interactions, repo)
-    c.admin_auth = AdminAuthService("", "", "")
+    c.admin_auth = AdminAuthService(None, "")
     c.admin_restaurants = None
     c.list_restaurants_for_admin = None
     c.update_restaurant = None
@@ -562,3 +562,45 @@ def test_suggest_mood_khac_nhau_dua_mon_khac_nhau_len_dau():
     # Bản cũ: cả hai món cùng có tag "cozy" nên BẰNG ĐIỂM NHAU khi buồn.
     assert buon["Cháo nóng"] > buon["Lẩu Thái"]
     assert hao_hung["Lẩu Thái"] > hao_hung["Cháo nóng"]
+
+
+def test_KHONG_noi_ban_kinh_theo_TUNG_TANG_khi_tang_khac_con_quan_gan():
+    """Bug thật 2026-09-29 (phát hiện khi phân tích NDCG): `rank_restaurants` nới bán
+    kính khi danh sách ĐƯA VÀO nó rỗng trong bán kính, mà trang món gọi nó RIÊNG cho từng
+    tầng. Tầng "đúng tên món" chỉ có quán xa -> tự nới -> quán 8km đứng hạng 1 dù tầng
+    dưới có quán 1km. Đo trên dữ liệu giả lập: 10 phiên, 39 quán ngoài bán kính lọt top-10
+    (vd món burger, bán kính 2km: hạng 1-3 cách 4,9 / 6,1 / 8,0 km)."""
+    from src.domain.services.dish_matching import (
+        MATCHED_BY_DISH_NAME, MATCHED_BY_NAME, DishMatch,
+    )
+    xa = make_restaurant("Bún Chả Xa Tít", lat=21.1005, lng=105.8542)   # ~8km
+    gan = make_restaurant("Quán Bún Gần", lat=21.0375, lng=105.8542)    # ~1km
+    client = make_client(
+        dishes=[BUN_CHA],
+        index={"bun-cha": [DishMatch(xa, MATCHED_BY_DISH_NAME), DishMatch(gan, MATCHED_BY_NAME)]},
+    )
+
+    data = client.get(
+        f"{API}/dishes/bun-cha/restaurants",
+        params={"session_id": SESSION, "latitude": 21.0285, "longitude": 105.8542,
+                "max_distance_km": 2},
+    ).json()["data"]
+
+    assert [r["name"] for r in data["results"]] == ["Quán Bún Gần"]
+
+
+def test_VAN_noi_ban_kinh_khi_KHONG_tang_nao_co_quan_gan():
+    """Hành vi cũ phải giữ: cả danh sách không có quán nào trong bán kính thì thà hiện
+    quán xa (kèm cảnh báo) còn hơn màn hình trắng."""
+    from src.domain.services.dish_matching import MATCHED_BY_DISH_NAME, DishMatch
+    xa = make_restaurant("Bún Chả Xa Tít", lat=21.1005, lng=105.8542)
+    client = make_client(dishes=[BUN_CHA], index={"bun-cha": [DishMatch(xa, MATCHED_BY_DISH_NAME)]})
+
+    data = client.get(
+        f"{API}/dishes/bun-cha/restaurants",
+        params={"session_id": SESSION, "latitude": 21.0285, "longitude": 105.8542,
+                "max_distance_km": 2},
+    ).json()["data"]
+
+    assert [r["name"] for r in data["results"]] == ["Bún Chả Xa Tít"]
+    assert any("bán kính" in w for w in data["warnings"])

@@ -237,6 +237,7 @@ export function DishPage() {
             dish={dish}
             onClose={() => setMoBoLoc(false)}
             locationIsDefault={location.isDefault}
+            locationLabel={location.label}
             locationLoading={location.loading}
             onRequestLocation={location.request}
           />

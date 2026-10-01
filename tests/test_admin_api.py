@@ -56,6 +56,7 @@ from src.application.use_cases.manage_restaurants import (
     UpdateRestaurantUseCase,
 )
 from src.application.use_cases.search_restaurants import SearchRestaurantsUseCase
+from src.domain.entities.user import User, UserRole
 from src.infrastructure.auth.admin_auth import AdminAuthService, hash_password
 from src.infrastructure.repositories.sqlite_restaurant_repository import (
     SqliteRestaurantRepository,
@@ -68,6 +69,7 @@ from tests.fakes import (
     FakeInteractionRepo,
     FixedContextProvider,
     GENERIC_RULE,
+    InMemoryUserRepo,
     PHO_RULE,
     UnavailablePredictor,
     attach_closure_tally,
@@ -87,6 +89,17 @@ SECRET = "secret-dung-cho-test-khong-dung-that"
 # gì: độ chậm là thuộc tính của thuật toán, không phải hành vi cần test ở đây.
 # Riêng `test_bam_mat_khau_moi_lan_moi_khac...` vẫn gọi trực tiếp để kiểm salt ngẫu nhiên.
 PASSWORD_HASH = hash_password(PASSWORD)
+ADMIN_ID = "u-admin"
+
+
+def make_admin_users(*extra):
+    """Kho tài khoản có SẴN một admin. Từ 2026-09-29 admin là một dòng `role='admin'`
+    trong bảng `users`, không còn nằm trong biến môi trường."""
+    return InMemoryUserRepo([
+        User(user_id=ADMIN_ID, username=USER, password_hash=PASSWORD_HASH,
+             role=UserRole.ADMIN),
+        *extra,
+    ])
 
 
 class NullSemanticSearch:
@@ -119,10 +132,10 @@ def build_client(db_path, *, configured=True, writable=True):
     context = FixedContextProvider()
 
     auth = (
-        AdminAuthService(USER, PASSWORD_HASH, SECRET, token_ttl_seconds=60)
+        AdminAuthService(make_admin_users(), SECRET, token_ttl_seconds=60)
         if configured
-        # Chưa cấu hình = cả 3 giá trị rỗng, đúng như khi chưa đặt biến môi trường.
-        else AdminAuthService("", "", "")
+        # Chưa cấu hình = chưa đặt MOODBITE_ADMIN_SECRET.
+        else AdminAuthService(make_admin_users(), "")
     )
     admin_repo = repo if writable else None
 
@@ -323,7 +336,10 @@ def test_chua_cau_hinh_admin_thi_503_KHONG_cho_qua(db):
 
     assert login.status_code == 503
     assert listing.status_code == 503
-    assert "MOODBITE_ADMIN_PASSWORD_HASH" in login.json()["error"]["message"]
+    # Câu lỗi phải chỉ ĐÚNG cách bật: đặt secret + tạo tài khoản admin trong bảng users.
+    thong_bao = login.json()["error"]["message"]
+    assert "MOODBITE_ADMIN_SECRET" in thong_bao
+    assert "make_admin_user.py" in thong_bao
 
 
 def test_kho_khong_ghi_duoc_thi_503_kem_cach_khac_phuc(db):
@@ -571,8 +587,9 @@ def test_bam_sai_dinh_dang_tra_False_khong_nem_loi():
 
 def test_token_cua_secret_khac_thi_khong_dung_duoc():
     """Đổi MOODBITE_ADMIN_SECRET phải làm mọi token đang lưu hết hiệu lực."""
-    a = AdminAuthService(USER, PASSWORD_HASH, "secret-A")
-    b = AdminAuthService(USER, PASSWORD_HASH, "secret-B")
+    users = make_admin_users()
+    a = AdminAuthService(users, "secret-A")
+    b = AdminAuthService(users, "secret-B")
     token = a.login(USER, PASSWORD)
 
     assert a.verify(token) == USER
@@ -580,8 +597,76 @@ def test_token_cua_secret_khac_thi_khong_dung_duoc():
         b.verify(token)
 
 
+# --- Admin là tài khoản trong bảng `users` (chủ dự án duyệt 2026-09-29) --------------
+
+
+def test_nguoi_dung_THUONG_dung_mat_khau_van_KHONG_vao_duoc_quan_tri():
+    thuong = User(user_id="u-thuong", username="thuong", password_hash=PASSWORD_HASH)
+    auth = AdminAuthService(make_admin_users(thuong), SECRET)
+
+    with pytest.raises(InvalidCredentialsError):
+        auth.login("thuong", PASSWORD)
+
+
+def test_sai_mat_khau_va_ten_khong_ton_tai_bao_CUNG_mot_cau():
+    """Không được để lộ "tên này có tồn tại / có phải admin không"."""
+    auth = AdminAuthService(make_admin_users(), SECRET)
+
+    with pytest.raises(InvalidCredentialsError) as sai_mk:
+        auth.login(USER, "sai-mat-khau-roi")
+    with pytest.raises(InvalidCredentialsError) as khong_co:
+        auth.login("khong-ton-tai", PASSWORD)
+
+    assert str(sai_mk.value) == str(khong_co.value)
+
+
+def test_HA_QUYEN_admin_thi_token_dang_song_het_gia_tri_NGAY():
+    users = make_admin_users()
+    auth = AdminAuthService(users, SECRET)
+    token = auth.login(USER, PASSWORD)
+    assert auth.verify(token) == USER
+
+    users.set_role(ADMIN_ID, UserRole.USER)
+
+    with pytest.raises(InvalidCredentialsError):
+        auth.verify(token)
+
+
+def test_admin_dang_xuat_hoac_doi_mat_khau_thi_token_quan_tri_cung_bi_thu_hoi():
+    """Cùng một `token_version` với phía người dùng: đăng xuất ở đâu cũng thu hồi hết."""
+    users = make_admin_users()
+    auth = AdminAuthService(users, SECRET)
+    token = auth.login(USER, PASSWORD)
+
+    users.revoke_tokens(ADMIN_ID)
+
+    with pytest.raises(InvalidCredentialsError):
+        auth.verify(token)
+
+
+def test_tai_khoan_admin_bi_xoa_thi_token_het_gia_tri():
+    users = make_admin_users()
+    auth = AdminAuthService(users, SECRET)
+    token = auth.login(USER, PASSWORD)
+
+    users._by_id.clear()
+
+    with pytest.raises(InvalidCredentialsError):
+        auth.verify(token)
+
+
+def test_kho_tai_khoan_hong_thi_tat_quan_tri_503_chu_khong_cho_qua():
+    from tests.fakes import UnavailableUserRepo
+
+    auth = AdminAuthService(UnavailableUserRepo(), SECRET)
+
+    assert auth.is_configured is False
+    with pytest.raises(AdminNotConfiguredError):
+        auth.login(USER, PASSWORD)
+
+
 def test_chua_cau_hinh_thi_nem_AdminNotConfigured():
-    auth = AdminAuthService("", "", "")
+    auth = AdminAuthService(make_admin_users(), "")
 
     assert auth.is_configured is False
     with pytest.raises(AdminNotConfiguredError):
@@ -591,7 +676,7 @@ def test_chua_cau_hinh_thi_nem_AdminNotConfigured():
 
 
 def test_token_het_han_theo_dong_ho_that():
-    auth = AdminAuthService(USER, PASSWORD_HASH, SECRET, token_ttl_seconds=1)
+    auth = AdminAuthService(make_admin_users(), SECRET, token_ttl_seconds=1)
     token = auth.login(USER, PASSWORD)
     assert auth.verify(token) == USER
 

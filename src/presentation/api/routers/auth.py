@@ -11,12 +11,10 @@ BA CHỐT CHẶN, độc lập nhau:
   2. Giới hạn tần suất theo IP trên cả `/register` lẫn `/login`.
   3. Vai LUÔN là `user`. Router KHÔNG nhận `role` từ client - xem `RegisterUserUseCase`.
 
-VÌ SAO CHƯA CÓ `/logout`: token ký bằng HMAC là STATELESS, server không giữ danh sách
-token đang sống nên không có gì để xoá. Một endpoint chỉ trả 200 rồi không làm gì là ảo
-giác an toàn — tệ hơn là không có. Đăng xuất hiện tại = client xoá token của mình, và
-thiệt hại khi token bị lộ bị chặn trên bởi thời hạn 24 giờ. Thu hồi thật cần thêm cột
-`token_version` vào bảng `users`; đó là ĐỔI DATA MODEL nên phải chốt trước —
-xem `docs/API_DECISIONS_PENDING.md`.
+`/logout` THU HỒI THẬT (từ 2026-09-29): token mang `tv`, bảng `users` có `token_version`;
+đăng xuất / đổi mật khẩu / đặt lại mật khẩu tăng số đó nên mọi token cũ hết giá trị ngay.
+Trước đó dự án cố ý KHÔNG có `/logout`, vì một endpoint trả 200 mà không thu hồi được gì
+là ảo giác an toàn - xem docs/API_DECISIONS_PENDING.md §5.8.
 """
 from __future__ import annotations
 
@@ -33,6 +31,7 @@ from src.presentation.api.envelope import success
 from src.presentation.api.schemas import (
     AuthResponse,
     ChangePasswordRequest,
+    ChangePasswordResponse,
     ForgotPasswordRequest,
     LoginRequest,
     MeResponse,
@@ -172,7 +171,7 @@ def reset_password(
     return success({"message": "Đã đổi mật khẩu. Hãy đăng nhập bằng mật khẩu mới."})
 
 
-@router.post("/change-password", response_model=MessageResponse)
+@router.post("/change-password", response_model=ChangePasswordResponse)
 def change_password(
     payload: ChangePasswordRequest,
     request: Request,
@@ -185,15 +184,32 @@ def change_password(
     Giới hạn tần suất dùng chung bộ đếm với đăng nhập: đây cũng là chỗ đoán mật khẩu được.
     """
     container.login_rate_limiter.check(client_key(request))
-    container.change_password.execute(user, payload.current_password, payload.new_password)
+    cap_nhat = container.change_password.execute(
+        user, payload.current_password, payload.new_password
+    )
     return success(
         {
-            "message": (
-                "Đã đổi mật khẩu. Lưu ý: các thiết bị khác đang đăng nhập vẫn dùng được "
-                "cho tới khi token của chúng hết hạn (tối đa 24 giờ)."
-            )
+            "message": "Đã đổi mật khẩu. Các thiết bị khác đã bị đăng xuất.",
+            # Token mới mang `token_version` mới - token đang dùng đã bị thu hồi cùng lúc.
+            "token": container.user_tokens.issue(cap_nhat),
+            "token_type": "bearer",
+            "expires_in": container.user_tokens.token_ttl_seconds,
         }
     )
+
+
+@router.post("/logout", response_model=MessageResponse)
+def logout(
+    user: User = Depends(get_current_user),
+    container: Container = Depends(get_container),
+):
+    """Đăng xuất THẬT: thu hồi mọi token của tài khoản, ở MỌI thiết bị.
+
+    Không đăng xuất riêng từng máy được - đánh đổi của phương án `token_version`, xem
+    `LogoutEverywhereUseCase`. Câu trả lời nói rõ điều đó.
+    """
+    container.logout_everywhere.execute(user)
+    return success({"message": "Đã đăng xuất trên mọi thiết bị."})
 
 
 @router.post("/verify-email/request", response_model=MessageResponse)

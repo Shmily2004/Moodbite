@@ -123,6 +123,12 @@ describe('describeReasons — vì sao quán được đề xuất', () => {
     expect(reasons[1].text).toBe('Khớp tên quán');
   });
 
+  it('mỗi lý do mang LOẠI (feel/match) để VIEW chọn icon — không còn chuỗi emoji', () => {
+    const reasons = describeReasons('atmosphere+name');
+    expect(reasons.map((r) => r.kind)).toEqual(['feel', 'match']);
+    expect(describeReasons('mã_lạ')[0].kind).toBe('match');
+  });
+
   it('không có câu tìm thì vẫn nói được lý do', () => {
     expect(describeReasons('atmosphere')[0].text).toBe('Hợp về không gian và cảm giác');
   });

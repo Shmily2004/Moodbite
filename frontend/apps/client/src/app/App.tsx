@@ -14,6 +14,7 @@ import './styles/brand.css';
 import './styles/auth.css';
 import './styles/home.css';
 import './styles/account.css';
+import './styles/my-places.css';
 
 const router = createBrowserRouter(routes);
 

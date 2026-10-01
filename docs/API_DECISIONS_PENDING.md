@@ -254,11 +254,14 @@ thiểu: chuẩn bị sẵn tài khoản demo và đăng nhập trước khi tr�
 | 1 | Chốt phương án email → **tài khoản nội bộ trước, Google sau** | ✅ đã chốt |
 | 2 | Sửa `rules/api.md` + `PROJECT_CHECKLIST.md` — bỏ "Won't-have" | ✅ xong 2026-08-17 |
 | 3 | **Backend:** bảng `users`, đăng ký/đăng nhập, `role`, rate limiting, `build_sqlite` | ✅ xong 2026-08-17 |
-| 4 | Chuyển admin sang dùng bảng `users` | ⬜ chưa — admin vẫn dùng biến môi trường |
+| 4 | Chuyển admin sang dùng bảng `users` | ✅ xong 2026-09-29 — `role='admin'`, tạo bằng `scripts/make_admin_user.py` |
 | 5 | Gắn `user_id` vào interaction + quán yêu thích | ⬜ chưa |
 | 6 | Giao diện Login / Register / Profile | ⬜ chờ bộ asset thiết kế |
 
-### 5.8. QUYẾT ĐỊNH CÒN TREO — đăng xuất có thu hồi token
+### 5.8. ĐÃ CHỐT 2026-09-29: phương án A (`token_version`) — đăng xuất có thu hồi token
+
+> ✅ Đã làm: cột `users.token_version`, token mang `tv`, `POST /auth/logout`; đổi/đặt lại
+> mật khẩu và hạ quyền admin cũng tăng version. Phần dưới giữ lại để biết vì sao chọn A.
 
 **Hiện trạng:** KHÔNG có `POST /auth/logout`. Token ký bằng HMAC là *stateless* — server
 không giữ danh sách token đang sống nên không có gì để xoá. Một endpoint chỉ trả 200 rồi

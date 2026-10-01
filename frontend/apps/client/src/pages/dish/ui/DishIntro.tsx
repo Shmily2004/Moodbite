@@ -2,7 +2,7 @@
  * Phần GIỚI THIỆU MÓN ở đầu trang chi tiết món (tách khỏi `DishPage.tsx` 2026-09-16 để
  * file trang giữ dưới ~300 dòng). Component "ngu": chỉ nhận món và báo khi bấm "Chỉnh sửa".
  */
-import { IconFilter } from '@/shared/ui';
+import { IconChili, IconFilter } from '@/shared/ui';
 import type { DishItem } from '@/shared/api';
 import {
   describeCookingMethod,
@@ -19,6 +19,7 @@ interface DishIntroProps {
 }
 
 export function DishIntro({ dish, onEditFilters }: DishIntroProps) {
+  const spice = describeSpice(dish.spice_level);
   return (
     <section className="dish-detail">
       {dish.image_url && <img className="dish-detail__image" src={dish.image_url} alt="" />}
@@ -33,9 +34,20 @@ export function DishIntro({ dish, onEditFilters }: DishIntroProps) {
           {describeCookingMethod(dish.cooking_method) && (
             <li className="tag">{describeCookingMethod(dish.cooking_method)}</li>
           )}
-          {describeSpice(dish.spice_level) && (
-            <li className="tag">{describeSpice(dish.spice_level)}</li>
-          )}
+          {/* Mức cay: vẽ n quả ớt SVG (thay emoji 2026-09-29). Hình ớt là trang trí nên
+              nhãn chữ nằm ở `aria-label` — trình đọc màn hình đọc "Độ cay 2/3". */}
+          {spice &&
+            (spice.chilies > 0 ? (
+              <li className="tag" title={spice.label}>
+                <span role="img" aria-label={spice.label}>
+                  {Array.from({ length: spice.chilies }, (_, i) => (
+                    <IconChili key={i} className="icon-inline" />
+                  ))}
+                </span>
+              </li>
+            ) : (
+              <li className="tag">{spice.label}</li>
+            ))}
           {describeMealTimes(dish.meal_times) && (
             <li className="tag tag--muted">{describeMealTimes(dish.meal_times)}</li>
           )}

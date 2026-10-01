@@ -6,6 +6,7 @@ export {
   IconEye,
   IconEyeOff,
   IconPin,
+  IconFolder,
   IconHeart,
   IconBookmark,
   IconMail,
@@ -50,6 +51,19 @@ export {
   IconMap,
   IconThumbUp,
   IconShield,
+  // --- icon loại hình quán & mức cay (thêm 2026-09-29, đợt cuối bỏ emoji — A9) ---
+  IconChili,
+  IconCoffee,
+  IconBubbleTea,
+  IconBread,
+  IconCake,
+  IconSeafood,
+  IconPizza,
+  IconBurger,
+  IconSushi,
+  IconLeaf,
+  IconBeer,
+  IconRiceBowl,
 } from './icons';
 export { LanguageSelect } from './LanguageSelect';
 export { Slogan } from './Slogan';

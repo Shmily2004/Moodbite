@@ -34,6 +34,11 @@ class ErrorCode(str, Enum):
     FORBIDDEN = "FORBIDDEN"
     # Đăng ký trùng tên đăng nhập -> 409.
     USERNAME_TAKEN = "USERNAME_TAKEN"
+    # "Bộ sưu tập" / "Địa chỉ của tôi" (2026-09-29). Mã RIÊNG cùng lý do DISH_NOT_FOUND:
+    # client cần biết cái gì không còn để tải lại đúng danh sách. Của người khác cũng
+    # trả đúng mã này — không có mã nào nói "có nhưng không phải của bạn".
+    COLLECTION_NOT_FOUND = "COLLECTION_NOT_FOUND"
+    ADDRESS_NOT_FOUND = "ADDRESS_NOT_FOUND"
 
 
 def success(data: Any, status_code: int = 200) -> JSONResponse:

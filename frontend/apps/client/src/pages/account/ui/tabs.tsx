@@ -12,6 +12,7 @@ import {
   IconCompass,
   IconHeart,
   IconMap,
+  IconSettings,
   IconShield,
   IconThumbUp,
   LanguageSelect,
@@ -118,7 +119,7 @@ export function SettingsPanel({ onLogout }: { onLogout: () => void }) {
   return (
     <section className="panel">
       <h2 className="panel__title">
-        <span aria-hidden="true">⚙️</span> {t('account.settings.title')}
+        <IconSettings /> {t('account.settings.title')}
       </h2>
       <div className="account__settings">
         <div className="account__setting">

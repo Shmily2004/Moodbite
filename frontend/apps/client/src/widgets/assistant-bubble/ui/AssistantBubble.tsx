@@ -36,10 +36,10 @@ export function AssistantBubble({ onOpen, activeCount = 0 }: AssistantBubbleProp
            bên TRÁI      │ Tinh chỉnh gợi ý nhé!    │
                          └──────────────────────────┘
             ┌─────────────────────────────────────┐
-            │ ✦  Tinh chỉnh gợi ý               › │  ← nút TRẮNG, trải ngang
+            │ *  Tinh chỉnh gợi ý               › │  ← nút TRẮNG, trải ngang
             └─────────────────────────────────────┘
 
-        ⚠️ HAI LẦN LÀM SAI TRƯỚC ĐÓ, ghi lại để khỏi lặp:
+        ⚠ HAI LẦN LÀM SAI TRƯỚC ĐÓ, ghi lại để khỏi lặp:
           lần 1 — nhét mascot vào BÊN TRONG nút như một icon;
           lần 2 — để mascot bên PHẢI và làm nút NỀN TỐI.
         Đúng là: mascot đứng bên TRÁI cạnh lời thoại, nút nền TRẮNG nằm dưới cả hai.

@@ -38,8 +38,20 @@ class UserRepository(Protocol):
         """
         ...
 
+    def revoke_tokens(self, user_id: str) -> bool:
+        """Tăng `token_version` -> mọi token đã phát cho tài khoản này hết giá trị.
+
+        Trả False nếu không có tài khoản đó. Phải là MỘT câu UPDATE `+ 1` ở tầng lưu trữ,
+        không đọc-rồi-ghi: hai lần đăng xuất cùng lúc sẽ ghi đè nhau.
+        """
+        ...
+
     def update_password(self, user_id: str, password_hash: str) -> bool:
-        """Đổi chuỗi băm mật khẩu. Trả False nếu không có tài khoản đó.
+        """Đổi chuỗi băm mật khẩu VÀ thu hồi mọi token đang sống (`token_version + 1`).
+        Trả False nếu không có tài khoản đó.
+
+        Gộp hai việc vào một lệnh cố ý: đổi mật khẩu vì nghi bị lộ mà máy của kẻ lạ vẫn
+        đăng nhập tiếp thì việc đổi mật khẩu vô nghĩa.
 
         Nhận CHUỖI BĂM chứ không nhận mật khẩu thô: tầng lưu trữ không bao giờ được nhìn
         thấy mật khẩu gốc, và cũng không phải nơi quyết định băm bằng thuật toán nào.

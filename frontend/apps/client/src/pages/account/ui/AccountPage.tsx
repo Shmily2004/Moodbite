@@ -8,15 +8,16 @@
  * hoạt động đúng, và người dùng gửi được đường dẫn tới đúng mục mình đang xem. Đây là
  * điều `useState` không làm được, và cũng là lý do không dùng `useState` ở đây.
  *
- * ⛔ BA MỤC TRONG BẢN THIẾT KẾ CHƯA DỰNG — đã báo cáo riêng cho chủ dự án, và lý do là
- *    THIẾU DỮ LIỆU chứ không phải thiếu thời gian:
- *      · "Địa chỉ của tôi"      -> không có bảng địa chỉ, cũng chưa có endpoint nào.
- *                                  Vị trí hiện lấy từ trình duyệt (`features/pick-location`).
- *      · "Bộ sưu tập của tôi"   -> cần bảng `collections` + endpoint. Khác "đã lưu" ở chỗ
- *                                  người dùng tự đặt tên nhóm — là một tính năng riêng.
+ * ĐÃ DỰNG 2026-09-29 (chủ dự án duyệt thêm bảng CSDL):
+ *      · "Địa chỉ của tôi"      -> bảng `user_addresses` + `/me/addresses`. Địa chỉ MẶC
+ *                                  ĐỊNH là điểm dự phòng khi trình duyệt không cho vị trí
+ *                                  (xem `features/pick-location`).
+ *      · "Bộ sưu tập của tôi"   -> bảng `collections` + `collection_items` + `/me/collections`.
+ *
+ * ⛔ MỘT MỤC TRONG BẢN THIẾT KẾ VẪN CHƯA DỰNG, vì THIẾU DỮ LIỆU:
  *      · "Thông báo"            -> không có nguồn thông báo nào. Cái chuông đỏ trên bản
  *                                  thiết kế sẽ luôn trống.
- *    Vẽ ba mục đó ra rồi bấm vào không có gì thì tệ hơn là chưa có (CLAUDE.md mục 4).
+ *    Vẽ mục đó ra rồi bấm vào không có gì thì tệ hơn là chưa có (CLAUDE.md mục 4).
  */
 import { useMemo } from 'react';
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
@@ -31,9 +32,13 @@ import { useUserSessionContext, useUserStats } from '@/entities/user';
 import { useDishImages } from '@/entities/dish';
 import {
   IconBadge,
+  IconCalendar,
   IconClock,
   IconDining,
+  IconFolder,
   IconHome,
+  IconPin,
+  IconMail,
   IconSettings,
   IconHeart,
   IconUser,
@@ -42,8 +47,9 @@ import { useT } from '@/shared/i18n';
 import type { Khoa } from '@/shared/i18n';
 import { ROUTES } from '@/shared/config';
 import { BadgesTab, ProfileTab, SettingsPanel, thangNam } from './tabs';
-import { RecentTab, SavedTab } from './savedTabs';
+import { RecentTab } from './savedTabs';
 import { OverviewTab } from './OverviewTab';
+import { AddressesTab, CollectionsTab, SavedTabWithCollections } from './placesTabs';
 
 /**
  * Mã tab nằm trên URL. Đổi giá trị ở đây là đổi đường dẫn — cân nhắc trước khi sửa.
@@ -55,8 +61,11 @@ const TABS = [
   { id: 'overview', nhan: 'account.tab.overview', Icon: IconHome },
   { id: 'profile', nhan: 'account.tab.profile', Icon: IconUser },
   { id: 'taste', nhan: 'account.tab.taste', Icon: IconDining },
+  // Thứ tự theo bản thiết kế: "Địa chỉ" ngay sau "Sở thích", "Bộ sưu tập" sau "Đã xem".
+  { id: 'addresses', nhan: 'account.tab.addresses', Icon: IconPin },
   { id: 'saved', nhan: 'account.tab.saved', Icon: IconHeart },
   { id: 'recent', nhan: 'account.tab.recent', Icon: IconClock },
+  { id: 'collections', nhan: 'account.tab.collections', Icon: IconFolder },
   { id: 'badges', nhan: 'account.tab.badges', Icon: IconBadge },
   { id: 'settings', nhan: 'account.tab.settings', Icon: IconSettings },
 ] as const satisfies ReadonlyArray<{
@@ -138,7 +147,7 @@ export function AccountPage() {
               <p className="account__line">@{session.user?.username}</p>
               {session.user?.email ? (
                 <p className="account__line">
-                  ✉️ {session.user.email}{' '}
+                  <IconMail className="icon-inline" /> {session.user.email}{' '}
                   {/* Nói rõ trạng thái ngay cạnh địa chỉ: người dùng cần biết mình có
                       lấy lại được mật khẩu qua email hay không. */}
                   {session.user.email_verified ? (
@@ -153,7 +162,8 @@ export function AccountPage() {
               )}
               {thamGia && (
                 <p className="account__since">
-                  🗓️ {t('account.memberSince', { date: thamGia })}
+                  <IconCalendar className="icon-inline" />{' '}
+                  {t('account.memberSince', { date: thamGia })}
                 </p>
               )}
 
@@ -188,7 +198,9 @@ export function AccountPage() {
               <div className="account-col">
                 {tab === 'profile' && <ProfileTab user={session.user ?? null} />}
                 {tab === 'taste' && <TastePicker prefs={taste} />}
-                {tab === 'saved' && <SavedTab favorites={favorites} anh={anh} />}
+                {tab === 'saved' && <SavedTabWithCollections favorites={favorites} anh={anh} />}
+                {tab === 'addresses' && <AddressesTab />}
+                {tab === 'collections' && <CollectionsTab />}
                 {tab === 'recent' && <RecentTab recent={recent} anh={anh} />}
                 {tab === 'badges' && <BadgesTab stats={stats} loading={dangTaiStats} />}
                 {tab === 'settings' && (

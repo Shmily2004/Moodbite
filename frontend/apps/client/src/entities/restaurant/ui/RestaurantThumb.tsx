@@ -7,9 +7,29 @@
  * Giải pháp: sinh ô màu từ CHÍNH TÊN QUÁN — cùng một quán luôn ra cùng một màu, nên
  * nhìn ổn định và có chủ đích. Kèm biểu tượng suy từ loại hình quán để đỡ trống trải.
  *
+ * Biểu tượng là icon SVG ở `shared/ui/icons.tsx` (đổi từ emoji 2026-09-29, checklist A9):
+ * emoji mỗi hệ điều hành vẽ một kiểu, còn SVG `currentColor` ăn màu trắng của ô.
+ *
  * KHÔNG phải business logic: đây thuần là quy tắc HIỂN THỊ. Nó không đổi thứ tự kết quả.
  */
-import type { CSSProperties } from 'react';
+import type { ComponentType, CSSProperties, SVGProps } from 'react';
+import {
+  IconBeer,
+  IconBread,
+  IconBubbleTea,
+  IconBurger,
+  IconCake,
+  IconCoffee,
+  IconDining,
+  IconFlame,
+  IconHotBowl,
+  IconLeaf,
+  IconPizza,
+  IconRiceBowl,
+  IconSeafood,
+  IconSoup,
+  IconSushi,
+} from '@/shared/ui';
 
 /** Băm tên quán -> góc màu 0..359. Thuật toán djb2 rút gọn, đủ tản đều cho việc này. */
 function hueFromName(name: string): number {
@@ -20,30 +40,35 @@ function hueFromName(name: string): number {
   return Math.abs(hash) % 360;
 }
 
-/** Biểu tượng theo loại hình quán. Không khớp gì thì dùng bát đũa chung chung. */
-const GLYPHS: Array<[RegExp, string]> = [
-  [/phở|pho\b/i, '🍜'],
-  [/bún|bun\b/i, '🍲'],
-  [/cà phê|ca phe|coffee|cafe/i, '☕'],
-  [/trà|tra sua|milk tea|bubble/i, '🧋'],
-  [/bánh mì|banh mi/i, '🥖'],
-  [/bánh|banh|bakery|kem|dessert/i, '🍰'],
-  [/lẩu|lau\b|nướng|nuong|bbq/i, '🍢'],
-  [/hải sản|hai san|seafood|ốc|oc\b/i, '🦐'],
-  [/pizza|ý|italian/i, '🍕'],
-  [/burger|gà rán|ga ran|fast food|ăn nhanh/i, '🍔'],
-  [/sushi|nhật|nhat ban|japan/i, '🍣'],
-  [/chay|vegetarian|vegan/i, '🥗'],
-  [/bia|beer|pub|bar/i, '🍺'],
-  [/cơm|com\b|rice/i, '🍚'],
+type GlyphIcon = ComponentType<SVGProps<SVGSVGElement>>;
+
+/**
+ * Biểu tượng theo loại hình quán. Không khớp gì thì dùng dao dĩa chung chung.
+ * THỨ TỰ CÓ CHỦ ĐÍCH: "bánh mì" phải đứng trước "bánh", khớp dòng nào trước lấy dòng đó.
+ */
+const GLYPHS: Array<[RegExp, GlyphIcon]> = [
+  [/phở|pho\b/i, IconSoup],
+  [/bún|bun\b/i, IconHotBowl],
+  [/cà phê|ca phe|coffee|cafe/i, IconCoffee],
+  [/trà|tra sua|milk tea|bubble/i, IconBubbleTea],
+  [/bánh mì|banh mi/i, IconBread],
+  [/bánh|banh|bakery|kem|dessert/i, IconCake],
+  [/lẩu|lau\b|nướng|nuong|bbq/i, IconFlame],
+  [/hải sản|hai san|seafood|ốc|oc\b/i, IconSeafood],
+  [/pizza|ý|italian/i, IconPizza],
+  [/burger|gà rán|ga ran|fast food|ăn nhanh/i, IconBurger],
+  [/sushi|nhật|nhat ban|japan/i, IconSushi],
+  [/chay|vegetarian|vegan/i, IconLeaf],
+  [/bia|beer|pub|bar/i, IconBeer],
+  [/cơm|com\b|rice/i, IconRiceBowl],
 ];
 
-function glyphFor(category: string | null | undefined, name: string): string {
+function glyphFor(category: string | null | undefined, name: string): GlyphIcon {
   const haystack = `${category ?? ''} ${name}`;
   for (const [pattern, glyph] of GLYPHS) {
     if (pattern.test(haystack)) return glyph;
   }
-  return '🍽️';
+  return IconDining;
 }
 
 export interface RestaurantThumbProps {
@@ -71,9 +96,12 @@ export function RestaurantThumb({ name, category, thumbnailUrl }: RestaurantThum
   }
 
   const style = { '--tile-h': hueFromName(name) } as CSSProperties;
+  const Glyph = glyphFor(category, name);
   return (
     <div className="thumb thumb--generated" style={style} aria-hidden="true">
-      <span className="thumb__glyph">{glyphFor(category, name)}</span>
+      <span className="thumb__glyph">
+        <Glyph />
+      </span>
     </div>
   );
 }

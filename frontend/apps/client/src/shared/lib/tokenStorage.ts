@@ -42,6 +42,20 @@ export function writeToken(token: string, remember: boolean): void {
   }
 }
 
+/**
+ * Thay token đang có bằng token mới, GIỮ NGUYÊN lựa chọn "ghi nhớ" của lần đăng nhập.
+ * Dùng sau khi đổi mật khẩu: server thu hồi token cũ và trả token mới cho máy này.
+ */
+export function replaceToken(token: string): void {
+  let remember = false;
+  try {
+    remember = sessionStorage.getItem(KEY) === null && localStorage.getItem(KEY) !== null;
+  } catch {
+    /* không đọc được storage thì coi như phiên tạm */
+  }
+  writeToken(token, remember);
+}
+
 export function clearToken(): void {
   try {
     localStorage.removeItem(KEY);

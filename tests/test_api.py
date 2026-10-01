@@ -78,7 +78,7 @@ def _container(restaurants=None, details=None, restaurants_ready=True):
     # Quản trị TẮT trong bộ test này: đây là test cho luồng NGƯỜI DÙNG CUỐI. Trạng thái
     # "chưa cấu hình" cũng đúng là mặc định khi chạy thật. Luồng admin có file riêng
     # (`tests/test_admin_api.py`).
-    c.admin_auth = AdminAuthService(username="", password_hash="", token_secret="")
+    c.admin_auth = AdminAuthService(None, "")
     c.admin_restaurants = None
     c.list_restaurants_for_admin = None
     c.update_restaurant = None

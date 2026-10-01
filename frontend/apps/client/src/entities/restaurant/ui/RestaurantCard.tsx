@@ -26,7 +26,18 @@ import {
   formatDistance,
   formatPrice,
 } from '../model/format';
+import type { ReasonKind } from '../model/format';
 import { RestaurantThumb } from './RestaurantThumb';
+import { IconDining, IconSearch, IconSmile } from '@/shared/ui';
+
+/**
+ * Icon cho từng LOẠI lý do (thay emoji 😌 / 🔎 / 🍽 ngày 2026-09-29, checklist A9).
+ * `icon-inline` cỡ theo `em` nên vừa khít cột 16px của `.why__row`.
+ */
+const REASON_ICON: Record<ReasonKind, JSX.Element> = {
+  feel: <IconSmile className="icon-inline" />,
+  match: <IconSearch className="icon-inline" />,
+};
 
 interface RestaurantCardProps {
   restaurant: SearchResultItem;
@@ -100,7 +111,7 @@ export function RestaurantCard({
           <h3 className="card__title">
             <span className="card__name">{restaurant.name}</span>
             {/* NHÃN "NỔI TIẾNG" — quy tắc ở `domain/services/restaurant_badges.py`.
-                ⚠️ Không có nhãn KHÔNG có nghĩa là "quán không nổi tiếng": chỉ 2,4% quán
+                ⚠ Không có nhãn KHÔNG có nghĩa là "quán không nổi tiếng": chỉ 2,4% quán
                 có dữ liệu review. Nhãn này chỉ để KHẲNG ĐỊNH, không bao giờ để phủ định,
                 và không được đem đi sắp xếp hay lọc. */}
             {restaurant.is_famous && <span className="card__noi-tieng">Nổi tiếng</span>}
@@ -146,15 +157,15 @@ export function RestaurantCard({
           {/* VÌ SAO QUÁN NÀY - phần làm nên khác biệt so với một danh sách quán thường. */}
           <ul className="why">
             {reasons.map((reason) => (
-              <li className="why__row" key={reason.icon + reason.text}>
-                <span aria-hidden="true">{reason.icon}</span>
+              <li className="why__row" key={reason.kind + reason.text}>
+                {REASON_ICON[reason.kind]}
                 <span>{reason.text}</span>
               </li>
             ))}
 
             {dish && (
               <li className="why__row">
-                <span aria-hidden="true">🍽</span>
+                <IconDining className="icon-inline" />
                 <span>
                   <span
                     className={

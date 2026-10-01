@@ -1,0 +1,122 @@
+/*
+ * "Bộ sưu tập của tôi" + "Địa chỉ của tôi" (2026-09-29).
+ * File riêng theo quy ước ở `App.tsx`: thêm khối giao diện mới là thêm một file, không
+ * nhồi tiếp vào `styles.css` / `account.css`. Chỉ dùng biến màu có sẵn -> tự đúng ở cả
+ * giao diện sáng lẫn tối.
+ */
+
+/* Ô nhập dùng chung cho hai tab. */
+.mp-input {
+  min-width: 0;
+  padding: 8px 12px;
+  border: 1px solid var(--line-warm-soft, var(--surface-2));
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+.mp-input:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* --- Bộ sưu tập ---------------------------------------------------------- */
+
+.bst-form { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 12px; }
+.bst-form .mp-input { flex: 1 1 220px; }
+
+.bst-list { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.bst-item {
+  padding: 10px 12px;
+  border: 1px solid var(--line-warm-soft, var(--surface-2));
+  border-radius: 14px;
+}
+.bst-item__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.bst-item__name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.bst-item__name svg { width: 1.1em; height: 1.1em; }
+.bst-item__actions { display: inline-flex; flex-wrap: wrap; gap: 12px; }
+
+.bst-items { display: grid; gap: 6px; margin: 10px 0 0; padding: 0; list-style: none; }
+.bst-items__row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: var(--surface-2);
+}
+.bst-items__row svg { width: 1em; height: 1em; flex: none; }
+.bst-items__remove {
+  margin-left: auto;
+  padding: 2px;
+  border: none;
+  background: none;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.bst-confirm { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }
+.bst-confirm p { flex: 1 1 100%; margin: 0; }
+
+/* Ô "Thêm vào bộ sưu tập" dưới thẻ ở tab Yêu thích. */
+.item-card__footer { margin-top: 6px; }
+.bst-add { display: grid; gap: 6px; }
+.bst-add .mp-input { width: 100%; }
+.bst-add__open { display: inline-flex; align-items: center; gap: 4px; font-size: .85rem; }
+.bst-add__open svg { width: 1em; height: 1em; }
+
+/* --- Địa chỉ ------------------------------------------------------------- */
+
+.dc-form { display: grid; gap: 10px; margin: 8px 0 14px; }
+.dc-form__field { display: grid; gap: 4px; font-weight: 600; font-size: .9rem; }
+.dc-form__row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.dc-map {
+  height: 280px;
+  width: 100%;
+  border-radius: 14px;
+  /* Leaflet đặt z-index cao cho các lớp của nó — giữ bản đồ nằm dưới menu/ngăn kéo. */
+  z-index: 0;
+}
+
+.dc-list { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.dc-item {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--line-warm-soft, var(--surface-2));
+  border-radius: 14px;
+}
+.dc-item__main p { margin: 2px 0 0; }
+.dc-item__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: .78rem;
+  font-weight: 700;
+}
+.dc-item__actions { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 12px; }
+.dc-item .bst-confirm { flex: 1 1 100%; }

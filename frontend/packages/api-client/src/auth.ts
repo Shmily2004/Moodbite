@@ -24,6 +24,7 @@ export type ChangePasswordRequest = components['schemas']['ChangePasswordRequest
 export type VerifyEmailRequest = components['schemas']['VerifyEmailRequest'];
 /** Kết quả của các thao tác không trả về tài nguyên nào — chỉ một câu cho người dùng đọc. */
 export type MessageData = components['schemas']['MessageData'];
+export type ChangePasswordData = components['schemas']['ChangePasswordData'];
 export type AuthData = components['schemas']['AuthData'];
 /**
  * Hồ sơ CHÍNH CHỦ: có thêm email, ngày tham gia và trạng thái xác minh email.
@@ -134,18 +135,27 @@ export class MoodbiteAuthApi {
    *
    * Vẫn phải gửi mật khẩu hiện tại dù đã có token — token nằm trong trình duyệt và sống
    * 24 giờ, ai mượn được máy là đổi được mật khẩu.
-   * ⚠️ Đổi xong KHÔNG thu hồi token ở máy khác (token HMAC là stateless). Câu trả về của
-   * server đã nói rõ điều này — hãy hiện nguyên văn cho người dùng.
+   *
+   * Đổi xong server THU HỒI mọi token (kể cả token đang dùng) và trả `token` MỚI cho máy
+   * này. Người gọi PHẢI lưu token mới, nếu không lần gọi kế tiếp sẽ 401.
    */
   changePassword(
     body: ChangePasswordRequest,
     options?: RequestOptions,
-  ): Promise<MessageData> {
-    return this.http.request<MessageData>('/auth/change-password', {
+  ): Promise<ChangePasswordData> {
+    return this.http.request<ChangePasswordData>('/auth/change-password', {
       ...options,
       method: 'POST',
       body,
     });
+  }
+
+  /**
+   * Đăng xuất THẬT: server thu hồi mọi token của tài khoản, ở MỌI thiết bị (phương án
+   * `token_version`, không đăng xuất riêng từng máy được).
+   */
+  logout(options?: RequestOptions): Promise<MessageData> {
+    return this.http.request<MessageData>('/auth/logout', { ...options, method: 'POST' });
   }
 
   /**

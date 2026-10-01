@@ -89,10 +89,10 @@ class Settings:
     # không phụ thuộc mạng.
     enable_weather: bool
     # --- Trang quản trị -------------------------------------------------------
-    # FAIL-CLOSED: thiếu bất kỳ giá trị nào trong 3 giá trị dưới -> admin TẮT hoàn toàn
-    # và /api/v1/admin/* trả 503. Không bao giờ được mặc định thành "cho qua".
-    admin_username: str
-    admin_password_hash: str
+    # FAIL-CLOSED: thiếu secret -> admin TẮT hoàn toàn và /api/v1/admin/* trả 503.
+    # Từ 2026-09-29 tài khoản admin nằm trong bảng `users` (`role='admin'`), KHÔNG còn ở
+    # MOODBITE_ADMIN_USER / MOODBITE_ADMIN_PASSWORD_HASH - tạo bằng
+    # `python scripts/make_admin_user.py` (`--tu-env` để chuyển tài khoản cũ sang).
     admin_token_secret: str
     admin_token_ttl_seconds: int
     # --- Tài khoản người dùng cuối --------------------------------------------
@@ -199,8 +199,6 @@ class Settings:
             # Mặc định TẮT: bật thời tiết làm mọi lượt tìm kiếm phụ thuộc mạng.
             # Bật bằng MOODBITE_ENABLE_WEATHER=1 khi chạy thật.
             enable_weather=os.getenv("MOODBITE_ENABLE_WEATHER", "") == "1",
-            admin_username=os.getenv("MOODBITE_ADMIN_USER", "").strip(),
-            admin_password_hash=os.getenv("MOODBITE_ADMIN_PASSWORD_HASH", "").strip(),
             admin_token_secret=os.getenv("MOODBITE_ADMIN_SECRET", "").strip(),
             admin_token_ttl_seconds=int(
                 os.getenv("MOODBITE_ADMIN_TOKEN_TTL", "3600") or 3600

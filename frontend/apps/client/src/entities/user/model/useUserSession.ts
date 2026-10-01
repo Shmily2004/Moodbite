@@ -162,9 +162,11 @@ export function useUserSession(): UseUserSessionResult {
   );
 
   const logout = useCallback(() => {
-    // Backend CỐ TÌNH không có `/auth/logout`: token HMAC là stateless, server không giữ
-    // danh sách token đang sống nên không có gì để xoá. Đăng xuất = client bỏ token của
-    // mình đi. Xem đầu file `src/presentation/api/routers/auth.py`.
+    // Báo server THU HỒI token (mọi thiết bị - từ 2026-09-29). Gọi TRƯỚC `clearToken`:
+    // `request` đọc token ngay lúc gọi, xoá trước thì server không biết thu hồi của ai.
+    // KHÔNG đợi kết quả và nuốt lỗi: mất mạng hay token đã hết hạn thì người dùng vẫn
+    // phải được đăng xuất khỏi máy này - chặn lại chỉ vì server không trả lời là sai.
+    authApi.logout().catch(() => undefined);
     clearToken();
     setUser(null);
     setIsLoggedIn(false);

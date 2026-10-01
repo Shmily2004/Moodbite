@@ -41,6 +41,7 @@ export type {
   ForgotPasswordRequest,
   LoginRequest,
   MessageData,
+  ChangePasswordData,
   RegisterRequest,
   ResetPasswordRequest,
   SaveFavoriteRequest,
@@ -49,6 +50,19 @@ export type {
   UserSelf,
   UserStatsData,
 } from './auth';
+
+// "Bộ sưu tập" + "Địa chỉ của tôi" (2026-09-29) — lớp riêng, xem `my-places.ts`.
+export { MoodbiteMyPlacesApi } from './my-places';
+export type {
+  AddCollectionItemRequest,
+  AddressesData,
+  CollectionData,
+  CollectionItemData,
+  CollectionsData,
+  CreateAddressRequest,
+  UpdateAddressRequest,
+  UserAddressData,
+} from './my-places';
 
 export { MoodbiteAdminApi } from './admin';
 export type {
@@ -98,6 +112,7 @@ import { HttpClient } from './http';
 import { MoodbiteApi } from './endpoints';
 import { MoodbiteAuthApi } from './auth';
 import { MoodbiteAdminApi } from './admin';
+import { MoodbiteMyPlacesApi } from './my-places';
 
 export const DEFAULT_API_BASE = 'http://localhost:8001/api/v1';
 
@@ -123,6 +138,17 @@ export function createAuthApi(
   getAuthToken?: () => string | null,
 ): MoodbiteAuthApi {
   return new MoodbiteAuthApi(new HttpClient({ baseUrl, getAuthToken }));
+}
+
+/**
+ * Client cho "Bộ sưu tập" + "Địa chỉ của tôi". `getAuthToken` BẮT BUỘC: mọi endpoint ở
+ * đây đều cần đăng nhập, bắt truyền ngay từ đầu để lỗi hiện lúc biên dịch.
+ */
+export function createMyPlacesApi(
+  baseUrl: string = DEFAULT_API_BASE,
+  getAuthToken: () => string | null,
+): MoodbiteMyPlacesApi {
+  return new MoodbiteMyPlacesApi(new HttpClient({ baseUrl, getAuthToken }));
 }
 
 /**

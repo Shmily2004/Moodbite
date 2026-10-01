@@ -8,13 +8,16 @@
  * sống 24 giờ; ai mượn được máy lúc chủ máy đi pha cà phê là đổi mật khẩu rồi chiếm luôn
  * tài khoản. Hỏi lại biến "mượn được máy" thành "phải biết mật khẩu".
  *
- * ⚠️ HIỆN NGUYÊN VĂN CÂU TRẢ VỀ CỦA SERVER, không viết lại thành "Đổi mật khẩu thành công!".
- * Câu đó nói rõ một giới hạn thật: máy khác đang đăng nhập VẪN dùng được tới khi token hết
- * hạn. Nuốt mất câu này là để người dùng tin rằng họ vừa đá được kẻ lạ ra — trong khi không.
+ * HIỆN NGUYÊN VĂN CÂU TRẢ VỀ CỦA SERVER: nó nói rõ máy khác đã bị đăng xuất.
+ *
+ * ⚠️ PHẢI LƯU TOKEN MỚI. Từ 2026-09-29 đổi mật khẩu thu hồi MỌI token, kể cả token của máy
+ * đang gọi; server trả token mới cho máy này. Quên lưu thì lần gọi kế tiếp 401 và người
+ * dùng bị đá ra ngay sau khi đổi mật khẩu thành công.
  */
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { authApi } from '@/shared/api';
+import { replaceToken } from '@/shared/lib';
 
 export function ChangePasswordForm() {
   const [cu, setCu] = useState('');
@@ -33,6 +36,7 @@ export function ChangePasswordForm() {
         current_password: cu,
         new_password: moi,
       });
+      replaceToken(ket_qua.token);
       setXong(ket_qua.message);
       setCu('');
       setMoi('');

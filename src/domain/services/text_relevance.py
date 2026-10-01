@@ -21,7 +21,13 @@ from typing import Dict, List, Optional
 
 from src.domain.entities.restaurant import Restaurant
 from src.domain.value_objects.mood import MOOD_PROFILES
-from src.domain.value_objects.text import normalize
+from src.domain.value_objects.text import (
+    Token,
+    contains_token_sequence,
+    normalize,
+    tokenize_pairs,
+    tokens_match,
+)
 from src.domain.value_objects.text import tokenize as base_tokenize
 
 # Trọng số theo ĐỘ CHÍNH XÁC của từng nguồn (không phải độ "phong phú").
@@ -69,6 +75,11 @@ def tokenize(text: Optional[str]) -> List[str]:
     return [w for w in base_tokenize(text) if w not in _NORMALIZED_STOP_WORDS]
 
 
+def _tokenize_pairs(text: Optional[str]) -> List[Token]:
+    """Như `tokenize` nhưng giữ cặp (bỏ dấu, giữ dấu) để so theo quy tắc dấu."""
+    return [t for t in tokenize_pairs(text) if t[0] not in _NORMALIZED_STOP_WORDS]
+
+
 @dataclass(frozen=True)
 class RelevanceResult:
     score: float          # 0.0 - 1.0
@@ -79,32 +90,41 @@ class RelevanceResult:
         return self.score > 0.0
 
 
-def _phrases(tokens: List[str]) -> List[str]:
-    """Các cụm 2 từ liền nhau của câu tìm kiếm."""
-    return [f"{a} {b}" for a, b in zip(tokens, tokens[1:])]
-
-
-def _overlap(query_tokens: List[str], target: Optional[str]) -> float:
+def _overlap(query_tokens: List[Token], target: Optional[str]) -> float:
     """Mức khớp giữa từ khoá câu hỏi và một đoạn văn bản, trong khoảng [0, 1].
 
-    So khớp theo TỪ NGUYÊN VẸN, không phải chuỗi con. Đây là điểm then chốt: nếu dùng
-    `"bo" in text` thì "bo" khớp luôn cả "bột", "bỏ", "bò né"... khiến truy vấn "phở bò"
-    trả về quán bánh tráng. So theo tập từ loại bỏ hoàn toàn lỗi này.
+    So khớp theo TỪ NGUYÊN VẸN, không phải chuỗi con: nếu dùng `"bo" in text` thì "bo"
+    khớp luôn cả "bột", "bò né"... khiến truy vấn "phở bò" trả về quán bánh tráng.
+
+    Từng từ đi qua `tokens_match` (CLAUDE.md §4.5 "dấu là bằng chứng"). Bug thật trước
+    2026-09-29: hàm này so tập từ ĐÃ BỎ DẤU, nên tìm "phở" ra "Nhà Hàng Phố Cổ", "Gà Phố"
+    (đo: 7 kết quả trùng âm trong top-20 của 8 truy vấn, `scripts/do_trung_am_tim_kiem.py`).
     """
     if not query_tokens or not target:
         return 0.0
-    target_tokens = set(tokenize(target))
+    target_tokens = _tokenize_pairs(target)
     if not target_tokens:
         return 0.0
 
-    hits = sum(1 for t in query_tokens if t in target_tokens)
+    # Gom theo bản bỏ dấu để mỗi từ câu hỏi chỉ phải so với đúng các từ đồng âm.
+    by_plain: Dict[str, List[Token]] = {}
+    for token in target_tokens:
+        by_plain.setdefault(token[0], []).append(token)
+
+    hits = sum(
+        1 for q in query_tokens
+        if any(tokens_match(t, q) for t in by_plain.get(q[0], ()))
+    )
     if not hits:
         return 0.0
     score = hits / len(query_tokens)
 
-    # Khớp nguyên cụm thì cộng thêm.
-    target_normalized = normalize(target)
-    if any(phrase in target_normalized for phrase in _phrases(query_tokens)):
+    # Khớp nguyên cụm 2 từ thì cộng thêm - cũng qua quy tắc dấu, để "Phố Bò" không được
+    # thưởng như "Phở Bò".
+    if any(
+        contains_token_sequence(target_tokens, list(pair))
+        for pair in zip(query_tokens, query_tokens[1:])
+    ):
         score = min(1.0, score + PHRASE_BONUS)
 
     return score
@@ -116,7 +136,7 @@ def relevance(restaurant: Restaurant, query_text: Optional[str]) -> RelevanceRes
     Không có câu tìm kiếm -> điểm 0 và không nguồn nào: tầng gọi sẽ chỉ dùng các tín hiệu
     khác (mood/ngữ cảnh/khoảng cách), chứ KHÔNG loại quán nào.
     """
-    tokens = tokenize(query_text)
+    tokens = _tokenize_pairs(query_text)
     if not tokens:
         return RelevanceResult(score=0.0, sources=[])
 

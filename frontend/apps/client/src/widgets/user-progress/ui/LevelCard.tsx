@@ -10,6 +10,7 @@
  */
 import { useT } from '@/shared/i18n';
 import type { UserStatsData } from '@/shared/api';
+import { IconStar } from '@/shared/ui';
 
 export interface LevelCardProps {
   stats: UserStatsData | null;
@@ -38,7 +39,7 @@ export function LevelCard({ stats, loading }: LevelCardProps) {
       <div className="level">
         {/* Ngôi sao là hình trang trí; số cấp mới là thông tin, nên nó nằm ở chữ. */}
         <div className="level__badge" aria-hidden="true">
-          ⭐
+          <IconStar filled />
         </div>
         <div className="level__body">
           <p className="level__name">{cap.current.name}</p>

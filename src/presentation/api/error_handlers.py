@@ -27,6 +27,8 @@ from src.application.ports.admin_restaurant_repository import (
 )
 from src.application.ports.user_repository import UsernameAlreadyExists
 from src.application.use_cases.find_restaurants_for_dish import DishNotFoundError
+from src.application.use_cases.manage_addresses import AddressNotFoundError
+from src.application.use_cases.manage_collections import CollectionNotFoundError
 from src.application.use_cases.log_interaction import (
     InvalidInteractionError,
     RestaurantNotFoundError,
@@ -63,6 +65,26 @@ def register_error_handlers(app: FastAPI) -> None:
             str(exc),
             status_code=404,
             details={"restaurant_id": exc.restaurant_id},
+        )
+
+    @app.exception_handler(CollectionNotFoundError)
+    async def _collection_not_found(request: Request, exc: CollectionNotFoundError):
+        # 404 cho CẢ "không tồn tại" lẫn "của người khác" — không bao giờ 403 ở đây, vì
+        # 403 xác nhận rằng mã đó có thật.
+        return error(
+            ErrorCode.COLLECTION_NOT_FOUND,
+            str(exc),
+            status_code=404,
+            details={"collection_id": exc.collection_id},
+        )
+
+    @app.exception_handler(AddressNotFoundError)
+    async def _address_not_found(request: Request, exc: AddressNotFoundError):
+        return error(
+            ErrorCode.ADDRESS_NOT_FOUND,
+            str(exc),
+            status_code=404,
+            details={"address_id": exc.address_id},
         )
 
     @app.exception_handler(DishNotFoundError)

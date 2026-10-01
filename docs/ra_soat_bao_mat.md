@@ -127,7 +127,7 @@ yêu cầu, không có chuyện bọc `except Exception` quanh route rồi trả
 
 | Việc | Vì sao chưa làm |
 |---|---|
-| **Thu hồi token đăng nhập** | Cần thêm cột `token_version` vào bảng `users` = ĐỔI LƯỢC ĐỒ, phải chốt trước (`docs/API_DECISIONS_PENDING.md`). Hiện thiệt hại bị chặn trên bởi hạn 24 giờ |
+| **Thu hồi token đăng nhập** | ✅ Xong 2026-09-29: cột `token_version` + `POST /auth/logout`; đổi/đặt lại mật khẩu cũng thu hồi. Đánh đổi: đăng xuất là đăng xuất MỌI thiết bị |
 | **Cảnh báo khi secret trông như chuỗi mẫu** | Sẽ chặn được đúng lỗi ở mục 1, nhưng là thêm hành vi mới lúc khởi động — nên hỏi trước |
 | **Giới hạn tần suất theo tài khoản, không chỉ theo IP** | Bộ đếm hiện theo IP. Chung NAT thì chặn oan; đổi IP thì lách được. Với quy mô đồ án thì theo IP là đủ |
 | **Bộ đếm nằm trong RAM** | Khởi động lại là mất. Muốn bền phải thêm Redis — đúng thứ `CLAUDE.md` cấm (không đề xuất dịch vụ cần thẻ) |
@@ -141,7 +141,7 @@ yêu cầu, không có chuyện bọc `except Exception` quanh route rồi trả
 1. Đặt `MOODBITE_CORS_ORIGINS=https://tenmien.cua.ban` — **đừng để `*`**.
 2. Sinh lại toàn bộ secret bằng `python -c "import secrets; print(secrets.token_hex(32))"`
    và **dán KẾT QUẢ, không dán câu lệnh** (xem mục 1).
-3. Đổi mật khẩu quản trị, sinh lại `MOODBITE_ADMIN_PASSWORD_HASH` bằng
-   `python scripts/make_admin_password.py`.
+3. Đổi mật khẩu quản trị (từ 2026-09-29 admin là tài khoản trong bảng `users`: đăng nhập
+   trang người dùng rồi đổi mật khẩu, hoặc tạo admin mới bằng `python scripts/make_admin_user.py`).
 4. Bật HTTPS. Toàn bộ phân tích ở trên giả định kênh truyền đã được mã hoá.
 5. Chạy `python -m pytest tests/test_bao_mat.py` sau mỗi lần đổi cấu hình.

@@ -163,6 +163,7 @@ export function HomePage() {
         onReset={suggestions.reset}
         activeFilterCount={suggestions.activeFilterCount}
         locationIsDefault={location.isDefault}
+        locationLabel={location.label}
         locationLoading={location.loading}
         onRequestLocation={location.request}
       />
@@ -243,7 +244,7 @@ export function HomePage() {
           </section>
         )}
 
-        {/* ⚠️ KHÔNG đặt cột lọc vào TRANG CHỦ. Đã thử và gỡ ngày 2026-08-24.
+        {/* ⚠ KHÔNG đặt cột lọc vào TRANG CHỦ. Đã thử và gỡ ngày 2026-08-24.
             Bản thiết kế `frontend/design/Filler.png` là TRANG KẾT QUẢ sau khi lọc, không
             phải trang chủ. Trang chủ có luồng riêng và đang chạy tốt: hero -> ô tìm ->
             "Gợi ý nhanh theo mood" -> "Khám phá theo nhu cầu". Nhét thêm một cột lọc

@@ -44,6 +44,7 @@ from src.application.use_cases.manage_restaurants import (
 )
 from src.application.use_cases.manage_account import (
     ChangePasswordUseCase,
+    LogoutEverywhereUseCase,
     LoginUseCase,
     RegisterUserUseCase,
     ConfirmEmailVerificationUseCase,
@@ -55,6 +56,20 @@ from src.application.use_cases.manage_favorites import (
     ListFavoritesUseCase,
     RemoveFavoriteUseCase,
     SaveFavoriteUseCase,
+)
+from src.application.use_cases.manage_collections import (
+    AddCollectionItemUseCase,
+    CreateCollectionUseCase,
+    DeleteCollectionUseCase,
+    ListCollectionsUseCase,
+    RemoveCollectionItemUseCase,
+    RenameCollectionUseCase,
+)
+from src.application.use_cases.manage_addresses import (
+    CreateAddressUseCase,
+    DeleteAddressUseCase,
+    ListAddressesUseCase,
+    UpdateAddressUseCase,
 )
 from src.application.use_cases.get_user_stats import GetUserStatsUseCase
 from src.application.use_cases.find_restaurants_for_dish import (
@@ -98,6 +113,12 @@ from src.infrastructure.repositories.sqlite_audit_log_repository import (
 )
 from src.infrastructure.repositories.sqlite_saved_item_repository import (
     SqliteSavedItemRepository,
+)
+from src.infrastructure.repositories.sqlite_collection_repository import (
+    SqliteCollectionRepository,
+)
+from src.infrastructure.repositories.sqlite_user_address_repository import (
+    SqliteUserAddressRepository,
 )
 from src.infrastructure.repositories.sqlite_user_repository import SqliteUserRepository
 from src.infrastructure.adapters.ml_rule_predictor import MlRulePredictor
@@ -194,6 +215,20 @@ class Container:
     save_favorite: SaveFavoriteUseCase
     remove_favorite: RemoveFavoriteUseCase
     list_favorites: ListFavoritesUseCase
+    # "Bộ sưu tập của tôi" + "Địa chỉ của tôi" (duyệt 2026-09-29). Hai kho RIÊNG, cùng
+    # file CSDL tài khoản — dữ liệu gốc do người dùng tạo.
+    collections: object
+    list_collections: ListCollectionsUseCase
+    create_collection: CreateCollectionUseCase
+    rename_collection: RenameCollectionUseCase
+    delete_collection: DeleteCollectionUseCase
+    add_collection_item: AddCollectionItemUseCase
+    remove_collection_item: RemoveCollectionItemUseCase
+    addresses: object
+    list_addresses: ListAddressesUseCase
+    create_address: CreateAddressUseCase
+    update_address: UpdateAddressUseCase
+    delete_address: DeleteAddressUseCase
     get_user_stats: GetUserStatsUseCase
     user_tokens: UserTokenService
     reset_tokens: PasswordResetTokenService
@@ -202,6 +237,7 @@ class Container:
     register_user: RegisterUserUseCase
     login_user: LoginUseCase
     change_password: ChangePasswordUseCase
+    logout_everywhere: LogoutEverywhereUseCase
     request_password_reset: RequestPasswordResetUseCase
     request_email_verification: RequestEmailVerificationUseCase
     confirm_email_verification: ConfirmEmailVerificationUseCase
@@ -238,6 +274,10 @@ class Container:
             },
             "users": _status_of(self.users),
             "saved_items": _status_of(self.saved_items),
+            # `getattr`: container dựng tay trong test (Container.__new__) có thể chưa lắp
+            # hai kho này — /health không được sập vì thế.
+            "collections": _status_of(getattr(self, "collections", None)),
+            "user_addresses": _status_of(getattr(self, "addresses", None)),
             "user_activity": _status_of(self.activity_tally),
             "user_auth": _status_of(self.user_tokens),
             "email": self.emails.status(),
@@ -335,12 +375,6 @@ def build_container(settings: Optional[Settings] = None) -> Container:
         restaurant_repository.list_all() if restaurant_repository.is_ready else []
     )
 
-    admin_auth = AdminAuthService(
-        username=settings.admin_username,
-        password_hash=settings.admin_password_hash,
-        token_secret=settings.admin_token_secret,
-        token_ttl_seconds=settings.admin_token_ttl_seconds,
-    )
     # Chỉ SQLite mới ghi được. Bản CSV cố tình KHÔNG triển khai port ghi, nên phép kiểm
     # dưới đây tự động đúng khi thêm adapter mới - không phải nhớ sửa thêm chỗ nào.
     admin_restaurants = (
@@ -353,9 +387,19 @@ def build_container(settings: Optional[Settings] = None) -> Container:
     # SQLite rỗng gần như không tốn gì, và nhờ vậy /health nói được "kho sẵn sàng nhưng
     # chưa có secret" thay vì gộp hai vấn đề khác nhau vào một thông báo.
     users = SqliteUserRepository(settings.users_db)
+    # Admin = tài khoản `role='admin'` trong CHÍNH kho này (từ 2026-09-29), nên phải dựng
+    # sau `users`. Secret vẫn riêng - xem `infrastructure/auth/admin_auth.py`.
+    admin_auth = AdminAuthService(
+        users,
+        token_secret=settings.admin_token_secret,
+        token_ttl_seconds=settings.admin_token_ttl_seconds,
+    )
     # CÙNG FILE CSDL với tài khoản, cố ý — cả hai đều là dữ liệu gốc. Xem ghi chú đầu
     # `sqlite_saved_item_repository.py`.
     saved_items = SqliteSavedItemRepository(settings.users_db)
+    # Bộ sưu tập + địa chỉ: cùng file, cùng lý do (dữ liệu gốc do người dùng tạo).
+    collections = SqliteCollectionRepository(settings.users_db)
+    addresses = SqliteUserAddressRepository(settings.users_db)
     # CÙNG FILE với tài khoản: nhật ký cũng là dữ liệu gốc, mất là mất hẳn.
     audit_log = SqliteAuditLogRepository(settings.users_db)
     # Cùng lý do: lịch sử chất lượng và trạng thái "đã xử lý" KHÔNG dựng lại được
@@ -538,6 +582,18 @@ def build_container(settings: Optional[Settings] = None) -> Container:
         save_favorite=SaveFavoriteUseCase(saved_items),
         remove_favorite=RemoveFavoriteUseCase(saved_items),
         list_favorites=ListFavoritesUseCase(saved_items),
+        collections=collections,
+        list_collections=ListCollectionsUseCase(collections),
+        create_collection=CreateCollectionUseCase(collections),
+        rename_collection=RenameCollectionUseCase(collections),
+        delete_collection=DeleteCollectionUseCase(collections),
+        add_collection_item=AddCollectionItemUseCase(collections),
+        remove_collection_item=RemoveCollectionItemUseCase(collections),
+        addresses=addresses,
+        list_addresses=ListAddressesUseCase(addresses),
+        create_address=CreateAddressUseCase(addresses),
+        update_address=UpdateAddressUseCase(addresses),
+        delete_address=DeleteAddressUseCase(addresses),
         get_user_stats=GetUserStatsUseCase(activity_tally, saved_items),
         user_tokens=user_tokens,
         reset_tokens=reset_tokens,
@@ -546,6 +602,7 @@ def build_container(settings: Optional[Settings] = None) -> Container:
         register_user=RegisterUserUseCase(users, hash_password, user_tokens.issue),
         login_user=LoginUseCase(users, verify_password, user_tokens.issue),
         change_password=ChangePasswordUseCase(users, verify_password, hash_password),
+        logout_everywhere=LogoutEverywhereUseCase(users),
         request_password_reset=RequestPasswordResetUseCase(
             users=users,
             emails=emails,
@@ -659,15 +716,17 @@ def get_current_user(
             "Kiểm tra quyền ghi ở đường dẫn MOODBITE_USERS_DB.",
         )
 
-    user_id = container.user_tokens.subject_of(_bearer_token(request))
+    token = _bearer_token(request)
+    user_id = container.user_tokens.subject_of(token)
 
-    # Đọc LẠI tài khoản từ kho ở mỗi request thay vì tin nội dung token. Nhờ vậy đổi vai
-    # hay xoá tài khoản có hiệu lực NGAY, không phải đợi token hết hạn.
+    # Đọc LẠI tài khoản từ kho ở mỗi request thay vì tin nội dung token. Nhờ vậy đổi vai,
+    # xoá tài khoản hay THU HỒI TOKEN (đăng xuất/đổi mật khẩu) có hiệu lực NGAY.
     user = container.users.get_by_id(user_id)
     if user is None:
         raise InvalidCredentialsError(
             "Tài khoản không còn tồn tại. Hãy đăng nhập lại."
         )
+    container.user_tokens.ensure_not_revoked(token, user)
     return user
 
 
@@ -690,8 +749,13 @@ def get_optional_user(
         return None
     try:
         container.user_tokens.ensure_configured()
-        user_id = container.user_tokens.subject_of(_bearer_token(request))
-        return container.users.get_by_id(user_id)
+        token = _bearer_token(request)
+        user = container.users.get_by_id(container.user_tokens.subject_of(token))
+        if user is not None:
+            # Token đã thu hồi (đăng xuất) = khách. Không kiểm thì tương tác sau khi đăng
+            # xuất vẫn bị ghi dưới tên người đó.
+            container.user_tokens.ensure_not_revoked(token, user)
+        return user
     except Exception:  # noqa: BLE001 - mọi lỗi xác thực đều quy về "coi như khách"
         return None
 

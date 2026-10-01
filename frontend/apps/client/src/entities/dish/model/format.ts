@@ -65,14 +65,28 @@ export function describeSource(source?: string | null): string | null {
   return SOURCE_LABELS[source] ?? source;
 }
 
+/** Chặn trên số quả ớt: nhiều hơn thì tràn ra cả dòng thuộc tính. */
+const MAX_CHILIES = 3;
+
+export interface SpiceDisplay {
+  /** Số quả ớt cần vẽ (0..3). 0 = khẳng định KHÔNG CAY, khác hẳn "chưa biết". */
+  chilies: number;
+  /** Câu cho trình đọc màn hình / chữ hiện ra khi không vẽ ớt. */
+  label: string;
+}
+
 /**
  * Mức cay thành hình. `null`/`undefined` = CHƯA BIẾT, trả null để UI nói "chưa rõ" thay
  * vì hiện 0 quả ớt như thể món này chắc chắn không cay.
+ *
+ * Trả SỐ quả ớt chứ không trả chuỗi emoji nữa (đổi 2026-09-29, checklist A9): hình quả ớt
+ * là icon SVG do VIEW vẽ, file `.ts` này không kéo React vào.
  */
-export function describeSpice(level?: number | null): string | null {
+export function describeSpice(level?: number | null): SpiceDisplay | null {
   if (level === null || level === undefined) return null;
-  if (level <= 0) return 'Không cay';
-  return '🌶️'.repeat(Math.min(level, 3));
+  if (level <= 0) return { chilies: 0, label: 'Không cay' };
+  const chilies = Math.min(level, MAX_CHILIES);
+  return { chilies, label: `Độ cay ${chilies}/${MAX_CHILIES}` };
 }
 
 /**

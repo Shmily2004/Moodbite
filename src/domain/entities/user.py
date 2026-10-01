@@ -143,6 +143,12 @@ class User:
     # đúng một việc: gửi thư đặt lại mật khẩu tới đúng người.
     email_verified: bool = False
 
+    # Phiên bản PHIÊN ĐĂNG NHẬP. Token mang theo số này lúc được phát; tăng số lên là mọi
+    # token đang sống (ở mọi thiết bị) hết giá trị ngay. Tăng khi: đăng xuất, đổi mật
+    # khẩu, đặt lại mật khẩu. Phương án A trong docs/API_DECISIONS_PENDING.md §5.8, chủ
+    # dự án duyệt 2026-09-29. KHÔNG bao giờ lộ ra API - xem `to_public`/`to_self`.
+    token_version: int = 0
+
     @property
     def is_admin(self) -> bool:
         return self.role == UserRole.ADMIN

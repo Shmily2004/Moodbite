@@ -68,7 +68,13 @@ def tokenize_pairs(text: Optional[str], min_length: int = 2) -> List[Token]:
     quán biến mất mà không ai biết vì sao.
     """
     pairs: List[Token] = []
-    for raw in _WORD_RE.findall(str(text or "").lower()):
+    # GỘP VỀ NFC TRƯỚC KHI CẮT TỪ. Bug thật 2026-09-29: 560/48.991 tên quán lưu dấu dạng
+    # tổ hợp ("ơ" + dấu hỏi U+0309 rời). `_WORD_RE` không coi dấu tổ hợp là chữ nên cắt
+    # "Phở" thành "phơ" -> quy tắc 3 thấy hai vế có dấu khác nhau và loại. "Phở Thìn Bờ
+    # Hồ" vì thế không khớp "phở" ở bất kỳ đâu. `normalize` (bỏ dấu) không bị ảnh hưởng vì
+    # nó tự tách NFD, chỉ vế GIỮ DẤU của cặp mới cần dạng gộp.
+    composed = unicodedata.normalize("NFC", str(text or "").lower())
+    for raw in _WORD_RE.findall(composed):
         # Nối lại vì một "từ" theo Unicode có thể lẫn ký tự không phải chữ Latin
         # (tên quán Nhật/Hàn). Phần không phải a-z0-9 bị bỏ đi đúng như bản cũ.
         plain = "".join(_ASCII_RE.findall(normalize(raw)))

@@ -1,2 +1,7 @@
-export { useUserLocation } from './model/useUserLocation';
-export type { UseUserLocationResult } from './model/useUserLocation';
+export { useUserLocation, chonViTri } from './model/useUserLocation';
+export type {
+  UseUserLocationResult,
+  NguonViTri,
+  DiemDuPhong,
+  Coordinates,
+} from './model/useUserLocation';

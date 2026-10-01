@@ -19,6 +19,7 @@ from src.application.use_cases.log_interaction import LogInteractionUseCase
 from src.application.use_cases.manage_account import (
     ChangePasswordUseCase,
     LoginUseCase,
+    LogoutEverywhereUseCase,
     RegisterUserUseCase,
     ConfirmEmailVerificationUseCase,
     RequestEmailVerificationUseCase,
@@ -123,7 +124,7 @@ def build_client(
     c.log_interaction = LogInteractionUseCase(
         interactions, repo, activity_tally=c.activity_tally
     )
-    c.admin_auth = AdminAuthService("", "", "")
+    c.admin_auth = AdminAuthService(None, "")
     c.admin_restaurants = None
     c.list_restaurants_for_admin = None
     c.update_restaurant = None
@@ -135,6 +136,7 @@ def build_client(
     c.register_user = RegisterUserUseCase(users, hash_password, tokens.issue)
     c.login_user = LoginUseCase(users, verify_password, tokens.issue)
     c.change_password = ChangePasswordUseCase(users, verify_password, hash_password)
+    c.logout_everywhere = LogoutEverywhereUseCase(users)
     c.request_password_reset = RequestPasswordResetUseCase(
         users=users,
         emails=emails,
@@ -237,9 +239,13 @@ def test_me_tra_ve_vai_doc_tu_CSDL_chu_khong_tu_token(tmp_path):
 def test_token_cua_admin_KHONG_dung_duoc_cho_nguoi_dung(tmp_path):
     """Hai secret riêng biệt: chữ ký bên này không bao giờ hợp lệ ở bên kia."""
     client, _ = build_client(tmp_path, secret=SECRET)
+    from tests.fakes import InMemoryUserRepo
+
+    admin = User(user_id="u-admin", username="admin",
+                 password_hash=hash_password("mat-khau-admin-dai"), role=UserRole.ADMIN)
     token_admin = AdminAuthService(
-        "admin", hash_password("x"), "secret-KHAC-hoan-toan"
-    )._issue_token("admin")
+        InMemoryUserRepo([admin]), "secret-KHAC-hoan-toan"
+    ).login("admin", "mat-khau-admin-dai")
 
     res = client.get(f"{API}/auth/me", headers=bearer(token_admin))
 
@@ -557,3 +563,106 @@ def test_mat_khau_moi_TRUNG_mat_khau_cu_thi_400(client):
         headers={"Authorization": f"Bearer {token}"},
     )
     assert res.status_code == 400
+
+
+# ==========================================================================
+# THU HỒI TOKEN (`token_version`, chủ dự án duyệt 2026-09-29 — phương án A trong
+# docs/API_DECISIONS_PENDING.md §5.8). Token mang `tv`; lệch với cột trong CSDL -> 401.
+# ==========================================================================
+
+
+def _me(client, token):
+    return client.get(f"{API}/auth/me", headers={"Authorization": f"Bearer {token}"})
+
+
+def test_dang_xuat_THU_HOI_that_token_cu_het_gia_tri(client):
+    token = _dang_ky_lay_token(client, username="dangxuat")
+    assert _me(client, token).status_code == 200
+
+    res = client.post(f"{API}/auth/logout", headers={"Authorization": f"Bearer {token}"})
+
+    assert res.status_code == 200, res.text
+    assert _me(client, token).status_code == 401
+
+
+def test_dang_xuat_la_dang_xuat_MOI_thiet_bi(client):
+    """Đánh đổi đã ghi trong tài liệu: phương án A không phân biệt thiết bị."""
+    may_1 = _dang_ky_lay_token(client, username="haimay")
+    may_2 = login(client, "haimay", PASSWORD).json()["data"]["token"]
+
+    client.post(f"{API}/auth/logout", headers={"Authorization": f"Bearer {may_1}"})
+
+    assert _me(client, may_2).status_code == 401
+
+
+def test_dang_nhap_lai_sau_dang_xuat_thi_dung_duoc(client):
+    token = _dang_ky_lay_token(client, username="quaylai")
+    client.post(f"{API}/auth/logout", headers={"Authorization": f"Bearer {token}"})
+
+    moi = login(client, "quaylai", PASSWORD).json()["data"]["token"]
+
+    assert _me(client, moi).status_code == 200
+
+
+def test_dang_xuat_khong_co_token_thi_401(client):
+    assert client.post(f"{API}/auth/logout").status_code == 401
+
+
+def test_doi_mat_khau_THU_HOI_may_khac_nhung_may_nay_nhan_token_moi(client):
+    may_nay = _dang_ky_lay_token(client, username="doimk2")
+    may_khac = login(client, "doimk2", PASSWORD).json()["data"]["token"]
+
+    res = client.post(
+        f"{API}/auth/change-password",
+        json={"current_password": PASSWORD, "new_password": "mat-khau-moi-that-dai"},
+        headers={"Authorization": f"Bearer {may_nay}"},
+    )
+
+    assert res.status_code == 200, res.text
+    token_moi = res.json()["data"]["token"]
+    assert _me(client, may_khac).status_code == 401
+    assert _me(client, may_nay).status_code == 401
+    assert _me(client, token_moi).status_code == 200
+
+
+def test_token_CU_khong_co_tv_van_dung_duoc_toi_khi_bi_thu_hoi(tmp_path):
+    """Nâng cấp không được đăng xuất tất cả mọi người: token phát trước khi có cột
+    `token_version` (không có `tv`) được coi là phiên bản 0."""
+    from src.infrastructure.auth.crypto import sign_token
+
+    client, _ = build_client(tmp_path)
+    _dang_ky_lay_token(client, username="tokencu")
+    user_id = _me(client, login(client, "tokencu", PASSWORD).json()["data"]["token"]).json()[
+        "data"]["user_id"]
+    token_cu = sign_token({"sub": user_id}, SECRET.encode("utf-8"), 3600)
+
+    assert _me(client, token_cu).status_code == 200
+    client.post(f"{API}/auth/logout", headers={"Authorization": f"Bearer {token_cu}"})
+    assert _me(client, token_cu).status_code == 401
+
+
+def test_CSDL_CU_chua_co_cot_token_version_duoc_nang_cap_tai_cho(tmp_path):
+    """Máy đã chạy bản cũ có bảng `users` thiếu cột -> phải tự thêm, KHÔNG mất tài khoản,
+    và tài khoản cũ bắt đầu ở phiên bản 0 (khớp token cũ không có `tv`)."""
+    import sqlite3
+
+    db = tmp_path / "cu.db"
+    with sqlite3.connect(db) as conn:
+        conn.execute(
+            "CREATE TABLE users (user_id TEXT PRIMARY KEY, username TEXT NOT NULL UNIQUE, "
+            "password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'user', "
+            "display_name TEXT, created_at TEXT NOT NULL, email TEXT, "
+            "email_verified INTEGER NOT NULL DEFAULT 0)"
+        )
+        conn.execute(
+            "INSERT INTO users VALUES ('u-cu', 'nguoicu', 'hash', 'user', NULL, "
+            "'2026-08-01T00:00:00+00:00', NULL, 0)"
+        )
+
+    repo = SqliteUserRepository(db)
+
+    user = repo.get_by_id("u-cu")
+    assert user is not None and user.token_version == 0
+    assert repo.revoke_tokens("u-cu") is True
+    assert repo.get_by_id("u-cu").token_version == 1
+    assert repo.revoke_tokens("khong-ton-tai") is False

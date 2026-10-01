@@ -25,6 +25,12 @@ export interface ItemCardProps {
   to?: string | null;
   onRemove?: () => void;
   removeLabel?: string;
+  /**
+   * Khối gắn thêm dưới thẻ (ô "Thêm vào bộ sưu tập" ở tab Yêu thích). Là một KHE chứ không
+   * phải prop riêng cho bộ sưu tập: widget không được biết feature nào (FSD), trang tự
+   * quyết đặt gì vào.
+   */
+  footer?: ReactNode;
 }
 
 export function ItemCard({
@@ -35,6 +41,7 @@ export function ItemCard({
   to,
   onRemove,
   removeLabel,
+  footer,
 }: ItemCardProps) {
   const noiDung = (
     <>
@@ -78,6 +85,7 @@ export function ItemCard({
           <IconClose />
         </button>
       )}
+      {footer && <div className="item-card__footer">{footer}</div>}
     </li>
   );
 }

@@ -105,6 +105,25 @@ describe('RestaurantCard', () => {
     expect(container.querySelector('.thumb--generated')).not.toBeNull();
   });
 
+  it('ô đại diện và dòng "vì sao" dùng icon SVG, KHÔNG còn emoji (checklist A9)', () => {
+    // Emoji mỗi hệ điều hành vẽ một kiểu và không ăn màu giao diện — xem shared/ui/icons.tsx.
+    const { container } = render(
+      <RestaurantCard restaurant={makeRestaurant({ thumbnail_url: null })} />,
+    );
+
+    const glyph = container.querySelector('.thumb__glyph svg');
+    expect(glyph).not.toBeNull();
+    expect(glyph).toHaveAttribute('aria-hidden', 'true');
+
+    // 1 dòng lý do (name+review) + 1 dòng món gợi ý -> mỗi dòng đúng một icon trang trí.
+    const rows = container.querySelectorAll('.why__row');
+    expect(rows).toHaveLength(2);
+    rows.forEach((row) => {
+      expect(row.querySelectorAll('svg[aria-hidden="true"]')).toHaveLength(1);
+    });
+    expect(container.textContent).not.toMatch(/\p{Extended_Pictographic}/u);
+  });
+
   it('quán CÓ ảnh thì hiện ảnh thật', () => {
     const { container } = render(
       <RestaurantCard

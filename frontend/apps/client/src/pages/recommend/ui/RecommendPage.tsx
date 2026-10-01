@@ -56,6 +56,7 @@ export function RecommendPage() {
       onReset={suggestions.reset}
       activeFilterCount={suggestions.activeFilterCount}
       locationIsDefault={location.isDefault}
+      locationLabel={location.label}
       locationLoading={location.loading}
       onRequestLocation={location.request}
     />

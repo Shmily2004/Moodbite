@@ -31,7 +31,7 @@ export function formatPrice(priceRange: string | null | undefined): string | nul
 /* ---------------------------------------------------------------------------
    MỨC PHÙ HỢP — cách trình bày `predicted_score`
    ---------------------------------------------------------------------------
-   ⚠️ ĐỌC KỸ TRƯỚC KHI ĐỔI. Đo thật trên 40 kết quả của 4 câu tìm kiếm:
+   ⚠ ĐỌC KỸ TRƯỚC KHI ĐỔI. Đo thật trên 40 kết quả của 4 câu tìm kiếm:
 
      câu tìm                  cao nhất   thấp nhất
      quán lẩu ấm cúng gần đây   0.659      0.598
@@ -99,8 +99,15 @@ export function describeMatchSource(source: string | null | undefined): string |
     .join(', ');
 }
 
+/**
+ * `kind` thay cho chuỗi emoji (đổi 2026-09-29, checklist A9): model chỉ nói LOẠI lý do,
+ * còn vẽ hình gì là việc của VIEW (`RestaurantCard`) — file `.ts` này không kéo React vào.
+ *   feel  = khớp không gian / cảm giác · match = khớp nội dung (tên, loại hình, đánh giá…)
+ */
+export type ReasonKind = 'feel' | 'match';
+
 export interface Reason {
-  icon: string;
+  kind: ReasonKind;
   text: string;
 }
 
@@ -126,7 +133,7 @@ export function describeReasons(
   if (feelParts.length > 0) {
     const query = queryText?.trim();
     reasons.push({
-      icon: '😌',
+      kind: 'feel',
       text: query
         ? `Hợp với "${query}"`
         : 'Hợp về không gian và cảm giác',
@@ -139,13 +146,13 @@ export function describeReasons(
   );
   if (textParts.length > 0) {
     const labels = textParts.map((p) => MATCH_SOURCE_LABELS[p] ?? p);
-    reasons.push({ icon: '🔎', text: `Khớp ${labels.join(', ')}` });
+    reasons.push({ kind: 'match', text: `Khớp ${labels.join(', ')}` });
   }
 
   // Backend trả mã lạ -> vẫn nói được gì đó thay vì im lặng.
   if (reasons.length === 0) {
     const fallback = describeMatchSource(matchSource);
-    if (fallback) reasons.push({ icon: '🔎', text: `Khớp ${fallback}` });
+    if (fallback) reasons.push({ kind: 'match', text: `Khớp ${fallback}` });
   }
   return reasons;
 }

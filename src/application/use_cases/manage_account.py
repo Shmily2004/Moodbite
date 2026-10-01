@@ -350,10 +350,9 @@ class ChangePasswordUseCase:
     là đổi được mật khẩu rồi chiếm luôn tài khoản. Hỏi lại mật khẩu cũ biến "mượn được
     máy" thành "phải biết mật khẩu" — chặn đúng tình huống hay xảy ra nhất.
 
-    ⚠️ Đổi mật khẩu KHÔNG thu hồi được token đang sống ở máy khác. Token ký bằng HMAC là
-    stateless, server không giữ danh sách nào để xoá. Muốn thu hồi thật thì phải thêm cột
-    `token_version` vào bảng `users` — ĐỔI LƯỢC ĐỒ nên phải chốt trước
-    (`docs/API_DECISIONS_PENDING.md`). Router nói rõ giới hạn này cho người dùng.
+    Đổi mật khẩu THU HỒI mọi token đang sống, ở mọi máy (`update_password` tăng
+    `token_version`, từ 2026-09-29). Trả về tài khoản ĐỌC LẠI từ kho để router phát token
+    mới cho chính máy này - nếu không, người vừa đổi mật khẩu sẽ bị đá ra ngay lập tức.
     """
 
     users: UserRepository
@@ -375,7 +374,24 @@ class ChangePasswordUseCase:
             raise InvalidCredentialsError("Không tìm thấy tài khoản để đổi mật khẩu.")
 
         logger.info("Đã đổi mật khẩu (từ trong tài khoản) cho %s", user.username)
-        return user
+        return self.users.get_by_id(user.user_id) or user
+
+
+@dataclass
+class LogoutEverywhereUseCase:
+    """Đăng xuất = THU HỒI mọi token của tài khoản (mọi thiết bị).
+
+    Đánh đổi đã ghi ở docs/API_DECISIONS_PENDING.md §5.8 phương án A: không đăng xuất
+    riêng từng thiết bị được, vì chỉ có MỘT số phiên bản cho cả tài khoản. Đổi lại là thu
+    hồi thật, bền qua khởi động lại, không phải dọn bảng nào.
+    """
+
+    users: UserRepository
+
+    def execute(self, user: User) -> None:
+        if not self.users.revoke_tokens(user.user_id):
+            raise InvalidCredentialsError("Không tìm thấy tài khoản để đăng xuất.")
+        logger.info("Đã thu hồi mọi phiên đăng nhập của %s", user.username)
 
 
 # Chuỗi băm giả, dùng để so khớp khi tài khoản không tồn tại (xem giải thích ở trên).

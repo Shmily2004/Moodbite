@@ -4,7 +4,7 @@
  * Component KHÔNG được import trực tiếp từ đây - phải đi qua tầng api của feature
  * hoặc entity, đúng luật import của FSD.
  */
-import { createApi, createAuthApi } from '@moodbite/api-client';
+import { createApi, createAuthApi, createMyPlacesApi } from '@moodbite/api-client';
 import { API_BASE } from '../config/env';
 import { readToken } from '../lib/tokenStorage';
 
@@ -18,6 +18,9 @@ export const api = createApi(API_BASE);
  * hết hạn, đăng xuất), truyền chuỗi thì client giữ mãi giá trị của lần dựng đầu tiên.
  */
 export const authApi = createAuthApi(API_BASE, readToken);
+
+/** "Bộ sưu tập" + "Địa chỉ của tôi" (2026-09-29). Cùng cách lấy token như `authApi`. */
+export const myPlacesApi = createMyPlacesApi(API_BASE, readToken);
 
 export { ApiError } from '@moodbite/api-client';
 export type {
@@ -39,4 +42,9 @@ export type {
   DishItem,
   DishSuggestRequest,
   DishSuggestResponseData,
+} from '@moodbite/api-client';
+export type {
+  CollectionData,
+  CollectionItemData,
+  UserAddressData,
 } from '@moodbite/api-client';

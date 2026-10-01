@@ -511,6 +511,20 @@ class MeResponse(BaseModel):
     data: UserSelf
 
 
+class ChangePasswordData(BaseModel):
+    """Đổi mật khẩu thu hồi MỌI token (kể cả token của máy đang gọi), nên phải trả kèm
+    token mới cho máy này - thiếu nó thì người vừa đổi mật khẩu bị đá ra ngay."""
+
+    message: str
+    token: str
+    token_type: str = "bearer"
+    expires_in: int
+
+
+class ChangePasswordResponse(BaseModel):
+    data: ChangePasswordData
+
+
 # --- Quản trị ---------------------------------------------------------------
 #
 # Tách hẳn khỏi schema của người dùng cuối: đây là hợp đồng của MỘT ỨNG DỤNG KHÁC

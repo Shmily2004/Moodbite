@@ -88,15 +88,8 @@ def kiem_dieu_kien(can_admin: bool) -> list[str]:
 
     if can_admin:
         # Không chặn, chỉ cảnh báo: app quản trị vẫn mở được, chỉ là đăng nhập sẽ trả 503.
-        thieu = [
-            ten
-            for ten, gia_tri in [
-                ("MOODBITE_ADMIN_USER", settings.admin_username),
-                ("MOODBITE_ADMIN_PASSWORD_HASH", settings.admin_password_hash),
-                ("MOODBITE_ADMIN_SECRET", settings.admin_token_secret),
-            ]
-            if not gia_tri
-        ]
+        # Từ 2026-09-29 tài khoản admin nằm trong bảng `users`, chỉ còn secret ở môi trường.
+        thieu = [] if settings.admin_token_secret else ["MOODBITE_ADMIN_SECRET"]
         if thieu or settings.storage_backend != "sqlite":
             print("!" * 70)
             print("CANH BAO: trang quan tri CHUA duoc cau hinh.")

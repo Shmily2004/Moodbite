@@ -24,10 +24,9 @@ from src.infrastructure.auth.crypto import TokenInvalid, sign_token, verify_toke
 
 logger = logging.getLogger("moodbite.auth")
 
-# 24 giờ. Ngắn hơn mức thường thấy của một ứng dụng tiêu dùng (7-30 ngày) vì hiện CHƯA CÓ
-# cơ chế thu hồi token: đăng xuất chỉ xoá token ở phía client, bản thân token vẫn hợp lệ
-# tới lúc hết hạn. Chừng nào chưa có thu hồi thì thời hạn chính là trần thiệt hại khi
-# token bị lộ. Nâng lên được sau khi làm thu hồi — xem docs/API_DECISIONS_PENDING.md.
+# 24 giờ. Chọn khi CHƯA có thu hồi token (thời hạn là trần thiệt hại khi token bị lộ).
+# Từ 2026-09-29 đã có thu hồi (`token_version`) nên có thể nâng lên, nhưng CHƯA đổi: đổi
+# thời hạn là quyết định sản phẩm (bao lâu phải đăng nhập lại), không phải việc của bản sửa này.
 DEFAULT_USER_TOKEN_TTL_SECONDS = 86_400
 
 
@@ -62,14 +61,48 @@ class UserTokenService:
             )
 
     def issue(self, user: User) -> str:
-        """Phát token cho một tài khoản đã xác thực xong."""
+        """Phát token cho một tài khoản đã xác thực xong.
+
+        `tv` = `user.token_version` lúc phát. Không phải thông tin bí mật - chỉ là số đếm
+        để `ensure_not_revoked` so với CSDL.
+        """
         self.ensure_configured()
-        return sign_token({"sub": user.user_id}, self._secret, self.token_ttl_seconds)
+        return sign_token(
+            {"sub": user.user_id, "tv": user.token_version},
+            self._secret,
+            self.token_ttl_seconds,
+        )
+
+    def ensure_not_revoked(self, token: str, user: User) -> None:
+        """Token đã bị thu hồi (đăng xuất / đổi mật khẩu sau khi phát) -> 401.
+
+        Token phát TRƯỚC 2026-09-29 không có `tv` -> coi là 0, khớp cột mặc định 0 của mọi
+        tài khoản cũ. Nhờ vậy nâng cấp không đăng xuất hàng loạt, và lần thu hồi đầu tiên
+        vẫn giết được cả những token cũ đó.
+        """
+        payload = self._payload(token)
+        try:
+            version = int(payload.get("tv", 0))
+        except (TypeError, ValueError):
+            raise InvalidCredentialsError("Token không hợp lệ.")
+        if version != user.token_version:
+            raise InvalidCredentialsError(
+                "Phiên đăng nhập đã kết thúc (đã đăng xuất hoặc đổi mật khẩu). "
+                "Hãy đăng nhập lại."
+            )
+
+    def _payload(self, token: str) -> dict:
+        self.ensure_configured()
+        try:
+            return verify_token(token, self._secret)
+        except TokenInvalid as exc:
+            raise InvalidCredentialsError(str(exc))
 
     def subject_of(self, token: str) -> str:
         """Trả `user_id` trong token hợp lệ, ngược lại ném InvalidCredentialsError -> 401.
 
-        KHÔNG trả vai. Người gọi phải tự đọc tài khoản từ kho để lấy vai hiện tại.
+        KHÔNG trả vai, KHÔNG kiểm thu hồi. Người gọi phải tự đọc tài khoản từ kho để lấy
+        vai hiện tại, rồi gọi `ensure_not_revoked`.
         """
         self.ensure_configured()
         try:

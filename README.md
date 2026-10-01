@@ -91,7 +91,7 @@ Làm đủ 3 bước rồi khởi động lại backend:
 
 ```powershell
 python scripts/build_sqlite.py          # 1. CSDL ghi được (CSV chỉ đọc)
-python scripts/make_admin_password.py   # 2. sinh tài khoản, in ra 3 biến cần đặt
+python scripts/make_admin_user.py       # 2. tạo tài khoản admin trong bảng users + ghi secret
 $env:MOODBITE_STORAGE = "sqlite"        # 3. bật kho ghi được
 ```
 

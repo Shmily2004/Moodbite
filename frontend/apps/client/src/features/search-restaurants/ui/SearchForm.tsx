@@ -78,6 +78,8 @@ interface FiltersProps {
   openNow: boolean;
   onOpenNowChange: (value: boolean) => void;
   locationIsDefault: boolean;
+  /** Điểm nào đang được dùng — xem `DishFilters.locationLabel`. */
+  locationLabel?: string;
   locationLoading: boolean;
   onRequestLocation: () => void;
   onPickMood: (mood: string) => void;
@@ -158,7 +160,8 @@ function Filters(props: FiltersProps) {
           </button>
 
           <span className="muted small">
-            {props.locationIsDefault ? 'Trung tâm Hà Nội' : 'Vị trí của bạn'}
+            {props.locationLabel ??
+              (props.locationIsDefault ? 'Trung tâm Hà Nội' : 'Vị trí của bạn')}
           </span>
         </div>
       )}

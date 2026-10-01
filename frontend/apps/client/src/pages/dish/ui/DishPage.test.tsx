@@ -133,6 +133,15 @@ describe('DishPage — theo bản thiết kế', () => {
     expect(so).toEqual(['1', '2', '3']);
   });
 
+  it('mức cay vẽ bằng icon quả ớt SVG, có nhãn chữ cho trình đọc màn hình (A9)', async () => {
+    // `spice_level: 1` -> một quả ớt. Trước 2026-09-29 đây là emoji 🌶️.
+    vi.stubGlobal('fetch', mockApi([quan(1)]));
+    renderTrang();
+
+    const cay = await screen.findByRole('img', { name: 'Độ cay 1/3' });
+    expect(cay.querySelectorAll('svg')).toHaveLength(1);
+  });
+
   it('mỗi thẻ có ĐÚNG MỘT nút "Xem chi tiết"', async () => {
     vi.stubGlobal('fetch', mockApi([quan(1), quan(2)]));
     const { container } = renderTrang();

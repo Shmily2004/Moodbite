@@ -59,9 +59,14 @@ export function theTuMonDaXem(mon: RecentDish, anh: AnhMon, t: HamDich): ItemStr
 export interface SavedTabProps {
   favorites: UseFavoritesResult;
   anh: AnhMon;
+  /**
+   * Khối gắn dưới MỖI thẻ — trang tài khoản dùng để đặt ô "Thêm vào bộ sưu tập"
+   * (`features/manage-collections`). Không truyền = thẻ như cũ (tab Tổng quan).
+   */
+  renderFooter?: (muc: MucYeuThich) => ReactNode;
 }
 
-export function SavedTab({ favorites, anh }: SavedTabProps) {
+export function SavedTab({ favorites, anh, renderFooter }: SavedTabProps) {
   const t = useT();
 
   return (
@@ -99,6 +104,7 @@ export function SavedTab({ favorites, anh }: SavedTabProps) {
             muc={favorites.favorite.items}
             anh={anh}
             onBo={favorites.toggle}
+            renderFooter={renderFooter}
           />
           <NhomDaLuu
             nhan={t('forYou.bookmarks')}
@@ -107,6 +113,7 @@ export function SavedTab({ favorites, anh }: SavedTabProps) {
             muc={favorites.bookmark.items}
             anh={anh}
             onBo={favorites.toggle}
+            renderFooter={renderFooter}
           />
         </>
       )}
@@ -121,12 +128,14 @@ function NhomDaLuu(props: {
   muc: MucYeuThich[];
   anh: AnhMon;
   onBo: (muc: MucYeuThich) => void;
+  renderFooter?: (muc: MucYeuThich) => ReactNode;
 }) {
   const t = useT();
   // Truyền NGUYÊN mục (kèm `listType`) khi bỏ: thiếu `listType` là bỏ nhầm khỏi danh sách kia.
-  const the = props.muc.map((m) =>
-    theTuMucDaLuu(m, props.anh, t, { nhanDanhSach: props.nhan, bo: props.onBo }),
-  );
+  const the = props.muc.map((m) => ({
+    ...theTuMucDaLuu(m, props.anh, t, { nhanDanhSach: props.nhan, bo: props.onBo }),
+    footer: props.renderFooter?.(m),
+  }));
 
   return (
     <div className="for-you__danh-sach">

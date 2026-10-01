@@ -12,6 +12,7 @@
  */
 import { useT } from '@/shared/i18n';
 import type { UserStatsData } from '@/shared/api';
+import { IconClock, IconCompass, IconDining, IconHeart } from '@/shared/ui';
 
 export interface StatTilesProps {
   stats: UserStatsData | null;
@@ -22,11 +23,13 @@ export interface StatTilesProps {
 export function StatTiles({ stats, viewedLocal }: StatTilesProps) {
   const t = useT();
 
+  // Icon SVG thay emoji (2026-09-29, checklist A9) — cùng hình với tab tương ứng ở thanh
+  // bên trang tài khoản (dao dĩa · tim · đồng hồ), để một khái niệm chỉ có một hình.
   const o = [
-    { icon: '🍽️', value: stats?.saved_dishes ?? 0, label: t('account.stat.savedDishes') },
-    { icon: '❤️', value: stats?.saved_restaurants ?? 0, label: t('account.stat.savedRestaurants') },
-    { icon: '🕘', value: viewedLocal, label: t('account.stat.viewed') },
-    { icon: '🧭', value: stats?.explorations ?? 0, label: t('account.stat.explorations') },
+    { icon: <IconDining />, value: stats?.saved_dishes ?? 0, label: t('account.stat.savedDishes') },
+    { icon: <IconHeart />, value: stats?.saved_restaurants ?? 0, label: t('account.stat.savedRestaurants') },
+    { icon: <IconClock />, value: viewedLocal, label: t('account.stat.viewed') },
+    { icon: <IconCompass />, value: stats?.explorations ?? 0, label: t('account.stat.explorations') },
   ];
 
   return (

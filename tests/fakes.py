@@ -152,6 +152,46 @@ class UnavailableUserRepo:
         return {"ready": False, "error": "tat trong test"}
 
 
+class InMemoryUserRepo:
+    """Kho tài khoản trong bộ nhớ - đủ cho test đăng nhập admin (tra theo tên/id, thu hồi
+    token, đổi vai). Test cần hành vi SQLite thật thì dùng `SqliteUserRepository(tmp_path)`."""
+
+    is_ready = True
+
+    def __init__(self, users=()):
+        self._by_id = {u.user_id: u for u in users}
+
+    def get_by_username(self, username):
+        ten = (username or "").strip().lower()
+        return next((u for u in self._by_id.values() if u.username == ten), None)
+
+    def get_by_id(self, user_id):
+        return self._by_id.get(user_id)
+
+    def get_by_email(self, email):
+        return None
+
+    def revoke_tokens(self, user_id):
+        from dataclasses import replace
+
+        u = self._by_id.get(user_id)
+        if u is None:
+            return False
+        self._by_id[user_id] = replace(u, token_version=u.token_version + 1)
+        return True
+
+    def set_role(self, user_id, role):
+        from dataclasses import replace
+
+        self._by_id[user_id] = replace(self._by_id[user_id], role=role)
+
+    def count(self):
+        return len(self._by_id)
+
+    def status(self):
+        return {"ready": True, "count": self.count(), "error": None}
+
+
 class FakeEmailSender:
     """Máy gửi thư GIẢ — giữ lại thư trong bộ nhớ thay vì gửi thật.
 

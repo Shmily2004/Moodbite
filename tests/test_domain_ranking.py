@@ -46,19 +46,38 @@ def test_whole_word_matching_not_substring():
     assert text_relevance.relevance(banh_trang, "phở bò").score == 0.0
 
 
-def test_accent_stripping_can_collide_but_ranking_still_correct():
-    """ĐÁNH ĐỔI CÓ CHỦ ĐÍCH: bỏ dấu để người gõ "pho bo" tìm được "Phở Bò", nhưng khi đó
-    "bỏ" và "bò" cùng thành "bo" nên vẫn khớp nhau.
+def test_hai_ve_deu_CO_DAU_ma_dau_khac_thi_KHONG_khop():
+    """CLAUDE.md §4.5 quy tắc "dấu là bằng chứng" (viết lại 2026-09-29).
 
-    Điều PHẢI đúng là THỨ HẠNG: quán tên đúng luôn đứng trên quán chỉ trùng âm.
+    Test cũ ở đây khoá ĐÚNG hành vi sai: "bỏ" khớp "bò" được coi là "đánh đổi có chủ
+    đích". Hệ quả thật: tìm "phở" ra "Nhà Hàng Phố Cổ", "Gà Phố" - vì `_overlap` so tập từ
+    đã bỏ dấu thay vì đi qua `tokens_match` như mọi chỗ so khớp khác.
     """
-    pho = make_restaurant("Phở Bò 83", category="Nhà hàng phở")
     collide = make_restaurant(
         "Quán Ăn Vặt", category="Quán ăn", review_text="bỏ thêm trứng rất ngon"
     )
-    assert text_relevance.relevance(collide, "phở bò").score > 0  # va chạm là có thật
-    out = rank([collide, pho], query_text="phở bò", max_distance_km=None)
-    assert out[0].restaurant.name == "Phở Bò 83"
+    pho_co = make_restaurant("Nhà Hàng Phố Cổ", category="Nhà hàng")
+    assert text_relevance.relevance(collide, "phở bò").score == 0.0
+    assert text_relevance.relevance(pho_co, "phở").score == 0.0
+
+
+def test_mot_ve_KHONG_DAU_thi_van_khop_ca_hai_chieu():
+    """Một vế không dấu = không có bằng chứng -> phải bao dung, nếu không quy tắc bỏ dấu
+    mất tác dụng (quán ghi biển "Pho Co", người gõ "pho")."""
+    bien_khong_dau = make_restaurant("Pho Co Ha Noi", category="Nhà hàng")
+    co_dau = make_restaurant("Phở Thìn", category="Nhà hàng")
+    assert text_relevance.relevance(bien_khong_dau, "phở").score > 0
+    assert text_relevance.relevance(co_dau, "pho").score > 0
+
+
+def test_thuong_CUM_TU_cung_theo_quy_tac_dau():
+    """Thưởng cụm cũng phải xét dấu: "Phố Bò" không được thưởng như "Phở Bò"."""
+    dung = make_restaurant("Phở Bò 83", category="Nhà hàng")
+    trung_am = make_restaurant("Phố Bò Nướng", category="Nhà hàng")
+    assert (
+        text_relevance.relevance(dung, "phở bò").score
+        > text_relevance.relevance(trung_am, "phở bò").score
+    )
 
 
 def test_restaurant_name_outranks_incidental_review_mention():

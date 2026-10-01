@@ -28,6 +28,7 @@ import {
   IconMoon,
   IconNight,
   IconPan,
+  IconPin,
   IconSmile,
   IconSnack,
   IconSoup,
@@ -104,6 +105,11 @@ interface DishFiltersProps {
   onReset: () => void;
   activeFilterCount: number;
   locationIsDefault: boolean;
+  /**
+   * Câu nói rõ ĐIỂM NÀO đang được dùng ("Địa chỉ đã lưu: Nhà"…) — lấy từ
+   * `useUserLocation().label`. Bỏ trống thì suy từ `locationIsDefault` như trước.
+   */
+  locationLabel?: string;
   locationLoading: boolean;
   onRequestLocation: () => void;
 }
@@ -197,10 +203,17 @@ export function DishFilters(props: DishFiltersProps) {
           onClick={props.onRequestLocation}
           disabled={props.locationLoading}
         >
-          {props.locationLoading ? 'Đang định vị…' : '📍 Vị trí của tôi'}
+          {props.locationLoading ? (
+            'Đang định vị…'
+          ) : (
+            <>
+              <IconPin className="icon-inline" /> Vị trí của tôi
+            </>
+          )}
         </button>
         <span className="muted small">
-          {props.locationIsDefault ? 'Trung tâm Hà Nội' : 'Vị trí của bạn'}
+          {props.locationLabel ??
+            (props.locationIsDefault ? 'Trung tâm Hà Nội' : 'Vị trí của bạn')}
         </span>
 
         {/* Chỉ hiện khi có gì để xoá - nút chết luôn hiện chỉ làm rối hàng lọc. */}

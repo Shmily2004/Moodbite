@@ -113,3 +113,32 @@ def test_tokenize_pairs_giu_dung_thu_tu_va_so_luong_voi_tokenize():
 def test_tokenize_pairs_ve_trai_la_ban_bo_dau_cua_ve_phai():
     pairs = tokenize_pairs("Phở Bò Tái", min_length=1)
     assert pairs == [("pho", "phở"), ("bo", "bò"), ("tai", "tái")]
+
+
+# --- Lỗi 4: chữ ở dạng Unicode TỔ HỢP (NFD) - phát hiện 2026-09-29 ----------------
+#
+# 560/48.991 tên quán thật lưu dấu dưới dạng ký tự tổ hợp (vd "ơ" + dấu hỏi U+0309 rời).
+# Regex tách từ `[^\W_]+` KHÔNG coi dấu tổ hợp là chữ, nên "Phở" bị cắt thành "phơ" -> so
+# với "phở" thì cả hai vế đều có dấu mà dấu khác -> quy tắc 3 loại. Quán "Phở Thìn Bờ Hồ"
+# vì thế không khớp "phở" ở cả tìm kiếm lẫn chỉ mục món.
+
+
+def _nfd(text):
+    import unicodedata
+    return unicodedata.normalize("NFD", text)
+
+
+def test_ten_quan_dang_NFD_van_khop_mon_co_dau():
+    # Dạng NỬA tổ hợp - đúng như dữ liệu thật: "ơ" (U+01A1) liền + dấu hỏi (U+0309) rời.
+    assert contains_phrase("Phở Thìn Bờ Hồ", "phở")
+    assert contains_phrase(_nfd("Phở Thìn Bờ Hồ"), "phở")
+    assert contains_phrase("Phở Thìn Bờ Hồ", _nfd("phở"))
+
+
+def test_tach_tu_dang_NFD_giu_nguyen_dau():
+    assert tokenize_pairs(_nfd("Phở Bò")) == tokenize_pairs("Phở Bò")
+
+
+def test_NFD_van_bi_quy_tac_dau_chan_khi_dau_khac():
+    """Chuẩn hoá NFC không được biến thành "bỏ qua dấu": phố vẫn khác phở."""
+    assert not contains_phrase(_nfd("Nhà Hàng Phố Cổ"), "phở")

@@ -138,7 +138,7 @@ class FindRestaurantsForDishUseCase:
         # hai tầng thì ba trang món trả về danh sách hệt nhau và việc "chọn món" thành vô
         # nghĩa. Có tầng 1 thì trang Phở gà đẩy 202 quán ghi rõ "phở gà" lên trước.
         theo_tang: dict = {}
-        for m in matches:
+        for m in self._chi_giu_trong_ban_kinh_neu_con(matches, origin, query.max_distance_km):
             theo_tang.setdefault(m.strength, []).append(m.restaurant)
         # NGUỒN KHỚP THẬT của từng quán, lấy từ chỉ mục món. Bug thật 2026-09-16: trang món
         # trả `match_source="mood"` cho MỌI quán dù không gửi mood - vì ở đây xếp hạng
@@ -216,6 +216,29 @@ class FindRestaurantsForDishUseCase:
                 "yết — tắt công tắc này để xem đầy đủ."
             )
         return giu
+
+    @staticmethod
+    def _chi_giu_trong_ban_kinh_neu_con(matches, origin: Location, max_distance_km):
+        """Quyết định NỚI BÁN KÍNH MỘT LẦN cho cả danh sách, không để từng tầng tự quyết.
+
+        `rank_restaurants` bỏ lọc bán kính khi danh sách ĐƯA VÀO nó không còn quán nào
+        trong bán kính - đúng khi gọi một lần. Nhưng ở đây nó được gọi RIÊNG cho từng tầng,
+        nên tầng "đúng tên món" chỉ có quán xa sẽ tự nới và đẩy quán 8km lên hạng 1 trong
+        khi tầng dưới có quán 1km (bug thật 2026-09-29, món burger bán kính 2km: hạng 1-3
+        cách 4,9 / 6,1 / 8,0 km).
+
+        Còn quán nào trong bán kính (ở BẤT KỲ tầng nào) -> chỉ giữ những quán đó. Không còn
+        quán nào -> giữ nguyên để `rank_restaurants` nới như cũ, và
+        `_warn_if_radius_was_widened` nói ra điều đó.
+        """
+        if max_distance_km is None:
+            return matches
+        trong = [
+            m for m in matches
+            if m.restaurant.is_visible
+            and origin.distance_km(m.restaurant.location) <= max_distance_km
+        ]
+        return trong or matches
 
     def _resolve_context(self, origin: Location) -> ContextSignal:
         if self._context_provider is None:

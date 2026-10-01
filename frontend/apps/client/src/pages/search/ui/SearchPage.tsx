@@ -78,6 +78,7 @@ export function SearchPage() {
           openNow={openNow}
           onOpenNowChange={setOpenNow}
           locationIsDefault={location.isDefault}
+          locationLabel={location.label}
           locationLoading={location.loading}
           onRequestLocation={location.request}
           onPickMood={(mood) => runSearch({ mood })}
@@ -106,8 +107,10 @@ export function SearchPage() {
                   ? `${results.length} quán phù hợp`
                   : 'Kết quả đề xuất'}
             </span>
-            {location.isDefault && (
-              <span className="muted small">Trung tâm Hà Nội</span>
+            {/* Không phải vị trí thật từ trình duyệt -> nói rõ đang tính quanh điểm nào
+                (trung tâm Hà Nội hoặc địa chỉ đã lưu). */}
+            {location.source !== 'browser' && (
+              <span className="muted small">{location.label}</span>
             )}
           </div>
 

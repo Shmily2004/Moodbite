@@ -123,6 +123,15 @@ export function IconPin(props: IconProps) {
   );
 }
 
+/** Thư mục — mục "Bộ sưu tập của tôi" (design/profile.png, thêm 2026-09-29). */
+export function IconFolder(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M3.5 7.5A1.5 1.5 0 0 1 5 6h4.2l2 2.2H19a1.5 1.5 0 0 1 1.5 1.5v8.3A1.5 1.5 0 0 1 19 19.5H5A1.5 1.5 0 0 1 3.5 18Z" />
+    </Icon>
+  );
+}
+
 /* ===========================================================================
    ICON CHO BỘ LỌC MÓN (thêm 2026-08-24)
    ---------------------------------------------------------------------------
@@ -532,6 +541,146 @@ export function IconShield(props: IconProps) {
   return (
     <Icon {...props}>
       <path d="M12 3.5 19.5 6v6c0 4.2-3 7.3-7.5 8.5C7.5 19.3 4.5 16.2 4.5 12V6Z" />
+    </Icon>
+  );
+}
+
+/* ===========================================================================
+   ICON LOẠI HÌNH QUÁN & MỨC CAY (thêm 2026-09-29, checklist A9)
+   ---------------------------------------------------------------------------
+   Đợt cuối của việc bỏ emoji. Chủ yếu phục vụ ô ảnh TỰ SINH của thẻ quán
+   (`entities/restaurant/ui/RestaurantThumb.tsx`) — chỗ hiện cho ~72% số quán vì
+   phần lớn quán không có ảnh thật, nên đây là emoji người dùng nhìn thấy NHIỀU
+   NHẤT còn sót lại. Cùng một nét với phần trên: viewBox 24, stroke 1.7,
+   `currentColor` — ô ảnh nền màu thì icon tự ăn màu trắng của ô.
+   =========================================================================== */
+
+/** Quả ớt — mức cay của món, sở thích "Ăn cay". */
+export function IconChili(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M15.5 8.5c2.5 1.5 3 5 .5 8.5-2.3 3.2-7 4.5-11.5 3.5 4-1.2 6-3.8 7-7 .8-2.5 1.8-4.6 4-5Z" />
+      <path d="M15.5 8.5c0-2 .8-3.5 2.5-4.5M14 8.8c.5-1 1.5-1.4 2.5-1" />
+    </Icon>
+  );
+}
+
+/** Tách cà phê bốc hơi — quán cà phê. */
+export function IconCoffee(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M4.5 10h12v4.5a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5Z" />
+      <path d="M16.5 11.5h1.5a2.5 2.5 0 0 1 0 5h-1.8" />
+      <path d="M8.5 6.8c0-1 .8-1.3.8-2.3M12 6.8c0-1 .8-1.3.8-2.3" />
+    </Icon>
+  );
+}
+
+/** Cốc trà sữa có ống hút — quán trà / trà sữa. */
+export function IconBubbleTea(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M6 8.5h12l-1.4 11.2a1.5 1.5 0 0 1-1.5 1.3H8.9a1.5 1.5 0 0 1-1.5-1.3Z" />
+      <path d="M5.5 8.5h13" />
+      <path d="m12.5 8.5 2-6 2.5.8" />
+      <path d="M9.5 17h.01M12 18h.01M14.5 17h.01" />
+    </Icon>
+  );
+}
+
+/** Ổ bánh mì — quán bánh mì. */
+export function IconBread(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M5.2 18.8c-1.8-1.8-.8-5.6 2.9-9.3s7.5-4.7 9.3-2.9.8 5.6-2.9 9.3-7.5 4.7-9.3 2.9Z" />
+      <path d="m9.5 11 2 2M12.5 8.5l2 2M7.5 14l1.8 1.8" />
+    </Icon>
+  );
+}
+
+/** Miếng bánh ngọt — tiệm bánh, kem, tráng miệng. */
+export function IconCake(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M3.5 19.5h17v-7l-17-4Z" />
+      <path d="M3.5 13.5l17 3" />
+      <path d="M15 6.5a1.5 1.5 0 1 1 3 0c0 1-1.5 2.5-1.5 2.5S15 7.5 15 6.5Z" />
+    </Icon>
+  );
+}
+
+/** Con cá — hải sản. */
+export function IconSeafood(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M3 12c2.5-3.5 5.5-5 9-5s6 2.5 7.5 5c-1.5 2.5-4 5-7.5 5s-6.5-1.5-9-5Z" />
+      <path d="M19.5 12 22 9v6Z" />
+      <path d="M8 11h.01" />
+    </Icon>
+  );
+}
+
+/** Miếng pizza — quán pizza / Ý. */
+export function IconPizza(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M12 21 3.5 5.5a18 18 0 0 1 17 0Z" />
+      <path d="M5 8.2a15 15 0 0 1 14 0" />
+      <path d="M11 11h.01M13.5 14.5h.01" />
+    </Icon>
+  );
+}
+
+/** Bánh burger — đồ ăn nhanh. */
+export function IconBurger(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M4 10.5a8 6 0 0 1 16 0Z" />
+      <path d="M3.5 14h17" />
+      <path d="M4.5 17h15a2.5 2.5 0 0 1-2.5 2.5H7A2.5 2.5 0 0 1 4.5 17Z" />
+    </Icon>
+  );
+}
+
+/** Cuộn sushi (maki) — quán Nhật. */
+export function IconSushi(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <ellipse cx="12" cy="8" rx="7.5" ry="3.5" />
+      <path d="M4.5 8v8c0 1.9 3.4 3.5 7.5 3.5s7.5-1.6 7.5-3.5V8" />
+      <ellipse cx="12" cy="8" rx="3" ry="1.3" />
+    </Icon>
+  );
+}
+
+/** Chiếc lá — quán chay. */
+export function IconLeaf(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M5 19c0-8 5-13.5 14.5-14.5C19 14 13.5 19 5 19Z" />
+      <path d="M5 19 13 11" />
+    </Icon>
+  );
+}
+
+/** Cốc bia — quán bia, pub, bar. */
+export function IconBeer(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M5.5 7.5h10v11.5a1.5 1.5 0 0 1-1.5 1.5H7a1.5 1.5 0 0 1-1.5-1.5Z" />
+      <path d="M15.5 10h2a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-2" />
+      <path d="M5.5 7.5a2.5 2.5 0 0 1 2.5-3.5 3 3 0 0 1 5 0 2.5 2.5 0 0 1 2.5 3.5" />
+      <path d="M9 11v6M12 11v6" />
+    </Icon>
+  );
+}
+
+/** Bát cơm vun ngọn — quán cơm. */
+export function IconRiceBowl(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M3.5 12h17a8.5 8.5 0 0 1-17 0Z" />
+      <path d="M6.5 12a5.5 5 0 0 1 11 0" />
     </Icon>
   );
 }

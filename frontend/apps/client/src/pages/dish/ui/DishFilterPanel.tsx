@@ -15,6 +15,7 @@ interface DishFilterPanelProps {
   dish: DishItem | null;
   onClose: () => void;
   locationIsDefault: boolean;
+  locationLabel?: string;
   locationLoading: boolean;
   onRequestLocation: () => void;
 }
@@ -23,6 +24,7 @@ export function DishFilterPanel({
   dish,
   onClose,
   locationIsDefault,
+  locationLabel,
   locationLoading,
   onRequestLocation,
 }: DishFilterPanelProps) {
@@ -47,6 +49,7 @@ export function DishFilterPanel({
         onReset={boLoc.reset}
         activeFilterCount={boLoc.activeFilterCount}
         locationIsDefault={locationIsDefault}
+        locationLabel={locationLabel}
         locationLoading={locationLoading}
         onRequestLocation={onRequestLocation}
       />

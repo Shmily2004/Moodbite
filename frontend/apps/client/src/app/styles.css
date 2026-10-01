@@ -347,6 +347,12 @@ body {
       hsl(calc(var(--tile-h, 25) + 18) 45% 34%));
 }
 .thumb__glyph { font-size: 1.7rem; line-height: 1; }
+.thumb__glyph svg { display: block; width: 1em; height: 1em; }
+
+/* Icon SVG đứng GIỮA DÒNG CHỮ, thay chỗ một emoji (2026-09-29, A9). Cỡ theo `em` để to
+   bằng chữ bên cạnh như emoji cũ; hạ nhẹ xuống vì SVG mặc định ngồi trên đường chân chữ,
+   trông bị "nổi" lên so với chữ. */
+.icon-inline { width: 1em; height: 1em; vertical-align: -0.14em; flex: none; }
 
 .card__body { min-width: 0; }
 

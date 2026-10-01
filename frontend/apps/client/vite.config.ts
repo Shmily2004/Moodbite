@@ -21,5 +21,9 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: './src/shared/test/setup.ts',
+    // `afterEach` chạy theo thứ tự đăng ký: cleanup của Testing Library unmount xong rồi
+    // mới tới `vi.restoreAllMocks()` của file test. Mặc định 'stack' đảo ngược thứ tự đó
+    // và đã gây test chập chờn thật ở app admin (2026-09-29) - xem apps/admin/vite.config.ts.
+    sequence: { hooks: 'list' },
   },
 });

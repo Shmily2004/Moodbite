@@ -28,6 +28,26 @@ SO_DIEN_THOAI = re.compile(r"[\s\-–—:.,]*\(?\+?\d[\d.\-\s]{7,}\d\)?")
 # Ký tự phân cách còn sót lại sau khi cắt số điện thoại ("Bảo Long Audio-" -> "Bảo Long Audio").
 DUOI_THUA = re.compile(r"[\s\-–—:.,|/]+$")
 
+# --- Ký tự điều khiển + tên MÃ HOÁ SAI (thêm 2026-10-02) ----------------------
+#
+# Đo trên 52.871 quán: chỉ 3 tên dính, đều từ Overture, nhưng lộ rõ ở trang quản trị:
+#     "\x08Quán Ông Tò…"  -> hiện "□Quán Ông Tò", lại đứng ĐẦU danh sách xếp ABC
+#     "Cafe Sinh Tá»‘"    -> UTF-8 bị đọc nhầm thành cp1252, đúng ra là "Cafe Sinh Tố"
+# Chỉ sửa khi CÓ dấu vết mã hoá sai VÀ giải mã lại ra UTF-8 hợp lệ: tên đúng như
+# "Café Ông Á" mã hoá lại sẽ không ra UTF-8 hợp lệ nên được giữ nguyên.
+DAU_VET_MA_HOA_SAI = re.compile(r"á»|Ã[\x80-\xbf¡-ÿ]|Ä[‘’]|Æ°|â€|Ă¡|Ä‘")
+KY_TU_DIEU_KHIEN = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]")
+
+
+def _sua_ma_hoa_sai(ten: str) -> str:
+    if not DAU_VET_MA_HOA_SAI.search(ten):
+        return ten
+    try:
+        return ten.encode("cp1252").decode("utf-8")
+    except (UnicodeEncodeError, UnicodeDecodeError):
+        # Không khôi phục được chắc chắn -> giữ nguyên, KHÔNG đoán.
+        return ten
+
 
 def _lam_sach_ten(ten) -> str:
     """Chuẩn hoá một tên quán. Trả chuỗi rỗng nếu tên không dùng được.
@@ -39,7 +59,8 @@ def _lam_sach_ten(ten) -> str:
     """
     if not isinstance(ten, str):
         return ""
-    sach = SO_DIEN_THOAI.sub(" ", ten)
+    sach = KY_TU_DIEU_KHIEN.sub("", _sua_ma_hoa_sai(ten))
+    sach = SO_DIEN_THOAI.sub(" ", sach)
     sach = DUOI_THUA.sub("", sach)
     # Gộp mọi khoảng trắng lặp về một dấu cách (đo được 196 tên dính lỗi này).
     sach = re.sub(r"\s+", " ", sach).strip()

@@ -65,6 +65,20 @@ class TestLamSachTenQuan:
 
         return _lam_sach_ten(ten)
 
+    def test_bo_KY_TU_DIEU_KHIEN_trong_ten(self):
+        """Dữ liệu thật 2026-10-02: '\\x08Quán Ông Tò…' hiện thành '□Quán Ông Tò' ở trang
+        quản trị và đứng ĐẦU danh sách xếp ABC."""
+        assert self._sach("\x08Quán Ông Tò - 84 Trần Thái Tông") == "Quán Ông Tò - 84 Trần Thái Tông"
+
+    def test_sua_ten_MA_HOA_SAI_hai_lan(self):
+        """UTF-8 bị đọc nhầm thành cp1252 (Overture): 'Cafe Sinh Tá»‘' là 'Cafe Sinh Tố'."""
+        assert self._sach("Cafe Sinh Tá»‘") == "Cafe Sinh Tố"
+
+    def test_KHONG_dong_vao_ten_dung_co_ky_tu_giong_ma_hoa_sai(self):
+        """Chỉ sửa khi giải mã lại ra UTF-8 HỢP LỆ - tên tiếng Việt đúng giữ nguyên."""
+        for ten in ("Bánh Mì Phượng", "Phở Thìn Bờ Hồ", "Café Ông Á", "삼원"):
+            assert self._sach(ten) == ten
+
     def test_bo_so_dien_thoai_dinh_o_cuoi_ten(self):
         assert self._sach("Lò Quay Vịt Huy Hải 0973663726") == "Lò Quay Vịt Huy Hải"
         assert self._sach("Bảo Long Audio-0983293453") == "Bảo Long Audio"

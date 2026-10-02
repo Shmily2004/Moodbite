@@ -131,6 +131,11 @@ body {
 .shell {
   height: 100dvh;
   display: grid;
+  /* Cột KHAI BÁO RÕ `minmax(0, 1fr)` (sửa 2026-10-02). Thiếu dòng này thì cột ngầm định
+     giãn theo bề rộng tối thiểu của con rộng nhất (header nhiều mục): trên điện thoại 420px
+     cả trang /search rộng 737px, và `overflow: hidden` bên dưới CẮT mất phần thừa - ô tìm
+     kiếm cụt, câu hướng dẫn mất nửa, nút menu ☰ bị đẩy ra ngoài màn hình. */
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto auto 1fr;
   background: var(--bg);
   overflow: hidden;

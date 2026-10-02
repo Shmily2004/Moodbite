@@ -11,12 +11,14 @@
  *
  * Mọi thứ ở đây là quy tắc HIỂN THỊ. Việc chấm điểm và xếp hạng nằm hoàn toàn ở backend
  * (`domain/services/search_ranking.py`) - xem CLAUDE.md mục 1b.
+ *
+ * File này chỉ giữ KHUNG thẻ (ảnh, tiêu đề, cảnh báo đóng cửa, cột phải). Thân thẻ tách
+ * thành `ThanTheGon` / `ThanTheDayDu` ngày 2026-10-02 khi file vượt ~300 dòng.
  */
 import type { ReactNode } from 'react';
 import type { SearchResultItem } from '@moodbite/api-client';
 import {
   describeCluster,
-  describeDishConfidence,
   describeFit,
   describeFreshness,
   describeReasons,
@@ -26,18 +28,11 @@ import {
   formatDistance,
   formatPrice,
 } from '../model/format';
-import type { ReasonKind } from '../model/format';
 import { RestaurantThumb } from './RestaurantThumb';
-import { IconDining, IconPin, IconSearch, IconSmile } from '@/shared/ui';
-
-/**
- * Icon cho từng LOẠI lý do (thay emoji 😌 / 🔎 / 🍽 ngày 2026-09-29, checklist A9).
- * `icon-inline` cỡ theo `em` nên vừa khít cột 16px của `.why__row`.
- */
-const REASON_ICON: Record<ReasonKind, JSX.Element> = {
-  feel: <IconSmile className="icon-inline" />,
-  match: <IconSearch className="icon-inline" />,
-};
+import { ThanTheDayDu } from './ThanTheDayDu';
+import { ThanTheGon } from './ThanTheGon';
+import { NutXemChiTiet } from './phanTheQuan';
+import { IconPin } from '@/shared/ui';
 
 interface RestaurantCardProps {
   restaurant: SearchResultItem;
@@ -58,14 +53,7 @@ interface RestaurantCardProps {
    * sắp theo "gần nhất" thì nó đổi theo. Hai thứ khác nhau, đừng dùng lẫn.
    */
   soThuTu?: number;
-  /**
-   * Dáng GỌN một hàng (trang chi tiết món, 2026-10-02, theo `design/restaurance
-   * recommend.png`): ảnh · tên + nhãn + địa chỉ + MỘT hàng chip lý do · cột phải
-   * khoảng cách / giá / "Xem chi tiết". Bản đầy đủ cao ~170px với 7-8 dòng chữ nhỏ.
-   *
-   * ⚠️ GỌN LẠI CHỨ KHÔNG BỎ BỚT: mức phù hợp, lý do khớp, món suy luận + MỨC TIN CẬY,
-   * "chưa có đánh giá" và dòng nguồn/tuổi dữ liệu vẫn hiện đủ (CLAUDE.md mục 4 quy tắc 4).
-   */
+  /** Dáng GỌN một hàng (trang chi tiết món) - xem `ThanTheGon`. */
   gon?: boolean;
 }
 
@@ -78,7 +66,6 @@ export function RestaurantCard({
   soThuTu,
   gon = false,
 }: RestaurantCardProps) {
-  const dish = restaurant.suggested_dish;
   const price = formatPrice(restaurant.price_range);
   const distance = formatDistance(restaurant.distance_m);
   const fit = describeFit(restaurant.predicted_score);
@@ -87,8 +74,10 @@ export function RestaurantCard({
   // nên người dùng vẫn bị gợi ý quán đang nghỉ mà không hề được báo trước.
   const closure = describeTemporaryClosure(restaurant.temporarily_closed);
   const freshness = describeFreshness(restaurant.source_updated_at);
-  const verification = describeVerification(restaurant.source_datasets);
-  const survey = describeSurvey(restaurant.surveyed_at);
+  const bangChung = [
+    describeVerification(restaurant.source_datasets),
+    describeSurvey(restaurant.surveyed_at),
+  ].filter((x): x is string => Boolean(x));
 
   return (
     <li data-id={restaurant.restaurant_id ?? undefined}>
@@ -144,158 +133,34 @@ export function RestaurantCard({
             </p>
           )}
 
-          {gon && restaurant.address && (
-            <p className="card__address">
-              <IconPin className="icon-inline" /> {restaurant.address}
-            </p>
-          )}
-
-          {/* Dáng gọn: MỌI tín hiệu "vì sao" dồn vào MỘT hàng chip thay cho 4-5 dòng. */}
-          {gon && (
-            <ul className="card__chips">
-              <li className={`card__chip fit--${fit.level}`}>
-                <span className="fit__label">{fit.label}</span>
-              </li>
-              {reasons.map((reason) => (
-                <li className="card__chip" key={reason.kind + reason.text}>
-                  {REASON_ICON[reason.kind]} {reason.text}
-                </li>
-              ))}
-              {dish && (
-                <li
-                  className={
-                    dish.confidence === 'specific'
-                      ? 'card__chip card__chip--dish'
-                      : 'card__chip card__chip--guess'
-                  }
-                >
-                  <IconDining className="icon-inline" /> <strong>{dish.name}</strong>{' '}
-                  {/* Mức tin cậy vẫn là CHỮ, không giấu vào tooltip. */}
-                  <span>{describeDishConfidence(dish.confidence)}</span>
-                </li>
-              )}
-              {restaurant.rating != null ? (
-                <li className="card__chip card__rating">
-                  <span className="card__star">★</span> {restaurant.rating}
-                  {restaurant.user_ratings_total != null && (
-                    <span className="muted"> ({restaurant.user_ratings_total})</span>
-                  )}
-                </li>
-              ) : (
-                <li className="card__chip card__norating">chưa có đánh giá</li>
-              )}
-            </ul>
-          )}
-
-          {!gon && (
-            <>
-              {/* MỨC PHÙ HỢP. Nhãn chữ là phần nói thật; thanh chỉ để so tương đối giữa
-                  các quán. KHÔNG hiện `predicted_score × 100` - xem giải thích dài ở
-                  `model/format.ts`, điểm thật dồn quanh 0.6 nên hiện % sẽ gây hiểu nhầm. */}
-              <div className={`fit fit--${fit.level}`}>
-                <span className="fit__label">{fit.label}</span>
-                <span className="fit__bar">
-                  <i style={{ width: `${fit.barPercent}%` }} />
-                </span>
-              </div>
-
-              <div className="card__stats tnum">
-                {/* null = CHƯA CÓ đánh giá. Không bao giờ hiện "0 sao". */}
-                {restaurant.rating != null ? (
-                  <span className="card__rating">
-                    <span className="card__star">★</span> {restaurant.rating}
-                    {restaurant.user_ratings_total != null && (
-                      <span className="muted"> ({restaurant.user_ratings_total})</span>
-                    )}
-                  </span>
-                ) : (
-                  <span className="card__norating">chưa có đánh giá</span>
-                )}
-                {distance && <span>{distance}</span>}
-                {price && <span>{price}</span>}
-              </div>
-
-              {restaurant.address && <p className="card__address">{restaurant.address}</p>}
-
-              {/* VÌ SAO QUÁN NÀY - phần làm nên khác biệt so với một danh sách quán thường. */}
-              <ul className="why">
-                {reasons.map((reason) => (
-                  <li className="why__row" key={reason.kind + reason.text}>
-                    {REASON_ICON[reason.kind]}
-                    <span>{reason.text}</span>
-                  </li>
-                ))}
-
-                {dish && (
-                  <li className="why__row">
-                    <IconDining className="icon-inline" />
-                    <span>
-                      <span
-                        className={
-                          dish.confidence === 'specific' ? 'tag tag--dish' : 'tag tag--guess'
-                        }
-                      >
-                        {dish.name}
-                      </span>{' '}
-                      {/* Món là SUY LUẬN, không phải thực đơn thật. Mức tin cậy PHẢI hiện
-                          ra chữ (CLAUDE.md mục 4 quy tắc 4) - để trong tooltip là không đủ,
-                          trên điện thoại sẽ không bao giờ thấy. */}
-                      <span className="muted">{describeDishConfidence(dish.confidence)}</span>
-                    </span>
-                  </li>
-                )}
-              </ul>
-
-              <p className="card__meta-foot">
-                {describeCluster(restaurant.experience_cluster_label)}
-                {restaurant.category && ` · ${restaurant.category}`}
-              </p>
-            </>
-          )}
-
-          {/* Dáng gọn: cụm + loại hình gộp chung một dòng với tuổi dữ liệu bên dưới. */}
-          {gon && (
-            <p className="card__meta-foot">
-              {[
+          {gon ? (
+            <ThanTheGon
+              restaurant={restaurant}
+              fit={fit}
+              reasons={reasons}
+              dongNguon={[
                 describeCluster(restaurant.experience_cluster_label),
                 restaurant.category,
                 freshness?.text,
-                verification,
-                survey,
+                ...bangChung,
               ]
                 .filter(Boolean)
                 .join(' · ')}
-            </p>
+            />
+          ) : (
+            <ThanTheDayDu
+              restaurant={restaurant}
+              fit={fit}
+              reasons={reasons}
+              distance={distance}
+              price={price}
+              freshness={freshness}
+              bangChung={bangChung}
+            />
           )}
 
-          {/* TUỔI THẬT & BẰNG CHỨNG. Cố ý để ở dòng cuối, chữ nhỏ: đây là phần MINH BẠCH
-              về nguồn, không phải thứ người dùng đọc đầu tiên. Nhưng im lặng hoàn toàn
-              thì người dùng mặc định cho rằng dữ liệu vừa được kiểm hôm qua - trong khi
-              71,5% bản ghi OSM được sửa lần cuối từ 2025 trở về trước. */}
-          {!gon && (freshness || verification || survey) && (
-            <p className={freshness?.stale ? 'card__origin card__origin--stale' : 'card__origin'}>
-              {[freshness?.text, verification, survey].filter(Boolean).join(' · ')}
-            </p>
-          )}
-
-          {/* NÚT "XEM CHI TIẾT" — có trong bản thiết kế.
-              Cả thẻ vốn đã bấm được, nhưng một nút NHÌN THẤY ĐƯỢC là thứ nói cho người
-              dùng biết bấm vào thì có gì. Không có nó thì thẻ trông như một khối chữ
-              tĩnh và rất nhiều người không thử bấm.
-              Chỉ hiện khi thật sự có chỗ để mở — không bày nút chết. */}
           {!gon && onOpenDetail && (
-            <button
-              type="button"
-              className="card__xem"
-              // Thẻ cha cũng bắt click; không chặn nổi bọt thì một cú bấm thành hai lần
-              // mở, và bộ đếm thời gian xem bị ghi hai lượt.
-              onClick={(event) => {
-                event.stopPropagation();
-                onOpenDetail(restaurant);
-              }}
-            >
-              Xem chi tiết →
-            </button>
+            <NutXemChiTiet restaurant={restaurant} onOpenDetail={onOpenDetail} />
           )}
         </div>
 
@@ -309,18 +174,7 @@ export function RestaurantCard({
               </span>
             )}
             {price && <span className="card__ben-gia">{price}</span>}
-            {onOpenDetail && (
-              <button
-                type="button"
-                className="card__xem"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  onOpenDetail(restaurant);
-                }}
-              >
-                Xem chi tiết →
-              </button>
-            )}
+            {onOpenDetail && <NutXemChiTiet restaurant={restaurant} onOpenDetail={onOpenDetail} />}
           </div>
         )}
       </div>

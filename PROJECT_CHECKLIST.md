@@ -19,7 +19,7 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Frontend Client | ✅ **TypeScript + FSD** | 86 test, có bản đồ, steiger trong CI |
 | Bản đồ | ✅ **Xong** | Leaflet + OpenStreetMap, miễn phí, không cần key |
 | Kiến trúc | ✅ Sạch | Clean Architecture + checker tự động trong CI |
-| Test | ✅ **811 backend + 383 frontend** | client 305 · admin 78. Đo bằng `python scripts/verify.py` ngày 2026-10-02 (sau đối chiếu UI) |
+| Test | ✅ **814 backend + 383 frontend** | client 305 · admin 78. Đo bằng `python scripts/verify.py` ngày 2026-10-02 (khuya) |
 | Giao diện | ✅ Theo bản duyệt · **trang chủ + tài khoản dựng lại 2026-08-22** | trang chủ = LƯỚI MÓN + chips lọc; trang món = giới thiệu + bản đồ + danh sách quán; `/tim-kiem` giữ bố cục bản đồ + rail cũ |
 | Router + layout | ✅ Xong | react-router v6, khung dùng chung, `RequireAuth` cho admin |
 | Chạy xem giao diện | ✅ **một lệnh** | `python scripts/run_dev.py --admin` |
@@ -1425,7 +1425,21 @@ cặp với bản vẽ, sửa, chụp lại sau khi sửa. Ảnh trước/sau �
 - Admin: tách "không có cách liên hệ" thành "thiếu SĐT" / "thiếu website" như bản vẽ (cần nhóm mới ở backend); sparkline 3 ô gợi ý (cần chuỗi theo ngày).
 - Client: bộ icon mood (chủ dự án đang vẽ) · giờ mở cửa / ảnh quán / SĐT (backend không có) · sửa tên hiển thị (chưa có endpoint) · thêm "Bộ sưu tập" vào thanh trên · nền bản đồ kiểu Positron.
 - Dòng quán ở trang món vẫn cao ~150px (bản vẽ ~140) vì chip món kèm mức tin cậy dài - cố ý giữ thông tin tin cậy.
-- `entities/restaurant/ui/RestaurantCard.tsx` 331 dòng (> ~300, CLAUDE.md mục 6) - nên tách.
+
+
+### Đợt 2026-10-02 (khuya) — rà trình duyệt thật: mobile + lỗi console
+
+Script CDP cài bộ ghi `console.error/warn`, `window.onerror`, promise bị reject TRƯỚC khi
+trang chạy, rồi đi qua 15 trang (client mobile 420 + desktop 1440, admin desktop).
+
+| Việc | Kết quả |
+|---|---|
+| **/search trên điện thoại vỡ** | ✅ `.shell` là grid KHÔNG khai báo cột -> cột giãn theo con rộng nhất (header): cả trang rộng 737px trong màn 420px, `overflow:hidden` cắt mất ô tìm kiếm, nửa câu hướng dẫn và nút menu ☰. Thêm `grid-template-columns: minmax(0,1fr)` |
+| Cảnh báo "React Router Future Flag" ở MỌI trang (2 app) | ✅ bật `v7_startTransition` + `v7_relativeSplatPath` (route `*` duy nhất là trang 404, không có link tương đối) |
+| Ô số liệu trang tài khoản trên điện thoại chỉ rộng ~60% | ✅ cho chiếm trọn hàng + sửa vạch ngăn lưới 2×2 |
+| Kết quả rà sau sửa | ✅ **24/24 lượt: 0 lỗi, 0 cảnh báo, không tràn ngang** |
+| **Tên quán có ký tự điều khiển / mã hoá sai** ("\x08Quán Ông Tò", "Cafe Sinh Tá»‘") | ✅ thêm quy tắc vào `data_cleaning._lam_sach_ten` (chỉ sửa khi giải mã lại ra UTF-8 hợp lệ). Chạy thử trên 52.871 tên thật: đổi ĐÚNG 3 tên, 0 tên đúng bị đụng. ⚠️ **Chưa chạy lại pipeline** (phải chạy cả chuỗi tới clustering cho 3 bản ghi) - lần chạy pipeline sau sẽ tự sửa |
+| `RestaurantCard.tsx` 331 dòng | ✅ tách `ThanTheGon` / `ThanTheDayDu` / `phanTheQuan` -> 185 dòng, hành vi giữ nguyên (305/305 test) |
 
 ---
 

@@ -234,7 +234,14 @@
 }
 
 @media (max-width: 560px) {
-  .stat-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stat-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 12px; }
+  /* Trong `.account__head` (flex có wrap) khối số liệu xuống dòng riêng nhưng chỉ rộng
+     bằng nội dung -> chiếm ~60% bề ngang, bên phải trống (thấy trên ảnh chụp 420px,
+     2026-10-02). Cho nó chiếm trọn hàng. */
+  .account__head .stat-tiles { flex: 1 1 100%; }
+  /* Lưới 2×2: ô 3 là đầu hàng dưới nên KHÔNG có vạch trái; hàng dưới có vạch trên. */
+  .stat:nth-child(3) { border-left: 0; }
+  .stat:nth-child(n + 3) { border-top: 1px solid var(--line-warm); padding-top: 12px; }
   .profile-grid__row { grid-template-columns: minmax(0, 1fr); }
 }
 

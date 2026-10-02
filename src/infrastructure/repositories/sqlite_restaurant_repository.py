@@ -36,6 +36,7 @@ from src.application.ports.admin_restaurant_repository import (
 )
 from src.domain.value_objects.mood import MOOD_SCORE_COLUMNS
 from src.infrastructure.config.settings import describe_path
+from src.infrastructure.repositories.sqlite_ket_noi import mo_ket_noi
 
 logger = logging.getLogger("moodbite.repository")
 
@@ -360,7 +361,7 @@ class SqliteRestaurantRepository:
         ten_cot = ", ".join(cot)
         cho_trong = ", ".join("?" for _ in cot)
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            with mo_ket_noi(self.db_path) as conn:
                 conn.execute(
                     f"INSERT INTO restaurants ({ten_cot}) VALUES ({cho_trong})",
                     list(cot.values()),
@@ -412,7 +413,7 @@ class SqliteRestaurantRepository:
         if self._load_error is not None:
             return []
         try:
-            with sqlite3.connect(
+            with mo_ket_noi(
                 f"file:{self.db_path.as_posix()}?mode=ro", uri=True
             ) as conn:
                 conn.row_factory = sqlite3.Row
@@ -429,7 +430,7 @@ class SqliteRestaurantRepository:
         đó cho tới lần khởi động lại sau.
         """
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            with mo_ket_noi(self.db_path) as conn:
                 cursor = conn.execute(sql, params)
                 conn.commit()
                 changed = cursor.rowcount
@@ -458,7 +459,7 @@ class SqliteRestaurantRepository:
             # gõ nhầm đường dẫn (sqlite3.connect mặc định TẠO file mới nếu chưa có -
             # đúng thứ sẽ biến "sai đường dẫn" thành "0 quán" mà không báo lỗi gì).
             uri = f"file:{self.db_path.as_posix()}?mode=ro"
-            with sqlite3.connect(uri, uri=True) as conn:
+            with mo_ket_noi(uri, uri=True) as conn:
                 conn.row_factory = sqlite3.Row
                 rows = conn.execute(
                     f"SELECT {_COLUMNS} FROM restaurants WHERE is_active = 1 "

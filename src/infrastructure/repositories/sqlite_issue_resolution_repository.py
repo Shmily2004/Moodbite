@@ -15,6 +15,7 @@ from typing import Dict, List, Optional
 
 from src.domain.entities.issue_resolution import DanhDauXong
 from src.infrastructure.config.settings import describe_path
+from src.infrastructure.repositories.sqlite_ket_noi import mo_ket_noi
 
 logger = logging.getLogger("moodbite.issues")
 
@@ -57,7 +58,7 @@ class SqliteIssueResolutionRepository:
         self._error: Optional[str] = None
         try:
             self.db_path.parent.mkdir(parents=True, exist_ok=True)
-            with sqlite3.connect(self.db_path) as conn:
+            with mo_ket_noi(self.db_path) as conn:
                 conn.executescript(SCHEMA)
         except (sqlite3.Error, OSError) as exc:
             self._error = (
@@ -82,7 +83,7 @@ class SqliteIssueResolutionRepository:
             ghi_chu=ban_ghi.ghi_chu,
             resolved_at=ban_ghi.resolved_at or datetime.now(timezone.utc),
         )
-        with sqlite3.connect(self.db_path) as conn:
+        with mo_ket_noi(self.db_path) as conn:
             conn.execute(
                 f"INSERT OR REPLACE INTO issue_resolution ({_COLUMNS}) VALUES (?,?,?,?,?)",
                 (
@@ -98,7 +99,7 @@ class SqliteIssueResolutionRepository:
     def bo_danh_dau(self, khoa: str, target_id: str) -> bool:
         if self._error is not None:
             raise RuntimeError(self._error)
-        with sqlite3.connect(self.db_path) as conn:
+        with mo_ket_noi(self.db_path) as conn:
             cur = conn.execute(
                 "DELETE FROM issue_resolution WHERE khoa = ? AND target_id = ?",
                 (khoa, target_id),
@@ -111,7 +112,7 @@ class SqliteIssueResolutionRepository:
         # Dựng đúng số dấu `?` theo số phần tử: nối chuỗi giá trị vào SQL là đường thẳng
         # tới SQL injection, dù ở đây id do server sinh ra.
         cho_trong = ",".join("?" for _ in target_ids)
-        with sqlite3.connect(self.db_path) as conn:
+        with mo_ket_noi(self.db_path) as conn:
             rows = conn.execute(
                 f"SELECT {_COLUMNS} FROM issue_resolution "
                 f"WHERE khoa = ? AND target_id IN ({cho_trong})",
@@ -122,7 +123,7 @@ class SqliteIssueResolutionRepository:
     def dem(self, khoa: Optional[str] = None) -> int:
         if self._error is not None:
             return 0
-        with sqlite3.connect(self.db_path) as conn:
+        with mo_ket_noi(self.db_path) as conn:
             if khoa is None:
                 row = conn.execute("SELECT COUNT(*) FROM issue_resolution").fetchone()
             else:
@@ -136,7 +137,7 @@ class SqliteIssueResolutionRepository:
             return 0
         # `resolved_at` lưu dạng ISO đầy đủ, nên so bằng tiền tố ngày. Dùng `LIKE 'ngay%'`
         # thay vì hàm `date()` của SQLite để không phụ thuộc vào cách SQLite hiểu múi giờ.
-        with sqlite3.connect(self.db_path) as conn:
+        with mo_ket_noi(self.db_path) as conn:
             row = conn.execute(
                 "SELECT COUNT(*) FROM issue_resolution WHERE resolved_at LIKE ?",
                 (f"{ngay}%",),
@@ -146,7 +147,7 @@ class SqliteIssueResolutionRepository:
     def liet_ke(self, limit: int = 50) -> List[DanhDauXong]:
         if self._error is not None:
             return []
-        with sqlite3.connect(self.db_path) as conn:
+        with mo_ket_noi(self.db_path) as conn:
             rows = conn.execute(
                 f"SELECT {_COLUMNS} FROM issue_resolution "
                 "ORDER BY resolved_at DESC LIMIT ?",
@@ -157,7 +158,7 @@ class SqliteIssueResolutionRepository:
     def moi_nhat_theo_khoa(self) -> Dict[str, datetime]:
         if self._error is not None:
             return {}
-        with sqlite3.connect(self.db_path) as conn:
+        with mo_ket_noi(self.db_path) as conn:
             rows = conn.execute(
                 "SELECT khoa, MAX(resolved_at) FROM issue_resolution GROUP BY khoa"
             ).fetchall()

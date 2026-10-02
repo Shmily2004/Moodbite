@@ -1,6 +1,6 @@
 # MoodBite — Bảng theo dõi tiến độ
 
-**Cập nhật:** 2026-09-29
+**Cập nhật:** 2026-10-02
 **Nguyên tắc:** file này chỉ ghi thứ đã **chạy thật và kiểm chứng được**. Không ghi theo
 kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh để tự kiểm lại.
 
@@ -19,7 +19,7 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Frontend Client | ✅ **TypeScript + FSD** | 86 test, có bản đồ, steiger trong CI |
 | Bản đồ | ✅ **Xong** | Leaflet + OpenStreetMap, miễn phí, không cần key |
 | Kiến trúc | ✅ Sạch | Clean Architecture + checker tự động trong CI |
-| Test | ✅ **791 backend + 341 frontend** | client 276 · admin 65. Đo bằng `python scripts/verify.py` ngày 2026-09-29 (cuối ngày) |
+| Test | ✅ **811 backend + 343 frontend** | client 276 · admin 67. Đo bằng `python scripts/verify.py` ngày 2026-10-02 |
 | Giao diện | ✅ Theo bản duyệt · **trang chủ + tài khoản dựng lại 2026-08-22** | trang chủ = LƯỚI MÓN + chips lọc; trang món = giới thiệu + bản đồ + danh sách quán; `/tim-kiem` giữ bố cục bản đồ + rail cũ |
 | Router + layout | ✅ Xong | react-router v6, khung dùng chung, `RequireAuth` cho admin |
 | Chạy xem giao diện | ✅ **một lệnh** | `python scripts/run_dev.py --admin` |
@@ -1379,11 +1379,27 @@ theo giờ chạy script. ⚠️ Số từ script phân tích tạm, CHƯA đưa
 báo cáo tách theo luồng + ghi rõ giới hạn.
 
 **Chưa làm / chưa kiểm:**
-- Chưa mở trình duyệt thật cho tab Địa chỉ (bản đồ chọn điểm) và Bộ sưu tập — test jsdom thay
-  Leaflet bằng nút giả.
-- App admin chưa có nút đăng xuất phía server (token admin sống tối đa 1 giờ).
+- ✅ 2026-10-02 đã chụp trình duyệt thật tab Địa chỉ + Bộ sưu tập (desktop + mobile 420px, không tràn ngang).
+  Chưa bấm thử luồng "Thêm địa chỉ" trên bản đồ thật.
+- ~~App admin chưa có nút đăng xuất phía server~~ → ✅ xong 2026-10-02 (`POST /admin/logout`).
 - Tên bộ sưu tập trùng nhau vẫn cho phép; ô thống kê thứ 4 vẫn là "Lượt khám phá".
 - `DEFAULT_USER_TOKEN_TTL_SECONDS` vẫn 24h — nâng lên được vì đã có thu hồi, nhưng là quyết định sản phẩm.
+
+
+### Đợt 2026-10-02 — kiểm tra gửi mail + dọn tồn đọng làm được ngay
+
+| Việc | Kết quả | Kiểm lại |
+|---|---|---|
+| **Mail "trống / vô nghĩa"** | 🟡 Thư do app dựng ra ĐÚNG CHUẨN (multipart chữ thuần + HTML, UTF-8, có nút + link) - đã dựng thư thật và đọc MIME thô. Nguồn rác tìm được: script smoke-test dùng SMTP THẬT gửi thư xác minh tới `smoke01@vidu.com` -> thư báo lỗi gửi dội về. Đã gửi 2 thư thử thật (xác minh + đặt lại mật khẩu) tới hộp thư cấu hình gửi - **CHỜ chủ dự án xác nhận**. ⚠️ Link trong thư trỏ `MOODBITE_APP_URL` = localhost: mở trên điện thoại sẽ không chạy | `pytest tests/test_mau_thu.py` |
+| ↳ Chặn gửi tới tên miền thử nghiệm | ✅ `example.com/.net/.org`, `*.example`, `*.invalid`, `*.test`, `*.localhost` (RFC 2606/6761) -> báo `EmailSendFailed`, KHÔNG gửi. So theo nhãn tên miền: `examples.com`, `mytest.vn` vẫn gửi | 11 test |
+| **Đăng xuất quản trị phía server** | ✅ `POST /admin/logout` tăng `token_version`; app admin gọi trước khi xoá token | `pytest tests/test_admin_api.py -k dang_xuat_quan_tri` |
+| **Toạ độ địa chỉ: `lat/lng` -> `latitude/longitude`** | ✅ Thống nhất với `/search`, `/dishes`. Đổi khi endpoint còn mới, chưa commit | `pytest tests/test_user_addresses.py` |
+| **Kết nối SQLite không được đóng** | ✅ `with sqlite3.connect()` chỉ commit/rollback, KHÔNG đóng (40 chỗ / 8 file). Helper chung `sqlite_ket_noi.mo_ket_noi` | `pytest tests/test_dong_ket_noi_sqlite.py` |
+| **31.140 cảnh báo pytest** | ✅ còn **0**. Gần như toàn bộ là của fastapi 0.104/starlette/httpx (thư viện bị ghim) -> lọc ĐÚNG 3 cảnh báo đó trong `pytest.ini`. ⚠️ `asyncio.iscoroutinefunction` bị XOÁ ở Python 3.16 -> phải nâng fastapi trước khi lên 3.16 | `python -m pytest -q` |
+| **Gói JS client 532 kB (vượt 500 kB)** | ✅ **313 kB** (gzip 164 -> 100 kB). 4 trang nặng (món, tìm kiếm, gợi ý, tài khoản) tải sau bằng `React.lazy`; Leaflet 155 kB tách riêng. Đã chụp trình duyệt thật trang món + tìm kiếm | `npm run build --workspace @moodbite/client` |
+| Đánh giá NDCG tách theo luồng | ✅ `danh_gia_xep_hang.py` in thêm NDCG riêng từng luồng; phiên giả lập SINH LẠI bằng code hiện tại (thứ hạng cũ lưu từ 16/09). **1.537 phiên** (cũ 237). NDCG@10 MoodBite / khoảng cách: tổng **0,500 / 0,607** · món **0,517 / 0,697** · tìm kiếm **0,484 / 0,515**. ⚠️ GIẢ LẬP. Vẫn chờ chủ dự án chọn: làm lại nhãn hay báo cáo tách luồng | `python scripts/danh_gia_xep_hang.py` |
+| Công cụ chụp màn hình | ✅ `chup_man_hinh.py --token` chụp được trang cần đăng nhập | |
+| **`verify.py` mục 9 đỏ/xanh theo GIỜ CHẠY** | ✅ Tập gốc của bộ mẫu phụ thuộc thiên hướng bữa ăn (đồng hồ thật): rating 35,6% buổi chiều vs 30,6% buổi sáng. `make_fixture.gom_ket_qua_that` nay cố định 12:00 | `pytest tests/test_make_fixture_gio.py` |
 
 ---
 

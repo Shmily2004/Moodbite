@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import json
 import sys
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -67,6 +68,35 @@ REQUIRED_CASES: Dict[str, Any] = {
 }
 
 
+# GIỜ CỐ ĐỊNH khi gom tập gốc (thêm 2026-10-02).
+#
+# Bug thật: xếp hạng cộng thêm thiên hướng theo BỮA ĂN đọc từ đồng hồ thật (đúng thiết
+# kế của app), nên tập gốc - và tỉ lệ "thật" mà `verify_ui_data.py` so với bộ mẫu - đổi
+# theo GIỜ CHẠY. Đo được: tỉ lệ có rating 35,6% lúc chạy buổi chiều, 30,6% lúc 10 giờ sáng
+# -> `verify.py` mục 9 đỏ/xanh tuỳ lúc chạy dù không ai sửa gì. Cố định một mốc để bộ mẫu
+# và phép kiểm luôn đo trên CÙNG một tập.
+GIO_GOM_MAU = (12, 0)
+
+
+@contextmanager
+def co_dinh_gio(gio: tuple = GIO_GOM_MAU):
+    """Cho bộ cung cấp ngữ cảnh thấy đồng hồ dừng ở `gio` (giờ, phút) - CHỈ trong script."""
+    import src.infrastructure.adapters.open_meteo_context_provider as mod
+
+    goc = mod.datetime
+
+    class _DongHoCoDinh(goc):
+        @classmethod
+        def now(cls, tz=None):
+            return goc.now(tz).replace(hour=gio[0], minute=gio[1], second=0, microsecond=0)
+
+    mod.datetime = _DongHoCoDinh
+    try:
+        yield
+    finally:
+        mod.datetime = goc
+
+
 def gom_ket_qua_that() -> List[Dict[str, Any]]:
     """Gọi API THẬT nhiều lần, gom kết quả duy nhất theo restaurant_id."""
     from fastapi.testclient import TestClient
@@ -74,7 +104,7 @@ def gom_ket_qua_that() -> List[Dict[str, Any]]:
     from src.presentation.api.main import create_app
 
     pool: Dict[str, Dict[str, Any]] = {}
-    with TestClient(create_app()) as client:
+    with co_dinh_gio(), TestClient(create_app()) as client:
         for query, lat, lng in QUERIES:
             body = {
                 "session_id": "fixture-generator",

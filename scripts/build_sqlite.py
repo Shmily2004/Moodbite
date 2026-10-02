@@ -34,6 +34,7 @@ from src.infrastructure.repositories.json_restaurant_details_repository import (
 from src.infrastructure.repositories.sqlite_restaurant_repository import (  # noqa: E402
     SCHEMA,
 )
+from src.infrastructure.repositories.sqlite_ket_noi import mo_ket_noi  # noqa: E402
 
 INSERT = """
 INSERT INTO restaurants (
@@ -109,7 +110,7 @@ def _hidden_place_ids(db_path: Path) -> set[str]:
     if not db_path.exists():
         return set()
     try:
-        with sqlite3.connect(db_path) as conn:
+        with mo_ket_noi(db_path) as conn:
             rows = conn.execute(
                 "SELECT place_id FROM restaurants WHERE is_active = 0"
             ).fetchall()
@@ -136,7 +137,7 @@ def _refuse_if_user_database(db_path: Path) -> str | None:
     if not db_path.exists():
         return None
     try:
-        with sqlite3.connect(db_path) as conn:
+        with mo_ket_noi(db_path) as conn:
             has_users = conn.execute(
                 "SELECT 1 FROM sqlite_master WHERE type='table' AND name='users'"
             ).fetchone()
@@ -200,7 +201,7 @@ def main() -> int:
     print(f"Doc duoc: {len(restaurants)} quan")
 
     db_path.parent.mkdir(parents=True, exist_ok=True)
-    with sqlite3.connect(db_path) as conn:
+    with mo_ket_noi(db_path) as conn:
         # CSDL cũ có thể thiếu cột mới thêm về sau (`CREATE TABLE IF NOT EXISTS` KHÔNG
         # thêm cột vào bảng đã tồn tại). Bug thật 2026-08-19: file .db dựng từ trước khi
         # có cột `thumbnail_url`, chạy lại script thì nổ

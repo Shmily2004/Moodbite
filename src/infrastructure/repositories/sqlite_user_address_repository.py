@@ -20,6 +20,7 @@ from typing import Iterator, List, Optional
 
 from src.domain.entities.user_address import UserAddress
 from src.infrastructure.config.settings import describe_path
+from src.infrastructure.repositories.sqlite_ket_noi import mo_ket_noi
 
 logger = logging.getLogger("moodbite.addresses")
 
@@ -70,13 +71,9 @@ class SqliteUserAddressRepository:
         """Một giao dịch rồi đóng kết nối — xem `SqliteCollectionRepository._tx`."""
         if self._error is not None:
             raise RuntimeError(self._error)
-        conn = sqlite3.connect(self.db_path)
-        conn.row_factory = sqlite3.Row
-        try:
-            with conn:
-                yield conn
-        finally:
-            conn.close()
+        with mo_ket_noi(self.db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            yield conn
 
     # --- Đọc -----------------------------------------------------------------
 

@@ -14,6 +14,8 @@ from __future__ import annotations
 import json
 import sqlite3
 
+from src.infrastructure.repositories.sqlite_ket_noi import mo_ket_noi
+
 import pytest
 
 from src.infrastructure.repositories.sqlite_restaurant_repository import (
@@ -46,7 +48,7 @@ _ORDER = list(_DEFAULTS)
 def make_db(tmp_path, *rows: dict):
     """Dựng CSDL tạm với các dòng cho trước. Trường không khai lấy theo `_DEFAULTS`."""
     db_path = tmp_path / "test.db"
-    with sqlite3.connect(db_path) as conn:
+    with mo_ket_noi(db_path) as conn:
         conn.executescript(SCHEMA)
         conn.executemany(
             _INSERT,

@@ -17,6 +17,7 @@ from typing import List, Optional
 
 from src.domain.services.data_quality_history import AnhChupChatLuong
 from src.infrastructure.config.settings import describe_path
+from src.infrastructure.repositories.sqlite_ket_noi import mo_ket_noi
 
 logger = logging.getLogger("moodbite.quality_history")
 
@@ -48,7 +49,7 @@ class SqliteQualitySnapshotRepository:
         self._error: Optional[str] = None
         try:
             self.db_path.parent.mkdir(parents=True, exist_ok=True)
-            with sqlite3.connect(self.db_path) as conn:
+            with mo_ket_noi(self.db_path) as conn:
                 conn.executescript(SCHEMA)
         except (sqlite3.Error, OSError) as exc:
             self._error = (
@@ -66,7 +67,7 @@ class SqliteQualitySnapshotRepository:
             # lịch sử là khối phụ của màn hình chất lượng. Ném lỗi ra sẽ làm hỏng cả
             # màn hình vì một biểu đồ. Đã ghi log ở `__init__` nên không mất dấu vết.
             return
-        with sqlite3.connect(self.db_path) as conn:
+        with mo_ket_noi(self.db_path) as conn:
             conn.execute(
                 f"INSERT OR REPLACE INTO quality_snapshot ({_COLUMNS}) "
                 "VALUES (?,?,?,?,?,?,?)",
@@ -85,7 +86,7 @@ class SqliteQualitySnapshotRepository:
         if self._error is not None:
             return []
         han = (date.today() - timedelta(days=max(so_ngay, 1))).isoformat()
-        with sqlite3.connect(self.db_path) as conn:
+        with mo_ket_noi(self.db_path) as conn:
             rows = conn.execute(
                 f"SELECT {_COLUMNS} FROM quality_snapshot "
                 "WHERE ngay >= ? ORDER BY ngay ASC",

@@ -17,6 +17,7 @@ from typing import List, Optional
 
 from src.domain.entities.audit_log import AuditAction, AuditEntry
 from src.infrastructure.config.settings import describe_path
+from src.infrastructure.repositories.sqlite_ket_noi import mo_ket_noi
 
 logger = logging.getLogger("moodbite.audit")
 
@@ -49,7 +50,7 @@ class SqliteAuditLogRepository:
         self._error: Optional[str] = None
         try:
             self.db_path.parent.mkdir(parents=True, exist_ok=True)
-            with sqlite3.connect(self.db_path) as conn:
+            with mo_ket_noi(self.db_path) as conn:
                 conn.executescript(SCHEMA)
         except (sqlite3.Error, OSError) as exc:
             self._error = f"Không mở được nhật ký {describe_path(self.db_path)}: {exc}"
@@ -70,7 +71,7 @@ class SqliteAuditLogRepository:
         )
         if self._error is not None:
             raise RuntimeError(self._error)
-        with sqlite3.connect(self.db_path) as conn:
+        with mo_ket_noi(self.db_path) as conn:
             conn.execute(
                 f"INSERT INTO audit_log ({_COLUMNS}) VALUES (?,?,?,?,?,?)",
                 (
@@ -109,7 +110,7 @@ class SqliteAuditLogRepository:
                 params.append(gia_tri)
         where = ("WHERE " + " AND ".join(dieu_kien)) if dieu_kien else ""
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            with mo_ket_noi(self.db_path) as conn:
                 conn.row_factory = sqlite3.Row
                 rows = conn.execute(
                     f"SELECT {_COLUMNS} FROM audit_log {where} "
@@ -144,7 +145,7 @@ class SqliteAuditLogRepository:
         if self._error is not None:
             return 0
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            with mo_ket_noi(self.db_path) as conn:
                 return conn.execute("SELECT COUNT(*) FROM audit_log").fetchone()[0]
         except sqlite3.Error:
             return 0
@@ -154,7 +155,7 @@ class SqliteAuditLogRepository:
             return 0
         moc = (datetime.now(timezone.utc) - timedelta(days=max(1, int(so_ngay)))).isoformat()
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            with mo_ket_noi(self.db_path) as conn:
                 cur = conn.execute("DELETE FROM audit_log WHERE created_at < ?", (moc,))
                 conn.commit()
                 return cur.rowcount

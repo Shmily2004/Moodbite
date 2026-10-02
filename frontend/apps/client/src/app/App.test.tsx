@@ -111,12 +111,14 @@ describe('App - smoke test', () => {
     expect(await screen.findByText(/Không có trang này/i).catch(() => null)).toBeNull();
   });
 
-  it('luong tim kiem vao duoc o /search', () => {
+  it('luong tim kiem vao duoc o /search', async () => {
     // Giữ luồng cũ là quyết định có chủ đích (CLAUDE.md mục 8: không xoá code đang
     // chạy được). Test này khoá lại để không ai lỡ tay gỡ mất.
     renderAt('/search');
 
-    expect(screen.getByRole('textbox')).toBeInTheDocument();
+    // `findBy`: từ 2026-10-02 trang này TẢI SAU (lazy route) nên xuất hiện bất đồng bộ.
+    // Chờ tới 4s: lần ĐẦU vitest phải biên dịch cả cây module của trang (đo được > 1s).
+    expect(await screen.findByRole('textbox', undefined, { timeout: 4000 })).toBeInTheDocument();
     expect(screen.getByText(/Bạn đang muốn ăn gì/i)).toBeInTheDocument();
   });
 });

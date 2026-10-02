@@ -24,6 +24,7 @@ from typing import Optional
 from src.application.ports.user_repository import UsernameAlreadyExists
 from src.domain.entities.user import User, UserRole
 from src.infrastructure.config.settings import describe_path
+from src.infrastructure.repositories.sqlite_ket_noi import mo_ket_noi
 
 logger = logging.getLogger("moodbite.users")
 
@@ -79,7 +80,7 @@ class SqliteUserRepository:
         lần chạy đầu tiên thì đúng là chưa có tài khoản nào."""
         try:
             self.db_path.parent.mkdir(parents=True, exist_ok=True)
-            with sqlite3.connect(self.db_path) as conn:
+            with mo_ket_noi(self.db_path) as conn:
                 conn.executescript(SCHEMA)
                 self._them_cot_email(conn)
         except (sqlite3.Error, OSError) as exc:
@@ -141,7 +142,7 @@ class SqliteUserRepository:
         if self._error is not None:
             return False
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            with mo_ket_noi(self.db_path) as conn:
                 cur = conn.execute(
                     "UPDATE users SET password_hash = ?, "
                     "token_version = token_version + 1 WHERE user_id = ?",
@@ -157,7 +158,7 @@ class SqliteUserRepository:
         if self._error is not None:
             return False
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            with mo_ket_noi(self.db_path) as conn:
                 cur = conn.execute(
                     "UPDATE users SET token_version = token_version + 1 WHERE user_id = ?",
                     (str(user_id),),
@@ -181,7 +182,7 @@ class SqliteUserRepository:
         if not dia_chi:
             return False
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            with mo_ket_noi(self.db_path) as conn:
                 cur = conn.execute(
                     "UPDATE users SET email_verified = 1 "
                     "WHERE user_id = ? AND email = ?",
@@ -206,7 +207,7 @@ class SqliteUserRepository:
             token_version=user.token_version,
         )
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            with mo_ket_noi(self.db_path) as conn:
                 conn.execute(
                     f"INSERT INTO users ({_COLUMNS}) VALUES (?,?,?,?,?,?,?,?,?)",
                     (
@@ -229,7 +230,7 @@ class SqliteUserRepository:
 
     def count(self) -> int:
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            with mo_ket_noi(self.db_path) as conn:
                 return conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]
         except sqlite3.Error:
             return 0
@@ -248,7 +249,7 @@ class SqliteUserRepository:
         if self._error is not None:
             return False
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            with mo_ket_noi(self.db_path) as conn:
                 cur = conn.execute(
                     "UPDATE users SET role = ?, token_version = token_version + 1 "
                     "WHERE user_id = ?",
@@ -262,7 +263,7 @@ class SqliteUserRepository:
 
     def count_by_role(self, role: UserRole) -> int:
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            with mo_ket_noi(self.db_path) as conn:
                 return conn.execute(
                     "SELECT COUNT(*) FROM users WHERE role = ?", (role.value,)
                 ).fetchone()[0]
@@ -275,7 +276,7 @@ class SqliteUserRepository:
         if self._error is not None:
             return None
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            with mo_ket_noi(self.db_path) as conn:
                 conn.row_factory = sqlite3.Row
                 row = conn.execute(
                     f"SELECT {_COLUMNS} FROM users {where}", params

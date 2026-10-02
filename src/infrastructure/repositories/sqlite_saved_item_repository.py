@@ -17,6 +17,7 @@ from typing import List, Optional
 
 from src.domain.entities.saved_item import SavedItem, SavedItemType, SavedListType
 from src.infrastructure.config.settings import describe_path
+from src.infrastructure.repositories.sqlite_ket_noi import mo_ket_noi
 
 logger = logging.getLogger("moodbite.saved_items")
 
@@ -100,7 +101,7 @@ class SqliteSavedItemRepository:
         self._error: Optional[str] = None
         try:
             self.db_path.parent.mkdir(parents=True, exist_ok=True)
-            with sqlite3.connect(self.db_path) as conn:
+            with mo_ket_noi(self.db_path) as conn:
                 # Nâng cấp TRƯỚC: `CREATE TABLE IF NOT EXISTS` trong SCHEMA sẽ im lặng bỏ
                 # qua khi bảng cũ đang tồn tại, nên nếu chạy sau thì bảng vĩnh viễn kẹt ở
                 # bản ba cột.
@@ -125,7 +126,7 @@ class SqliteSavedItemRepository:
         )
         if self._error is not None:
             raise RuntimeError(self._error)
-        with sqlite3.connect(self.db_path) as conn:
+        with mo_ket_noi(self.db_path) as conn:
             # ON CONFLICT ... DO UPDATE: lưu lại thứ đã lưu thì cập nhật tên chứ không
             # lỗi, và KHÔNG đổi `created_at` — thứ tự trong danh sách phải giữ nguyên
             # theo lần lưu ĐẦU TIÊN, nếu không thì mỗi lần đồng bộ lại là xáo trộn hết.
@@ -155,7 +156,7 @@ class SqliteSavedItemRepository:
         if self._error is not None:
             return False
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            with mo_ket_noi(self.db_path) as conn:
                 cur = conn.execute(
                     # `list_type` NẰM TRONG điều kiện: bỏ tim một món không được xoá
                     # luôn dấu trang của chính món đó — hai ý định khác nhau.
@@ -188,7 +189,7 @@ class SqliteSavedItemRepository:
             where += " AND list_type = ?"
             params.append(list_type.value)
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            with mo_ket_noi(self.db_path) as conn:
                 conn.row_factory = sqlite3.Row
                 rows = conn.execute(
                     f"SELECT {_COLUMNS} FROM saved_items {where} ORDER BY created_at DESC",
@@ -238,7 +239,7 @@ class SqliteSavedItemRepository:
             where += " AND list_type = ?"
             params.append(list_type.value)
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            with mo_ket_noi(self.db_path) as conn:
                 return conn.execute(
                     f"SELECT COUNT(*) FROM saved_items {where}", params
                 ).fetchone()[0]
@@ -258,7 +259,7 @@ class SqliteSavedItemRepository:
             where += " AND item_type = ?"
             params.append(item_type.value)
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            with mo_ket_noi(self.db_path) as conn:
                 return conn.execute(
                     "SELECT COUNT(DISTINCT item_type || '|' || item_id) "
                     f"FROM saved_items {where}",
@@ -271,7 +272,7 @@ class SqliteSavedItemRepository:
         if self._error is not None:
             return 0
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            with mo_ket_noi(self.db_path) as conn:
                 return conn.execute("SELECT COUNT(*) FROM saved_items").fetchone()[0]
         except sqlite3.Error:
             return 0

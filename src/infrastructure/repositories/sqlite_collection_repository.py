@@ -24,6 +24,7 @@ from typing import Dict, Iterator, List, Optional
 from src.domain.entities.collection import Collection, CollectionItem
 from src.domain.entities.saved_item import SavedItemType
 from src.infrastructure.config.settings import describe_path
+from src.infrastructure.repositories.sqlite_ket_noi import mo_ket_noi
 
 logger = logging.getLogger("moodbite.collections")
 
@@ -73,27 +74,14 @@ class SqliteCollectionRepository:
     def is_ready(self) -> bool:
         return self._error is None
 
-    def _connect(self) -> sqlite3.Connection:
-        if self._error is not None:
-            raise RuntimeError(self._error)
-        conn = sqlite3.connect(self.db_path)
-        conn.row_factory = sqlite3.Row
-        return conn
-
     @contextmanager
     def _tx(self) -> Iterator[sqlite3.Connection]:
-        """MỘT giao dịch rồi ĐÓNG kết nối.
-
-        `with sqlite3.connect(...)` chỉ commit/rollback chứ KHÔNG đóng kết nối — trên
-        Windows file CSDL bị giữ khoá tới lúc bộ gom rác chạy, làm test xoá thư mục tạm
-        hỏng ngẫu nhiên. Đóng tường minh thì không phụ thuộc vào điều đó.
-        """
-        conn = self._connect()
-        try:
-            with conn:
-                yield conn
-        finally:
-            conn.close()
+        """MỘT giao dịch rồi ĐÓNG kết nối - xem `sqlite_ket_noi.mo_ket_noi`."""
+        if self._error is not None:
+            raise RuntimeError(self._error)
+        with mo_ket_noi(self.db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            yield conn
 
     # --- Đọc -----------------------------------------------------------------
 

@@ -18,18 +18,16 @@
  *   2. Thêm một dòng vào mảng `children` bên dưới
  *   Header/footer tự có sẵn nhờ `RootLayout` — không phải chép lại.
  */
+import { Suspense, lazy } from 'react';
+import type { ComponentType } from 'react';
 import type { RouteObject } from 'react-router-dom';
 import { Navigate, useLocation, useParams } from 'react-router-dom';
 import { HomePage } from '@/pages/home';
-import { DishPage } from '@/pages/dish';
-import { SearchPage } from '@/pages/search';
-import { RecommendPage } from '@/pages/recommend';
 import { LoginPage } from '@/pages/login';
 import { RegisterPage } from '@/pages/register';
 import { ForgotPasswordPage } from '@/pages/forgot-password';
 import { ResetPasswordPage } from '@/pages/reset-password';
 import { VerifyEmailPage } from '@/pages/verify-email';
-import { AccountPage } from '@/pages/account';
 import { NotFoundPage } from '@/pages/not-found';
 import { DUONG_DAN_CU, ROUTES } from '@/shared/config';
 import { RootLayout } from './layout/RootLayout';
@@ -55,23 +53,53 @@ function ChuyenHuong({ den }: { den: string }) {
   return <Navigate to={`${dich}${location.search}`} replace />;
 }
 
+/**
+ * TẢI SAU (code-splitting) cho các trang NẶNG - thêm 2026-10-02.
+ *
+ * Trước đó cả app là MỘT file JS 532 kB (vượt ngưỡng 500 kB Vite cảnh báo), vì bốn trang
+ * này kéo theo Leaflet (bản đồ) và nhiều widget. Người mở trang chủ không cần bản đồ mà
+ * vẫn phải tải hết. `taiSau` chỉ tải file của trang khi vào đúng route đó.
+ * Trang chủ và các trang đăng nhập nhỏ vẫn tải ngay - đó là màn đầu tiên người ta thấy.
+ */
+function taiSau(nap: () => Promise<{ default: ComponentType }>) {
+  const Trang = lazy(nap);
+  // `React.lazy` + `Suspense` chứ KHÔNG dùng thuộc tính `lazy` của route: thuộc tính đó
+  // chỉ chạy với data router, còn test dựng route bằng `useRoutes` (xem App.test.tsx - data
+  // router trong jsdom vướng lỗi AbortSignal của Node). Cách này chạy được ở cả hai nơi.
+  return (
+    <Suspense fallback={<p className="trang-dang-tai" role="status">Đang tải trang…</p>}>
+      <Trang />
+    </Suspense>
+  );
+}
+
+const trangMon = taiSau(() => import('@/pages/dish').then((m) => ({ default: m.DishPage })));
+const trangTimKiem = taiSau(() =>
+  import('@/pages/search').then((m) => ({ default: m.SearchPage })),
+);
+const trangGoiY = taiSau(() =>
+  import('@/pages/recommend').then((m) => ({ default: m.RecommendPage })),
+);
+const trangTaiKhoan = taiSau(() =>
+  import('@/pages/account').then((m) => ({ default: m.AccountPage })),
+);
 export const routes: RouteObject[] = [
   {
     // Route cha không có `path`: nó chỉ đóng vai trò bọc layout quanh mọi trang con.
     element: <RootLayout />,
     children: [
       { index: true, element: <HomePage /> },
-      { path: ROUTES.dish, element: <DishPage /> },
+      { path: ROUTES.dish, element: trangMon },
       // Đăng nhập/đăng ký là TUỲ CHỌN: không có route guard nào bắt qua đây trước.
       { path: ROUTES.login, element: <LoginPage /> },
       { path: ROUTES.register, element: <RegisterPage /> },
       { path: ROUTES.forgotPassword, element: <ForgotPasswordPage /> },
       { path: ROUTES.resetPassword, element: <ResetPasswordPage /> },
       { path: ROUTES.verifyEmail, element: <VerifyEmailPage /> },
-      { path: ROUTES.account, element: <AccountPage /> },
+      { path: ROUTES.account, element: trangTaiKhoan },
       // Luồng cũ: tìm quán bằng câu tự nhiên.
-      { path: ROUTES.search, element: <SearchPage /> },
-      { path: ROUTES.recommend, element: <RecommendPage /> },
+      { path: ROUTES.search, element: trangTimKiem },
+      { path: ROUTES.recommend, element: trangGoiY },
       // Đường dẫn CŨ (tiếng Việt) -> chuyển hướng sang đường mới, GIỮ nguyên query string.
       // Quan trọng nhất là `/dat-lai-mat-khau?token=…`: link đó đã nằm trong hộp thư người
       // dùng từ trước khi đổi, xoá thẳng là thư cũ chết.

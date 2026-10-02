@@ -684,3 +684,64 @@ export function IconRiceBowl(props: IconProps) {
     </Icon>
   );
 }
+
+// --- Đợt đối chiếu thiết kế 2026-10-02 ------------------------------------------------
+
+/** Mũi tên trái — nút cuộn dải thẻ món. */
+export function IconChevronLeft(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M14.5 6 8.5 12l6 6" />
+    </Icon>
+  );
+}
+
+/** Mũi tên phải — nút cuộn dải thẻ món. */
+export function IconChevronRight(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M9.5 6l6 6-6 6" />
+    </Icon>
+  );
+}
+
+/** Bút chì — nút "Chỉnh sửa" (bản thiết kế dùng bút chì, không phải phễu lọc). */
+export function IconPencil(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M4 20l1-4.5L15.5 5a2.1 2.1 0 0 1 3 3L8 18.5Z" />
+      <path d="M13.5 7l3 3" />
+    </Icon>
+  );
+}
+
+/** Máy ảnh — nút đổi ảnh đại diện. */
+export function IconCamera(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2l1.5-2h6l1.5 2h2A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5Z" />
+      <circle cx="12" cy="12.5" r="3.3" />
+    </Icon>
+  );
+}
+
+/** Chữ i trong vòng tròn — mở phần giải thích. */
+export function IconInfo(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 11v5M12 8h.01" />
+    </Icon>
+  );
+}
+
+/** Mặt tiền cửa hàng — tiêu đề danh sách quán. */
+export function IconStore(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M4 9.5 5.5 4.5h13L20 9.5" />
+      <path d="M4 9.5a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0" />
+      <path d="M5.5 11.5v8h13v-8M10 19.5v-4.5h4v4.5" />
+    </Icon>
+  );
+}

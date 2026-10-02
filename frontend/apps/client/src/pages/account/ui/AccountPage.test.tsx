@@ -236,3 +236,80 @@ describe('AccountPage', () => {
     );
   });
 });
+
+describe('AccountPage - dau trang theo profile.png (2026-10-02)', () => {
+  /** Bọc `gia_lap_fetch` và trả thêm danh sách địa chỉ cho `/me/addresses`. */
+  function voiDiaChi(addresses: unknown[]) {
+    const goc = gia_lap_fetch();
+    return vi.fn().mockImplementation((url: string) => {
+      if (String(url).includes('/me/addresses')) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: async () => ({ data: { addresses } }),
+        });
+      }
+      return goc(url);
+    });
+  }
+
+  it('co dia chi MAC DINH thi hien nhan cua no duoi email', async () => {
+    vi.stubGlobal(
+      'fetch',
+      voiDiaChi([
+        { address_id: 'a1', label: 'Cơ quan', latitude: 21, longitude: 105.8, is_default: false },
+        { address_id: 'a2', label: 'Nhà', latitude: 21.02, longitude: 105.85, is_default: true },
+      ]),
+    );
+    renderAccount();
+
+    const dong = await screen.findByTestId('dia-chi-mac-dinh');
+    expect(dong).toHaveTextContent('Nhà');
+    expect(dong).not.toHaveTextContent('Cơ quan');
+  });
+
+  it('KHONG co dia chi mac dinh thi khong hien gi (khong tu dien "Ha Noi")', async () => {
+    vi.stubGlobal(
+      'fetch',
+      voiDiaChi([
+        { address_id: 'a1', label: 'Cơ quan', latitude: 21, longitude: 105.8, is_default: false },
+      ]),
+    );
+    renderAccount();
+
+    await screen.findByText(/Thành viên từ 05\/2024/);
+    expect(screen.queryByTestId('dia-chi-mac-dinh')).not.toBeInTheDocument();
+  });
+
+  it('nut may anh tren anh dai dien co ten doc duoc, loi giai thich van doc duoc', async () => {
+    vi.stubGlobal('fetch', gia_lap_fetch());
+    renderAccount();
+
+    const o = await screen.findByLabelText(/Tải ảnh đại diện lên/);
+    expect(o).toHaveAttribute('type', 'file');
+    // Đoạn "PNG, JPG…" không còn in to dưới ảnh nhưng vẫn là MÔ TẢ của ô chọn file.
+    expect(o).toHaveAccessibleDescription(/PNG, JPG hoặc WEBP/);
+  });
+
+  it('the huy hieu o Tong quan: toi da 4 cai + "Xem tat ca" sang tab huy hieu', async () => {
+    const nhieu = Array.from({ length: 6 }, (_, i) => ({
+      badge_id: `b${i}`,
+      name: `Huy hiệu ${i}`,
+      description: `Mô tả ${i}`,
+      emoji: '🏅',
+      target: 5,
+      current: 0,
+      earned: false,
+    }));
+    vi.stubGlobal('fetch', gia_lap_fetch({ ...STATS_RONG, badges: nhieu }));
+    renderAccount();
+
+    // Đợi số liệu nạp xong: lúc đang tải, thẻ là một <section> KHÁC (chỉ có chữ "Đang tải").
+    await screen.findByText('Huy hiệu 0');
+    const the = screen.getByRole('heading', { name: /HUY HIỆU CỦA BẠN/i }).closest('section')!;
+    expect(within(the).getAllByRole('listitem')).toHaveLength(4);
+    fireEvent.click(within(the).getByRole('button', { name: /Xem tất cả/ }));
+    // Sang tab "Cấp độ & huy hiệu": ở đó hiện ĐỦ cả 6.
+    await waitFor(() => expect(screen.getByText('Huy hiệu 5')).toBeInTheDocument());
+  });
+});

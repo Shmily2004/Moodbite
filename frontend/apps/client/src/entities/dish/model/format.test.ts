@@ -8,6 +8,9 @@
 import { describe, expect, it } from 'vitest';
 import {
   describeCookingMethod,
+  describeDishTags,
+  describeRestaurantListHeading,
+  formatCount,
   describeIntroState,
   describeMealTimes,
   describeRestaurantCount,
@@ -50,6 +53,47 @@ describe('describeRestaurantCount', () => {
   it('dem duoc thi noi so that', () => {
     expect(describeRestaurantCount(1)).toBe('1 quán gần bạn');
     expect(describeRestaurantCount(86)).toBe('86 quán gần bạn');
+  });
+
+  it('so lon co dau cham ngan hang nghin kieu Viet Nam (12.877, khong phai 12877)', () => {
+    expect(describeRestaurantCount(12877)).toBe('12.877 quán gần bạn');
+    expect(formatCount(1233)).toBe('1.233');
+    expect(formatCount(999)).toBe('999');
+  });
+});
+
+describe('describeRestaurantListHeading - khong duoc ngu y la da liet ke het', () => {
+  it('chi hien mot phan -> phai noi "Hien x / tong"', () => {
+    expect(describeRestaurantListHeading(20, 1233, 'Phở bò')).toBe(
+      'Hiện 20 / 1.233 quán phù hợp với Phở bò',
+    );
+  });
+
+  it('da hien du -> chi con so tong', () => {
+    expect(describeRestaurantListHeading(12, 12, 'Bún chả')).toBe('12 quán phù hợp với Bún chả');
+  });
+
+  it('tong cua mon nho hon so quan tai ve -> khong bao gio in "Hien 20 / 12"', () => {
+    expect(describeRestaurantListHeading(20, 12)).toBe('20 quán phù hợp');
+  });
+
+  it('khong co quan nao', () => {
+    expect(describeRestaurantListHeading(0, 0)).toMatch(/Chưa tìm thấy/);
+  });
+});
+
+describe('describeDishTags - nhan thuoc tinh tren the mon', () => {
+  it('cach che bien -> am thuc -> nhiet do, toi da 3 nhan', () => {
+    expect(
+      describeDishTags({ cooking_method: 'nuoc', cuisine: 'Việt Nam', temperature: 'hot' }),
+    ).toEqual(['Món nước', 'Việt Nam', 'Nóng']);
+  });
+
+  it('thieu truong nao thi BO nhan do, khong in "chua ro"', () => {
+    expect(describeDishTags({ cooking_method: null, cuisine: 'Thái Lan', temperature: null })).toEqual([
+      'Thái Lan',
+    ]);
+    expect(describeDishTags({})).toEqual([]);
   });
 });
 

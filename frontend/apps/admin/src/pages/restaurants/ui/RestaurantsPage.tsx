@@ -26,7 +26,7 @@ import {
 } from '@/features/manage-restaurants';
 import { NHAN_NGUON_QUAN, nhanTheoMa } from '@/shared/config';
 import { phanTramVN, soVN } from '@/shared/lib';
-import { PhanTrang } from '@/shared/ui';
+import { IconTron, PhanTrang, type MauIconTron, type TenIcon } from '@/shared/ui';
 
 /** Nhãn tiếng Việt cho `?loc=`. Khoá do backend đặt — xem `data_quality.py`. */
 const NHAN_LOC: Record<string, string> = {
@@ -72,17 +72,30 @@ export function RestaurantsPage() {
             ẩn lúc nào cũng được.
           </p>
         </div>
+        {/* Nút góc phải như bản thiết kế. Header là flex-wrap: mở form thì form (100%
+            chiều ngang) tự xuống hàng ngay dưới tiêu đề. */}
+        <AddRestaurantForm onCreate={a.createRestaurant} />
       </header>
-
-      <AddRestaurantForm onCreate={a.createRestaurant} />
 
       <section className="panel quan-bo-loc">
         {st && (
           <ul className="the-so the-so--gon" aria-label="Tổng hợp quán">
-            <TheSo nhan="Tổng số quán" so={st.total} phu="toàn bộ dữ liệu" />
-            <TheSo nhan="Đang hiển thị" so={st.visible} phu={phanTramVN(st.visible, st.total)} />
-            <TheSo nhan="Đã ẩn" so={st.hidden} phu={phanTramVN(st.hidden, st.total)} />
-            <TheSo nhan="Nhập tay" so={st.manual} phu={phanTramVN(st.manual, st.total)} />
+            <TheSo icon="quan-an" mau="xanh" nhan="Tổng số quán" so={st.total} phu="toàn bộ dữ liệu" />
+            <TheSo
+              icon="dau-tich"
+              mau="luc"
+              nhan="Đang hiển thị"
+              so={st.visible}
+              phu={phanTramVN(st.visible, st.total)}
+            />
+            <TheSo icon="an" mau="do" nhan="Đã ẩn" so={st.hidden} phu={phanTramVN(st.hidden, st.total)} />
+            <TheSo
+              icon="but"
+              mau="tim"
+              nhan="Nhập tay"
+              so={st.manual}
+              phu={phanTramVN(st.manual, st.total)}
+            />
           </ul>
         )}
 
@@ -195,7 +208,7 @@ export function RestaurantsPage() {
       {a.restaurants.length > 0 && (
         <section className="panel">
           <div className="bang-cuon" aria-busy={a.loading}>
-            <table className="bang">
+            <table className="bang bang--giua">
               <thead>
                 <tr>
                   <th scope="col">
@@ -266,12 +279,27 @@ export function RestaurantsPage() {
   );
 }
 
-function TheSo({ nhan, so, phu }: { nhan: string; so: number; phu: string }) {
+function TheSo({
+  nhan,
+  so,
+  phu,
+  icon,
+  mau,
+}: {
+  nhan: string;
+  so: number;
+  phu: string;
+  icon: TenIcon;
+  mau: MauIconTron;
+}) {
   return (
-    <li className="the-so__o">
-      <span className="the-so__nhan">{nhan}</span>
-      <span className="the-so__gia-tri">{soVN(so)}</span>
-      <span className="muted the-so__phu">{phu}</span>
+    <li className="the-so__o the-so__o--co-icon">
+      <IconTron ten={icon} mau={mau} />
+      <div className="the-so__than">
+        <span className="the-so__nhan">{nhan}</span>
+        <span className="the-so__gia-tri">{soVN(so)}</span>
+        <span className="muted the-so__phu">{phu}</span>
+      </div>
     </li>
   );
 }

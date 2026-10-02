@@ -11,6 +11,7 @@ import type {
 } from '@moodbite/api-client';
 import { NHAN_NGUON_QUAN, nhanTheoMa } from '@/shared/config';
 import { ngayGioVN, soVN } from '@/shared/lib';
+import { AnhThuNho } from '@/shared/ui';
 
 /** Số cột của bảng — dòng đang sửa phải trải hết chiều ngang. */
 const SO_COT = 10;
@@ -115,11 +116,12 @@ export function RestaurantRow({
       </td>
       <td>
         <div className="o-mon">
-          {restaurant.thumbnail_url ? (
-            <img className="o-anh" src={restaurant.thumbnail_url} alt="" loading="lazy" />
-          ) : (
-            <span className="o-anh o-anh--trong" aria-hidden="true" />
-          )}
+          {/* Ảnh quán là link Google ngoài, chết dần theo thời gian -> ô giữ chỗ. */}
+          <AnhThuNho
+            src={restaurant.thumbnail_url}
+            className="o-anh"
+            classNameTrong="o-anh--trong"
+          />
           <div>
             <span className="bang__ten">{restaurant.name}</span>
             <span className="bang__phu muted small">
@@ -160,13 +162,17 @@ export function RestaurantRow({
       <td className="small muted" title="Ngày nguồn dữ liệu cập nhật bản ghi">
         {ngayGioVN(restaurant.source_updated_at)}
       </td>
-      <td className="actions">
-        <button className="ghost" onClick={startEdit}>
-          Sửa
-        </button>
-        <button className="ghost" onClick={() => onToggleHidden(restaurant)}>
-          {restaurant.is_active ? 'Ẩn' : 'Bỏ ẩn'}
-        </button>
+      <td>
+        {/* Bọc <div>: `display:flex` đặt thẳng lên <td> làm hai nút xếp chồng, mỗi dòng
+            cao gấp đôi (xem `.nut-dong` trong styles.css). */}
+        <div className="nut-dong">
+          <button className="ghost" onClick={startEdit}>
+            Sửa
+          </button>
+          <button className="ghost" onClick={() => onToggleHidden(restaurant)}>
+            {restaurant.is_active ? 'Ẩn' : 'Bỏ ẩn'}
+          </button>
+        </div>
       </td>
     </tr>
   );

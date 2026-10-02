@@ -24,7 +24,7 @@ import { theTuMonDaXem, theTuMucDaLuu } from './savedTabs';
 /** Số thẻ tối đa mỗi hàng ở Tổng quan. Còn lại xem ở tab riêng qua "Xem tất cả". */
 const SO_THE_TOI_DA = 10;
 
-export type TabDich = 'saved' | 'recent' | 'taste';
+export type TabDich = 'saved' | 'recent' | 'taste' | 'badges';
 
 export interface OverviewTabProps {
   favorites: UseFavoritesResult;
@@ -113,7 +113,12 @@ export function OverviewTab(props: OverviewTabProps) {
 
       <aside className="account-aside">
         <LevelCard stats={props.stats} loading={props.dangTaiStats} />
-        <BadgeGrid stats={props.stats} loading={props.dangTaiStats} />
+        <BadgeGrid
+          stats={props.stats}
+          loading={props.dangTaiStats}
+          limit={4}
+          onSeeAll={() => props.onDoiTab('badges')}
+        />
         <TasteRadar truc={trucRadar(props.taste.ids)} onUpdate={() => props.onDoiTab('taste')} />
       </aside>
     </div>

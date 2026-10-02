@@ -26,7 +26,7 @@ import {
 } from '@/features/manage-dishes';
 import { ROUTES } from '@/shared/config';
 import { ngayGioVN, soVN, useDatNhanBreadcrumb } from '@/shared/lib';
-import { Icon } from '@/shared/ui';
+import { AnhThuNho, Icon } from '@/shared/ui';
 
 type Tab = 'tong-quan' | 'quan' | 'thong-tin' | 'lich-su';
 
@@ -68,11 +68,14 @@ export function DishDetailPage() {
       {mon && (
         <>
           <section className="panel chi-tiet-mon__dau">
-            {mon.image_url ? (
-              <img className="chi-tiet-mon__anh" src={mon.image_url} alt={mon.name} />
-            ) : (
-              <div className="chi-tiet-mon__anh chi-tiet-mon__anh--trong">Chưa có ảnh</div>
-            )}
+            <AnhThuNho
+              src={mon.image_url}
+              className="chi-tiet-mon__anh"
+              classNameTrong="chi-tiet-mon__anh--trong"
+              alt={mon.name}
+            >
+              Chưa có ảnh
+            </AnhThuNho>
             <div className="chi-tiet-mon__chinh">
               <h2 className="tong-quan__chao">{mon.name}</h2>
               <p className="chi-tiet__nhan-hang">
@@ -139,6 +142,17 @@ export function DishDetailPage() {
                   error={restaurants.error}
                   quan={restaurants.data?.results.slice(0, SO_QUAN_TOP) ?? null}
                 />
+                {/* "Xem thêm N quán" của bản thiết kế. N = tổng THẬT do server đếm trừ số
+                    đang hiện — chỉ hiện khi thật sự còn quán, và dẫn sang tab danh sách. */}
+                {restaurants.data && restaurants.data.total > SO_QUAN_TOP && (
+                  <button
+                    type="button"
+                    className="nut-xem-them"
+                    onClick={() => chonTab('quan')}
+                  >
+                    Xem thêm {soVN(restaurants.data.total - SO_QUAN_TOP)} quán
+                  </button>
+                )}
               </section>
             </div>
           )}

@@ -2,8 +2,23 @@
  * Phần GIỚI THIỆU MÓN ở đầu trang chi tiết món (tách khỏi `DishPage.tsx` 2026-09-16 để
  * file trang giữ dưới ~300 dòng). Component "ngu": chỉ nhận món và báo khi bấm "Chỉnh sửa".
  */
-import { IconChili, IconFilter } from '@/shared/ui';
+import type { ReactNode } from 'react';
+import {
+  IconBoil,
+  IconChili,
+  IconClock,
+  IconCold,
+  IconFlame,
+  IconHotBowl,
+  IconMix,
+  IconPan,
+  IconPencil,
+  IconSoup,
+  IconSteam,
+  IconStirFry,
+} from '@/shared/ui';
 import type { DishItem } from '@/shared/api';
+import { ANH_GIAO_DIEN } from '@/shared/config';
 import {
   describeCookingMethod,
   describeIntroState,
@@ -13,6 +28,25 @@ import {
   describeTemperature,
 } from '@/entities/dish';
 
+/**
+ * Icon cho từng MÃ thuộc tính — quy tắc HIỂN THỊ thuần (2026-10-02, theo bản thiết kế:
+ * chip "🔥 Đồ nướng", "🍲 Món nóng" có hình màu). Mã lạ thì không có icon, chữ vẫn hiện.
+ */
+const ICON_CACH_CHE_BIEN: Record<string, ReactNode> = {
+  nuong: <IconFlame />,
+  nuong_lo: <IconFlame />,
+  nuoc: <IconSoup />,
+  chien: <IconPan />,
+  xao: <IconStirFry />,
+  hap: <IconSteam />,
+  luoc: <IconBoil />,
+  tron: <IconMix />,
+};
+const ICON_NHIET_DO: Record<string, ReactNode> = {
+  hot: <IconHotBowl />,
+  cold: <IconCold />,
+};
+
 interface DishIntroProps {
   dish: DishItem;
   onEditFilters: () => void;
@@ -20,6 +54,10 @@ interface DishIntroProps {
 
 export function DishIntro({ dish, onEditFilters }: DishIntroProps) {
   const spice = describeSpice(dish.spice_level);
+  const nhietDo = describeTemperature(dish.temperature);
+  const cachCheBien = describeCookingMethod(dish.cooking_method);
+  const bua = describeMealTimes(dish.meal_times);
+  const tranh = ANH_GIAO_DIEN.banner_trang_chu;
   return (
     <section className="dish-detail">
       {dish.image_url && <img className="dish-detail__image" src={dish.image_url} alt="" />}
@@ -27,35 +65,41 @@ export function DishIntro({ dish, onEditFilters }: DishIntroProps) {
       <div className="dish-detail__info">
         <h1 className="dish-detail__name">{dish.name}</h1>
 
-        <ul className="dish__tags">
-          {describeTemperature(dish.temperature) && (
-            <li className="tag">{describeTemperature(dish.temperature)}</li>
+        <ul className="dish__tags dish-attrs">
+          {cachCheBien && (
+            <li className="dish-attr">
+              {dish.cooking_method && ICON_CACH_CHE_BIEN[dish.cooking_method]}
+              {cachCheBien}
+            </li>
           )}
-          {describeCookingMethod(dish.cooking_method) && (
-            <li className="tag">{describeCookingMethod(dish.cooking_method)}</li>
+          {nhietDo && (
+            <li className="dish-attr">
+              {dish.temperature && ICON_NHIET_DO[dish.temperature]}
+              {nhietDo}
+            </li>
           )}
-          {/* Mức cay: vẽ n quả ớt SVG (thay emoji 2026-09-29). Hình ớt là trang trí nên
-              nhãn chữ nằm ở `aria-label` — trình đọc màn hình đọc "Độ cay 2/3". */}
-          {spice &&
-            (spice.chilies > 0 ? (
-              <li className="tag" title={spice.label}>
-                <span role="img" aria-label={spice.label}>
-                  {Array.from({ length: spice.chilies }, (_, i) => (
-                    <IconChili key={i} className="icon-inline" />
-                  ))}
-                </span>
-              </li>
-            ) : (
-              <li className="tag">{spice.label}</li>
-            ))}
-          {describeMealTimes(dish.meal_times) && (
-            <li className="tag tag--muted">{describeMealTimes(dish.meal_times)}</li>
+          {/* Mức cay: n quả ớt + CHỮ (2026-10-02). Một quả ớt mảnh đứng một mình trong
+              chip trông như chip rỗng, nên nhãn "Độ cay 1/3" nay hiện ra bằng chữ luôn;
+              hình ớt là trang trí (`aria-hidden` sẵn trong icon). */}
+          {spice && (
+            <li className="dish-attr dish-attr--cay">
+              {Array.from({ length: spice.chilies }, (_, i) => (
+                <IconChili key={i} />
+              ))}
+              {spice.label}
+            </li>
           )}
-          {/* NÚT "CHỈNH SỬA" cạnh hàng thuộc tính (bản thiết kế). Mở ngăn kéo bộ lọc
-              ngay tại chỗ, với các thuộc tính của chính món này bật sẵn. */}
+          {bua && (
+            <li className="dish-attr dish-attr--phu">
+              <IconClock />
+              {bua}
+            </li>
+          )}
+          {/* NÚT "CHỈNH SỬA" cạnh hàng thuộc tính (bản thiết kế, icon bút chì). Mở ngăn
+              kéo bộ lọc ngay tại chỗ, với các thuộc tính của chính món này bật sẵn. */}
           <li>
-            <button type="button" className="tag tag--nut" onClick={onEditFilters}>
-              <IconFilter /> Chỉnh sửa
+            <button type="button" className="dish-attr dish-attr--nut" onClick={onEditFilters}>
+              <IconPencil /> Chỉnh sửa
             </button>
           </li>
         </ul>
@@ -88,6 +132,20 @@ export function DishIntro({ dish, onEditFilters }: DishIntroProps) {
           </p>
         )}
       </div>
+
+      {/* TRANH HÀ NỘI bên phải như bản thiết kế — thuần trang trí (`alt=""` +
+          `aria-hidden`), CSS ẩn ở màn hẹp để không đẩy danh sách quán xuống. */}
+      {tranh && (
+        <img
+          className="dish-detail__art"
+          src={tranh.src}
+          alt=""
+          aria-hidden="true"
+          width={tranh.width}
+          height={tranh.height}
+          loading="lazy"
+        />
+      )}
     </section>
   );
 }

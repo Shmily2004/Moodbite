@@ -20,7 +20,17 @@ export type TenIcon =
   | 'cai-dat'
   | 'mui-ten-trai'
   | 'tai-xuong'
-  | 'canh-bao';
+  | 'canh-bao'
+  // Biểu tượng cho thẻ số (2026-10-02) — cùng nét 1.8, cùng khung 24×24.
+  | 'dau-tich'
+  | 'dau-hoi'
+  | 'dau-x'
+  | 'thong-tin'
+  | 'danh-sach'
+  | 'ghim'
+  | 'an'
+  | 'but'
+  | 'anh';
 
 const HINH: Record<TenIcon, ReactElement> = {
   'tong-quan': <path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" />,
@@ -78,6 +88,62 @@ const HINH: Record<TenIcon, ReactElement> = {
     <>
       <circle cx="12" cy="12" r="9" />
       <path d="M12 7v6M12 16.5h.01" />
+    </>
+  ),
+  'dau-tich': (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="m8 12 3 3 5-6" />
+    </>
+  ),
+  'dau-hoi': (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.3M12 17h.01" />
+    </>
+  ),
+  'dau-x': (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="m9 9 6 6M15 9l-6 6" />
+    </>
+  ),
+  'thong-tin': (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 11v5M12 7.5h.01" />
+    </>
+  ),
+  'danh-sach': (
+    <>
+      <path d="M9 6h11M9 12h11M9 18h11" />
+      <path d="M4 6h.01M4 12h.01M4 18h.01" />
+    </>
+  ),
+  ghim: (
+    <>
+      <path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21Z" />
+      <circle cx="12" cy="9.5" r="2.5" />
+    </>
+  ),
+  an: (
+    <>
+      <path d="M3 3l18 18" />
+      <path d="M10.6 6.1A9.8 9.8 0 0 1 12 6c5 0 9 6 9 6a16 16 0 0 1-2.9 3.4M6.6 7.6A15.6 15.6 0 0 0 3 12s4 6 9 6a8.7 8.7 0 0 0 4-1" />
+      <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" />
+    </>
+  ),
+  but: (
+    <>
+      <path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z" />
+      <path d="m13.5 6.5 4 4" />
+    </>
+  ),
+  anh: (
+    <>
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <circle cx="9" cy="10" r="1.8" />
+      <path d="m21 16-5-5-9 9" />
     </>
   ),
 };

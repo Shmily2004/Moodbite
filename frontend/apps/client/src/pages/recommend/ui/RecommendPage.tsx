@@ -18,9 +18,14 @@
  * 2026-08-25 rằng đó là lỗi thiết kế: MÓN không có trường rating, còn km là của quán gần
  * nhất nên đặt trên thẻ món thì đọc thành "món này cách 1,2 km" — vô nghĩa.
  *
- * ⛔ CHƯA LÀM "Chỉ hiện quán có ghi giá (x%)" của bản thiết kế: `/dishes/suggest` không có
- * tham số lọc theo giá (đã kiểm `DishSuggestRequest`, 2026-09-16). Vẽ một công tắc bấm
- * vào mà kết quả không đổi là nói dối người dùng.
+ * ✅ "Chỉ hiện quán có ghi giá" ĐÃ LÀM (backend thêm tham số `only_with_price` sau ghi chú
+ * cũ 2026-09-16): công tắc nằm trong `DishFilters`, đi tới được backend và theo sang trang
+ * chi tiết món qua `?gia=1` (có test `HomeLocGia` / `DishLocGia`). Phần "(x%)" của bản
+ * thiết kế vẫn CHƯA hiện: API không trả tỷ lệ quán có giá, không tự bịa con số.
+ *
+ * Bong bóng trợ lý chỉ để MỞ NGĂN KÉO lọc; ở màn ≥1024px cột lọc đã nằm sẵn bên trái nên
+ * CSS ẩn bong bóng đi (`.recommend .bubble`) — hai lối vào cùng một việc đứng cạnh nhau
+ * chỉ làm rối.
  *
  * ⚠️ KHÔNG PHẢI `/search`. Trang đó tìm QUÁN bằng câu tự nhiên và có bản đồ.
  */

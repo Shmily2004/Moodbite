@@ -29,6 +29,15 @@
   --warn-soft:   #FDF3E0;
   --error:       #A32A1E;
   --error-soft:  #FBEAE7;
+  /* Hai màu lấy từ bản thiết kế admin (2026-10-02): NAVY cho nút hành động chính,
+     CAM cho tab đang chọn và lời mời "Xem chi tiết". Màu nhấn xanh dương vẫn là màu
+     chính của khu quản trị — hai màu này chỉ dùng đúng ở những chỗ bản vẽ dùng. */
+  --navy:        #14284B;
+  --navy-ink:    #FFFFFF;
+  --cam:         #D9661A;
+  --cam-soft:    #FDEEE2;
+  --tim:         #7A4FA0;
+  --tim-soft:    #F1EAF8;
 
   --shadow-sm: 0 1px 2px rgba(27, 26, 23, .06), 0 1px 3px rgba(27, 26, 23, .08);
   --shadow-lg: 0 4px 12px rgba(27, 26, 23, .10), 0 16px 48px rgba(27, 26, 23, .16);
@@ -67,6 +76,12 @@
     --warn-soft:   #2C2312;
     --error:       #E58A7C;
     --error-soft:  #2E1714;
+    --navy:        #5FA3CE;
+    --navy-ink:    #0B1720;
+    --cam:         #F0A35E;
+    --cam-soft:    #2F2114;
+    --tim:         #B38AD6;
+    --tim-soft:    #261C30;
 
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, .4);
     --shadow-lg: 0 8px 32px rgba(0, 0, 0, .55);
@@ -159,6 +174,25 @@ button {
 button:disabled { opacity: .55; cursor: not-allowed; }
 button.ghost { background: transparent; color: var(--accent); }
 button.ghost:hover:not(:disabled) { background: var(--accent-soft); }
+/* `<Link className="ghost">` phải trông Y HỆT nút ghost. Trước 2026-10-02 luật chỉ nhắm
+   `button.ghost`, nên link mang lớp này hiện thành chữ xanh gạch chân giữa một hàng nút. */
+a.ghost, a.nut-chinh {
+  display: inline-flex; align-items: center; justify-content: center; gap: .35rem;
+  padding: 7px 14px;
+  border: 1px solid var(--accent);
+  border-radius: var(--r-sm);
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+a.ghost:hover { background: var(--accent-soft); }
+/* Nút hành động CHÍNH của một trang (Thêm quán mới, Xem chi tiết ở "Cần xử lý ngay"). */
+.nut-chinh, button.nut-chinh, a.nut-chinh {
+  background: var(--navy); border-color: var(--navy); color: var(--navy-ink);
+}
+a.nut-chinh:hover, button.nut-chinh:hover:not(:disabled) { filter: brightness(1.15); }
+.nut-nho, a.nut-nho, button.nut-nho { padding: .3rem .7rem; font-size: var(--step--1); }
 :where(button, a, input):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* --- Đăng nhập ------------------------------------------------------------ */
@@ -412,8 +446,9 @@ a { color: var(--accent); }
   background: var(--surface);
   border: 1px solid var(--rule-soft);
 }
-/* Ô "Cần xử lý": viền màu cảnh báo. Đây là ô DUY NHẤT đòi hành động. */
-.the-so__o--nhan { border-color: var(--warn); background: var(--warn-soft); }
+/* Thẻ cần chú ý: CHỈ con số đổi màu, nền vẫn trắng như các thẻ khác (bản thiết kế
+   2026-10-02). Trước đây nền vàng + viền cảnh báo làm một thẻ lệch hẳn khỏi hàng. */
+.the-so__o--nhan .the-so__gia-tri { color: var(--cam); }
 .the-so__nhan { font-size: var(--step--1); color: var(--ink-soft); }
 .the-so__gia-tri { font-size: 1.8rem; font-weight: 700; line-height: 1.1; }
 .the-so__phu { font-size: var(--step--2); }
@@ -440,9 +475,12 @@ a { color: var(--accent); }
 
 .do-phu__dong {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 90px 46px 78px;
+  /* Nhãn cần ~210px để nằm một dòng ở màn 1536px (khối rộng ~360px). Trước đây 4 cột
+     90/46/78px chỉ chừa ~115px nên "Quán có đủ thông tin cơ bản" vỡ thành 3 dòng. Nay
+     phần trăm và số tuyệt đối XẾP CHỒNG trong một cột. */
+  grid-template-columns: minmax(0, 1fr) 64px 76px;
   align-items: center;
-  gap: .6rem;
+  gap: .5rem;
   padding: .5rem 0;
 }
 .do-phu__dong + .do-phu__dong { border-top: 1px solid var(--rule-soft); }
@@ -463,12 +501,13 @@ a { color: var(--accent); }
 .do-phu__day--trung_binh  { background: var(--warn); }
 .do-phu__day--kem         { background: var(--error); }
 
+.do-phu__cot-so { display: flex; flex-direction: column; align-items: flex-end; }
 .do-phu__so { text-align: right; font-weight: 600; font-size: var(--step--1); }
-.do-phu__tuyet-doi { text-align: right; font-size: var(--step--2); }
+.do-phu__tuyet-doi { text-align: right; font-size: var(--step--2); white-space: nowrap; }
 
 @media (max-width: 620px) {
   /* Màn hẹp: bỏ cột số tuyệt đối, giữ phần trăm — đủ để so sánh nhanh. */
-  .do-phu__dong { grid-template-columns: minmax(0, 1fr) 70px 46px; }
+  .do-phu__dong { grid-template-columns: minmax(0, 1fr) 70px 52px; }
   .do-phu__tuyet-doi { display: none; }
 }
 
@@ -536,7 +575,11 @@ a { color: var(--accent); }
 }
 .o-nhap:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
-.chip-hang { display: flex; flex-wrap: wrap; gap: .4rem; }
+.chip-hang {
+  display: flex; flex-wrap: wrap; gap: .4rem;
+  /* Dùng cả cho <ul> (từ khoá đối chiếu ở chi tiết món) — bỏ chấm đầu dòng của trình duyệt. */
+  list-style: none; margin: 0; padding: 0;
+}
 
 .chip {
   padding: .45rem .8rem;
@@ -891,23 +934,26 @@ a { color: var(--accent); }
 }
 
 .tab-loc {
-  display: flex; align-items: center; gap: .35rem;
+  display: flex; align-items: flex-end; gap: .35rem;
   flex-wrap: wrap;
   border-bottom: 1px solid var(--rule-soft);
-  padding-bottom: .5rem;
 }
 .tab-loc__nut {
   border: 0;
+  /* Gạch chân nằm ĐÈ lên đường kẻ của hàng tab (margin âm) — kiểu tab của bản thiết kế. */
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
   background: none;
-  padding: .45rem .7rem;
-  border-radius: var(--r-sm);
+  padding: .55rem .8rem;
+  border-radius: 0;
   color: var(--ink-soft);
   font: inherit;
   font-size: var(--step--1);
   cursor: pointer;
 }
 .tab-loc__nut:hover { background: var(--surface-2); }
-.tab-loc__nut--dang { color: var(--accent); font-weight: 700; background: var(--accent-soft); }
+.tab-loc__nut--dang { color: var(--cam); font-weight: 700; border-bottom-color: var(--cam); }
+.tab-loc__nut--dang:hover { background: none; }
 .tab-loc__da-xong { margin-left: auto; }
 
 .bang-van-de { width: 100%; border-collapse: collapse; }
@@ -1041,6 +1087,9 @@ a { color: var(--accent); }
   gap: 1rem;
 }
 .the-so--gon { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); flex: 1 1 360px; }
+/* Trong khối bộ lọc quán (flex CỘT), `flex: 1 1 360px` biến 360px thành CHIỀU CAO —
+   bốn thẻ số cao ~360px. Ở đây thẻ chỉ cao vừa nội dung. */
+.quan-bo-loc .the-so--gon { flex: 0 0 auto; }
 .the-so__o--vong { flex-direction: row; align-items: center; justify-content: space-between; gap: .75rem; }
 .the-so__o--vong > div { display: flex; flex-direction: column; gap: .2rem; }
 
@@ -1094,7 +1143,10 @@ a { color: var(--accent); }
 .bang td input[type='checkbox'], .bang th input[type='checkbox'] { width: auto; }
 
 /* --- cần xử lý: công cụ bên phải hàng tab --- */
-.tab-loc__cong-cu { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin-left: auto; }
+.tab-loc__cong-cu {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin-left: auto;
+  padding-bottom: .5rem;
+}
 
 /* --- trang chi tiết món --- */
 .chi-tiet-mon { display: flex; flex-direction: column; gap: 1rem; }
@@ -1169,6 +1221,11 @@ a { color: var(--accent); }
 
 /* --- tổng quan: vành khuyên + hệ thống gợi ý --- */
 .tong-quan__luoi--hai { grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); }
+/* Bản thiết kế: "Nguồn dữ liệu" ~1/3, "Hệ thống gợi ý" ~2/3 để bốn ô số nằm một hàng. */
+@media (min-width: 1200px) {
+  .tong-quan__luoi--hai { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); }
+  .tong-quan__luoi--hai .o-goi-y { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
 .panel__chan { margin: .75rem 0 0; text-align: center; }
 
 .nguon-vanh { display: flex; flex-wrap: wrap; align-items: center; gap: 1.25rem; }
@@ -1206,10 +1263,128 @@ a { color: var(--accent); }
   stroke-linejoin: round;
   stroke-linecap: round;
 }
+.goi-y-hanh-dong__tieu-de { margin: .9rem 0 .25rem; }
 .goi-y-hanh-dong {
   display: flex; flex-wrap: wrap; gap: .4rem 1rem;
-  margin: .9rem 0 0; padding: 0; list-style: none;
+  margin: 0; padding: 0; list-style: none;
   font-size: var(--step--1);
 }
 .goi-y-hanh-dong li { display: flex; gap: .4rem; }
 .goi-y-hanh-dong li span:first-child { color: var(--ink-soft); }
+
+/* =========================================================================
+   KHỚP BẢN THIẾT KẾ ADMIN 2026-10-02 — các lệch nhỏ so với `frontend/design/*admin.png`
+   ========================================================================= */
+
+/* --- biểu tượng tròn trên thẻ số --- */
+.icon-tron {
+  display: inline-grid; place-items: center; flex: 0 0 auto;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+}
+.icon-tron .icon { width: 22px; height: 22px; }
+.icon-tron--nho { width: 30px; height: 30px; }
+.icon-tron--nho .icon { width: 16px; height: 16px; }
+.icon-tron--xanh { background: var(--accent-soft); color: var(--accent); }
+.icon-tron--cam  { background: var(--cam-soft);    color: var(--cam); }
+.icon-tron--luc  { background: var(--open-soft);   color: var(--open); }
+.icon-tron--tim  { background: var(--tim-soft);    color: var(--tim); }
+.icon-tron--do   { background: var(--error-soft);  color: var(--error); }
+.icon-tron--vang { background: var(--warn-soft);   color: var(--warn); }
+.icon-tron--xam  { background: var(--surface-2);   color: var(--muted); }
+
+.the-so__o--co-icon { flex-direction: row; align-items: flex-start; gap: .8rem; }
+.the-so__than { display: flex; flex-direction: column; gap: .2rem; min-width: 0; }
+/* "Xem chi tiết →" trong thẻ số: chữ CAM như bản thiết kế, không phải link xanh. */
+.the-so__lien-ket { color: var(--cam); font-weight: 600; text-decoration: none; font-size: var(--step--1); }
+.the-so__lien-ket:hover { text-decoration: underline; }
+
+/* Tiêu đề trang / khối kèm biểu tượng (Chất lượng dữ liệu, Cần xử lý ngay). */
+.tieu-de-icon { display: flex; align-items: center; gap: .5rem; }
+.tieu-de-icon--trang .icon { width: 28px; height: 28px; color: var(--accent); }
+.tieu-de-icon .icon--canh-bao { color: var(--error); }
+
+/* --- nhãn trạng thái có chấm + màu tím cho "Chưa có quán" --- */
+.nhan--tim { background: var(--tim-soft); color: var(--tim); }
+.nhan--cham::before {
+  content: ''; display: inline-block;
+  width: 6px; height: 6px; margin-right: .35rem;
+  border-radius: 50%; background: currentColor; vertical-align: 1px;
+}
+
+/* --- bảng: ô căn GIỮA theo chiều dọc (bảng món, bảng quán) --- */
+.bang--giua td { vertical-align: middle; }
+.bang__so-quan { display: flex; flex-direction: column; line-height: 1.2; }
+.bang__so-quan strong { font-size: var(--step-1); }
+
+/* Sửa / Ẩn trên MỘT hàng. `display:flex` đặt thẳng lên <td> làm ô mất tính chất ô bảng
+   và nút xếp chồng, mỗi dòng cao gấp đôi — nên bọc trong một <div>. */
+.nut-dong { display: flex; flex-wrap: nowrap; gap: .4rem; }
+.nut-dong button { padding: .3rem .65rem; font-size: var(--step--1); }
+
+/* --- trang quản lý quán: thẻ số + bộ lọc chung một khối --- */
+.quan-bo-loc .the-so__o {
+  padding: .35rem .5rem;
+  border: 0;
+  background: transparent;
+}
+.quan-bo-loc .the-so__gia-tri { font-size: 1.45rem; }
+.quan-bo-loc .icon-tron { width: 38px; height: 38px; }
+@media (min-width: 1280px) {
+  /* Màn rộng: thẻ số bên trái, bộ lọc bên phải — đúng bố cục bản thiết kế. */
+  .quan-bo-loc {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    align-items: center;
+  }
+  .quan-bo-loc .the-so--gon { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .quan-bo-loc__o { padding-left: 1rem; border-left: 1px solid var(--rule-soft); }
+}
+.quan-bo-loc__o .o-nhap { flex: 1 1 260px; }
+
+/* Form thêm quán mở ra NGAY DƯỚI tiêu đề (nút nằm góc phải tiêu đề). */
+.trang-quan-ly__dau .addform {
+  padding: 1.1rem 1.2rem;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  border: 1px solid var(--rule-soft);
+}
+
+/* --- trang Cần xử lý --- */
+/* Bảng nằm trong .panel đã có viền — bỏ viền thứ hai của .table-scroll. */
+.panel > .table-scroll { border: 0; border-radius: 0; background: transparent; }
+.bang-van-de td { vertical-align: middle; }
+/* Màu mức ưu tiên theo bản thiết kế: đỏ · cam · vàng. */
+.pill--quan_trong   { background: var(--cam-soft);  color: var(--cam); }
+.pill--can_kiem_tra { background: var(--warn-soft); color: var(--warn); }
+
+/* --- chi tiết món --- */
+/* Trang con: breadcrumb đứng ở vị trí tiêu đề, cỡ chữ như tiêu đề (bản thiết kế). */
+.duong-dan--chinh ol { font-size: var(--step-0); color: var(--ink-soft); }
+.duong-dan--chinh [aria-current='page'] { color: var(--ink); font-weight: 700; }
+.nut-xem-them {
+  display: block; width: 100%;
+  margin-top: .5rem;
+  border: 1px solid var(--rule-soft);
+  background: transparent;
+  color: var(--ink);
+}
+.nut-xem-them:hover { background: var(--surface-2); }
+
+/* --- Cần xử lý ngay (Chất lượng dữ liệu): thêm cột nhãn ưu tiên --- */
+.viec-ngay__dong { grid-template-columns: 56px minmax(0, 1fr) auto auto; }
+.viec-ngay__loai { margin: 0 0 .1rem; font-weight: 600; }
+.viec-ngay__dong .viec-ngay__ten { font-weight: 400; margin: 0; }
+@media (max-width: 700px) {
+  .viec-ngay__dong { grid-template-columns: 56px minmax(0, 1fr); }
+}
+
+.quan-bo-loc .the-so__nhan { white-space: nowrap; }
+/* Ô ảnh không được CO khi tên quán/món dài — nếu co, cột tên mỗi dòng lệch một kiểu. */
+.o-mon .o-anh { flex: 0 0 auto; }
+/* Chú thích vành khuyên ở khối 1/3: tên nguồn không được gãy giữa chữ ("Overture / Maps"). */
+.nguon-vanh__ten { white-space: nowrap; margin-right: .5rem; }
+@media (min-width: 1200px) {
+  .tong-quan__luoi--hai .vanh-khuyen { width: 136px; height: 136px; }
+}
+.viec-ngay__chu p { margin: 0; }

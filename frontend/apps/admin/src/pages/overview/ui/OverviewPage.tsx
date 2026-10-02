@@ -43,7 +43,7 @@ import type {
   ViecCanXuLy,
 } from '@/shared/api';
 import { ngayGioVN, phanTramVN, soVN } from '@/shared/lib';
-import { Sparkline, VanhKhuyen } from '@/shared/ui';
+import { IconTron, Sparkline, VanhKhuyen, type MauIconTron, type TenIcon } from '@/shared/ui';
 
 /** Số nguồn vẽ thành phần riêng; phần còn lại gộp "Khác" — tránh vành khuyên vụn. */
 const SO_NGUON_HIEN = 5;
@@ -93,24 +93,33 @@ function NoiDung({ data }: { data: AdminOverviewData }) {
   return (
     <>
       <ul className="the-so">
-        <TheSo nhan="Tổng số quán" so={data.restaurants_total} />
-        <TheSo nhan="Tổng số món" so={data.dishes_total} />
+        <TheSo icon="quan-an" mau="xanh" nhan="Tổng số quán" so={data.restaurants_total} />
+        <TheSo icon="mon-an" mau="cam" nhan="Tổng số món" so={data.dishes_total} />
         <TheSo
+          icon="dau-tich"
+          mau="luc"
           nhan="Món có quán tại Hà Nội"
           so={data.dishes_with_restaurants}
           phu={`${phanTramVN(data.dishes_with_restaurants, data.dishes_total)} tổng số món`}
         />
         <TheSo
+          icon="dau-hoi"
+          mau="tim"
           nhan="Món chưa có quán"
           so={data.dishes_without_restaurants}
           phu={`${phanTramVN(data.dishes_without_restaurants, data.dishes_total)} tổng số món`}
         />
-        <li className="the-so__o the-so__o--nhan">
-          <span className="the-so__nhan">Cần xử lý</span>
-          <span className="the-so__gia-tri">{soVN(data.needs_attention_total)}</span>
-          <Link className="linkish the-so__phu" to={ROUTES.issues}>
-            Xem chi tiết →
-          </Link>
+        {/* Cùng nền trắng như bốn thẻ kia (bản thiết kế); lời mời hành động nằm ở chữ
+            "Xem chi tiết" màu cam, không cần nhuộm vàng cả thẻ. */}
+        <li className="the-so__o the-so__o--co-icon">
+          <IconTron ten="can-xu-ly" mau="cam" />
+          <div className="the-so__than">
+            <span className="the-so__nhan">Cần xử lý</span>
+            <span className="the-so__gia-tri">{soVN(data.needs_attention_total)}</span>
+            <Link className="the-so__lien-ket" to={ROUTES.issues}>
+              Xem chi tiết →
+            </Link>
+          </div>
         </li>
       </ul>
       {/* Nói rõ thứ CHƯA có ngay trên màn hình: im lặng thì người quản trị tưởng số không
@@ -139,11 +148,13 @@ function NoiDung({ data }: { data: AdminOverviewData }) {
                     style={{ width: `${x.percent}%` }}
                   />
                 </div>
-                <span className="do-phu__so">{x.percent}%</span>
-                {/* Số tuyệt đối cạnh phần trăm: "26,1%" một mình không cho biết là
-                    13.812 hay 13 quán. */}
-                <span className="muted do-phu__tuyet-doi">
-                  {soVN(x.covered)}/{soVN(x.total)}
+                {/* Số tuyệt đối DƯỚI phần trăm: "26,1%" một mình không cho biết là
+                    13.812 hay 13 quán. Xếp chồng thay vì thêm cột để nhãn đủ chỗ. */}
+                <span className="do-phu__cot-so">
+                  <span className="do-phu__so">{x.percent}%</span>
+                  <span className="muted do-phu__tuyet-doi">
+                    {soVN(x.covered)}/{soVN(x.total)}
+                  </span>
                 </span>
               </li>
             ))}
@@ -331,7 +342,11 @@ function NoiDungGoiY({
           </span>
         </li>
       </ul>
-      <ul className="goi-y-hanh-dong">
+      {/* Cần tiêu đề: không có nó, dòng "Xem chi tiết 3" trông như một link hỏng. */}
+      {tk.by_action.length > 0 && (
+        <p className="muted small goi-y-hanh-dong__tieu-de">Lượt tương tác theo loại hành động</p>
+      )}
+      <ul className="goi-y-hanh-dong" aria-label="Lượt tương tác theo loại hành động">
         {tk.by_action.map((a) => (
           <li key={a.action_type}>
             <span>{nhanTheoMa(NHAN_HANH_DONG_TUONG_TAC, a.action_type)}</span>
@@ -428,12 +443,27 @@ function HoatDongGanDay() {
   );
 }
 
-function TheSo({ nhan, so, phu }: { nhan: string; so: number; phu?: string }) {
+function TheSo({
+  nhan,
+  so,
+  phu,
+  icon,
+  mau,
+}: {
+  nhan: string;
+  so: number;
+  phu?: string;
+  icon: TenIcon;
+  mau: MauIconTron;
+}) {
   return (
-    <li className="the-so__o">
-      <span className="the-so__nhan">{nhan}</span>
-      <span className="the-so__gia-tri">{soVN(so)}</span>
-      {phu && <span className="muted the-so__phu">{phu}</span>}
+    <li className="the-so__o the-so__o--co-icon">
+      <IconTron ten={icon} mau={mau} />
+      <div className="the-so__than">
+        <span className="the-so__nhan">{nhan}</span>
+        <span className="the-so__gia-tri">{soVN(so)}</span>
+        {phu && <span className="muted the-so__phu">{phu}</span>}
+      </div>
     </li>
   );
 }

@@ -151,9 +151,12 @@ function Khung() {
         <header className="thanh-tren">
           <div className="thanh-tren__trai">
             {/* Breadcrumb CHỈ ở trang con. Ở trang cấp một nó chỉ lặp lại đúng tiêu đề
-                ngay bên dưới, thêm nhiễu mà không thêm thông tin. */}
+                ngay bên dưới, thêm nhiễu mà không thêm thông tin.
+                Ở trang con thì NGƯỢC LẠI: breadcrumb đã nói "Quản lý món ăn › Bún chả",
+                tiêu đề lặp lại "Quản lý món ăn" ngay dưới là thừa — bản thiết kế chỉ có
+                breadcrumb. Tiêu đề vẫn giữ cho trình đọc màn hình (`sr-only`). */}
             {laTrangCon && muc && (
-              <nav aria-label="Breadcrumb" className="duong-dan">
+              <nav aria-label="Breadcrumb" className="duong-dan duong-dan--chinh">
                 <ol>
                   <li>
                     <Link to={muc.duongDan}>{muc.nhan}</Link>
@@ -162,7 +165,9 @@ function Khung() {
                 </ol>
               </nav>
             )}
-            <h1 className="thanh-tren__tieu-de">{muc?.nhan ?? 'Quản trị'}</h1>
+            <h1 className={laTrangCon && muc ? 'sr-only' : 'thanh-tren__tieu-de'}>
+              {muc?.nhan ?? 'Quản trị'}
+            </h1>
           </div>
           <div className="thanh-tren__phai">
             <span className="thanh-tren__ai">Quản trị viên</span>

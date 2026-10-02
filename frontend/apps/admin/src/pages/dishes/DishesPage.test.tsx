@@ -127,4 +127,12 @@ describe('Man "Quan ly mon an"', () => {
       expect(listDishes).toHaveBeenLastCalledWith(expect.objectContaining({ page: 2 })),
     );
   });
+
+  it('cot anh la bieu tuong co nhan doc duoc; cot thao tac co tieu de', async () => {
+    moTrang();
+
+    const dongBun = (await screen.findByRole('link', { name: 'Bún chả' })).closest('tr');
+    expect(within(dongBun as HTMLElement).getByRole('img', { name: 'Thiếu ảnh' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: 'Thao tác' })).toBeInTheDocument();
+  });
 });

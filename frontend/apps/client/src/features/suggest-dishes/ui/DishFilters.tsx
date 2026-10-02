@@ -15,6 +15,7 @@
  *      trời mưa, đồ nướng. Đây là nhận diện riêng của sản phẩm, không vẽ lại.
  *   2. SVG trong `shared/ui/icons.tsx` cho phần còn lại.
  */
+import { useId, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { DishFilterState, MultiSelectGroup, SingleSelectGroup } from '../model/useDishFilterState';
 import { DistanceSlider } from './DistanceSlider';
@@ -23,6 +24,7 @@ import {
   IconBoil,
   IconCold,
   IconFrown,
+  IconInfo,
   IconHotBowl,
   IconMix,
   IconMoon,
@@ -37,6 +39,7 @@ import {
   IconSun,
   IconSunrise,
 } from '@/shared/ui';
+import { useT } from '@/shared/i18n';
 
 /**
  * Ảnh chủ dự án gửi, dùng cho đúng những khái niệm đã có file.
@@ -60,7 +63,7 @@ function AnhMood({ khoa }: { khoa: string }) {
  * không phân biệt được chip đến từ đâu. Muốn thêm gợi ý nhanh -> thêm vào `LUA_CHON_NHANH`.
  */
 
-/** Thứ tự CÓ CHỦ ĐÍCH: thời tiết trước vì đó là ví dụ đầu tiên người dùng nghĩ tới. */
+/** Thời tiết. (Nhóm này nay đứng CUỐI cột lọc, theo `design/Filler.png` — xem dưới.) */
 const WEATHER_OPTIONS = [
   { value: 'rain', label: 'Trời mưa', icon: <AnhMood khoa="rain" /> },
   { value: 'clear', label: 'Trời nắng', icon: <IconSun /> },
@@ -116,30 +119,22 @@ interface DishFiltersProps {
 
 export function DishFilters(props: DishFiltersProps) {
   const { filters } = props;
+  const t = useT();
+  // Phần giải thích của công tắc giá mặc định THU GỌN (2026-10-02): đoạn 5 dòng chữ nhỏ
+  // từng chiếm nửa cột lọc. Vẫn mở được bằng nút ⓘ (bàn phím + trình đọc màn hình đọc
+  // được trạng thái mở/đóng qua `aria-expanded`), và nội dung vẫn nằm sẵn trong DOM.
+  const [moGiaiThichGia, setMoGiaiThichGia] = useState(false);
+  const idGiaiThich = useId();
 
+  /*
+    THỨ TỰ NHÓM theo `design/Filler.png` (đổi 2026-10-02):
+      món gì -> khoảng cách -> chỉ quán có giá -> bữa -> tâm trạng -> thời tiết.
+    Chỉ đổi CHỖ ĐẶT, không đổi hành vi: mỗi nút vẫn gọi đúng hàm cũ với đúng mã cũ.
+    Thời tiết và tâm trạng trước đây chung một hàng "Hôm nay thế nào?"; bản thiết kế tách
+    làm hai nhóm có tiêu đề riêng, dễ dò hơn khi cột hẹp.
+  */
   return (
     <div className="filters">
-      <FilterRow label="Hôm nay thế nào?">
-        {WEATHER_OPTIONS.map((option) => (
-          <Chip
-            key={option.value}
-            label={option.label}
-            icon={option.icon}
-            active={filters.weather === option.value}
-            onClick={() => props.onSetSingle('weather', option.value)}
-          />
-        ))}
-        {MOOD_OPTIONS.map((option) => (
-          <Chip
-            key={option.value}
-            label={option.label}
-            icon={option.icon}
-            active={filters.mood === option.value}
-            onClick={() => props.onSetSingle('mood', option.value)}
-          />
-        ))}
-      </FilterRow>
-
       <FilterRow label="Muốn ăn gì?">
         {TEMPERATURE_OPTIONS.map((option) => (
           <Chip
@@ -161,6 +156,73 @@ export function DishFilters(props: DishFiltersProps) {
         ))}
       </FilterRow>
 
+      {/* KHOẢNG CÁCH: điểm đang dùng + nút đổi vị trí ở trên, thanh trượt ở dưới — như
+          bản thiết kế ("Hoàn Kiếm, Hà Nội · Đổi vị trí"). */}
+      <div className="filters__row filters__row--distance">
+        <span className="filters__label">{t('filters.group.distance')}</span>
+        <div className="filters__vi-tri">
+          <IconPin className="icon-inline" />
+          <span className="filters__vi-tri-nhan">
+            {props.locationLabel ??
+              (props.locationIsDefault ? 'Trung tâm Hà Nội' : 'Vị trí của bạn')}
+          </span>
+          <button
+            type="button"
+            className="linkish filters__doi-vi-tri"
+            onClick={props.onRequestLocation}
+            disabled={props.locationLoading}
+          >
+            {props.locationLoading ? 'Đang định vị…' : 'Vị trí của tôi'}
+          </button>
+        </div>
+        <DistanceSlider value={filters.maxDistanceKm} onChange={props.onSetMaxDistanceKm} />
+      </div>
+
+      {/* CÔNG TẮC GIÁ đứng RIÊNG một khối, không trộn vào hàng chip.
+          Lý do: nó không cùng hạng với "Đồ nướng" hay "Bữa tối". Backend đo được chỉ
+          1,3% quán trong dữ liệu có giá đọc được, nên bật lên là cắt phần lớn kết quả —
+          một chip nhỏ nằm lẫn giữa 20 chip khác sẽ khiến người dùng bật nhầm rồi tưởng
+          khu mình ở không có gì ăn. Câu chú thích nói thẳng cái giá phải trả, và cảnh báo
+          CHÍNH XÁC (bao nhiêu món/quán bị ẩn) do backend trả về trong `warnings`.
+          Vẽ thành CÔNG TẮC (role="switch") như bản thiết kế, nhưng bên dưới vẫn là một
+          checkbox thật -> bàn phím (Space) và trình đọc màn hình dùng y như cũ. */}
+      <div className="filters__row filters__row--price">
+        <div className="switch-row">
+          <label className="switch">
+            <input
+              type="checkbox"
+              role="switch"
+              className="switch__input"
+              checked={filters.onlyWithPrice}
+              aria-describedby={idGiaiThich}
+              onChange={(e) => props.onSetOnlyWithPrice(e.target.checked)}
+            />
+            <span className="switch__track" aria-hidden="true">
+              <span className="switch__thumb" />
+            </span>
+            <span className="switch__label">Chỉ hiện quán có ghi giá</span>
+          </label>
+          <button
+            type="button"
+            className="switch__info"
+            aria-expanded={moGiaiThichGia}
+            aria-controls={idGiaiThich}
+            aria-label={t('filters.price.why')}
+            title={t('filters.price.why')}
+            onClick={() => setMoGiaiThichGia((mo) => !mo)}
+          >
+            <IconInfo />
+          </button>
+        </div>
+        {/* `hidden` chứ không gỡ khỏi DOM: `aria-describedby` của công tắc vẫn trỏ được
+            tới đây, nên trình đọc màn hình đọc lời giải thích ngay cả khi đang thu gọn. */}
+        <p id={idGiaiThich} className="switch__note muted small" hidden={!moGiaiThichGia}>
+          Phần lớn quán trong dữ liệu chưa có giá (nguồn OpenStreetMap và Overture không
+          có trường này), nên bật lên sẽ còn ít kết quả hơn nhiều. Không có giá nghĩa là
+          <strong> chưa biết</strong>, không phải quán không niêm yết.
+        </p>
+      </div>
+
       <FilterRow label="Bữa nào?">
         {MEAL_TIME_OPTIONS.map((option) => (
           <Chip
@@ -173,56 +235,38 @@ export function DishFilters(props: DishFiltersProps) {
         ))}
       </FilterRow>
 
-      {/* CÔNG TẮC GIÁ đứng RIÊNG một khối, không trộn vào hàng chip phía trên.
-          Lý do: nó không cùng hạng với "Đồ nướng" hay "Bữa tối". Backend đo được chỉ
-          1,3% quán trong dữ liệu có giá đọc được, nên bật lên là cắt phần lớn kết quả —
-          một chip nhỏ nằm lẫn giữa 20 chip khác sẽ khiến người dùng bật nhầm rồi tưởng
-          khu mình ở không có gì ăn. Câu chú thích nói thẳng cái giá phải trả, và cảnh báo
-          CHÍNH XÁC (bao nhiêu món/quán bị ẩn) do backend trả về trong `warnings`. */}
-      <div className="filters__row filters__row--price">
-        <label className="switch">
-          <input
-            type="checkbox"
-            checked={filters.onlyWithPrice}
-            onChange={(e) => props.onSetOnlyWithPrice(e.target.checked)}
+      <FilterRow label={t('filters.group.mood')}>
+        {MOOD_OPTIONS.map((option) => (
+          <Chip
+            key={option.value}
+            label={option.label}
+            icon={option.icon}
+            active={filters.mood === option.value}
+            onClick={() => props.onSetSingle('mood', option.value)}
           />
-          <span className="switch__label">Chỉ hiện quán có ghi giá</span>
-        </label>
-        <p className="switch__note muted small">
-          Phần lớn quán trong dữ liệu chưa có giá (nguồn OpenStreetMap và Overture không
-          có trường này), nên bật lên sẽ còn ít kết quả hơn nhiều. Không có giá nghĩa là
-          <strong> chưa biết</strong>, không phải quán không niêm yết.
-        </p>
-      </div>
+        ))}
+      </FilterRow>
 
-      <div className="filters__foot">
-        <DistanceSlider value={filters.maxDistanceKm} onChange={props.onSetMaxDistanceKm} />
+      <FilterRow label={t('filters.group.weather')}>
+        {WEATHER_OPTIONS.map((option) => (
+          <Chip
+            key={option.value}
+            label={option.label}
+            icon={option.icon}
+            active={filters.weather === option.value}
+            onClick={() => props.onSetSingle('weather', option.value)}
+          />
+        ))}
+      </FilterRow>
 
-        <button
-          className="btn"
-          onClick={props.onRequestLocation}
-          disabled={props.locationLoading}
-        >
-          {props.locationLoading ? (
-            'Đang định vị…'
-          ) : (
-            <>
-              <IconPin className="icon-inline" /> Vị trí của tôi
-            </>
-          )}
-        </button>
-        <span className="muted small">
-          {props.locationLabel ??
-            (props.locationIsDefault ? 'Trung tâm Hà Nội' : 'Vị trí của bạn')}
-        </span>
-
-        {/* Chỉ hiện khi có gì để xoá - nút chết luôn hiện chỉ làm rối hàng lọc. */}
-        {props.activeFilterCount > 0 && (
+      {/* Chỉ hiện khi có gì để xoá - nút chết luôn hiện chỉ làm rối hàng lọc. */}
+      {props.activeFilterCount > 0 && (
+        <div className="filters__foot">
           <button className="btn btn--link" onClick={props.onReset}>
             Xoá {props.activeFilterCount} bộ lọc
           </button>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -40,15 +40,9 @@ import type {
   UuTienVanDe,
   VanDeNhom,
 } from '@/shared/api';
+import { NHAN_UU_TIEN_VAN_DE, nhanTheoMa } from '@/shared/config';
 import { ngayGioVN, taiCsv, taoCsv } from '@/shared/lib';
-import { Icon } from '@/shared/ui';
-
-/** Nhãn tiếng Việt của mức ưu tiên. Khoá do backend đặt (`data_issues.py`). */
-const NHAN_UU_TIEN: Record<UuTienVanDe, string> = {
-  nghiem_trong: 'Nghiêm trọng',
-  quan_trong: 'Quan trọng',
-  can_kiem_tra: 'Cần kiểm tra',
-};
+import { Icon, IconTron, type MauIconTron, type TenIcon } from '@/shared/ui';
 
 /** Nhãn tiếng Việt của loại đối tượng. */
 const NHAN_LOAI: Record<string, string> = {
@@ -118,7 +112,7 @@ export function IssuesPage() {
           v.label,
           v.description,
           NHAN_LOAI[v.target_type] ?? v.target_type,
-          NHAN_UU_TIEN[v.priority as UuTienVanDe] ?? v.priority,
+          nhanTheoMa(NHAN_UU_TIEN_VAN_DE, v.priority),
           v.count,
           v.last_resolved_at,
         ]),
@@ -156,11 +150,11 @@ export function IssuesPage() {
       {data && (
         <>
           <ul className="the-so" aria-label="Tổng hợp vấn đề">
-            <TheSo nhan="Nghiêm trọng" phu="Cần xử lý ngay" so={data.critical} nhanManh={data.critical > 0} />
-            <TheSo nhan="Quan trọng" phu="Xử lý sớm" so={data.important} />
-            <TheSo nhan="Cần kiểm tra" phu="Ưu tiên trung bình" so={data.to_review} />
-            <TheSo nhan="Đã xử lý hôm nay" phu="Hoàn thành" so={data.resolved_today} />
-            <TheSo nhan="Tổng số vấn đề" phu="Tất cả" so={data.total} />
+            <TheSo icon="dau-x" mau="do" nhan="Nghiêm trọng" phu="Cần xử lý ngay" so={data.critical} />
+            <TheSo icon="canh-bao" mau="cam" nhan="Quan trọng" phu="Xử lý sớm" so={data.important} />
+            <TheSo icon="can-xu-ly" mau="vang" nhan="Cần kiểm tra" phu="Ưu tiên trung bình" so={data.to_review} />
+            <TheSo icon="chat-luong" mau="luc" nhan="Đã xử lý hôm nay" phu="Hoàn thành" so={data.resolved_today} />
+            <TheSo icon="danh-sach" mau="xanh" nhan="Tổng số vấn đề" phu="Tất cả" so={data.total} />
           </ul>
 
           {!data.can_resolve && (
@@ -340,7 +334,7 @@ function BangNhom({
                 </td>
                 <td>
                   <span className={`pill pill--${v.priority}`}>
-                    {NHAN_UU_TIEN[v.priority as UuTienVanDe] ?? v.priority}
+                    {nhanTheoMa(NHAN_UU_TIEN_VAN_DE, v.priority)}
                   </span>
                 </td>
                 <td className="tnum">{soVN(v.count)}</td>
@@ -348,7 +342,7 @@ function BangNhom({
                 <td>
                   {/* Nhóm 0 bản ghi vẫn hiện dòng (đó là câu trả lời "đã kiểm, không có
                       gì") nhưng KHÔNG mở được danh sách rỗng — bấm vào chỉ để thấy trống. */}
-                  {v.count > 0 && (
+                  {v.count > 0 ? (
                     <button
                       type="button"
                       className="ghost"
@@ -356,6 +350,9 @@ function BangNhom({
                     >
                       {nhomDangMo === v.key ? 'Đóng' : 'Xem danh sách ›'}
                     </button>
+                  ) : (
+                    // Ô trống trơn trông như nút bị lỗi không hiện; nói thẳng là không có gì.
+                    <span className="muted small">Không có</span>
                   )}
                 </td>
               </tr>
@@ -448,18 +445,23 @@ function TheSo({
   nhan,
   so,
   phu,
-  nhanManh = false,
+  icon,
+  mau,
 }: {
   nhan: string;
   so: number;
   phu?: string;
-  nhanManh?: boolean;
+  icon: TenIcon;
+  mau: MauIconTron;
 }) {
   return (
-    <li className={nhanManh ? 'the-so__o the-so__o--nhan' : 'the-so__o'}>
-      <span className="the-so__nhan">{nhan}</span>
-      <span className="the-so__gia-tri">{soVN(so)}</span>
-      {phu && <span className="muted the-so__phu">{phu}</span>}
+    <li className="the-so__o the-so__o--co-icon">
+      <IconTron ten={icon} mau={mau} />
+      <div className="the-so__than">
+        <span className="the-so__nhan">{nhan}</span>
+        <span className="the-so__gia-tri">{soVN(so)}</span>
+        {phu && <span className="muted the-so__phu">{phu}</span>}
+      </div>
     </li>
   );
 }

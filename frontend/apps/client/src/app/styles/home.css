@@ -173,6 +173,24 @@
 
 .btn--sm { padding: 8px 14px; font-size: .88rem; }
 
+/* MÀU LINK THEO THƯƠNG HIỆU (2026-10-02). `.linkish` mặc định ăn `--auth-link` (xanh
+   dương) — đúng cho trang đăng nhập/đăng ký (bản thiết kế của hai trang đó vẽ link xanh),
+   nhưng ở trang chủ/kết quả/tài khoản bản thiết kế dùng CAM ("Xem tất cả →") và chữ NAVY
+   trên thanh trên. Ghi đè THEO NGỮ CẢNH chứ không đổi token chung, để khỏi làm lệch hai
+   trang xác thực đã duyệt. */
+.site-header__account .linkish {
+  color: var(--auth-ink-soft);
+  font-size: .88rem;
+  font-weight: 600;
+}
+.site-header__account .linkish:hover { color: var(--brand-orange-ink); }
+.page__body .linkish,
+.account-main .linkish,
+.dish-page .linkish {
+  color: var(--brand-orange-ink);
+  font-weight: 600;
+}
+
 /* =========================================================================
    KHỐI MỞ ĐẦU
    ========================================================================= */
@@ -239,7 +257,11 @@
   box-shadow: 0 2px 10px rgba(2, 29, 72, .06);
 }
 .signal__icon { font-size: 1.2rem; line-height: 1; }
-.signal__text { text-transform: capitalize; }
+/* KHÔNG `text-transform: capitalize` (gỡ 2026-10-02): nó viết hoa MỌI từ -> "Buổi Chiều",
+   "Trời Mưa Nhẹ", trông như tiêu đề máy dịch. Bản thiết kế viết kiểu câu ("Trời mưa nhẹ"),
+   nên chỉ viết hoa CHỮ ĐẦU bằng `::first-letter`. */
+.signal__text { display: inline-block; }
+.signal__text::first-letter { text-transform: uppercase; }
 
 /* --- Ô tìm --------------------------------------------------------------- */
 
@@ -255,11 +277,15 @@
   box-shadow: var(--auth-shadow);
 }
 
+/* Kính lúp gần như TÀNG HÌNH ở bản trước (sửa 2026-10-02): SVG rộng 20px mà lại có
+   `padding-left: 12px` -> với `box-sizing: border-box` hình chỉ còn 8px, cộng thêm
+   `opacity: .55`. Dùng `margin` để chừa lề và cố định cỡ hình. */
 .hero__search-icon {
-  padding-left: 12px;
-  font-size: 1rem;
-  line-height: 1;
-  opacity: .55;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin-left: 12px;
+  color: var(--auth-muted);
 }
 
 .hero__search-input {
@@ -296,6 +322,14 @@
   height: auto;
   justify-self: end;
   margin-right: calc(-1 * clamp(16px, 3vw, 40px));
+  /* MÉP TRÁI TAN VÀO NỀN (2026-10-02) như bản thiết kế, thay cho đường cắt thẳng của
+     tấm ảnh chữ nhật. Chỉ là mặt nạ độ trong — không đổi kích thước hay bố cục. */
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 24%),
+                      linear-gradient(to top, transparent 0, #000 14%);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(to right, transparent 0, #000 24%),
+              linear-gradient(to top, transparent 0, #000 14%);
+  mask-composite: intersect;
 }
 /* Màn hình rất rộng: cột giữa dừng ở 1240px nhưng tranh vẫn nên chạm mép phải. */
 @media (min-width: 1400px) {
@@ -839,6 +873,23 @@
     border-bottom: 1px solid var(--line-warm);
     margin-bottom: 1rem;
   }
+  /* "BỘ LỌC" viết hoa, to như tiêu đề cột của `design/Filler.png`. */
+  .drawer--inline .drawer__head .panel__title {
+    font-size: 1.2rem;
+    font-weight: 800;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+  }
+  /* MỘT KHỐI LIỀN, không "hộp trong hộp" (2026-10-02). `.filters` gốc (khai ở
+     `styles.css` cho màn bản đồ) có nền + lề trong riêng, nên trong cột này nó thành một
+     tấm kem hẹp hơn phần đầu cột. Cột lọc chỉ cần đúng một đường kẻ dọc là đủ. */
+  .drawer--inline .drawer__body { padding: 0; overflow: visible; }
+  .drawer--inline .filters {
+    padding: 0;
+    border: 0;
+    background: none;
+    gap: 0;
+  }
 
   /* Câu "Mọi điều kiện mà bảy thẻ mood ở trên không phủ hết" viết cho NGĂN KÉO,
      nơi người dùng vừa bấm nút Lọc và các thẻ mood đúng là ở ngay trên. Đặt vào
@@ -851,12 +902,25 @@
     padding: .34rem .6rem;
   }
   .drawer--inline .chips { gap: .35rem; }
-  .drawer--inline .filters__row { margin-bottom: 1rem; }
+  .drawer--inline .filters__row { margin-bottom: 1.1rem; }
+  /* Nhãn nhóm ĐẬM, màu chữ chính như bản thiết kế ("Bạn muốn tìm món gì?", "Khoảng
+     cách"…). Bản trước viết hoa nhạt 65% — khó đọc, lại trông như chữ phụ. */
   .drawer--inline .filters__label {
-    font-size: .74rem;
-    letter-spacing: .04em;
-    text-transform: uppercase;
-    opacity: .65;
+    width: 100%;
+    margin-bottom: .1rem;
+    font-size: .92rem;
+    font-weight: 700;
+    color: var(--auth-ink);
+  }
+  /* "Trong vòng … 10 km" của thanh trượt là nhãn PHỤ trong nhóm Khoảng cách: nhỏ, cùng
+     hàng với con số (không chiếm hết dòng, nếu không "10 km" bị đẩy lòi ra ngoài cột). */
+  .drawer--inline .distance__head .filters__label {
+    width: auto;
+    min-width: 0;
+    margin: 0;
+    font-size: .82rem;
+    font-weight: 500;
+    color: var(--auth-ink-soft);
   }
 
   /* Phần chân (bán kính, vị trí) xếp DỌC — cột hẹp không đủ chỗ nằm ngang. */
@@ -877,6 +941,94 @@
   /* Nút "Lọc" thành thừa khi bộ lọc đã nằm ngay bên cạnh. */
   .results__actions .btn--filter,
   .ket-qua-dau__mo-loc { display: none; }
+}
+
+/* Bong bóng trợ lý ở `/recommend` chỉ để mở ngăn kéo lọc. Màn rộng đã có cột lọc ngay
+   bên trái -> hai lối vào cùng một việc đứng cạnh nhau, ẩn bớt bong bóng (2026-10-02). */
+@media (min-width: 1024px) {
+  .recommend .bubble { display: none; }
+  .page__body.recommend:has(.bubble) { padding-bottom: 2rem; }
+}
+
+/* --- Khối KHOẢNG CÁCH trong bộ lọc (2026-10-02, theo Filler.png) ---------- */
+.filters__row--distance { flex-direction: column; align-items: stretch; gap: .5rem; }
+.filters__vi-tri {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  padding: .55rem .75rem;
+  border: 1px solid var(--line-warm);
+  border-radius: 12px;
+  background: var(--surface);
+  font-size: .88rem;
+}
+.filters__vi-tri .icon-inline { color: var(--auth-ink-soft); }
+.filters__vi-tri-nhan {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.filters__doi-vi-tri { flex: none; font-size: .82rem; white-space: nowrap; }
+.filters__doi-vi-tri[disabled] { opacity: .6; cursor: progress; }
+
+/* --- Đếm kết quả "24 món ăn phù hợp" --------------------------------------- */
+.ket-qua-dau__tieu-de { color: var(--auth-ink); }
+.ket-qua-dau__so {
+  margin-right: .12em;
+  color: var(--brand-orange-strong);
+  font-size: 1.3em;
+  font-weight: 800;
+}
+
+/* --- Nhãn thuộc tính trên thẻ món ở lưới `/recommend` ---------------------- */
+.dishcard__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.dishcard__tag {
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: var(--line-warm-soft);
+  color: var(--auth-ink-soft);
+  font-size: .76rem;
+  font-weight: 600;
+}
+
+/* --- Nút cuộn dải món trang chủ (2026-10-02, như nút › của Home.jpg) ------- */
+.dish-strip { position: relative; }
+.dish-strip__nut {
+  position: absolute;
+  /* Giữa phần ẢNH (cao 160px), không phải giữa cả thẻ — mắt người nhìn vào ảnh. */
+  top: 80px;
+  /* Trên cả bong bóng trợ lý (z 50, dính góc phải dưới màn hình): ở màn cao ~1000px
+     bong bóng rơi đúng vào mép phải dải món và che mất nút ›. */
+  z-index: 51;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--line-warm);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--auth-ink);
+  box-shadow: 0 4px 14px rgba(2, 29, 72, .16);
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+.dish-strip__nut:hover { color: var(--brand-orange-ink); border-color: var(--brand-orange); }
+.dish-strip__nut:focus-visible { outline: 2px solid var(--brand-orange); outline-offset: 2px; }
+.dish-strip__nut--trai { left: -12px; }
+.dish-strip__nut--phai { right: -12px; }
+/* Điện thoại: vuốt là cử chỉ tự nhiên, nút chỉ che mất thẻ. */
+@media (hover: none) and (pointer: coarse) {
+  .dish-strip__nut { display: none; }
 }
 
 /* Màn rất rộng: nới cột một chút cho nhãn dài không phải xuống dòng. */
@@ -1251,13 +1403,31 @@
    không phải chuyện hỏng — nhuộm đỏ chỉ làm người dùng hoảng vô cớ.
    =========================================================================== */
 .nhac-xac-minh {
+  /* GỌN, CHỈ RỘNG VỪA NỘI DUNG (2026-10-02). Bản trước là một khối XÁM trải hết bề
+     ngang, nền `--surface-2` lạc tông giữa trang kem — nhìn như ô báo lỗi hệ thống. */
+  width: fit-content;
+  max-width: 100%;
   margin: 0 0 1.25rem;
-  padding: .85rem 1.1rem;
-  border-radius: 14px;
-  border: 1px solid var(--line-warm);
-  background: var(--surface-2);
+  padding: .45rem .5rem .45rem 1rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--brand-orange) 35%, transparent);
+  background: color-mix(in srgb, var(--brand-orange) 9%, var(--surface));
 }
-.nhac-xac-minh .xac-minh-email--gon { margin: 0; }
+.nhac-xac-minh .xac-minh-email--gon { margin: 0; font-size: .86rem; }
+.nhac-xac-minh .xac-minh-email__trang-thai { color: var(--auth-ink-soft); font-weight: 600; }
+/* Nút "Gửi lại thư" thành viên thuốc CAM viền, đúng bảng màu, thay cho nút đen mặc định. */
+.nhac-xac-minh .xac-minh-email--gon button,
+.account__head .xac-minh-email--gon button {
+  border-color: var(--brand-orange);
+  background: var(--surface);
+  color: var(--brand-orange-ink);
+  font-weight: 700;
+}
+.nhac-xac-minh .xac-minh-email--gon button:hover:not([disabled]),
+.account__head .xac-minh-email--gon button:hover:not([disabled]) {
+  background: var(--brand-orange);
+  color: #fff;
+}
 
 /* ===========================================================================
    TRANG `/recommend` THEO `design/Filler.png` (2026-09-16)

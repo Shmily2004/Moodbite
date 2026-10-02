@@ -81,3 +81,17 @@ describe('chipDangBat — bán kính', () => {
     expect(chipDangBat({ ...EMPTY_FILTERS, maxDistanceKm: null }).at(-1)?.khoangCach).toBe(true);
   });
 });
+
+describe('chipDangBat — chỉ quán có ghi giá', () => {
+  // Bug 2026-10-02: công tắc giá bật mà dòng "Đang lọc theo" không hiện gì. Đây là bộ
+  // lọc ĐẮT nhất (chỉ ~1,3% quán có giá) - người dùng phải thấy nó để hiểu vì sao danh
+  // sách tụt mạnh, và gỡ được ngay tại chỗ.
+  it('bật công tắc giá thì thành chip gỡ được', () => {
+    const chip = chipDangBat({ ...EMPTY_FILTERS, onlyWithPrice: true }).find((c) => c.chiCoGia);
+    expect(chip?.nhan).toBe('Chỉ quán có ghi giá');
+  });
+
+  it('tắt thì không có chip', () => {
+    expect(chipDangBat(EMPTY_FILTERS).some((c) => c.chiCoGia)).toBe(false);
+  });
+});

@@ -22,6 +22,8 @@ interface RestaurantListProps {
   onActivate?: (id: string | null) => void;
   /** Đánh số 1, 2, 3… trên từng thẻ, khớp với ghim cùng số trên bản đồ. */
   danhSo?: boolean;
+  /** Thẻ dáng gọn một hàng (trang chi tiết món). Xem `RestaurantCard.gon`. */
+  gon?: boolean;
 }
 
 export function RestaurantList({
@@ -31,6 +33,7 @@ export function RestaurantList({
   activeId,
   onActivate,
   danhSo = false,
+  gon = false,
 }: RestaurantListProps) {
   const { detail, loading, error, load, clear } = useRestaurantDetail();
   const { log, startViewTimer } = useInteractionLogger();
@@ -63,6 +66,7 @@ export function RestaurantList({
           // Số theo VỊ TRÍ TRONG DANH SÁCH ĐANG NHÌN, không phải `rank_position` — sắp
           // lại theo "gần nhất" thì số phải đổi theo, để còn khớp với ghim bản đồ.
           soThuTu={danhSo ? chiSo + 1 : undefined}
+          gon={gon}
           queryText={queryText}
           active={activeId != null && restaurant.restaurant_id === activeId}
           onOpenDetail={openId === restaurant.restaurant_id ? undefined : open}

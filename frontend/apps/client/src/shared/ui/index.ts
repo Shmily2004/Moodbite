@@ -64,6 +64,13 @@ export {
   IconLeaf,
   IconBeer,
   IconRiceBowl,
+  // --- đợt đối chiếu thiết kế 2026-10-02 ---
+  IconChevronLeft,
+  IconChevronRight,
+  IconPencil,
+  IconCamera,
+  IconInfo,
+  IconStore,
 } from './icons';
 export { LanguageSelect } from './LanguageSelect';
 export { Slogan } from './Slogan';

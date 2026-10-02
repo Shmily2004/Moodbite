@@ -41,6 +41,10 @@ describe('Trang chi tiet mon', () => {
       source: 'wikipedia_vi',
       last_updated: null,
       restaurant_count: 426,
+      temperature: 'hot',
+      cooking_method: 'nuoc',
+      meal_times: ['sang', 'trua', 'toi'],
+      match_keywords: ['bún chả'],
     });
     dishRestaurants.mockResolvedValue({
       dish_id: 'bun-cha',
@@ -100,5 +104,21 @@ describe('Trang chi tiet mon', () => {
     await screen.findByRole('heading', { name: 'Bún chả' });
 
     expect(screen.queryByRole('button', { name: /Chỉnh sửa|Ngừng hoạt động/ })).toBeNull();
+  });
+
+  it('thuoc tinh mon hien nhan tieng Viet, KHONG hien ma tho', async () => {
+    moChiTiet('/mon-an/bun-cha?tab=thong-tin');
+
+    expect(await screen.findByText('Nóng')).toBeInTheDocument();
+    expect(screen.getByText('Món nước')).toBeInTheDocument();
+    expect(screen.getByText('Sáng, Trưa, Tối')).toBeInTheDocument();
+    expect(screen.queryByText('nuoc')).not.toBeInTheDocument();
+  });
+
+  it('con quan ngoai top 5 thi co nut "Xem them N quan" voi N la so that', async () => {
+    moChiTiet();
+
+    // total 426, đang hiện tối đa 5 -> còn 421.
+    expect(await screen.findByRole('button', { name: 'Xem thêm 421 quán' })).toBeInTheDocument();
   });
 });

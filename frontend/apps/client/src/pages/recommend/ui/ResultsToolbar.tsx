@@ -42,7 +42,7 @@ export function ResultsToolbar(props: ResultsToolbarProps) {
     <div className="ket-qua-dau">
       <div className="ket-qua-dau__hang">
         <h1 className="ket-qua-dau__tieu-de">
-          {props.loading ? t('recommend.loading') : t('recommend.title', { count: props.count })}
+          {props.loading ? t('recommend.loading') : <TieuDeDem t={t} count={props.count} />}
         </h1>
 
         <div className="ket-qua-dau__cong-cu">
@@ -94,5 +94,22 @@ export function ResultsToolbar(props: ResultsToolbarProps) {
         </div>
       )}
     </div>
+  );
+}
+
+/**
+ * "24 món ăn phù hợp" với CON SỐ tô cam cỡ lớn, phần chữ navy — đúng `design/Filler.png`.
+ *
+ * Tách câu dịch quanh chỗ `{count}` thay vì viết cứng "món ăn phù hợp": bản tiếng Anh
+ * ("24 matching dishes") cũng tự đúng, và tên truy cập của tiêu đề vẫn là cả câu liền.
+ */
+function TieuDeDem({ t, count }: { t: ReturnType<typeof useT>; count: number }) {
+  const [truoc, sau = ''] = t('recommend.title', { count: '{count}' }).split('{count}');
+  return (
+    <>
+      {truoc}
+      <span className="ket-qua-dau__so tnum">{count}</span>
+      {sau}
+    </>
   );
 }

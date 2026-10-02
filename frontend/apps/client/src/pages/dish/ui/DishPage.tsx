@@ -21,7 +21,8 @@ import { RestaurantMap } from '@/widgets/restaurant-map';
 import { SiteHeader } from '@/widgets/site-header';
 import { useDishDetail } from '@/features/view-dish-detail';
 import { useUserLocation } from '@/features/pick-location';
-import { describeRestaurantCount } from '@/entities/dish';
+import { describeRestaurantListHeading } from '@/entities/dish';
+import { IconStore } from '@/shared/ui';
 import { DEFAULT_RADIUS_KM, ROUTES } from '@/shared/config';
 import { DishFilterPanel } from './DishFilterPanel';
 import { DishIntro } from './DishIntro';
@@ -88,6 +89,12 @@ export function DishPage() {
   const dish = detail.dish;
   const quanHien = xemHet ? quanDaSap : quanDaSap.slice(0, SO_QUAN_BAN_DAU);
   const conLai = quanDaSap.length - quanHien.length;
+  const coBanDo = !detail.loading && detail.restaurants.length > 0 && !anBanDo;
+  // Tiêu đề nói ĐANG HIỆN bao nhiêu / TỔNG bao nhiêu — xem `describeRestaurantListHeading`.
+  const tieuDeDanhSach =
+    !dish || detail.loading || detail.restaurants.length === 0
+      ? 'Quán gần bạn'
+      : describeRestaurantListHeading(quanHien.length, dish.restaurant_count, dish.name);
 
   return (
     <div className="page">
@@ -114,28 +121,9 @@ export function DishPage() {
 
         {dish && <DishIntro dish={dish} onEditFilters={() => setMoBoLoc(true)} />}
 
+        {/* HAI THẺ TRẮNG CẠNH NHAU như `design/restaurance recommend.png`: trái là danh
+            sách (tiêu đề + ô sắp xếp nằm TRONG thẻ), phải là bản đồ. */}
         <section className="dish-restaurants">
-          <div className="dish-restaurants__head">
-            <h2 className="dish-detail__heading">
-              {dish ? describeRestaurantCount(dish.restaurant_count) : 'Quán gần bạn'}
-            </h2>
-
-            {/* SẮP XẾP Ở PHÍA CLIENT, có chủ đích.
-                `/dishes/{id}/restaurants` CHƯA có tham số sort. Thêm vào API là đổi hợp
-                đồng, nên tạm sắp ngay trên danh sách đã tải — mọi trường cần để sắp đều
-                đã nằm trong kết quả. Hệ quả phải biết: chỉ sắp trong SỐ QUÁN ĐÃ TẢI. */}
-            <label className="dish-restaurants__sort">
-              <span className="sr-only">Sắp xếp danh sách quán</span>
-              <select
-                value={sapXep}
-                onChange={(event) => setSapXep(event.target.value as KieuSapXep)}
-              >
-                <option value="gan">Gần bạn nhất</option>
-                <option value="hop">Phù hợp nhất</option>
-              </select>
-            </label>
-          </div>
-
           {detail.restaurantsError && (
             <p className="notice notice--error">{detail.restaurantsError}</p>
           )}
@@ -146,88 +134,119 @@ export function DishPage() {
             </p>
           ))}
 
-          {detail.loading && <p className="muted">Đang tìm quán…</p>}
+          <div
+            className={
+              coBanDo
+                ? 'dish-restaurants__body'
+                : 'dish-restaurants__body dish-restaurants__body--rong'
+            }
+          >
+            {/* Danh sách ĐỨNG TRƯỚC bản đồ trong DOM (đổi 2026-08-26 theo thiết kế):
+                nó là nội dung chính, và trình đọc màn hình nên gặp nó trước. */}
+            <div className="dish-restaurants__ds">
+              <div className="dish-restaurants__head">
+                <h2 className="dish-restaurants__tieu-de">
+                  <IconStore className="icon-inline" /> {tieuDeDanhSach}
+                </h2>
 
-          {!detail.loading && detail.restaurants.length > 0 && (
-            <div
-              className={
-                anBanDo
-                  ? 'dish-restaurants__body dish-restaurants__body--rong'
-                  : 'dish-restaurants__body'
-              }
-            >
-              {/* Danh sách ĐỨNG TRƯỚC bản đồ trong DOM (đổi 2026-08-26 theo thiết kế):
-                  nó là nội dung chính, và trình đọc màn hình nên gặp nó trước. */}
-              <div className="dish-restaurants__ds">
-                <RestaurantList
-                  restaurants={quanHien}
-                  searchQueryId={detail.searchQueryId}
-                  queryText={dish?.name ?? null}
-                  // Đánh số khớp ghim bản đồ — chỉ ở trang này, không ở trang tìm kiếm.
-                  danhSo
-                />
-
-                {/* "XEM THÊM QUÁN" (bản thiết kế). Nói rõ CÒN BAO NHIÊU. */}
-                {conLai > 0 && (
-                  <button
-                    type="button"
-                    className="btn btn--rong"
-                    onClick={() => setXemHet(true)}
+                {/* SẮP XẾP Ở PHÍA CLIENT, có chủ đích.
+                    `/dishes/{id}/restaurants` CHƯA có tham số sort. Thêm vào API là đổi
+                    hợp đồng, nên tạm sắp ngay trên danh sách đã tải — mọi trường cần để
+                    sắp đều đã nằm trong kết quả. Hệ quả: chỉ sắp trong SỐ QUÁN ĐÃ TẢI. */}
+                <label className="dish-restaurants__sort">
+                  <span className="sr-only">Sắp xếp danh sách quán</span>
+                  <select
+                    value={sapXep}
+                    onChange={(event) => setSapXep(event.target.value as KieuSapXep)}
                   >
-                    Xem thêm {conLai} quán ▾
-                  </button>
-                )}
+                    <option value="gan">Gần bạn nhất</option>
+                    <option value="hop">Phù hợp nhất</option>
+                  </select>
+                </label>
               </div>
 
-              {!anBanDo && (
-                <div className="map-pane">
-                  {/* "XEM DANH SÁCH" (bản thiết kế): thu bản đồ để danh sách rộng ra. */}
-                  <button
-                    type="button"
-                    className="map-pane__thu"
-                    onClick={() => setAnBanDo(true)}
-                  >
-                    Xem danh sách
-                  </button>
-                  <RestaurantMap
+              {detail.loading && <p className="muted dish-restaurants__trong">Đang tìm quán…</p>}
+
+              {!detail.loading && detail.restaurants.length > 0 && (
+                <>
+                  <RestaurantList
                     restaurants={quanHien}
-                    center={location.position}
-                    userPosition={location.isDefault ? null : location.position}
-                    activeId={null}
-                    onSelect={() => undefined}
+                    searchQueryId={detail.searchQueryId}
+                    queryText={dish?.name ?? null}
+                    // Đánh số khớp ghim bản đồ — chỉ ở trang này, không ở trang tìm kiếm.
                     danhSo
+                    gon
                   />
-                </div>
+
+                  {/* "XEM THÊM QUÁN" (bản thiết kế): viên thuốc nhỏ ở giữa, nói rõ CÒN
+                      BAO NHIÊU trong số đã tải. */}
+                  {conLai > 0 && (
+                    <button
+                      type="button"
+                      className="btn btn--pill-giua"
+                      onClick={() => setXemHet(true)}
+                    >
+                      Xem thêm {conLai} quán ▾
+                    </button>
+                  )}
+
+                  {anBanDo && (
+                    <button
+                      type="button"
+                      className="btn btn--pill-giua"
+                      onClick={() => setAnBanDo(false)}
+                    >
+                      Hiện lại bản đồ
+                    </button>
+                  )}
+                </>
               )}
 
-              {anBanDo && (
+              {!detail.loading &&
+                detail.restaurants.length === 0 &&
+                !detail.restaurantsError && (
+                  <div className="state">
+                    <p className="state__title">Chưa tìm thấy quán nào bán món này gần bạn</p>
+                    <p>
+                      Dữ liệu quán được đối chiếu theo TÊN QUÁN, nên quán có bán nhưng không
+                      ghi tên món thì chưa tìm ra được.
+                    </p>
+                    <Link className="chip" to={ROUTES.home}>
+                      Chọn món khác
+                    </Link>
+                  </div>
+                )}
+            </div>
+
+            {coBanDo && (
+              <div className="map-pane">
+                {/* "XEM DANH SÁCH" (bản thiết kế): thu bản đồ để danh sách rộng ra. */}
                 <button
                   type="button"
-                  className="btn btn--rong"
-                  onClick={() => setAnBanDo(false)}
+                  className="map-pane__thu"
+                  onClick={() => setAnBanDo(true)}
                 >
-                  Hiện lại bản đồ
+                  Xem danh sách
                 </button>
-              )}
-            </div>
-          )}
-
-          {!detail.loading && detail.restaurants.length === 0 && !detail.restaurantsError && (
-            <div className="state">
-              <p className="state__title">Chưa tìm thấy quán nào bán món này gần bạn</p>
-              <p>
-                Dữ liệu quán được đối chiếu theo TÊN QUÁN, nên quán có bán nhưng không ghi
-                tên món thì chưa tìm ra được.
-              </p>
-              <Link className="chip" to={ROUTES.home}>
-                Chọn món khác
-              </Link>
-            </div>
-          )}
+                <RestaurantMap
+                  restaurants={quanHien}
+                  center={location.position}
+                  userPosition={location.isDefault ? null : location.position}
+                  activeId={null}
+                  onSelect={() => undefined}
+                  danhSo
+                />
+                {/* Bong bóng NẰM TRONG khung bản đồ (2026-10-02) — trước đó nó dính góc
+                    màn hình và thò ra ngoài mép phải bản đồ. */}
+                <AssistantBubble inFrame onOpen={() => setMoBoLoc(true)} />
+              </div>
+            )}
+          </div>
         </section>
 
-        {/* Bong bóng trợ lý — trang này có danh sách quán nên bộ lọc có tác dụng thật. */}
-        <AssistantBubble onOpen={() => setMoBoLoc(true)} />
+        {/* Không có khung bản đồ (đang tải / không có quán / đã thu bản đồ) thì bong bóng
+            về lại góc màn hình như các trang khác. */}
+        {!coBanDo && <AssistantBubble onOpen={() => setMoBoLoc(true)} />}
 
         {/* Ngăn kéo bộ lọc: CHỈ mount khi mở, để bộ lọc ban đầu tính từ món đã tải xong.
             "Xem kết quả" sang `/recommend` KÈM bộ lọc — vì đổi tiêu chí thì MÓN gợi ý

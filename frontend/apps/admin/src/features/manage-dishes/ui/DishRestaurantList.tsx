@@ -13,6 +13,7 @@ import {
   nhanTheoMa,
 } from '@/shared/config';
 import { soVN } from '@/shared/lib';
+import { AnhThuNho } from '@/shared/ui';
 
 export function DishRestaurantList({ quan }: { quan: AdminDishRestaurant[] }) {
   if (quan.length === 0) {
@@ -29,11 +30,8 @@ export function DishRestaurantList({ quan }: { quan: AdminDishRestaurant[] }) {
       {quan.map((q, i) => (
         <li key={q.restaurant_id ?? `${q.name}-${i}`} className="quan-cua-mon__dong">
           <span className="quan-cua-mon__hang">{i + 1}</span>
-          {q.thumbnail_url ? (
-            <img className="o-anh" src={q.thumbnail_url} alt="" loading="lazy" />
-          ) : (
-            <span className="o-anh o-anh--trong" aria-hidden="true" />
-          )}
+          {/* Ảnh quán là link Google ngoài, chết dần theo thời gian -> ô giữ chỗ. */}
+          <AnhThuNho src={q.thumbnail_url} className="o-anh" classNameTrong="o-anh--trong" />
           <div className="quan-cua-mon__chu">
             <p className="bang__ten">{q.name}</p>
             <p className="muted small">

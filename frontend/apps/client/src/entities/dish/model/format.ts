@@ -90,6 +90,61 @@ export function describeSpice(level?: number | null): SpiceDisplay | null {
 }
 
 /**
+ * Nhãn THUỘC TÍNH ngắn cho thẻ món ở lưới `/recommend` (thêm 2026-10-02, theo
+ * `design/Filler.png`: "Món nước · Việt Nam").
+ *
+ * Thứ tự: cách chế biến -> ẩm thực -> nhiệt độ. Hai nhãn đầu phân biệt món tốt nhất
+ * ("Món nước"/"Việt Nam"); nhiệt độ đứng cuối vì đa số món là "Nóng", ít thông tin nhất.
+ * Thiếu trường nào thì BỎ nhãn đó — không bao giờ in "Chưa rõ" lên một thẻ nhỏ.
+ * Chặn tối đa `MAX_DISH_TAGS` để thẻ không xuống ba dòng nhãn.
+ */
+const MAX_DISH_TAGS = 3;
+
+export function describeDishTags(dish: {
+  cooking_method?: string | null;
+  cuisine?: string | null;
+  temperature?: string | null;
+}): string[] {
+  const nhan = [
+    describeCookingMethod(dish.cooking_method),
+    // `cuisine` backend trả sẵn chữ có dấu ("Việt Nam", "Thái Lan") nên hiện nguyên văn.
+    dish.cuisine?.trim() || null,
+    describeTemperature(dish.temperature),
+  ].filter((x): x is string => Boolean(x));
+  // Bỏ trùng (VD "Nướng" vừa là cách chế biến vừa có thể là ẩm thực tự đặt).
+  return [...new Set(nhan)].slice(0, MAX_DISH_TAGS);
+}
+
+/** Định dạng số kiểu Việt Nam: 12877 -> "12.877". */
+const DINH_DANG_SO = new Intl.NumberFormat('vi-VN');
+
+export function formatCount(n: number): string {
+  return DINH_DANG_SO.format(n);
+}
+
+/**
+ * Tiêu đề danh sách quán ở trang chi tiết món: "Hiện 8 / 1.233 quán phù hợp với Phở bò".
+ *
+ * ⚠️ BẮT BUỘC NÓI "ĐANG HIỆN BAO NHIÊU / TỔNG BAO NHIÊU" (sửa 2026-10-02). Bản trước ghi
+ * "1233 quán gần bạn" ngay trên một danh sách chỉ có 20 dòng (API giới hạn số quán trả
+ * về) — người đọc hiểu là 1.233 quán đều nằm bên dưới. Chỉ khi đã hiện ĐỦ mới được bỏ
+ * vế "Hiện x /".
+ */
+export function describeRestaurantListHeading(
+  shown: number,
+  total: number,
+  dishName?: string | null,
+): string {
+  if (total <= 0 && shown <= 0) return 'Chưa tìm thấy quán nào gần bạn';
+  const duoi = dishName ? ` quán phù hợp với ${dishName}` : ' quán phù hợp';
+  // `total` là số đếm của MÓN (tính lúc gợi ý), có thể lệch nhẹ với số quán tải về.
+  // Lấy số lớn hơn làm tổng để không bao giờ in ra "Hiện 20 / 12".
+  const tong = Math.max(total, shown);
+  if (shown >= tong) return `${formatCount(tong)}${duoi}`;
+  return `Hiện ${formatCount(shown)} / ${formatCount(tong)}${duoi}`;
+}
+
+/**
  * Câu mô tả số quán bán món này.
  *
  * KHÔNG BAO GIỜ hiện "0 quán" như một lựa chọn bấm được: backend đã ẩn món ngõ cụt khỏi
@@ -98,7 +153,8 @@ export function describeSpice(level?: number | null): SpiceDisplay | null {
 export function describeRestaurantCount(count: number): string {
   if (count <= 0) return 'Chưa tìm thấy quán nào gần bạn';
   if (count === 1) return '1 quán gần bạn';
-  return `${count} quán gần bạn`;
+  // Có dấu chấm ngăn hàng nghìn (2026-10-02): "12877 quán" đọc nhầm thành mã số.
+  return `${DINH_DANG_SO.format(count)} quán gần bạn`;
 }
 
 /**

@@ -1,5 +1,9 @@
+export { AnhThuNho } from './AnhThuNho';
+export type { AnhThuNhoProps } from './AnhThuNho';
 export { Icon } from './Icon';
 export type { TenIcon } from './Icon';
+export { IconTron } from './IconTron';
+export type { MauIconTron } from './IconTron';
 export { PhanTrang } from './PhanTrang';
 export type { PhanTrangProps } from './PhanTrang';
 export { Sparkline, VanhKhuyen, VongTienDo } from './BieuDo';

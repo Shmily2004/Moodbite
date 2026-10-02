@@ -26,6 +26,12 @@ export interface ChipDangBat {
    * bấm ✕ để bỏ điều kiện mình đã đặt, chứ không phải để tìm khắp thành phố.
    */
   khoangCach?: true;
+  /**
+   * Chip "Chỉ quán có ghi giá" (thêm 2026-10-02). Trước đó công tắc bật mà dòng "Đang lọc
+   * theo" không hiện gì, trong khi đây là bộ lọc ĐẮT nhất (~1,3% quán có giá) - danh sách
+   * tụt mạnh mà người dùng không thấy lý do. Gỡ = tắt công tắc.
+   */
+  chiCoGia?: true;
   giaTri: string;
 }
 
@@ -116,6 +122,10 @@ export function chipDangBat(filters: DishFilterState): ChipDangBat[] {
       khoangCach: true,
       giaTri: String(filters.maxDistanceKm ?? ''),
     });
+  }
+
+  if (filters.onlyWithPrice) {
+    ket_qua.push({ khoa: 'gia', nhan: 'Chỉ quán có ghi giá', chiCoGia: true, giaTri: '1' });
   }
 
   return ket_qua;

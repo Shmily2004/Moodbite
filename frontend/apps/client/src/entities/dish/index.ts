@@ -4,9 +4,12 @@ export { useDishImages } from './model/useDishImages';
 export type { AnhMon } from './model/useDishImages';
 export {
   describeCookingMethod,
+  describeDishTags,
+  formatCount,
   describeIntroState,
   describeMealTimes,
   describeRestaurantCount,
+  describeRestaurantListHeading,
   describeSource,
   describeSpice,
   describeTemperature,

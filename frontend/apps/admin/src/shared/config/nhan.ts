@@ -39,6 +39,44 @@ export const NHAN_HANH_DONG_TUONG_TAC: Record<string, string> = {
   report_closed: 'Báo đã đóng cửa',
 };
 
+/**
+ * Thuộc tính món — mã do backend đặt ở `src/domain/entities/dish.py` (danh sách đóng).
+ * Admin đọc "nuoc", "sang, trua" thì phải tự dịch trong đầu; bảng này chỉ đổi CÁCH HIỆN.
+ */
+export const NHAN_NHIET_DO_MON: Record<string, string> = {
+  hot: 'Nóng',
+  cold: 'Lạnh',
+  room: 'Nhiệt độ phòng',
+  neutral: 'Không rõ nóng/lạnh',
+};
+
+export const NHAN_CACH_CHE_BIEN: Record<string, string> = {
+  nuong: 'Nướng',
+  chien: 'Chiên / rán',
+  luoc: 'Luộc',
+  hap: 'Hấp',
+  xao: 'Xào',
+  nuoc: 'Món nước',
+  song: 'Gỏi / sống',
+  tron: 'Trộn / nộm',
+  nuong_lo: 'Nướng lò',
+};
+
+export const NHAN_BUA_AN: Record<string, string> = {
+  sang: 'Sáng',
+  trua: 'Trưa',
+  toi: 'Tối',
+  khuya: 'Khuya',
+  an_vat: 'Ăn vặt',
+};
+
+/** Mức ưu tiên của nhóm vấn đề. Khoá do backend đặt (`domain/services/data_issues.py`). */
+export const NHAN_UU_TIEN_VAN_DE: Record<string, string> = {
+  nghiem_trong: 'Nghiêm trọng',
+  quan_trong: 'Quan trọng',
+  can_kiem_tra: 'Cần kiểm tra',
+};
+
 export function nhanTheoMa(bang: Record<string, string>, ma: string | null | undefined): string {
   if (!ma) return '—';
   return bang[ma] ?? ma;

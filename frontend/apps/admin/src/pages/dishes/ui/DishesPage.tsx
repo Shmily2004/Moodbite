@@ -24,7 +24,7 @@ import { useDishAdmin } from '@/features/manage-dishes';
 import type { AdminDishRow, LocMon } from '@/shared/api';
 import { NHAN_NGUON_MON, duongDanMon, nhanTheoMa } from '@/shared/config';
 import { ngayGioVN, phanTramVN, soVN } from '@/shared/lib';
-import { PhanTrang, VongTienDo } from '@/shared/ui';
+import { AnhThuNho, IconTron, PhanTrang, VongTienDo } from '@/shared/ui';
 
 const BO_LOC: { khoa: LocMon; nhan: string }[] = [
   { khoa: 'all', nhan: 'Tất cả' },
@@ -46,9 +46,12 @@ export function DishesPage() {
         </div>
         {m.dishesTotal != null && (
           <ul className="the-so the-so--gon" aria-label="Tổng hợp món">
-            <li className="the-so__o">
-              <span className="the-so__nhan">Tổng số món</span>
-              <span className="the-so__gia-tri">{soVN(m.dishesTotal)}</span>
+            <li className="the-so__o the-so__o--co-icon">
+              <IconTron ten="mon-an" mau="cam" />
+              <div className="the-so__than">
+                <span className="the-so__nhan">Tổng số món</span>
+                <span className="the-so__gia-tri">{soVN(m.dishesTotal)}</span>
+              </div>
             </li>
             <li className="the-so__o the-so__o--vong">
               <div>
@@ -107,7 +110,7 @@ export function DishesPage() {
 
         {m.rows.length > 0 && (
           <div className="bang-cuon" aria-busy={m.loading}>
-            <table className="bang">
+            <table className="bang bang--giua">
               <thead>
                 <tr>
                   <th scope="col">Món ăn</th>
@@ -119,9 +122,7 @@ export function DishesPage() {
                   <th scope="col">Ảnh</th>
                   <th scope="col">Trạng thái</th>
                   <th scope="col">Cập nhật</th>
-                  <th scope="col">
-                    <span className="sr-only">Thao tác</span>
-                  </th>
+                  <th scope="col">Thao tác</th>
                 </tr>
               </thead>
               <tbody>
@@ -155,26 +156,16 @@ export function DishesPage() {
 }
 
 function DongMon({ mon }: { mon: AdminDishRow }) {
+  const nhanAnh = mon.image_url ? 'Có ảnh' : 'Thiếu ảnh';
   return (
     <tr>
       <td>
         <div className="o-mon">
-          {mon.image_url ? (
-            <img
-              className="o-anh"
-              src={mon.image_url}
-              alt=""
-              loading="lazy"
-              // Ảnh lấy từ Wikimedia — link ngoài có thể chết. Hỏng thì ẩn đi.
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-              }}
-            />
-          ) : (
-            <span className="o-anh o-anh--trong" aria-hidden="true">
-              —
-            </span>
-          )}
+          {/* Ảnh lấy từ Wikimedia — link ngoài có thể chết. Hỏng thì về ô giữ chỗ (trước
+              đây ẩn hẳn ảnh, làm tên món nhảy sang trái so với các dòng khác). */}
+          <AnhThuNho src={mon.image_url} className="o-anh" classNameTrong="o-anh--trong">
+            —
+          </AnhThuNho>
           <div>
             <Link className="bang__ten bang__ten-link" to={duongDanMon(mon.dish_id)}>
               {mon.name}
@@ -202,30 +193,36 @@ function DongMon({ mon }: { mon: AdminDishRow }) {
         {mon.restaurant_count == null ? (
           <span className="muted">—</span>
         ) : (
-          <span className={mon.restaurant_count === 0 ? 'thieu' : 'bang__ten'}>
-            {soVN(mon.restaurant_count)}
-            <span className="muted small"> quán</span>
+          <span
+            className={mon.restaurant_count === 0 ? 'bang__so-quan thieu' : 'bang__so-quan'}
+          >
+            <strong>{soVN(mon.restaurant_count)}</strong>
+            <span className="small">quán</span>
           </span>
         )}
       </td>
       <td className="small">{nhanTheoMa(NHAN_NGUON_MON, mon.source)}</td>
       <td>
-        {mon.image_url ? (
-          <span className="nhan nhan--ok">có</span>
-        ) : (
-          <span className="nhan nhan--canh-bao">thiếu</span>
-        )}
+        {/* Biểu tượng ảnh như bản thiết kế: xanh = có, xám = thiếu. Biểu tượng tự nó
+            `aria-hidden`, nên nhãn chữ nằm ở `role="img"` của lớp bọc. */}
+        <span role="img" aria-label={nhanAnh} title={nhanAnh}>
+          <IconTron ten="anh" mau={mon.image_url ? 'luc' : 'xam'} nho />
+        </span>
       </td>
       <td>
         {mon.is_active ? (
-          <span className="nhan nhan--ok">Có quán</span>
+          <span className="nhan nhan--ok nhan--cham">Có quán</span>
         ) : (
-          <span className="nhan nhan--tat">Chưa có quán</span>
+          <span className="nhan nhan--tim nhan--cham">Chưa có quán</span>
         )}
       </td>
       <td className="small muted">{ngayGioVN(mon.last_updated)}</td>
       <td>
-        <Link className="linkish" to={duongDanMon(mon.dish_id)} aria-label={`Xem chi tiết ${mon.name}`}>
+        <Link
+          className="ghost nut-nho"
+          to={duongDanMon(mon.dish_id)}
+          aria-label={`Xem chi tiết ${mon.name}`}
+        >
           Xem chi tiết →
         </Link>
       </td>

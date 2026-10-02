@@ -11,7 +11,7 @@
  *   - kho lịch sử hỏng    -> nói rõ, không để biểu đồ trống trông như "không có vấn đề"
  */
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { mocChatLuong } from '@/shared/test';
 
@@ -118,5 +118,46 @@ describe('Man "Chat luong du lieu"', () => {
     ).toBeInTheDocument();
     expect(await screen.findByText(/backend tat/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Làm mới/i })).toBeInTheDocument();
+  });
+
+  it('can xu ly ngay: hien ten van de + nhan uu tien tra tu nhom; nguon hien nhan tieng Viet', async () => {
+    dataQuality.mockResolvedValue(
+      mocChatLuong({
+        by_source: [{ source: 'google_maps_apify', count: 1440, percent: 2.7 }],
+        needs_attention: [
+          {
+            key: 'dong_tam',
+            label: 'Quán có khả năng đã đóng cửa',
+            description: 'Nguồn đánh dấu đóng tạm thời',
+            count: 16,
+            severity: 'nghiem_trong',
+            priority: 'nghiem_trong',
+            target_type: 'quan_an',
+          },
+        ],
+      }),
+    );
+    moTrang();
+
+    const dong = (await screen.findByText('Bún Chả Hàng Mành')).closest('li') as HTMLElement;
+    expect(within(dong).getByText('Quán có khả năng đã đóng cửa')).toBeInTheDocument();
+    expect(within(dong).getByText('Nghiêm trọng')).toHaveClass('pill--nghiem_trong');
+    // KHÔNG bịa "x ngày trước": backend không lưu thời điểm phát hiện.
+    expect(within(dong).queryByText(/ngày trước/)).not.toBeInTheDocument();
+    expect(within(dong).getByRole('link', { name: 'Xem chi tiết' })).toHaveAttribute(
+      'href',
+      '/can-xu-ly?nhom=dong_tam',
+    );
+
+    expect(screen.getByText('Google Maps')).toBeInTheDocument();
+    expect(screen.queryByText('google_maps_apify')).not.toBeInTheDocument();
+  });
+
+  it('khong tra duoc nhom thi KHONG hien ma tho cua nhom', async () => {
+    // Mẫu mặc định: bản ghi `dong_tam` nhưng danh sách nhóm chỉ có `mon_thieu_anh`.
+    moTrang();
+
+    const dong = (await screen.findByText('Bún Chả Hàng Mành')).closest('li') as HTMLElement;
+    expect(within(dong).queryByText('dong_tam')).not.toBeInTheDocument();
   });
 });

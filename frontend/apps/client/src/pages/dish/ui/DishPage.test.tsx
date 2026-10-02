@@ -133,13 +133,15 @@ describe('DishPage — theo bản thiết kế', () => {
     expect(so).toEqual(['1', '2', '3']);
   });
 
-  it('mức cay vẽ bằng icon quả ớt SVG, có nhãn chữ cho trình đọc màn hình (A9)', async () => {
-    // `spice_level: 1` -> một quả ớt. Trước 2026-09-29 đây là emoji 🌶️.
+  it('mức cay vẽ bằng icon quả ớt SVG KÈM CHỮ hiện ra (A9 + 2026-10-02)', async () => {
+    // `spice_level: 1` -> một quả ớt. Trước 2026-09-29 đây là emoji 🌶️. Từ 2026-10-02
+    // nhãn "Độ cay 1/3" hiện bằng chữ luôn: một quả ớt mảnh đứng riêng trông như chip rỗng.
     vi.stubGlobal('fetch', mockApi([quan(1)]));
     renderTrang();
 
-    const cay = await screen.findByRole('img', { name: 'Độ cay 1/3' });
+    const cay = (await screen.findByText('Độ cay 1/3')).closest('li')!;
     expect(cay.querySelectorAll('svg')).toHaveLength(1);
+    expect(cay.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
   });
 
   it('mỗi thẻ có ĐÚNG MỘT nút "Xem chi tiết"', async () => {
@@ -288,5 +290,40 @@ describe('DishPage — theo bản thiết kế', () => {
     });
     expect(await screen.findByText('Quán số 1')).toBeInTheDocument();
     expect(screen.queryByText('Không tìm thấy món này')).not.toBeInTheDocument();
+  });
+});
+
+describe('DishPage — tiêu đề danh sách nói thật số quán đang hiện (2026-10-02)', () => {
+  it('chỉ hiện một phần thì tiêu đề phải là "Hiện x / tổng", không ngụ ý đã liệt kê hết', async () => {
+    // Món đếm được 20 quán, API trả về 12, trang hiện trước 8.
+    vi.stubGlobal('fetch', mockApi(Array.from({ length: 12 }, (_, i) => quan(i + 1))));
+    renderTrang();
+
+    expect(
+      await screen.findByRole('heading', { level: 2, name: /Hiện 8 \/ 20 quán phù hợp với Bún chả/ }),
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /Xem thêm 4 quán/ }));
+    expect(
+      await screen.findByRole('heading', { level: 2, name: /Hiện 12 \/ 20 quán/ }),
+    ).toBeInTheDocument();
+  });
+
+  it('thẻ gọn: KHÔNG lặp "#1" cạnh tên, nhưng VẪN giữ mức tin cậy món và "chưa có đánh giá"', async () => {
+    vi.stubGlobal(
+      'fetch',
+      mockApi([
+        quan(1, { suggested_dish: { name: 'Bún chả', confidence: 'generic_fallback' } }),
+      ]),
+    );
+    const { container } = renderTrang();
+
+    await screen.findByText('Quán số 1');
+    expect(container.querySelector('.card__rank')).toBeNull();
+    // Số thứ tự vẫn nằm trên ảnh, khớp ghim bản đồ.
+    expect(container.querySelector('.card__so')?.textContent).toBe('1');
+    expect(screen.getByText('chưa có đánh giá')).toBeInTheDocument();
+    expect(screen.getByText(/Khớp tên quán/i)).toBeInTheDocument();
+    expect(container.querySelector('.card__chip--guess')).not.toBeNull();
   });
 });

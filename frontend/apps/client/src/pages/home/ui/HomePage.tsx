@@ -7,7 +7,7 @@
  *   ------------------------------------|---------------------------------------
  *   khẩu hiệu + dải mời đăng nhập nhẹ   | "Chào buổi …, <tên> 👋"
  *   "Gợi ý nhanh theo mood"             | "Mood của bạn hôm nay là gì?"
- *   "🔥 Món phổ biến hôm nay"           | "✨ Gợi ý hôm nay dành cho <tên>"
+ *   "🔥 Món phổ biến hôm nay"           | "✨ Món phù hợp với bạn hôm nay"
  *   "🧭 Khám phá theo nhu cầu"          | "🕘 Xem gần đây"
  *   dải mời đăng ký ở cuối              | (không có)
  *
@@ -260,7 +260,7 @@ export function HomePage() {
               {daDangNhap ? (
                 <>
                   <IconSparkle />{' '}
-                  {t('results.titleLoggedIn', { name: ten ?? '' })}
+                  {t('results.titleLoggedIn')}
                 </>
               ) : (
                 <>

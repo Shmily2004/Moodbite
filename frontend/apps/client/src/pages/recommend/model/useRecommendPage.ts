@@ -67,6 +67,7 @@ export function useRecommendPage() {
     else if (chip.nhomMot) suggestions.setSingle(chip.nhomMot, null);
     // Gỡ chip bán kính = về MẶC ĐỊNH (xem `ChipDangBat.khoangCach`).
     else if (chip.khoangCach) suggestions.setMaxDistanceKm(DEFAULT_RADIUS_KM);
+    else if (chip.chiCoGia) suggestions.setOnlyWithPrice(false);
   };
 
   // Sang trang món MANG THEO bộ lọc: nút "Chỉnh sửa" ở đó mở lại đúng những gì đang chọn.

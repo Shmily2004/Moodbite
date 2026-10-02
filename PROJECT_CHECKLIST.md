@@ -19,7 +19,7 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Frontend Client | ✅ **TypeScript + FSD** | 86 test, có bản đồ, steiger trong CI |
 | Bản đồ | ✅ **Xong** | Leaflet + OpenStreetMap, miễn phí, không cần key |
 | Kiến trúc | ✅ Sạch | Clean Architecture + checker tự động trong CI |
-| Test | ✅ **811 backend + 348 frontend** | client 281 · admin 67. Đo bằng `python scripts/verify.py` ngày 2026-10-02 (cuối ngày) |
+| Test | ✅ **811 backend + 383 frontend** | client 305 · admin 78. Đo bằng `python scripts/verify.py` ngày 2026-10-02 (sau đối chiếu UI) |
 | Giao diện | ✅ Theo bản duyệt · **trang chủ + tài khoản dựng lại 2026-08-22** | trang chủ = LƯỚI MÓN + chips lọc; trang món = giới thiệu + bản đồ + danh sách quán; `/tim-kiem` giữ bố cục bản đồ + rail cũ |
 | Router + layout | ✅ Xong | react-router v6, khung dùng chung, `RequireAuth` cho admin |
 | Chạy xem giao diện | ✅ **một lệnh** | `python scripts/run_dev.py --admin` |
@@ -1402,6 +1402,30 @@ báo cáo tách theo luồng + ghi rõ giới hạn.
 | **Bản đồ nền XÁM trên máy chủ dự án** | ✅ Nguyên nhân thật: DNS của mạng trả `tile.openstreetmap.org` về 127.0.0.1 (bị chặn). Thêm `shared/map/NenBanDo`: nguồn chính OSM, 4 ảnh đầu lỗi mà chưa ảnh nào tải được -> tự chuyển sang OpenStreetMap France (miễn phí, không key). Đo trên trình duyệt thật cùng mạng: 0/9 -> **9/9** ảnh nền tải được | `npm run test --workspace @moodbite/client -- --run NenBanDo` |
 | Luồng "Thêm địa chỉ" trên trình duyệt thật | ✅ Bấm nút -> gõ nhãn -> bấm lên bản đồ Leaflet thật -> Lưu -> API trả địa chỉ mới đúng toạ độ điểm bấm | (script tạm, CDP) |
 | **`verify.py` mục 9 đỏ/xanh theo GIỜ CHẠY** | ✅ Tập gốc của bộ mẫu phụ thuộc thiên hướng bữa ăn (đồng hồ thật): rating 35,6% buổi chiều vs 30,6% buổi sáng. `make_fixture.gom_ket_qua_that` nay cố định 12:00 | `pytest tests/test_make_fixture_gio.py` |
+
+
+### Đợt 2026-10-02 (tối) — đối chiếu UI với 13 bản thiết kế `frontend/design/`
+
+Chụp 12 màn hiện tại ở khung 1536×1024 (kho tài khoản tạm, có tài khoản admin thử), so từng
+cặp với bản vẽ, sửa, chụp lại sau khi sửa. Ảnh trước/sau ở thư mục scratch, không vào repo.
+
+| Màn | Đã sửa |
+|---|---|
+| Admin · Quản lý quán | ✅ thẻ số cao vống ~360px (lỗi `flex-basis` trong hộp flex dọc) -> dải gọn + bộ lọc bên phải · nút "+ Thêm quán mới" góc phải · Sửa/Ẩn cùng hàng |
+| Admin · mọi màn | ✅ ảnh vỡ -> ô xám (`AnhThuNho`, 5 chỗ) · icon tròn trên thẻ số · mã thô -> nhãn ("hot"->"Nóng", "overture"->"Overture Maps") · `<Link className="ghost">` giờ ra dáng nút · chip ưu tiên đỏ/cam/vàng · tab gạch chân cam |
+| Admin · Tổng quan / Món / Chi tiết món / Cần xử lý / Chất lượng | ✅ nhãn "Tình trạng dữ liệu" 1 dòng · hàng dưới 1/3 : 2/3 · chip trạng thái món có màu · icon ảnh thay chữ "có/thiếu" · bỏ tiêu đề lặp · "Xem thêm N quán" · "Cần xử lý ngay" có tên vấn đề + chip ưu tiên · nhóm 0 bản ghi ghi "Không có" |
+| Client · Trang chủ | ✅ kính lúp rõ · "Buổi chiều" (bỏ capitalize) · link màu cam thương hiệu · dải xác minh email gọn · **bỏ câu "dành cho <tên>"** (chưa cá nhân hoá thật) · nút cuộn ‹ › cho dải món · tranh hero tan vào nền |
+| Client · /recommend | ✅ "BỘ LỌC" liền khối · thứ tự nhóm theo `Filler.png` · công tắc giá dạng switch (giải thích sau ⓘ) · số "30" cam · "12.877 quán" có dấu chấm · thẻ món có nhãn · **chip "Chỉ quán có ghi giá" giờ hiện trong "Đang lọc theo"** (trước đó bật mà không thấy) |
+| Client · Chi tiết món | ✅ chip thuộc tính to có icon · tranh Hà Nội · danh sách + bản đồ hai thẻ trắng · **tiêu đề "HIỆN 8 / 1.233 QUÁN…"** (trước ghi "1233 quán gần bạn" trong khi chỉ liệt kê 20) · dòng quán gọn có cột phải, VẪN giữ nhãn tin cậy · bỏ "#1" trùng · bong bóng nằm trong bản đồ |
+| Client · Tài khoản | ✅ nút máy ảnh trên avatar · dòng "📍 Nhà" (địa chỉ mặc định) · ô số liệu trắng icon màu · tiêu đề đồng nhất · huy hiệu 1 hàng + "Xem tất cả" · nút khẩu vị viền cam |
+| Công cụ | ✅ `chup_man_hinh.py --admin-token` và `--dang-xuat` (hồ sơ Edge giữ token cũ làm /login tự chuyển về trang chủ) |
+
+**Chưa sửa - cần dữ liệu / quyết định:**
+- Admin: danh sách quán xếp ABC nên tên rác (".feniac", "□Quán Ông Tò" - có ký tự lỗi) lên đầu -> đổi thứ tự mặc định ở backend? + làm sạch ký tự lỗi trong data_cleaning.
+- Admin: tách "không có cách liên hệ" thành "thiếu SĐT" / "thiếu website" như bản vẽ (cần nhóm mới ở backend); sparkline 3 ô gợi ý (cần chuỗi theo ngày).
+- Client: bộ icon mood (chủ dự án đang vẽ) · giờ mở cửa / ảnh quán / SĐT (backend không có) · sửa tên hiển thị (chưa có endpoint) · thêm "Bộ sưu tập" vào thanh trên · nền bản đồ kiểu Positron.
+- Dòng quán ở trang món vẫn cao ~150px (bản vẽ ~140) vì chip món kèm mức tin cậy dài - cố ý giữ thông tin tin cậy.
+- `entities/restaurant/ui/RestaurantCard.tsx` 331 dòng (> ~300, CLAUDE.md mục 6) - nên tách.
 
 ---
 

@@ -25,7 +25,14 @@
 import { Link } from 'react-router-dom';
 import { useActivity } from '@/features/view-activity';
 import { useDataQuality } from '@/features/view-data-quality';
-import { DUONG_DAN_CAN_XU_LY, ROUTES } from '@/shared/config';
+import {
+  DUONG_DAN_CAN_XU_LY,
+  NHAN_NGUON_QUAN,
+  NHAN_UU_TIEN_VAN_DE,
+  ROUTES,
+  nhanTheoMa,
+} from '@/shared/config';
+import { AnhThuNho, Icon, IconTron, type MauIconTron, type TenIcon } from '@/shared/ui';
 import type {
   AdminDataQualityData,
   AnhChupChatLuong,
@@ -55,7 +62,9 @@ export function QualityPage() {
           trắng và người quản trị không còn nút nào để thử lại ngoài F5. */}
       <header className="tong-quan__dau">
         <div>
-          <h2 className="tong-quan__chao">Chất lượng dữ liệu</h2>
+          <h2 className="tong-quan__chao tieu-de-icon tieu-de-icon--trang">
+            <Icon ten="chat-luong" /> Chất lượng dữ liệu
+          </h2>
           <p className="muted">
             Giám sát và xử lý các vấn đề về dữ liệu để đảm bảo thông tin luôn chính xác,
             đầy đủ và cập nhật.
@@ -107,20 +116,34 @@ function NoiDung({ data }: { data: AdminDataQualityData }) {
       </p>
 
       <ul className="the-so">
-        <TheSoCoMoc nhan="Tổng số quán" thayDoi={data.restaurants_total} />
-        <TheSoCoMoc nhan="Tổng số món" thayDoi={data.dishes_total} />
+        <TheSoCoMoc icon="quan-an" mau="xanh" nhan="Tổng số quán" thayDoi={data.restaurants_total} />
+        <TheSoCoMoc icon="mon-an" mau="cam" nhan="Tổng số món" thayDoi={data.dishes_total} />
         <TheSo
+          icon="ghim"
+          mau="luc"
           nhan="Quán tại Hà Nội"
           so={data.restaurants_in_hanoi}
           phu={`${data.restaurants_in_hanoi_percent}% tổng số quán`}
         />
-        <TheSo nhan="Vấn đề nghiêm trọng" so={data.critical} nhanManh={data.critical > 0} />
-        <TheSo nhan="Vấn đề cần kiểm tra" so={data.to_review} />
+        <TheSo
+          icon="can-xu-ly"
+          mau="cam"
+          nhan="Vấn đề nghiêm trọng"
+          so={data.critical}
+          nhanManh={data.critical > 0}
+        />
+        <TheSo
+          icon="thong-tin"
+          mau="tim"
+          nhan="Vấn đề cần kiểm tra"
+          so={data.to_review}
+          nhanManh={data.to_review > 0}
+        />
       </ul>
 
       <div className="chat-luong__luoi">
         <div className="chat-luong__cot">
-          <CanXuLyNgay ban_ghi={data.needs_attention_now} />
+          <CanXuLyNgay ban_ghi={data.needs_attention_now} nhom={data.needs_attention} />
           <VanDeKhac nhom={data.needs_attention} />
         </div>
 
@@ -143,11 +166,17 @@ function NoiDung({ data }: { data: AdminDataQualityData }) {
  * con số tổng. Bản thiết kế có cả hai vì chúng trả lời hai câu khác nhau: "sửa cái gì
  * ngay bây giờ" và "tổng thể đang hỏng những gì".
  */
-function CanXuLyNgay({ ban_ghi }: { ban_ghi: BanGhiVanDe[] }) {
+function CanXuLyNgay({ ban_ghi, nhom }: { ban_ghi: BanGhiVanDe[]; nhom: VanDeNhom[] }) {
+  // Bản ghi chỉ mang `key` của nhóm; tên vấn đề + mức ưu tiên tra từ danh sách nhóm mà
+  // backend đã trả cùng lượt. Chỉ là TRA CỨU để hiển thị, không tự xếp loại lại.
+  const theoKhoa = new Map(nhom.map((v) => [v.key, v]));
+
   return (
     <section className="panel">
       <div className="bang__dau">
-        <h3 className="panel__tieu-de">Cần xử lý ngay</h3>
+        <h3 className="panel__tieu-de tieu-de-icon">
+          <Icon ten="can-xu-ly" className="icon icon--canh-bao" /> Cần xử lý ngay
+        </h3>
         <Link className="linkish" to={ROUTES.issues}>
           Xem tất cả →
         </Link>
@@ -157,24 +186,42 @@ function CanXuLyNgay({ ban_ghi }: { ban_ghi: BanGhiVanDe[] }) {
         <p className="muted">Không có bản ghi nào đang chờ xử lý.</p>
       ) : (
         <ul className="viec-ngay">
-          {ban_ghi.map((b) => (
-            <li key={`${b.key}-${b.id}`} className="viec-ngay__dong">
-              {/* Ảnh CHỈ hiện khi có. Chèn ảnh mẫu vào chỗ trống là nói dối rằng đã
-                  biết quán/món trông thế nào. */}
-              {b.image_url ? (
-                <img className="viec-ngay__anh" src={b.image_url} alt="" loading="lazy" />
-              ) : (
-                <span className="viec-ngay__anh viec-ngay__anh--trong" aria-hidden="true" />
-              )}
-              <div className="viec-ngay__chu">
-                <p className="viec-ngay__ten">{b.name}</p>
-                {b.description && <p className="muted small">{b.description}</p>}
-              </div>
-              <Link className="ghost viec-ngay__nut" to={`${ROUTES.issues}?nhom=${b.key}`}>
-                Xem chi tiết
-              </Link>
-            </li>
-          ))}
+          {ban_ghi.map((b) => {
+            const v = theoKhoa.get(b.key);
+            return (
+              <li key={`${b.key}-${b.id}`} className="viec-ngay__dong">
+                {/* Ảnh CHỈ hiện khi có (và link còn sống). Chèn ảnh mẫu vào chỗ trống là
+                    nói dối rằng đã biết quán/món trông thế nào. */}
+                <AnhThuNho
+                  src={b.image_url}
+                  className="viec-ngay__anh"
+                  classNameTrong="viec-ngay__anh--trong"
+                />
+                <div className="viec-ngay__chu">
+                  {/* Không tra được nhóm (backend thêm nhóm mới) -> bỏ dòng tiêu đề, KHÔNG
+                      hiện mã thô cho người quản trị. */}
+                  {v && <p className="viec-ngay__loai">{v.label}</p>}
+                  <p className="viec-ngay__ten">{b.name}</p>
+                  {b.description && <p className="muted small">{b.description}</p>}
+                </div>
+                {v ? (
+                  <span className={`pill pill--${v.priority}`}>
+                    {nhanTheoMa(NHAN_UU_TIEN_VAN_DE, v.priority)}
+                  </span>
+                ) : (
+                  <span />
+                )}
+                {/* KHÔNG có cột "x ngày trước" của bản thiết kế: backend không lưu thời
+                    điểm phát hiện vấn đề, con số đó sẽ phải bịa. */}
+                <Link
+                  className="nut-chinh nut-nho viec-ngay__nut"
+                  to={`${ROUTES.issues}?nhom=${b.key}`}
+                >
+                  Xem chi tiết
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       )}
     </section>
@@ -272,7 +319,7 @@ function TheoNguon({ nguon, tong }: { nguon: ThongKeNguon[]; tong: number }) {
       <ul className="nguon">
         {nguon.slice(0, SO_NGUON_HIEN).map((n) => (
           <li key={n.source} className="nguon__dong">
-            <span className="nguon__ten">{n.source}</span>
+            <span className="nguon__ten">{nhanTheoMa(NHAN_NGUON_QUAN, n.source)}</span>
             <div className="do-phu__thanh">
               <div
                 className="do-phu__day do-phu__day--tot"
@@ -422,29 +469,42 @@ function HoatDongGanDay() {
  * `delta === null` -> nói "chưa đủ dữ liệu để so sánh". KHÔNG hiện mũi tên, KHÔNG hiện
  * "+0": cả hai đều nghe như đã so xong và kết luận là không đổi.
  */
-function TheSoCoMoc({ nhan, thayDoi }: { nhan: string; thayDoi: ThayDoi }) {
+function TheSoCoMoc({
+  nhan,
+  thayDoi,
+  icon,
+  mau,
+}: {
+  nhan: string;
+  thayDoi: ThayDoi;
+  icon: TenIcon;
+  mau: MauIconTron;
+}) {
   const d = thayDoi.delta;
 
   return (
-    <li className="the-so__o">
-      <span className="the-so__nhan">{nhan}</span>
-      <span className="the-so__gia-tri">{soVN(thayDoi.current)}</span>
-      {d === null || d === undefined ? (
-        <span className="muted the-so__phu">Chưa đủ dữ liệu để so sánh</span>
-      ) : (
-        <span
-          className={
-            d > 0 ? 'the-so__phu the-so__phu--tang' : 'muted the-so__phu'
-          }
-        >
-          {d > 0 ? '↗ +' : d < 0 ? '↘ ' : ''}
-          {d === 0 ? 'Không đổi' : soVN(Math.abs(d))}
-          {d !== 0 && ' so với '}
-          {d !== 0 &&
-            thayDoi.baseline_date &&
-            new Date(thayDoi.baseline_date).toLocaleDateString('vi-VN')}
-        </span>
-      )}
+    <li className="the-so__o the-so__o--co-icon">
+      <IconTron ten={icon} mau={mau} />
+      <div className="the-so__than">
+        <span className="the-so__nhan">{nhan}</span>
+        <span className="the-so__gia-tri">{soVN(thayDoi.current)}</span>
+        {d === null || d === undefined ? (
+          <span className="muted the-so__phu">Chưa đủ dữ liệu để so sánh</span>
+        ) : (
+          <span
+            className={
+              d > 0 ? 'the-so__phu the-so__phu--tang' : 'muted the-so__phu'
+            }
+          >
+            {d > 0 ? '↗ +' : d < 0 ? '↘ ' : ''}
+            {d === 0 ? 'Không đổi' : soVN(Math.abs(d))}
+            {d !== 0 && ' so với '}
+            {d !== 0 &&
+              thayDoi.baseline_date &&
+              new Date(thayDoi.baseline_date).toLocaleDateString('vi-VN')}
+          </span>
+        )}
+      </div>
     </li>
   );
 }
@@ -453,18 +513,31 @@ function TheSo({
   nhan,
   so,
   phu,
+  icon,
+  mau,
   nhanManh = false,
 }: {
   nhan: string;
   so: number;
   phu?: string;
+  icon: TenIcon;
+  mau: MauIconTron;
   nhanManh?: boolean;
 }) {
   return (
-    <li className={nhanManh ? 'the-so__o the-so__o--nhan' : 'the-so__o'}>
-      <span className="the-so__nhan">{nhan}</span>
-      <span className="the-so__gia-tri">{soVN(so)}</span>
-      {phu && <span className="muted the-so__phu">{phu}</span>}
+    <li
+      className={
+        nhanManh
+          ? 'the-so__o the-so__o--co-icon the-so__o--nhan'
+          : 'the-so__o the-so__o--co-icon'
+      }
+    >
+      <IconTron ten={icon} mau={mau} />
+      <div className="the-so__than">
+        <span className="the-so__nhan">{nhan}</span>
+        <span className="the-so__gia-tri">{soVN(so)}</span>
+        {phu && <span className="muted the-so__phu">{phu}</span>}
+      </div>
     </li>
   );
 }

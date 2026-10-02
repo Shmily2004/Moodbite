@@ -83,6 +83,7 @@ describe('HomePage - KHACH vs DA DANG NHAP', () => {
     // Chốt chặn quan trọng: chưa đăng nhập thì hệ thống KHÔNG biết người này là ai, nên
     // mọi câu "dành cho bạn / phù hợp với bạn" đều là nói dối.
     expect(screen.queryByText(/dành cho bạn/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/phù hợp với bạn hôm nay/i)).not.toBeInTheDocument();
   });
 
   it('KHACH: co hang "Kham pha theo nhu cau" - dung duoc khi chua co tai khoan', async () => {
@@ -93,7 +94,7 @@ describe('HomePage - KHACH vs DA DANG NHAP', () => {
     expect(screen.getByRole('button', { name: /Ăn gần đây/i })).toBeInTheDocument();
   });
 
-  it('DA DANG NHAP: chao ten that va doi tieu de sang "danh cho <ten>"', async () => {
+  it('DA DANG NHAP: doi tieu de, nhung KHONG gan ten vao nhu the da ca nhan hoa', async () => {
     // Có token -> `useUserSession` sẽ hỏi `/auth/me`. Giả lập theo TỪNG đường dẫn thay vì
     // một response chung, để test đi đúng hai lời gọi khác nhau.
     sessionStorage.setItem('moodbite.user.token', 'token-gia-lap');
@@ -121,7 +122,9 @@ describe('HomePage - KHACH vs DA DANG NHAP', () => {
 
     renderHome();
 
-    expect(await screen.findByText(/Gợi ý hôm nay dành cho Mừng/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Món phù hợp với bạn hôm nay/i)).toBeInTheDocument();
+    // Checklist B19: xếp hạng CHƯA cá nhân hoá, nên tiêu đề không được "dành cho <tên>".
+    expect(screen.queryByText(/dành cho Mừng/i)).not.toBeInTheDocument();
     expect(screen.getByText(/Mood của bạn hôm nay/i)).toBeInTheDocument();
     // Hàng "Khám phá theo nhu cầu" là lối vào cho khách, người đã đăng nhập không cần.
     expect(screen.queryByText(/Khám phá theo nhu cầu/i)).not.toBeInTheDocument();
@@ -323,7 +326,7 @@ describe('HomePage - nhac xac minh email', () => {
 
     // Đợi phiên nạp xong rồi mới khẳng định là không có — không thì test xanh giả vì
     // lúc kiểm trang còn chưa biết người dùng là ai.
-    await screen.findByText(/Gợi ý hôm nay dành cho Mừng/i);
+    await screen.findByText(/Món phù hợp với bạn hôm nay/i);
     expect(screen.queryByText(/Email chưa xác minh/i)).not.toBeInTheDocument();
   });
 

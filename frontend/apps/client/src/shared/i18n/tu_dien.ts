@@ -139,18 +139,24 @@ const vi = {
 
   // --- Danh sách kết quả ----------------------------------------------------
   'results.titleGuest': 'Món phổ biến hôm nay',
-  'results.titleLoggedIn': 'Gợi ý hôm nay dành cho {name}',
+  // ⚠ KHÔNG chèn tên người dùng vào tiêu đề (đổi 2026-10-02, checklist B19): "Gợi ý hôm
+  // nay dành cho <tên>" đọc như danh sách CÁ NHÂN HOÁ, trong khi xếp hạng vẫn là chung
+  // cho mọi người (chỉ khác ở bộ lọc mood/sở thích đang bật). Câu mới nói đúng chừng đó.
+  'results.titleLoggedIn': 'Món phù hợp với bạn hôm nay',
   'results.subGuest':
     'Món có nhiều quán ở Hà Nội đang bán, hợp với thời điểm và thời tiết lúc này.',
   'results.subLoggedIn': 'Dựa trên mood bạn chọn, thời tiết và thời điểm hiện tại.',
   'results.showAll': 'Xem tất cả ({count})',
   'results.collapse': 'Thu gọn',
+  'dishList.prev': 'Cuộn sang các món trước',
+  'dishList.next': 'Cuộn sang các món tiếp theo',
   'results.emptyTitle': 'Không có món nào khớp',
   'results.emptyHint': 'Điều kiện đang hơi chặt. Thử bỏ bớt một vài bộ lọc.',
   'results.clearFilters': 'Xoá hết bộ lọc',
   'results.retry': 'Thử lại',
 
-  'filters.title': 'Lọc chi tiết',
+  // "Bộ lọc" theo `design/Filler.png` (đổi 2026-10-02). Cột trái viết HOA bằng CSS.
+  'filters.title': 'Bộ lọc',
   'filters.sub': 'Mọi điều kiện mà bảy thẻ mood ở trên không phủ hết.',
   'filters.open': 'Lọc',
   'filters.close': 'Đóng bộ lọc',
@@ -280,6 +286,10 @@ const vi = {
 
   // --- Bổ sung 2026-09-16: cột lọc trang kết quả, thanh tab di động, trang tài khoản ---
   'filters.distance': 'Trong vòng',
+  'filters.group.distance': 'Khoảng cách',
+  'filters.group.mood': 'Tâm trạng',
+  'filters.group.weather': 'Thời tiết',
+  'filters.price.why': 'Vì sao bật lên sẽ còn ít kết quả?',
   'filters.unlimited': 'Không giới hạn',
   'recommend.filteringBy': 'Đang lọc theo:',
   'recommend.clearAll': 'Xoá tất cả',
@@ -423,18 +433,20 @@ const en: Record<Khoa, string> = {
   'needs.sub': 'Six quick entry points, no account needed.',
 
   'results.titleGuest': 'Popular dishes today',
-  'results.titleLoggedIn': "Today's picks for {name}",
+  'results.titleLoggedIn': 'Dishes that suit you today',
   'results.subGuest':
     'Dishes served by many places in Hanoi, matching the current time and weather.',
   'results.subLoggedIn': 'Based on the mood you picked, the weather and the time of day.',
   'results.showAll': 'View all ({count})',
+  'dishList.prev': 'Scroll to previous dishes',
+  'dishList.next': 'Scroll to next dishes',
   'results.collapse': 'Collapse',
   'results.emptyTitle': 'No dish matches',
   'results.emptyHint': 'Your filters are a bit tight. Try removing one or two.',
   'results.clearFilters': 'Clear all filters',
   'results.retry': 'Try again',
 
-  'filters.title': 'Detailed filters',
+  'filters.title': 'Filters',
   'filters.sub': "Everything the seven mood cards above don't cover.",
   'filters.open': 'Filters',
   'filters.close': 'Close filters',
@@ -559,6 +571,10 @@ const en: Record<Khoa, string> = {
 
   // --- Added 2026-09-16: results filter column, mobile tab bar, account page ---------
   'filters.distance': 'Within',
+  'filters.group.distance': 'Distance',
+  'filters.group.mood': 'Mood',
+  'filters.group.weather': 'Weather',
+  'filters.price.why': 'Why does this leave far fewer results?',
   'filters.unlimited': 'No limit',
   'recommend.filteringBy': 'Filtering by:',
   'recommend.clearAll': 'Clear all',

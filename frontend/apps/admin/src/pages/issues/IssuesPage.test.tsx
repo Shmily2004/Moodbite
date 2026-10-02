@@ -116,6 +116,9 @@ describe('Man "Can xu ly"', () => {
     expect(
       screen.queryByRole('button', { name: /Xem danh sách/i }),
     ).not.toBeInTheDocument();
+    // Ô thao tác KHÔNG để trống trơn (trông như nút bị lỗi không hiện).
+    const dong = screen.getByText(/Dữ liệu trùng lặp cần kiểm tra/i).closest('tr') as HTMLElement;
+    expect(within(dong).getByText('Không có')).toBeInTheDocument();
   });
 
   it('mo mot nhom thi hien ban ghi cu the, dong da xong van HIEN', async () => {

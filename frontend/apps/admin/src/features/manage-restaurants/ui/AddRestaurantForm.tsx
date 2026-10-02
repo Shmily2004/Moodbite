@@ -5,6 +5,9 @@
  * lại — người thật tới tận nơi hoặc gọi điện xác minh. Overture/OSM cho số lượng nhưng
  * không có giá, giờ mở cửa, đánh giá; Apify thì tốn tiền.
  *
+ * NÚT nằm góc phải tiêu đề trang (bản thiết kế 2026-10-02, trước là một thanh ngang cả
+ * trang). Khi mở, form tự chiếm trọn một hàng ngay dưới tiêu đề — xem `.addform`.
+ *
  * ⚠️ FORM ĐÓNG SẴN. Việc thường xuyên nhất ở trang này là TÌM và SỬA quán đã có; mở sẵn
  * một form 9 ô sẽ đẩy danh sách xuống dưới màn hình mỗi lần vào trang.
  *
@@ -77,7 +80,7 @@ export function AddRestaurantForm({ onCreate }: AddRestaurantFormProps) {
 
   if (!mo) {
     return (
-      <button type="button" className="btn" onClick={() => setMo(true)}>
+      <button type="button" className="btn nut-chinh" onClick={() => setMo(true)}>
         + Thêm quán mới
       </button>
     );

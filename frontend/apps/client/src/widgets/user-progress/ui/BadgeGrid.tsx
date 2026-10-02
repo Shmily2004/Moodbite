@@ -14,9 +14,17 @@ import type { UserStatsData } from '@/shared/api';
 export interface BadgeGridProps {
   stats: UserStatsData | null;
   loading?: boolean;
+  /**
+   * Chỉ hiện tối đa N huy hiệu trên MỘT HÀNG (thẻ ở tab Tổng quan, 2026-10-02 theo
+   * `design/profile.png`). Bỏ trống = hiện hết dạng lưới (tab "Cấp độ & huy hiệu").
+   * Lưới 2×3 ở cột phải từng kéo thẻ cao ~600px, đẩy "Khẩu vị" khỏi màn hình.
+   */
+  limit?: number;
+  /** Có thì hiện "Xem tất cả →" ở đầu thẻ (chuyển sang tab huy hiệu). */
+  onSeeAll?: () => void;
 }
 
-export function BadgeGrid({ stats, loading }: BadgeGridProps) {
+export function BadgeGrid({ stats, loading, limit, onSeeAll }: BadgeGridProps) {
   const t = useT();
 
   if (loading || !stats) {
@@ -28,12 +36,30 @@ export function BadgeGrid({ stats, loading }: BadgeGridProps) {
     );
   }
 
+  // Bản rút gọn: huy hiệu ĐÃ ĐẠT lên trước (đó là thứ người dùng muốn khoe), phần còn
+  // lại giữ nguyên thứ tự backend. Chỉ đổi THỨ TỰ HIỂN THỊ, không lọc bỏ cái nào — tab
+  // đầy đủ vẫn có hết.
+  const ds =
+    limit != null
+      ? [...stats.badges]
+          .sort((a, b) => Number(b.earned) - Number(a.earned))
+          .slice(0, limit)
+      : stats.badges;
+  const gon = limit != null;
+
   return (
     <section className="panel">
-      <h2 className="panel__title">{t('account.badges.title')}</h2>
+      <div className="results__head">
+        <h2 className="panel__title">{t('account.badges.title')}</h2>
+        {onSeeAll && (
+          <button type="button" className="linkish" onClick={onSeeAll}>
+            {t('common.viewAll')} →
+          </button>
+        )}
+      </div>
 
-      <ul className="badges">
-        {stats.badges.map((hh) => (
+      <ul className={gon ? 'badges badges--hang' : 'badges'}>
+        {ds.map((hh) => (
           <li
             key={hh.badge_id}
             className={hh.earned ? 'badge badge--on' : 'badge'}
@@ -43,7 +69,8 @@ export function BadgeGrid({ stats, loading }: BadgeGridProps) {
               {hh.emoji}
             </span>
             <span className="badge__name">{hh.name}</span>
-            <span className="badge__desc">{hh.description}</span>
+            {/* Bản một hàng: ô chỉ rộng ~70px, mô tả dài sẽ xuống 4 dòng -> để ở `title`. */}
+            {!gon && <span className="badge__desc">{hh.description}</span>}
             <span className="badge__state">
               {hh.earned
                 ? t('account.badges.earned')

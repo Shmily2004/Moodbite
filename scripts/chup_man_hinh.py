@@ -248,6 +248,12 @@ def main() -> int:
     # Thêm 2026-10-02: chụp được trang CẦN ĐĂNG NHẬP (tab tài khoản). Ghi token vào
     # localStorage của đúng origin rồi mới mở trang - đúng chỗ app client tự đọc token.
     ap.add_argument("--token", default=None, help="Token nguoi dung (dang nhap san)")
+    ap.add_argument("--admin-token", default=None, help="Token quan tri (app admin, sessionStorage)")
+    # Thêm 2026-10-02: hồ sơ Edge `PROFILE_DIR` được DÙNG LẠI giữa các lần chạy, nên token
+    # ghi bằng `--token` ở lần trước vẫn còn trong localStorage -> chụp /login, /register
+    # lại bị app chuyển thẳng về trang chủ. Cờ này xoá sạch storage của origin trước khi chụp.
+    ap.add_argument("--dang-xuat", action="store_true",
+                    help="Xoa localStorage/sessionStorage truoc khi chup (chup o trang thai KHACH)")
     args = ap.parse_args()
 
     ra = Path(args.ra) if args.ra else ROOT / "runs" / "anh" / f"chup-{args.rong}px.png"
@@ -264,13 +270,21 @@ def main() -> int:
             mobile=args.mobile,
         )
         cdp.goi("Page.enable")
-        if args.token:
-            # localStorage gắn theo origin: phải đứng ở origin đó trước khi ghi.
+        if args.token or args.admin_token or args.dang_xuat:
+            # Storage gắn theo origin: phải đứng ở origin đó trước khi ghi.
             cdp.goi("Page.navigate", url=args.url)
             time.sleep(2)
-            cdp.goi("Runtime.evaluate", expression=(
-                "localStorage.setItem('moodbite.user.token', " + json.dumps(args.token) + ")"
-            ))
+            if args.dang_xuat:
+                cdp.goi("Runtime.evaluate", expression="localStorage.clear(); sessionStorage.clear()")
+            if args.token:
+                cdp.goi("Runtime.evaluate", expression=(
+                    "localStorage.setItem('moodbite.user.token', " + json.dumps(args.token) + ")"
+                ))
+            if args.admin_token:
+                # App admin cố ý dùng sessionStorage (token 1 giờ, đóng tab là mất).
+                cdp.goi("Runtime.evaluate", expression=(
+                    "sessionStorage.setItem('moodbite.admin.token', " + json.dumps(args.admin_token) + ")"
+                ))
         cdp.goi("Page.navigate", url=args.url)
         time.sleep(args.doi)
 

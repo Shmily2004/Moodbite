@@ -9,7 +9,13 @@
  * `scripts/build_dish_catalog.py` SINH RA — sửa qua đây sẽ bị lần chạy sau ghi đè.
  */
 import type { AdminDishDetail } from '@/shared/api';
-import { NHAN_NGUON_MON, nhanTheoMa } from '@/shared/config';
+import {
+  NHAN_BUA_AN,
+  NHAN_CACH_CHE_BIEN,
+  NHAN_NGUON_MON,
+  NHAN_NHIET_DO_MON,
+  nhanTheoMa,
+} from '@/shared/config';
 import { ngayGioVN } from '@/shared/lib';
 
 export function DishInfo({ data }: { data: AdminDishDetail }) {
@@ -50,21 +56,25 @@ export function DishInfo({ data }: { data: AdminDishDetail }) {
         <Muc nhan="Tên món" giaTri={data.name} />
         <Muc nhan="Ẩm thực" giaTri={data.cuisine ?? '—'} />
         <Muc nhan="Loại" giaTri={data.is_category ? 'Danh mục (gồm nhiều món)' : 'Món cụ thể'} />
-        <Muc nhan="Nhiệt độ" giaTri={data.temperature ?? '—'} />
-        <Muc nhan="Cách chế biến" giaTri={data.cooking_method ?? '—'} />
+        {/* Mã thô ("hot", "nuoc") đổi sang chữ người đọc; mã lạ thì hiện nguyên mã. */}
+        <Muc nhan="Nhiệt độ" giaTri={nhanTheoMa(NHAN_NHIET_DO_MON, data.temperature)} />
+        <Muc nhan="Cách chế biến" giaTri={nhanTheoMa(NHAN_CACH_CHE_BIEN, data.cooking_method)} />
         <Muc
           nhan="Độ cay"
           // `null` là CHƯA BIẾT, khác hẳn `0` là KHÔNG CAY (CLAUDE.md mục 4).
           giaTri={data.spice_level == null ? 'chưa biết' : String(data.spice_level)}
         />
-        <Muc nhan="Bữa phù hợp" giaTri={bua.length ? bua.join(', ') : '—'} />
+        <Muc
+          nhan="Bữa phù hợp"
+          giaTri={bua.length ? bua.map((b) => nhanTheoMa(NHAN_BUA_AN, b)).join(', ') : '—'}
+        />
         <Muc nhan="Nguồn mô tả" giaTri={nhanTheoMa(NHAN_NGUON_MON, data.source)} />
         <Muc nhan="Cập nhật" giaTri={ngayGioVN(data.last_updated)} />
       </dl>
 
       {data.source_url && (
         <p>
-          <a href={data.source_url} target="_blank" rel="noreferrer">
+          <a className="linkish" href={data.source_url} target="_blank" rel="noreferrer">
             Xem nguồn gốc →
           </a>
         </p>

@@ -79,38 +79,72 @@
   font-weight: 800;
   letter-spacing: .02em;
 }
+/* MỘT KIỂU TIÊU ĐỀ cho mọi thẻ của trang tài khoản (2026-10-02). Trước đó cột giữa là
+   "Sở thích của bạn" chữ thường có icon, cột phải là "CẤP ĐỘ CỦA BẠN" viết hoa không
+   icon — hai cột trông như hai trang khác nhau. Bản thiết kế viết HOA, không icon. */
+.account-main .panel__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--auth-ink);
+  font-size: .9rem;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.account-main .panel__title svg { display: none; }
+.account-main .results__head { align-items: center; margin-bottom: 4px; }
+.account-main .results__head .panel__title { margin: 0; }
 
 /* --- Bốn ô số liệu ------------------------------------------------------- */
 
 .stat-tiles {
   display: grid;
   grid-template-columns: repeat(4, minmax(84px, 1fr));
-  gap: clamp(8px, 1.4vw, 18px);
+  gap: 0;
   margin: 0;
-  padding: clamp(10px, 1.4vw, 16px);
+  padding: clamp(12px, 1.6vw, 18px) 4px;
+  border: 1px solid var(--line-warm);
   border-radius: 16px;
-  background: var(--line-warm-soft);
+  /* Ô TRẮNG có vạch ngăn, như bản thiết kế (bản cũ là nền kem đậm, không vạch). */
+  background: var(--auth-card);
   list-style: none;
 }
-.stat__icon { display: block; font-size: 1.1rem; }
-.stat__icon svg { display: block; width: 1em; height: 1em; }
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 0 clamp(8px, 1.2vw, 16px);
+}
+.stat + .stat { border-left: 1px solid var(--line-warm); }
+/* Icon TO và MỖI Ô MỘT MÀU như bản thiết kế. Màu chỉ để phân biệt ô, không mang nghĩa
+   nên không cần nhãn riêng — chữ bên dưới đã nói đủ. */
+.stat__icon { display: block; margin-bottom: 4px; font-size: 1.85rem; color: var(--brand-orange); }
+.stat__icon svg { display: block; width: 1em; height: 1em; stroke-width: 1.6; }
+.stat:nth-child(2) .stat__icon { color: #E0464B; }
+.stat:nth-child(3) .stat__icon { color: #2F6FDB; }
+.stat:nth-child(4) .stat__icon { color: #3E9B5A; }
 
 /* --- Cấp độ -------------------------------------------------------------- */
 
 .level { display: flex; gap: 14px; align-items: flex-start; }
+.level { align-items: center; }
+/* Ngôi sao TO trên nền tròn xanh nhạt như bản thiết kế (2026-10-02); bản cũ 64px nền
+   cam nhạt, sao nhỏ lọt thỏm. Ngôi sao là SVG `currentColor` (thay emoji ⭐ 2026-09-29). */
 .level__badge {
   flex: none;
   display: grid;
   place-items: center;
-  width: 64px;
-  height: 64px;
+  width: 88px;
+  height: 88px;
   border-radius: 50%;
-  background: var(--accent-soft, #FBEDE4);
-  font-size: 1.8rem;
-  /* Ngôi sao là SVG `currentColor` (thay emoji ⭐ 2026-09-29): cùng màu cam với dòng "Cấp n". */
-  color: var(--brand-orange);
+  background: radial-gradient(circle at 35% 30%, #EAF4FC, #CFE3F4);
+  box-shadow: inset 0 0 0 4px rgba(255, 255, 255, .6);
+  font-size: 2.9rem;
+  color: #F5B400;
 }
-.level__badge svg { width: 1em; height: 1em; }
+.level__badge svg { width: 1em; height: 1em; stroke: #C98A00; stroke-width: 1.2; }
+:root[data-theme='dark'] .level__badge { background: radial-gradient(circle at 35% 30%, #23364F, #1A2A40); box-shadow: none; }
 .level__body { flex: 1; min-width: 0; }
 .level__name { margin: 0; font-weight: 800; }
 .level__rank { margin: 2px 0 10px; color: var(--brand-orange); font-weight: 700; font-size: .9rem; }
@@ -144,17 +178,26 @@
   display: grid;
   gap: 2px;
   padding: 12px 10px;
-  border: 1px solid var(--line-warm-soft);
+  border: 1px solid var(--line-warm);
   border-radius: 14px;
   text-align: center;
-  /* Chưa đạt thì MỜ nhưng vẫn đọc được: nó là mục tiêu, không phải rác. */
-  opacity: .55;
 }
-.badge--on { opacity: 1; border-color: var(--brand-orange); background: var(--accent-soft, #FBEDE4); }
+/* CHƯA ĐẠT: chỉ làm xám + nhạt PHẦN HÌNH, chữ giữ nguyên độ tương phản (sửa 2026-10-02).
+   Bản cũ đặt `opacity: .55` cho CẢ Ô nên tên và tiến độ gần như không đọc được — trong
+   khi đó chính là thứ cho người dùng biết phải làm gì để có huy hiệu. */
+.badge:not(.badge--on) .badge__icon { filter: grayscale(1); opacity: .5; }
+.badge:not(.badge--on) .badge__name { color: var(--auth-ink-soft); }
+.badge--on { border-color: var(--brand-orange); background: var(--accent-soft, #FBEDE4); }
+/* Bản MỘT HÀNG ở tab Tổng quan: 4 ô vừa cột phải 320px. */
+.badges--hang { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.badges--hang .badge { padding: 10px 4px; border-radius: 12px; }
+.badges--hang .badge__icon { font-size: 1.5rem; }
+.badges--hang .badge__name { font-size: .72rem; line-height: 1.25; overflow-wrap: anywhere; }
+.badges--hang .badge__state { margin-top: 2px; font-size: .7rem; }
 .badge__icon { font-size: 1.6rem; }
 .badge__name { font-weight: 700; font-size: .84rem; }
-.badge__desc { color: var(--auth-muted); font-size: .72rem; line-height: 1.35; }
-.badge__state { margin-top: 4px; color: var(--brand-orange); font-size: .74rem; font-weight: 700; }
+.badge__desc { color: var(--auth-ink-soft); font-size: .72rem; line-height: 1.35; }
+.badge__state { margin-top: 4px; color: var(--brand-orange-ink); font-size: .74rem; font-weight: 700; }
 
 /* --- Danh sách đã lưu ---------------------------------------------------- */
 
@@ -234,7 +277,7 @@
   list-style: none;
 }
 .stat { text-align: center; }
-.stat__value { display: block; font-size: 1.6rem; font-weight: 800; color: var(--brand-orange); }
+.stat__value { display: block; font-size: 1.6rem; font-weight: 800; color: var(--auth-ink); }
 .stat__label { color: var(--auth-ink-soft); font-size: .82rem; }
 
 .account__block {
@@ -301,15 +344,32 @@
   gap: 10px;
   flex: none;
 }
-.avatar-picker__actions { display: flex; align-items: center; gap: 10px; }
-.avatar-picker__hint {
-  margin: 0;
-  max-width: 22ch;
-  text-align: center;
-  color: var(--auth-muted);
-  font-size: .74rem;
-  line-height: 1.4;
+/* Nút MÁY ẢNH đè góc dưới-phải ảnh đại diện (2026-10-02, như `design/profile.png`). */
+.avatar-picker__khung { position: relative; }
+.avatar-picker__cam {
+  position: absolute;
+  right: 0;
+  bottom: 2px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 3px solid var(--surface);
+  border-radius: 50%;
+  background: var(--brand-orange);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(2, 29, 72, .2);
 }
+.avatar-picker__cam svg { width: 17px; height: 17px; }
+.avatar-picker__cam:hover { background: var(--brand-orange-2); }
+/* Ô file thật bị ẩn bằng mắt: khi nó có tiêu điểm bàn phím thì vẽ vòng lên nút máy ảnh. */
+.avatar-picker input:focus-visible + .avatar-picker__cam {
+  outline: 2px solid var(--brand-navy);
+  outline-offset: 2px;
+}
+:root[data-theme='dark'] .avatar-picker input:focus-visible + .avatar-picker__cam { outline-color: #fff; }
+.avatar-picker__mac-dinh { font-size: .8rem; }
 
 /* Ảnh đại diện + tên ở thanh trên, bấm vào ra trang tài khoản. */
 .site-header__me {
@@ -457,4 +517,13 @@
   fill-opacity: .8;
 }
 .taste-radar__nhan { fill: var(--auth-ink-soft); font-size: 11px; }
-.taste-radar__nut { margin-top: 10px; }
+.taste-radar__nut {
+  /* Nút VIỀN CAM như bản thiết kế; bản cũ không nền không viền nên trông như chữ thường. */
+  display: block;
+  margin: 12px auto 0;
+  border: 1.5px solid var(--brand-orange);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--brand-orange-ink);
+}
+.taste-radar__nut:hover { background: var(--brand-orange); color: #fff; }

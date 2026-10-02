@@ -20,14 +20,21 @@ export interface AssistantBubbleProps {
   onOpen: () => void;
   /** Số bộ lọc đang bật — hiện lên để người dùng biết mình đang lọc gì đó. */
   activeCount?: number;
+  /**
+   * Đặt bong bóng NẰM TRONG một khung (VD khung bản đồ trang chi tiết món) thay vì
+   * dính góc màn hình (thêm 2026-10-02). Dính góc màn hình thì ở màn rộng nó thò ra
+   * ngoài mép phải bản đồ, đè lên lề trang. Nơi đặt phải có `position: relative`.
+   * Màn hẹp CSS vẫn trả nó về góc màn hình — khung bản đồ khi đó chỉ cao 240px.
+   */
+  inFrame?: boolean;
 }
 
-export function AssistantBubble({ onOpen, activeCount = 0 }: AssistantBubbleProps) {
+export function AssistantBubble({ onOpen, activeCount = 0, inFrame = false }: AssistantBubbleProps) {
   const t = useT();
   const anh = ANH_GIAO_DIEN.mascot_bubble;
 
   return (
-    <div className="bubble">
+    <div className={inFrame ? 'bubble bubble--trong-khung' : 'bubble'}>
       {/*
         BỐ CỤC ĐÚNG THEO ẢNH MẪU (dựng lại lần hai, 2026-08-26):
 

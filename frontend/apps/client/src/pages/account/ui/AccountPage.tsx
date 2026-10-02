@@ -30,6 +30,7 @@ import { useFavorites } from '@/features/save-favorite';
 import { useRecentDishes } from '@/features/recent-dishes';
 import { useUserSessionContext, useUserStats } from '@/entities/user';
 import { useDishImages } from '@/entities/dish';
+import { useDefaultAddress } from '@/entities/address';
 import {
   IconBadge,
   IconCalendar,
@@ -93,6 +94,9 @@ export function AccountPage() {
     ...recent.recent.map((m) => m.dishId),
   ]);
   const { stats, loading: dangTaiStats } = useUserStats();
+  // Nhãn địa chỉ MẶC ĐỊNH ("Nhà"…) hiện dưới email như dòng "Hà Nội, Việt Nam" của bản
+  // thiết kế. Chưa đặt mặc định thì KHÔNG hiện gì — không tự điền "Hà Nội" cho có.
+  const diaChiMacDinh = useDefaultAddress(session.isLoggedIn);
   const [params, setParams] = useSearchParams();
 
   // Tab lạ trên URL (gõ tay, link cũ) -> quay về Tổng quan thay vì trang trắng.
@@ -159,6 +163,11 @@ export function AccountPage() {
               ) : (
                 /* Không có email thì nói rõ HỆ QUẢ, thay vì để trống cho người dùng đoán. */
                 <p className="account__line account__line--warn">{t('account.noEmail')}</p>
+              )}
+              {diaChiMacDinh && (
+                <p className="account__line" data-testid="dia-chi-mac-dinh">
+                  <IconPin className="icon-inline" /> {diaChiMacDinh.label}
+                </p>
               )}
               {thamGia && (
                 <p className="account__since">

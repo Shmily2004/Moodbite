@@ -16,6 +16,14 @@
   --brand-navy-2:      #0B2E68;   /* trạng thái hover của nút chính */
   --brand-orange:      #F39206;
   --brand-orange-2:    #D97C04;
+  /* CAM CHO CHỮ (link "Xem tất cả →", "Đăng xuất"…), thêm 2026-10-02.
+     `--brand-orange` #F39206 trên nền kem chỉ đạt tương phản 2,2:1 — đẹp cho nút nền cam
+     chữ trắng nhưng KHÔNG đọc được khi chính nó là màu chữ cỡ nhỏ. #A85A00 cùng họ màu,
+     đo được 4,67:1 trên #FDF4E9 (đạt WCAG AA). */
+  --brand-orange-ink:  #A85A00;
+  /* Cam cho SỐ TO (≥24px đậm, VD "24 món ăn phù hợp"): ngưỡng chữ lớn là 3:1, #C06A00
+     đạt 3,6:1 mà vẫn đọc ra là cam thương hiệu. */
+  --brand-orange-strong: #C06A00;
   /* ĐO TỪ BẢN THIẾT KẾ, không chọn bằng mắt.
      `frontend/design/Home.jpg`, lấy màu TRUNG BÌNH từng vùng (JPEG có nhiễu nên một
      điểm lẻ không đáng tin):
@@ -93,6 +101,8 @@
 
   --brand-cream:       #0D1526;
   --brand-cream-hi:    #131E33;
+  --brand-orange-ink:  #F5A524;
+  --brand-orange-strong: #F5A524;
 
   /* Nền tối: "ấm" không còn nghĩa gì khi nền là navy sẫm, nên bộ token này lui về đúng
      mặt phẳng tối — miễn là vẫn TÁCH được thẻ khỏi nền. */

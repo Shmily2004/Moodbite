@@ -26,7 +26,7 @@
  */
 import type { DishItem } from '@/shared/api';
 import { IconBookmark, IconHeart } from '@/shared/ui';
-import { describeRestaurantCount } from '../model/format';
+import { describeDishTags, describeRestaurantCount } from '../model/format';
 
 interface DishCardProps {
   dish: DishItem;
@@ -37,6 +37,8 @@ interface DishCardProps {
   /** Trong danh sách "Đã lưu" chưa. Không truyền `onToggleBookmark` thì dấu trang không hiện. */
   bookmarked?: boolean;
   onToggleBookmark?: (dish: DishItem) => void;
+  /** Hiện hàng nhãn thuộc tính (cách chế biến · ẩm thực · nhiệt độ). Mặc định ẩn. */
+  showTags?: boolean;
 }
 
 export function DishCard({
@@ -46,6 +48,7 @@ export function DishCard({
   onToggleSave,
   bookmarked = false,
   onToggleBookmark,
+  showTags = false,
 }: DishCardProps) {
   const unavailable = dish.restaurant_count <= 0;
   // `rank_position` 1 = món backend xếp đầu. Nhãn nói đúng nguồn gốc của nó.
@@ -135,6 +138,18 @@ export function DishCard({
           >
             {describeRestaurantCount(dish.restaurant_count)}
           </p>
+
+          {/* NHÃN THUỘC TÍNH như `design/Filler.png`. Chỉ là NHÃN HIỂN THỊ của dữ liệu
+              món đã có (cùng nguồn với trang chi tiết món), không bấm được. */}
+          {showTags && describeDishTags(dish).length > 0 && (
+            <ul className="dishcard__tags" aria-label="Đặc điểm món">
+              {describeDishTags(dish).map((nhan) => (
+                <li key={nhan} className="dishcard__tag">
+                  {nhan}
+                </li>
+              ))}
+            </ul>
+          )}
 
           {dish.reasons.length > 0 && (
             <p className="dishcard__why">{dish.reasons.join(' · ')}</p>

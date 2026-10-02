@@ -166,6 +166,9 @@
 .auth__intro {
   margin: 0;
   max-width: 36ch;
+  /* Chia đều hai dòng (2026-10-02): trang đăng ký từng ngắt "…ẩm thực Hà / Nội." —
+     bản thiết kế ngắt "khám phá / ẩm thực Hà Nội.". Trình duyệt cũ bỏ qua, không hỏng gì. */
+  text-wrap: balance;
   color: var(--auth-ink-soft);
   font-size: clamp(.94rem, 1vw, 1.02rem);
   line-height: 1.65;
@@ -473,7 +476,7 @@
 }
 
 /* Không có đường kẻ "hoặc" ở trên thì tự chừa khoảng cách với nút. */
-.auth-card__footer--tight { margin-top: clamp(8px, 1.6vh, 14px); }
+.auth-card__footer--tight { margin-top: clamp(12px, 2vh, 18px); }
 
 .auth-card__footer {
   margin: 0;

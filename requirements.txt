@@ -1,13 +1,16 @@
-fastapi==0.104.1
-uvicorn==0.24.0
+# Nâng 2026-10-02 từ fastapi 0.104.1 / uvicorn 0.24.0: bản cũ (kéo theo starlette 0.27) gọi
+# `asyncio.iscoroutinefunction` - Python 3.14 báo sắp bỏ, Python 3.16 XOÁ hẳn -> app sẽ không
+# khởi động được. Đã chạy đủ 811 test trên bản mới trước khi đổi.
+fastapi==0.142.2
+uvicorn==0.54.0
 pandas
 numpy
 scikit-learn
 requests
 pytest
-# TestClient cua starlette 0.27 (fastapi 0.104.1) can httpx; httpx 0.28 bo tham so `app`
-# ma TestClient cu dang dung, nen chan duoi 0.28. Thieu goi nay thi moi test API loi import.
-httpx>=0.24,<0.28
+# TestClient của starlette 1.x dùng `httpx2` (dùng `httpx` thì bị báo deprecated). Chỉ test cần,
+# code chạy thật không import. Thiếu gói này thì mọi test API lỗi import.
+httpx2
 
 # ĐÃ GỠ 2026-08-17 (xem archive/spatial-3d/README.md):
 #   opencv-python-headless, torch, transformers, ultralytics, Pillow,

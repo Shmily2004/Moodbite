@@ -7,7 +7,8 @@
  *
  * Muốn đổi sang Google Maps sau này: thay DUY NHẤT component này, phần còn lại không đụng.
  */
-import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
+import { MapContainer, Marker, Popup, useMap } from 'react-leaflet';
+import { NenBanDo } from '@/shared/map';
 import type { SearchResultItem } from '@moodbite/api-client';
 import { useEffect } from 'react';
 import 'leaflet/dist/leaflet.css';
@@ -115,11 +116,8 @@ export function RestaurantMap({
       scrollWheelZoom
       style={{ height: '100%', width: '100%' }}
     >
-        {/* Ghi công là BẮT BUỘC theo giấy phép ODbL của OpenStreetMap. */}
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        />
+        {/* Ảnh nền có nguồn dự phòng + ghi công ODbL - xem `shared/map/NenBanDo`. */}
+        <NenBanDo />
         <RecenterOnChange center={center} />
 
         {userPosition && (

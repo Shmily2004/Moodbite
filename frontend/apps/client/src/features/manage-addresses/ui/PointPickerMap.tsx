@@ -8,7 +8,8 @@
  * (`trong_ha_noi`). Bấm ra ngoài thì server trả 400 kèm câu giải thích, và giao diện hiện
  * nguyên văn câu đó.
  */
-import { MapContainer, Marker, TileLayer, useMapEvents } from 'react-leaflet';
+import { MapContainer, Marker, useMapEvents } from 'react-leaflet';
+import { NenBanDo } from '@/shared/map';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { HANOI_CENTER } from '@/shared/config';
@@ -44,10 +45,7 @@ export function PointPickerMap({ point, onPick }: PointPickerMapProps) {
       zoom={13}
       scrollWheelZoom={false}
     >
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      />
+      <NenBanDo />
       <BatCuBam onPick={onPick} />
       {point && <Marker position={[point.lat, point.lng]} icon={ghim} />}
     </MapContainer>

@@ -19,7 +19,7 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Frontend Client | ✅ **TypeScript + FSD** | 86 test, có bản đồ, steiger trong CI |
 | Bản đồ | ✅ **Xong** | Leaflet + OpenStreetMap, miễn phí, không cần key |
 | Kiến trúc | ✅ Sạch | Clean Architecture + checker tự động trong CI |
-| Test | ✅ **811 backend + 343 frontend** | client 276 · admin 67. Đo bằng `python scripts/verify.py` ngày 2026-10-02 |
+| Test | ✅ **811 backend + 348 frontend** | client 281 · admin 67. Đo bằng `python scripts/verify.py` ngày 2026-10-02 (cuối ngày) |
 | Giao diện | ✅ Theo bản duyệt · **trang chủ + tài khoản dựng lại 2026-08-22** | trang chủ = LƯỚI MÓN + chips lọc; trang món = giới thiệu + bản đồ + danh sách quán; `/tim-kiem` giữ bố cục bản đồ + rail cũ |
 | Router + layout | ✅ Xong | react-router v6, khung dùng chung, `RequireAuth` cho admin |
 | Chạy xem giao diện | ✅ **một lệnh** | `python scripts/run_dev.py --admin` |
@@ -1380,7 +1380,6 @@ báo cáo tách theo luồng + ghi rõ giới hạn.
 
 **Chưa làm / chưa kiểm:**
 - ✅ 2026-10-02 đã chụp trình duyệt thật tab Địa chỉ + Bộ sưu tập (desktop + mobile 420px, không tràn ngang).
-  Chưa bấm thử luồng "Thêm địa chỉ" trên bản đồ thật.
 - ~~App admin chưa có nút đăng xuất phía server~~ → ✅ xong 2026-10-02 (`POST /admin/logout`).
 - Tên bộ sưu tập trùng nhau vẫn cho phép; ô thống kê thứ 4 vẫn là "Lượt khám phá".
 - `DEFAULT_USER_TOKEN_TTL_SECONDS` vẫn 24h — nâng lên được vì đã có thu hồi, nhưng là quyết định sản phẩm.
@@ -1395,10 +1394,13 @@ báo cáo tách theo luồng + ghi rõ giới hạn.
 | **Đăng xuất quản trị phía server** | ✅ `POST /admin/logout` tăng `token_version`; app admin gọi trước khi xoá token | `pytest tests/test_admin_api.py -k dang_xuat_quan_tri` |
 | **Toạ độ địa chỉ: `lat/lng` -> `latitude/longitude`** | ✅ Thống nhất với `/search`, `/dishes`. Đổi khi endpoint còn mới, chưa commit | `pytest tests/test_user_addresses.py` |
 | **Kết nối SQLite không được đóng** | ✅ `with sqlite3.connect()` chỉ commit/rollback, KHÔNG đóng (40 chỗ / 8 file). Helper chung `sqlite_ket_noi.mo_ket_noi` | `pytest tests/test_dong_ket_noi_sqlite.py` |
-| **31.140 cảnh báo pytest** | ✅ còn **0**. Gần như toàn bộ là của fastapi 0.104/starlette/httpx (thư viện bị ghim) -> lọc ĐÚNG 3 cảnh báo đó trong `pytest.ini`. ⚠️ `asyncio.iscoroutinefunction` bị XOÁ ở Python 3.16 -> phải nâng fastapi trước khi lên 3.16 | `python -m pytest -q` |
+| **31.140 cảnh báo pytest** | ✅ còn **0** - KHÔNG cần lọc: đã nâng thư viện (dòng dưới) | `python -m pytest -q` |
 | **Gói JS client 532 kB (vượt 500 kB)** | ✅ **313 kB** (gzip 164 -> 100 kB). 4 trang nặng (món, tìm kiếm, gợi ý, tài khoản) tải sau bằng `React.lazy`; Leaflet 155 kB tách riêng. Đã chụp trình duyệt thật trang món + tìm kiếm | `npm run build --workspace @moodbite/client` |
 | Đánh giá NDCG tách theo luồng | ✅ `danh_gia_xep_hang.py` in thêm NDCG riêng từng luồng; phiên giả lập SINH LẠI bằng code hiện tại (thứ hạng cũ lưu từ 16/09). **1.537 phiên** (cũ 237). NDCG@10 MoodBite / khoảng cách: tổng **0,500 / 0,607** · món **0,517 / 0,697** · tìm kiếm **0,484 / 0,515**. ⚠️ GIẢ LẬP. Vẫn chờ chủ dự án chọn: làm lại nhãn hay báo cáo tách luồng | `python scripts/danh_gia_xep_hang.py` |
 | Công cụ chụp màn hình | ✅ `chup_man_hinh.py --token` chụp được trang cần đăng nhập | |
+| **Nâng FastAPI 0.104 -> 0.142.2** (starlette 0.27 -> 1.7, uvicorn 0.24 -> 0.54, `httpx` -> `httpx2` cho TestClient) | ✅ Bản cũ gọi `asyncio.iscoroutinefunction` - Python 3.16 XOÁ -> app sẽ không chạy. Thử trước trong venv riêng (805/811, 6 test ML hỏng do Windows chặn DLL sklearn ở thư mục Temp - không liên quan), rồi mới đổi `.venv` chính: **811/811**, 0 cảnh báo, uvicorn thật khởi động + `/search` chạy. CI Python 3.11 hợp lệ (gói cần >=3.10). ⚠️ **Máy thứ hai phải chạy lại** `pip install -r requirements.txt` | `python scripts/verify.py` |
+| **Bản đồ nền XÁM trên máy chủ dự án** | ✅ Nguyên nhân thật: DNS của mạng trả `tile.openstreetmap.org` về 127.0.0.1 (bị chặn). Thêm `shared/map/NenBanDo`: nguồn chính OSM, 4 ảnh đầu lỗi mà chưa ảnh nào tải được -> tự chuyển sang OpenStreetMap France (miễn phí, không key). Đo trên trình duyệt thật cùng mạng: 0/9 -> **9/9** ảnh nền tải được | `npm run test --workspace @moodbite/client -- --run NenBanDo` |
+| Luồng "Thêm địa chỉ" trên trình duyệt thật | ✅ Bấm nút -> gõ nhãn -> bấm lên bản đồ Leaflet thật -> Lưu -> API trả địa chỉ mới đúng toạ độ điểm bấm | (script tạm, CDP) |
 | **`verify.py` mục 9 đỏ/xanh theo GIỜ CHẠY** | ✅ Tập gốc của bộ mẫu phụ thuộc thiên hướng bữa ăn (đồng hồ thật): rating 35,6% buổi chiều vs 30,6% buổi sáng. `make_fixture.gom_ket_qua_that` nay cố định 12:00 | `pytest tests/test_make_fixture_gio.py` |
 
 ---

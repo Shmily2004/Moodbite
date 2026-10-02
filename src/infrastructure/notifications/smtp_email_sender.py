@@ -33,6 +33,28 @@ logger = logging.getLogger("moodbite.email")
 # phản hồi — quá mức này thì thà báo lỗi để họ bấm lại còn hơn treo trang.
 TIMEOUT_SECONDS = 15
 
+# Tên miền DÀNH RIÊNG cho thử nghiệm (RFC 2606, RFC 6761): không bao giờ có hộp thư thật.
+# Gửi tới đó chỉ sinh ra thư báo lỗi dội về hộp thư NGƯỜI GỬI. Bug thật 2026-10-02: script
+# smoke-test dựng app bằng cấu hình SMTP thật rồi đăng ký `smoke01@vidu.com`, chủ dự án
+# nhận về toàn thư "không gửi được" đọc lên vô nghĩa. Chặn ở đây vì đây là chỗ DUY NHẤT thư
+# rời khỏi máy, mọi đường gửi (đăng ký, xác minh, quên mật khẩu) đều đi qua.
+_TEN_MIEN_THU_NGHIEM = ("example.com", "example.net", "example.org")
+_DUOI_THU_NGHIEM = ("example", "invalid", "test", "localhost")
+
+
+def la_dia_chi_thu_nghiem(dia_chi: str) -> bool:
+    """Địa chỉ thuộc tên miền dành riêng cho thử nghiệm - không bao giờ giao được thư.
+
+    So theo NHÃN tên miền, không theo chuỗi con: `examples.com` hay `mytest.vn` là tên
+    miền thật và phải gửi bình thường.
+    """
+    mien = (dia_chi or "").rsplit("@", 1)[-1].strip().lower().rstrip(".")
+    if not mien:
+        return False
+    if any(mien == m or mien.endswith("." + m) for m in _TEN_MIEN_THU_NGHIEM):
+        return True
+    return mien.rsplit(".", 1)[-1] in _DUOI_THU_NGHIEM
+
 
 class SmtpEmailSender:
     """Gửi thư chữ thuần qua một máy chủ SMTP có xác thực."""
@@ -65,6 +87,15 @@ class SmtpEmailSender:
         if not self.is_configured:
             # Người gọi phải kiểm `is_configured` trước; tới được đây là lỗi lập trình.
             raise EmailSendFailed("Chưa cấu hình máy chủ thư.")
+        if la_dia_chi_thu_nghiem(to):
+            # Báo lỗi chứ KHÔNG lặng lẽ bỏ qua: bỏ qua thì use case tưởng đã gửi và nói với
+            # người dùng "đã gửi thư" - một câu sai. Ngay sau đăng ký thì `try_send` nuốt lỗi
+            # này như mọi lỗi gửi thư khác, nên đăng ký vẫn thành công.
+            logger.warning("Không gửi thư tới tên miền thử nghiệm: %s", to)
+            raise EmailSendFailed(
+                "Địa chỉ email này thuộc tên miền dành riêng cho thử nghiệm, không nhận "
+                "được thư. Hãy dùng một hộp thư thật."
+            )
 
         thu = EmailMessage()
         thu["From"] = self._sender

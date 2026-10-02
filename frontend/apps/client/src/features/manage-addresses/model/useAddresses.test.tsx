@@ -14,7 +14,7 @@ import { useAddresses } from './useAddresses';
 type Goi = { url: string; method: string; body: unknown };
 
 const NHA = {
-  address_id: 'a1', label: 'Nhà', address_text: null, lat: 21.03, lng: 105.85,
+  address_id: 'a1', label: 'Nhà', address_text: null, latitude: 21.03, longitude: 105.85,
   is_default: true, created_at: null,
 };
 const CONG_TY = { ...NHA, address_id: 'a2', label: 'Công ty', is_default: false };
@@ -62,7 +62,7 @@ describe('useAddresses', () => {
       await result.current.add({ label: 'Nhà', addressText: '   ', lat: 21.03, lng: 105.85 });
     });
     const post = goi.find((g) => g.method === 'POST');
-    expect(post?.body).toEqual({ label: 'Nhà', lat: 21.03, lng: 105.85, address_text: null });
+    expect(post?.body).toEqual({ label: 'Nhà', latitude: 21.03, longitude: 105.85, address_text: null });
     await waitFor(() => expect(result.current.addresses).toHaveLength(1));
   });
 

@@ -88,8 +88,8 @@ describe('useUserLocation', () => {
     vi.stubGlobal(
       'fetch',
       gia_lap_fetch([
-        { address_id: 'a2', label: 'Công ty', address_text: null, lat: 21.0, lng: 105.8, is_default: false },
-        { address_id: 'a1', label: 'Nhà', address_text: null, lat: NHA.lat, lng: NHA.lng, is_default: true },
+        { address_id: 'a2', label: 'Công ty', address_text: null, latitude: 21.0, longitude: 105.8, is_default: false },
+        { address_id: 'a1', label: 'Nhà', address_text: null, latitude: NHA.lat, longitude: NHA.lng, is_default: true },
       ]),
     );
     const { result } = renderHook(() => useUserLocation(), { wrapper });
@@ -106,7 +106,7 @@ describe('useUserLocation', () => {
     vi.stubGlobal(
       'fetch',
       gia_lap_fetch([
-        { address_id: 'a1', label: 'Nhà', address_text: null, lat: NHA.lat, lng: NHA.lng, is_default: true },
+        { address_id: 'a1', label: 'Nhà', address_text: null, latitude: NHA.lat, longitude: NHA.lng, is_default: true },
       ]),
     );
     tu_choi_dinh_vi();
@@ -124,7 +124,7 @@ describe('useUserLocation', () => {
   it('co dia chi nhung KHONG co cai nao mac dinh: van ve trung tam Ha Noi', async () => {
     sessionStorage.setItem('moodbite.user.token', 'token-gia-lap');
     const fetchGia = gia_lap_fetch([
-      { address_id: 'a1', label: 'Nhà', address_text: null, lat: NHA.lat, lng: NHA.lng, is_default: false },
+      { address_id: 'a1', label: 'Nhà', address_text: null, latitude: NHA.lat, longitude: NHA.lng, is_default: false },
     ]);
     vi.stubGlobal('fetch', fetchGia);
     tu_choi_dinh_vi();

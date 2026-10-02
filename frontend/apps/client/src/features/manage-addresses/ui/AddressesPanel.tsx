@@ -147,7 +147,7 @@ export function AddressesPanel({ diaChi, form }: AddressesPanelProps) {
                 )}
                 <p className="muted small">{dc.address_text ?? t('addresses.noText')}</p>
                 <p className="muted small">
-                  {toaDo(dc.lat)}, {toaDo(dc.lng)}
+                  {toaDo(dc.latitude)}, {toaDo(dc.longitude)}
                 </p>
               </div>
               <div className="dc-item__actions">

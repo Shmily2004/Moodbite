@@ -121,6 +121,19 @@ class AdminAuthService:
             )
         return user.username
 
+    def revoke_sessions(self, username: str) -> None:
+        """Đăng xuất quản trị THẬT: tăng `token_version` -> token đang sống hết giá trị.
+
+        Dùng CHUNG số phiên bản với phía người dùng (một tài khoản, một `token_version`),
+        nên đăng xuất admin cũng đăng xuất tài khoản đó khỏi app người dùng. Chấp nhận
+        được: cùng đánh đổi "đăng xuất mọi thiết bị" đã chốt ở phương án A.
+        """
+        self.ensure_configured()
+        user = self._users.get_by_username(username)
+        if user is None or not self._users.revoke_tokens(user.user_id):
+            raise InvalidCredentialsError("Không tìm thấy tài khoản quản trị để đăng xuất.")
+        logger.info("Đã thu hồi mọi phiên của quản trị viên %s", username)
+
     def status(self) -> dict:
         """Cho /health. TUYỆT ĐỐI không trả hash hay secret ra ngoài."""
         error: Optional[str] = None

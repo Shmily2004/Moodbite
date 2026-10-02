@@ -16,8 +16,9 @@ export async function taiDiaChi(): Promise<DiaChi[]> {
 
 export function themDiaChi(body: {
   label: string;
-  lat: number;
-  lng: number;
+  // Tên trường chung của cả API (`/search`, `/dishes`...) - đổi từ lat/lng 2026-10-02.
+  latitude: number;
+  longitude: number;
   address_text?: string | null;
   is_default?: boolean | null;
 }): Promise<DiaChi> {

@@ -30,6 +30,7 @@ from src.presentation.api.dependencies import (
 )
 from src.presentation.api.envelope import success
 from src.presentation.api.schemas import (
+    MessageResponse,
     AdminBulkVisibilityRequest,
     AdminBulkVisibilityResponse,
     AdminCreateRestaurantRequest,
@@ -123,6 +124,20 @@ def login(
             "expires_in": container.admin_auth.token_ttl_seconds,
         }
     )
+
+
+@router.post("/logout", response_model=MessageResponse)
+def logout(
+    _admin: str = Depends(require_admin),
+    container: Container = Depends(get_container),
+):
+    """Đăng xuất quản trị THẬT (thu hồi token phía server), thêm 2026-10-02.
+
+    Trước đó app admin chỉ xoá token trong trình duyệt - token đã chép ra ngoài vẫn dùng
+    được tới lúc hết hạn (1 giờ).
+    """
+    container.admin_auth.revoke_sessions(_admin)
+    return success({"message": "Đã đăng xuất quản trị trên mọi thiết bị."})
 
 
 @router.get("/dishes", response_model=AdminDishListResponse)

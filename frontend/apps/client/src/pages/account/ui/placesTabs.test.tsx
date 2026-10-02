@@ -57,7 +57,7 @@ function gia_lap_fetch(opts: {
       return tra({ addresses: opts.addresses ?? [], total: 0 });
     if (u.includes('/me/collections') && method === 'DELETE') return tra({ message: 'ok' });
     if (u.includes('/me/addresses') && method === 'POST')
-      return tra({ address_id: 'a1', label: 'Nhà', address_text: null, lat: 21.0285, lng: 105.8542, is_default: true, created_at: null });
+      return tra({ address_id: 'a1', label: 'Nhà', address_text: null, latitude: 21.0285, longitude: 105.8542, is_default: true, created_at: null });
     const mon = u.match(/\/dishes\/([^/?]+)/);
     if (mon) return tra({ dish_id: mon[1], name: mon[1], image_url: null });
     return tra({});
@@ -182,8 +182,8 @@ describe('Tab "Địa chỉ của tôi"', () => {
     await waitFor(() => expect(goi.some((g) => g.method === 'POST')).toBe(true));
     expect(goi.find((g) => g.method === 'POST')?.body).toEqual({
       label: 'Nhà',
-      lat: 21.0285,
-      lng: 105.8542,
+      latitude: 21.0285,
+      longitude: 105.8542,
       address_text: null,
     });
   });

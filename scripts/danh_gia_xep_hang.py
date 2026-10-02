@@ -57,6 +57,20 @@ def rank_candidates(candidates: list[dict], strategy: str, seed: int, session_id
 
 def evaluate(sessions: list[dict], seed: int) -> dict:
     usable = [s for s in sessions if len(s.get("candidates") or []) >= MIN_CANDIDATES]
+    report = _evaluate_usable(sessions, usable, seed)
+    # TÁCH THEO LUỒNG (thêm 2026-10-02). Phân tích ngày 2026-09-29: con số tổng che mất một
+    # khác biệt lớn - luồng tìm kiếm gần hoà với baseline khoảng cách, còn luồng món thua xa
+    # vì ở đó MỌI ứng viên cùng một món nên phần "khẩu vị" của nhãn gần như không đổi trong
+    # phiên, nhãn chỉ còn lại khoảng cách. Báo cáo chỉ con số tổng là báo cáo sai bức tranh.
+    report["by_entry_metrics"] = {
+        e: _evaluate_usable(sessions, [s for s in usable if s["entry"] == e], seed)["metrics"]
+        for e in ("dish", "search")
+        if any(s["entry"] == e for s in usable)
+    }
+    return report
+
+
+def _evaluate_usable(sessions: list[dict], usable: list[dict], seed: int) -> dict:
     universe = {c["restaurant_id"] for s in usable for c in s["candidates"]}
     results = {}
     for strategy in STRATEGIES:
@@ -99,6 +113,12 @@ def print_table(report: dict) -> None:
     for strategy, m in report["metrics"].items():
         cells = " ".join(f"{'-' if m[c] is None else format(m[c], '.4f'):>11}" for c in cols)
         print(f"{strategy:<10} {cells}")
+    for entry, metrics in report.get("by_entry_metrics", {}).items():
+        nhan = "luồng MÓN" if entry == "dish" else "luồng TÌM KIẾM"
+        print(f"-- {nhan}: " + " · ".join(
+            f"{s} ndcg@10={'-' if m['ndcg@10'] is None else format(m['ndcg@10'], '.4f')}"
+            for s, m in metrics.items()
+        ))
 
 
 def main() -> int:

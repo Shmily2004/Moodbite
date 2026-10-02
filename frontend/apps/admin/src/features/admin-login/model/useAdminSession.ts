@@ -40,6 +40,9 @@ export function useAdminSession(): UseAdminSessionResult {
   }, []);
 
   const logout = useCallback(() => {
+    // Báo server thu hồi token TRƯỚC khi xoá (`request` đọc token ngay lúc gọi). Không đợi
+    // và nuốt lỗi: mất mạng thì vẫn phải đăng xuất khỏi máy này.
+    adminApi.logout().catch(() => undefined);
     clearToken();
     setIsLoggedIn(false);
     setError(null);

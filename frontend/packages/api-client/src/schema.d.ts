@@ -648,6 +648,29 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Logout
+         * @description Đăng xuất quản trị THẬT (thu hồi token phía server), thêm 2026-10-02.
+         *
+         *     Trước đó app admin chỉ xoá token trong trình duyệt - token đã chép ra ngoài vẫn dùng
+         *     được tới lúc hết hạn (1 giờ).
+         */
+        post: operations["logout_api_v1_admin_logout_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/dishes": {
         parameters: {
             query?: never;
@@ -2049,15 +2072,15 @@ export interface components {
              */
             address_text?: string | null;
             /**
-             * Lat
+             * Latitude
              * @description Vĩ độ — phải nằm trong Hà Nội.
              */
-            lat: number;
+            latitude: number;
             /**
-             * Lng
+             * Longitude
              * @description Kinh độ — phải nằm trong Hà Nội.
              */
-            lng: number;
+            longitude: number;
             /**
              * Is Default
              * @description Bỏ trống: địa chỉ ĐẦU TIÊN tự thành mặc định, các địa chỉ sau thì không.
@@ -2778,10 +2801,10 @@ export interface components {
              * @description Chữ người dùng tự gõ. null = không có — KHÔNG phải geocoding.
              */
             address_text?: string | null;
-            /** Lat */
-            lat: number;
-            /** Lng */
-            lng: number;
+            /** Latitude */
+            latitude: number;
+            /** Longitude */
+            longitude: number;
             /** Is Default */
             is_default: boolean;
             /** Created At */
@@ -4710,6 +4733,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    logout_api_v1_admin_logout_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageResponse"];
                 };
             };
         };

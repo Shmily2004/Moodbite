@@ -182,6 +182,28 @@ def test_baseline_khoang_cach_va_ngau_nhien_on_dinh():
     assert report == evaluate(sessions, seed=1)  # xáo ngẫu nhiên có seed -> tái lập được
 
 
+def test_bao_cao_TACH_THEO_LUONG_mon_va_tim_kiem():
+    """Con số tổng che mất khác biệt giữa hai luồng (phân tích 2026-09-29)."""
+    from scripts.danh_gia_xep_hang import evaluate
+
+    mon = [
+        {"restaurant_id": "xa", "moodbite_rank": 1, "distance_m": 900, "grade": 0},
+        {"restaurant_id": "gan", "moodbite_rank": 2, "distance_m": 100, "grade": 3},
+    ]
+    tim = [
+        {"restaurant_id": "a", "moodbite_rank": 1, "distance_m": 900, "grade": 3},
+        {"restaurant_id": "b", "moodbite_rank": 2, "distance_m": 100, "grade": 0},
+    ]
+    report = evaluate([
+        {"session_id": "s-mon", "entry": "dish", "candidates": mon},
+        {"session_id": "s-tim", "entry": "search", "candidates": tim},
+    ], seed=1)
+
+    assert report["by_entry_metrics"]["dish"]["moodbite"]["mrr"] == 0.5
+    assert report["by_entry_metrics"]["search"]["moodbite"]["mrr"] == 1.0
+    assert report["metrics"]["moodbite"]["mrr"] == 0.75
+
+
 # --- 4. Cờ dữ liệu giả lập -----------------------------------------------------------
 
 

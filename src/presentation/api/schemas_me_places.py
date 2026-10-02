@@ -79,8 +79,8 @@ class UserAddressSchema(BaseModel):
     address_text: Optional[str] = Field(
         None, description="Chữ người dùng tự gõ. null = không có — KHÔNG phải geocoding."
     )
-    lat: float
-    lng: float
+    latitude: float
+    longitude: float
     is_default: bool
     created_at: Optional[str] = None
 
@@ -101,8 +101,8 @@ class UserAddressResponse(BaseModel):
 class CreateAddressRequest(BaseModel):
     label: str = Field(..., description="Nhãn ngắn: Nhà, Công ty… (1–40 ký tự).")
     address_text: Optional[str] = Field(None, description="Mô tả tự do, tối đa 200 ký tự.")
-    lat: float = Field(..., description="Vĩ độ — phải nằm trong Hà Nội.")
-    lng: float = Field(..., description="Kinh độ — phải nằm trong Hà Nội.")
+    latitude: float = Field(..., description="Vĩ độ — phải nằm trong Hà Nội.")
+    longitude: float = Field(..., description="Kinh độ — phải nằm trong Hà Nội.")
     is_default: Optional[bool] = Field(
         None,
         description="Bỏ trống: địa chỉ ĐẦU TIÊN tự thành mặc định, các địa chỉ sau thì không.",

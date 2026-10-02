@@ -245,6 +245,9 @@ def main() -> int:
     ap.add_argument("--mobile", action="store_true", help="Gia lap dien thoai that")
     ap.add_argument("--ra", default=None, help="Duong dan file PNG")
     ap.add_argument("--doi", type=float, default=6.0, help="So giay cho trang tai xong")
+    # Thêm 2026-10-02: chụp được trang CẦN ĐĂNG NHẬP (tab tài khoản). Ghi token vào
+    # localStorage của đúng origin rồi mới mở trang - đúng chỗ app client tự đọc token.
+    ap.add_argument("--token", default=None, help="Token nguoi dung (dang nhap san)")
     args = ap.parse_args()
 
     ra = Path(args.ra) if args.ra else ROOT / "runs" / "anh" / f"chup-{args.rong}px.png"
@@ -261,6 +264,13 @@ def main() -> int:
             mobile=args.mobile,
         )
         cdp.goi("Page.enable")
+        if args.token:
+            # localStorage gắn theo origin: phải đứng ở origin đó trước khi ghi.
+            cdp.goi("Page.navigate", url=args.url)
+            time.sleep(2)
+            cdp.goi("Runtime.evaluate", expression=(
+                "localStorage.setItem('moodbite.user.token', " + json.dumps(args.token) + ")"
+            ))
         cdp.goi("Page.navigate", url=args.url)
         time.sleep(args.doi)
 

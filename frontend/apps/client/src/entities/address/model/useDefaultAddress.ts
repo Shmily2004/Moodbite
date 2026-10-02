@@ -32,7 +32,7 @@ export function useDefaultAddress(enabled: boolean): DiaChiMacDinh | null {
         if (!con_song) return;
         const dc = ds.find((x) => x.is_default);
         setMacDinh(
-          dc ? { addressId: dc.address_id, label: dc.label, lat: dc.lat, lng: dc.lng } : null,
+          dc ? { addressId: dc.address_id, label: dc.label, lat: dc.latitude, lng: dc.longitude } : null,
         );
       })
       .catch(() => {

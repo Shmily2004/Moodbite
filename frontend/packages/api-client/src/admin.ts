@@ -108,6 +108,17 @@ export class MoodbiteAdminApi {
   }
 
   /**
+   * Đăng xuất THẬT: server thu hồi token (tăng `token_version` của tài khoản, nên cũng
+   * đăng xuất tài khoản đó khỏi app người dùng). Thêm 2026-10-02.
+   */
+  logout(options?: RequestOptions): Promise<{ message: string }> {
+    return this.http.request<{ message: string }>('/admin/logout', {
+      ...options,
+      method: 'POST',
+    });
+  }
+
+  /**
    * Số liệu màn "Tổng quan": đếm quán/món, độ phủ dữ liệu, việc cần xử lý.
    *
    * Server đệm 5 phút. `refresh` để tính lại ngay sau khi vừa sửa dữ liệu.

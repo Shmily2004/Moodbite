@@ -53,8 +53,10 @@ class UserAddress:
             "address_id": self.address_id,
             "label": self.label,
             "address_text": self.address_text,
-            "lat": self.lat,
-            "lng": self.lng,
+            # Tên trường CHUNG của cả API (`/search`, `/dishes`...), xem test khoá ở
+            # tests/test_user_addresses.py. Bên trong entity vẫn là `lat`/`lng` cho gọn.
+            "latitude": self.lat,
+            "longitude": self.lng,
             "is_default": self.is_default,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }

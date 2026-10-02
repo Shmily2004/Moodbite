@@ -51,8 +51,8 @@ def create_address(
         CreateAddressCommand(
             user_id=user.user_id,
             label=body.label,
-            lat=body.lat,
-            lng=body.lng,
+            lat=body.latitude,
+            lng=body.longitude,
             address_text=body.address_text,
             is_default=body.is_default,
         )

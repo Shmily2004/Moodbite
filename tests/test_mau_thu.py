@@ -112,3 +112,67 @@ def test_khong_bi_chen_the_html_qua_ten_nguoi_dung():
     )
     assert "<img" not in n.html
     assert "&lt;img" in n.html
+
+
+# --- Tên miền DÀNH RIÊNG CHO THỬ NGHIỆM: không bao giờ gửi thư thật (2026-10-02) -------
+#
+# Bug thật: script smoke-test dựng app bằng container THẬT (SMTP Gmail thật trong
+# .env.local) rồi đăng ký `smoke01@vidu.com` -> app gửi thư xác minh thật -> thư báo lỗi
+# gửi dội về hộp thư chủ dự án, đọc lên toàn chữ kỹ thuật "vô nghĩa". RFC 2606 / 6761
+# dành riêng example.*, *.invalid, *.test, *.localhost cho đúng mục đích này.
+
+
+class _SmtpGhiLai:
+    da_gui = []
+
+    def __init__(self, *a, **k):
+        pass
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *a):
+        return False
+
+    def starttls(self, **k):
+        pass
+
+    def login(self, *a):
+        pass
+
+    def send_message(self, msg):
+        _SmtpGhiLai.da_gui.append(msg["To"])
+
+
+def _sender():
+    from src.infrastructure.notifications.smtp_email_sender import SmtpEmailSender
+
+    return SmtpEmailSender(host="smtp.vi-du", port=587, username="u", password="p", sender="")
+
+
+@pytest.mark.parametrize("dia_chi", [
+    "a@example.com", "a@example.org", "a@sub.example.net", "a@vidu.example",
+    "demo0001@example.invalid", "a@may.test", "a@localhost", "a@app.localhost",
+])
+def test_ten_mien_thu_nghiem_KHONG_gui_that(monkeypatch, dia_chi):
+    import src.infrastructure.notifications.smtp_email_sender as mod
+    from src.application.ports.email_sender import EmailSendFailed
+
+    _SmtpGhiLai.da_gui = []
+    monkeypatch.setattr(mod.smtplib, "SMTP", _SmtpGhiLai)
+
+    with pytest.raises(EmailSendFailed, match="thử nghiệm"):
+        _sender().send(to=dia_chi, subject="s", body="b")
+    assert _SmtpGhiLai.da_gui == []
+
+
+@pytest.mark.parametrize("dia_chi", ["ban@gmail.com", "a@examples.com", "a@mytest.vn"])
+def test_dia_chi_that_van_gui_binh_thuong(monkeypatch, dia_chi):
+    """Không được chặn lan: 'examples.com', 'mytest.vn' là tên miền thật."""
+    import src.infrastructure.notifications.smtp_email_sender as mod
+
+    _SmtpGhiLai.da_gui = []
+    monkeypatch.setattr(mod.smtplib, "SMTP", _SmtpGhiLai)
+
+    _sender().send(to=dia_chi, subject="s", body="b")
+    assert _SmtpGhiLai.da_gui == [dia_chi]

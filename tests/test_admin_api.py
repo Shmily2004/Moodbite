@@ -782,3 +782,23 @@ def test_kho_CHI_DOC_thi_tra_503_kem_cach_khac_phuc(tmp_path):
     )
     assert res.status_code == 503
     assert "build_sqlite" in res.json()["error"]["message"]
+
+
+def test_dang_xuat_quan_tri_THU_HOI_token_phia_server(db):
+    """Trước 2026-10-02 app admin chỉ xoá token ở trình duyệt: token chép được ra ngoài
+    vẫn dùng tiếp tới 1 giờ. Nay `/admin/logout` tăng `token_version` của tài khoản."""
+    client, _ = build_client(db)
+    header = auth_header(client)
+    assert client.get(f"{API}/admin/restaurants", headers=header).status_code == 200
+
+    res = client.post(f"{API}/admin/logout", headers=header)
+
+    assert res.status_code == 200, res.text
+    assert client.get(f"{API}/admin/restaurants", headers=header).status_code == 401
+    # Đăng nhập lại vẫn vào được bình thường.
+    assert client.get(f"{API}/admin/restaurants", headers=auth_header(client)).status_code == 200
+
+
+def test_dang_xuat_quan_tri_khong_co_token_thi_401(db):
+    client, _ = build_client(db)
+    assert client.post(f"{API}/admin/logout").status_code == 401

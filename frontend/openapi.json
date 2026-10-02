@@ -2321,6 +2321,28 @@
         }
       }
     },
+    "/api/v1/admin/logout": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Logout",
+        "description": "Đăng xuất quản trị THẬT (thu hồi token phía server), thêm 2026-10-02.\n\nTrước đó app admin chỉ xoá token trong trình duyệt - token đã chép ra ngoài vẫn dùng\nđược tới lúc hết hạn (1 giờ).",
+        "operationId": "logout_api_v1_admin_logout_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/dishes": {
       "get": {
         "tags": [
@@ -5922,14 +5944,14 @@
             "title": "Address Text",
             "description": "Mô tả tự do, tối đa 200 ký tự."
           },
-          "lat": {
+          "latitude": {
             "type": "number",
-            "title": "Lat",
+            "title": "Latitude",
             "description": "Vĩ độ — phải nằm trong Hà Nội."
           },
-          "lng": {
+          "longitude": {
             "type": "number",
-            "title": "Lng",
+            "title": "Longitude",
             "description": "Kinh độ — phải nằm trong Hà Nội."
           },
           "is_default": {
@@ -5948,8 +5970,8 @@
         "type": "object",
         "required": [
           "label",
-          "lat",
-          "lng"
+          "latitude",
+          "longitude"
         ],
         "title": "CreateAddressRequest"
       },
@@ -7775,13 +7797,13 @@
             "title": "Address Text",
             "description": "Chữ người dùng tự gõ. null = không có — KHÔNG phải geocoding."
           },
-          "lat": {
+          "latitude": {
             "type": "number",
-            "title": "Lat"
+            "title": "Latitude"
           },
-          "lng": {
+          "longitude": {
             "type": "number",
-            "title": "Lng"
+            "title": "Longitude"
           },
           "is_default": {
             "type": "boolean",
@@ -7803,8 +7825,8 @@
         "required": [
           "address_id",
           "label",
-          "lat",
-          "lng",
+          "latitude",
+          "longitude",
           "is_default"
         ],
         "title": "UserAddressSchema"

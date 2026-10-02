@@ -351,7 +351,7 @@ def _auth(client, username):
 def _them(client, headers, label="Nhà", toa_do=HO_GUOM, **kw):
     return client.post(
         f"{API}/me/addresses",
-        json={"label": label, "lat": toa_do[0], "lng": toa_do[1], **kw},
+        json={"label": label, "latitude": toa_do[0], "longitude": toa_do[1], **kw},
         headers=headers,
     )
 
@@ -424,3 +424,17 @@ def test_api_thieu_toa_do_la_400(client):
     a = _auth(client, "nguoi-a")
     res = client.post(f"{API}/me/addresses", json={"label": "Nhà"}, headers=a)
     assert res.status_code == 400
+
+
+def test_toa_do_dung_TEN_TRUONG_chung_cua_API_latitude_longitude():
+    """Đổi 2026-10-02: mọi endpoint khác (`/search`, `/dishes/...`, kết quả quán) đều dùng
+    `latitude`/`longitude`. Riêng địa chỉ từng dùng `lat`/`lng` - client phải nhớ hai bộ
+    tên cho cùng một khái niệm. Sửa khi endpoint còn mới, chưa ai phụ thuộc."""
+    from src.domain.entities.user_address import UserAddress
+
+    cong = UserAddress(address_id="a", user_id="u", label="Nhà", address_text=None,
+                       lat=HO_GUOM[0], lng=HO_GUOM[1], is_default=True)
+    ra = cong.to_public()
+
+    assert ra["latitude"] == HO_GUOM[0] and ra["longitude"] == HO_GUOM[1]
+    assert "lat" not in ra and "lng" not in ra

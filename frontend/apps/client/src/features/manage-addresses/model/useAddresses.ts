@@ -84,8 +84,8 @@ export function useAddresses(): UseAddressesResult {
         () =>
           themDiaChi({
             label: dc.label,
-            lat: dc.lat,
-            lng: dc.lng,
+            latitude: dc.lat,
+            longitude: dc.lng,
             // Chuỗi rỗng -> null: "không có mô tả", không phải mô tả rỗng.
             address_text: dc.addressText.trim() === '' ? null : dc.addressText,
           }),

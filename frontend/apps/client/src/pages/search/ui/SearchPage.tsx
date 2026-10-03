@@ -16,9 +16,11 @@ import { SiteHeader } from '@/widgets/site-header';
 import { RestaurantMap } from '@/widgets/restaurant-map';
 import { SearchForm, useSearch } from '@/features/search-restaurants';
 import { useUserLocation } from '@/features/pick-location';
+import { useT } from '@/shared/i18n';
 
 export function SearchPage() {
   const location = useUserLocation();
+  const t = useT();
   const search = useSearch({ position: location.position });
   const [openNow, setOpenNow] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -102,10 +104,10 @@ export function SearchPage() {
           <div className="rail__head">
             <span className="rail__count">
               {search.loading
-                ? 'Đang tìm…'
+                ? t('search.searching')
                 : hasResults
-                  ? `${results.length} quán phù hợp`
-                  : 'Kết quả đề xuất'}
+                  ? t('search.count', { n: results.length })
+                  : t('search.suggested')}
             </span>
             {/* Không phải vị trí thật từ trình duyệt -> nói rõ đang tính quanh điểm nào
                 (trung tâm Hà Nội hoặc địa chỉ đã lưu). */}
@@ -129,11 +131,11 @@ export function SearchPage() {
 
             {!search.loading && search.results && !hasResults && (
               <div className="state">
-                <p className="state__title">Không tìm thấy quán nào</p>
-                <p>Thử nới điều kiện xem sao.</p>
+                <p className="state__title">{t('search.emptyTitle')}</p>
+                <p>{t('search.emptyHint')}</p>
                 <div className="state__fixes">
                   <button className="chip" onClick={widenRadius}>
-                    Mở rộng 20 km
+                    {t('search.widen')}
                   </button>
                   {openNow && (
                     <button
@@ -143,7 +145,7 @@ export function SearchPage() {
                         void search.run({ openNow: false });
                       }}
                     >
-                      Bỏ lọc "đang mở"
+                      {t('search.clearOpenNow')}
                     </button>
                   )}
                 </div>
@@ -152,8 +154,8 @@ export function SearchPage() {
 
             {!search.loading && !search.results && !search.error && (
               <div className="state">
-                <p className="state__title">Bạn đang muốn ăn gì?</p>
-                <p>Gõ một câu bất kỳ — VD "quán lẩu ấm cúng gần đây".</p>
+                <p className="state__title">{t('search.idleTitle')}</p>
+                <p>{t('search.idleHint')}</p>
               </div>
             )}
 
@@ -175,8 +177,9 @@ export function SearchPage() {
 
 /** Vệt xương lúc đang tải — báo "sắp có nội dung" thay vì để rail trống trơn. */
 function LoadingSkeleton() {
+  const t = useT();
   return (
-    <div aria-busy="true" aria-label="Đang tìm quán">
+    <div aria-busy="true" aria-label={t('search.loadingLabel')}>
       {[0, 1, 2, 3].map((i) => (
         <div className="skeleton" key={i}>
           <div className="skeleton__box" />

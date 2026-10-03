@@ -11,9 +11,11 @@ import { AuthLayout } from '@/widgets/auth-layout';
 import { RegisterForm } from '@/features/auth-register';
 import { useUserSessionContext } from '@/entities/user';
 import { ROUTES } from '@/shared/config';
+import { useT } from '@/shared/i18n';
 
 export function RegisterPage() {
   const session = useUserSessionContext();
+  const t = useT();
 
   if (session.isLoggedIn) {
     // Đăng ký thành công (hoặc mở /dang-ky khi đã đăng nhập) -> vào thẳng app.
@@ -26,8 +28,8 @@ export function RegisterPage() {
       // Bản thiết kế `design/Register.png` (2026-08-22) có tiêu đề ở nửa trái, khác bản
       // đầu chỉ có tranh. Đây là CHỮ THẬT chứ không phải ảnh như khẩu hiệu trang đăng
       // nhập — câu này dùng font thường, không có nét viết tay nào cần giữ.
-      heading="Tạo tài khoản mới"
-      intro="Bắt đầu hành trình khám phá ẩm thực Hà Nội."
+      heading={t('register.title')}
+      intro={t('register.sub')}
       scene="nen_dang_ky"
     >
       <RegisterForm
@@ -38,7 +40,7 @@ export function RegisterPage() {
         }
         footer={
           <>
-            Đã có tài khoản? <Link to={ROUTES.login}>Đăng nhập ngay</Link>
+            {t('register.haveAccount')} <Link to={ROUTES.login}>{t('register.loginNow')}</Link>
           </>
         }
       />

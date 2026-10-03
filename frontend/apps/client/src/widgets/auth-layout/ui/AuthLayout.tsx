@@ -24,6 +24,7 @@ import type { CSSProperties, ReactNode } from 'react';
 import { BrandLogo, IconHeart, IconPin, LanguageSelect } from '@/shared/ui';
 import { ThemeToggle } from '@/features/switch-theme';
 import { ANH_GIAO_DIEN } from '@/shared/config';
+import { useT } from '@/shared/i18n';
 
 export interface AuthLayoutProps {
   /** Tiêu đề lớn ở nửa trái. Nhận ReactNode để nhấn được chữ "mood" bằng thẻ riêng. */
@@ -47,6 +48,7 @@ export function AuthLayout({
   children,
 }: AuthLayoutProps) {
   const tranh = ANH_GIAO_DIEN[scene];
+  const t = useT();
 
   return (
     // `data-scene` để CSS chỉnh riêng theo từng tranh (VD trang đăng ký không có tiêu đề
@@ -84,7 +86,7 @@ export function AuthLayout({
 
         <span className="auth__badge">
           <IconPin width={16} height={16} />
-          Made for Hà Nội!
+          {t('auth.badge')}
           <IconHeart className="auth__badge-heart" width={15} height={15} />
         </span>
 

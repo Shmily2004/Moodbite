@@ -8,8 +8,9 @@
  *
  * Mỗi hàm trả `true`/`false` (hoặc bộ vừa tạo) để giao diện biết có nên xoá ô nhập hay không.
  */
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useUserSessionContext } from '@/entities/user';
+import { useT } from '@/shared/i18n';
 import {
   boKhoiBoSuuTap,
   doiTenBoSuuTap,
@@ -46,6 +47,11 @@ export function useCollections(): UseCollectionsResult {
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Câu lỗi DỰ PHÒNG dịch theo ngôn ngữ; `t` qua ref để không phải đưa vào deps (đổi
+  // ngôn ngữ không được làm tải lại dữ liệu).
+  const t = useT();
+  const tRef = useRef(t);
+  tRef.current = t;
   const [lan, setLan] = useState(0);
 
   const reload = useCallback(() => setLan((n) => n + 1), []);
@@ -66,7 +72,7 @@ export function useCollections(): UseCollectionsResult {
       })
       .catch((err: unknown) => {
         if (!con_song) return;
-        setError(thongBaoLoi(err, 'Không tải được bộ sưu tập.'));
+        setError(thongBaoLoi(err, tRef.current('err.colLoad')));
       })
       .finally(() => {
         if (con_song) setLoading(false);
@@ -97,7 +103,7 @@ export function useCollections(): UseCollectionsResult {
 
   const create = useCallback(
     async (name: string) => {
-      const bo = await chay(() => taoBoSuuTap(name), 'Không tạo được bộ sưu tập.');
+      const bo = await chay(() => taoBoSuuTap(name), tRef.current('err.colCreate'));
       if (bo) setCollections((ds) => [bo, ...ds]); // server sắp mới nhất lên đầu
       return bo;
     },
@@ -106,7 +112,7 @@ export function useCollections(): UseCollectionsResult {
 
   const rename = useCallback(
     async (id: string, name: string) => {
-      const bo = await chay(() => doiTenBoSuuTap(id, name), 'Không đổi được tên.');
+      const bo = await chay(() => doiTenBoSuuTap(id, name), tRef.current('err.colRename'));
       if (bo) thay(bo);
       return bo !== null;
     },
@@ -118,7 +124,7 @@ export function useCollections(): UseCollectionsResult {
       const ok = await chay(async () => {
         await xoaBoSuuTap(id);
         return true;
-      }, 'Không xoá được bộ sưu tập.');
+      }, tRef.current('err.colDelete'));
       if (ok) setCollections((ds) => ds.filter((x) => x.id !== id));
       return ok === true;
     },
@@ -127,7 +133,7 @@ export function useCollections(): UseCollectionsResult {
 
   const addItem = useCallback(
     async (id: string, muc: MucBoSuuTap) => {
-      const bo = await chay(() => themVaoBoSuuTap(id, muc), 'Không thêm được vào bộ.');
+      const bo = await chay(() => themVaoBoSuuTap(id, muc), tRef.current('err.colAdd'));
       if (bo) thay(bo);
       return bo !== null;
     },
@@ -148,7 +154,7 @@ export function useCollections(): UseCollectionsResult {
       const ok = await chay(async () => {
         await boKhoiBoSuuTap(id, itemType, itemId);
         return true;
-      }, 'Không bỏ được mục khỏi bộ.');
+      }, tRef.current('err.colRemove'));
       if (ok) {
         setCollections((ds) =>
           ds.map((x) => {

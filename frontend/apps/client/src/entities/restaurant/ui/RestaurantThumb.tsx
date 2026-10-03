@@ -13,6 +13,7 @@
  * KHÔNG phải business logic: đây thuần là quy tắc HIỂN THỊ. Nó không đổi thứ tự kết quả.
  */
 import type { ComponentType, CSSProperties, SVGProps } from 'react';
+import { useT } from '@/shared/i18n';
 import {
   IconBeer,
   IconBread,
@@ -78,12 +79,13 @@ export interface RestaurantThumbProps {
 }
 
 export function RestaurantThumb({ name, category, thumbnailUrl }: RestaurantThumbProps) {
+  const t = useT();
   if (thumbnailUrl) {
     return (
       <div className="thumb">
         <img
           src={thumbnailUrl}
-          alt={`Ảnh quán ${name}`}
+          alt={t('rest.photoAlt', { name })}
           loading="lazy"
           // Link ảnh Google có thể hết hạn. Hỏng thì ẩn hẳn <img>, để lộ nền ô bên dưới
           // thay vì hiện biểu tượng ảnh vỡ của trình duyệt.

@@ -12,6 +12,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { DishItem, SearchResultItem } from '@/shared/api';
 import { ApiError, api } from '@/shared/api';
 import { getSessionId } from '@/shared/lib';
+import { useT } from '@/shared/i18n';
 
 export interface Coordinates {
   lat: number;
@@ -50,6 +51,10 @@ export function useDishDetail(
   const [restaurantsError, setRestaurantsError] = useState<string | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [reloadToken, setReloadToken] = useState(0);
+  // `t` đi qua ref: đưa thẳng vào deps của effect gọi API thì đổi ngôn ngữ = gọi lại API.
+  const t = useT();
+  const tRef = useRef(t);
+  tRef.current = t;
 
   const abortRef = useRef<AbortController | null>(null);
   useEffect(() => () => abortRef.current?.abort(), []);
@@ -91,7 +96,7 @@ export function useDishDetail(
           return;
         }
         setError(
-          err instanceof ApiError ? err.message : 'Không tải được thông tin món ăn.',
+          err instanceof ApiError ? err.message : tRef.current('dishDetail.loadFailed'),
         );
         setDish(null);
       });
@@ -112,7 +117,7 @@ export function useDishDetail(
         if (controller.signal.aborted) return;
         if (err instanceof ApiError && err.status === 404) return; // đã xử lý ở trên
         setRestaurantsError(
-          err instanceof ApiError ? err.message : 'Không tải được danh sách quán.',
+          err instanceof ApiError ? err.message : tRef.current('dishDetail.restaurantsFailed'),
         );
         setRestaurants([]);
       });

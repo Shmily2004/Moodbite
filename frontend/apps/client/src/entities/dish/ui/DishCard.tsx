@@ -26,6 +26,7 @@
  */
 import type { DishItem } from '@/shared/api';
 import { IconBookmark, IconHeart } from '@/shared/ui';
+import { useT } from '@/shared/i18n';
 import { describeDishTags, describeRestaurantCount } from '../model/format';
 
 interface DishCardProps {
@@ -53,6 +54,8 @@ export function DishCard({
   const unavailable = dish.restaurant_count <= 0;
   // `rank_position` 1 = món backend xếp đầu. Nhãn nói đúng nguồn gốc của nó.
   const deXuat = dish.rank_position === 1;
+  const t = useT();
+  const nhanThuocTinh = showTags ? describeDishTags(dish, t) : [];
 
   return (
     <li className="dishcard-wrap">
@@ -71,7 +74,7 @@ export function DishCard({
         <div className="dishcard__media">
           <DishThumb name={dish.name} imageUrl={dish.image_url} />
 
-          {deXuat && <span className="dishcard__badge">MoodBite đề xuất</span>}
+          {deXuat && <span className="dishcard__badge">{t('dishCard.pick')}</span>}
 
           {/* HAI NÚT, HAI DANH SÁCH TÁCH BẠCH (chủ dự án chốt 2026-08-26):
                 trái tim  -> "Món yêu thích": món tôi THÍCH
@@ -89,8 +92,8 @@ export function DishCard({
                   }
                   aria-label={
                     saved
-                      ? `Bỏ ${dish.name} khỏi Món yêu thích`
-                      : `Thêm ${dish.name} vào Món yêu thích`
+                      ? t('dishCard.unfavorite', { name: dish.name })
+                      : t('dishCard.favorite', { name: dish.name })
                   }
                   aria-pressed={saved}
                   // Chặn nổi bọt: bấm tim KHÔNG được mở luôn trang chi tiết món.
@@ -111,8 +114,8 @@ export function DishCard({
                   }
                   aria-label={
                     bookmarked
-                      ? `Bỏ ${dish.name} khỏi Đã lưu`
-                      : `Lưu ${dish.name} để xem sau`
+                      ? t('dishCard.unbookmark', { name: dish.name })
+                      : t('dishCard.bookmark', { name: dish.name })
                   }
                   aria-pressed={bookmarked}
                   onClick={(event) => {
@@ -136,14 +139,14 @@ export function DishCard({
               unavailable ? 'dishcard__meta dishcard__meta--empty' : 'dishcard__meta'
             }
           >
-            {describeRestaurantCount(dish.restaurant_count)}
+            {describeRestaurantCount(dish.restaurant_count, t)}
           </p>
 
           {/* NHÃN THUỘC TÍNH như `design/Filler.png`. Chỉ là NHÃN HIỂN THỊ của dữ liệu
               món đã có (cùng nguồn với trang chi tiết món), không bấm được. */}
-          {showTags && describeDishTags(dish).length > 0 && (
-            <ul className="dishcard__tags" aria-label="Đặc điểm món">
-              {describeDishTags(dish).map((nhan) => (
+          {nhanThuocTinh.length > 0 && (
+            <ul className="dishcard__tags" aria-label={t('dishCard.tags')}>
+              {nhanThuocTinh.map((nhan) => (
                 <li key={nhan} className="dishcard__tag">
                   {nhan}
                 </li>

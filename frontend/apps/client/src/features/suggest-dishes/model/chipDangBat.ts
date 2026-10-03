@@ -5,13 +5,15 @@
  * Muốn gỡ đúng một chip thì phải biết nó thuộc NHÓM nào — nhãn tiếng Việt không đủ,
  * vì nhãn chỉ để hiển thị còn mã mới là thứ gửi lên backend.
  *
- * ⚠️ NHÃN Ở ĐÂY PHẢI KHỚP `DishFilters.tsx`. Hai nơi cùng đặt tên cho một mã là chỗ
- * chắc chắn sẽ lệch nhau; nhưng gộp lại thì `DishFilters` phải xuất ra cả bảng nhãn,
- * mà nó là component "ngu" không nên gánh thêm việc đó. Chọn cách rẻ hơn: để chung một
- * file, và ghi rõ ràng buộc này ở cả hai đầu.
+ * ⚠️ NHÃN Ở ĐÂY VÀ Ở `DishFilters.tsx` LÀ MỘT. Từ 2026-10-02 (song ngữ) bảng `NHAN` dưới
+ * đây không chứa chữ nữa mà chứa KHOÁ TỪ ĐIỂN (`filterOpt.<nhóm>.<mã>`), và `DishFilters`
+ * đọc nhãn qua chính `khoaNhan()` của file này — hai nơi không thể lệch nhau, ở cả tiếng
+ * Việt lẫn tiếng Anh.
  */
 import type { DishFilterState, MultiSelectGroup, SingleSelectGroup } from './useDishFilterState';
 import { DEFAULT_RADIUS_KM } from '@/shared/config';
+import { HAM_DICH_VI } from '@/shared/i18n';
+import type { HamDich, Khoa } from '@/shared/i18n';
 
 export interface ChipDangBat {
   /** Khoá duy nhất để React dựng danh sách. */
@@ -35,25 +37,35 @@ export interface ChipDangBat {
   giaTri: string;
 }
 
-const NHAN: Record<string, Record<string, string>> = {
-  weather: { rain: 'Trời mưa', clear: 'Trời nắng' },
-  mood: { happy: 'Vui', sad: 'Buồn', excited: 'Hào hứng', relaxed: 'Thư giãn' },
-  temperatures: { hot: 'Đồ nóng', cold: 'Đồ mát', room: 'Nhiệt độ phòng' },
+/** Mã -> KHOÁ từ điển của nhãn. Mã là hợp đồng với backend, đừng đổi. */
+const NHAN: Record<string, Record<string, Khoa>> = {
+  weather: { rain: 'filterOpt.weather.rain', clear: 'filterOpt.weather.clear' },
+  mood: {
+    happy: 'filterOpt.mood.happy',
+    sad: 'filterOpt.mood.sad',
+    excited: 'filterOpt.mood.excited',
+    relaxed: 'filterOpt.mood.relaxed',
+  },
+  temperatures: {
+    hot: 'filterOpt.temperatures.hot',
+    cold: 'filterOpt.temperatures.cold',
+    room: 'filterOpt.temperatures.room',
+  },
   cookingMethods: {
-    nuong: 'Đồ nướng',
-    nuoc: 'Món nước',
-    chien: 'Chiên rán',
-    xao: 'Xào',
-    hap: 'Hấp',
-    luoc: 'Luộc',
-    tron: 'Trộn',
+    nuong: 'filterOpt.cookingMethods.nuong',
+    nuoc: 'filterOpt.cookingMethods.nuoc',
+    chien: 'filterOpt.cookingMethods.chien',
+    xao: 'filterOpt.cookingMethods.xao',
+    hap: 'filterOpt.cookingMethods.hap',
+    luoc: 'filterOpt.cookingMethods.luoc',
+    tron: 'filterOpt.cookingMethods.tron',
   },
   mealTimes: {
-    sang: 'Bữa sáng',
-    trua: 'Bữa trưa',
-    toi: 'Bữa tối',
-    khuya: 'Đêm khuya',
-    an_vat: 'Ăn vặt',
+    sang: 'filterOpt.mealTimes.sang',
+    trua: 'filterOpt.mealTimes.trua',
+    toi: 'filterOpt.mealTimes.toi',
+    khuya: 'filterOpt.mealTimes.khuya',
+    an_vat: 'filterOpt.mealTimes.an_vat',
   },
 };
 
@@ -66,12 +78,19 @@ export function coNhan(nhom: string, gia_tri: string): boolean {
   return Boolean(NHAN[nhom]?.[gia_tri]);
 }
 
-/** Mã lạ (backend thêm giá trị mới) thì hiện chính mã đó, đừng nuốt mất chip. */
-function nhanCua(nhom: string, gia_tri: string): string {
-  return NHAN[nhom]?.[gia_tri] ?? gia_tri;
+/** Khoá từ điển của một mã — `DishFilters` dùng để vẽ chip, cùng nguồn với dòng "Đang lọc theo". */
+export function khoaNhan(nhom: string, gia_tri: string): Khoa | null {
+  return NHAN[nhom]?.[gia_tri] ?? null;
 }
 
-export function chipDangBat(filters: DishFilterState): ChipDangBat[] {
+/** Mã lạ (backend thêm giá trị mới) thì hiện chính mã đó, đừng nuốt mất chip. */
+function nhanCua(nhom: string, gia_tri: string, t: HamDich): string {
+  const khoa = khoaNhan(nhom, gia_tri);
+  return khoa ? t(khoa) : gia_tri;
+}
+
+/** `t` bỏ trống = tiếng Việt (giữ hành vi + test cũ); trang truyền `useT()` vào. */
+export function chipDangBat(filters: DishFilterState, t: HamDich = HAM_DICH_VI): ChipDangBat[] {
   const ket_qua: ChipDangBat[] = [];
 
   // Thứ tự: thời tiết -> tâm trạng -> cách chế biến -> nhiệt độ -> bữa. Cùng thứ tự với
@@ -79,7 +98,7 @@ export function chipDangBat(filters: DishFilterState): ChipDangBat[] {
   if (filters.weather) {
     ket_qua.push({
       khoa: `weather:${filters.weather}`,
-      nhan: nhanCua('weather', filters.weather),
+      nhan: nhanCua('weather', filters.weather, t),
       nhomMot: 'weather',
       giaTri: filters.weather,
     });
@@ -87,7 +106,7 @@ export function chipDangBat(filters: DishFilterState): ChipDangBat[] {
   if (filters.mood) {
     ket_qua.push({
       khoa: `mood:${filters.mood}`,
-      nhan: nhanCua('mood', filters.mood),
+      nhan: nhanCua('mood', filters.mood, t),
       nhomMot: 'mood',
       giaTri: filters.mood,
     });
@@ -103,7 +122,8 @@ export function chipDangBat(filters: DishFilterState): ChipDangBat[] {
     for (const gia_tri of filters[nhom]) {
       ket_qua.push({
         khoa: `${nhom}:${gia_tri}`,
-        nhan: nhanCua(nhom, gia_tri),
+        // `cuisines` không có bảng nhãn: giá trị là tên ẩm thực backend trả sẵn (dữ liệu).
+        nhan: nhanCua(nhom, gia_tri, t),
         nhomNhieu: nhom,
         giaTri: gia_tri,
       });
@@ -117,15 +137,15 @@ export function chipDangBat(filters: DishFilterState): ChipDangBat[] {
       khoa: 'km',
       nhan:
         filters.maxDistanceKm === null
-          ? 'Không giới hạn khoảng cách'
-          : `Trong vòng ${filters.maxDistanceKm} km`,
+          ? t('filters.chip.noKm')
+          : t('filters.chip.km', { n: filters.maxDistanceKm }),
       khoangCach: true,
       giaTri: String(filters.maxDistanceKm ?? ''),
     });
   }
 
   if (filters.onlyWithPrice) {
-    ket_qua.push({ khoa: 'gia', nhan: 'Chỉ quán có ghi giá', chiCoGia: true, giaTri: '1' });
+    ket_qua.push({ khoa: 'gia', nhan: t('filters.chip.price'), chiCoGia: true, giaTri: '1' });
   }
 
   return ket_qua;

@@ -22,6 +22,7 @@ import { useFavorites } from '@/features/save-favorite';
 import type { LoaiDanhSach } from '@/features/save-favorite';
 import { useUserSessionContext } from '@/entities/user';
 import { DEFAULT_RADIUS_KM, dishRoute } from '@/shared/config';
+import { useT } from '@/shared/i18n';
 import { sapXepMon } from './sapXepMon';
 import type { KieuSapXepMon } from './sapXepMon';
 
@@ -39,6 +40,7 @@ export function useRecommendPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useUserLocation();
   const session = useUserSessionContext();
+  const t = useT();
 
   // Đọc bộ lọc từ URL đúng MỘT LẦN lúc dựng. Sau đó state trong hook là nguồn sự thật;
   // đọc lại mỗi lần URL đổi sẽ ghi đè thứ người dùng vừa bấm.
@@ -61,7 +63,7 @@ export function useRecommendPage() {
   );
   const monHien = xemHet ? dishes : dishes.slice(0, SO_MON_BAN_DAU);
 
-  const chips = chipDangBat(suggestions.filters);
+  const chips = chipDangBat(suggestions.filters, t);
   const goChip = (chip: ChipDangBat) => {
     if (chip.nhomNhieu) suggestions.toggle(chip.nhomNhieu, chip.giaTri);
     else if (chip.nhomMot) suggestions.setSingle(chip.nhomMot, null);

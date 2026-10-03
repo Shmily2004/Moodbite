@@ -155,9 +155,9 @@ export function AccountPage() {
                   {/* Nói rõ trạng thái ngay cạnh địa chỉ: người dùng cần biết mình có
                       lấy lại được mật khẩu qua email hay không. */}
                   {session.user.email_verified ? (
-                    <span className="account__da-xac-minh">✓ đã xác minh</span>
+                    <span className="account__da-xac-minh">{t('account.verified')}</span>
                   ) : (
-                    <span className="account__chua-xac-minh">chưa xác minh</span>
+                    <span className="account__chua-xac-minh">{t('account.unverified')}</span>
                   )}
                 </p>
               ) : (

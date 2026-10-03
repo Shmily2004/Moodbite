@@ -22,6 +22,7 @@ import { AuthLayout } from '@/widgets/auth-layout';
 import { EmailVerificationStatus, useEmailVerification } from '@/features/auth-verify-email';
 import { Slogan } from '@/shared/ui';
 import { ROUTES } from '@/shared/config';
+import { useT } from '@/shared/i18n';
 
 /** Đủ để đọc xong câu "đã xác minh" mà không thành ngồi đợi. */
 const GIAY_DEM_NGUOC = 3;
@@ -29,6 +30,7 @@ const GIAY_DEM_NGUOC = 3;
 export function VerifyEmailPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const t = useT();
   const token = searchParams.get('token') ?? '';
   const xacMinh = useEmailVerification(token);
   const xong = xacMinh.status === 'done';
@@ -55,7 +57,7 @@ export function VerifyEmailPage() {
   return (
     <AuthLayout
       heading={<Slogan />}
-      intro="Xác minh xong là bạn lấy lại được mật khẩu qua email khi cần."
+      intro={t('verifyPage.intro')}
     >
       <EmailVerificationStatus
         status={xacMinh.status}
@@ -63,7 +65,7 @@ export function VerifyEmailPage() {
         // Mở trang thẳng (không qua thư) thì nói rõ, đừng để trang trắng.
         error={
           token === ''
-            ? 'Đường dẫn thiếu mã xác minh. Hãy mở lại đúng đường dẫn trong thư.'
+            ? t('verifyPage.noToken')
             : xacMinh.error
         }
         verified={xong}
@@ -73,17 +75,17 @@ export function VerifyEmailPage() {
           xong ? (
             <>
               <span role="status">
-                Đang đưa bạn về trang chủ sau {Math.max(0, conLai)} giây…
+                {t('verifyPage.redirect', { n: Math.max(0, conLai) })}
               </span>{' '}
               <Link to={ROUTES.home} replace>
-                Về ngay
+                {t('verifyPage.goNow')}
               </Link>
             </>
           ) : (
             <>
-              <Link to={ROUTES.home}>Về trang chủ</Link>
+              <Link to={ROUTES.home}>{t('verifyPage.home')}</Link>
               {' · '}
-              <Link to={ROUTES.account}>Trang tài khoản</Link>
+              <Link to={ROUTES.account}>{t('verifyPage.account')}</Link>
             </>
           )
         }

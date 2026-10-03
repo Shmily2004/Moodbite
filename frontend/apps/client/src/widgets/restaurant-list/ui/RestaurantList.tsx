@@ -10,6 +10,7 @@ import { RestaurantCard } from '@/entities/restaurant';
 import { useRestaurantDetail } from '@/features/view-restaurant-detail';
 import { useInteractionLogger } from '@/features/log-interaction';
 import { ReportClosureButton } from '@/features/report-closure';
+import { useT } from '@/shared/i18n';
 
 interface RestaurantListProps {
   restaurants: SearchResultItem[];
@@ -116,7 +117,8 @@ function DetailPanel({
   onClose,
   onDirections,
 }: DetailPanelProps) {
-  if (loading) return <div className="detail">Đang tải…</div>;
+  const t = useT();
+  if (loading) return <div className="detail">{t('common.loading')}</div>;
   if (error) return <div className="detail error">{error}</div>;
   if (!detail) return null;
 
@@ -131,7 +133,7 @@ function DetailPanel({
           <ReportClosureButton restaurantId={restaurantId} restaurantName={restaurantName} />
         )}
         <button className="btn btn--link" onClick={onClose}>
-          Đóng
+          {t('restDetail.close')}
         </button>
       </div>
     );
@@ -147,12 +149,12 @@ function DetailPanel({
     <div className="detail">
       {detail.price_range && (
         <div>
-          <strong>Giá:</strong> {detail.price_range}
+          <strong>{t('restDetail.price')}</strong> {detail.price_range}
         </div>
       )}
       {atmosphere.length > 0 && (
         <div>
-          <strong>Không gian:</strong> {atmosphere.join(', ')}
+          <strong>{t('restDetail.atmosphere')}</strong> {atmosphere.join(', ')}
         </div>
       )}
 
@@ -171,7 +173,7 @@ function DetailPanel({
 
       {detail.reviews.length > 0 && (
         <div className="detail__reviews">
-          <strong>Đánh giá ({detail.reviews.length}):</strong>
+          <strong>{t('restDetail.reviews', { n: detail.reviews.length })}</strong>
           {detail.reviews
             .filter((review) => (review as { text?: string }).text)
             .slice(0, 4)
@@ -190,12 +192,12 @@ function DetailPanel({
       <div className="detail__links">
         {detail.menu_url && (
           <a href={detail.menu_url} target="_blank" rel="noreferrer">
-            Xem menu
+            {t('restDetail.menu')}
           </a>
         )}
         {detail.website && (
           <a href={detail.website} target="_blank" rel="noreferrer">
-            Website
+            {t('restDetail.website')}
           </a>
         )}
         {detail.google_maps_url && (
@@ -205,7 +207,7 @@ function DetailPanel({
             rel="noreferrer"
             onClick={onDirections}
           >
-            Chỉ đường
+            {t('restDetail.directions')}
           </a>
         )}
       </div>
@@ -217,7 +219,7 @@ function DetailPanel({
       )}
 
       <button className="btn btn--link" onClick={onClose}>
-        Đóng
+        {t('restDetail.close')}
       </button>
     </div>
   );
@@ -246,18 +248,19 @@ function ReviewSummary({ summary }: { summary: unknown }) {
   const chinh = data.summary ?? [];
   const manh = data.positive ?? [];
   const yeu = data.negative ?? [];
+  const t = useT();
 
   if (chinh.length === 0 && manh.length === 0 && yeu.length === 0) return null;
 
   return (
     <div className="rsum">
       <div className="rsum__head">
-        <strong>Người ăn nói gì</strong>
+        <strong>{t('restDetail.summaryTitle')}</strong>
         {data.review_count != null && (
           <span className="muted small">
-            {data.review_count} đánh giá
+            {t('restDetail.reviewCount', { n: data.review_count })}
             {/* null = CHƯA CÓ dữ liệu sao, không phải 0 sao. */}
-            {data.average_stars != null && ` · TB ${data.average_stars}★`}
+            {data.average_stars != null && t('restDetail.avgStars', { n: data.average_stars })}
           </span>
         )}
       </div>
@@ -278,8 +281,7 @@ function ReviewSummary({ summary }: { summary: unknown }) {
       )}
 
       <p className="rsum__note muted small">
-        Các câu trên được trích nguyên văn từ đánh giá của người dùng, không phải nhận xét
-        của MoodBite.
+        {t('restDetail.summaryNote')}
       </p>
     </div>
   );

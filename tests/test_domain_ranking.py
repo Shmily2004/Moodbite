@@ -416,3 +416,19 @@ def test_khong_chon_mood_thi_tin_hieu_nay_KHONG_day_quan_nao_len():
         limit=1,
     )
     assert ranked[0].mood_score == 0.0
+
+
+def test_bo_nho_dem_tach_tu_KHONG_lam_doi_ket_qua():
+    """2026-10-02: tách từ của quán được nhớ sẵn (`_chi_muc_van_ban`) để /search nhanh ~2,4
+    lần. Điều PHẢI giữ: điểm và nguồn khớp giống hệt khi không có bộ nhớ đệm."""
+    quan = [
+        make_restaurant("Phở Bò 83", category="Nhà hàng phở"),
+        make_restaurant("Nhà Hàng Phố Cổ", category="Nhà hàng"),
+        make_restaurant("Quán Ăn Vặt", category="Quán ăn", review_text="phở bò ngon, bỏ thêm trứng"),
+    ]
+    co_dem = [text_relevance.relevance(r, "phở bò") for r in quan]
+    lan_hai = [text_relevance.relevance(r, "phở bò") for r in quan]  # trúng bộ nhớ đệm
+    text_relevance._chi_muc_van_ban.cache_clear()
+    khong_dem = [text_relevance.relevance(r, "phở bò") for r in quan]
+
+    assert co_dem == lan_hai == khong_dem

@@ -9,6 +9,7 @@
  */
 import { MapContainer, Marker, Popup, useMap } from 'react-leaflet';
 import { NenBanDo } from '@/shared/map';
+import { useT } from '@/shared/i18n';
 import type { SearchResultItem } from '@moodbite/api-client';
 import { useEffect } from 'react';
 import 'leaflet/dist/leaflet.css';
@@ -102,6 +103,7 @@ export function RestaurantMap({
   onSelect,
   danhSo = false,
 }: RestaurantMapProps) {
+  const t = useT();
   // ⚠️ Đánh số TRƯỚC khi lọc toạ độ, để số trên ghim khớp số trên thẻ.
   // Lọc trước rồi mới đánh số thì một quán thiếu toạ độ sẽ làm lệch toàn bộ số phía sau:
   // thẻ số 5 ứng với ghim số 4, và không ai hiểu vì sao.
@@ -122,7 +124,7 @@ export function RestaurantMap({
 
         {userPosition && (
           <Marker position={[userPosition.lat, userPosition.lng]} icon={userIcon}>
-            <Popup>Vị trí của bạn</Popup>
+            <Popup>{t('map.you')}</Popup>
           </Marker>
         )}
 
@@ -144,7 +146,7 @@ export function RestaurantMap({
               {restaurant.address && <div>{restaurant.address}</div>}
               <div>{formatDistance(restaurant.distance_m)}</div>
               {/* null = CHƯA CÓ dữ liệu, không phải "0 sao". */}
-              <div>{formatRating(restaurant.rating, restaurant.user_ratings_total)}</div>
+              <div>{formatRating(restaurant.rating, restaurant.user_ratings_total, t)}</div>
               {formatPrice(restaurant.price_range) && (
                 <div>{formatPrice(restaurant.price_range)}</div>
               )}

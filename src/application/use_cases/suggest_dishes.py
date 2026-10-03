@@ -33,6 +33,7 @@ from src.domain.value_objects.location import (
     HANOI_CENTER_LAT,
     HANOI_CENTER_LNG,
     Location,
+    mo_ta_km,
 )
 
 DEFAULT_LIMIT = 20
@@ -394,7 +395,7 @@ class SuggestDishesUseCase:
         if hidden_far:
             warnings.append(
                 f"Đã ẩn {hidden_far} món có quán bán nhưng nằm ngoài bán kính "
-                f"{query.max_distance_km} km. Mở rộng bán kính để thấy thêm."
+                f"{mo_ta_km(query.max_distance_km)}. Mở rộng bán kính để thấy thêm."
             )
         if hidden_nowhere > 0:
             warnings.append(

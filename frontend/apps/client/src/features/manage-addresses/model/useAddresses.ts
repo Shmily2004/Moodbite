@@ -6,8 +6,9 @@
  * dịch). Tự mô phỏng lại ở đây là chép luật nghiệp vụ xuống frontend (CLAUDE.md mục 1b).
  * Danh sách tối đa 10 địa chỉ nên tải lại gần như không tốn gì.
  */
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useUserSessionContext } from '@/entities/user';
+import { useT } from '@/shared/i18n';
 import { suaDiaChi, taiDiaChi, themDiaChi, xoaDiaChi } from '@/entities/address';
 import type { DiaChi } from '@/entities/address';
 
@@ -38,6 +39,11 @@ export function useAddresses(): UseAddressesResult {
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Câu lỗi DỰ PHÒNG dịch theo ngôn ngữ; `t` qua ref để không phải đưa vào deps (đổi
+  // ngôn ngữ không được làm tải lại dữ liệu).
+  const t = useT();
+  const tRef = useRef(t);
+  tRef.current = t;
   const [lan, setLan] = useState(0);
 
   useEffect(() => {
@@ -53,7 +59,7 @@ export function useAddresses(): UseAddressesResult {
         setAddresses(ds);
       })
       .catch((err: unknown) => {
-        if (con_song) setError(thongBaoLoi(err, 'Không tải được địa chỉ.'));
+        if (con_song) setError(thongBaoLoi(err, tRef.current('err.addrLoad')));
       })
       .finally(() => {
         if (con_song) setLoading(false);
@@ -89,19 +95,19 @@ export function useAddresses(): UseAddressesResult {
             // Chuỗi rỗng -> null: "không có mô tả", không phải mô tả rỗng.
             address_text: dc.addressText.trim() === '' ? null : dc.addressText,
           }),
-        'Không lưu được địa chỉ.',
+        tRef.current('err.addrSave'),
       ),
     [chay],
   );
 
   const setDefault = useCallback(
     (addressId: string, isDefault: boolean) =>
-      chay(() => suaDiaChi(addressId, { is_default: isDefault }), 'Không đổi được mặc định.'),
+      chay(() => suaDiaChi(addressId, { is_default: isDefault }), tRef.current('err.addrDefault')),
     [chay],
   );
 
   const remove = useCallback(
-    (addressId: string) => chay(() => xoaDiaChi(addressId), 'Không xoá được địa chỉ.'),
+    (addressId: string) => chay(() => xoaDiaChi(addressId), tRef.current('err.addrDelete')),
     [chay],
   );
 

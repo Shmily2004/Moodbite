@@ -64,3 +64,14 @@ def trong_ha_noi(lat: float, lng: float) -> bool:
     """
     nam, tay, bac, dong = HANOI_BBOX
     return nam <= lat <= bac and tay <= lng <= dong
+
+
+def mo_ta_km(km: float) -> str:
+    """Khoảng cách để đặt vào CÂU gửi người dùng: "10 km", "2,5 km".
+
+    Thêm 2026-10-02: câu cảnh báo từng in thô "bán kính 10.0 km" - số thực kiểu Python và
+    dấu chấm thập phân kiểu Anh giữa câu tiếng Việt. Làm tròn 1 chữ số; ,0 thì bỏ hẳn.
+    """
+    tron = round(float(km), 1)
+    chu = f"{tron:.1f}".rstrip("0").rstrip(".")
+    return f"{chu.replace('.', ',')} km"

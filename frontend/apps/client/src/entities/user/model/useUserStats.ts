@@ -9,9 +9,10 @@
  * (CLAUDE.md mục 1b: business logic chỉ nằm ở backend). Tài khoản mới thì mọi số là 0;
  * đó là sự thật, không phải lỗi cần "sửa" bằng số minh hoạ.
  */
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { authApi } from '@/shared/api';
 import type { UserStatsData } from '@/shared/api';
+import { useT } from '@/shared/i18n';
 import { useUserSessionContext } from './UserSessionContext';
 
 export interface UseUserStatsResult {
@@ -26,6 +27,11 @@ export function useUserStats(): UseUserStatsResult {
   const [stats, setStats] = useState<UserStatsData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Câu lỗi DỰ PHÒNG dịch theo ngôn ngữ; `t` qua ref để không phải đưa vào deps (đổi
+  // ngôn ngữ không được làm tải lại dữ liệu).
+  const t = useT();
+  const tRef = useRef(t);
+  tRef.current = t;
   const [lan, setLan] = useState(0);
 
   const reload = useCallback(() => setLan((n) => n + 1), []);
@@ -50,7 +56,7 @@ export function useUserStats(): UseUserStatsResult {
         // KHÔNG đặt số 0 giả khi lỗi: 0 và "không tải được" là hai chuyện khác nhau, và
         // hiện 0 sẽ khiến người dùng tưởng mình vừa mất hết điểm.
         setStats(null);
-        setError(err instanceof Error ? err.message : 'Không tải được số liệu.');
+        setError(err instanceof Error ? err.message : tRef.current('err.stats'));
       })
       .finally(() => {
         if (con_song) setLoading(false);

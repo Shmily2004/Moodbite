@@ -100,11 +100,12 @@ export function DishList({
 
 /** Vệt xương lúc đang tải - báo "sắp có nội dung" thay vì để chỗ trống trơn. */
 export function DishListSkeleton({ layout = 'row' }: { layout?: 'row' | 'grid' }) {
+  const t = useT();
   return (
     <ul
       className={layout === 'row' ? 'dishes dishes--row' : 'dishes dishes--grid'}
       aria-busy="true"
-      aria-label="Đang tìm món"
+      aria-label={t('dishList.loading')}
     >
       {[0, 1, 2, 3, 4].map((i) => (
         <li key={i} className="dishcard-wrap">

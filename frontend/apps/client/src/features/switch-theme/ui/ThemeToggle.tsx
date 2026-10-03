@@ -2,11 +2,13 @@
 import { useTheme } from '../model/useTheme';
 
 import { IconMoon, IconSun } from '@/shared/ui';
+import { useT } from '@/shared/i18n';
 
 export function ThemeToggle({ className }: { className?: string }) {
   const { theme, toggle } = useTheme();
   const dangToi = theme === 'dark';
-  const nhan = dangToi ? 'Chuyển sang nền sáng' : 'Chuyển sang nền tối';
+  const t = useT();
+  const nhan = dangToi ? t('theme.toLight') : t('theme.toDark');
 
   return (
     <button

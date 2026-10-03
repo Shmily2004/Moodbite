@@ -12,6 +12,7 @@ import { LoginForm } from '@/features/auth-login';
 import { Slogan } from '@/shared/ui';
 import { useUserSessionContext } from '@/entities/user';
 import { ROUTES } from '@/shared/config';
+import { useT } from '@/shared/i18n';
 
 interface LocationState {
   from?: string;
@@ -20,6 +21,7 @@ interface LocationState {
 export function LoginPage() {
   const session = useUserSessionContext();
   const location = useLocation();
+  const t = useT();
 
   if (session.isLoggedIn) {
     // Đã đăng nhập mà vẫn mở /dang-nhap -> đưa về nơi định đến, không hiện lại form.
@@ -31,7 +33,7 @@ export function LoginPage() {
     <AuthLayout
       // Tiêu đề là ẢNH chứ không phải chữ — xem `shared/ui/Slogan`.
       heading={<Slogan />}
-      intro="MoodBite gợi ý những quán ăn phù hợp với cảm xúc, thời tiết và thói quen của bạn."
+      intro={t('login.intro')}
     >
       <LoginForm
         loading={session.loading}
@@ -41,7 +43,7 @@ export function LoginPage() {
         }
         footer={
           <>
-            Chưa có tài khoản? <Link to={ROUTES.register}>Đăng ký ngay</Link>
+            {t('login.noAccount')} <Link to={ROUTES.register}>{t('login.registerNow')}</Link>
           </>
         }
       />

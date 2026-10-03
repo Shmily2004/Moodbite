@@ -7,6 +7,7 @@
  */
 import type { ReactNode } from 'react';
 import type { VerifyStatus } from '../model/useEmailVerification';
+import { useT } from '@/shared/i18n';
 
 export interface EmailVerificationStatusProps {
   status: VerifyStatus;
@@ -32,12 +33,13 @@ export function EmailVerificationStatus({
   footer,
 }: EmailVerificationStatusProps) {
   const dangChay = status === 'loading';
+  const t = useT();
 
   return (
     <div className={variant === 'page' ? 'xac-minh-email' : 'xac-minh-email xac-minh-email--gon'}>
-      {variant === 'page' && <h1>Xác minh email</h1>}
+      {variant === 'page' && <h1>{t('verify.title')}</h1>}
 
-      {dangChay && <p role="status">Đang xác minh…</p>}
+      {dangChay && <p role="status">{t('verify.running')}</p>}
 
       {/* Lỗi hiện TRƯỚC thông báo: khi cả hai cùng có, cái người dùng cần biết là lỗi. */}
       {error && (
@@ -55,17 +57,17 @@ export function EmailVerificationStatus({
       {variant === 'inline' && !message && !error && (
         <p className="xac-minh-email__trang-thai">
           {!hasEmail
-            ? 'Chưa khai email — thêm email để lấy lại mật khẩu khi cần.'
+            ? t('verify.noEmail')
             : verified
-              ? '✓ Email đã xác minh'
-              : 'Email chưa xác minh'}
+              ? t('verify.verified')
+              : t('verify.unverified')}
         </p>
       )}
 
       {/* Chỉ hiện nút khi THỰC SỰ có việc để làm: có email và chưa xác minh. */}
       {onResend && hasEmail && !verified && (
         <button type="button" onClick={onResend} disabled={dangChay}>
-          {dangChay ? 'Đang gửi…' : 'Gửi lại thư xác minh'}
+          {dangChay ? t('verify.sending') : t('verify.resend')}
         </button>
       )}
 

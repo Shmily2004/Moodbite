@@ -5,6 +5,7 @@
 import type { SearchResultItem } from '@moodbite/api-client';
 import type { ReasonKind } from '../model/format';
 import { IconSearch, IconSmile } from '@/shared/ui';
+import { useT } from '@/shared/i18n';
 
 /**
  * Icon cho từng LOẠI lý do (thay emoji 😌 / 🔎 / 🍽 ngày 2026-09-29, checklist A9).
@@ -29,6 +30,7 @@ export function NutXemChiTiet({
   restaurant: SearchResultItem;
   onOpenDetail: (restaurant: SearchResultItem) => void;
 }) {
+  const t = useT();
   return (
     <button
       type="button"
@@ -40,7 +42,7 @@ export function NutXemChiTiet({
         onOpenDetail(restaurant);
       }}
     >
-      Xem chi tiết →
+      {t('rest.viewDetail')}
     </button>
   );
 }
@@ -49,8 +51,9 @@ export function NutXemChiTiet({
 export function DanhGia({ restaurant, chip = false }: { restaurant: SearchResultItem; chip?: boolean }) {
   const lop = chip ? 'card__chip ' : '';
   const The = chip ? 'li' : 'span';
+  const t = useT();
   if (restaurant.rating == null) {
-    return <The className={`${lop}card__norating`}>chưa có đánh giá</The>;
+    return <The className={`${lop}card__norating`}>{t('rest.noRating')}</The>;
   }
   return (
     <The className={`${lop}card__rating`}>

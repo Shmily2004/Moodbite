@@ -27,6 +27,7 @@ import {
   describeSpice,
   describeTemperature,
 } from '@/entities/dish';
+import { useT } from '@/shared/i18n';
 
 /**
  * Icon cho từng MÃ thuộc tính — quy tắc HIỂN THỊ thuần (2026-10-02, theo bản thiết kế:
@@ -53,10 +54,12 @@ interface DishIntroProps {
 }
 
 export function DishIntro({ dish, onEditFilters }: DishIntroProps) {
-  const spice = describeSpice(dish.spice_level);
-  const nhietDo = describeTemperature(dish.temperature);
-  const cachCheBien = describeCookingMethod(dish.cooking_method);
-  const bua = describeMealTimes(dish.meal_times);
+  const t = useT();
+  const spice = describeSpice(dish.spice_level, t);
+  const nhietDo = describeTemperature(dish.temperature, t);
+  const cachCheBien = describeCookingMethod(dish.cooking_method, t);
+  const bua = describeMealTimes(dish.meal_times, t);
+  const nguon = describeSource(dish.source, t);
   const tranh = ANH_GIAO_DIEN.banner_trang_chu;
   return (
     <section className="dish-detail">
@@ -99,7 +102,7 @@ export function DishIntro({ dish, onEditFilters }: DishIntroProps) {
               kéo bộ lọc ngay tại chỗ, với các thuộc tính của chính món này bật sẵn. */}
           <li>
             <button type="button" className="dish-attr dish-attr--nut" onClick={onEditFilters}>
-              <IconPencil /> Chỉnh sửa
+              <IconPencil /> {t('dishPage.edit')}
             </button>
           </li>
         </ul>
@@ -108,24 +111,24 @@ export function DishIntro({ dish, onEditFilters }: DishIntroProps) {
             Chốt 2026-08-19: thay cho danh sách nguyên liệu. Một đoạn văn nói món đó là gì
             và ăn thế nào thì dễ đọc hơn, và phủ được 100% danh mục (đo được), trong khi
             danh sách nguyên liệu chỉ phủ 87%. */}
-        <h2 className="dish-detail__heading">Món này là gì?</h2>
+        <h2 className="dish-detail__heading">{t('dishPage.whatIs')}</h2>
         {dish.has_description ? (
           <p className="dish-detail__intro">{dish.description}</p>
         ) : (
           /* Rỗng nghĩa là CHƯA TRA ĐƯỢC, không phải "món này không có gì để nói".
              Nói thẳng ra thay vì để một vùng trắng (CLAUDE.md mục 4 quy tắc 1). */
-          <p className="muted">{describeIntroState(false)}</p>
+          <p className="muted">{describeIntroState(false, t)}</p>
         )}
 
         {/* Nguồn dữ liệu: người đọc phải biết đoạn giới thiệu này ở đâu ra. */}
-        {describeSource(dish.source) && (
+        {nguon && (
           <p className="dish-detail__source small muted">
-            Nguồn: {describeSource(dish.source)}
+            {t('dishPage.source', { source: nguon })}
             {dish.source_url && (
               <>
                 {' · '}
                 <a href={dish.source_url} target="_blank" rel="noreferrer">
-                  xem nguồn
+                  {t('dishPage.viewSource')}
                 </a>
               </>
             )}

@@ -631,6 +631,11 @@
   color: var(--brand-orange);
   background: linear-gradient(140deg, #FBEDE4, #F7E3D3);
 }
+/* Nền tối (sửa 2026-10-02): ô kem sáng choang giữa lưới thẻ tối trông như một lỗ thủng.
+   Giữ cùng sắc cam ấm nhưng hạ độ sáng — chữ cái cam vẫn đủ tương phản trên nền này. */
+:root[data-theme='dark'] .dishcard__thumb--empty {
+  background: linear-gradient(140deg, #33261D, #2A1F18);
+}
 
 /* ⚠️ `.dishcard__distance` ĐÃ BỎ (2026-08-25). Khoảng cách không thuộc về THẺ MÓN —
    món không có vị trí, chỉ quán mới có. Xem `entities/dish/ui/DishCard.tsx`. */

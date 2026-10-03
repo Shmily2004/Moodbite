@@ -2,6 +2,7 @@
 import { useId, useRef, useState } from 'react';
 import { UserAvatar } from '@/entities/user';
 import { IconCamera } from '@/shared/ui';
+import { useT } from '@/shared/i18n';
 import { AnhKhongHopLe, useAvatar } from '../model/useAvatar';
 
 export interface AvatarPickerProps {
@@ -15,6 +16,7 @@ export function AvatarPicker({ name, size = 96 }: AvatarPickerProps) {
   const [dangXuLy, setDangXuLy] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const idInput = useId();
+  const t = useT();
 
   const chon = async (file: File | undefined) => {
     if (!file) return;
@@ -26,7 +28,7 @@ export function AvatarPicker({ name, size = 96 }: AvatarPickerProps) {
       // Câu của `AnhKhongHopLe` viết sẵn cho người dùng đọc; lỗi lạ thì nói chung chung
       // chứ KHÔNG đổ nguyên thông báo kỹ thuật ra màn hình.
       setLoi(
-        err instanceof AnhKhongHopLe ? err.message : 'Không xử lý được ảnh này.',
+        err instanceof AnhKhongHopLe ? t(err.khoa, err.giaTri) : t('avatar.err.generic'),
       );
     } finally {
       setDangXuLy(false);
@@ -35,8 +37,12 @@ export function AvatarPicker({ name, size = 96 }: AvatarPickerProps) {
     }
   };
 
-  const goiY = 'PNG, JPG hoặc WEBP, tối đa 2 MB. Ảnh chỉ lưu trên máy bạn, không gửi lên máy chủ.';
-  const nhanNut = dangXuLy ? 'Đang xử lý…' : avatar ? 'Đổi ảnh đại diện' : 'Tải ảnh đại diện lên';
+  const goiY = t('avatar.hint');
+  const nhanNut = dangXuLy
+    ? t('avatar.processing')
+    : avatar
+      ? t('avatar.change')
+      : t('avatar.upload');
 
   return (
     <div className="avatar-picker">
@@ -77,7 +83,7 @@ export function AvatarPicker({ name, size = 96 }: AvatarPickerProps) {
 
       {avatar && (
         <button type="button" className="linkish avatar-picker__mac-dinh" onClick={xoaAvatar}>
-          Dùng ảnh mặc định
+          {t('avatar.useDefault')}
         </button>
       )}
 

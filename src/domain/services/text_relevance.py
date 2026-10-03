@@ -17,7 +17,9 @@ nguồn tín hiệu vào hàm `relevance()` này, không phải sửa use case.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from functools import lru_cache
+from sys import intern
+from typing import Dict, List, Optional, Tuple
 
 from src.domain.entities.restaurant import Restaurant
 from src.domain.value_objects.mood import MOOD_PROFILES
@@ -80,6 +82,33 @@ def _tokenize_pairs(text: Optional[str]) -> List[Token]:
     return [t for t in tokenize_pairs(text) if t[0] not in _NORMALIZED_STOP_WORDS]
 
 
+# Số đoạn văn bản (tên / loại hình / review / không khí của quán) được nhớ sẵn bản đã tách.
+# Đo 2026-10-02: mỗi lượt `/search` có câu chữ mất ~2,1 giây, ~2/3 thời gian là TÁCH TỪ LẠI
+# chính những đoạn văn đó (160.876 lần `tokenize_pairs` mỗi lượt) dù dữ liệu quán không đổi
+# giữa các lượt. 52.871 quán × tối đa 4 trường -> 262.144 đủ chứa hết; vượt thì LRU tự bỏ
+# đoạn ít dùng nhất, không phình vô hạn.
+# ĐÁNH ĐỔI ĐÃ ĐO: "phở bò" 2.070 -> 836 ms (kết quả giống hệt), đổi lại RAM tiến trình
+# +62 MB (471 -> 533 MB, đã intern chuỗi; chưa intern là +88 MB). Lượt tìm ĐẦU TIÊN sau khi
+# khởi động vẫn ~2 giây vì phải điền bộ nhớ đệm.
+SO_DOAN_NHO_SAN = 262_144
+
+
+@lru_cache(maxsize=SO_DOAN_NHO_SAN)
+def _chi_muc_van_ban(text: str) -> Tuple[Tuple[Token, ...], Dict[str, Tuple[Token, ...]]]:
+    """Tách từ MỘT LẦN cho mỗi đoạn văn, kèm bảng gom theo bản bỏ dấu.
+
+    Trả tuple (bất biến) để bản nhớ đệm dùng chung không bị ai sửa nhầm. Bảng gom giúp mỗi
+    từ câu hỏi chỉ phải so với đúng các từ đồng âm. ⚠️ Người gọi KHÔNG được sửa dict trả về.
+    """
+    # `sys.intern`: "quán", "phở", "nhà", "hàng"... lặp lại hàng chục nghìn lần giữa các
+    # đoạn văn; intern để mọi bản dùng CHUNG một chuỗi trong bộ nhớ thay vì mỗi lần một bản.
+    tokens = tuple((intern(p), intern(r)) for p, r in _tokenize_pairs(text))
+    by_plain: Dict[str, List[Token]] = {}
+    for token in tokens:
+        by_plain.setdefault(token[0], []).append(token)
+    return tokens, {k: tuple(v) for k, v in by_plain.items()}
+
+
 @dataclass(frozen=True)
 class RelevanceResult:
     score: float          # 0.0 - 1.0
@@ -102,14 +131,9 @@ def _overlap(query_tokens: List[Token], target: Optional[str]) -> float:
     """
     if not query_tokens or not target:
         return 0.0
-    target_tokens = _tokenize_pairs(target)
+    target_tokens, by_plain = _chi_muc_van_ban(target)
     if not target_tokens:
         return 0.0
-
-    # Gom theo bản bỏ dấu để mỗi từ câu hỏi chỉ phải so với đúng các từ đồng âm.
-    by_plain: Dict[str, List[Token]] = {}
-    for token in target_tokens:
-        by_plain.setdefault(token[0], []).append(token)
 
     hits = sum(
         1 for q in query_tokens
@@ -122,7 +146,7 @@ def _overlap(query_tokens: List[Token], target: Optional[str]) -> float:
     # Khớp nguyên cụm 2 từ thì cộng thêm - cũng qua quy tắc dấu, để "Phố Bò" không được
     # thưởng như "Phở Bò".
     if any(
-        contains_token_sequence(target_tokens, list(pair))
+        contains_token_sequence(list(target_tokens), list(pair))
         for pair in zip(query_tokens, query_tokens[1:])
     ):
         score = min(1.0, score + PHRASE_BONUS)

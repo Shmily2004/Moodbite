@@ -9,6 +9,7 @@ import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { IconEye, IconEyeOff, IconLock, IconUser, IconWave } from '@/shared/ui';
 import { ROUTES } from '@/shared/config';
+import { useT } from '@/shared/i18n';
 
 export interface LoginFormProps {
   loading: boolean;
@@ -23,6 +24,7 @@ export function LoginForm({ loading, error, onSubmit, footer }: LoginFormProps) 
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
   const [hienMatKhau, setHienMatKhau] = useState(false);
+  const t = useT();
 
   // `useId` thay vì id gõ tay: trang đăng ký sau này có thể đặt hai form trên cùng một
   // trang, id trùng thì click vào nhãn sẽ nhảy nhầm ô.
@@ -41,14 +43,14 @@ export function LoginForm({ loading, error, onSubmit, footer }: LoginFormProps) 
       }}
     >
       <h1 className="auth-card__title">
-        Chào mừng trở lại! <IconWave className="icon-inline" />
+        {t('login.welcome')} <IconWave className="icon-inline" />
       </h1>
       <p className="auth-card__sub">
-        Đăng nhập để khám phá những món ngon phù hợp với bạn ở Hà Nội.
+        {t('login.sub')}
       </p>
 
       <label className="field__label" htmlFor={idTen}>
-        Tên đăng nhập
+        {t('auth.username')}
       </label>
       <div className="field">
         <IconUser className="field__icon" />
@@ -56,7 +58,7 @@ export function LoginForm({ loading, error, onSubmit, footer }: LoginFormProps) 
           id={idTen}
           className="field__input"
           value={username}
-          placeholder="Nhập tên đăng nhập"
+          placeholder={t('login.usernamePlaceholder')}
           autoComplete="username"
           // `autoFocus` trên trang đăng nhập là một trong số RẤT ÍT chỗ dùng nó hợp lý:
           // cả trang chỉ có một việc để làm, người dùng gõ được ngay không phải với chuột.
@@ -67,7 +69,7 @@ export function LoginForm({ loading, error, onSubmit, footer }: LoginFormProps) 
       </div>
 
       <label className="field__label" htmlFor={idMatKhau}>
-        Mật khẩu
+        {t('auth.password')}
       </label>
       <div className="field">
         <IconLock className="field__icon" />
@@ -76,7 +78,7 @@ export function LoginForm({ loading, error, onSubmit, footer }: LoginFormProps) 
           className="field__input"
           type={hienMatKhau ? 'text' : 'password'}
           value={password}
-          placeholder="Nhập mật khẩu"
+          placeholder={t('login.passwordPlaceholder')}
           autoComplete="current-password"
           required
           onChange={(event) => setPassword(event.target.value)}
@@ -85,7 +87,7 @@ export function LoginForm({ loading, error, onSubmit, footer }: LoginFormProps) 
           type="button"
           className="field__eye"
           onClick={() => setHienMatKhau((cu) => !cu)}
-          aria-label={hienMatKhau ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+          aria-label={hienMatKhau ? t('auth.hidePassword') : t('auth.showPassword')}
           aria-pressed={hienMatKhau}
           // `tabIndex={-1}`: người dùng bàn phím gõ xong mật khẩu là muốn tới nút Đăng
           // nhập, không muốn dừng ở con mắt.
@@ -103,13 +105,13 @@ export function LoginForm({ loading, error, onSubmit, footer }: LoginFormProps) 
             checked={remember}
             onChange={(event) => setRemember(event.target.checked)}
           />
-          <span>Ghi nhớ đăng nhập</span>
+          <span>{t('login.remember')}</span>
         </label>
 
         {/* Từ 2026-08-22 đây là LINK THẬT: tính năng gửi thư đặt lại mật khẩu đã làm
             xong (`/auth/forgot-password`). Trước đó nó chỉ mở ra một dòng giải thích. */}
         <Link className="linkish" to={ROUTES.forgotPassword}>
-          Quên mật khẩu?
+          {t('login.forgot')}
         </Link>
       </div>
 
@@ -120,13 +122,13 @@ export function LoginForm({ loading, error, onSubmit, footer }: LoginFormProps) 
       )}
 
       <button type="submit" className="btn btn--primary" disabled={loading}>
-        {loading ? 'Đang đăng nhập…' : 'Đăng nhập'}
+        {loading ? t('login.submitting') : t('login.submit')}
       </button>
 
       {footer && (
         <>
           <div className="auth-card__or">
-            <span>hoặc</span>
+            <span>{t('auth.or')}</span>
           </div>
           <p className="auth-card__footer">{footer}</p>
         </>

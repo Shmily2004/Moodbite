@@ -2,6 +2,7 @@
 import { useId, useState } from 'react';
 import type { ReactNode } from 'react';
 import { IconUser } from '@/shared/ui';
+import { useT } from '@/shared/i18n';
 
 export interface ForgotPasswordFormProps {
   loading: boolean;
@@ -21,6 +22,7 @@ export function ForgotPasswordForm({
 }: ForgotPasswordFormProps) {
   const [identifier, setIdentifier] = useState('');
   const idOTim = useId();
+  const t = useT();
 
   return (
     <form
@@ -31,10 +33,9 @@ export function ForgotPasswordForm({
         onSubmit(identifier);
       }}
     >
-      <h1 className="auth-card__title">Quên mật khẩu?</h1>
+      <h1 className="auth-card__title">{t('forgot.title')}</h1>
       <p className="auth-card__sub">
-        Nhập email hoặc tên đăng nhập. Chúng mình sẽ gửi cho bạn một đường dẫn để đặt lại
-        mật khẩu.
+        {t('forgot.sub')}
       </p>
 
       {message ? (
@@ -50,7 +51,7 @@ export function ForgotPasswordForm({
       ) : (
         <>
           <label className="field__label" htmlFor={idOTim}>
-            Email hoặc tên đăng nhập
+            {t('forgot.identifier')}
           </label>
           <div className="field">
             <IconUser className="field__icon" />
@@ -58,7 +59,7 @@ export function ForgotPasswordForm({
               id={idOTim}
               className="field__input"
               value={identifier}
-              placeholder="Email hoặc tên đăng nhập của bạn"
+              placeholder={t('forgot.identifierPlaceholder')}
               autoComplete="username"
               autoFocus
               required
@@ -73,7 +74,7 @@ export function ForgotPasswordForm({
           )}
 
           <button type="submit" className="btn btn--primary" disabled={loading}>
-            {loading ? 'Đang gửi…' : 'Gửi hướng dẫn đặt lại'}
+            {loading ? t('forgot.sending') : t('forgot.submit')}
           </button>
         </>
       )}
@@ -81,7 +82,7 @@ export function ForgotPasswordForm({
       {footer && (
         <>
           <div className="auth-card__or">
-            <span>hoặc</span>
+            <span>{t('auth.or')}</span>
           </div>
           <p className="auth-card__footer">{footer}</p>
         </>

@@ -21,11 +21,23 @@
  * dịch nốt. Không thể quên được — đó là lý do `en` khai kiểu `Record<Khoa, string>`.
  */
 
+import { enBoLoc, viBoLoc } from './tu_dien_bo_loc';
+import { enMonQuan, viMonQuan } from './tu_dien_mon_quan';
+import { enTaiKhoan, viTaiKhoan } from './tu_dien_tai_khoan';
+import { enXacThuc, viXacThuc } from './tu_dien_xac_thuc';
+
 export const NGON_NGU = ['vi', 'en'] as const;
 export type NgonNgu = (typeof NGON_NGU)[number];
 
+/*
+ * TÁCH THEO VÙNG (2026-10-02): file này đã quá 600 dòng, nên phần bổ sung đợt dịch nốt
+ * giao diện nằm ở các file `tu_dien_*.ts` bên cạnh, mỗi file một vùng màn hình. Mỗi file
+ * tự khai `en...: Record<keyof typeof vi..., string>` nên quên dịch một câu vẫn là lỗi
+ * biên dịch — y như bảng gốc dưới đây.
+ */
+
 /** Bản tiếng Việt là BẢN GỐC: nó định nghĩa danh sách khoá. */
-const vi = {
+const viGoc = {
   // --- Thanh trên -----------------------------------------------------------
   // --- Bong bóng trợ lý (thêm 2026-08-25) ---------------------------------
   'bubble.hint': 'Chưa đúng gu? Tinh chỉnh gợi ý nhé!',
@@ -323,13 +335,15 @@ const vi = {
   'account.improve.cta': 'Cập nhật ngay',
 } as const;
 
+const vi = { ...viGoc, ...viBoLoc, ...viMonQuan, ...viTaiKhoan, ...viXacThuc };
+
 export type Khoa = keyof typeof vi;
 
 /**
- * Bản tiếng Anh. Khai kiểu `Record<Khoa, string>` để thiếu MỘT câu là lỗi biên dịch —
+ * Bản tiếng Anh. Khai kiểu `Record<...>` để thiếu MỘT câu là lỗi biên dịch —
  * không có cách nào quên dịch mà vẫn build được.
  */
-const en: Record<Khoa, string> = {
+const enGoc: Record<keyof typeof viGoc, string> = {
   // --- Assistant bubble (added 2026-08-25) --------------------------------
   'bubble.hint': 'Not quite your taste? Let us fine-tune it.',
   'bubble.cta': 'Fine-tune suggestions',
@@ -608,7 +622,30 @@ const en: Record<Khoa, string> = {
   'account.improve.cta': 'Update now',
 };
 
+const en: Record<Khoa, string> = {
+  ...enGoc,
+  ...enBoLoc,
+  ...enMonQuan,
+  ...enTaiKhoan,
+  ...enXacThuc,
+};
+
 export const TU_DIEN: Record<NgonNgu, Record<Khoa, string>> = { vi, en };
+
+export type HamDich = (khoa: Khoa, gia_tri?: Record<string, string | number>) => string;
+
+/**
+ * Hàm dịch THUẦN cho một ngôn ngữ cố định — dùng ở các hàm định dạng `.ts` không được
+ * gọi hook (VD `entities/restaurant/model/format.ts`). Component lấy `t` từ `useT()` rồi
+ * truyền xuống; bỏ trống thì các hàm đó mặc định dùng `HAM_DICH_VI` — giữ nguyên hành vi
+ * tiếng Việt cũ và các test cũ không phải đổi.
+ */
+export function taoHamDich(ngonNgu: NgonNgu): HamDich {
+  return (khoa, gia_tri) =>
+    thay_the(TU_DIEN[ngonNgu][khoa] ?? TU_DIEN.vi[khoa] ?? khoa, gia_tri);
+}
+
+export const HAM_DICH_VI: HamDich = taoHamDich('vi');
 
 /**
  * Thay `{ten}` bằng giá trị thật.

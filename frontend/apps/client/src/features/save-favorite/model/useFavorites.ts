@@ -30,6 +30,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { authApi } from '@/shared/api';
 import { useUserSessionContext } from '@/entities/user';
+import { useT } from '@/shared/i18n';
 import {
   DANH_SACH_MAC_DINH,
   doc_cuc_bo,
@@ -83,6 +84,11 @@ export function useFavorites(): UseFavoritesResult {
   const [items, setItems] = useState<MucYeuThich[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Câu lỗi DỰ PHÒNG dịch theo ngôn ngữ; `t` qua ref để không phải đưa vào deps (đổi
+  // ngôn ngữ không được làm tải lại dữ liệu).
+  const t = useT();
+  const tRef = useRef(t);
+  tRef.current = t;
 
   // Chỉ đẩy dữ liệu cục bộ lên server ĐÚNG MỘT LẦN cho mỗi lần đăng nhập. Không có cờ
   // này thì mỗi lần hook chạy lại sẽ đẩy lại, và mục người dùng vừa cố ý bỏ lưu sẽ
@@ -135,7 +141,7 @@ export function useFavorites(): UseFavoritesResult {
         if (!con_song) return;
         // Lỗi mạng KHÔNG được làm trắng danh sách: hiện bản cục bộ còn hơn không có gì.
         setItems(doc_cuc_bo());
-        setError(err instanceof Error ? err.message : 'Không tải được danh sách đã lưu.');
+        setError(err instanceof Error ? err.message : tRef.current('err.favLoad'));
       } finally {
         if (con_song) setLoading(false);
       }
@@ -185,7 +191,7 @@ export function useFavorites(): UseFavoritesResult {
         // Trả về ĐÚNG trạng thái trước đó. Giữ nguyên giao diện sẽ nói dối người dùng
         // rằng đã lưu, rồi tải lại trang là mất.
         setItems(truoc);
-        setError(err instanceof Error ? err.message : 'Không lưu được. Thử lại nhé.');
+        setError(err instanceof Error ? err.message : tRef.current('err.favSave'));
       });
     },
     [items, daDangNhap],

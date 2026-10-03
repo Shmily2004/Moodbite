@@ -4,8 +4,9 @@
  * ĐÂY LÀ CỬA VÀO CHÍNH của sản phẩm theo mô tả của chủ dự án: "người dùng dùng bộ lọc lọc
  * ra những yêu cầu như nay trời mưa, muốn ăn đồ nướng, đồ nóng".
  *
- * Mã gửi lên backend là chuỗi KHÔNG DẤU ('nuong', 'sang'); nhãn tiếng Việt chỉ nằm ở đây.
- * Đổi nhãn không được làm đổi mã - mã là hợp đồng với backend.
+ * Mã gửi lên backend là chuỗi KHÔNG DẤU ('nuong', 'sang'); NHÃN (Việt/Anh) nằm ở từ điển
+ * `filterOpt.*`, đọc qua `khoaNhan()` của `model/chipDangBat.ts` — cùng nguồn với dòng
+ * "Đang lọc theo". Đổi nhãn không được làm đổi mã - mã là hợp đồng với backend.
  *
  * ICON, KHÔNG EMOJI (đổi 2026-08-24 theo yêu cầu chủ dự án). Lý do đã ghi sẵn ở đầu
  * `shared/ui/icons.tsx`: emoji mỗi hệ điều hành vẽ một kiểu và không đổi màu theo giao
@@ -19,6 +20,7 @@ import { useId, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { DishFilterState, MultiSelectGroup, SingleSelectGroup } from '../model/useDishFilterState';
 import { DistanceSlider } from './DistanceSlider';
+import { khoaNhan } from '../model/chipDangBat';
 import { ICON_MOOD } from '@/shared/config';
 import {
   IconBoil,
@@ -65,38 +67,38 @@ function AnhMood({ khoa }: { khoa: string }) {
 
 /** Thời tiết. (Nhóm này nay đứng CUỐI cột lọc, theo `design/Filler.png` — xem dưới.) */
 const WEATHER_OPTIONS = [
-  { value: 'rain', label: 'Trời mưa', icon: <AnhMood khoa="rain" /> },
-  { value: 'clear', label: 'Trời nắng', icon: <IconSun /> },
+  { value: 'rain', icon: <AnhMood khoa="rain" /> },
+  { value: 'clear', icon: <IconSun /> },
 ];
 
 const TEMPERATURE_OPTIONS = [
-  { value: 'hot', label: 'Đồ nóng', icon: <IconHotBowl /> },
-  { value: 'cold', label: 'Đồ mát', icon: <IconCold /> },
+  { value: 'hot', icon: <IconHotBowl /> },
+  { value: 'cold', icon: <IconCold /> },
 ];
 
 const COOKING_METHOD_OPTIONS = [
-  { value: 'nuong', label: 'Đồ nướng', icon: <AnhMood khoa="nuong" /> },
-  { value: 'nuoc', label: 'Món nước', icon: <IconSoup /> },
-  { value: 'chien', label: 'Chiên rán', icon: <IconPan /> },
-  { value: 'xao', label: 'Xào', icon: <IconStirFry /> },
-  { value: 'hap', label: 'Hấp', icon: <IconSteam /> },
-  { value: 'luoc', label: 'Luộc', icon: <IconBoil /> },
-  { value: 'tron', label: 'Trộn', icon: <IconMix /> },
+  { value: 'nuong', icon: <AnhMood khoa="nuong" /> },
+  { value: 'nuoc', icon: <IconSoup /> },
+  { value: 'chien', icon: <IconPan /> },
+  { value: 'xao', icon: <IconStirFry /> },
+  { value: 'hap', icon: <IconSteam /> },
+  { value: 'luoc', icon: <IconBoil /> },
+  { value: 'tron', icon: <IconMix /> },
 ];
 
 const MEAL_TIME_OPTIONS = [
-  { value: 'sang', label: 'Bữa sáng', icon: <IconSunrise /> },
-  { value: 'trua', label: 'Bữa trưa', icon: <IconSun /> },
-  { value: 'toi', label: 'Bữa tối', icon: <IconMoon /> },
-  { value: 'khuya', label: 'Đêm khuya', icon: <IconNight /> },
-  { value: 'an_vat', label: 'Ăn vặt', icon: <IconSnack /> },
+  { value: 'sang', icon: <IconSunrise /> },
+  { value: 'trua', icon: <IconSun /> },
+  { value: 'toi', icon: <IconMoon /> },
+  { value: 'khuya', icon: <IconNight /> },
+  { value: 'an_vat', icon: <IconSnack /> },
 ];
 
 const MOOD_OPTIONS = [
-  { value: 'happy', label: 'Vui', icon: <IconSmile /> },
-  { value: 'sad', label: 'Buồn', icon: <IconFrown /> },
-  { value: 'excited', label: 'Hào hứng', icon: <AnhMood khoa="excited" /> },
-  { value: 'relaxed', label: 'Thư giãn', icon: <AnhMood khoa="relaxed" /> },
+  { value: 'happy', icon: <IconSmile /> },
+  { value: 'sad', icon: <IconFrown /> },
+  { value: 'excited', icon: <AnhMood khoa="excited" /> },
+  { value: 'relaxed', icon: <AnhMood khoa="relaxed" /> },
 ];
 
 interface DishFiltersProps {
@@ -120,6 +122,11 @@ interface DishFiltersProps {
 export function DishFilters(props: DishFiltersProps) {
   const { filters } = props;
   const t = useT();
+  // Nhãn chip đọc CÙNG khoá với dòng "Đang lọc theo" (`chipDangBat`) — xem `khoaNhan`.
+  const nhan = (nhom: string, gia_tri: string) => {
+    const khoa = khoaNhan(nhom, gia_tri);
+    return khoa ? t(khoa) : gia_tri;
+  };
   // Phần giải thích của công tắc giá mặc định THU GỌN (2026-10-02): đoạn 5 dòng chữ nhỏ
   // từng chiếm nửa cột lọc. Vẫn mở được bằng nút ⓘ (bàn phím + trình đọc màn hình đọc
   // được trạng thái mở/đóng qua `aria-expanded`), và nội dung vẫn nằm sẵn trong DOM.
@@ -135,11 +142,11 @@ export function DishFilters(props: DishFiltersProps) {
   */
   return (
     <div className="filters">
-      <FilterRow label="Muốn ăn gì?">
+      <FilterRow label={t('filters.group.what')}>
         {TEMPERATURE_OPTIONS.map((option) => (
           <Chip
             key={option.value}
-            label={option.label}
+            label={nhan('temperatures', option.value)}
             icon={option.icon}
             active={filters.temperatures.includes(option.value)}
             onClick={() => props.onToggle('temperatures', option.value)}
@@ -148,7 +155,7 @@ export function DishFilters(props: DishFiltersProps) {
         {COOKING_METHOD_OPTIONS.map((option) => (
           <Chip
             key={option.value}
-            label={option.label}
+            label={nhan('cookingMethods', option.value)}
             icon={option.icon}
             active={filters.cookingMethods.includes(option.value)}
             onClick={() => props.onToggle('cookingMethods', option.value)}
@@ -164,7 +171,7 @@ export function DishFilters(props: DishFiltersProps) {
           <IconPin className="icon-inline" />
           <span className="filters__vi-tri-nhan">
             {props.locationLabel ??
-              (props.locationIsDefault ? 'Trung tâm Hà Nội' : 'Vị trí của bạn')}
+              (props.locationIsDefault ? t('loc.center') : t('loc.yours'))}
           </span>
           <button
             type="button"
@@ -172,7 +179,7 @@ export function DishFilters(props: DishFiltersProps) {
             onClick={props.onRequestLocation}
             disabled={props.locationLoading}
           >
-            {props.locationLoading ? 'Đang định vị…' : 'Vị trí của tôi'}
+            {props.locationLoading ? t('loc.locating') : t('loc.mine')}
           </button>
         </div>
         <DistanceSlider value={filters.maxDistanceKm} onChange={props.onSetMaxDistanceKm} />
@@ -200,7 +207,7 @@ export function DishFilters(props: DishFiltersProps) {
             <span className="switch__track" aria-hidden="true">
               <span className="switch__thumb" />
             </span>
-            <span className="switch__label">Chỉ hiện quán có ghi giá</span>
+            <span className="switch__label">{t('filters.price.switch')}</span>
           </label>
           <button
             type="button"
@@ -217,17 +224,17 @@ export function DishFilters(props: DishFiltersProps) {
         {/* `hidden` chứ không gỡ khỏi DOM: `aria-describedby` của công tắc vẫn trỏ được
             tới đây, nên trình đọc màn hình đọc lời giải thích ngay cả khi đang thu gọn. */}
         <p id={idGiaiThich} className="switch__note muted small" hidden={!moGiaiThichGia}>
-          Phần lớn quán trong dữ liệu chưa có giá (nguồn OpenStreetMap và Overture không
-          có trường này), nên bật lên sẽ còn ít kết quả hơn nhiều. Không có giá nghĩa là
-          <strong> chưa biết</strong>, không phải quán không niêm yết.
+          {t('filters.price.note1')}
+          <strong>{t('filters.price.note2')}</strong>
+          {t('filters.price.note3')}
         </p>
       </div>
 
-      <FilterRow label="Bữa nào?">
+      <FilterRow label={t('filters.group.meal')}>
         {MEAL_TIME_OPTIONS.map((option) => (
           <Chip
             key={option.value}
-            label={option.label}
+            label={nhan('mealTimes', option.value)}
             icon={option.icon}
             active={filters.mealTimes.includes(option.value)}
             onClick={() => props.onToggle('mealTimes', option.value)}
@@ -239,7 +246,7 @@ export function DishFilters(props: DishFiltersProps) {
         {MOOD_OPTIONS.map((option) => (
           <Chip
             key={option.value}
-            label={option.label}
+            label={nhan('mood', option.value)}
             icon={option.icon}
             active={filters.mood === option.value}
             onClick={() => props.onSetSingle('mood', option.value)}
@@ -251,7 +258,7 @@ export function DishFilters(props: DishFiltersProps) {
         {WEATHER_OPTIONS.map((option) => (
           <Chip
             key={option.value}
-            label={option.label}
+            label={nhan('weather', option.value)}
             icon={option.icon}
             active={filters.weather === option.value}
             onClick={() => props.onSetSingle('weather', option.value)}
@@ -263,7 +270,7 @@ export function DishFilters(props: DishFiltersProps) {
       {props.activeFilterCount > 0 && (
         <div className="filters__foot">
           <button className="btn btn--link" onClick={props.onReset}>
-            Xoá {props.activeFilterCount} bộ lọc
+            {t('filters.reset', { n: props.activeFilterCount })}
           </button>
         </div>
       )}

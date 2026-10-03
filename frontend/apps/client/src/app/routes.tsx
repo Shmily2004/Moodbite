@@ -30,6 +30,7 @@ import { ResetPasswordPage } from '@/pages/reset-password';
 import { VerifyEmailPage } from '@/pages/verify-email';
 import { NotFoundPage } from '@/pages/not-found';
 import { DUONG_DAN_CU, ROUTES } from '@/shared/config';
+import { useT } from '@/shared/i18n';
 import { RootLayout } from './layout/RootLayout';
 
 /** Đường dẫn khai ở `shared/config/routes.ts` để mọi tầng FSD đều với tới được. */
@@ -67,9 +68,19 @@ function taiSau(nap: () => Promise<{ default: ComponentType }>) {
   // chỉ chạy với data router, còn test dựng route bằng `useRoutes` (xem App.test.tsx - data
   // router trong jsdom vướng lỗi AbortSignal của Node). Cách này chạy được ở cả hai nơi.
   return (
-    <Suspense fallback={<p className="trang-dang-tai" role="status">Đang tải trang…</p>}>
+    <Suspense fallback={<DangTaiTrang />}>
       <Trang />
     </Suspense>
+  );
+}
+
+/** Chữ chờ lúc tải trang lười — component riêng vì `fallback` cần gọi hook dịch. */
+function DangTaiTrang() {
+  const t = useT();
+  return (
+    <p className="trang-dang-tai" role="status">
+      {t('app.pageLoading')}
+    </p>
   );
 }
 

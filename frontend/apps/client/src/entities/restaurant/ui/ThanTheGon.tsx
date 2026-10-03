@@ -9,6 +9,7 @@ import type { SearchResultItem } from '@moodbite/api-client';
 import type { describeFit, describeReasons } from '../model/format';
 import { describeDishConfidence } from '../model/format';
 import { IconDining, IconPin } from '@/shared/ui';
+import { useT } from '@/shared/i18n';
 import { DanhGia, REASON_ICON } from './phanTheQuan';
 
 interface Props {
@@ -21,6 +22,7 @@ interface Props {
 
 export function ThanTheGon({ restaurant, fit, reasons, dongNguon }: Props) {
   const dish = restaurant.suggested_dish;
+  const t = useT();
   return (
     <>
       {restaurant.address && (
@@ -49,7 +51,7 @@ export function ThanTheGon({ restaurant, fit, reasons, dongNguon }: Props) {
           >
             <IconDining className="icon-inline" /> <strong>{dish.name}</strong>{' '}
             {/* Mức tin cậy vẫn là CHỮ, không giấu vào tooltip. */}
-            <span>{describeDishConfidence(dish.confidence)}</span>
+            <span>{describeDishConfidence(dish.confidence, t)}</span>
           </li>
         )}
         <DanhGia restaurant={restaurant} chip />

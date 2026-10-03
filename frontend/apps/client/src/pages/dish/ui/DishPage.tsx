@@ -23,6 +23,7 @@ import { useDishDetail } from '@/features/view-dish-detail';
 import { useUserLocation } from '@/features/pick-location';
 import { describeRestaurantListHeading } from '@/entities/dish';
 import { IconStore } from '@/shared/ui';
+import { useT } from '@/shared/i18n';
 import { DEFAULT_RADIUS_KM, ROUTES } from '@/shared/config';
 import { DishFilterPanel } from './DishFilterPanel';
 import { DishIntro } from './DishIntro';
@@ -33,6 +34,7 @@ type KieuSapXep = 'gan' | 'hop';
 const SO_QUAN_BAN_DAU = 8;
 
 export function DishPage() {
+  const t = useT();
   const [sapXep, setSapXep] = useState<KieuSapXep>('gan');
   // Cắt bớt danh sách lúc đầu (bản thiết kế có nút "Xem thêm quán"): 20 thẻ quán đẩy
   // bản đồ và mọi thứ dưới nó ra khỏi màn hình ngay lần đầu vào trang.
@@ -75,10 +77,10 @@ export function DishPage() {
         <SiteHeader />
         <main className="dish-page">
           <div className="state">
-            <p className="state__title">Không tìm thấy món này</p>
-            <p>Món có thể đã bị gỡ khỏi danh mục.</p>
+            <p className="state__title">{t('dishPage.notFoundTitle')}</p>
+            <p>{t('dishPage.notFoundHint')}</p>
             <Link className="btn btn--primary" to={ROUTES.home}>
-              Chọn món khác
+              {t('dishPage.pickOther')}
             </Link>
           </div>
         </main>
@@ -93,8 +95,8 @@ export function DishPage() {
   // Tiêu đề nói ĐANG HIỆN bao nhiêu / TỔNG bao nhiêu — xem `describeRestaurantListHeading`.
   const tieuDeDanhSach =
     !dish || detail.loading || detail.restaurants.length === 0
-      ? 'Quán gần bạn'
-      : describeRestaurantListHeading(quanHien.length, dish.restaurant_count, dish.name);
+      ? t('dishPage.nearby')
+      : describeRestaurantListHeading(quanHien.length, dish.restaurant_count, dish.name, t);
 
   return (
     <div className="page">
@@ -103,16 +105,16 @@ export function DishPage() {
       <main className="dish-page">
         {/* Đường về + đường dẫn phân cấp nằm TRONG nội dung (thanh trên nay là
             `SiteHeader` dùng chung). Nút Back của trình duyệt không phải ai cũng dùng. */}
-        <nav className="breadcrumb" aria-label="Đường dẫn">
-          <Link to={ROUTES.home}>← Đổi món</Link>
+        <nav className="breadcrumb" aria-label={t('dishPage.breadcrumb')}>
+          <Link to={ROUTES.home}>{t('dishPage.changeDish')}</Link>
           <span aria-hidden="true">·</span>
-          <Link to={ROUTES.home}>Trang chủ</Link>
+          <Link to={ROUTES.home}>{t('dishPage.home')}</Link>
           <span aria-hidden="true">›</span>
-          <span className="breadcrumb__hien-tai">{dish?.name ?? 'Đang tải…'}</span>
+          <span className="breadcrumb__hien-tai">{dish?.name ?? t('dishPage.loading')}</span>
           {dish && (
             <>
               <span aria-hidden="true">›</span>
-              <span className="breadcrumb__hien-tai">Quán ăn</span>
+              <span className="breadcrumb__hien-tai">{t('dishPage.restaurants')}</span>
             </>
           )}
         </nav>
@@ -154,18 +156,18 @@ export function DishPage() {
                     hợp đồng, nên tạm sắp ngay trên danh sách đã tải — mọi trường cần để
                     sắp đều đã nằm trong kết quả. Hệ quả: chỉ sắp trong SỐ QUÁN ĐÃ TẢI. */}
                 <label className="dish-restaurants__sort">
-                  <span className="sr-only">Sắp xếp danh sách quán</span>
+                  <span className="sr-only">{t('dishPage.sortLabel')}</span>
                   <select
                     value={sapXep}
                     onChange={(event) => setSapXep(event.target.value as KieuSapXep)}
                   >
-                    <option value="gan">Gần bạn nhất</option>
-                    <option value="hop">Phù hợp nhất</option>
+                    <option value="gan">{t('dishPage.sort.near')}</option>
+                    <option value="hop">{t('dishPage.sort.best')}</option>
                   </select>
                 </label>
               </div>
 
-              {detail.loading && <p className="muted dish-restaurants__trong">Đang tìm quán…</p>}
+              {detail.loading && <p className="muted dish-restaurants__trong">{t('dishPage.searching')}</p>}
 
               {!detail.loading && detail.restaurants.length > 0 && (
                 <>
@@ -186,7 +188,7 @@ export function DishPage() {
                       className="btn btn--pill-giua"
                       onClick={() => setXemHet(true)}
                     >
-                      Xem thêm {conLai} quán ▾
+                      {t('dishPage.showMore', { n: conLai })}
                     </button>
                   )}
 
@@ -196,7 +198,7 @@ export function DishPage() {
                       className="btn btn--pill-giua"
                       onClick={() => setAnBanDo(false)}
                     >
-                      Hiện lại bản đồ
+                      {t('dishPage.showMap')}
                     </button>
                   )}
                 </>
@@ -206,13 +208,10 @@ export function DishPage() {
                 detail.restaurants.length === 0 &&
                 !detail.restaurantsError && (
                   <div className="state">
-                    <p className="state__title">Chưa tìm thấy quán nào bán món này gần bạn</p>
-                    <p>
-                      Dữ liệu quán được đối chiếu theo TÊN QUÁN, nên quán có bán nhưng không
-                      ghi tên món thì chưa tìm ra được.
-                    </p>
+                    <p className="state__title">{t('dishPage.emptyTitle')}</p>
+                    <p>{t('dishPage.emptyHint')}</p>
                     <Link className="chip" to={ROUTES.home}>
-                      Chọn món khác
+                      {t('dishPage.pickOther')}
                     </Link>
                   </div>
                 )}
@@ -226,7 +225,7 @@ export function DishPage() {
                   className="map-pane__thu"
                   onClick={() => setAnBanDo(true)}
                 >
-                  Xem danh sách
+                  {t('dishPage.hideMap')}
                 </button>
                 <RestaurantMap
                   restaurants={quanHien}

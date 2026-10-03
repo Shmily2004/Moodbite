@@ -33,6 +33,7 @@ import { ThanTheDayDu } from './ThanTheDayDu';
 import { ThanTheGon } from './ThanTheGon';
 import { NutXemChiTiet } from './phanTheQuan';
 import { IconPin } from '@/shared/ui';
+import { useT } from '@/shared/i18n';
 
 interface RestaurantCardProps {
   restaurant: SearchResultItem;
@@ -66,17 +67,18 @@ export function RestaurantCard({
   soThuTu,
   gon = false,
 }: RestaurantCardProps) {
+  const t = useT();
   const price = formatPrice(restaurant.price_range);
   const distance = formatDistance(restaurant.distance_m);
-  const fit = describeFit(restaurant.predicted_score);
-  const reasons = describeReasons(restaurant.match_source, queryText);
+  const fit = describeFit(restaurant.predicted_score, t);
+  const reasons = describeReasons(restaurant.match_source, queryText, t);
   // TRẠNG THÁI & TUỔI THẬT - backend cào về từ 2026-08-19 nhưng giao diện chưa dùng,
   // nên người dùng vẫn bị gợi ý quán đang nghỉ mà không hề được báo trước.
-  const closure = describeTemporaryClosure(restaurant.temporarily_closed);
-  const freshness = describeFreshness(restaurant.source_updated_at);
+  const closure = describeTemporaryClosure(restaurant.temporarily_closed, t);
+  const freshness = describeFreshness(restaurant.source_updated_at, undefined, t);
   const bangChung = [
-    describeVerification(restaurant.source_datasets),
-    describeSurvey(restaurant.surveyed_at),
+    describeVerification(restaurant.source_datasets, t),
+    describeSurvey(restaurant.surveyed_at, t),
   ].filter((x): x is string => Boolean(x));
 
   return (
@@ -115,7 +117,7 @@ export function RestaurantCard({
                 ⚠ Không có nhãn KHÔNG có nghĩa là "quán không nổi tiếng": chỉ 2,4% quán
                 có dữ liệu review. Nhãn này chỉ để KHẲNG ĐỊNH, không bao giờ để phủ định,
                 và không được đem đi sắp xếp hay lọc. */}
-            {restaurant.is_famous && <span className="card__noi-tieng">Nổi tiếng</span>}
+            {restaurant.is_famous && <span className="card__noi-tieng">{t('rest.famous')}</span>}
             {/* Có số thứ tự trên ảnh (khớp ghim bản đồ) thì KHÔNG in thêm "#1" cạnh tên —
                 hai con số đứng cạnh nhau, lại có thể KHÁC nhau khi sắp theo "gần nhất",
                 chỉ làm người đọc rối (bỏ 2026-10-02). Trang tìm kiếm không đánh số nên
@@ -139,7 +141,7 @@ export function RestaurantCard({
               fit={fit}
               reasons={reasons}
               dongNguon={[
-                describeCluster(restaurant.experience_cluster_label),
+                describeCluster(restaurant.experience_cluster_label, t),
                 restaurant.category,
                 freshness?.text,
                 ...bangChung,

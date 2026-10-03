@@ -8,6 +8,14 @@
  * Không bao giờ hiện "0 sao" hay "miễn phí" cho quán thiếu dữ liệu.
  */
 import type { SearchResultItem } from '@moodbite/api-client';
+import { HAM_DICH_VI } from '@/shared/i18n';
+import type { HamDich, Khoa } from '@/shared/i18n';
+
+/*
+ * SONG NGỮ (2026-10-02): mọi hàm trả CHỮ nhận thêm `t` (hàm dịch) ở tham số cuối; bỏ
+ * trống = tiếng Việt như trước. Luật trung thực không đổi theo ngôn ngữ: thiếu rating là
+ * "chưa có đánh giá" / "No rating yet", không bao giờ là "0".
+ */
 
 export function formatDistance(metres: number | null | undefined): string | null {
   if (metres == null) return null;
@@ -18,8 +26,9 @@ export function formatDistance(metres: number | null | undefined): string | null
 export function formatRating(
   rating: number | null | undefined,
   total: number | null | undefined,
+  t: HamDich = HAM_DICH_VI,
 ): string {
-  if (rating == null) return 'chưa có đánh giá';
+  if (rating == null) return t('rest.noRating');
   return total != null ? `${rating}★ (${total})` : `${rating}★`;
 }
 
@@ -51,9 +60,9 @@ export function formatPrice(priceRange: string | null | undefined): string | nul
 
 /** Ngưỡng chia nhãn, đặt theo phân bố đo được ở trên. */
 const FIT_BANDS = [
-  { min: 0.68, level: 'high', label: 'Rất phù hợp' },
-  { min: 0.6, level: 'mid', label: 'Phù hợp' },
-  { min: 0, level: 'low', label: 'Có thể hợp' },
+  { min: 0.68, level: 'high', khoa: 'rest.fit.high' },
+  { min: 0.6, level: 'mid', khoa: 'rest.fit.mid' },
+  { min: 0, level: 'low', khoa: 'rest.fit.low' },
 ] as const;
 
 // Neo của THANH hiển thị. Điểm thực tế nằm gọn trong ~[0.55, 0.75], nên nếu vẽ thanh
@@ -70,32 +79,41 @@ export interface FitLevel {
   barPercent: number;
 }
 
-export function describeFit(score: number): FitLevel {
+export function describeFit(score: number, t: HamDich = HAM_DICH_VI): FitLevel {
   const band = FIT_BANDS.find((b) => score >= b.min) ?? FIT_BANDS[FIT_BANDS.length - 1];
   const ratio = (score - BAR_MIN) / (BAR_MAX - BAR_MIN);
   return {
     level: band.level,
-    label: band.label,
+    label: t(band.khoa),
     // Tối thiểu 8% để thanh không biến mất hoàn toàn ở quán điểm thấp.
     barPercent: Math.round(Math.min(1, Math.max(0.08, ratio)) * 100),
   };
 }
 
-const MATCH_SOURCE_LABELS: Record<string, string> = {
-  name: 'tên quán',
-  category: 'loại hình',
-  atmosphere: 'không gian',
-  review: 'đánh giá',
-  semantic: 'ngữ nghĩa',
-  mood: 'mức phù hợp chung',
+const MATCH_SOURCE_LABELS: Record<string, Khoa> = {
+  name: 'rest.match.name',
+  category: 'rest.match.category',
+  atmosphere: 'rest.match.atmosphere',
+  review: 'rest.match.review',
+  semantic: 'rest.match.semantic',
+  mood: 'rest.match.mood',
 };
 
+/** Mã lạ thì giữ nguyên mã — vẫn nói được gì đó thay vì im lặng. */
+function nhanNguon(part: string, t: HamDich): string {
+  const khoa = MATCH_SOURCE_LABELS[part];
+  return khoa ? t(khoa) : part;
+}
+
 /** Vì sao quán này được gợi ý - để giao diện nói thật với người dùng. */
-export function describeMatchSource(source: string | null | undefined): string | null {
+export function describeMatchSource(
+  source: string | null | undefined,
+  t: HamDich = HAM_DICH_VI,
+): string | null {
   if (!source) return null;
   return source
     .split('+')
-    .map((part) => MATCH_SOURCE_LABELS[part] ?? part)
+    .map((part) => nhanNguon(part, t))
     .join(', ');
 }
 
@@ -123,6 +141,7 @@ export interface Reason {
 export function describeReasons(
   matchSource: string | null | undefined,
   queryText?: string | null,
+  t: HamDich = HAM_DICH_VI,
 ): Reason[] {
   if (!matchSource) return [];
   const parts = matchSource.split('+');
@@ -134,9 +153,7 @@ export function describeReasons(
     const query = queryText?.trim();
     reasons.push({
       kind: 'feel',
-      text: query
-        ? `Hợp với "${query}"`
-        : 'Hợp về không gian và cảm giác',
+      text: query ? t('rest.reason.feelQuery', { query }) : t('rest.reason.feel'),
     });
   }
 
@@ -145,36 +162,43 @@ export function describeReasons(
     (p) => p === 'name' || p === 'category' || p === 'review' || p === 'semantic',
   );
   if (textParts.length > 0) {
-    const labels = textParts.map((p) => MATCH_SOURCE_LABELS[p] ?? p);
-    reasons.push({ kind: 'match', text: `Khớp ${labels.join(', ')}` });
+    const labels = textParts.map((p) => nhanNguon(p, t));
+    reasons.push({ kind: 'match', text: t('rest.reason.match', { labels: labels.join(', ') }) });
   }
 
   // Backend trả mã lạ -> vẫn nói được gì đó thay vì im lặng.
   if (reasons.length === 0) {
-    const fallback = describeMatchSource(matchSource);
-    if (fallback) reasons.push({ kind: 'match', text: `Khớp ${fallback}` });
+    const fallback = describeMatchSource(matchSource, t);
+    if (fallback) reasons.push({ kind: 'match', text: t('rest.reason.match', { labels: fallback }) });
   }
   return reasons;
 }
 
-const DISH_CONFIDENCE_LABELS: Record<string, string> = {
-  specific: 'khớp loại hình cụ thể của quán',
-  generic_fallback: 'suy luận rộng, có thể không chính xác',
-  ml: 'do mô hình dự đoán',
-  unknown: 'chưa xác định',
+const DISH_CONFIDENCE_LABELS: Record<string, Khoa> = {
+  specific: 'rest.conf.specific',
+  generic_fallback: 'rest.conf.generic_fallback',
+  ml: 'rest.conf.ml',
+  unknown: 'rest.conf.unknown',
 };
 
 /** Món ăn là SUY LUẬN từ loại hình quán, KHÔNG phải thực đơn thật. */
-export function describeDishConfidence(confidence: string | null | undefined): string {
-  return DISH_CONFIDENCE_LABELS[confidence ?? 'unknown'] ?? 'chưa xác định';
+export function describeDishConfidence(
+  confidence: string | null | undefined,
+  t: HamDich = HAM_DICH_VI,
+): string {
+  return t(DISH_CONFIDENCE_LABELS[confidence ?? 'unknown'] ?? 'rest.conf.unknown');
 }
 
 /**
  * Nhãn cụm trải nghiệm. `null` = CHƯA phân cụm (Cold Start), hiện "Đang cập nhật"
  * thay vì để trống - đúng quy ước ở đặc tả API mục 3.1.
  */
-export function describeCluster(label: string | null | undefined): string {
-  return label || 'Đang cập nhật';
+export function describeCluster(
+  label: string | null | undefined,
+  t: HamDich = HAM_DICH_VI,
+): string {
+  // `label` là TÊN CỤM backend đặt (dữ liệu, tiếng Việt) — chỉ chữ dự phòng mới dịch.
+  return label || t('rest.cluster.pending');
 }
 
 /* ---------------------------------------------------------------------------
@@ -195,8 +219,9 @@ export function describeCluster(label: string | null | undefined): string {
  */
 export function describeTemporaryClosure(
   temporarilyClosed: boolean | null | undefined,
+  t: HamDich = HAM_DICH_VI,
 ): string | null {
-  return temporarilyClosed === true ? 'Đang tạm đóng cửa' : null;
+  return temporarilyClosed === true ? t('rest.closedTemp') : null;
 }
 
 export interface Freshness {
@@ -227,6 +252,7 @@ const MS_MOT_NGAY = 24 * 60 * 60 * 1000;
 export function describeFreshness(
   sourceUpdatedAt: string | null | undefined,
   now: Date = new Date(),
+  t: HamDich = HAM_DICH_VI,
 ): Freshness | null {
   if (!sourceUpdatedAt) return null;
   const moc = new Date(sourceUpdatedAt);
@@ -236,14 +262,17 @@ export function describeFreshness(
   // Ngày ở TƯƠNG LAI = dữ liệu nguồn sai. Nói "cập nhật -2 năm trước" còn tệ hơn im lặng.
   if (soNgay < 0) return null;
 
-  if (soNgay < 45) return { text: 'nguồn vừa cập nhật', stale: false };
+  if (soNgay < 45) return { text: t('rest.fresh.recent'), stale: false };
 
   const soThang = Math.floor(soNgay / 30);
-  if (soThang < 12) return { text: `nguồn cập nhật ${soThang} tháng trước`, stale: false };
+  if (soThang < 12) {
+    const text = soThang === 1 ? t('rest.fresh.month1') : t('rest.fresh.months', { n: soThang });
+    return { text, stale: false };
+  }
 
   const soNam = Math.floor(soNgay / 365);
   return {
-    text: `nguồn cập nhật ${soNam} năm trước`,
+    text: soNam === 1 ? t('rest.fresh.year1') : t('rest.fresh.years', { n: soNam }),
     stale: soNam >= NAM_COI_LA_CU,
   };
 }
@@ -274,10 +303,11 @@ export function tenNenTang(dataset: string): string {
  */
 export function describeVerification(
   sourceDatasets: string[] | null | undefined,
+  t: HamDich = HAM_DICH_VI,
 ): string | null {
   const list = (sourceDatasets ?? []).filter(Boolean);
   if (list.length < 2) return null;
-  return `${list.length} nguồn xác nhận: ${list.map(tenNenTang).join(', ')}`;
+  return t('rest.verified', { n: list.length, list: list.map(tenNenTang).join(', ') });
 }
 
 /**
@@ -286,10 +316,13 @@ export function describeVerification(
  * Hiếm (0,3% quán) nhưng là bằng chứng MẠNH NHẤT ta có, nên đáng một nhãn riêng thay vì
  * trộn chung vào dòng "nguồn cập nhật".
  */
-export function describeSurvey(surveyedAt: string | null | undefined): string | null {
+export function describeSurvey(
+  surveyedAt: string | null | undefined,
+  t: HamDich = HAM_DICH_VI,
+): string | null {
   if (!surveyedAt) return null;
   const nam = surveyedAt.slice(0, 4);
-  return /^\d{4}$/.test(nam) ? `có người xác minh tận nơi (${nam})` : null;
+  return /^\d{4}$/.test(nam) ? t('rest.surveyed', { year: nam }) : null;
 }
 
 export function hasCoordinates(

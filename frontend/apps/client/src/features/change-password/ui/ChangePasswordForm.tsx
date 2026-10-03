@@ -18,6 +18,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { authApi } from '@/shared/api';
 import { replaceToken } from '@/shared/lib';
+import { useT } from '@/shared/i18n';
 
 export function ChangePasswordForm() {
   const [cu, setCu] = useState('');
@@ -25,6 +26,7 @@ export function ChangePasswordForm() {
   const [dangGui, setDangGui] = useState(false);
   const [loi, setLoi] = useState<string | null>(null);
   const [xong, setXong] = useState<string | null>(null);
+  const t = useT();
 
   const gui = async (su_kien: FormEvent) => {
     su_kien.preventDefault();
@@ -43,7 +45,7 @@ export function ChangePasswordForm() {
     } catch (err) {
       // Luật độ dài mật khẩu nằm ở backend (`domain/entities/user.py`) và câu lỗi cũng
       // từ đó ra. KHÔNG chép luật xuống frontend — hai bản luật sẽ có ngày lệch nhau.
-      setLoi(err instanceof Error ? err.message : 'Không đổi được mật khẩu.');
+      setLoi(err instanceof Error ? err.message : t('changePw.failed'));
     } finally {
       setDangGui(false);
     }
@@ -52,7 +54,7 @@ export function ChangePasswordForm() {
   return (
     <form className="pwform" onSubmit={gui}>
       <label className="pwform__row">
-        <span>Mật khẩu hiện tại</span>
+        <span>{t('changePw.current')}</span>
         <input
           type="password"
           autoComplete="current-password"
@@ -62,7 +64,7 @@ export function ChangePasswordForm() {
         />
       </label>
       <label className="pwform__row">
-        <span>Mật khẩu mới</span>
+        <span>{t('changePw.new')}</span>
         <input
           type="password"
           autoComplete="new-password"
@@ -80,7 +82,7 @@ export function ChangePasswordForm() {
         className="btn btn--sm"
         disabled={dangGui || cu === '' || moi === ''}
       >
-        {dangGui ? 'Đang đổi…' : 'Đổi mật khẩu'}
+        {dangGui ? t('changePw.sending') : t('changePw.submit')}
       </button>
     </form>
   );

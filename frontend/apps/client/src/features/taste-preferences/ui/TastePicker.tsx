@@ -95,7 +95,7 @@ export function TastePicker({ prefs }: TastePickerProps) {
               >
                 {/* `aria-hidden` nằm sẵn trong icon SVG; ảnh thì `alt=""` — trình đọc
                     màn hình chỉ đọc nhãn. */}
-                {ICON_SO_THICH[mon.id]} {mon.label}
+                {ICON_SO_THICH[mon.id]} {t(mon.khoa)}
               </button>
             </li>
           );

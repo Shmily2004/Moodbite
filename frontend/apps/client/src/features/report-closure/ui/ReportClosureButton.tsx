@@ -7,6 +7,7 @@
  */
 import { useState } from 'react';
 import { useClosureReport } from '../model/useClosureReport';
+import { useT } from '@/shared/i18n';
 
 interface ReportClosureButtonProps {
   restaurantId: string;
@@ -19,11 +20,12 @@ export function ReportClosureButton({
 }: ReportClosureButtonProps) {
   const { state, report } = useClosureReport();
   const [dangHoiLai, setDangHoiLai] = useState(false);
+  const t = useT();
 
   if (state === 'sent') {
     return (
       <p className="closure closure--sent" role="status">
-        Đã ghi nhận. Cảm ơn bạn — quán sẽ được ẩn khi có thêm người xác nhận.
+        {t('closure.sent')}
       </p>
     );
   }
@@ -31,9 +33,9 @@ export function ReportClosureButton({
   if (state === 'failed') {
     return (
       <p className="closure closure--failed" role="status">
-        Gửi không được, có thể do mất mạng. Bạn thử lại giúp nhé.{' '}
+        {t('closure.failed')}{' '}
         <button className="btn btn--link" onClick={() => void report(restaurantId)}>
-          Thử lại
+          {t('closure.retry')}
         </button>
       </p>
     );
@@ -43,7 +45,7 @@ export function ReportClosureButton({
     return (
       <div className="closure closure--confirm">
         <span>
-          Xác nhận <strong>{restaurantName}</strong> đã đóng cửa?
+          {t('closure.confirmBefore')} <strong>{restaurantName}</strong> {t('closure.confirmAfter')}
         </span>
         <span className="closure__actions">
           <button
@@ -51,10 +53,10 @@ export function ReportClosureButton({
             disabled={state === 'sending'}
             onClick={() => void report(restaurantId)}
           >
-            {state === 'sending' ? 'Đang gửi…' : 'Đúng, đã đóng'}
+            {state === 'sending' ? t('closure.sending') : t('closure.yes')}
           </button>
           <button className="btn btn--link" onClick={() => setDangHoiLai(false)}>
-            Huỷ
+            {t('closure.cancel')}
           </button>
         </span>
       </div>
@@ -63,7 +65,7 @@ export function ReportClosureButton({
 
   return (
     <button className="btn btn--link closure__open" onClick={() => setDangHoiLai(true)}>
-      Quán này đã đóng cửa?
+      {t('closure.open')}
     </button>
   );
 }

@@ -1,6 +1,6 @@
 # MoodBite — Bảng theo dõi tiến độ
 
-**Cập nhật:** 2026-10-02
+**Cập nhật:** 2026-10-03
 **Nguyên tắc:** file này chỉ ghi thứ đã **chạy thật và kiểm chứng được**. Không ghi theo
 kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh để tự kiểm lại.
 
@@ -19,7 +19,7 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Frontend Client | ✅ **TypeScript + FSD** | 86 test, có bản đồ, steiger trong CI |
 | Bản đồ | ✅ **Xong** | Leaflet + OpenStreetMap, miễn phí, không cần key |
 | Kiến trúc | ✅ Sạch | Clean Architecture + checker tự động trong CI |
-| Test | ✅ **814 backend + 383 frontend** | client 305 · admin 78. Đo bằng `python scripts/verify.py` ngày 2026-10-02 (khuya) |
+| Test | ✅ **820 backend + 391 frontend** | client 313 · admin 78. Đo bằng `python scripts/verify.py` ngày 2026-10-03 |
 | Giao diện | ✅ Theo bản duyệt · **trang chủ + tài khoản dựng lại 2026-08-22** | trang chủ = LƯỚI MÓN + chips lọc; trang món = giới thiệu + bản đồ + danh sách quán; `/tim-kiem` giữ bố cục bản đồ + rail cũ |
 | Router + layout | ✅ Xong | react-router v6, khung dùng chung, `RequireAuth` cho admin |
 | Chạy xem giao diện | ✅ **một lệnh** | `python scripts/run_dev.py --admin` |
@@ -1440,6 +1440,18 @@ trang chạy, rồi đi qua 15 trang (client mobile 420 + desktop 1440, admin de
 | Kết quả rà sau sửa | ✅ **24/24 lượt: 0 lỗi, 0 cảnh báo, không tràn ngang** |
 | **Tên quán có ký tự điều khiển / mã hoá sai** ("\x08Quán Ông Tò", "Cafe Sinh Tá»‘") | ✅ thêm quy tắc vào `data_cleaning._lam_sach_ten` (chỉ sửa khi giải mã lại ra UTF-8 hợp lệ). Chạy thử trên 52.871 tên thật: đổi ĐÚNG 3 tên, 0 tên đúng bị đụng. ⚠️ **Chưa chạy lại pipeline** (phải chạy cả chuỗi tới clustering cho 3 bản ghi) - lần chạy pipeline sau sẽ tự sửa |
 | `RestaurantCard.tsx` 331 dòng | ✅ tách `ThanTheGon` / `ThanTheDayDu` / `phanTheQuan` -> 185 dòng, hành vi giữ nguyên (305/305 test) |
+
+
+### Đợt 2026-10-03 — tốc độ, nền tối, tiếng Anh, khả năng truy cập
+
+| Việc | Kết quả | Kiểm lại |
+|---|---|---|
+| **`/search` có câu chữ chậm ~2,1 giây** | ✅ **836 ms** (~2,4 lần), kết quả GIỐNG HỆT. Không phải do bản sửa phở/Phố (bản cũ cũng 2.030 ms). Gốc: mỗi lượt tách từ lại tên/loại hình/review của 52.871 quán (160.876 lần). Nay nhớ sẵn bằng `lru_cache` + `sys.intern`. ⚠️ Đánh đổi đã đo: RAM tiến trình **+62 MB** (471 -> 533 MB); lượt tìm đầu tiên sau khởi động vẫn ~2 giây | `pytest tests/test_domain_ranking.py -k bo_nho_dem` |
+| Đo các endpoint khác | `/dishes/suggest` 265 ms · `/dishes/{id}/restaurants` 10 ms · `/dishes/{id}` 7 ms · `/search` theo mood 478 ms | script tạm |
+| **Giao diện tiếng Anh còn 59 chữ chưa dịch** (bộ lọc, đăng nhập, trang món, /search, tài khoản) | ✅ còn **0** chữ giao diện; còn lại chỉ là DỮ LIỆU (tên món/quán, tên người dùng), chữ backend sinh ra (`warnings`, huy hiệu) và câu mẫu /search giữ tiếng Việt CÓ CHỦ ĐÍCH (dữ liệu chỉ khớp tiếng Việt) kèm lời dẫn "Try (in Vietnamese):". Từ điển tách 4 file theo vùng màn hình, thiếu bản dịch = lỗi biên dịch. "No rating yet" (không bao giờ 0), mức tin cậy món vẫn ghi bằng chữ. ⚠️ JS chính 317 -> 346 kB (vẫn < 500 kB); muốn giảm phải tải lười bản EN (chữ Việt nháy lên lúc mở) - chưa làm | rà trình duyệt `lang=en` |
+| Nền tối | ✅ đọc rõ ở mọi trang; sửa ô ảnh thay thế của món (khối kem sáng chói giữa nền tối) | ảnh chụp `*_dark_vi` |
+| Khả năng truy cập (nút/link không tên, ảnh thiếu alt, ô nhập thiếu nhãn, id trùng) | ✅ **0 lỗi** trên 6 trang | rà trình duyệt |
+| Câu cảnh báo "bán kính **10.0** km" | ✅ "10 km" / "2,5 km" (`location.mo_ta_km`, dấu phẩy thập phân) | `pytest tests/test_mo_ta_km.py` |
 
 ---
 

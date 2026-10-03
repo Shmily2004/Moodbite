@@ -18,6 +18,8 @@
 import { useId, useState } from 'react';
 import type { ReactNode } from 'react';
 import { IconEye, IconEyeOff, IconLock, IconMail, IconUser } from '@/shared/ui';
+import { useT } from '@/shared/i18n';
+import type { Khoa } from '@/shared/i18n';
 
 export interface RegisterFormProps {
   loading: boolean;
@@ -42,7 +44,9 @@ export function RegisterForm({ loading, error, onSubmit, footer }: RegisterFormP
   const [hienMatKhau, setHienMatKhau] = useState(false);
   const [dongY, setDongY] = useState(false);
   const [hienGhiChuDieuKhoan, setHienGhiChuDieuKhoan] = useState(false);
-  const [loiKhop, setLoiKhop] = useState<string | null>(null);
+  // Lưu KHOÁ chứ không lưu câu: đổi ngôn ngữ lúc lỗi đang hiện thì câu đổi theo.
+  const [loiKhop, setLoiKhop] = useState<Khoa | null>(null);
+  const t = useT();
 
   const idTen = useId();
   const idHienThi = useId();
@@ -61,26 +65,26 @@ export function RegisterForm({ loading, error, onSubmit, footer }: RegisterFormP
         // nó chỉ còn tác dụng gợi ý cho trình duyệt/trình đọc màn hình. Phải kiểm ở đây,
         // đúng cách đã làm với hai ô mật khẩu ngay bên dưới.
         if (email.trim() === '') {
-          setLoiKhop('Bạn cần nhập email để xác minh tài khoản và lấy lại mật khẩu.');
+          setLoiKhop('register.emailRequired');
           return;
         }
         if (password !== confirm) {
           // Không gọi API khi đã biết chắc là gõ nhầm: đỡ một vòng mạng, và quan trọng
           // hơn là người dùng nhận phản hồi ngay lập tức.
-          setLoiKhop('Hai ô mật khẩu chưa giống nhau. Kiểm tra lại giúp mình nhé.');
+          setLoiKhop('auth.mismatch');
           return;
         }
         setLoiKhop(null);
         onSubmit(username, password, displayName, email);
       }}
     >
-      <h1 className="auth-card__title">Tạo tài khoản mới</h1>
+      <h1 className="auth-card__title">{t('register.title')}</h1>
       <p className="auth-card__sub">
-        Bắt đầu hành trình khám phá ẩm thực Hà Nội.
+        {t('register.sub')}
       </p>
 
       <label className="field__label" htmlFor={idTen}>
-        Tên đăng nhập
+        {t('auth.username')}
       </label>
       <div className="field field--tight">
         <IconUser className="field__icon" />
@@ -88,17 +92,17 @@ export function RegisterForm({ loading, error, onSubmit, footer }: RegisterFormP
           id={idTen}
           className="field__input"
           value={username}
-          placeholder="Chọn tên đăng nhập"
+          placeholder={t('register.usernamePlaceholder')}
           autoComplete="username"
           autoFocus
           required
           onChange={(event) => setUsername(event.target.value)}
         />
       </div>
-      <p className="field__hint">3–32 ký tự: chữ thường không dấu, số, dấu - và _</p>
+      <p className="field__hint">{t('register.usernameHint')}</p>
 
       <label className="field__label" htmlFor={idHienThi}>
-        Tên hiển thị
+        {t('register.displayName')}
       </label>
       <div className="field field--tight">
         <IconUser className="field__icon" />
@@ -109,8 +113,8 @@ export function RegisterForm({ loading, error, onSubmit, footer }: RegisterFormP
           // Lời giải thích dồn vào placeholder + `title` thay vì một dòng gợi ý riêng:
           // bản thiết kế chỉ có MỘT dòng gợi ý (dưới ô tên đăng nhập), và mỗi dòng gợi ý
           // thừa đẩy thẻ form dài thêm ~48px — đủ để tràn xuống dưới màn hình.
-          placeholder="Tên hiển thị (có thể bỏ trống)"
-          title="Được dùng tiếng Việt có dấu. Bỏ trống thì hiển thị theo tên đăng nhập."
+          placeholder={t('register.displayNamePlaceholder')}
+          title={t('register.displayNameTitle')}
           autoComplete="nickname"
           onChange={(event) => setDisplayName(event.target.value)}
         />
@@ -148,11 +152,11 @@ export function RegisterForm({ loading, error, onSubmit, footer }: RegisterFormP
           vì nội dung đã có ở nhãn "(không bắt buộc)"; còn dòng gợi ý của TÊN ĐĂNG NHẬP thì
           KHÔNG ẩn — sai luật đặt tên là backend từ chối, phải cho người dùng biết trước. */}
       <p className="field__hint field__hint--phu">
-        Dùng để xác minh tài khoản và lấy lại mật khẩu khi bạn quên.
+        {t('register.emailHint')}
       </p>
 
       <label className="field__label" htmlFor={idMatKhau}>
-        Mật khẩu
+        {t('auth.password')}
       </label>
       <div className="field">
         <IconLock className="field__icon" />
@@ -161,7 +165,7 @@ export function RegisterForm({ loading, error, onSubmit, footer }: RegisterFormP
           className="field__input"
           type={hienMatKhau ? 'text' : 'password'}
           value={password}
-          placeholder="Ít nhất 8 ký tự"
+          placeholder={t('auth.minLength')}
           autoComplete="new-password"
           required
           onChange={(event) => setPassword(event.target.value)}
@@ -170,7 +174,7 @@ export function RegisterForm({ loading, error, onSubmit, footer }: RegisterFormP
           type="button"
           className="field__eye"
           onClick={() => setHienMatKhau((cu) => !cu)}
-          aria-label={hienMatKhau ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+          aria-label={hienMatKhau ? t('auth.hidePassword') : t('auth.showPassword')}
           aria-pressed={hienMatKhau}
           tabIndex={-1}
         >
@@ -179,7 +183,7 @@ export function RegisterForm({ loading, error, onSubmit, footer }: RegisterFormP
       </div>
 
       <label className="field__label" htmlFor={idNhapLai}>
-        Xác nhận mật khẩu
+        {t('auth.confirmPassword')}
       </label>
       <div className="field">
         <IconLock className="field__icon" />
@@ -190,7 +194,7 @@ export function RegisterForm({ loading, error, onSubmit, footer }: RegisterFormP
           // người dùng không đối chiếu được, trong khi đối chiếu chính là việc của ô này.
           type={hienMatKhau ? 'text' : 'password'}
           value={confirm}
-          placeholder="Nhập lại mật khẩu"
+          placeholder={t('register.confirmPlaceholder')}
           autoComplete="new-password"
           required
           onChange={(event) => setConfirm(event.target.value)}
@@ -207,7 +211,7 @@ export function RegisterForm({ loading, error, onSubmit, footer }: RegisterFormP
             onChange={(event) => setDongY(event.target.checked)}
           />
           <span>
-            Tôi đồng ý với{' '}
+            {t('register.agree')}{' '}
             {/*
               KHÔNG phải thẻ <a>: chưa có trang điều khoản nào để dẫn tới. Link trỏ vào hư
               vô còn tệ hơn là nói thẳng ra - giống nút "Quên mật khẩu?" bên trang đăng nhập.
@@ -218,7 +222,7 @@ export function RegisterForm({ loading, error, onSubmit, footer }: RegisterFormP
               onClick={() => setHienGhiChuDieuKhoan((cu) => !cu)}
               aria-expanded={hienGhiChuDieuKhoan}
             >
-              Điều khoản sử dụng
+              {t('register.terms')}
             </button>
           </span>
         </label>
@@ -226,19 +230,18 @@ export function RegisterForm({ loading, error, onSubmit, footer }: RegisterFormP
 
       {hienGhiChuDieuKhoan && (
         <p className="auth-card__note">
-          Điều khoản sử dụng chưa được soạn. MoodBite là đồ án tốt nghiệp: tài khoản chỉ
-          dùng để lưu tương tác của bạn trong phạm vi đồ án, không chia sẻ cho bên nào khác.
+          {t('register.termsNote')}
         </p>
       )}
 
       {(loiKhop || error) && (
         <p className="auth-card__error" role="alert">
-          {loiKhop ?? error}
+          {loiKhop ? t(loiKhop) : error}
         </p>
       )}
 
       <button type="submit" className="btn btn--accent" disabled={loading}>
-        {loading ? 'Đang tạo tài khoản…' : 'Tạo tài khoản'}
+        {loading ? t('register.submitting') : t('register.submit')}
       </button>
 
       {/*

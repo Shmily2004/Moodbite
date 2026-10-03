@@ -19,6 +19,8 @@ import { useCallback, useMemo, useState } from 'react';
 import { HANOI_CENTER } from '@/shared/config';
 import { useUserSessionContext } from '@/entities/user';
 import { useDefaultAddress } from '@/entities/address';
+import { HAM_DICH_VI, useT } from '@/shared/i18n';
+import type { HamDich, Khoa } from '@/shared/i18n';
 
 export interface Coordinates {
   lat: number;
@@ -33,10 +35,10 @@ export interface DiemDuPhong extends Coordinates {
 }
 
 // Chỉ nói LÝ DO; câu "đang dùng điểm nào" ghép sau theo điểm dự phòng thật đang có.
-const ERROR_MESSAGES: Record<number, string> = {
-  1: 'Bạn đã từ chối chia sẻ vị trí.',
-  2: 'Không xác định được vị trí.',
-  3: 'Quá thời gian chờ định vị.',
+const ERROR_MESSAGES: Record<number, Khoa> = {
+  1: 'loc.err.denied',
+  2: 'loc.err.unavailable',
+  3: 'loc.err.timeout',
 };
 
 export interface UseUserLocationResult {
@@ -61,21 +63,23 @@ export interface UseUserLocationResult {
 export function chonViTri(
   browser: Coordinates | null,
   saved: DiemDuPhong | null,
+  t: HamDich = HAM_DICH_VI,
 ): { position: Coordinates; source: NguonViTri; label: string } {
-  if (browser) return { position: browser, source: 'browser', label: 'Vị trí của bạn' };
+  if (browser) return { position: browser, source: 'browser', label: t('loc.yours') };
   if (saved) {
     return {
       position: { lat: saved.lat, lng: saved.lng },
       source: 'saved',
-      label: `Địa chỉ đã lưu: ${saved.label}`,
+      label: t('loc.saved', { name: saved.label }),
     };
   }
-  return { position: { ...HANOI_CENTER }, source: 'center', label: 'Trung tâm Hà Nội' };
+  return { position: { ...HANOI_CENTER }, source: 'center', label: t('loc.center') };
 }
 
 export function useUserLocation(): UseUserLocationResult {
   const session = useUserSessionContext();
   const diaChi = useDefaultAddress(session.isLoggedIn);
+  const t = useT();
   const [browser, setBrowser] = useState<Coordinates | null>(null);
   const [errorCode, setErrorCode] = useState<number | null>(null);
   const [unsupported, setUnsupported] = useState(false);
@@ -93,8 +97,9 @@ export function useUserLocation(): UseUserLocationResult {
         lat !== undefined && lng !== undefined && nhan !== undefined
           ? { lat, lng, label: nhan }
           : null,
+        t,
       ),
-    [browser, lat, lng, nhan],
+    [browser, lat, lng, nhan, t],
   );
 
   const request = useCallback(() => {
@@ -121,16 +126,16 @@ export function useUserLocation(): UseUserLocationResult {
   // Không `toLowerCase()` cả câu: nhãn địa chỉ là chữ người dùng tự gõ, phải giữ nguyên.
   const dangDung =
     chon.source === 'saved'
-      ? `địa chỉ đã lưu "${nhan}"`
+      ? t('loc.usingSaved', { name: nhan ?? '' })
       : chon.source === 'browser'
-        ? 'vị trí lấy được lần trước'
-        : 'trung tâm Hà Nội';
+        ? t('loc.usingLast')
+        : t('loc.usingCenter');
   let error: string | null = null;
   if (unsupported) {
-    error = `Trình duyệt không hỗ trợ định vị. Đang dùng ${dangDung}.`;
+    error = `${t('loc.err.unsupported')} ${dangDung}`;
   } else if (errorCode !== null) {
-    const lyDo = ERROR_MESSAGES[errorCode] ?? 'Không lấy được vị trí.';
-    error = `${lyDo} Đang dùng ${dangDung}.`;
+    const lyDo = t(ERROR_MESSAGES[errorCode] ?? 'loc.err.generic');
+    error = `${lyDo} ${dangDung}`;
   }
 
   return {

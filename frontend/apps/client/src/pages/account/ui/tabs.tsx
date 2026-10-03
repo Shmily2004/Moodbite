@@ -94,15 +94,16 @@ export function BadgesTab({ stats, loading }: BadgesTabProps) {
             `domain/services/gamification.py`. Hiện chỉ có 5 dòng nên chép tay chấp nhận
             được; thêm loại điểm mới thì backend nên trả cả bảng điểm xuống. */}
         <ul className="rule-list">
-          <li><IconCompass /> Xem chi tiết một quán mới — <strong>+2</strong></li>
-          <li><IconMap /> Bấm chỉ đường tới một quán — <strong>+3</strong></li>
-          <li><IconThumbUp /> Đánh giá thích / không thích — <strong>+3</strong></li>
-          <li><IconHeart /> Lưu một món hoặc một quán — <strong>+5</strong></li>
-          <li><IconShield /> Báo một quán đã đóng cửa — <strong>+10</strong></li>
+          <li><IconCompass /> {t('points.viewPlace')} — <strong>+2</strong></li>
+          <li><IconMap /> {t('points.directions')} — <strong>+3</strong></li>
+          <li><IconThumbUp /> {t('points.feedback')} — <strong>+3</strong></li>
+          <li><IconHeart /> {t('points.save')} — <strong>+5</strong></li>
+          <li><IconShield /> {t('points.report')} — <strong>+10</strong></li>
         </ul>
         <p className="section-sub">
-          Điểm tính theo số <strong>quán/món khác nhau</strong>, không theo số lần bấm —
-          xem lại cùng một quán hai chục lần vẫn chỉ được tính một.
+          {t('points.note1')}
+          <strong>{t('points.note2')}</strong>
+          {t('points.note3')}
         </p>
       </section>
     </>

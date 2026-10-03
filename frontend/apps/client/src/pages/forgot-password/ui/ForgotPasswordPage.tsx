@@ -9,14 +9,16 @@ import { AuthLayout } from '@/widgets/auth-layout';
 import { ForgotPasswordForm, usePasswordRecovery } from '@/features/auth-recover-password';
 import { Slogan } from '@/shared/ui';
 import { ROUTES } from '@/shared/config';
+import { useT } from '@/shared/i18n';
 
 export function ForgotPasswordPage() {
   const recovery = usePasswordRecovery();
+  const t = useT();
 
   return (
     <AuthLayout
       heading={<Slogan />}
-      intro="Đừng lo, chuyện quên mật khẩu ai cũng gặp. Lấy lại chỉ mất một phút."
+      intro={t('forgot.intro')}
     >
       <ForgotPasswordForm
         loading={recovery.status === 'loading'}
@@ -25,7 +27,7 @@ export function ForgotPasswordPage() {
         onSubmit={(identifier) => void recovery.requestReset(identifier)}
         footer={
           <>
-            Nhớ ra rồi? <Link to={ROUTES.login}>Đăng nhập ngay</Link>
+            {t('forgot.remembered')} <Link to={ROUTES.login}>{t('register.loginNow')}</Link>
           </>
         }
       />

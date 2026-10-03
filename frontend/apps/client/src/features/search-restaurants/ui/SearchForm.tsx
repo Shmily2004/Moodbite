@@ -18,8 +18,15 @@ import {
   IconPin,
   IconSmile,
 } from '@/shared/ui';
+import { useNgonNgu, useT } from '@/shared/i18n';
+import type { Khoa } from '@/shared/i18n';
 import type { FormEvent } from 'react';
 
+/**
+ * Câu mẫu CỐ Ý GIỮ TIẾNG VIỆT ở cả bản tiếng Anh: dữ liệu quán và phép so khớp chỉ có
+ * tiếng Việt, nên câu mẫu tiếng Anh sẽ trả về rỗng. Bản tiếng Anh thêm lời dẫn
+ * "Try (in Vietnamese):" để người đọc hiểu vì sao (`search.examplesLead`).
+ */
 const EXAMPLE_QUERIES = [
   'phở bò gần đây',
   'chỗ yên tĩnh để làm việc',
@@ -27,12 +34,14 @@ const EXAMPLE_QUERIES = [
   'ăn nhẹ, tốt cho sức khoẻ',
 ];
 
-const MOOD_SHORTCUTS = [
+const MOOD_SHORTCUTS: Array<{ value: string; nhan: Khoa; Icon: typeof IconSmile }> = [
   // Icon là COMPONENT, không phải emoji trong nhãn — xem `shared/ui/icons.tsx`.
-  { value: 'happy', label: 'Vui', Icon: IconSmile },
-  { value: 'sad', label: 'Buồn', Icon: IconFrown },
-  { value: 'excited', label: 'Hào hứng', Icon: IconHotBowl },
-  { value: 'relaxed', label: 'Thư giãn', Icon: IconSmile },
+  // Nhãn dùng CHUNG khoá `filterOpt.mood.*` với hàng chip lọc món: cùng một mood thì
+  // cùng một chữ ở mọi nơi.
+  { value: 'happy', nhan: 'filterOpt.mood.happy', Icon: IconSmile },
+  { value: 'sad', nhan: 'filterOpt.mood.sad', Icon: IconFrown },
+  { value: 'excited', nhan: 'filterOpt.mood.excited', Icon: IconHotBowl },
+  { value: 'relaxed', nhan: 'filterOpt.mood.relaxed', Icon: IconSmile },
 ];
 
 const RADIUS_OPTIONS = [2, 5, 10, 20];
@@ -50,6 +59,7 @@ export function SearchForm({
   loading,
   onSubmit,
 }: SearchFormProps) {
+  const t = useT();
   const submit = (event: FormEvent) => {
     event.preventDefault();
     onSubmit();
@@ -62,11 +72,11 @@ export function SearchForm({
         type="text"
         value={queryText}
         onChange={(event) => onQueryTextChange(event.target.value)}
-        placeholder="Bạn muốn ăn gì? VD: quán lẩu ấm cúng gần đây"
-        aria-label="Nhu cầu của bạn"
+        placeholder={t('search.placeholder')}
+        aria-label={t('search.inputLabel')}
       />
       <button className="btn btn--primary" type="submit" disabled={loading}>
-        {loading ? '…' : 'Tìm'}
+        {loading ? '…' : t('search.submit')}
       </button>
     </form>
   );
@@ -90,6 +100,7 @@ interface FiltersProps {
 
 function Filters(props: FiltersProps) {
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const { ngonNgu, t } = useNgonNgu();
 
   return (
     <>
@@ -99,7 +110,7 @@ function Filters(props: FiltersProps) {
           onClick={() => props.onOpenNowChange(!props.openNow)}
           aria-pressed={props.openNow}
         >
-          <IconClock /> Đang mở
+          <IconClock /> {t('search.openNow')}
         </button>
         {MOOD_SHORTCUTS.map((mood) => (
           <button
@@ -107,7 +118,7 @@ function Filters(props: FiltersProps) {
             className="chip"
             onClick={() => props.onPickMood(mood.value)}
           >
-            <mood.Icon /> {mood.label}
+            <mood.Icon /> {t(mood.nhan)}
           </button>
         ))}
         <button
@@ -115,14 +126,19 @@ function Filters(props: FiltersProps) {
           onClick={() => setShowAdvanced((open) => !open)}
           aria-expanded={showAdvanced}
         >
-          <IconFilter /> Bộ lọc
+          <IconFilter /> {t('search.filters')}
         </button>
 
+        {props.showExamples && ngonNgu !== 'vi' && (
+          <span className="chips__lead muted small">{t('search.examplesLead')}</span>
+        )}
         {props.showExamples &&
           EXAMPLE_QUERIES.map((query) => (
+            // `lang="vi"`: trình đọc màn hình đọc câu mẫu bằng giọng Việt dù trang đang Anh.
             <button
               key={query}
               className="chip"
+              lang="vi"
               onClick={() => props.onPickExample(query)}
             >
               {query}
@@ -133,7 +149,7 @@ function Filters(props: FiltersProps) {
       {showAdvanced && (
         <div className="search__controls">
           <label>
-            Bán kính{' '}
+            {t('search.radius')}{' '}
             <select
               value={props.maxDistanceKm ?? ''}
               onChange={(event) =>
@@ -147,7 +163,7 @@ function Filters(props: FiltersProps) {
                   {km} km
                 </option>
               ))}
-              <option value="">Không giới hạn</option>
+              <option value="">{t('filters.unlimited')}</option>
             </select>
           </label>
 
@@ -156,12 +172,12 @@ function Filters(props: FiltersProps) {
             onClick={props.onRequestLocation}
             disabled={props.locationLoading}
           >
-            {props.locationLoading ? 'Đang định vị…' : <><IconPin /> Vị trí của tôi</>}
+            {props.locationLoading ? t('loc.locating') : <><IconPin /> {t('loc.mine')}</>}
           </button>
 
           <span className="muted small">
             {props.locationLabel ??
-              (props.locationIsDefault ? 'Trung tâm Hà Nội' : 'Vị trí của bạn')}
+              (props.locationIsDefault ? t('loc.center') : t('loc.yours'))}
           </span>
         </div>
       )}

@@ -15,6 +15,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ApiError, authApi } from '@/shared/api';
+import { useT } from '@/shared/i18n';
 
 export type VerifyStatus = 'idle' | 'loading' | 'done' | 'error';
 
@@ -43,6 +44,11 @@ export function useEmailVerification(token: string): UseEmailVerificationResult 
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
+  // `t` qua ref: effect xác minh chỉ được chạy MỘT lần (token dùng một lần), không được
+  // phụ thuộc vào ngôn ngữ.
+  const t = useT();
+  const tRef = useRef(t);
+  tRef.current = t;
 
   // React 18 StrictMode chạy effect HAI LẦN ở môi trường phát triển. Không chặn thì lần
   // gọi thứ hai luôn thất bại — token chỉ dùng được một lần — và người dùng thấy
@@ -60,7 +66,7 @@ export function useEmailVerification(token: string): UseEmailVerificationResult 
         const nguoiDung = await authApi.confirmEmailVerification({ token });
         if (!conHieuLuc) return;
         setEmail(nguoiDung.email ?? null);
-        setMessage('Đã xác minh email. Từ giờ bạn lấy lại được mật khẩu qua email.');
+        setMessage(tRef.current('verify.done'));
         setStatus('done');
       } catch (err) {
         if (!conHieuLuc) return;

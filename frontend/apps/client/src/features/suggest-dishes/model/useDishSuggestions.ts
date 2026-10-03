@@ -11,6 +11,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { DishItem } from '@/shared/api';
 import { ApiError, api } from '@/shared/api';
 import { getSessionId } from '@/shared/lib';
+import { useT } from '@/shared/i18n';
 import { useDishFilterState } from './useDishFilterState';
 import type { DishFilterState, UseDishFilterStateResult } from './useDishFilterState';
 
@@ -53,6 +54,10 @@ export function useDishSuggestions(
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [reloadToken, setReloadToken] = useState(0);
+  // `t` đi qua ref: đưa thẳng vào deps của effect gọi API thì đổi ngôn ngữ = gọi lại API.
+  const t = useT();
+  const tRef = useRef(t);
+  tRef.current = t;
 
   const abortRef = useRef<AbortController | null>(null);
 
@@ -112,7 +117,7 @@ export function useDishSuggestions(
             ? err.code === 'NETWORK'
               ? err.userMessage
               : err.message
-            : 'Không gọi được máy chủ MoodBite.',
+            : tRef.current('suggest.serverDown'),
         );
         setDishes(null);
       })

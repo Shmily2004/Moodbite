@@ -8,6 +8,7 @@
 import { useId, useState } from 'react';
 import type { ReactNode } from 'react';
 import { IconEye, IconEyeOff, IconLock } from '@/shared/ui';
+import { useT } from '@/shared/i18n';
 
 export interface ResetPasswordFormProps {
   loading: boolean;
@@ -31,7 +32,9 @@ export function ResetPasswordForm({
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [hienMatKhau, setHienMatKhau] = useState(false);
-  const [loiKhop, setLoiKhop] = useState<string | null>(null);
+  // Lưu CỜ chứ không lưu câu: đổi ngôn ngữ lúc lỗi đang hiện thì câu đổi theo.
+  const [loiKhop, setLoiKhop] = useState(false);
+  const t = useT();
 
   const idMatKhau = useId();
   const idNhapLai = useId();
@@ -43,19 +46,18 @@ export function ResetPasswordForm({
       onSubmit={(event) => {
         event.preventDefault();
         if (password !== confirm) {
-          setLoiKhop('Hai ô mật khẩu chưa giống nhau. Kiểm tra lại giúp mình nhé.');
+          setLoiKhop(true);
           return;
         }
-        setLoiKhop(null);
+        setLoiKhop(false);
         onSubmit(password);
       }}
     >
-      <h1 className="auth-card__title">Đặt mật khẩu mới</h1>
+      <h1 className="auth-card__title">{t('reset.title')}</h1>
 
       {!hasToken ? (
         <p className="auth-card__error" role="alert">
-          Đường dẫn không hợp lệ — thiếu mã đặt lại. Hãy mở lại đúng đường dẫn trong thư,
-          hoặc yêu cầu gửi thư mới.
+          {t('reset.noToken')}
         </p>
       ) : message ? (
         <p className="auth-card__note" role="status">
@@ -64,11 +66,11 @@ export function ResetPasswordForm({
       ) : (
         <>
           <p className="auth-card__sub">
-            Mật khẩu mới cần ít nhất 8 ký tự. Đặt xong bạn sẽ đăng nhập lại bằng mật khẩu này.
+            {t('reset.sub')}
           </p>
 
           <label className="field__label" htmlFor={idMatKhau}>
-            Mật khẩu mới
+            {t('reset.newPassword')}
           </label>
           <div className="field">
             <IconLock className="field__icon" />
@@ -77,7 +79,7 @@ export function ResetPasswordForm({
               className="field__input"
               type={hienMatKhau ? 'text' : 'password'}
               value={password}
-              placeholder="Ít nhất 8 ký tự"
+              placeholder={t('auth.minLength')}
               autoComplete="new-password"
               autoFocus
               required
@@ -87,7 +89,7 @@ export function ResetPasswordForm({
               type="button"
               className="field__eye"
               onClick={() => setHienMatKhau((cu) => !cu)}
-              aria-label={hienMatKhau ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+              aria-label={hienMatKhau ? t('auth.hidePassword') : t('auth.showPassword')}
               aria-pressed={hienMatKhau}
               tabIndex={-1}
             >
@@ -96,7 +98,7 @@ export function ResetPasswordForm({
           </div>
 
           <label className="field__label" htmlFor={idNhapLai}>
-            Xác nhận mật khẩu
+            {t('auth.confirmPassword')}
           </label>
           <div className="field">
             <IconLock className="field__icon" />
@@ -107,7 +109,7 @@ export function ResetPasswordForm({
               // chiếu được, trong khi đối chiếu chính là việc của ô này.
               type={hienMatKhau ? 'text' : 'password'}
               value={confirm}
-              placeholder="Nhập lại mật khẩu mới"
+              placeholder={t('reset.confirmPlaceholder')}
               autoComplete="new-password"
               required
               onChange={(event) => setConfirm(event.target.value)}
@@ -116,12 +118,12 @@ export function ResetPasswordForm({
 
           {(loiKhop || error) && (
             <p className="auth-card__error" role="alert">
-              {loiKhop ?? error}
+              {loiKhop ? t('auth.mismatch') : error}
             </p>
           )}
 
           <button type="submit" className="btn btn--primary" disabled={loading}>
-            {loading ? 'Đang đổi mật khẩu…' : 'Đổi mật khẩu'}
+            {loading ? t('reset.submitting') : t('reset.submit')}
           </button>
         </>
       )}
@@ -129,7 +131,7 @@ export function ResetPasswordForm({
       {footer && (
         <>
           <div className="auth-card__or">
-            <span>hoặc</span>
+            <span>{t('auth.or')}</span>
           </div>
           <p className="auth-card__footer">{footer}</p>
         </>

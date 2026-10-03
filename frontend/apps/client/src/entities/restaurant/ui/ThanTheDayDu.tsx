@@ -7,6 +7,7 @@ import type { SearchResultItem } from '@moodbite/api-client';
 import type { describeFit, describeFreshness, describeReasons } from '../model/format';
 import { describeCluster, describeDishConfidence } from '../model/format';
 import { IconDining } from '@/shared/ui';
+import { useT } from '@/shared/i18n';
 import { DanhGia, REASON_ICON } from './phanTheQuan';
 
 interface Props {
@@ -30,6 +31,7 @@ export function ThanTheDayDu({
   bangChung,
 }: Props) {
   const dish = restaurant.suggested_dish;
+  const t = useT();
   const dongNguon = [freshness?.text, ...bangChung].filter(Boolean).join(' · ');
   return (
     <>
@@ -70,14 +72,14 @@ export function ThanTheDayDu({
               {/* Món là SUY LUẬN, không phải thực đơn thật. Mức tin cậy PHẢI hiện ra chữ
                   (CLAUDE.md mục 4 quy tắc 4) - để trong tooltip là không đủ, trên điện
                   thoại sẽ không bao giờ thấy. */}
-              <span className="muted">{describeDishConfidence(dish.confidence)}</span>
+              <span className="muted">{describeDishConfidence(dish.confidence, t)}</span>
             </span>
           </li>
         )}
       </ul>
 
       <p className="card__meta-foot">
-        {describeCluster(restaurant.experience_cluster_label)}
+        {describeCluster(restaurant.experience_cluster_label, t)}
         {restaurant.category && ` · ${restaurant.category}`}
       </p>
 

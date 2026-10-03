@@ -226,7 +226,7 @@ export function HomePage() {
               </button>
             </div>
             <p className="section-sub">
-              Món bạn vừa mở trên máy này. Lưu ngay trong trình duyệt, không gửi lên máy chủ.
+              {t('home.recentSub')}
             </p>
             <ul className="recent__row">
               {recent.recent.map((mon) => (

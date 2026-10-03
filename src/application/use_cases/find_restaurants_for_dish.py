@@ -36,6 +36,7 @@ from src.domain.value_objects.location import (
     HANOI_CENTER_LAT,
     HANOI_CENTER_LNG,
     Location,
+    mo_ta_km,
 )
 from src.domain.value_objects.mood import MOOD_PROFILES, normalize_mood
 from src.domain.value_objects.price import has_known_price
@@ -270,8 +271,8 @@ class FindRestaurantsForDishUseCase:
             nearest_km = min(r.distance_km for r in ranked)
             warnings.append(
                 f"Không có quán nào bán '{dish.name}' trong bán kính "
-                f"{query.max_distance_km} km. Đang hiện quán gần nhất, cách khoảng "
-                f"{nearest_km:.1f} km."
+                f"{mo_ta_km(query.max_distance_km)}. Đang hiện quán gần nhất, cách khoảng "
+                f"{mo_ta_km(nearest_km)}."
             )
 
     @staticmethod

@@ -21,12 +21,12 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { NGON_NGU, TU_DIEN, thay_the } from './tu_dien';
-import type { Khoa, NgonNgu } from './tu_dien';
+import type { HamDich, NgonNgu } from './tu_dien';
+
+export type { HamDich };
 
 const STORAGE_KEY = 'moodbite.lang';
 const MAC_DINH: NgonNgu = 'vi';
-
-export type HamDich = (khoa: Khoa, gia_tri?: Record<string, string | number>) => string;
 
 export interface NgonNguContext {
   ngonNgu: NgonNgu;

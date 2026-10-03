@@ -26,6 +26,8 @@
  * không bao giờ rời khỏi máy người dùng — an toàn nhất có thể cho một đồ án.
  */
 import { useCallback, useEffect, useState } from 'react';
+import { HAM_DICH_VI } from '@/shared/i18n';
+import type { Khoa } from '@/shared/i18n';
 
 const STORAGE_KEY = 'moodbite.avatar';
 
@@ -45,7 +47,18 @@ const SO_MA_THUAT: Array<{ kieu: string; byte: number[] }> = [
   { kieu: 'image/webp', byte: [0x52, 0x49, 0x46, 0x46] },             // "RIFF"
 ];
 
-export class AnhKhongHopLe extends Error {}
+/**
+ * Lỗi ảnh có câu giải thích cho người dùng. Mang KHOÁ từ điển (song ngữ từ 2026-10-02) để
+ * VIEW dịch theo ngôn ngữ đang dùng; `message` vẫn là bản tiếng Việt cho log/test.
+ */
+export class AnhKhongHopLe extends Error {
+  constructor(
+    readonly khoa: Khoa,
+    readonly giaTri?: Record<string, string | number>,
+  ) {
+    super(HAM_DICH_VI(khoa, giaTri));
+  }
+}
 
 /**
  * Đọc 12 byte đầu của file.
@@ -65,7 +78,7 @@ function doc_byte_dau(file: File): Promise<Uint8Array> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(new Uint8Array(reader.result as ArrayBuffer));
-    reader.onerror = () => reject(new AnhKhongHopLe('Không đọc được file.'));
+    reader.onerror = () => reject(new AnhKhongHopLe('avatar.err.read'));
     reader.readAsArrayBuffer(dau);
   });
 }
@@ -100,12 +113,12 @@ function ve_lai(file: File): Promise<string> {
         canvas.height = Math.max(1, Math.round(img.height * ty_le));
 
         const ctx = canvas.getContext('2d');
-        if (!ctx) throw new AnhKhongHopLe('Trình duyệt không vẽ lại được ảnh.');
+        if (!ctx) throw new AnhKhongHopLe('avatar.err.canvas');
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
         resolve(canvas.toDataURL('image/png'));
       } catch (err) {
-        reject(err instanceof Error ? err : new AnhKhongHopLe('Không xử lý được ảnh.'));
+        reject(err instanceof Error ? err : new AnhKhongHopLe('avatar.err.process'));
       }
     };
 
@@ -113,7 +126,7 @@ function ve_lai(file: File): Promise<string> {
       URL.revokeObjectURL(url);
       // Tới đây nghĩa là file qua được hai lớp đầu nhưng trình duyệt không giải mã nổi ->
       // file hỏng, hoặc là thứ giả dạng ảnh.
-      reject(new AnhKhongHopLe('File này không phải ảnh hợp lệ.'));
+      reject(new AnhKhongHopLe('avatar.err.decode'));
     };
 
     img.src = url;
@@ -144,16 +157,16 @@ export function useAvatar(): UseAvatarResult {
 
   const doiAvatar = useCallback(async (file: File) => {
     if (file.size > KICH_THUOC_TOI_DA) {
-      throw new AnhKhongHopLe(
-        `Ảnh lớn quá (${Math.round(file.size / 1024 / 1024)} MB). Tối đa 2 MB.`,
-      );
+      throw new AnhKhongHopLe('avatar.err.tooBig', {
+        mb: Math.round(file.size / 1024 / 1024),
+      });
     }
     if (!KIEU_CHO_PHEP.includes(file.type)) {
-      throw new AnhKhongHopLe('Chỉ nhận ảnh PNG, JPG hoặc WEBP.');
+      throw new AnhKhongHopLe('avatar.err.type');
     }
     if ((await kieu_that(file)) === null) {
       // Đuôi file nói là ảnh nhưng ruột thì không.
-      throw new AnhKhongHopLe('File này không phải ảnh thật. Hãy chọn ảnh khác.');
+      throw new AnhKhongHopLe('avatar.err.fake');
     }
 
     const png = await ve_lai(file);

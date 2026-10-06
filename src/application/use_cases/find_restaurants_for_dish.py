@@ -22,6 +22,9 @@ from typing import List, Mapping, Optional, Sequence
 from src.application.errors import ApplicationError, DataNotReadyError
 from src.application.ports.context_provider import ContextProvider
 from src.application.ports.dish_catalog_repository import DishCatalogRepository
+from src.application.ports.dish_restaurant_index import current_index
+from src.application.ports.restaurant_repository import RestaurantRepository
+from src.application.use_cases.restaurant_data_guard import require_restaurant_data
 from src.application.use_cases.search_restaurants import (
     SearchResult,
     SearchResultItem,
@@ -43,13 +46,6 @@ from src.domain.value_objects.price import has_known_price
 
 DEFAULT_LIMIT = 20
 MAX_LIMIT = 50
-
-# Món người dùng tự chọn thì độ tin cậy KHÔNG phải là suy đoán nữa: ta biết chắc quán này
-# khớp từ khoá của món. Vẫn không dám nói là "có trong thực đơn" - ta chưa bao giờ đọc
-# thực đơn thật của quán (CLAUDE.md mục 4 quy tắc 4).
-DISH_MATCH_CONFIDENCE = "specific"
-DISH_MATCH_REASON = "quán khớp từ khoá của món bạn chọn, chưa phải thực đơn thật"
-
 
 class DishNotFoundError(ApplicationError):
     """dish_id không tồn tại hoặc đã bị ẩn -> HTTP 404."""
@@ -80,11 +76,17 @@ class FindRestaurantsForDishUseCase:
         dish_restaurant_index: Mapping[str, Sequence],
         context_provider: Optional[ContextProvider] = None,
         closure_tally: Optional[ClosureReportTally] = None,
+        restaurants: Optional[RestaurantRepository] = None,
     ) -> None:
         self._catalog = catalog
+        # `Mapping` thường hoặc nguồn tự làm mới (`snapshot()`) — xem
+        # `application/ports/dish_restaurant_index.py`.
         self._index = dish_restaurant_index
         self._context_provider = context_provider
         self._closure_tally = closure_tally
+        # Chỉ để kiểm "dataset quán đã nạp chưa" -> 503. Không đọc quán từ đây: quán đi
+        # qua chỉ mục món-quán.
+        self._restaurants = restaurants
 
     @property
     def _bi_bao_dong(self):
@@ -99,6 +101,9 @@ class FindRestaurantsForDishUseCase:
             raise DataNotReadyError(
                 "danh mục món ăn", "chạy python scripts/build_dish_catalog.py"
             )
+        # Thiếu dataset quán thì chỉ mục rỗng và câu cảnh báo bên dưới ("chưa có quán nào
+        # khớp món") sẽ đổ lỗi sai chỗ — bug thật 2026-10-06. Phải là 503 kèm lệnh chạy.
+        require_restaurant_data(self._restaurants)
 
         dish = self._catalog.get_dish(query.dish_id)
         if dish is None:
@@ -108,7 +113,9 @@ class FindRestaurantsForDishUseCase:
         origin = Location(lat=query.latitude, lng=query.longitude)
         context = self._resolve_context(origin)
 
-        tat_ca = list(self._index.get(dish.identifier, ()))
+        # Lấy chỉ mục MỘT LẦN cho cả request: admin ghi đúng lúc này thì request vẫn nhìn
+        # trọn một phiên bản dữ liệu, không lẫn quán cũ với quán mới.
+        tat_ca = list(current_index(self._index).get(dish.identifier, ()))
         matches = self._loc_theo_gia(tat_ca, query, warnings)
         # Câu này nói về CHỈ MỤC MÓN-QUÁN, nên phải hỏi `tat_ca` chứ không phải `matches`:
         # khi bộ lọc giá vét sạch danh sách thì lý do là THIẾU DỮ LIỆU GIÁ, và
@@ -146,7 +153,8 @@ class FindRestaurantsForDishUseCase:
         # không có câu tìm kiếm nên danh sách nguồn rỗng, và `RankedRestaurant` gán nhãn
         # mặc định "mood" cho danh sách rỗng. Tra theo `id()` vì chỉ mục giữ đúng đối
         # tượng quán được đưa vào xếp hạng (không phải bản sao).
-        nguon_khop = {id(m.restaurant): m.match_source for m in matches}
+        khop_theo_quan = {id(m.restaurant): m for m in matches}
+        nguon_khop = {k: m.match_source for k, m in khop_theo_quan.items()}
 
         ranked: List = []
         so_quan_yeu = 0
@@ -185,7 +193,10 @@ class FindRestaurantsForDishUseCase:
 
         return SearchResult(
             search_query_id=str(uuid.uuid4()),
-            results=[self._to_item(r, dish) for r in ranked],
+            results=[
+                self._to_item(r, dish, khop_theo_quan.get(id(r.restaurant)))
+                for r in ranked
+            ],
             context=context.describe(),
             warnings=warnings,
         )
@@ -333,8 +344,13 @@ class FindRestaurantsForDishUseCase:
             return None
 
     @staticmethod
-    def _to_item(ranked: search_ranking.RankedRestaurant, dish: Dish) -> SearchResultItem:
+    def _to_item(
+        ranked: search_ranking.RankedRestaurant,
+        dish: Dish,
+        match: Optional[dish_matching.DishMatch] = None,
+    ) -> SearchResultItem:
         restaurant = ranked.restaurant
+        confidence, reason = dish_matching.dish_confidence_for(match)
         return SearchResultItem(
             restaurant_id=restaurant.place_id,
             name=restaurant.name,
@@ -368,7 +384,7 @@ class FindRestaurantsForDishUseCase:
                 cuisine=dish.cuisine,
                 spice_level=dish.spice_level,
                 temperature=dish.temperature,
-                confidence=DISH_MATCH_CONFIDENCE,
-                reason=DISH_MATCH_REASON,
+                confidence=confidence,
+                reason=reason,
             ),
         )

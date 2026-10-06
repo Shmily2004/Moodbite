@@ -1,15 +1,21 @@
 """Phát và kiểm token đăng nhập của NGƯỜI DÙNG CUỐI.
 
-Khác `admin_auth.py` ở một điểm căn bản: admin là MỘT tài khoản nằm trong biến môi
-trường, còn người dùng nằm trong CSDL và số lượng không giới hạn. Vì vậy file này chỉ lo
-phần token, còn việc tra tài khoản là của `UserRepository`.
+Từ 2026-09-29 admin và người dùng đều là dòng trong CÙNG bảng `users` (admin có
+`role='admin'`, tạo bằng `scripts/make_admin_user.py`) — admin KHÔNG còn là một tài khoản
+nằm trong biến môi trường. File này chỉ lo phần token đăng nhập của app người dùng; tra
+tài khoản là việc của `UserRepository`, token quản trị là việc của `admin_auth.py`.
+
+⚠️ Admin cũng đăng nhập được app người dùng qua `/auth/login` (cùng tài khoản). Vì vậy
+`/auth/login` áp bộ đếm QUẢN TRỊ khi tài khoản đích là admin — xem `routers/auth.py`.
 
 ⚠️ HAI SECRET RIÊNG BIỆT, KHÔNG DÙNG CHUNG với admin.
 Dùng chung thì một token người dùng bị lộ + một lỗi lập trình nhỏ ở chỗ đọc `role` là đủ
 để giả mạo admin. Tách secret khiến chữ ký của bên này không bao giờ hợp lệ ở bên kia,
 kể cả khi code có sai.
 
-⚠️ TOKEN CHỈ CHỨA `sub` (user_id) — CỐ TÌNH KHÔNG CHỨA `role`.
+⚠️ TOKEN CHỈ CHỨA `sub` (user_id), `tv` và `typ`='login' — CỐ TÌNH KHÔNG CHỨA `role`.
+`typ` (thêm 2026-10-06) để token đặt lại mật khẩu / xác minh email không bao giờ được
+nhận làm token đăng nhập, kể cả khi người triển khai để các secret trùng nhau.
 Nếu nhét vai vào token thì vai trở thành ảnh chụp lúc đăng nhập: hạ quyền một admin sẽ
 KHÔNG có hiệu lực cho tới khi token hết hạn. Vai phải đọc từ CSDL ở mỗi request. Một câu
 SELECT theo khoá chính là quá rẻ so với rủi ro đó.
@@ -20,7 +26,12 @@ import logging
 
 from src.application.errors import AuthNotConfiguredError, InvalidCredentialsError
 from src.domain.entities.user import User
-from src.infrastructure.auth.crypto import TokenInvalid, sign_token, verify_token
+from src.infrastructure.auth.crypto import (
+    PURPOSE_LOGIN,
+    TokenInvalid,
+    sign_token,
+    verify_token,
+)
 
 logger = logging.getLogger("moodbite.auth")
 
@@ -71,6 +82,7 @@ class UserTokenService:
             {"sub": user.user_id, "tv": user.token_version},
             self._secret,
             self.token_ttl_seconds,
+            purpose=PURPOSE_LOGIN,
         )
 
     def ensure_not_revoked(self, token: str, user: User) -> None:
@@ -94,7 +106,7 @@ class UserTokenService:
     def _payload(self, token: str) -> dict:
         self.ensure_configured()
         try:
-            return verify_token(token, self._secret)
+            return verify_token(token, self._secret, purpose=PURPOSE_LOGIN)
         except TokenInvalid as exc:
             raise InvalidCredentialsError(str(exc))
 
@@ -104,11 +116,7 @@ class UserTokenService:
         KHÔNG trả vai, KHÔNG kiểm thu hồi. Người gọi phải tự đọc tài khoản từ kho để lấy
         vai hiện tại, rồi gọi `ensure_not_revoked`.
         """
-        self.ensure_configured()
-        try:
-            payload = verify_token(token, self._secret)
-        except TokenInvalid as exc:
-            raise InvalidCredentialsError(str(exc))
+        payload = self._payload(token)
         user_id = str(payload.get("sub", ""))
         if not user_id:
             # Chữ ký đúng nhưng ruột thiếu `sub` = token do chính ta ký sai. Là bug, nhưng

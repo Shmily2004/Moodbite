@@ -13,15 +13,19 @@ import { MemoryRouter } from 'react-router-dom';
 import { mocVanDe } from '@/shared/test';
 
 // Xem ghi chú `vi.hoisted` ở `pages/quality/QualityPage.test.tsx`.
-const { issues, issueDetail, resolvedIssues } = vi.hoisted(() => ({
+const { issues, issueDetail, resolvedIssues, resolveIssue } = vi.hoisted(() => ({
   issues: vi.fn(),
   issueDetail: vi.fn(),
   resolvedIssues: vi.fn(),
+  resolveIssue: vi.fn(),
 }));
 
 vi.mock('@/shared/api', async () => {
   const that = await vi.importActual<typeof import('@/shared/api')>('@/shared/api');
-  return { ...that, adminApi: { issues, issueDetail, resolvedIssues } };
+  return { ...that, adminApi: { issues, issueDetail, resolvedIssues, resolveIssue,
+    // Khối "báo đóng cửa" (2026-10-06) nằm chung trang: trả rỗng để không gây nhiễu.
+    closureReports: () => Promise.resolve({ threshold: 3, items: [] }),
+  } };
 });
 
 import { IssuesPage } from './ui/IssuesPage';
@@ -168,5 +172,50 @@ describe('Man "Can xu ly"', () => {
 
     expect(screen.getByRole('heading', { name: /Cần xử lý/i })).toBeInTheDocument();
     expect(await screen.findByText(/backend tat/i)).toBeInTheDocument();
+  });
+});
+
+describe('Danh dau da xu ly (audit 2026-10-06)', () => {
+  const MOT_BAN_GHI = {
+    key: 'dong_tam',
+    total: 1,
+    results: [
+      {
+        key: 'dong_tam',
+        id: 'q2',
+        name: 'Bún Chả Hương Liên',
+        description: 'Hai Bà Trưng',
+        image_url: null,
+        source_updated_at: null,
+        resolved_at: null,
+        resolved_by: null,
+      },
+    ],
+  };
+
+  it('danh dau xong -> tai lai bo dem nhom + the so', async () => {
+    issueDetail.mockResolvedValue(MOT_BAN_GHI);
+    resolveIssue.mockResolvedValue({ ok: true });
+    moTrang();
+    fireEvent.click((await screen.findAllByRole('button', { name: /Xem danh sách/i }))[0]);
+    await screen.findByText('Bún Chả Hương Liên');
+    const soLanTruoc = issues.mock.calls.length;
+
+    fireEvent.click(screen.getByRole('button', { name: /Đánh dấu đã xử lý/i }));
+
+    await waitFor(() => expect(issues.mock.calls.length).toBeGreaterThan(soLanTruoc));
+  });
+
+  it('danh dau LOI -> danh sach VAN CON, loi hien ngay tren', async () => {
+    issueDetail.mockResolvedValue(MOT_BAN_GHI);
+    resolveIssue.mockRejectedValue(new Error('Kho đánh dấu đang đầy'));
+    moTrang();
+    fireEvent.click((await screen.findAllByRole('button', { name: /Xem danh sách/i }))[0]);
+    await screen.findByText('Bún Chả Hương Liên');
+
+    fireEvent.click(screen.getByRole('button', { name: /Đánh dấu đã xử lý/i }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Kho đánh dấu đang đầy');
+    expect(screen.getByText('Bún Chả Hương Liên')).toBeInTheDocument();
   });
 });

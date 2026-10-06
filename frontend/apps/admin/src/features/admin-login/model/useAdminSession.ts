@@ -3,9 +3,9 @@
  *
  * Giữ state đăng nhập, gọi API, xử lý lỗi. KHÔNG chứa JSX.
  */
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ApiError, adminApi } from '@/shared/api';
-import { clearToken, readToken, writeToken } from '@/shared/lib';
+import { clearToken, onSessionExpired, readToken, writeToken } from '@/shared/lib';
 
 export interface UseAdminSessionResult {
   isLoggedIn: boolean;
@@ -31,8 +31,17 @@ export function useAdminSession(): UseAdminSessionResult {
       setIsLoggedIn(true);
     } catch (err) {
       // Backend cố tình không nói rõ sai tên hay sai mật khẩu, để không giúp người dò
-      // tài khoản. Hiển thị đúng câu backend trả về, không tự suy diễn thêm.
-      setError(err instanceof ApiError ? err.userMessage : (err as Error).message);
+      // tài khoản. Hiển thị đúng câu backend trả về (`message`), KHÔNG dùng `userMessage`:
+      // câu soạn sẵn đó biến 401 sai mật khẩu thành "Phiên đăng nhập đã hết hạn" và che
+      // mất hướng dẫn khắc phục của 503. Chỉ NETWORK mới dùng `userMessage` vì `message`
+      // khi đó là "Failed to fetch". Cùng quy tắc với `useUserSession` của app client.
+      setError(
+        err instanceof ApiError
+          ? err.code === 'NETWORK'
+            ? err.userMessage
+            : err.message
+          : (err as Error).message,
+      );
       setIsLoggedIn(false);
     } finally {
       setLoading(false);
@@ -53,6 +62,11 @@ export function useAdminSession(): UseAdminSessionResult {
     setIsLoggedIn(false);
     setError('Phiên đăng nhập đã hết hạn. Hãy đăng nhập lại.');
   }, []);
+
+  // Mọi 401 có token của `adminApi` (ở BẤT KỲ trang nào) đi về đây — xem
+  // `shared/lib/sessionExpiry`. `RequireAuth` thấy `isLoggedIn=false` sẽ chuyển sang
+  // trang đăng nhập kèm `state.from`, đăng nhập lại là quay về đúng trang.
+  useEffect(() => onSessionExpired(handleExpired), [handleExpired]);
 
   return { isLoggedIn, loading, error, login, logout, handleExpired };
 }

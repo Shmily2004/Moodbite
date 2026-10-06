@@ -27,6 +27,7 @@ import {
 import { NHAN_NGUON_QUAN, nhanTheoMa } from '@/shared/config';
 import { phanTramVN, soVN } from '@/shared/lib';
 import { IconTron, PhanTrang, type MauIconTron, type TenIcon } from '@/shared/ui';
+import { OTimQuan } from './OTimQuan';
 
 /** Nhãn tiếng Việt cho `?loc=`. Khoá do backend đặt — xem `data_quality.py`. */
 const NHAN_LOC: Record<string, string> = {
@@ -151,13 +152,7 @@ export function RestaurantsPage() {
               <option value="hidden">Đã ẩn</option>
             </select>
           </label>
-          <input
-            className="o-nhap"
-            placeholder="Tìm theo tên, địa chỉ hoặc placeId…"
-            value={a.filters.q}
-            onChange={(e) => a.setQuery(e.target.value)}
-            aria-label="Tìm quán"
-          />
+          <OTimQuan q={a.filters.q} onQuery={a.setQuery} />
           <button type="button" className="ghost" onClick={a.clearFilters} disabled={!coLoc}>
             Xoá bộ lọc
           </button>

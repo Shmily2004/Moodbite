@@ -25,6 +25,7 @@ import { enBoLoc, viBoLoc } from './tu_dien_bo_loc';
 import { enMonQuan, viMonQuan } from './tu_dien_mon_quan';
 import { enTaiKhoan, viTaiKhoan } from './tu_dien_tai_khoan';
 import { enXacThuc, viXacThuc } from './tu_dien_xac_thuc';
+import { enHeThong, viHeThong } from './tu_dien_he_thong';
 
 export const NGON_NGU = ['vi', 'en'] as const;
 export type NgonNgu = (typeof NGON_NGU)[number];
@@ -335,7 +336,7 @@ const viGoc = {
   'account.improve.cta': 'Cập nhật ngay',
 } as const;
 
-const vi = { ...viGoc, ...viBoLoc, ...viMonQuan, ...viTaiKhoan, ...viXacThuc };
+const vi = { ...viGoc, ...viBoLoc, ...viMonQuan, ...viTaiKhoan, ...viXacThuc, ...viHeThong };
 
 export type Khoa = keyof typeof vi;
 
@@ -628,6 +629,7 @@ const en: Record<Khoa, string> = {
   ...enMonQuan,
   ...enTaiKhoan,
   ...enXacThuc,
+  ...enHeThong,
 };
 
 export const TU_DIEN: Record<NgonNgu, Record<Khoa, string>> = { vi, en };

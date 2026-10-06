@@ -28,3 +28,9 @@ describe('nguonTiepTheo', () => {
     for (const n of NGUON_NEN) expect(n.attribution).toMatch(/OpenStreetMap/);
   });
 });
+
+describe('ghi cong theo ngon ngu', () => {
+  it('khong con chu "nen:" tieng Viet cung trong attribution', () => {
+    for (const n of NGUON_NEN) expect(n.attribution).not.toMatch(/nền:/);
+  });
+});

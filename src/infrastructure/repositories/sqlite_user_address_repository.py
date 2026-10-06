@@ -8,6 +8,11 @@ BẤT BIẾN "KHÔNG QUÁ MỘT ĐỊA CHỈ MẶC ĐỊNH" ĐƯỢC GIỮ Ở H
   2. CSDL: chỉ mục UNIQUE CÓ ĐIỀU KIỆN `WHERE is_default = 1`. Lỡ có đường ghi nào quên
      bước 1 thì SQLite từ chối ngay, thay vì để lại hai địa chỉ mặc định rồi điểm dự
      phòng vị trí thành ngẫu nhiên.
+
+GIỚI HẠN `MAX_ADDRESSES_PER_USER` KIỂM TRONG GIAO DỊCH GHI (2026-10-06): use case đếm rồi
+mới ghi nên hai request song song từng cùng lọt qua. `create` nay mở `BEGIN IMMEDIATE`,
+đếm lại và gọi đúng luật của domain trước khi INSERT — cùng cách với
+`SqliteCollectionRepository`.
 """
 from __future__ import annotations
 
@@ -18,7 +23,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterator, List, Optional
 
-from src.domain.entities.user_address import UserAddress
+from src.domain.entities.user_address import UserAddress, ensure_can_add_address
 from src.infrastructure.config.settings import describe_path
 from src.infrastructure.repositories.sqlite_ket_noi import mo_ket_noi
 
@@ -118,6 +123,14 @@ class SqliteUserAddressRepository:
             created_at=address.created_at or datetime.now(timezone.utc),
         )
         with self._tx() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+            # Đếm lại khi đã giữ khoá ghi — xem ghi chú đầu file. Ném lỗi -> rollback.
+            ensure_can_add_address(
+                conn.execute(
+                    "SELECT COUNT(*) FROM user_addresses WHERE user_id = ?",
+                    (str(record.user_id),),
+                ).fetchone()[0]
+            )
             if record.is_default:
                 _clear_default(conn, record.user_id)
             conn.execute(

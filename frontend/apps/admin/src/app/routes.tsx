@@ -44,6 +44,7 @@ import { ROUTES } from '@/shared/config';
 import { AdminLayout } from './layout/AdminLayout';
 import { RequireAuth } from './layout/RequireAuth';
 import { SessionBoundary } from './layout/SessionBoundary';
+import { RouteError } from './layout/RouteError';
 
 export const routes: RouteObject[] = [
   {
@@ -52,6 +53,8 @@ export const routes: RouteObject[] = [
         <SessionBoundary />
       </AdminSessionProvider>
     ),
+    // Trang lỗi thay cho "Unexpected Application Error!" tiếng Anh của React Router.
+    errorElement: <RouteError />,
     children: [
       { path: ROUTES.login, element: <LoginPage /> },
       {

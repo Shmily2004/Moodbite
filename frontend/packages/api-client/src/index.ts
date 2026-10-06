@@ -104,11 +104,15 @@ export type {
   AdminDishRestaurantsData,
   AdminDishRestaurant,
   AdminInteractionStatsData,
+  AdminClosureReportsData,
+  AdminClosureReportItem,
+  AdminClearedClosureReports,
 } from './admin';
 
 export type { components, paths } from './schema';
 
 import { HttpClient } from './http';
+import type { HttpClientOptions } from './http';
 import { MoodbiteApi } from './endpoints';
 import { MoodbiteAuthApi } from './auth';
 import { MoodbiteAdminApi } from './admin';
@@ -136,8 +140,9 @@ export function createApi(baseUrl: string = DEFAULT_API_BASE): MoodbiteApi {
 export function createAuthApi(
   baseUrl: string = DEFAULT_API_BASE,
   getAuthToken?: () => string | null,
+  onUnauthorized?: HttpClientOptions['onUnauthorized'],
 ): MoodbiteAuthApi {
-  return new MoodbiteAuthApi(new HttpClient({ baseUrl, getAuthToken }));
+  return new MoodbiteAuthApi(new HttpClient({ baseUrl, getAuthToken, onUnauthorized }));
 }
 
 /**
@@ -147,8 +152,9 @@ export function createAuthApi(
 export function createMyPlacesApi(
   baseUrl: string = DEFAULT_API_BASE,
   getAuthToken: () => string | null,
+  onUnauthorized?: HttpClientOptions['onUnauthorized'],
 ): MoodbiteMyPlacesApi {
-  return new MoodbiteMyPlacesApi(new HttpClient({ baseUrl, getAuthToken }));
+  return new MoodbiteMyPlacesApi(new HttpClient({ baseUrl, getAuthToken, onUnauthorized }));
 }
 
 /**
@@ -160,6 +166,7 @@ export function createMyPlacesApi(
 export function createAdminApi(
   baseUrl: string = DEFAULT_API_BASE,
   getAuthToken: () => string | null,
+  onUnauthorized?: HttpClientOptions['onUnauthorized'],
 ): MoodbiteAdminApi {
-  return new MoodbiteAdminApi(new HttpClient({ baseUrl, getAuthToken }));
+  return new MoodbiteAdminApi(new HttpClient({ baseUrl, getAuthToken, onUnauthorized }));
 }

@@ -12,10 +12,11 @@
  * nhập… đều do backend quyết (`src/domain/entities/user.py`). Chép luật xuống frontend là
  * tạo NƠI THỨ HAI chứa nghiệp vụ — đúng sai lầm CLAUDE.md mục 1b cấm.
  */
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { UserSelf } from '@/shared/api';
-import { ApiError, authApi } from '@/shared/api';
-import { clearToken, readToken, writeToken } from '@/shared/lib';
+import { ApiError, accountErrorText, authApi } from '@/shared/api';
+import { useT } from '@/shared/i18n';
+import { TOKEN_KEY, clearToken, onSessionExpired, readToken, writeToken } from '@/shared/lib';
 
 export interface UseUserSessionResult {
   isLoggedIn: boolean;
@@ -42,24 +43,14 @@ export interface UseUserSessionResult {
 }
 
 /**
- * Chọn câu báo lỗi.
+ * Chọn câu báo lỗi: `accountErrorText` (shared/api).
  *
- * Ưu tiên `message` của backend, KHÔNG dùng `userMessage`: `userMessage` là câu soạn sẵn
- * theo mã lỗi cho luồng tìm quán, nên với tài khoản nó nói sai hẳn — `UNAUTHORIZED` ra
- * "Phiên đăng nhập đã hết hạn" (thực tế là gõ sai mật khẩu), `DATA_NOT_READY` ra "chưa
- * nạp xong dữ liệu quán ăn" (thực tế là chưa đặt MOODBITE_AUTH_SECRET). Câu backend trả
- * về đã viết cho người dùng đọc, kể cả lỗi định dạng lúc đăng ký.
- *
- * Riêng `NETWORK` thì ngược lại: `message` là lỗi kỹ thuật của `fetch` ("Failed to
- * fetch"), người dùng đọc không hiểu gì.
+ * Ưu tiên `message` của backend, KHÔNG dùng câu soạn sẵn theo mã: câu đó viết cho luồng
+ * tìm quán, nên với tài khoản nó nói sai hẳn — `UNAUTHORIZED` ra "Phiên đăng nhập đã hết
+ * hạn" (thực tế là gõ sai mật khẩu), `DATA_NOT_READY` ra "chưa nạp xong dữ liệu quán ăn"
+ * (thực tế là chưa đặt MOODBITE_AUTH_SECRET). Riêng `NETWORK` thì `message` là "Failed to
+ * fetch" → dùng câu đã dịch theo ngôn ngữ đang chọn.
  */
-function authErrorMessage(err: unknown): string {
-  if (err instanceof ApiError) {
-    return err.code === 'NETWORK' ? err.userMessage : err.message;
-  }
-  return (err as Error).message;
-}
-
 export function useUserSession(): UseUserSessionResult {
   // Đọc thẳng từ kho lúc dựng: mở lại tab mà token còn thì không bắt đăng nhập lại.
   // Token có thể đã hết hạn — chỗ đó lộ ra ở lần gọi API đầu tiên (401), chưa cần gọi
@@ -68,6 +59,9 @@ export function useUserSession(): UseUserSessionResult {
   const [user, setUser] = useState<UserSelf | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const t = useT();
+  const tRef = useRef(t);
+  tRef.current = t;
 
   /**
    * Mở lại tab mà token còn -> hỏi backend xem mình là ai.
@@ -101,6 +95,37 @@ export function useUserSession(): UseUserSessionResult {
     };
   }, [isLoggedIn, user]);
 
+  /**
+   * ĐĂNG XUẤT CỤC BỘ khi phiên chết GIỮA CHỪNG (2026-10-06):
+   *   - một request `/me/*` hay `/auth/*` nhận 401 → `shared/lib/sessionExpiry` đã xoá
+   *     token, ở đây chỉ dọn state;
+   *   - tab KHÁC đăng xuất / đăng nhập (sự kiện `storage`, chỉ bắn cho localStorage ở
+   *     các tab khác) → đồng bộ theo kho token.
+   */
+  useEffect(() => {
+    const dangXuatCucBo = () => {
+      setUser(null);
+      setIsLoggedIn(false);
+    };
+    const boLang = onSessionExpired(dangXuatCucBo);
+    const khiKhoDoi = (event: StorageEvent) => {
+      // `key === null` = tab kia gọi `localStorage.clear()`.
+      if (event.key !== null && event.key !== TOKEN_KEY) return;
+      if (readToken() === null) {
+        dangXuatCucBo();
+      } else {
+        // Tab kia đăng nhập (có thể tài khoản KHÁC) → hỏi lại `/auth/me`.
+        setUser(null);
+        setIsLoggedIn(true);
+      }
+    };
+    window.addEventListener('storage', khiKhoDoi);
+    return () => {
+      boLang();
+      window.removeEventListener('storage', khiKhoDoi);
+    };
+  }, []);
+
   const login = useCallback(
     async (username: string, password: string, remember: boolean) => {
       setLoading(true);
@@ -113,7 +138,7 @@ export function useUserSession(): UseUserSessionResult {
         setUser(data.user);
         setIsLoggedIn(true);
       } catch (err) {
-        setError(authErrorMessage(err));
+        setError(accountErrorText(err, tRef.current));
         setIsLoggedIn(false);
       } finally {
         setLoading(false);
@@ -152,7 +177,7 @@ export function useUserSession(): UseUserSessionResult {
         setUser(data.user);
         setIsLoggedIn(true);
       } catch (err) {
-        setError(authErrorMessage(err));
+        setError(accountErrorText(err, tRef.current));
         setIsLoggedIn(false);
       } finally {
         setLoading(false);

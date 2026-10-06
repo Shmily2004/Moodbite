@@ -65,11 +65,26 @@ class SlidingWindowRateLimiter:
     def reset(self, key: str) -> None:
         """Xoá lịch sử của một khoá — gọi sau khi đăng nhập THÀNH CÔNG.
 
-        Nếu không reset thì người gõ nhầm vài lần rồi đăng nhập đúng vẫn bị tính, lát sau
-        đăng nhập lại là bị chặn oan.
+        ⚠️ CHỈ reset khoá gắn với ĐÚNG tài khoản vừa đăng nhập (`IP|tên`, hoặc `tên`).
+        Trước 2026-10-06 `/auth/login` reset khoá theo IP TRẦN: kẻ tấn công đoán một lần
+        mật khẩu nạn nhân, rồi đăng nhập đúng vào tài khoản CỦA CHÍNH MÌNH để xoá bộ đếm,
+        lặp lại vô hạn — đã tái hiện 20 lần đoán, 0 lần 429. Khoá dùng chung nhiều tài
+        khoản thì dùng `refund`, không bao giờ `reset`.
         """
         with self._lock:
             self._hits.pop(key, None)
+
+    def refund(self, key: str) -> None:
+        """Trả lại MỘT lượt (lượt vừa đếm) — dùng cho khoá DÙNG CHUNG nhiều tài khoản (IP).
+
+        Đăng nhập thành công không nên ăn vào hạn mức của cả IP (nhiều người sau cùng một
+        NAT), nhưng cũng KHÔNG được xoá các lần thử sai trước đó — xem `reset`. Trả đúng
+        một lượt thì các lần sai vẫn nằm nguyên trong cửa sổ.
+        """
+        with self._lock:
+            hits = self._hits.get(key)
+            if hits:
+                hits.pop()
 
     def _prune(self, now: float) -> None:
         for k in [k for k, v in self._hits.items()
@@ -78,9 +93,28 @@ class SlidingWindowRateLimiter:
 
 
 # Ngưỡng mặc định. Đăng nhập chặt hơn đăng ký vì đó là đường dò mật khẩu.
-# 5 lần/5 phút: đủ rộng cho người gõ nhầm vài lần, đủ hẹp để dò mật khẩu là vô vọng.
+# 5 lần/5 phút cho MỘT CẶP (IP, tên đăng nhập): đủ rộng cho người gõ nhầm vài lần, đủ hẹp
+# để dò mật khẩu là vô vọng. Khoá theo CẶP từ 2026-10-06 - xem `reset`.
 LOGIN_MAX_ATTEMPTS = 5
 LOGIN_WINDOW_SECONDS = 300
+
+# Theo IP, gộp MỌI tên đăng nhập — chặn kiểu "rải": mỗi tên thử vài mật khẩu phổ biến,
+# không cặp (IP, tên) nào chạm ngưỡng. Rộng gấp 4 cặp vì nhiều người thật có thể ngồi sau
+# cùng một IP (wifi quán, ký túc xá). Đăng nhập ĐÚNG được trả lại lượt (`refund`), nên
+# người dùng thật hầu như không chạm ngưỡng này.
+LOGIN_IP_MAX_ATTEMPTS = 20
+LOGIN_IP_WINDOW_SECONDS = 300
+
+# Theo TÊN ĐĂNG NHẬP, gộp MỌI IP — chặn kẻ đổi IP liên tục (mạng botnet, proxy xoay vòng)
+# để né hai bộ đếm trên.
+#
+# ⚠️ ĐÁNH ĐỔI PHẢI BIẾT: đếm theo tên thì AI CŨNG khoá tạm được tài khoản người khác bằng
+# cách cố tình gõ sai (tấn công từ chối dịch vụ nhắm một người). Vì vậy ngưỡng để CAO
+# (20 lần/15 phút — gấp 4 ngưỡng của một cặp) và chỉ khoá 15 phút: người dùng thật gõ sai
+# 20 lần liền là chuyện không có, còn kẻ phá phải duy trì 20 lần mỗi 15 phút cho MỖI nạn
+# nhân. Chủ tài khoản đăng nhập đúng thì bộ đếm của tên đó được xoá.
+LOGIN_ACCOUNT_MAX_ATTEMPTS = 20
+LOGIN_ACCOUNT_WINDOW_SECONDS = 900
 
 # 3 tài khoản/giờ cho mỗi IP: người thật hầu như không tạo quá 1.
 REGISTER_MAX_ATTEMPTS = 3
@@ -103,6 +137,11 @@ FORGOT_PASSWORD_WINDOW_SECONDS = 3600
 # CPU của máy chủ — endpoint này công khai, ai cũng gọi được.
 #
 # 5 lần/15 phút: người quản trị biết mật khẩu của mình, gõ nhầm quá 5 lần là chuyện hiếm.
+#
+# Áp cho CẢ `/auth/login` khi tài khoản đích là admin (từ 2026-10-06). Admin là dòng
+# `role='admin'` trong bảng `users` nên `/auth/login` cũng đăng nhập được; trước đó đường
+# này chỉ chịu bộ đếm người dùng (5 lần/5 phút) -> lách được ngưỡng chặt của quản trị.
+# Khoá là cặp (IP, tên) giống hệt ở `/admin/login`, nên hai cửa DÙNG CHUNG một bộ đếm.
 ADMIN_LOGIN_MAX_ATTEMPTS = 5
 ADMIN_LOGIN_WINDOW_SECONDS = 900
 
@@ -114,6 +153,10 @@ __all__ = [
     "ADMIN_LOGIN_WINDOW_SECONDS",
     "LOGIN_MAX_ATTEMPTS",
     "LOGIN_WINDOW_SECONDS",
+    "LOGIN_IP_MAX_ATTEMPTS",
+    "LOGIN_IP_WINDOW_SECONDS",
+    "LOGIN_ACCOUNT_MAX_ATTEMPTS",
+    "LOGIN_ACCOUNT_WINDOW_SECONDS",
     "REGISTER_MAX_ATTEMPTS",
     "REGISTER_WINDOW_SECONDS",
     "FORGOT_PASSWORD_MAX_ATTEMPTS",

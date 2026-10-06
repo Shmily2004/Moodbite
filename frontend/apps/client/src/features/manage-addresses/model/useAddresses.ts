@@ -9,6 +9,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useUserSessionContext } from '@/entities/user';
 import { useT } from '@/shared/i18n';
+import { ApiError } from '@/shared/api';
 import { suaDiaChi, taiDiaChi, themDiaChi, xoaDiaChi } from '@/entities/address';
 import type { DiaChi } from '@/entities/address';
 
@@ -30,6 +31,9 @@ export interface UseAddressesResult {
 }
 
 function thongBaoLoi(err: unknown, macDinh: string): string {
+  // Lỗi MẠNG: `message` là "Failed to fetch" — đọc không hiểu, lại không theo ngôn ngữ.
+  // Câu dự phòng (đã dịch) nói đúng việc gì vừa hỏng.
+  if (err instanceof ApiError && err.code === 'NETWORK') return macDinh;
   return err instanceof Error && err.message ? err.message : macDinh;
 }
 

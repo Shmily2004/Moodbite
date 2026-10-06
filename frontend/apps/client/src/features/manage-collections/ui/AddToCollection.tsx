@@ -49,10 +49,14 @@ export function AddToCollection({ boSuuTap, muc }: AddToCollectionProps) {
     setDaThem(null);
     if (chon === BO_MOI) {
       const ten = tenMoi;
-      if (await boSuuTap.createAndAdd(ten, muc)) {
-        setDaThem(ten.trim());
+      const kq = await boSuuTap.createAndAdd(ten, muc);
+      // Tạo được bộ mà THÊM lỗi: chuyển lựa chọn sang bộ vừa tạo. Không làm vậy thì bấm
+      // "Thêm" lần nữa sẽ TẠO THÊM một bộ trùng tên (audit 2026-10-06).
+      if (kq.createdId) {
+        setChon(kq.createdId);
         setTenMoi('');
       }
+      if (kq.added) setDaThem(ten.trim());
       return;
     }
     const bo = boSuuTap.collections.find((x) => x.id === chon);

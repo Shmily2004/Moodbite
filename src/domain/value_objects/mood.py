@@ -7,6 +7,8 @@ from __future__ import annotations
 
 from typing import Dict
 
+from src.domain.errors import DomainValidationError
+
 # Tên 5 cột mood-score do data_pipeline/feature_engineering.py sinh ra.
 MOOD_SCORE_COLUMNS: tuple[str, ...] = (
     "comfort_cozy_score",
@@ -117,7 +119,7 @@ MOOD_DISH_AFFINITY: Dict[str, Dict[str, float]] = {
 SUPPORTED_MOODS: tuple[str, ...] = tuple(MOOD_PROFILES.keys())
 
 
-class UnsupportedMoodError(ValueError):
+class UnsupportedMoodError(DomainValidationError):
     """Mood client gửi lên không nằm trong SUPPORTED_MOODS."""
 
     def __init__(self, mood: str) -> None:

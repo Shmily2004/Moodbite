@@ -96,6 +96,19 @@ describe('RestaurantCard', () => {
     expect(onOpenDetail).toHaveBeenCalledOnce();
   });
 
+  it('KHONG long dieu khien: the khong mang role=button khi ben trong co nut that', () => {
+    const onOpenDetail = vi.fn();
+    const { container } = render(
+      <RestaurantCard restaurant={makeRestaurant()} onOpenDetail={onOpenDetail} />,
+    );
+    expect(container.querySelector('[role="button"]')).toBeNull();
+    // Đúng MỘT nút, và tên của nó nói rõ quán nào.
+    expect(screen.getAllByRole('button')).toHaveLength(1);
+    // Bấm vùng thẻ (không phải nút) vẫn mở được bằng chuột.
+    (container.querySelector('.card') as HTMLElement).click();
+    expect(onOpenDetail).toHaveBeenCalledOnce();
+  });
+
   it('quán KHÔNG có ảnh vẫn hiện ô đại diện, không để trống', () => {
     // 78.5% quán không có ảnh -> đây là trường hợp PHỔ BIẾN, phải trông có chủ đích.
     const { container } = render(

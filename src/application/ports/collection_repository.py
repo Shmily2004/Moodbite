@@ -34,7 +34,11 @@ class CollectionRepository(Protocol):
         ...
 
     def create(self, collection: Collection) -> Collection:
-        """Tạo bộ mới (chưa có mục). Trả bản đã gắn `created_at`."""
+        """Tạo bộ mới (chưa có mục). Trả bản đã gắn `created_at`.
+
+        Adapter PHẢI tự kiểm `ensure_can_create_collection` TRONG CÙNG giao dịch với lệnh
+        ghi (ném `InvalidCollection`), không được tin phép đếm trước đó của use case — hai
+        request song song sẽ cùng thấy "còn chỗ"."""
         ...
 
     def rename(self, user_id: str, collection_id: str, name: str) -> bool:
@@ -49,7 +53,8 @@ class CollectionRepository(Protocol):
         self, user_id: str, collection_id: str, item: CollectionItem
     ) -> bool:
         """Thêm mục (idempotent: đã có thì chỉ cập nhật tên, giữ `added_at` cũ).
-        False nếu bộ không thuộc người dùng."""
+        False nếu bộ không thuộc người dùng. Như `create`: adapter tự kiểm
+        `ensure_can_add_item` trong cùng giao dịch ghi."""
         ...
 
     def remove_item(

@@ -21,8 +21,10 @@ from __future__ import annotations
 import json
 import logging
 import sqlite3
+import threading
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Mapping, Optional, Sequence, Tuple
+from typing import Callable, Dict, List, Mapping, Optional, Sequence, Tuple
 
 from src.domain.entities.restaurant import Restaurant
 from src.domain.value_objects.location import Location
@@ -140,19 +142,45 @@ def _bool_or_none(value) -> Optional[bool]:
     return None if value is None else bool(value)
 
 
+@dataclass(frozen=True)
+class _Snapshot:
+    """MỘT ảnh chụp dữ liệu quán: danh sách + bảng tra + số phiên bản, đi CÙNG nhau.
+
+    VÌ SAO GOM LẠI (bug thật, rà soát 2026-10-06): bản cũ giữ `_restaurants` và
+    `_by_place_id` là HAI thuộc tính, `reload()` xoá cả hai rồi gán lại bằng hai câu lệnh
+    riêng. Request rơi vào khe giữa hai câu nhận `get_by_place_id() -> None` -> 404 cho
+    quán đang tồn tại; rơi vào khe trước đó thì tự nạp lại toàn bộ CSDL lần nữa (~2 giây).
+    Gom vào một đối tượng bất biến thì đổi dữ liệu chỉ còn MỘT phép gán thuộc tính — người
+    đọc luôn thấy trọn bản cũ hoặc trọn bản mới, không bao giờ thấy nửa này nửa kia.
+    """
+
+    restaurants: Tuple[Restaurant, ...]
+    by_place_id: Mapping[str, Restaurant]
+    version: int
+
+
 class SqliteRestaurantRepository:
     """Triển khai `RestaurantRepository` từ file SQLite.
 
     Nạp toàn bộ vào bộ nhớ MỘT LẦN giống bản CSV, vì `list_all()` được gọi ở MỖI lượt
     tìm kiếm - truy vấn lại CSDL mỗi lần sẽ chậm hơn hẳn mà không được gì. Sau khi Admin
     ghi dữ liệu thì gọi `reload()` để làm mới bộ nhớ đệm.
+
+    `data_version` tăng sau MỖI lần nạp lại thành công. Thứ gì dựng từ `list_all()` rồi
+    giữ lâu (chỉ mục món-quán) phải so số này để biết khi nào dữ liệu đã cũ — xem
+    `infrastructure/adapters/live_dish_restaurant_index.py`.
     """
 
     def __init__(self, db_path: Path | str, eager: bool = True) -> None:
         self.db_path = Path(db_path)
-        self._restaurants: Optional[List[Restaurant]] = None
-        self._by_place_id: Dict[str, Restaurant] = {}
+        self._snapshot: Optional[_Snapshot] = None
         self._load_error: Optional[str] = None
+        # Một lượt nạp tại một thời điểm: hai admin bấm cùng lúc thì lượt sau chờ, không
+        # đọc CSDL hai lần song song. Người ĐỌC không bao giờ phải chờ khoá này (trừ lần
+        # nạp đầu tiên, khi chưa có ảnh chụp nào để trả).
+        self._load_lock = threading.Lock()
+        self._version = 0
+        self._reload_listeners: List[Callable[[], None]] = []
         if eager:
             self._ensure_loaded()
 
@@ -160,16 +188,15 @@ class SqliteRestaurantRepository:
 
     @property
     def is_ready(self) -> bool:
-        self._ensure_loaded()
-        return self._restaurants is not None
+        return self._current() is not None
 
     def list_all(self) -> List[Restaurant]:
-        self._ensure_loaded()
-        return list(self._restaurants or [])
+        snapshot = self._current()
+        return list(snapshot.restaurants) if snapshot is not None else []
 
     def get_by_place_id(self, place_id: str) -> Optional[Restaurant]:
-        self._ensure_loaded()
-        return self._by_place_id.get(str(place_id))
+        snapshot = self._current()
+        return snapshot.by_place_id.get(str(place_id)) if snapshot is not None else None
 
     # -- Phần thêm so với port ------------------------------------------------
 
@@ -177,22 +204,52 @@ class SqliteRestaurantRepository:
     def load_error(self) -> Optional[str]:
         return self._load_error
 
+    @property
+    def data_version(self) -> int:
+        """Số phiên bản của ảnh chụp đang phục vụ. 0 = chưa nạp được gì."""
+        snapshot = self._current()
+        return snapshot.version if snapshot is not None else 0
+
+    def add_reload_listener(self, callback: Callable[[], None]) -> None:
+        """Đăng ký hàm được gọi SAU mỗi lần nạp lại thành công (sau khi admin ghi).
+
+        Dùng để chỉ mục món-quán bắt đầu dựng lại NGAY trong nền, thay vì để người dùng
+        đầu tiên sau đó phải chờ. Hàm được gọi ở luồng của request ghi, nên phải NHANH
+        (VD chỉ khởi động một thread) — không được tự làm việc nặng ở đây.
+        """
+        self._reload_listeners.append(callback)
+
     def reload(self) -> None:
-        """Bỏ bộ nhớ đệm và nạp lại. Admin PHẢI gọi sau khi ghi, nếu không người dùng
-        vẫn thấy dữ liệu cũ cho tới lần khởi động lại tiếp theo."""
-        self._restaurants = None
-        self._by_place_id = {}
-        self._load_error = None
-        self._ensure_loaded()
+        """Nạp lại từ CSDL rồi THAY ảnh chụp trong MỘT phép gán. Admin PHẢI gọi sau khi
+        ghi, nếu không người dùng vẫn thấy dữ liệu cũ cho tới lần khởi động lại.
+
+        Trong lúc đang nạp (~2 giây trên 52.871 quán, đo 2026-10-06), người đọc vẫn được
+        phục vụ bằng ảnh chụp CŨ - không 404, không tự nạp lại lần hai.
+
+        Nạp lỗi (CSDL bị khoá, file hỏng giữa chừng) mà ĐÃ có ảnh chụp cũ thì GIỮ ảnh chụp
+        cũ và ghi log: dữ liệu cũ vài giây tốt hơn hẳn việc cả app báo "chưa sẵn sàng".
+        """
+        with self._load_lock:
+            snapshot, error = self._load_snapshot()
+            if snapshot is not None:
+                self._snapshot = snapshot
+                self._load_error = None
+            elif self._snapshot is None:
+                self._load_error = error
+            else:
+                logger.error("Nạp lại CSDL quán thất bại, giữ dữ liệu cũ: %s", error)
+                return
+        if snapshot is not None:
+            self._notify_reload()
 
     def status(self) -> dict:
         """Tự mô tả cho /health - cùng hình dạng với bản CSV để Container không phải
         biết đang dùng adapter nào."""
-        ready = self.is_ready
+        snapshot = self._current()
         return {
-            "ready": ready,
+            "ready": snapshot is not None,
             "source": describe_path(self.db_path),
-            "count": len(self._restaurants or []),
+            "count": len(snapshot.restaurants) if snapshot is not None else 0,
             "error": self._load_error,
         }
 
@@ -443,17 +500,48 @@ class SqliteRestaurantRepository:
 
     # -- Nội bộ ---------------------------------------------------------------
 
+    def _current(self) -> Optional[_Snapshot]:
+        """Ảnh chụp đang phục vụ. Đọc thuộc tính MỘT LẦN rồi dùng biến cục bộ, để một
+        lượt `reload()` chen giữa không đổi được dữ liệu dưới chân người gọi."""
+        snapshot = self._snapshot
+        if snapshot is None:
+            self._ensure_loaded()
+            snapshot = self._snapshot
+        return snapshot
+
+    def _notify_reload(self) -> None:
+        for callback in list(self._reload_listeners):
+            try:
+                callback()
+            except Exception:  # noqa: BLE001 - việc phụ không được làm hỏng lượt ghi
+                logger.exception("Hàm theo dõi nạp lại dữ liệu quán bị lỗi")
+
     def _ensure_loaded(self) -> None:
         """Nạp 1 lần. Thiếu file KHÔNG làm sập app - endpoint liên quan trả 503 kèm
         hướng dẫn khắc phục (CLAUDE.md mục 4 quy tắc 3)."""
-        if self._restaurants is not None or self._load_error is not None:
+        if self._snapshot is not None or self._load_error is not None:
             return
+        with self._load_lock:
+            # Kiểm lại SAU khi có khoá: luồng khác có thể vừa nạp xong trong lúc ta chờ.
+            if self._snapshot is not None or self._load_error is not None:
+                return
+            snapshot, error = self._load_snapshot()
+            if snapshot is not None:
+                self._snapshot = snapshot
+            else:
+                self._load_error = error
+
+    def _load_snapshot(self) -> Tuple[Optional[_Snapshot], Optional[str]]:
+        """Đọc CSDL thành một ảnh chụp MỚI. KHÔNG đụng vào thuộc tính nào của `self`
+        ngoài bộ đếm phiên bản — việc thay ảnh chụp là của người gọi, trong một phép gán.
+
+        Chỉ gọi khi đang giữ `_load_lock`.
+        """
         if not self.db_path.exists():
-            self._load_error = (
+            return None, (
                 f"Không tìm thấy CSDL: {describe_path(self.db_path)}. "
                 "Chạy: python scripts/build_sqlite.py"
             )
-            return
         try:
             # read-only + uri=True: app chạy chỉ ĐỌC, không vô tình tạo file rỗng khi
             # gõ nhầm đường dẫn (sqlite3.connect mặc định TẠO file mới nếu chưa có -
@@ -466,14 +554,15 @@ class SqliteRestaurantRepository:
                     "AND COALESCE(permanently_closed, 0) = 0"
                 ).fetchall()
         except sqlite3.Error as exc:
-            self._load_error = f"Không đọc được {describe_path(self.db_path)}: {exc}"
-            return
+            return None, f"Không đọc được {describe_path(self.db_path)}: {exc}"
 
-        restaurants = [r for r in (self._to_entity(row) for row in rows) if r]
-        self._restaurants = restaurants
-        self._by_place_id = {
-            r.place_id: r for r in restaurants if r.place_id is not None
-        }
+        restaurants = tuple(r for r in (self._to_entity(row) for row in rows) if r)
+        self._version += 1
+        return _Snapshot(
+            restaurants=restaurants,
+            by_place_id={r.place_id: r for r in restaurants if r.place_id is not None},
+            version=self._version,
+        ), None
 
     @staticmethod
     def _to_entity(row: sqlite3.Row) -> Optional[Restaurant]:

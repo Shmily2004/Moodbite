@@ -367,15 +367,6 @@ export function IconSettings(props: IconProps) {
   );
 }
 
-/** Dấu tích — trạng thái đã xong. */
-export function IconCheck(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <path d="M4.5 12.5 9.5 17.5 19.5 6.5" />
-    </Icon>
-  );
-}
-
 /** Lịch — ngày tham gia. */
 export function IconCalendar(props: IconProps) {
   return (
@@ -419,16 +410,6 @@ export function IconStar({ filled = false, ...props }: IconProps & { filled?: bo
   return (
     <Icon fill={filled ? 'currentColor' : 'none'} {...props}>
       <path d="M12 3.5l2.6 5.6 6 .8-4.4 4.2 1.1 6-5.3-2.9-5.3 2.9 1.1-6L3.4 9.9l6-.8Z" />
-    </Icon>
-  );
-}
-
-/** Tam giác cảnh báo — quán tạm đóng, dữ liệu thiếu. */
-export function IconWarning(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <path d="M12 4 21 19.5H3Z" />
-      <path d="M12 10v4M12 16.8h.01" />
     </Icon>
   );
 }

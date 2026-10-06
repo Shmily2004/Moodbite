@@ -4,13 +4,14 @@
  *
  * Đây là tầng `widgets`: được phép dùng nhiều feature/entity, nhưng KHÔNG tự gọi API.
  */
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { SearchResultItem } from '@moodbite/api-client';
 import { RestaurantCard } from '@/entities/restaurant';
 import { useRestaurantDetail } from '@/features/view-restaurant-detail';
 import { useInteractionLogger } from '@/features/log-interaction';
 import { ReportClosureButton } from '@/features/report-closure';
 import { useT } from '@/shared/i18n';
+import { safeHttpUrl } from '@/shared/lib';
 
 interface RestaurantListProps {
   restaurants: SearchResultItem[];
@@ -39,21 +40,32 @@ export function RestaurantList({
   const { detail, loading, error, load, clear } = useRestaurantDetail();
   const { log, startViewTimer } = useInteractionLogger();
   const [openId, setOpenId] = useState<string | null>(null);
-  const [stopTimer, setStopTimer] = useState<(() => void) | null>(null);
+  // Ref chứ không phải state: hàm dừng chỉ cần GỌI, không cần render lại. Trước đây chỉ
+  // `close()` gọi nó → mở quán khác hoặc rời trang thì lượt xem quán cũ mất dwell_time
+  // (audit 2026-10-06) — đúng loại nhãn huấn luyện ta cần nhất.
+  const stopTimerRef = useRef<(() => void) | null>(null);
+  const dungDemGio = () => {
+    stopTimerRef.current?.();
+    stopTimerRef.current = null;
+  };
+  // Rời trang khi panel còn mở → vẫn ghi lượt xem đang dở.
+  useEffect(() => () => dungDemGio(), []);
 
   const open = async (restaurant: SearchResultItem) => {
     if (!restaurant.restaurant_id) return;
+    dungDemGio(); // chốt lượt xem quán ĐANG mở trước khi chuyển sang quán mới
     onActivate?.(restaurant.restaurant_id);
     setOpenId(restaurant.restaurant_id);
-    setStopTimer(() =>
-      startViewTimer(restaurant.restaurant_id!, restaurant.rank_position, searchQueryId),
+    stopTimerRef.current = startViewTimer(
+      restaurant.restaurant_id,
+      restaurant.rank_position,
+      searchQueryId,
     );
     await load(restaurant.restaurant_id);
   };
 
   const close = () => {
-    stopTimer?.();          // ghi dwell_time thật khi người dùng đóng
-    setStopTimer(null);
+    dungDemGio(); // ghi dwell_time thật khi người dùng đóng
     setOpenId(null);
     clear();
   };
@@ -121,6 +133,10 @@ function DetailPanel({
   if (loading) return <div className="detail">{t('common.loading')}</div>;
   if (error) return <div className="detail error">{error}</div>;
   if (!detail) return null;
+
+  const menuUrl = safeHttpUrl(detail.menu_url);
+  const websiteUrl = safeHttpUrl(detail.website);
+  const mapsUrl = safeHttpUrl(detail.google_maps_url);
 
   // Quán chưa cào được chi tiết là chuyện BÌNH THƯỜNG (chỉ 1310/4938 quán có).
   if (!detail.has_details) {
@@ -190,21 +206,22 @@ function DetailPanel({
       )}
 
       <div className="detail__links">
-        {detail.menu_url && (
-          <a href={detail.menu_url} target="_blank" rel="noreferrer">
+        {/* Link đến từ dữ liệu CÀO → chỉ render khi là http/https (chặn `javascript:`). */}
+        {menuUrl && (
+          <a href={menuUrl} target="_blank" rel="noopener noreferrer">
             {t('restDetail.menu')}
           </a>
         )}
-        {detail.website && (
-          <a href={detail.website} target="_blank" rel="noreferrer">
+        {websiteUrl && (
+          <a href={websiteUrl} target="_blank" rel="noopener noreferrer">
             {t('restDetail.website')}
           </a>
         )}
-        {detail.google_maps_url && (
+        {mapsUrl && (
           <a
-            href={detail.google_maps_url}
+            href={mapsUrl}
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             onClick={onDirections}
           >
             {t('restDetail.directions')}

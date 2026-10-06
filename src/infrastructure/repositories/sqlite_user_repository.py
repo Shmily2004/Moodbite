@@ -21,6 +21,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
+from src.application.errors import StorageUnavailableError
 from src.application.ports.user_repository import UsernameAlreadyExists
 from src.domain.entities.user import User, UserRole
 from src.infrastructure.config.settings import describe_path
@@ -139,8 +140,7 @@ class SqliteUserRepository:
         )
 
     def update_password(self, user_id: str, password_hash: str) -> bool:
-        if self._error is not None:
-            return False
+        self._ensure_ready()
         try:
             with mo_ket_noi(self.db_path) as conn:
                 cur = conn.execute(
@@ -151,12 +151,10 @@ class SqliteUserRepository:
                 conn.commit()
                 return cur.rowcount > 0
         except sqlite3.Error as exc:
-            logger.error("Lỗi đổi mật khẩu: %s", exc)
-            return False
+            raise self._loi_kho("Lỗi đổi mật khẩu", exc)
 
     def revoke_tokens(self, user_id: str) -> bool:
-        if self._error is not None:
-            return False
+        self._ensure_ready()
         try:
             with mo_ket_noi(self.db_path) as conn:
                 cur = conn.execute(
@@ -166,8 +164,7 @@ class SqliteUserRepository:
                 conn.commit()
                 return cur.rowcount > 0
         except sqlite3.Error as exc:
-            logger.error("Lỗi thu hồi token: %s", exc)
-            return False
+            raise self._loi_kho("Lỗi thu hồi token", exc)
 
     def mark_email_verified(self, user_id: str, email: str) -> bool:
         """Đóng dấu đã xác minh, NHƯNG chỉ khi email hiện tại vẫn đúng bằng địa chỉ đó.
@@ -176,8 +173,7 @@ class SqliteUserRepository:
         trước rồi mới ghi: giữa hai câu lệnh đó người dùng vẫn kịp đổi email, và khi ấy
         ta sẽ đóng dấu lên địa chỉ mới mà chưa ai chứng minh là có thật.
         """
-        if self._error is not None:
-            return False
+        self._ensure_ready()
         dia_chi = (email or "").strip().lower()
         if not dia_chi:
             return False
@@ -191,8 +187,7 @@ class SqliteUserRepository:
                 conn.commit()
                 return cur.rowcount > 0
         except sqlite3.Error as exc:
-            logger.error("Lỗi đánh dấu xác minh email: %s", exc)
-            return False
+            raise self._loi_kho("Lỗi đánh dấu xác minh email", exc)
 
     def create(self, user: User) -> User:
         record = User(
@@ -226,9 +221,13 @@ class SqliteUserRepository:
         except sqlite3.IntegrityError:
             # Ràng buộc UNIQUE bị vi phạm = tên đã có người dùng.
             raise UsernameAlreadyExists(user.username)
+        except sqlite3.Error as exc:
+            raise self._loi_kho("Lỗi tạo tài khoản", exc)
         return record
 
     def count(self) -> int:
+        # Riêng hai hàm ĐẾM vẫn trả 0 khi lỗi: chúng chỉ phục vụ `/health` và script vận
+        # hành — ném lỗi ở đây sẽ làm chính trang báo lỗi sập theo.
         try:
             with mo_ket_noi(self.db_path) as conn:
                 return conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]
@@ -246,8 +245,7 @@ class SqliteUserRepository:
         thì phiên đang mở vẫn thao tác được tới lúc token hết hạn - dù `verify` đã đọc lại
         vai, thu hồi luôn là chốt thứ hai rẻ tiền.
         """
-        if self._error is not None:
-            return False
+        self._ensure_ready()
         try:
             with mo_ket_noi(self.db_path) as conn:
                 cur = conn.execute(
@@ -258,8 +256,7 @@ class SqliteUserRepository:
                 conn.commit()
                 return cur.rowcount > 0
         except sqlite3.Error as exc:
-            logger.error("Lỗi đổi vai: %s", exc)
-            return False
+            raise self._loi_kho("Lỗi đổi vai", exc)
 
     def count_by_role(self, role: UserRole) -> int:
         try:
@@ -272,9 +269,24 @@ class SqliteUserRepository:
 
     # -- Nội bộ ---------------------------------------------------------------
 
-    def _one(self, where: str, params: list) -> Optional[User]:
+    def _ensure_ready(self) -> None:
         if self._error is not None:
-            return None
+            raise StorageUnavailableError("kho tài khoản không mở được")
+
+    def _loi_kho(self, viec: str, exc: Exception) -> StorageUnavailableError:
+        """Ghi log ĐẦY ĐỦ, trả lỗi 503 với câu KHÔNG chứa chi tiết nội bộ."""
+        logger.error("%s (%s): %s", viec, describe_path(self.db_path), exc)
+        return StorageUnavailableError("kho tài khoản đang lỗi")
+
+    def _one(self, where: str, params: list) -> Optional[User]:
+        """`None` CHỈ khi không có dòng nào khớp. CSDL lỗi -> `StorageUnavailableError`.
+
+        ⚠️ Trước 2026-10-06 hàm này nuốt `sqlite3.Error` rồi trả `None`. CSDL bị khoá
+        (một tiến trình khác đang ghi, file hỏng) vì vậy hiện ra thành "Tài khoản không còn
+        tồn tại" / "Sai tài khoản hoặc mật khẩu" (401) — sai sự thật, và đẩy người dùng đi
+        đổi mật khẩu cho một lỗi của máy chủ. Lỗi hệ thống phải nói là lỗi hệ thống (503).
+        """
+        self._ensure_ready()
         try:
             with mo_ket_noi(self.db_path) as conn:
                 conn.row_factory = sqlite3.Row
@@ -282,8 +294,7 @@ class SqliteUserRepository:
                     f"SELECT {_COLUMNS} FROM users {where}", params
                 ).fetchone()
         except sqlite3.Error as exc:
-            logger.error("Lỗi đọc kho tài khoản: %s", exc)
-            return None
+            raise self._loi_kho("Lỗi đọc kho tài khoản", exc)
         if row is None:
             return None
         created = row["created_at"]

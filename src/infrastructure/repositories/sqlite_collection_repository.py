@@ -21,7 +21,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Iterator, List, Optional
 
-from src.domain.entities.collection import Collection, CollectionItem
+from src.domain.entities.collection import (
+    Collection,
+    CollectionItem,
+    ensure_can_add_item,
+    ensure_can_create_collection,
+)
 from src.domain.entities.saved_item import SavedItemType
 from src.infrastructure.config.settings import describe_path
 from src.infrastructure.repositories.sqlite_ket_noi import mo_ket_noi
@@ -159,6 +164,15 @@ class SqliteCollectionRepository:
             items=[],
         )
         with self._tx() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+            # Đếm lại BÊN TRONG giao dịch đang giữ khoá ghi — xem ghi chú đầu file.
+            # Ném lỗi ở đây thì `mo_ket_noi` rollback, không có gì được ghi.
+            ensure_can_create_collection(
+                conn.execute(
+                    "SELECT COUNT(*) FROM collections WHERE user_id = ?",
+                    (str(record.user_id),),
+                ).fetchone()[0]
+            )
             conn.execute(
                 "INSERT INTO collections (collection_id, user_id, name, created_at) "
                 "VALUES (?,?,?,?)",
@@ -200,6 +214,24 @@ class SqliteCollectionRepository:
     ) -> bool:
         added = (item.added_at or datetime.now(timezone.utc)).isoformat()
         with self._tx() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+            # Kiểm sức chứa TRONG giao dịch giữ khoá ghi — xem ghi chú đầu file. Chỉ kiểm
+            # khi bộ thuộc người dùng; bộ của người khác thì INSERT bên dưới tự không chèn gì.
+            cua_minh = conn.execute(
+                "SELECT 1 FROM collections WHERE user_id = ? AND collection_id = ?",
+                (str(user_id), str(collection_id)),
+            ).fetchone()
+            if cua_minh is not None:
+                da_co = conn.execute(
+                    "SELECT 1 FROM collection_items "
+                    "WHERE collection_id = ? AND item_type = ? AND item_id = ?",
+                    (str(collection_id), item.item_type.value, item.item_id),
+                ).fetchone() is not None
+                so_muc = conn.execute(
+                    "SELECT COUNT(*) FROM collection_items WHERE collection_id = ?",
+                    (str(collection_id),),
+                ).fetchone()[0]
+                ensure_can_add_item(so_muc, da_co)
             # INSERT ... SELECT có WHERE theo user_id: bộ của người khác thì câu SELECT
             # không trả dòng nào, và không có gì được chèn — kiểm quyền ngay trong câu ghi.
             cur = conn.execute(

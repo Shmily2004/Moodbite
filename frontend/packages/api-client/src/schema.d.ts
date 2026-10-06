@@ -19,6 +19,9 @@ export interface paths {
          *
          *     Mỗi kết quả kèm `suggested_dish` (Lớp 5 của đề án) - gợi ý MÓN đi liền với quán, thay
          *     vì bắt client gọi thêm một endpoint khác và tự ghép hai danh sách.
+         *
+         *     Giới hạn tần suất theo IP (mặc định 30 lượt/60 giây, đổi bằng
+         *     `MOODBITE_SEARCH_RATE_LIMIT=N/S`): mỗi lượt tốn ~0,8-2 giây CPU.
          */
         post: operations["search_api_v1_search_post"];
         delete?: never;
@@ -143,6 +146,11 @@ export interface paths {
          *     KHÁCH VẪN GỌI ĐƯỢC. Đã đăng nhập thì tương tác được gắn thêm `user_id` để đếm "lượt
          *     khám phá" cho cấp độ. `user_id` lấy TỪ TOKEN, không lấy từ body — nếu không thì ai
          *     cũng tự cộng điểm cho mình bằng cách gọi thẳng API.
+         *
+         *     GIỚI HẠN TẦN SUẤT theo IP (2026-10-06): vượt -> 429 RATE_LIMITED + `Retry-After`.
+         *     `report_closed` có hạn mức RIÊNG, chặt hơn hẳn — một lượt báo góp phần ẩn quán với
+         *     mọi người. Lượt báo được đếm theo KHOÁ NGƯỜI BÁO (IP đã băm) do server tính, KHÔNG
+         *     theo `session_id` client gửi lên (3 session_id bịa từng đủ ẩn bất kỳ quán nào).
          */
         post: operations["log_interaction_api_v1_interactions_post"];
         delete?: never;
@@ -1125,6 +1133,51 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/closure-reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Quán đang bị người dùng báo đóng cửa
+         * @description Mọi quán có ít nhất 1 lượt báo. Quán ĐANG BỊ ẨN đứng đầu.
+         */
+        get: operations["list_closure_reports_api_v1_admin_closure_reports_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/restaurants/{restaurant_id}/closure-reports/clear": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Gỡ mọi lượt báo đóng cửa của một quán
+         * @description Gỡ mọi lượt báo -> quán hiện lại NGAY, và vẫn hiện sau khi khởi động lại (sự kiện
+         *     gỡ được ghi vào chính nhật ký tương tác mà bộ đếm phát lại). Có ghi nhật ký quản trị
+         *     (`clear_closure_reports`).
+         *
+         *     Gỡ là "đếm lại từ 0", không phải "miễn nhiễm": quán đóng cửa thật sẽ bị báo lại.
+         *     404 RESTAURANT_NOT_FOUND khi quán không tồn tại VÀ không có lượt báo nào.
+         */
+        post: operations["clear_closure_reports_api_v1_admin_restaurants__restaurant_id__closure_reports_clear_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -2005,6 +2058,56 @@ export interface components {
         /** ChangePasswordResponse */
         ChangePasswordResponse: {
             data: components["schemas"]["ChangePasswordData"];
+        };
+        /** ClearedClosureReportsData */
+        ClearedClosureReportsData: {
+            /** Restaurant Id */
+            restaurant_id: string;
+            /**
+             * Cleared Reports
+             * @description Số người báo vừa bị gỡ.
+             */
+            cleared_reports: number;
+            /** Is Hidden */
+            is_hidden: boolean;
+        };
+        /** ClearedClosureReportsResponse */
+        ClearedClosureReportsResponse: {
+            data: components["schemas"]["ClearedClosureReportsData"];
+        };
+        /** ClosureReportItem */
+        ClosureReportItem: {
+            /** Restaurant Id */
+            restaurant_id: string;
+            /**
+             * Name
+             * @description `null` = quán không còn trong dữ liệu. KHÔNG bịa tên.
+             */
+            name?: string | null;
+            /**
+             * Report Count
+             * @description Số NGƯỜI BÁO khác nhau (theo IP đã băm).
+             */
+            report_count: number;
+            /**
+             * Is Hidden
+             * @description Đủ ngưỡng -> đang bị ẩn khỏi MỌI luồng người dùng.
+             */
+            is_hidden: boolean;
+        };
+        /** ClosureReportListData */
+        ClosureReportListData: {
+            /**
+             * Threshold
+             * @description Số người báo cần để ẩn quán.
+             */
+            threshold: number;
+            /** Items */
+            items: components["schemas"]["ClosureReportItem"][];
+        };
+        /** ClosureReportListResponse */
+        ClosureReportListResponse: {
+            data: components["schemas"]["ClosureReportListData"];
         };
         /** CollectionItemSchema */
         CollectionItemSchema: {
@@ -2930,8 +3033,9 @@ export interface components {
          * VerifyEmailRequest
          * @description Xác minh email bằng token trong thư.
          *
-         *     KHÔNG có trường email: địa chỉ nằm sẵn trong token và đã được ký. Nhận email từ
-         *     client rồi tin theo là mở đường cho người ta xác minh hộ địa chỉ của người khác.
+         *     KHÔNG có trường email: token mang VÂN TAY (bản băm) của địa chỉ đã nhận thư, đã được
+         *     ký; địa chỉ thật lấy từ tài khoản. Nhận email từ client rồi tin theo là mở đường cho
+         *     người ta xác minh hộ địa chỉ của người khác.
          */
         VerifyEmailRequest: {
             /**
@@ -5412,6 +5516,165 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_closure_reports_api_v1_admin_closure_reports_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClosureReportListResponse"];
+                };
+            };
+            /** @description INVALID_REQUEST */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description UNAUTHORIZED */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description FORBIDDEN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description RESTAURANT_NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description DATA_NOT_READY */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    clear_closure_reports_api_v1_admin_restaurants__restaurant_id__closure_reports_clear_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                restaurant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClearedClosureReportsResponse"];
+                };
+            };
+            /** @description INVALID_REQUEST */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description UNAUTHORIZED */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description FORBIDDEN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description RESTAURANT_NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description INTERNAL_ERROR */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description DATA_NOT_READY */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
         };

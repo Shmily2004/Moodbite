@@ -21,9 +21,10 @@ from datetime import datetime
 from typing import List, Optional
 
 from src.domain.entities.saved_item import SavedItemType
+from src.domain.errors import DomainValidationError
 
 
-class InvalidCollection(ValueError):
+class InvalidCollection(DomainValidationError):
     """Dữ liệu bộ sưu tập không hợp lệ hoặc vượt giới hạn -> HTTP 400."""
 
 

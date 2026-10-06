@@ -15,6 +15,7 @@
  */
 import { useRef, useState } from 'react';
 import { TileLayer } from 'react-leaflet';
+import { useT } from '../i18n';
 
 export interface NguonNen {
   ten: string;
@@ -37,7 +38,9 @@ export const NGUON_NEN: readonly NguonNen[] = [
     // nhưng ảnh chỉ 2 KB (nghi ảnh trống) nên không chọn.
     ten: 'OpenStreetMap France',
     url: 'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
-    attribution: `${GHI_CONG_OSM} · nền: <a href="https://www.openstreetmap.fr/">OpenStreetMap France</a>`,
+    // `{nen}` thay theo ngôn ngữ lúc dựng (`NenBanDo`) — chữ "nền:" cứng từng lọt vào
+    // bản tiếng Anh (audit 2026-10-06).
+    attribution: `${GHI_CONG_OSM} · {nen}: <a href="https://www.openstreetmap.fr/">OpenStreetMap France</a>`,
   },
 ];
 
@@ -57,13 +60,17 @@ export function NenBanDo() {
   // Ref chứ không phải state: đếm theo từng ảnh, không cần vẽ lại mỗi lần đếm.
   const dem = useRef({ loi: 0, tai: 0 });
   const nguon = NGUON_NEN[chiSo];
+  const t = useT();
+  const ghiCong = nguon.attribution.replace('{nen}', t('map.basemap'));
 
   return (
     <TileLayer
       // Đổi `key` = dựng lại lớp ảnh nền với URL mới, bộ đếm cũng làm lại từ đầu.
-      key={nguon.url}
+      // Ghi công nằm trong key vì react-leaflet KHÔNG cập nhật `attribution` sau khi dựng:
+      // đổi ngôn ngữ phải dựng lại lớp nền thì chữ "nền/basemap" mới đổi theo.
+      key={`${nguon.url}|${ghiCong}`}
       url={nguon.url}
-      attribution={nguon.attribution}
+      attribution={ghiCong}
       eventHandlers={{
         tileload: () => {
           dem.current.tai += 1;

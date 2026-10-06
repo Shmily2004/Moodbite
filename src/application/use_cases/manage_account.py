@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Optional, Protocol
+from typing import Callable, Optional, Protocol
 
 from src.application.errors import InvalidCredentialsError
 from src.application.emails import thu_co_nut
@@ -19,6 +19,7 @@ from src.domain.entities.user import (
     UserRole,
     validate_email,
     validate_password,
+    validate_password_for_role,
     validate_username,
 )
 
@@ -89,9 +90,22 @@ class LoginUseCase:
     verify_password: object       # (password, hash) -> bool
     issue_token: TokenIssuer
 
-    def execute(self, username: str, password: str) -> tuple[User, str]:
+    def execute(
+        self,
+        username: str,
+        password: str,
+        before_verify: Optional[Callable[[Optional[User]], None]] = None,
+    ) -> tuple[User, str]:
+        """`before_verify(user_hoac_None)` chạy SAU khi tra tài khoản, TRƯỚC khi băm mật khẩu.
+
+        Có móc này để tầng gọi áp GIỚI HẠN TẦN SUẤT theo đúng loại tài khoản đích (admin
+        dùng bộ đếm chặt hơn — xem `routers/auth.py`). Phải chạy trước bước băm: bị chặn
+        rồi thì không được tốn thêm 0,4 giây CPU nào nữa.
+        """
         name = (username or "").strip().lower()
         user = self.users.get_by_username(name)
+        if before_verify is not None:
+            before_verify(user)
 
         # ⚠️ CHỐNG DÒ TÀI KHOẢN: dù không tìm thấy người dùng, VẪN phải băm mật khẩu rồi
         # mới trả lỗi. Nếu thoát sớm thì tài khoản không tồn tại trả lời trong ~1ms còn
@@ -183,8 +197,8 @@ class EmailVerificationTokens(Protocol):
 
     def issue(self, user: User) -> str: ...
 
-    def read(self, token: str) -> tuple[str, str, str]:
-        """Trả (user_id, email ghi trong thư, vân tay trạng thái)."""
+    def read(self, token: str) -> tuple[str, str]:
+        """Trả (user_id, vân tay trạng thái email). Token KHÔNG mang địa chỉ email."""
         ...
 
     def ensure_unused(self, van_tay_trong_token: str, user: User) -> None:
@@ -235,7 +249,13 @@ class RequestEmailVerificationUseCase:
             duoi_nut=[
                 f"Đường dẫn có hiệu lực trong {gio} giờ và chỉ dùng được MỘT lần.",
                 "",
-                "Xác minh xong, bạn mới lấy lại được mật khẩu qua email nếu lỡ quên.",
+                # ⚠️ Bản cũ viết "Xác minh xong, bạn mới lấy lại được mật khẩu qua email"
+                # — SAI: quên mật khẩu KHÔNG đòi email đã xác minh (cố ý, xem
+                # `User.can_receive_mail`: tài khoản cũ đều chưa xác minh, chặn là khoá
+                # đường lấy lại mật khẩu của họ). Thư không được hứa/doạ điều hệ thống
+                # không làm.
+                "Xác minh giúp chúng tôi chắc chắn thư (kể cả thư đặt lại mật khẩu) "
+                "tới đúng người.",
                 "",
                 "Nếu bạn không đăng ký MoodBite thì cứ bỏ qua thư này.",
             ],
@@ -273,7 +293,7 @@ class ConfirmEmailVerificationUseCase:
     verify_tokens: EmailVerificationTokens
 
     def execute(self, token: str) -> User:
-        user_id, email_trong_thu, van_tay = self.verify_tokens.read(token)
+        user_id, van_tay = self.verify_tokens.read(token)
 
         user = self.users.get_by_id(user_id)
         if user is None:
@@ -283,7 +303,10 @@ class ConfirmEmailVerificationUseCase:
         # bấm lại link cũ lẫn việc đổi email rồi bấm link cũ.
         self.verify_tokens.ensure_unused(van_tay, user)
 
-        if not self.users.mark_email_verified(user.user_id, email_trong_thu):
+        # Địa chỉ lấy từ TÀI KHOẢN (không còn nằm trong token từ 2026-10-06). Vân tay vừa
+        # khớp nghĩa là đây đúng là địa chỉ thư đã được gửi tới; điều kiện `AND email = ?`
+        # trong câu UPDATE vẫn chặn trường hợp email đổi ngay giữa hai bước.
+        if not user.email or not self.users.mark_email_verified(user.user_id, user.email):
             # Tới đây mà thất bại nghĩa là email vừa đổi giữa chừng (câu UPDATE có điều
             # kiện `AND email = ?`). Cùng thông điệp với `ensure_unused` vì với người
             # dùng thì đó là cùng một tình huống.
@@ -328,8 +351,8 @@ class ResetPasswordUseCase:
         self.reset_tokens.ensure_unused(token, user.password_hash)
 
         # Kiểm mật khẩu mới SAU khi token hợp lệ: người cầm token sai không cần biết luật
-        # đặt mật khẩu của hệ thống.
-        validate_password(mat_khau_moi)
+        # đặt mật khẩu của hệ thống. Theo VAI: admin phải đủ mức quản trị.
+        validate_password_for_role(mat_khau_moi, user.role)
 
         if not self.users.update_password(user.user_id, self.hash_password(mat_khau_moi)):
             raise InvalidCredentialsError("Không tìm thấy tài khoản để đổi mật khẩu.")
@@ -365,7 +388,9 @@ class ChangePasswordUseCase:
             # toàn — không lộ thêm gì về tài khoản nào cả.
             raise InvalidCredentialsError("Mật khẩu hiện tại không đúng.")
 
-        validate_password(mat_khau_moi)
+        # Theo VAI, không phải `validate_password` trần: bản cũ cho admin hạ mật khẩu xuống
+        # 8 ký tự ở đây, lách mức 12 ký tự của `make_admin_user.py` (rà soát 2026-10-06).
+        validate_password_for_role(mat_khau_moi, user.role)
 
         if mat_khau_moi == mat_khau_cu:
             raise InvalidCredentialsFormat("Mật khẩu mới phải khác mật khẩu cũ.")

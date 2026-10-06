@@ -14,6 +14,11 @@ dễ lộ hơn hẳn — nên chữ ký của nó tuyệt đối không được
 secret riêng thì lui về `MOODBITE_AUTH_SECRET` (xem `dependencies.py`), vì thà chạy được
 với một secret còn hơn tắt hẳn tính năng của một đồ án.
 
+⚠️ Lui về chung secret từng là LỖ HỔNG THẬT (rà soát 2026-10-06): token đặt lại mật khẩu
+dùng được làm token đăng nhập. Nay token mang `typ`='reset' và mọi chỗ kiểm đều đòi đúng
+`typ` (xem `crypto.verify_token`), nên trùng secret không còn mở được cửa đó — app vẫn
+ghi cảnh báo lúc khởi động để người triển khai tách secret.
+
 MỘT LẦN DÙNG MÀ KHÔNG CẦN BẢNG NÀO: token nhét kèm "vân tay" của chuỗi băm mật khẩu HIỆN
 TẠI. Đổi mật khẩu xong thì chuỗi băm đổi -> vân tay không khớp -> chính cái link vừa dùng
 lập tức hết hiệu lực. Không phải thêm bảng `password_reset_tokens`, không phải dọn rác
@@ -29,7 +34,12 @@ import logging
 
 from src.application.errors import AuthNotConfiguredError, InvalidCredentialsError
 from src.domain.entities.user import User
-from src.infrastructure.auth.crypto import TokenInvalid, sign_token, verify_token
+from src.infrastructure.auth.crypto import (
+    PURPOSE_RESET,
+    TokenInvalid,
+    sign_token,
+    verify_token,
+)
 
 logger = logging.getLogger("moodbite.auth")
 
@@ -79,6 +89,7 @@ class PasswordResetTokenService:
             {"sub": user.user_id, "pw": _van_tay(user.password_hash)},
             self._secret,
             self.token_ttl_seconds,
+            purpose=PURPOSE_RESET,
         )
 
     def subject_of(self, token: str) -> str:
@@ -90,7 +101,7 @@ class PasswordResetTokenService:
         """
         self.ensure_configured()
         try:
-            payload = verify_token(token, self._secret)
+            payload = verify_token(token, self._secret, purpose=PURPOSE_RESET)
         except TokenInvalid as exc:
             # Giữ nguyên câu của tầng dưới: nó phân biệt được "hỏng" với "hết hạn", và
             # người dùng cần biết mình phải bấm gửi lại thư hay chỉ gõ nhầm đường dẫn.
@@ -109,7 +120,7 @@ class PasswordResetTokenService:
         """
         self.ensure_configured()
         try:
-            payload = verify_token(token, self._secret)
+            payload = verify_token(token, self._secret, purpose=PURPOSE_RESET)
         except TokenInvalid as exc:
             raise InvalidCredentialsError(str(exc))
 

@@ -54,6 +54,11 @@ Tên trường: giữ nguyên snake_case khớp trực tiếp với tên cột t
 
 Không áp dụng xác thực người dùng ở phạm vi tài liệu này — nhất quán với quyết định SRS “tài khoản người dùng và cá nhân hoá dài hạn” thuộc Won't-have. Endpoint công khai, không yêu cầu API key phía client. Nếu triển khai công khai ngoài phạm vi đồ án, cần bổ sung rate limiting ở tầng hạ tầng (không thuộc phạm vi đặc tả API này).
 
+> ⚠️ **ĐÃ THAY ĐỔI (2026-10):** nay ĐÃ CÓ tài khoản người dùng (`/auth/*`, `/me/*`) và trang
+> quản trị (`/admin/*`), xác thực bằng header `Authorization: Bearer <token>`, có thu hồi
+> token (đăng xuất) và rate limit ở tầng ứng dụng. Các endpoint tìm kiếm/món/quán vẫn
+> công khai, khách không đăng nhập vẫn dùng được. Xem mục **BỔ SUNG 2026-10** cuối tài liệu.
+
 1.5. Response Envelope
 
 Toàn bộ response thành công bọc trong trường data; lỗi bọc trong trường error — giúp client xử lý nhất quán bằng một điều kiện duy nhất (kiểm tra có error hay không) thay vì suy đoán qua HTTP status.
@@ -97,6 +102,9 @@ search_result_item_id trong POST /interactions không tồn tại (ví dụ dữ
 RATE_LIMITED
 
 Dự phòng khai báo trước; MVP hiện chưa bật rate limiting theo mục 1.4.
+
+> ⚠️ **ĐÃ THAY ĐỔI (2026-10):** đã bật cho đăng nhập / đăng ký / quên mật khẩu (người dùng
+> và admin), kèm header `Retry-After` — xem mục BỔ SUNG 2026-10.
 
 503
 
@@ -264,6 +272,11 @@ GET /api/v1/restaurants/{restaurant_id}
 
 Trả thông tin đầy đủ một nhà hàng, kèm review_summary mới nhất và danh sách món đang bán (is_active = true). Query param origin_lat, origin_lng tuỳ chọn — nếu có, trả thêm distance_m đường chim bay (không gọi Traffic API ở endpoint này, xem mục 3.3 khi cần thời gian di chuyển thực tế).
 
+> ⚠️ **KHÁC VỚI CODE (đối chiếu 2026-10-06):** endpoint thật KHÔNG nhận query param nào —
+> `origin_lat` / `origin_lng` không tồn tại. Khoảng cách được tính sẵn trong kết quả
+> `/search` và `/dishes/{id}/restaurants`. Quán chưa có chi tiết trả **200** kèm
+> `has_details: false` (không phải 404). Schema chính xác: `frontend/openapi.json`.
+
 Response 200
 
 {
@@ -299,6 +312,12 @@ Không tồn tại hoặc is_active = false.
 3.3. Tuyến đường & thời gian di chuyển thực tế
 
 GET /api/v1/restaurants/{restaurant_id}/directions?origin_lat=&origin_lng=
+
+> ⛔ **KHÔNG LÀM (quyết định 2026-08-16).** Endpoint này KHÔNG tồn tại trong code. Thời gian
+> di chuyển thực tế cần Google Routes API — trả phí và bắt buộc có thẻ thanh toán, chủ dự
+> án không có (CLAUDE.md mục 1b). Thay bằng khoảng cách **haversine** (đường chim bay) đã
+> có trong kết quả tìm kiếm; nút "chỉ đường" ở giao diện mở bản đồ ngoài. Phần dưới đây giữ
+> lại làm lịch sử thiết kế.
 
 Tách riêng khỏi mục 3.2 có chủ đích: nếu tính thời gian di chuyển traffic-aware cho TẤT CẢ kết quả ngay trong POST /search, số lượt gọi Traffic API sẽ nhân theo số kết quả mỗi lượt tìm kiếm — đúng rủi ro rate limit/chi phí đã cảnh báo ở WBS mục 4.2 (lý do dùng mock/cache khi phát triển). Endpoint này chỉ gọi Traffic API thật khi người dùng thực sự chọn xem một nhà hàng cụ thể — đây cũng chính là thời điểm hợp lý để ghi InteractionEvent action_type = get_directions (mục 3.4).
 
@@ -377,6 +396,14 @@ search_result_item_id không tồn tại.
 3.5. Kiểm tra tình trạng hệ thống
 
 GET /api/v1/health
+
+> ⚠️ **KHÁC VỚI CODE (đối chiếu 2026-10-06):** response thật là
+> `{"data": {"status": "ok" | "degraded", "api_version": "v1", "services": {...},
+> "synthetic_data": false}}`. `services` báo trạng thái TỪNG nguồn dữ liệu (`ready` + lý do
+> lỗi) — `status` là `degraded` khi kho quán chưa sẵn sàng. KHÔNG có các trường `database`,
+> `active_ranking_model_version`, `active_cluster_model_version`. `synthetic_data: true`
+> nghĩa là đang chạy trên người dùng/tương tác giả lập (`MOODBITE_SYNTHETIC_DATA=1`).
+> Cũng phục vụ ở `GET /health` (không tiền tố). Mô tả gốc dưới đây là lịch sử thiết kế.
 
 Phục vụ kiểm thử/giám sát vận hành (WBS mục Kiểm thử hiệu năng, Triển khai demo) — không qua Use Case, đọc trực tiếp is_active của các bảng version để xác nhận hệ thống có đúng một phiên bản mô hình đang hoạt động.
 
@@ -460,6 +487,9 @@ Bước 1 của luồng. Trả về MÓN, không phải quán.
 | `mood` | string | `happy` `sad` `excited` `relaxed` |
 | `weather` | string | `rain` `clear` `cloudy` — người dùng TỰ khai, **ghi đè** số đo tự động |
 | `max_distance_km` | float | ảnh hưởng tới `restaurant_count` |
+| `limit` | int 1..100 | mặc định 20 *(bổ sung 2026-10, đối chiếu code)* |
+| `only_with_price` | bool | mặc định `false`. `true` = chỉ đếm quán ĐỌC ĐƯỢC giá — chỉ ~1,3% quán có giá nên sẽ ẩn nhiều món; số món bị ẩn nói ra ở `warnings` |
+| `only_categories` | bool | mặc định `false` = chỉ trả MÓN CỤ THỂ; `true` = chỉ trả DANH MỤC ("Bún", "Phở"…) để dựng thanh điều hướng |
 
 **Response `data`**: `search_query_id`, `results[]`, `context[]`, `warnings[]`.
 
@@ -480,8 +510,8 @@ Mỗi phần tử `results[]`: `dish_id`, `name`, `cuisine`, `spice_level`, `tem
 
 ## 3.5 `GET /api/v1/dishes/{dish_id}` — giới thiệu ngắn về món
 
-Nhận `latitude`, `longitude`, `max_distance_km` trên query string, vì `restaurant_count`
-phải tính theo bán kính của NGƯỜI ĐANG XEM.
+Nhận `latitude`, `longitude`, `max_distance_km` (và `only_with_price`, bổ sung 2026-10)
+trên query string, vì `restaurant_count` phải tính theo bán kính của NGƯỜI ĐANG XEM.
 
 Món không tồn tại → **404 `DISH_NOT_FOUND`** (mã RIÊNG, không dùng chung
 `RESTAURANT_NOT_FOUND`: client cần phân biệt "món này không còn" với "quán này không còn").
@@ -490,7 +520,9 @@ Món tồn tại nhưng 0 quán gần đó → **200** kèm `restaurant_count: 0
 
 ## 3.6 `GET /api/v1/dishes/{dish_id}/restaurants` — quán bán món đó
 
-Query: `session_id` (bắt buộc), `latitude`, `longitude`, `max_distance_km`, `mood`, `limit`.
+Query: `session_id` (bắt buộc), `latitude`, `longitude`, `max_distance_km`, `mood`, `limit`,
+`only_with_price` (bổ sung 2026-10: chỉ hiện quán đọc được giá; số quán bị bỏ nói ra ở
+`warnings`).
 
 **Trả về ĐÚNG kiểu `SearchResponseData` của `/search`** — cố ý, để client dùng lại một
 component thẻ quán duy nhất. `suggested_dish` trong mỗi kết quả là món người dùng ĐÃ CHỌN
@@ -508,3 +540,147 @@ trắng) **nhưng phải nói ra** trong `warnings` — không được im lặn
 |---|---|---|
 | `dish_id` không tồn tại / đã ẩn | 404 | `DISH_NOT_FOUND` |
 | Chưa dựng danh mục món | 503 | `DATA_NOT_READY` (kèm `python scripts/build_dish_catalog.py`) |
+
+---
+
+# BỔ SUNG 2026-10 — Danh sách endpoint đầy đủ (đối chiếu code 2026-10-06)
+
+> **Nguồn schema chi tiết:** `frontend/openapi.json`, sinh tự động từ code bằng
+> `python scripts/export_openapi.py`. Tài liệu này giữ **quy ước** (envelope, mã lỗi, ý nghĩa
+> nghiệp vụ); tên trường/kiểu dữ liệu chính xác thì tin `openapi.json`. Hai bên lệch nhau →
+> `openapi.json` đúng, sửa tài liệu này.
+>
+> **Đã chốt 2026-10-06 (sau đợt sửa rà soát):**
+> - `GET /admin/closure-reports` → `{threshold, items: [{restaurant_id, name|null, report_count, is_hidden}]}`
+>   (quán đang bị ẩn đứng đầu). `POST /admin/restaurants/{id}/closure-reports/clear` →
+>   `{restaurant_id, cleared_reports, is_hidden}`; 404 `RESTAURANT_NOT_FOUND` nếu quán không có và
+>   cũng không có lượt báo. Cả hai cần token admin. Gỡ lượt báo KHÁC "restore" (bỏ ẩn do admin).
+> - Lượt `report_closed` đếm theo IP đã băm (không theo `session_id` client tự đặt); đủ 3 người
+>   báo khác nhau thì quán ẩn khỏi mọi luồng.
+> - 429 `RATE_LIMITED` + header `Retry-After` (và `details.retry_after_seconds`) ở `POST /search`
+>   (mặc định 30/60 s mỗi IP), `POST /interactions` (120/60 s; riêng `report_closed` 5/3600 s),
+>   đổi bằng `MOODBITE_SEARCH_RATE_LIMIT` / `MOODBITE_INTERACTION_RATE_LIMIT` /
+>   `MOODBITE_CLOSURE_REPORT_RATE_LIMIT` dạng `"N/S"` (`N=0` = tắt).
+> - Đăng nhập: giới hạn theo IP, theo tên đăng nhập, theo cặp IP+tên; tài khoản ADMIN (kể cả qua
+>   `/auth/login`) dùng ngưỡng quản trị 5 lần/15 phút. Đăng nhập đúng KHÔNG xoá bộ đếm của tên khác.
+> - 503 `DATA_NOT_READY` ở `POST /dishes/suggest`, `GET /dishes/{id}`, `GET /dishes/{id}/restaurants`
+>   khi thiếu dataset quán (trước đây trả 200 kèm cảnh báo sai); cũng 503 khi kho tài khoản lỗi.
+> - `suggested_dish.confidence` ở trang món tính THEO TỪNG QUÁN: khớp tên → `specific`; chỉ khớp
+>   loại hình / chỉ review nhắc / quán đồ uống khớp không dấu → `generic_fallback`.
+> - 400 `INVALID_REQUEST` chỉ cho lỗi kiểm dữ liệu của domain; lỗi lập trình (ValueError trần)
+>   → 500 `INTERNAL_ERROR`. Token có ký tự ngoài ASCII → 401.
+> - Mật khẩu admin tối thiểu 12 ký tự ở MỌI đường đổi/đặt lại; `item_id` lưu/bộ sưu tập ≤ 128 ký tự.
+> - Token mang claim `typ` (login/reset/verify/admin) - token loại này không dùng được cho việc kia.
+
+Bốn quy ước gốc giữ nguyên: base `/api/v1`, envelope `data`/`error`, `snake_case`, hai lối
+vào (`/dishes/*` là luồng chính, `/search` là lối vào thứ hai). Đếm từ `openapi.json` ngày
+2026-10-06: **54 thao tác** dưới `/api/v1` (+ `GET /health` không tiền tố).
+
+**Xác thực:** 🔓 = công khai · 👤 = cần `Authorization: Bearer <token>` của người dùng
+(thiếu/hỏng/đã thu hồi → 401 `UNAUTHORIZED`) · 🛡 = cần token của tài khoản `role='admin'`
+(không phải admin → 403 `FORBIDDEN`; chưa cấu hình admin → 503 `DATA_NOT_READY`).
+
+## A. Tìm kiếm, món, quán (công khai)
+
+| Method | Path | Auth | Ghi chú |
+|---|---|---|---|
+| POST | `/search` | 🔓 | Body thật: `session_id`*, `latitude`, `longitude`, `query_text`, `mood`, `max_distance_km`, `dietary_restrictions`, `opening_hours_constraint`, `district`, `limit`. **Không có** `budget_max` như mục 3.1 |
+| POST | `/dishes/suggest` | 🔓 | Mục 3.4 (đã bổ sung `limit`, `only_with_price`, `only_categories`) |
+| GET | `/dishes/{dish_id}` | 🔓 | Mục 3.5 |
+| GET | `/dishes/{dish_id}/restaurants` | 🔓 | Mục 3.6 |
+| GET | `/restaurants/{restaurant_id}` | 🔓 | Không có query param; quán chưa có chi tiết → 200 + `has_details: false` |
+| POST | `/interactions` | 🔓 (👤 tuỳ chọn) | Body thật: `session_id`*, `restaurant_id`*, `action_type`*, `search_query_id`, `dwell_time_ms`, `rank_position` — **không** dùng `search_result_item_id` như mục 3.4. `action_type`: `view_detail` · `get_directions` · `save` · `explicit_positive` · `explicit_negative` · `report_closed`. Trả **201**. Có token thì server gắn `user_id` LẤY TỪ TOKEN (không lấy từ body) |
+| GET | `/moods` | 🔓 | Danh sách mood cho nút bấm nhanh |
+| GET | `/health` | 🔓 | Xem ghi chú ở mục 3.5 (`status`, `api_version`, `services`, `synthetic_data`) |
+
+## B. Tài khoản người dùng — `/auth/*`
+
+| Method | Path | Auth | Body / ghi chú |
+|---|---|---|---|
+| POST | `/auth/register` | 🔓 | `username`*, `password`*, `email`*, `display_name`. Trả 201. Trùng tên → 409 `USERNAME_TAKEN`. Có rate limit |
+| POST | `/auth/login` | 🔓 | `username`*, `password`*. Sai → 401 (không tiết lộ tên có tồn tại không). Có rate limit |
+| POST | `/auth/logout` | 👤 | Đăng xuất THẬT (`token_version`, 2026-09-29): thu hồi MỌI token của tài khoản, ở MỌI thiết bị — không đăng xuất riêng từng máy được |
+| GET | `/auth/me` | 👤 | Thông tin tài khoản hiện tại |
+| POST | `/auth/forgot-password` | 🔓 | `identifier`* (tên đăng nhập hoặc email). Có rate limit. Không gửi được thư → 503 `EXTERNAL_SERVICE_UNAVAILABLE` |
+| POST | `/auth/reset-password` | 🔓 | `token`*, `new_password`* |
+| POST | `/auth/change-password` | 👤 | `current_password`*, `new_password`* |
+| POST | `/auth/verify-email/request` | 👤 | Gửi thư xác minh email |
+| POST | `/auth/verify-email/confirm` | 🔓 | `token`* |
+
+Chưa cấu hình xác thực (thiếu secret) → 503 `DATA_NOT_READY` kèm cách khắc phục.
+
+## C. Dữ liệu cá nhân — `/me/*` (đều 👤)
+
+| Method | Path | Body / query |
+|---|---|---|
+| GET | `/me/favorites` | query `item_type` (`restaurant` / `dish`), `list_type` (`favorite` / `bookmark`) — bỏ trống = tất cả |
+| POST | `/me/favorites` | `item_type`*, `item_id`*, `name`*, `list_type` (mặc định `favorite`). Trả 201 |
+| DELETE | `/me/favorites/{item_type}/{item_id}` | query `list_type` |
+| GET | `/me/stats` | Thống kê / cấp độ của người dùng |
+| GET | `/me/collections` | Danh sách bộ sưu tập |
+| POST | `/me/collections` | `name`*. Trả 201 |
+| PATCH | `/me/collections/{collection_id}` | `name`* (đổi tên) |
+| DELETE | `/me/collections/{collection_id}` | |
+| POST | `/me/collections/{collection_id}/items` | `item_type`*, `item_id`*, `name`* |
+| DELETE | `/me/collections/{collection_id}/items/{item_type}/{item_id}` | |
+| GET | `/me/addresses` | Danh sách địa chỉ đã lưu |
+| POST | `/me/addresses` | `label`* (1–40 ký tự), `latitude`*, `longitude`* (phải nằm trong Hà Nội), `address_text`, `is_default`. Trả 201 |
+| PATCH | `/me/addresses/{address_id}` | `label`, `address_text`, `is_default` (KHÔNG đổi được toạ độ) |
+| DELETE | `/me/addresses/{address_id}` | |
+
+Bộ sưu tập / địa chỉ không tồn tại **hoặc thuộc người khác** → 404 (không bao giờ 403, để
+không xác nhận mã đó có thật).
+
+## D. Quản trị — `/admin/*` (đều 🛡, trừ `login`)
+
+| Method | Path | Ghi chú |
+|---|---|---|
+| POST | `/admin/login` | 🔓 `username`*, `password`*. Có rate limit riêng |
+| POST | `/admin/logout` | Đăng xuất quản trị THẬT (2026-10-02): thu hồi mọi token admin của tài khoản đó |
+| GET | `/admin/overview` | query `refresh` |
+| GET | `/admin/system` | |
+| GET | `/admin/quality` | Chất lượng dữ liệu; query `refresh` |
+| GET | `/admin/recommendation` | |
+| GET | `/admin/activity` | Nhật ký thao tác; query `limit`, `action`, `target_type`, `target_id` |
+| GET | `/admin/interactions/stats` | |
+| GET | `/admin/restaurants` | query `q`, `page`, `page_size`, `limit`, `include_hidden`, `loc`, `district`, `source`, `status` |
+| POST | `/admin/restaurants` | Tạo quán: `name`*, `lat`*, `lng`*, `category`, `cuisine`, `address`, `district`, `price`, `phone`, `website` |
+| GET | `/admin/restaurants/stats` | |
+| PATCH | `/admin/restaurants/{restaurant_id}` | Sửa các trường như trên (trừ toạ độ) |
+| POST | `/admin/restaurants/{restaurant_id}/hide` | Ẩn quán |
+| POST | `/admin/restaurants/{restaurant_id}/restore` | Bỏ ẩn |
+| POST | `/admin/restaurants/bulk-visibility` | `restaurant_ids`*, `is_active`* |
+| GET | `/admin/dishes` | query `q`, `filter`, `page`, `page_size`, `limit` |
+| GET | `/admin/dishes/{dish_id}` | |
+| GET | `/admin/dishes/{dish_id}/restaurants` | query `limit` |
+| GET | `/admin/issues` | Việc cần xử lý; query `priority` |
+| GET | `/admin/issues/resolved` | query `limit` |
+| GET | `/admin/issues/{key}` | query `limit` |
+| POST | `/admin/issues/resolve` | `key`*, `target_id`*, `note` |
+| DELETE | `/admin/issues/resolve` | query `key`*, `target_id`* (bỏ đánh dấu đã xử lý) |
+
+Tạo tài khoản admin: `python scripts/make_admin_user.py` (admin là một dòng `role='admin'`
+trong bảng `users` từ 2026-09-29).
+
+## E. Bảng mã lỗi — bổ sung 2026-10
+
+Bổ sung cho bảng 1.6 và bảng "mã lỗi — bổ sung" của mục 2026-08-19. Ánh xạ tập trung ở
+`src/presentation/api/error_handlers.py`.
+
+| Tình huống | HTTP | `error.code` |
+|---|---|---|
+| Thiếu token, token hỏng/hết hạn/đã thu hồi, sai mật khẩu | 401 | `UNAUTHORIZED` |
+| Token hợp lệ nhưng không đủ quyền (vd. người thường gọi `/admin/*`) | 403 | `FORBIDDEN` |
+| Đăng ký trùng tên đăng nhập | 409 | `USERNAME_TAKEN` |
+| Tạo quán trùng mã (admin) | 409 | `INVALID_REQUEST` |
+| Gọi quá nhiều lần (đăng nhập / đăng ký / quên mật khẩu) | 429 | `RATE_LIMITED` + header **`Retry-After`** (giây) + `details.retry_after_seconds` |
+| Bộ sưu tập không tồn tại / của người khác | 404 | `COLLECTION_NOT_FOUND` |
+| Địa chỉ không tồn tại / của người khác | 404 | `ADDRESS_NOT_FOUND` |
+| Món không tồn tại / đã ẩn | 404 | `DISH_NOT_FOUND` |
+| Chưa cấu hình admin / xác thực | 503 | `DATA_NOT_READY` (kèm cách khắc phục) |
+| Không gửi được email (quên mật khẩu, xác minh) | 503 | `EXTERNAL_SERVICE_UNAVAILABLE` |
+| Request sai schema (FastAPI mặc định 422) | **400** | `INVALID_REQUEST` (`details.fields`) |
+
+`SEARCH_RESULT_ITEM_NOT_FOUND` (bảng 1.6) vẫn được khai báo trong `ErrorCode` nhưng không
+còn luồng nào ném ra, vì `/interactions` nay nhận `restaurant_id` thay cho
+`search_result_item_id`.

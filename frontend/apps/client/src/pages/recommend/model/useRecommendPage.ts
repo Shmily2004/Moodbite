@@ -7,11 +7,12 @@
  *
  * BỘ LỌC NẰM TRÊN URL — xem `features/suggest-dishes/model/boLocTuUrl.ts`.
  */
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import type { DishItem } from '@/shared/api';
 import type { ChipDangBat } from '@/features/suggest-dishes';
 import {
+  EMPTY_FILTERS,
   chipDangBat,
   docBoLocTuUrl,
   ghiBoLocLenUrl,
@@ -42,8 +43,8 @@ export function useRecommendPage() {
   const session = useUserSessionContext();
   const t = useT();
 
-  // Đọc bộ lọc từ URL đúng MỘT LẦN lúc dựng. Sau đó state trong hook là nguồn sự thật;
-  // đọc lại mỗi lần URL đổi sẽ ghi đè thứ người dùng vừa bấm.
+  // Đọc bộ lọc từ URL lúc dựng. Sau đó state trong hook là nguồn sự thật; URL chỉ được
+  // đọc lại khi nó đổi từ BÊN NGOÀI (xem effect "URL đổi từ bên ngoài" bên dưới).
   const [boLocBanDau] = useState(() => docBoLocTuUrl(searchParams));
   const suggestions = useDishSuggestions(location.position, boLocBanDau);
   const savedDishes = useFavorites();
@@ -51,11 +52,35 @@ export function useRecommendPage() {
   const [sapXep, setSapXep] = useState<KieuSapXepMon>('phu-hop');
   const [xemHet, setXemHet] = useState(false);
 
+  // Chuỗi query ta GHI lần gần nhất — để phân biệt URL đổi do CHÍNH ta với URL đổi từ
+  // bên ngoài (thanh tab "Gợi ý" mở `/recommend` trơn, nút Back/Forward).
+  const daGhi = useRef<string | null>(null);
+
   // Bộ lọc đổi -> ghi ngược lên URL. `replace` để mỗi lần bấm chip KHÔNG tạo một mục mới
   // trong lịch sử: bấm 5 chip rồi phải bấm Back 5 lần mới ra khỏi trang là rất khó chịu.
+  //
+  // CHỈ chạy khi BỘ LỌC đổi — `setSearchParams` đi qua ref: hàm đó đổi danh tính mỗi khi
+  // URL đổi, để nó trong deps thì URL đổi từ bên ngoài kéo effect này chạy lại và ghi ĐÈ
+  // bộ lọc cũ lên URL mới (hai effect đá nhau vô tận — đã gặp khi viết test 2026-10-06).
+  const setParamsRef = useRef(setSearchParams);
+  setParamsRef.current = setSearchParams;
   useEffect(() => {
-    setSearchParams(ghiBoLocLenUrl(suggestions.filters), { replace: true });
-  }, [suggestions.filters, setSearchParams]);
+    const moi = ghiBoLocLenUrl(suggestions.filters);
+    daGhi.current = moi.toString();
+    setParamsRef.current(moi, { replace: true });
+  }, [suggestions.filters]);
+
+  // URL đổi từ BÊN NGOÀI → đọc lại bộ lọc từ URL (audit 2026-10-06). Trước đây chỉ đọc
+  // một lần lúc dựng: đang ở `/recommend?mood=…` bấm tab "Gợi ý" thì URL mất tham số mà
+  // bộ lọc vẫn bật — hai thứ nói ngược nhau. So theo dạng CHUẨN HOÁ (đọc rồi ghi lại) để
+  // khác biệt thuần hình thức (thứ tự tham số…) không kích hoạt tải lại.
+  useEffect(() => {
+    if (daGhi.current === null) return;
+    const tuUrl = docBoLocTuUrl(searchParams);
+    const chuan = ghiBoLocLenUrl({ ...EMPTY_FILTERS, ...tuUrl }).toString();
+    if (chuan !== daGhi.current) suggestions.replaceAll(tuUrl);
+    // `suggestions.replaceAll` ổn định (useCallback []), chỉ cần chạy theo URL.
+  }, [searchParams]);
 
   const dishes = useMemo(
     () => sapXepMon(suggestions.dishes ?? [], sapXep),
@@ -110,4 +135,3 @@ export function useRecommendPage() {
   };
 }
 
-export type UseRecommendPageResult = ReturnType<typeof useRecommendPage>;

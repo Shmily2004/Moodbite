@@ -15,6 +15,9 @@
  */
 const KEY = 'moodbite.user.token';
 
+/** Khoá trong storage — để tab khác nghe sự kiện `storage` đúng khoá này. */
+export const TOKEN_KEY = KEY;
+
 /** Đọc token ở CẢ HAI kho. Phiên tạm được ưu tiên: nó là lần đăng nhập gần nhất. */
 export function readToken(): string | null {
   try {

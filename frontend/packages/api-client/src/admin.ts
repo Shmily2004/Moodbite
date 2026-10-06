@@ -12,88 +12,38 @@
  * Hai lớp DÙNG CHUNG `HttpClient`, nên quy ước envelope `{data}`/`{error}` vẫn chỉ có
  * đúng MỘT nơi định nghĩa.
  */
-import type { components } from './schema';
 import type { HttpClient, RequestOptions } from './http';
+import type {
+  AdminLoginRequest,
+  AdminLoginData,
+  AdminRestaurantSummary,
+  AdminRestaurantListData,
+  AdminCreateRestaurantRequest,
+  AdminUpdateRestaurantRequest,
+  AdminOverviewData,
+  AdminDishListData,
+  AdminDishDetail,
+  AdminSystemData,
+  AuditLogData,
+  AdminRecommendationData,
+  AdminDataQualityData,
+  AdminIssuesData,
+  AdminIssueDetailData,
+  AdminResolveIssueData,
+  AdminResolvedIssuesData,
+  AdminRestaurantStatsData,
+  AdminBulkVisibilityData,
+  AdminDishRestaurantsData,
+  AdminInteractionStatsData,
+  UuTienVanDe,
+  LocMon,
+  AdminListParams,
+  AdminClosureReportsData,
+  AdminClearedClosureReports,
+} from './admin-types';
 
-export type AdminLoginRequest = components['schemas']['AdminLoginRequest'];
-export type AdminLoginData = components['schemas']['AdminLoginData'];
-export type AdminRestaurantSummary = components['schemas']['AdminRestaurantSummary'];
-export type AdminRestaurantListData = components['schemas']['AdminRestaurantListData'];
-export type AdminCreateRestaurantRequest =
-  components['schemas']['AdminCreateRestaurantRequest'];
-export type AdminUpdateRestaurantRequest =
-  components['schemas']['AdminUpdateRestaurantRequest'];
-export type AdminOverviewData = components['schemas']['AdminOverviewData'];
-export type DoPhuTruong = components['schemas']['DoPhuTruongSchema'];
-export type ThongKeNguon = components['schemas']['ThongKeNguonSchema'];
-export type ViecCanXuLy = components['schemas']['ViecCanXuLySchema'];
-export type AdminDishRow = components['schemas']['AdminDishRow'];
-export type AdminDishListData = components['schemas']['AdminDishListData'];
-export type AdminDishDetail = components['schemas']['AdminDishDetail'];
-export type AdminSystemData = components['schemas']['AdminSystemData'];
-export type AdminSystemService = components['schemas']['AdminSystemService'];
-export type AuditEntry = components['schemas']['AuditEntrySchema'];
-export type AuditLogData = components['schemas']['AuditLogData'];
-export type AdminRecommendationData = components['schemas']['AdminRecommendationData'];
-
-// --- Màn "Chất lượng dữ liệu" và màn "Cần xử lý" ---
-export type AdminDataQualityData = components['schemas']['AdminDataQualityData'];
-export type AdminIssuesData = components['schemas']['AdminIssuesData'];
-export type AdminIssueDetailData = components['schemas']['AdminIssueDetailData'];
-export type VanDeNhom = components['schemas']['VanDeNhomSchema'];
-export type BanGhiVanDe = components['schemas']['BanGhiVanDeSchema'];
-export type AnhChupChatLuong = components['schemas']['AnhChupChatLuongSchema'];
-export type ThayDoi = components['schemas']['ThayDoiSchema'];
-export type AdminResolveIssueData = components['schemas']['AdminResolveIssueData'];
-export type AdminResolvedIssuesData = components['schemas']['AdminResolvedIssuesData'];
-export type AdminResolvedIssue = components['schemas']['AdminResolvedIssueSchema'];
-
-// --- Phân trang, thẻ số, thao tác hàng loạt, khối "Hệ thống gợi ý" (2026-09-16) ---
-export type AdminRestaurantStatsData = components['schemas']['AdminRestaurantStatsData'];
-export type FacetValue = components['schemas']['FacetValueSchema'];
-export type AdminBulkVisibilityData = components['schemas']['AdminBulkVisibilityData'];
-export type AdminDishRestaurantsData = components['schemas']['AdminDishRestaurantsData'];
-export type AdminDishRestaurant = components['schemas']['AdminDishRestaurant'];
-/**
- * Thống kê nhật ký tương tác. ⚠️ KHÔNG có CTR: dự án không ghi lượt hiển thị (impression),
- * nên không có mẫu số — xem `domain/services/interaction_stats.py`.
- */
-export type AdminInteractionStatsData = components['schemas']['AdminInteractionStatsData'];
-
-/**
- * Mức GẤP của một vấn đề — khác `severity` ("có phải việc phải làm không").
- * Do backend đặt ở `domain/services/data_issues.py`; đừng khai lại danh sách này ở nơi khác.
- */
-export type UuTienVanDe = 'nghiem_trong' | 'quan_trong' | 'can_kiem_tra';
-export type LopMoHinh = components['schemas']['LopMoHinhSchema'];
-
-/** Bộ lọc của bảng món quản trị. Giữ đồng bộ với `BO_LOC` ở `list_dishes_admin.py`. */
-export type LocMon =
-  | 'all'
-  | 'with_restaurants'
-  | 'without_restaurants'
-  | 'missing_image'
-  | 'missing_description';
-
-export interface AdminListParams {
-  q?: string | null;
-  limit?: number;
-  /** Trang, bắt đầu từ 1. Có `page` thì server trả `total_matched` để phân trang. */
-  page?: number;
-  pageSize?: number;
-  /** Khu vực — giá trị lấy từ `restaurantStats().districts`. */
-  district?: string | null;
-  /** Nguồn. `manual` gộp cả quán nhập tay (manual/admin). */
-  source?: string | null;
-  /** `visible` | `hidden`. */
-  status?: 'visible' | 'hidden' | null;
-  includeHidden?: boolean;
-  /**
-   * Lọc VIỆC CẦN XỬ LÝ: `dong_tam` | `thieu_lien_he`.
-   * Khoá do `domain/services/data_quality.py` đặt tên — giữ đồng bộ với nó.
-   */
-  loc?: string | null;
-}
+// Re-export: `index.ts` và mọi nơi khác vẫn import kiểu quản trị từ `./admin`.
+export type * from './admin-types';
 
 export class MoodbiteAdminApi {
   constructor(private readonly http: HttpClient) {}
@@ -102,6 +52,7 @@ export class MoodbiteAdminApi {
   login(body: AdminLoginRequest, options?: RequestOptions): Promise<AdminLoginData> {
     return this.http.request<AdminLoginData>('/admin/login', {
       ...options,
+      credentialCheck: true,
       method: 'POST',
       body,
     });
@@ -114,6 +65,7 @@ export class MoodbiteAdminApi {
   logout(options?: RequestOptions): Promise<{ message: string }> {
     return this.http.request<{ message: string }>('/admin/logout', {
       ...options,
+      credentialCheck: true,
       method: 'POST',
     });
   }
@@ -311,6 +263,28 @@ export class MoodbiteAdminApi {
   }
 
   /** Ẩn quán (soft-delete). Dữ liệu KHÔNG bị xoá. */
+  /**
+   * Quán bị KHÁCH báo đã đóng cửa (thêm 2026-10-06). Đủ `threshold` người báo (đếm theo
+   * IP đã băm, không theo session client tự đặt) thì quán tự ẩn khỏi mọi luồng.
+   */
+  closureReports(options?: RequestOptions): Promise<AdminClosureReportsData> {
+    return this.http.request<AdminClosureReportsData>('/admin/closure-reports', options);
+  }
+
+  /**
+   * Gỡ mọi lượt báo đóng cửa của một quán. Ghi vào nhật ký nên vẫn đúng sau khi khởi động
+   * lại. ⚠️ KHÁC "Khôi phục" (bỏ ẩn do admin): hai cơ chế ẩn độc lập nhau.
+   */
+  clearClosureReports(
+    restaurantId: string,
+    options?: RequestOptions,
+  ): Promise<AdminClearedClosureReports> {
+    return this.http.request<AdminClearedClosureReports>(
+      `/admin/restaurants/${encodeURIComponent(restaurantId)}/closure-reports/clear`,
+      { ...options, method: 'POST' },
+    );
+  }
+
   hideRestaurant(
     restaurantId: string,
     options?: RequestOptions,

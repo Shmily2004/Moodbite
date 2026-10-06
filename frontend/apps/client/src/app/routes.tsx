@@ -32,6 +32,8 @@ import { NotFoundPage } from '@/pages/not-found';
 import { DUONG_DAN_CU, ROUTES } from '@/shared/config';
 import { useT } from '@/shared/i18n';
 import { RootLayout } from './layout/RootLayout';
+import { RouteError } from './layout/RouteError';
+import { LanguageProvider } from '@/shared/i18n';
 
 /** Đường dẫn khai ở `shared/config/routes.ts` để mọi tầng FSD đều với tới được. */
 export { ROUTES };
@@ -98,29 +100,42 @@ export const routes: RouteObject[] = [
   {
     // Route cha không có `path`: nó chỉ đóng vai trò bọc layout quanh mọi trang con.
     element: <RootLayout />,
+    // Lỗi ở CHÍNH RootLayout → trang lỗi phải tự bọc LanguageProvider (layout chưa dựng).
+    errorElement: (
+      <LanguageProvider>
+        <RouteError />
+      </LanguageProvider>
+    ),
     children: [
-      { index: true, element: <HomePage /> },
-      { path: ROUTES.dish, element: trangMon },
-      // Đăng nhập/đăng ký là TUỲ CHỌN: không có route guard nào bắt qua đây trước.
-      { path: ROUTES.login, element: <LoginPage /> },
-      { path: ROUTES.register, element: <RegisterPage /> },
-      { path: ROUTES.forgotPassword, element: <ForgotPasswordPage /> },
-      { path: ROUTES.resetPassword, element: <ResetPasswordPage /> },
-      { path: ROUTES.verifyEmail, element: <VerifyEmailPage /> },
-      { path: ROUTES.account, element: trangTaiKhoan },
-      // Luồng cũ: tìm quán bằng câu tự nhiên.
-      { path: ROUTES.search, element: trangTimKiem },
-      { path: ROUTES.recommend, element: trangGoiY },
-      // Đường dẫn CŨ (tiếng Việt) -> chuyển hướng sang đường mới, GIỮ nguyên query string.
-      // Quan trọng nhất là `/dat-lai-mat-khau?token=…`: link đó đã nằm trong hộp thư người
-      // dùng từ trước khi đổi, xoá thẳng là thư cũ chết.
-      ...Object.entries(DUONG_DAN_CU).map(([cu, moi]) => ({
-        path: cu,
-        element: <ChuyenHuong den={moi} />,
-      })),
-      // '*' phải nằm CUỐI: react-router chọn route khớp nhất, nhưng để nhầm thứ tự
-      // vẫn dễ gây hiểu lầm khi đọc.
-      { path: '*', element: <NotFoundPage /> },
+      {
+        // Route bọc KHÔNG path: lỗi của MỘT trang (vd. tải trang lười thất bại sau deploy)
+        // hiện ngay trong layout — header/footer, ngôn ngữ, phiên vẫn còn.
+        errorElement: <RouteError />,
+        children: [
+          { index: true, element: <HomePage /> },
+          { path: ROUTES.dish, element: trangMon },
+          // Đăng nhập/đăng ký là TUỲ CHỌN: không có route guard nào bắt qua đây trước.
+          { path: ROUTES.login, element: <LoginPage /> },
+          { path: ROUTES.register, element: <RegisterPage /> },
+          { path: ROUTES.forgotPassword, element: <ForgotPasswordPage /> },
+          { path: ROUTES.resetPassword, element: <ResetPasswordPage /> },
+          { path: ROUTES.verifyEmail, element: <VerifyEmailPage /> },
+          { path: ROUTES.account, element: trangTaiKhoan },
+          // Luồng cũ: tìm quán bằng câu tự nhiên.
+          { path: ROUTES.search, element: trangTimKiem },
+          { path: ROUTES.recommend, element: trangGoiY },
+          // Đường dẫn CŨ (tiếng Việt) -> chuyển hướng sang đường mới, GIỮ nguyên query string.
+          // Quan trọng nhất là `/dat-lai-mat-khau?token=…`: link đó đã nằm trong hộp thư người
+          // dùng từ trước khi đổi, xoá thẳng là thư cũ chết.
+          ...Object.entries(DUONG_DAN_CU).map(([cu, moi]) => ({
+            path: cu,
+            element: <ChuyenHuong den={moi} />,
+          })),
+          // '*' phải nằm CUỐI: react-router chọn route khớp nhất, nhưng để nhầm thứ tự
+          // vẫn dễ gây hiểu lầm khi đọc.
+          { path: '*', element: <NotFoundPage /> },
+        ],
+      },
     ],
   },
 ];

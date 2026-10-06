@@ -16,7 +16,7 @@
  */
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { authApi } from '@/shared/api';
+import { accountErrorText, authApi } from '@/shared/api';
 import { replaceToken } from '@/shared/lib';
 import { useT } from '@/shared/i18n';
 
@@ -45,7 +45,7 @@ export function ChangePasswordForm() {
     } catch (err) {
       // Luật độ dài mật khẩu nằm ở backend (`domain/entities/user.py`) và câu lỗi cũng
       // từ đó ra. KHÔNG chép luật xuống frontend — hai bản luật sẽ có ngày lệch nhau.
-      setLoi(err instanceof Error ? err.message : t('changePw.failed'));
+      setLoi(accountErrorText(err, t, 'changePw.failed'));
     } finally {
       setDangGui(false);
     }

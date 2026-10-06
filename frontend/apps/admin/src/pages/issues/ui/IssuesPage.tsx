@@ -28,28 +28,20 @@ import { useSearchParams } from 'react-router-dom';
 import {
   NHAN_CACH_SAP,
   locVaSapNhom,
-  useIssueDetail,
   useIssues,
   useResolvedIssues,
   type CachSap,
   type LoaiVanDe,
 } from '@/features/manage-issues';
-import type {
-  AdminResolvedIssue,
-  BanGhiVanDe,
-  UuTienVanDe,
-  VanDeNhom,
-} from '@/shared/api';
+import { ClosureReportsPanel } from '@/features/manage-closure-reports';
+import type { UuTienVanDe } from '@/shared/api';
 import { NHAN_UU_TIEN_VAN_DE, nhanTheoMa } from '@/shared/config';
-import { ngayGioVN, taiCsv, taoCsv } from '@/shared/lib';
-import { Icon, IconTron, type MauIconTron, type TenIcon } from '@/shared/ui';
-
-/** Nhãn tiếng Việt của loại đối tượng. */
-const NHAN_LOAI: Record<string, string> = {
-  quan_an: 'Quán ăn',
-  mon_an: 'Món ăn',
-  du_lieu: 'Dữ liệu',
-};
+import { taiCsv, taoCsv } from '@/shared/lib';
+import { Icon } from '@/shared/ui';
+import { BangDaXuLy } from './BangDaXuLy';
+import { BangNhom } from './BangNhom';
+import { NHAN_LOAI, soVN } from './hienThi';
+import { TheSo } from './TheSo';
 
 const TABS: Array<{ khoa: UuTienVanDe | null; nhan: string }> = [
   { khoa: null, nhan: 'Tất cả' },
@@ -57,10 +49,6 @@ const TABS: Array<{ khoa: UuTienVanDe | null; nhan: string }> = [
   { khoa: 'quan_trong', nhan: 'Quan trọng' },
   { khoa: 'can_kiem_tra', nhan: 'Cần kiểm tra' },
 ];
-
-function soVN(n: number): string {
-  return n.toLocaleString('vi-VN');
-}
 
 export function IssuesPage() {
   const { data, loading, error, uuTien, chonUuTien, reload } = useIssues();
@@ -235,233 +223,14 @@ export function IssuesPage() {
               error={daXuLy.error}
             />
           ) : (
-            <BangNhom nhom={nhomHien} nhomDangMo={nhomDangMo} onMo={moNhom} />
+            <BangNhom nhom={nhomHien} nhomDangMo={nhomDangMo} onMo={moNhom} onChanged={reload} />
           )}
         </>
       )}
+
+      {/* Báo đóng cửa do KHÁCH gửi là nguồn ẩn quán riêng (không phải vấn đề dữ liệu), nên
+          đứng ngoài bảng nhóm và vẫn hiện khi bảng nhóm lỗi. */}
+      <ClosureReportsPanel />
     </div>
-  );
-}
-
-/** Tab "Đã xử lý": bản ghi đã được đánh dấu, mới nhất đứng đầu. */
-function BangDaXuLy({
-  dong,
-  loading,
-  error,
-}: {
-  dong: AdminResolvedIssue[] | null;
-  loading: boolean;
-  error: string | null;
-}) {
-  if (loading && !dong) return <p className="panel muted">Đang tải…</p>;
-  if (error) return <p className="notice notice--warn">{error}</p>;
-  if (!dong) return null;
-  if (dong.length === 0) {
-    return <p className="panel muted">Chưa có bản ghi nào được đánh dấu đã xử lý.</p>;
-  }
-  return (
-    <section className="panel">
-      <div className="table-scroll">
-        <table className="bang-van-de">
-          <thead>
-            <tr>
-              <th>Bản ghi</th>
-              <th>Nhóm vấn đề</th>
-              <th>Người xử lý</th>
-              <th>Thời điểm</th>
-            </tr>
-          </thead>
-          <tbody>
-            {dong.map((d) => (
-              <tr key={`${d.key}-${d.target_id}`} className="row">
-                <td>
-                  {/* Không tra được tên (quán đã ẩn, món đổi mã) thì hiện MÃ, không bịa tên. */}
-                  <b>{d.name ?? d.target_id}</b>
-                  {d.note && <p className="muted small">{d.note}</p>}
-                </td>
-                <td>{d.group_label ?? d.key}</td>
-                <td>{d.resolved_by}</td>
-                <td className="small">{ngayGioVN(d.resolved_at)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
-  );
-}
-
-function BangNhom({
-  nhom,
-  nhomDangMo,
-  onMo,
-}: {
-  nhom: VanDeNhom[];
-  nhomDangMo: string | null;
-  onMo: (khoa: string | null) => void;
-}) {
-  if (nhom.length === 0) {
-    return <p className="panel muted">Không có nhóm vấn đề nào khớp bộ lọc đã chọn.</p>;
-  }
-
-  return (
-    <section className="panel">
-      <div className="table-scroll">
-        <table className="bang-van-de">
-          <thead>
-            <tr>
-              <th>Vấn đề</th>
-              <th>Loại</th>
-              <th>Độ ưu tiên</th>
-              <th className="tnum">Số lượng</th>
-              <th title="Lần gần nhất một bản ghi trong nhóm được đánh dấu xử lý">
-                Xử lý gần nhất
-              </th>
-              <th>Thao tác</th>
-            </tr>
-          </thead>
-          <tbody>
-            {nhom.map((v) => (
-              <tr key={v.key} className={v.count === 0 ? 'row row--rong' : 'row'}>
-                <td>
-                  <b>{v.label}</b>
-                  <p className="muted small">{v.description}</p>
-                </td>
-                <td>
-                  <span className="pill pill--off">
-                    {NHAN_LOAI[v.target_type] ?? v.target_type}
-                  </span>
-                </td>
-                <td>
-                  <span className={`pill pill--${v.priority}`}>
-                    {nhanTheoMa(NHAN_UU_TIEN_VAN_DE, v.priority)}
-                  </span>
-                </td>
-                <td className="tnum">{soVN(v.count)}</td>
-                <td className="small muted">{ngayGioVN(v.last_resolved_at)}</td>
-                <td>
-                  {/* Nhóm 0 bản ghi vẫn hiện dòng (đó là câu trả lời "đã kiểm, không có
-                      gì") nhưng KHÔNG mở được danh sách rỗng — bấm vào chỉ để thấy trống. */}
-                  {v.count > 0 ? (
-                    <button
-                      type="button"
-                      className="ghost"
-                      onClick={() => onMo(nhomDangMo === v.key ? null : v.key)}
-                    >
-                      {nhomDangMo === v.key ? 'Đóng' : 'Xem danh sách ›'}
-                    </button>
-                  ) : (
-                    // Ô trống trơn trông như nút bị lỗi không hiện; nói thẳng là không có gì.
-                    <span className="muted small">Không có</span>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {nhomDangMo && <ChiTietNhom khoa={nhomDangMo} />}
-    </section>
-  );
-}
-
-/**
- * Danh sách BẢN GHI cụ thể của một nhóm.
- *
- * Dòng đã đánh dấu xử lý vẫn HIỆN, chỉ tô mờ — giấu đi thì người bấm nhầm không còn cách
- * nào tìm lại để gỡ.
- */
-function ChiTietNhom({ khoa }: { khoa: string }) {
-  const { data, loading, error, dangGui, danhDau } = useIssueDetail(khoa);
-
-  if (loading && !data) {
-    return <p className="muted" aria-busy="true">Đang tải danh sách…</p>;
-  }
-  if (error) {
-    return <p className="notice notice--warn">{error}</p>;
-  }
-  if (!data) return null;
-
-  return (
-    <div className="chi-tiet-nhom">
-      <p className="muted small">
-        Hiển thị {soVN(data.results.length)} trong {soVN(data.total)} bản ghi.
-        {data.results.length < data.total &&
-          ' Sửa bớt rồi mở lại để thấy phần còn lại.'}
-      </p>
-
-      {data.results.length === 0 ? (
-        <p className="muted">Không còn bản ghi nào trong nhóm này.</p>
-      ) : (
-        <ul className="ban-ghi">
-          {data.results.map((b: BanGhiVanDe) => (
-            <li
-              key={b.id}
-              className={b.resolved_at ? 'ban-ghi__dong ban-ghi__dong--xong' : 'ban-ghi__dong'}
-            >
-              <div className="ban-ghi__chu">
-                <p className="ban-ghi__ten">{b.name}</p>
-                <p className="muted small">
-                  {b.description || 'Chưa có thông tin khu vực'}
-                  {/* Ngày NGUỒN cập nhật, KHÔNG phải ngày phát hiện lỗi. Thiếu thì im
-                      lặng chứ không đoán (CLAUDE.md mục 4 quy tắc 1). */}
-                  {b.source_updated_at &&
-                    ` · nguồn cập nhật ${new Date(b.source_updated_at).toLocaleDateString('vi-VN')}`}
-                </p>
-                {b.resolved_at && (
-                  <p className="muted small">
-                    Đã đánh dấu xử lý bởi {b.resolved_by ?? 'admin'} lúc{' '}
-                    {new Date(b.resolved_at).toLocaleString('vi-VN')}
-                  </p>
-                )}
-              </div>
-              <button
-                type="button"
-                className="ghost"
-                disabled={dangGui === b.id}
-                onClick={() => danhDau(b.id, !b.resolved_at)}
-              >
-                {dangGui === b.id
-                  ? 'Đang lưu…'
-                  : b.resolved_at
-                    ? 'Gỡ đánh dấu'
-                    : 'Đánh dấu đã xử lý'}
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      <p className="muted small">
-        Đánh dấu xử lý <strong>không sửa dữ liệu</strong> — nó chỉ ghi lại rằng bạn đã xem
-        và kết luận không phải làm gì thêm. Muốn sửa thật thì vào Quản lý quán / Quản lý món.
-      </p>
-    </div>
-  );
-}
-
-function TheSo({
-  nhan,
-  so,
-  phu,
-  icon,
-  mau,
-}: {
-  nhan: string;
-  so: number;
-  phu?: string;
-  icon: TenIcon;
-  mau: MauIconTron;
-}) {
-  return (
-    <li className="the-so__o the-so__o--co-icon">
-      <IconTron ten={icon} mau={mau} />
-      <div className="the-so__than">
-        <span className="the-so__nhan">{nhan}</span>
-        <span className="the-so__gia-tri">{soVN(so)}</span>
-        {phu && <span className="muted the-so__phu">{phu}</span>}
-      </div>
-    </li>
   );
 }

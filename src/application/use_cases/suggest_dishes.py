@@ -22,6 +22,9 @@ from typing import Dict, List, Mapping, Optional, Sequence
 from src.application.errors import DataNotReadyError
 from src.application.ports.context_provider import ContextProvider
 from src.application.ports.dish_catalog_repository import DishCatalogRepository
+from src.application.ports.dish_restaurant_index import current_index
+from src.application.ports.restaurant_repository import RestaurantRepository
+from src.application.use_cases.restaurant_data_guard import require_restaurant_data
 from src.domain.entities.dish import Dish
 from src.domain.services import dish_ranking
 from src.domain.services.closure_reports import ClosureReportTally
@@ -139,18 +142,33 @@ class SuggestDishesUseCase:
         dish_restaurant_index: Mapping[str, Sequence],
         context_provider: Optional[ContextProvider] = None,
         closure_tally: Optional[ClosureReportTally] = None,
+        restaurants: Optional[RestaurantRepository] = None,
     ) -> None:
         self._catalog = catalog
+        # `Mapping` thường hoặc nguồn tự làm mới (`snapshot()`) — xem
+        # `application/ports/dish_restaurant_index.py`.
         self._index = dish_restaurant_index
         self._context_provider = context_provider
         self._closure_tally = closure_tally
+        # Chỉ để kiểm "dataset quán đã nạp chưa" -> 503 (xem `_require_data`).
+        self._restaurants = restaurants
 
-    def execute(self, query: DishSuggestionQuery) -> DishSuggestionResult:
+    def _require_data(self) -> None:
+        """Cả danh mục món LẪN dataset quán phải sẵn sàng.
+
+        Bug thật 2026-10-06: chỉ kiểm danh mục món, nên thiếu dataset quán thì trang chủ
+        trả 200 kèm "285 món chưa tìm được quán nào bán" — đổ lỗi cho dữ liệu món trong
+        khi thực ra chưa nạp được quán nào. Phải là 503 kèm lệnh cần chạy.
+        """
         if not self._catalog.is_ready:
             raise DataNotReadyError(
                 "danh mục món ăn",
                 "chạy python scripts/build_dish_catalog.py",
             )
+        require_restaurant_data(self._restaurants)
+
+    def execute(self, query: DishSuggestionQuery) -> DishSuggestionResult:
+        self._require_data()
 
         warnings: List[str] = []
         origin = Location(lat=query.latitude, lng=query.longitude)
@@ -216,11 +234,7 @@ class SuggestDishesUseCase:
         Trang chi tiết hỏi "món NÀY là gì", không hỏi "món này xếp thứ mấy" - nên chấm
         riêng đúng một món, không đem cả danh mục ra xếp hạng.
         """
-        if not self._catalog.is_ready:
-            raise DataNotReadyError(
-                "danh mục món ăn",
-                "chạy python scripts/build_dish_catalog.py",
-            )
+        self._require_data()
         dish = self._catalog.get_dish(dish_id)
         if dish is None:
             return None
@@ -279,12 +293,15 @@ class SuggestDishesUseCase:
         nearest: Dict[str, float] = {}
         counts_co_gia: Dict[str, int] = {}
         nearest_co_gia: Dict[str, float] = {}
+        # Lấy chỉ mục MỘT LẦN cho cả lượt đếm: admin ghi đúng lúc này thì lượt đếm vẫn
+        # nhìn trọn một phiên bản dữ liệu quán.
+        index = current_index(self._index)
         for dish in dishes:
             nearby = 0
             nearby_co_gia = 0
             gan_nhat: Optional[float] = None
             gan_nhat_co_gia: Optional[float] = None
-            for match in self._index.get(dish.identifier, ()):
+            for match in index.get(dish.identifier, ()):
                 restaurant = match.restaurant
                 if not restaurant.is_visible:
                     continue

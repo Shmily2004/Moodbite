@@ -35,6 +35,9 @@ export function NutXemChiTiet({
     <button
       type="button"
       className="card__xem"
+      // Kèm TÊN QUÁN trong tên truy cập: cả danh sách toàn nút "Xem chi tiết" giống hệt
+      // nhau thì người dùng trình đọc màn hình không biết nút nào của quán nào.
+      aria-label={`${t('rest.viewDetail')}: ${restaurant.name}`}
       // Thẻ cha cũng bắt click; không chặn nổi bọt thì một cú bấm thành hai lần mở, và bộ
       // đếm thời gian xem bị ghi hai lượt.
       onClick={(event) => {

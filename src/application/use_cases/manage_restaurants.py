@@ -23,6 +23,7 @@ from src.application.ports.admin_restaurant_repository import (
 # sang 404 RESTAURANT_NOT_FOUND ở MỘT chỗ duy nhất.
 from src.application.use_cases.log_interaction import RestaurantNotFoundError
 from src.domain.entities.restaurant import Restaurant
+from src.domain.errors import DomainValidationError
 from src.domain.value_objects.location import Location
 from src.domain.value_objects.restaurant_edit import RestaurantEdit
 from src.domain.value_objects.restaurant_new import NewRestaurant
@@ -98,8 +99,8 @@ class ListRestaurantPageForAdminUseCase:
         return self.restaurants.stats_for_admin()
 
 
-class InvalidBulkRequest(ValueError):
-    """Danh sách rỗng hoặc quá dài -> 400 INVALID_REQUEST (ánh xạ chung cho ValueError)."""
+class InvalidBulkRequest(DomainValidationError):
+    """Danh sách rỗng hoặc quá dài -> 400 INVALID_REQUEST (ánh xạ qua `DomainValidationError`)."""
 
 
 @dataclass(frozen=True)

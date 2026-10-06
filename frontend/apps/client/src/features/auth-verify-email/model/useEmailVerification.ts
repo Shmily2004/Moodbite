@@ -14,7 +14,7 @@
  * cần mật khẩu — đúng điều mà luồng đặt lại mật khẩu đã cẩn thận tránh.
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ApiError, authApi } from '@/shared/api';
+import { accountErrorText, authApi } from '@/shared/api';
 import { useT } from '@/shared/i18n';
 
 export type VerifyStatus = 'idle' | 'loading' | 'done' | 'error';
@@ -29,12 +29,6 @@ export interface UseEmailVerificationResult {
   resend: () => Promise<void>;
 }
 
-function loiHienThi(err: unknown): string {
-  if (err instanceof ApiError) {
-    return err.code === 'NETWORK' ? err.userMessage : err.message;
-  }
-  return (err as Error).message;
-}
 
 /**
  * @param token Lấy từ query string. Chuỗi rỗng = mở trang thẳng, không qua thư.
@@ -70,7 +64,7 @@ export function useEmailVerification(token: string): UseEmailVerificationResult 
         setStatus('done');
       } catch (err) {
         if (!conHieuLuc) return;
-        setError(loiHienThi(err));
+        setError(accountErrorText(err, tRef.current));
         setStatus('error');
       }
     })();
@@ -88,7 +82,7 @@ export function useEmailVerification(token: string): UseEmailVerificationResult 
       setMessage(data.message);
       setStatus('idle');
     } catch (err) {
-      setError(loiHienThi(err));
+      setError(accountErrorText(err, tRef.current));
       setStatus('error');
     }
   }, []);

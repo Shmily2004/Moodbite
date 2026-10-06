@@ -14,6 +14,8 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional
 
+from src.domain.errors import DomainValidationError
+
 
 class UserRole(str, Enum):
     """Vai của tài khoản. Kế thừa `str` để so sánh và lưu xuống CSDL trực tiếp được."""
@@ -33,8 +35,15 @@ MIN_PASSWORD_LENGTH = 8
 # đăng ký/đăng nhập là công khai nên ai cũng gửi được. 128 ký tự thừa sức cho một câu dài.
 MAX_PASSWORD_LENGTH = 128
 
+# Mật khẩu QUẢN TRỊ dài hơn mức người dùng thường (8): tài khoản này ẩn/sửa được quán của
+# mọi người, bị đoán ra thì thiệt hại lớn hơn hẳn. Trước 2026-10-06 con số này chỉ nằm
+# trong `scripts/make_admin_user.py`, nên `/auth/change-password` và `/auth/reset-password`
+# vẫn cho admin hạ mật khẩu xuống 8 ký tự — lỗ tìm ra ở đợt rà soát bảo mật. Nay luật nằm
+# ở domain, MỌI đường đặt mật khẩu cùng gọi `validate_password_for_role`.
+MIN_ADMIN_PASSWORD_LENGTH = 12
 
-class InvalidCredentialsFormat(ValueError):
+
+class InvalidCredentialsFormat(DomainValidationError):
     """Tên đăng nhập/mật khẩu sai định dạng -> HTTP 400, KHÔNG phải 401.
 
     Phân biệt rõ với "sai mật khẩu": đây là lỗi ĐỊNH DẠNG lúc đăng ký, nói cụ thể được
@@ -84,12 +93,26 @@ def validate_password(password: str) -> str:
     return password
 
 
+def validate_password_for_role(password: str, role: "UserRole") -> str:
+    """Như `validate_password`, cộng thêm mức tối thiểu riêng cho tài khoản quản trị.
+
+    Dùng ở MỌI chỗ đặt/đổi mật khẩu của một tài khoản ĐÃ CÓ vai (đổi mật khẩu, đặt lại qua
+    thư, script tạo admin) — để không chỗ nào lách được luật mật khẩu quản trị.
+    """
+    validate_password(password)
+    if role == UserRole.ADMIN and len(password) < MIN_ADMIN_PASSWORD_LENGTH:
+        raise InvalidCredentialsFormat(
+            f"Mật khẩu tài khoản quản trị phải có ít nhất {MIN_ADMIN_PASSWORD_LENGTH} ký tự."
+        )
+    return password
+
+
 # Chặn trên độ dài email. 254 là giới hạn của một địa chỉ thư theo RFC 5321 (kích thước
 # tối đa của đường "forward-path"). Đặt bằng đúng chuẩn để không tự nghĩ ra luật riêng.
 MAX_EMAIL_LENGTH = 254
 
 
-class InvalidEmailFormat(ValueError):
+class InvalidEmailFormat(DomainValidationError):
     """Email sai định dạng -> HTTP 400."""
 
 
@@ -210,6 +233,8 @@ __all__ = [
     "MAX_EMAIL_LENGTH",
     "validate_username",
     "validate_password",
+    "validate_password_for_role",
+    "MIN_ADMIN_PASSWORD_LENGTH",
     "MIN_USERNAME_LENGTH",
     "MAX_USERNAME_LENGTH",
     "MIN_PASSWORD_LENGTH",

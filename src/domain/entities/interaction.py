@@ -51,6 +51,13 @@ class InteractionEvent:
     # tự khai `user_id` là để bất kỳ ai cũng cộng điểm cho người khác — hoặc cho chính
     # mình bằng cách gọi thẳng API.
     user_id: Optional[str] = None
+    # KHOÁ NGƯỜI BÁO — CHỈ có ở lượt `report_closed`, do SERVER tính từ IP đã băm
+    # (`domain/services/closure_reports.reporter_key_from_ip`). Thêm 2026-10-06.
+    #
+    # Vì sao không dùng `session_id`: client tự đặt được, nên 3 session_id bịa từng đủ để
+    # ẩn bất kỳ quán nào. Ghi vào nhật ký để lúc khởi động lại đếm lại ĐÚNG như lúc chạy.
+    # Tương tác khác không ghi trường này: không cần thì không thu thập.
+    reporter_key: Optional[str] = None
 
     @property
     def is_positive_signal(self) -> bool:

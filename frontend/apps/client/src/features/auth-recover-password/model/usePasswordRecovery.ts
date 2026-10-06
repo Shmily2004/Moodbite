@@ -8,8 +8,9 @@
  * tới phiên. Đổi mật khẩu xong người dùng vẫn chưa đăng nhập — cố tình như vậy, để đường
  * dẫn trong thư không trở thành một cách vào app mà không cần mật khẩu.
  */
-import { useCallback, useState } from 'react';
-import { ApiError, authApi } from '@/shared/api';
+import { useCallback, useRef, useState } from 'react';
+import { accountErrorText, authApi } from '@/shared/api';
+import { useT } from '@/shared/i18n';
 
 export type RecoveryStatus = 'idle' | 'loading' | 'sent' | 'done' | 'error';
 
@@ -22,22 +23,18 @@ export interface UsePasswordRecoveryResult {
   resetPassword: (token: string, newPassword: string) => Promise<void>;
 }
 
-/**
- * Chọn câu báo lỗi. Giống `entities/user`: ưu tiên câu của backend vì nó viết cho người
- * dùng đọc, chỉ riêng lỗi mạng mới dùng câu soạn sẵn (`message` khi đó là "Failed to
- * fetch", đọc không hiểu gì).
- */
-function loiHienThi(err: unknown): string {
-  if (err instanceof ApiError) {
-    return err.code === 'NETWORK' ? err.userMessage : err.message;
-  }
-  return (err as Error).message;
-}
+// Câu báo lỗi: `accountErrorText` (shared/api) — ưu tiên câu của backend vì nó viết cho
+// người dùng đọc, chỉ riêng lỗi mạng mới dùng câu soạn sẵn ĐÃ DỊCH (`message` khi đó là
+// "Failed to fetch", đọc không hiểu gì).
 
 export function usePasswordRecovery(): UsePasswordRecoveryResult {
   const [status, setStatus] = useState<RecoveryStatus>('idle');
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const t = useT();
+  const tRef = useRef(t);
+  tRef.current = t;
+  const loiHienThi = (err: unknown) => accountErrorText(err, tRef.current);
 
   const requestReset = useCallback(async (identifier: string) => {
     setStatus('loading');

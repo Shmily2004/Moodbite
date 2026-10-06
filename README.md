@@ -16,7 +16,7 @@ DANH SÁCH QUÁN bán món đó        xếp theo khoảng cách + đánh giá +
 REVIEW · ẢNH · GIÁ · CHỈ ĐƯỜNG
 ```
 
-Vẫn còn **lối vào thứ hai** ở `/tim-kiem`: gõ thẳng "quán lẩu ấm cúng gần đây" để ra ngay
+Vẫn còn **lối vào thứ hai** ở `/search` (đường cũ `/tim-kiem` tự chuyển hướng): gõ thẳng "quán lẩu ấm cúng gần đây" để ra ngay
 danh sách quán, mỗi quán kèm sẵn gợi ý món.
 
 > 📍 **Không biết dự án đang ở đâu?** Đọc [`PROJECT_CHECKLIST.md`](PROJECT_CHECKLIST.md) —
@@ -87,12 +87,20 @@ Trang quản trị **fail-closed**: chưa cấu hình thì mọi `/api/v1/admin/
 python scripts/check_permissions.py
 ```
 
-Làm đủ 3 bước rồi khởi động lại backend:
+Làm đủ 2 bước rồi khởi động lại backend:
 
 ```powershell
 python scripts/build_sqlite.py          # 1. CSDL ghi được (CSV chỉ đọc)
-python scripts/make_admin_user.py       # 2. tạo tài khoản admin trong bảng users + ghi secret
-$env:MOODBITE_STORAGE = "sqlite"        # 3. bật kho ghi được
+python scripts/make_admin_user.py       # 2. tạo tài khoản admin trong bảng users
+```
+
+Bước 2 tự ghi `MOODBITE_ADMIN_SECRET` và `MOODBITE_STORAGE=sqlite` vào `.env.local` (đã
+.gitignore) — KHÔNG cần đặt `$env:` bằng tay. Máy cũ còn admin dạng biến môi trường
+(`MOODBITE_ADMIN_USER` / `MOODBITE_ADMIN_PASSWORD_HASH`) thì chuyển sang bảng `users`, giữ
+nguyên mật khẩu:
+
+```powershell
+python scripts/make_admin_user.py --tu-env
 ```
 
 Mẫu đầy đủ các biến môi trường: [`.env.example`](.env.example)
@@ -112,33 +120,37 @@ Base URL: `/api/v1`. Mọi response bọc trong `data` (thành công) hoặc `er
 | GET | `/api/v1/restaurants/{id}` | Chi tiết quán (giá, review, ảnh) |
 | POST | `/api/v1/interactions` | Ghi tương tác — nhãn cho mô hình xếp hạng sau này |
 | GET | `/api/v1/moods` | 4 mood dùng cho nút bấm nhanh |
-| GET | `/health` | Trạng thái từng nguồn dữ liệu |
+| GET | `/api/v1/health` | Trạng thái từng nguồn dữ liệu (cũng có ở `/health`) |
+| — | `/api/v1/auth/*`, `/api/v1/me/*`, `/api/v1/admin/*` | Tài khoản, dữ liệu cá nhân, quản trị — cần `Authorization: Bearer <token>` |
+
+Danh sách đầy đủ + mã lỗi: [`docs/extracted/MoodBite_Dac_Ta_API.md`](docs/extracted/MoodBite_Dac_Ta_API.md)
+(mục *BỔ SUNG 2026-10*). Schema chi tiết: `frontend/openapi.json` (sinh bằng
+`python scripts/export_openapi.py`).
+
+**Thử API nhanh nhất: mở Swagger UI http://localhost:8001/docs** — điền body và bấm
+"Execute", không phải gõ lệnh.
+
+Gọi từ PowerShell 5.1 (chạy được nguyên văn, mỗi lệnh một dòng). Hai điểm bắt buộc trên
+PowerShell 5.1: gửi body dưới dạng **byte UTF-8** (nếu không, chữ có dấu trong câu tìm kiếm
+bị hỏng trước khi tới server), và **tự giải mã response bằng UTF-8** (server trả
+`application/json` không kèm `charset`, PowerShell 5.1 đọc sai thành kiểu `Nem nÆ°á»ng`).
 
 Ví dụ — luồng chính, "nay trời mưa, muốn ăn đồ nướng":
 
-```bash
-curl -X POST http://localhost:8001/api/v1/dishes/suggest   -H "Content-Type: application/json"   -d '{
-        "session_id": "3f9a0000-0000-4000-8000-000000000000",
-        "weather": "rain",
-        "cooking_methods": ["nuong"],
-        "latitude": 21.0285,
-        "longitude": 105.8542,
-        "max_distance_km": 5
-      }'
+```powershell
+$body = '{"session_id": "3f9a0000-0000-4000-8000-000000000000", "weather": "rain", "cooking_methods": ["nuong"], "latitude": 21.0285, "longitude": 105.8542, "max_distance_km": 5, "limit": 3}'
+$resp = Invoke-WebRequest -UseBasicParsing -Method Post -Uri http://localhost:8001/api/v1/dishes/suggest -ContentType "application/json; charset=utf-8" -Body ([Text.Encoding]::UTF8.GetBytes($body))
+$json = [Text.Encoding]::UTF8.GetString($resp.RawContentStream.ToArray()) | ConvertFrom-Json
+$json.data.results | Select-Object name, restaurant_count
 ```
 
 Ví dụ — lối vào thứ hai (tìm bằng câu tự do):
 
-```bash
-curl -X POST http://localhost:8001/api/v1/search \
-  -H "Content-Type: application/json" \
-  -d '{
-        "session_id": "3f9a0000-0000-4000-8000-000000000000",
-        "query_text": "quán lẩu ấm cúng gần đây",
-        "latitude": 21.0285,
-        "longitude": 105.8542,
-        "limit": 5
-      }'
+```powershell
+$body = '{"session_id": "3f9a0000-0000-4000-8000-000000000000", "query_text": "quán lẩu ấm cúng gần đây", "latitude": 21.0285, "longitude": 105.8542, "limit": 5}'
+$resp = Invoke-WebRequest -UseBasicParsing -Method Post -Uri http://localhost:8001/api/v1/search -ContentType "application/json; charset=utf-8" -Body ([Text.Encoding]::UTF8.GetBytes($body))
+$json = [Text.Encoding]::UTF8.GetString($resp.RawContentStream.ToArray()) | ConvertFrom-Json
+$json.data.results | Select-Object name, distance_m
 ```
 
 Mỗi kết quả của `/search` kèm sẵn `suggested_dish` — không phải gọi thêm endpoint nào.
@@ -150,7 +162,8 @@ Bốn quy ước quan trọng khi đọc response:
 
 - **Tên trường là `snake_case`** (`restaurant_id`, `predicted_score`) theo đặc tả API mục 1.3.
 - `price_range`, `rating`, `user_ratings_total` bằng `null` nghĩa là **chưa có dữ liệu**,
-  không phải "miễn phí" hay "0 sao". Phần lớn quán lấy từ OpenStreetMap.
+  không phải "miễn phí" hay "0 sao". ~97% quán lấy từ Overture Maps và OpenStreetMap — hai
+  nguồn này không có rating/giá (xem bảng *Dữ liệu* bên dưới).
 - `price_range` là **chuỗi** (`"100-200 N ₫"`), không phải số.
 - `match_source` cho biết quán được gợi ý nhờ đâu (tên / loại hình / không gian / review),
   và `warnings` liệt kê những gì server **không** làm được với request đó.
@@ -168,7 +181,7 @@ MoodBite/
 │   └── presentation/       FastAPI
 ├── data_pipeline/          Cào, làm sạch, tính đặc trưng dữ liệu
 ├── frontend/               React + TypeScript + FSD (monorepo)
-├── tests/                  171 test
+├── tests/                  test backend (pytest)
 ├── scripts/                Công cụ, gồm checker kiến trúc
 ├── docs/                   Tài liệu kỹ thuật
 ├── rules/                  Quy tắc nghiệp vụ theo tài liệu gốc
@@ -183,40 +196,50 @@ Chi tiết: [`docs/backend_architecture.md`](docs/backend_architecture.md)
 
 Dataset đã có sẵn trong repo — **không cần chạy lại pipeline** trừ khi muốn cào thêm.
 
+Đo bằng `python scripts/data_report.py` ngày 2026-10-06:
+
 | | Số lượng | Tỷ lệ |
 |---|---|---|
-| Quán ăn | **4938** | — |
-| Có toạ độ, tên, loại hình, địa chỉ | 4938 | **100%** |
-| Có nguồn gốc (`source`, `data_confidence`) | 4938 | **100%** |
-| Có đơn vị hành chính (`district`) | 4787 | 96.9% |
-| Có số điện thoại | 1641 | 33.2% |
-| Có giờ mở cửa | 1608 | 32.6% |
-| Có gợi ý món (`dishes`) | 1462 | 29.6% |
-| Có đánh giá (rating) | 1145 | 23.2% |
-| Có review + ảnh + giá | 1310 | 26.5% |
-| Có giá | 643 | 13.0% |
-| Có tiện nghi | 645 | 13.1% |
-| Có khai báo chế độ ăn | 115 | 2.3% |
+| Quán ăn (chỉ Hà Nội) | **52.872** | — |
+| Có toạ độ, tên, loại hình | 52.872 | **100%** |
+| Có địa chỉ | 52.859 | ~100% |
+| Có nguồn gốc (`source`, `data_confidence`) | 52.872 | **100%** |
+| Có đơn vị hành chính (`district`) | 52.872 | 100% |
+| Có số điện thoại | 43.192 | 81,7% |
+| Có website | 13.821 | 26,1% |
+| Có giờ mở cửa | 1.635 | 3,1% |
+| Có gợi ý món (`dishes`) | 1.463 | 2,8% |
+| Có đánh giá (rating) | 1.178 | 2,2% |
+| Có chi tiết (review + ảnh, `restaurant_details.json`) | 1.345 | 2,5% |
+| Có giá | 671 | 1,3% |
+| Có tiện nghi | 646 | 1,2% |
+| Có khai báo chế độ ăn | 125 | 0,2% |
 
-Nguồn: OpenStreetMap 3528 · Google Maps (Apify) 1410.
-Đơn vị hành chính phủ: **142**. Trùng lặp: **0%**.
+Nguồn: Overture Maps 48.406 · OpenStreetMap 3.025 · Google Maps (Apify) 1.441.
+Đơn vị hành chính phủ: **125**. Trùng lặp: **0%**.
+Rating / giá / review chỉ có ở phần nhỏ quán lấy từ Google Maps — đó là **lớp làm giàu**,
+không phải dữ liệu lõi.
 Đo lại bất cứ lúc nào: `python scripts/data_report.py`
 
 Thu thập thêm dữ liệu (miễn phí, không cần API key):
 
-```bash
+```powershell
 python -m data_pipeline.harvest --list              # xem nguồn nào sẵn sàng
 python -m data_pipeline.harvest                     # chạy mọi nguồn
 ```
 
-Rồi chạy lại pipeline:
+Rồi chạy lại pipeline, **đúng thứ tự này** (mỗi lệnh một dòng):
 
-```bash
+```powershell
 python -m data_pipeline.merge_and_prepare_raw
 python -m data_pipeline.data_cleaning
 python -m data_pipeline.feature_engineering
+python -m data_pipeline.clustering                  # PHẢI chạy CUỐI
 python scripts/data_report.py                       # đo độ phủ trước/sau
 ```
+
+⚠️ `clustering` phải chạy sau `feature_engineering`: chạy `feature_engineering` sau sẽ xoá
+mất hai cột `experience_cluster_id` / `experience_cluster_label` (CLAUDE.md mục 4c).
 
 Thêm nguồn mới (Google Places...) — xem [`docs/data_sources.md`](docs/data_sources.md).
 
@@ -230,9 +253,16 @@ Một lệnh, chạy được ở PowerShell / CMD / bash / macOS / Linux:
 python scripts/verify.py
 ```
 
-Kiểm 5 việc: app dựng được · 171 test · hướng phụ thuộc Clean Architecture ·
-chỉ có 1 backend · frontend build được. Tất cả cũng chạy tự động trong CI
-(`.github/workflows/ci.yml`).
+Kiểm 9 mục: (1) app FastAPI dựng được · (2) toàn bộ test backend (pytest) · (3) hướng
+phụ thuộc Clean Architecture · (4) chỉ có 1 backend · (5) frontend typecheck + build ·
+(6) test frontend (client + admin) · (7) luật import FSD · (8) CI cài đặt được (lockfile,
+đường dẫn trong `ci.yml`) · (9) bộ dữ liệu mẫu frontend không giàu hơn dữ liệu thật.
+Số test hiện tại: xem output của lệnh trên, hoặc dòng *Test* trong `PROJECT_CHECKLIST.md`.
+Chạy một mục: `python scripts/verify.py --chi 4`.
+
+CI (`.github/workflows/ci.yml`) chạy lại mục 1–7 thành từng bước riêng (mục 4 bằng
+`verify.py --chi 4`), backend trên Python 3.11 và 3.14. Mục 8 được chính lần chạy CI
+chứng minh (`npm ci` cài được hay không). Mục 9 **chỉ chạy ở máy local**.
 
 > ⚠️ **Windows:** PowerShell 5.1 không hỗ trợ `&&` để nối lệnh, và không có
 > `grep`/`wc`. Dùng lệnh trên thay vì gõ tay từng bước.
@@ -265,7 +295,7 @@ chỉ có 1 backend · frontend build được. Tất cả cũng chạy tự đ�
   ⚠️ Phải cấu hình quyền trước, xem [Bật trang quản trị](#bật-trang-quản-trị)
 - ✅ **Bản đồ** — Leaflet + OpenStreetMap, miễn phí, không cần API key
 - ✅ **Phân cụm trải nghiệm (Lớp 1)** — KMeans k=7, Silhouette 0.318
-- ✅ **Tìm kiếm ngữ nghĩa (Lớp 2)** — TF-IDF cosine trên 4938 quán
+- ✅ **Tìm kiếm ngữ nghĩa (Lớp 2)** — TF-IDF cosine trên 52.871 quán (đếm lúc khởi động 2026-10-06)
 - ⬜ **Tóm tắt review (Lớp 4)** — chưa làm; đo lại thấy khả thi cho 592 quán
 - ✅ **Lọc theo khu vực / giờ mở cửa / chế độ ăn**
 - ⏸️ **Floorplan → 3D** — đã chuyển vào `archive/spatial-3d/`, không còn trong app

@@ -29,6 +29,8 @@ import uuid
 from dataclasses import dataclass
 from typing import Any, Dict, Mapping, Optional
 
+from src.domain.errors import DomainValidationError
+
 # Hộp bao Hà Nội — CÙNG giá trị với `CITY_BBOXES['ha_noi']` và `HANOI_BBOX` bên
 # data_pipeline. Ba chỗ phải khớp nhau; đổi thì đổi cả ba.
 HANOI_BOUNDS = {"south": 20.85, "west": 105.70, "north": 21.40, "east": 106.05}
@@ -47,7 +49,7 @@ OPTIONAL_TEXT_FIELDS = (
 )
 
 
-class InvalidNewRestaurant(ValueError):
+class InvalidNewRestaurant(DomainValidationError):
     """Dữ liệu quán mới không hợp lệ -> HTTP 400 INVALID_REQUEST."""
 
 

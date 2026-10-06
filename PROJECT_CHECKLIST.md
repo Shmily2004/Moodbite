@@ -1,6 +1,6 @@
 # MoodBite — Bảng theo dõi tiến độ
 
-**Cập nhật:** 2026-10-03
+**Cập nhật:** 2026-10-06
 **Nguyên tắc:** file này chỉ ghi thứ đã **chạy thật và kiểm chứng được**. Không ghi theo
 kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh để tự kiểm lại.
 
@@ -10,16 +10,16 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 
 | Phần | Trạng thái | Ghi chú |
 |---|---|---|
-| **Một backend duy nhất** | ✅ Xong | 1 app FastAPI, 0 file TypeScript ngoài `archive/` |
+| **Một backend duy nhất** | ✅ Xong | 1 app FastAPI, 0 file `.ts`/`.tsx` ngoài `frontend/` và `archive/`. ⚠️ Câu này từng SAI: file rỗng `LanguageContext.tsx` ở thư mục gốc nằm trong repo tới 2026-10-06 vì `verify.py` mục 4 chỉ quét `*.ts`. Đã xoá file + quét cả `*.tsx` + thêm bước vào CI (`python scripts/verify.py --chi 4`) |
 | API khớp đặc tả | ✅ Xong | `/api/v1`, envelope `data`/`error`, snake_case |
 | Tìm kiếm bằng câu tự do | ✅ Chạy được | đúng ý đề án, thay cho dropdown mood |
 | Gợi ý món trong kết quả `/search` | ✅ Xong | lồng trong từng quán. Đây là LỐI VÀO THỨ HAI — luồng chính nay là chọn món trước |
 | Ghi nhận tương tác | ✅ Xong | `POST /interactions` → nhãn cho mô hình sau này |
 | Ngữ cảnh thời điểm | ✅ Giờ ăn · ✅ thời tiết (tắt mặc định) | đã gọi thật Open-Meteo: 27.2°C, 0.94s; 17 test suy biến |
-| Frontend Client | ✅ **TypeScript + FSD** | 86 test, có bản đồ, steiger trong CI |
+| Frontend Client | ✅ **TypeScript + FSD** | có bản đồ, steiger trong CI. Số test: xem dòng **Test** bên dưới (con số "86 test" cũ là của 2026-08) |
 | Bản đồ | ✅ **Xong** | Leaflet + OpenStreetMap, miễn phí, không cần key |
 | Kiến trúc | ✅ Sạch | Clean Architecture + checker tự động trong CI |
-| Test | ✅ **820 backend + 391 frontend** | client 313 · admin 78. Đo bằng `python scripts/verify.py` ngày 2026-10-03 |
+| Test | ✅ **918 backend + 503 frontend** | client 384 · admin 119. Đo bằng `python scripts/verify.py` ngày 2026-10-06 |
 | Giao diện | ✅ Theo bản duyệt · **trang chủ + tài khoản dựng lại 2026-08-22** | trang chủ = LƯỚI MÓN + chips lọc; trang món = giới thiệu + bản đồ + danh sách quán; `/tim-kiem` giữ bố cục bản đồ + rail cũ |
 | Router + layout | ✅ Xong | react-router v6, khung dùng chung, `RequireAuth` cho admin |
 | Chạy xem giao diện | ✅ **một lệnh** | `python scripts/run_dev.py --admin` |
@@ -81,8 +81,9 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 > Đã xong (2026-08-23): `user_id` trong `POST /interactions` · lưu quán & món yêu thích ở
 > server · trang Profile 7 tab · chỗ hiển thị "đang đăng nhập là ai" kèm nút đăng xuất ·
 > đổi mật khẩu khi đang đăng nhập.
-> **Còn lại:** đăng xuất có THU HỒI token (cần cột `token_version` — đổi lược đồ, phải chốt
-> trước) và xác minh email lúc đăng ký.
+> ~~**Còn lại:** đăng xuất có THU HỒI token (cần cột `token_version` — đổi lược đồ, phải chốt
+> trước) và xác minh email lúc đăng ký.~~ ✅ Cả hai đã xong: xác minh email 2026-08-24,
+> thu hồi token 2026-09-29 (`POST /auth/logout`) + 2026-10-02 (`POST /admin/logout`).
 
 **Tự kiểm toàn bộ bằng MỘT lệnh** (chạy được ở PowerShell, CMD, bash, macOS, Linux):
 
@@ -752,7 +753,7 @@ không" — nhưng mắt người làm việc đó trong nửa giây.
 - [x] **Trang quản trị ĐÃ BẬT trên máy này.** `build_sqlite.py` dựng lại từ dataset mới
       (40.703 quán), sinh tài khoản admin, ghi 4 biến vào `.env.local` (đã .gitignore).
       `python scripts/check_permissions.py` -> **QUYEN DA CAU HINH DAY DU**.
-      `make_admin_password.py` thêm cờ `--write-env`: ghi thẳng vào `.env.local` thay vì
+      `make_admin_password.py` (nay thay bằng `scripts/make_admin_user.py`) thêm cờ `--write-env`: ghi thẳng vào `.env.local` thay vì
       bắt chép tay ba dòng dài vào PowerShell (biến `$env:` chỉ sống trong cửa sổ đang mở,
       đóng là mất và lần sau lại thấy 503 mà không hiểu vì sao).
 - [x] **`POST /api/v1/admin/restaurants` — thêm quán hoàn toàn mới.**
@@ -1163,7 +1164,7 @@ nên muốn lọc phải cuộn xuống, bấm xong lại cuộn lên. Hai phư�
 | Ngày commit đầu tiên | 2026-07-29 |
 | Số commit | 126 |
 | Số ngày đã làm | 28 ngày (29-07 → 26-08) |
-| Test | **544 backend + 188 frontend = 732** |
+| Test | **544 backend + 188 frontend = 732** *(đo 2026-08-26 — số hiện tại xem dòng Test ở bảng đầu file)* |
 | Dữ liệu quán | **52.854** (100% trong Hà Nội) |
 | Danh mục món | **855 món** · 88,1% có ảnh · 93,0% có giới thiệu · 298 món tìm được quán ở HN |
 | `python scripts/verify.py` | **9/9 đạt** |
@@ -1174,7 +1175,7 @@ Chia theo hạng mục của đề án, chấm theo *chạy được thật*, kh
 
 | Hạng mục | Xong | Ghi chú |
 |---|---:|---|
-| Backend + API | **98%** | `POST /admin/restaurants` đã xong 2026-08-23. Còn: trường "nổi tiếng" cho thẻ quán, thu hồi token khi đăng xuất |
+| Backend + API | **98%** | `POST /admin/restaurants` đã xong 2026-08-23. Còn: trường "nổi tiếng" cho thẻ quán. ~~thu hồi token khi đăng xuất~~ ✅ xong 2026-09-29 / 2026-10-02 |
 | Dữ liệu quán | **85%** | đủ tên/toạ độ/loại; thiếu sao·giá·giờ (2-4%) |
 | Danh mục món | **95%** | |
 | Lớp 1 phân cụm | **100%** | |
@@ -1183,7 +1184,7 @@ Chia theo hạng mục của đề án, chấm theo *chạy được thật*, kh
 | Lớp 4 tóm tắt review | **100%** | 851/1310 quán |
 | Lớp 5 gợi ý món | **100%** | |
 | Giao diện người dùng | **88%** | bản mobile xong 2026-08-23. Còn: trang chi tiết quán riêng (chờ bản vẽ), 8 chỗ lệch thiết kế + 44 emoji — xem mục 🚧 VIỆC TIẾP THEO phần A |
-| Tài khoản + cá nhân hoá | **95%** | ✅ **xác minh email xong 2026-08-24** (`/auth/verify-email/*`, trang `/verify-email`, 15 test). Còn: thu hồi token |
+| Tài khoản + cá nhân hoá | **95%** | ✅ **xác minh email xong 2026-08-24** (`/auth/verify-email/*`, trang `/verify-email`, 15 test). ~~Còn: thu hồi token~~ ✅ xong 2026-09-29 (`token_version`) |
 | Trang quản trị | **100%** | 8/8 màn theo bản thiết kế, chạy thật trên dữ liệu thật (đo 2026-09-08) |
 | Triển khai (deploy) | **10%** | mới có `Procfile`, chưa deploy lần nào |
 | Báo cáo / tài liệu bảo vệ | **?** | ngoài phạm vi file này — **tự đánh giá** |
@@ -1452,6 +1453,45 @@ trang chạy, rồi đi qua 15 trang (client mobile 420 + desktop 1440, admin de
 | Nền tối | ✅ đọc rõ ở mọi trang; sửa ô ảnh thay thế của món (khối kem sáng chói giữa nền tối) | ảnh chụp `*_dark_vi` |
 | Khả năng truy cập (nút/link không tên, ảnh thiếu alt, ô nhập thiếu nhãn, id trùng) | ✅ **0 lỗi** trên 6 trang | rà trình duyệt |
 | Câu cảnh báo "bán kính **10.0** km" | ✅ "10 km" / "2,5 km" (`location.mo_ta_km`, dấu phẩy thập phân) | `pytest tests/test_mo_ta_km.py` |
+
+
+### Đợt 2026-10-06 — rà soát toàn dự án + sửa (3 luồng rà chỉ-đọc, 4 luồng sửa)
+
+**Nghiêm trọng (đã sửa, đều có test đỏ trước):**
+| Lỗi | Kết quả |
+|---|---|
+| Admin ẨN quán nhưng trang món vẫn hiện (chỉ mục món-quán dựng 1 lần lúc khởi động) | ✅ `LiveDishRestaurantIndex` dựng lại khi dữ liệu đổi (`data_version`); ẩn/sửa/thêm hiện đúng ngay. Lượt đầu sau khi admin ghi có thể chờ ~4-6 s |
+| Giới hạn đăng nhập bị lách (đăng nhập đúng tài khoản mình là xoá bộ đếm; dò mật khẩu admin qua `/auth/login` không giới hạn) | ✅ 4 bộ đếm (IP · tên · IP+tên · quản trị). Tái hiện: 20 lần đoán `{401:20}` -> `{401:5, 429:15}` |
+| Khách vô danh ẩn được BẤT KỲ quán nào bằng 3 lượt "báo đóng cửa"; admin không gỡ được | ✅ đếm theo IP đã băm, rate limit, admin gỡ lượt báo (endpoint + khối UI ở trang Cần xử lý). Bản ghi cũ không có khoá người báo -> không tính |
+| Ô tìm kiếm trang chủ mất câu (`?q=` không được đọc); câu mẫu tìm bằng giá trị cũ | ✅ kiểm trên trình duyệt thật: `/search?q=phở bò` điền sẵn + 10 kết quả |
+| Link Website/Menu từ OSM không kiểm scheme (`javascript:` lấy cắp token) | ✅ `safeHttpUrl()` chỉ cho http/https |
+| Thiếu dataset quán -> 200 kèm chẩn đoán sai | ✅ 503 `DATA_NOT_READY` kèm lệnh |
+| File rác `LanguageContext.tsx` ở gốc + `verify.py` không quét `.tsx` | ✅ gỡ file, verify quét cả `.tsx`, CI chạy mục 4 |
+
+**Nên sửa (đã sửa):** token reset/verify dùng làm token đăng nhập khi secret trùng (claim `typ`) ·
+token ngoài ASCII -> 500 · `ValueError` -> 400 giấu bug (`DomainValidationError`) · lỗi CSDL tài
+khoản -> 401 (nay 503) · router admin bảo vệ ở cấp router thật · email lộ trong token xác minh ·
+admin đặt mật khẩu 8 ký tự qua đổi mật khẩu (nay ≥12 mọi đường) · vượt giới hạn bộ sưu tập/địa
+chỉ khi gửi song song · confidence "specific" cho mọi quán (nay theo từng quán: 16.224 cặp ->
+`generic_fallback`) · đoán mood bằng chuỗi con ("Buôn Ma Thuột" -> buồn) · reload kho quán không
+nguyên tử · rate limit `/search` · admin sai mật khẩu báo "hết hạn" · trang món bỏ vị trí thật ·
+race panel chi tiết quán · mất `dwell_time` · 401 giữa phiên + đồng bộ đăng xuất giữa tab · admin
+chỉ 1 trang xử lý hết hạn · ô số liệu hiện "0" khi lỗi · hoàn tác lưu dùng snapshot cũ · bản đồ
+chọn điểm không dời + không dùng được bằng bàn phím · lỗi API tiếng Việt ở giao diện EN ·
+không có `errorElement` · tạo bộ sưu tập trùng · react-router nâng 6.30.6 + chặn redirect ngoài.
+Tài liệu: README, đặc tả API (đủ 54 thao tác + mục "đã chốt 2026-10-06"), 5 tài liệu "chưa thu
+hồi token", `frontend/.env.example` (bỏ Google Maps), `scripts/README.md`, CI matrix 3.11 + 3.14.
+
+**Kiểm:** `verify.py` 9/9 — **918 backend + 503 frontend** (client 384 · admin 119); trình duyệt
+thật 24/24 lượt 0 lỗi; 3 luồng sửa kiểm tay trên Edge.
+
+**Còn lại / cần chủ dự án:**
+- ⚠️ **11+ commit CHƯA PUSH** (và cả đợt này chưa commit). Máy thứ hai phải `pull` + `pip install -r requirements.txt` + `npm install`.
+- react-router còn 2 cảnh báo mức moderate chỉ vá ở v7 (đã chặn phía app; lên v7 là việc riêng).
+- Kẻ có ≥3 IP vẫn ẩn được quán (giới hạn tự nhiên của báo cáo vô danh); nhiều người chung IP tính 1.
+- Chỉ mục TF-IDF (tìm ngữ nghĩa) chưa dựng lại khi admin thêm quán — quán mới có điểm ngữ nghĩa sau khi khởi động lại.
+- Chưa tách: `HomePage.tsx` 437, `useRestaurantAdmin.ts` 355, backend `schemas.py` 1232, `routers/admin.py`, `dependencies.py`… (tách cần refactor hành vi).
+- `CLAUDE.md` có số liệu/đường dẫn lỗi thời (file quy tắc của chủ dự án — chưa sửa).
 
 ---
 

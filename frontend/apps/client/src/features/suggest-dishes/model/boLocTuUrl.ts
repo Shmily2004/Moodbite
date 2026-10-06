@@ -51,7 +51,15 @@ export function docBoLocTuUrl(params: URLSearchParams): Partial<DishFilterState>
   if (km !== null) {
     // `km=` (rỗng) nghĩa là NGƯỜI DÙNG CHỌN "không giới hạn" — khác hẳn với không có
     // tham số `km` (chưa chọn gì, dùng mặc định).
-    ket_qua.maxDistanceKm = km === '' ? null : Number(km);
+    if (km === '') {
+      ket_qua.maxDistanceKm = null;
+    } else {
+      // `?km=abc` → NaN. Bản cũ gán thẳng NaN, JSON hoá thành `null` = KHÔNG GIỚI HẠN,
+      // trong khi thanh trượt hiện 1 km (audit 2026-10-06). Số hỏng / ≤ 0 → bỏ qua tham
+      // số, dùng bán kính mặc định như khi không có `km`.
+      const so = Number(km);
+      if (Number.isFinite(so) && so > 0) ket_qua.maxDistanceKm = so;
+    }
   }
 
   return ket_qua;

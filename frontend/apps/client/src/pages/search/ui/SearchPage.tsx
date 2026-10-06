@@ -11,6 +11,7 @@
  * Bản đồ và rail nối HAI CHIỀU: bấm ghim → thẻ sáng lên và cuộn tới; bấm thẻ → ghim to ra.
  */
 import { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { RestaurantList } from '@/widgets/restaurant-list';
 import { SiteHeader } from '@/widgets/site-header';
 import { RestaurantMap } from '@/widgets/restaurant-map';
@@ -18,10 +19,17 @@ import { SearchForm, useSearch } from '@/features/search-restaurants';
 import { useUserLocation } from '@/features/pick-location';
 import { useT } from '@/shared/i18n';
 
+/** Bán kính khi người dùng bấm "mở rộng" lúc không có kết quả nào. */
+const WIDE_RADIUS_KM = 20;
+
 export function SearchPage() {
   const location = useUserLocation();
   const t = useT();
-  const search = useSearch({ position: location.position });
+  // `?q=` đến từ ô tìm ở trang chủ (HomePage điều hướng sang đây). Trước 2026-10-06 trang
+  // này không đọc nó → chữ người dùng gõ biến mất và không lượt tìm nào chạy.
+  const [params, setParams] = useSearchParams();
+  const cauTuUrl = params.get('q')?.trim() ?? '';
+  const search = useSearch({ position: location.position, initialQuery: cauTuUrl });
   const [openNow, setOpenNow] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
 
@@ -30,23 +38,42 @@ export function SearchPage() {
   const results = search.results ?? [];
   const hasResults = results.length > 0;
 
+  /** Giữ `?q=` khớp với câu vừa tìm — tải lại / chia sẻ link vẫn ra đúng lượt tìm. */
+  const dongBoUrl = (cau: string) => {
+    const tiep = new URLSearchParams(params);
+    if (cau.trim()) tiep.set('q', cau.trim());
+    else tiep.delete('q');
+    setParams(tiep, { replace: true });
+  };
+
   const runSearch = (options: { mood?: string } = {}) => {
     setActiveId(null);
+    dongBoUrl(search.queryText);
     void search.run({ ...options, openNow });
   };
 
+  // Câu mới đi THẲNG vào `run` qua tham số ghi đè: `setQueryText` chưa kịp áp vào state
+  // khi `run` chạy trong cùng handler (closure cũ — lỗi gửi câu cũ/null đã có thật).
   const pickExample = (query: string) => {
     search.setQueryText(query);
     setActiveId(null);
-    void search.run({ openNow });
+    dongBoUrl(query);
+    void search.run({ openNow, queryText: query });
   };
 
   /** Mở rộng bán kính rồi tìm lại - lối thoát khi không có kết quả nào. */
   const widenRadius = () => {
-    search.setMaxDistanceKm(20);
+    search.setMaxDistanceKm(WIDE_RADIUS_KM);
     setActiveId(null);
-    void search.run({ openNow });
+    void search.run({ openNow, maxDistanceKm: WIDE_RADIUS_KM });
   };
+
+  // Có `?q=` lúc vào trang → tìm NGAY một lần. Chỉ chạy lúc MOUNT: những lần sau
+  // (người dùng bấm "Tìm") đã tự gọi `run` và tự cập nhật URL. Không dùng ref chặn chạy
+  // lại: StrictMode gỡ-lắp giả sẽ huỷ request đầu, ref thì chặn mất request thứ hai.
+  useEffect(() => {
+    if (cauTuUrl) void search.run({ queryText: cauTuUrl });
+  }, []); // cố ý chỉ lúc mount — xem chú thích trên
 
   useEffect(() => {
     if (!activeId || !listRef.current) return;

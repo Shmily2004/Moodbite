@@ -6,14 +6,22 @@ from __future__ import annotations
 
 from typing import Optional
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 
 from src.application.use_cases.log_interaction import (
     LogInteractionCommand,
     LogInteractionUseCase,
 )
+from src.domain.entities.interaction import ActionType
 from src.domain.entities.user import User
-from src.presentation.api.dependencies import get_log_interaction, get_optional_user
+from src.presentation.api.dependencies import (
+    Container,
+    closure_reporter_key,
+    get_container,
+    get_log_interaction,
+    get_optional_user,
+    limit_interaction_rate,
+)
 from src.presentation.api.envelope import success
 from src.presentation.api.schemas import (
     ERROR_RESPONSES,
@@ -29,8 +37,10 @@ router = APIRouter(tags=["interactions"])
              responses=ERROR_RESPONSES)
 def log_interaction(
     body: InteractionRequest,
+    request: Request,
     use_case: LogInteractionUseCase = Depends(get_log_interaction),
     user: Optional[User] = Depends(get_optional_user),
+    container: Container = Depends(get_container),
 ):
     """Ghi một sự kiện tương tác gắn với một nhà hàng cụ thể.
 
@@ -40,7 +50,14 @@ def log_interaction(
     KHÁCH VẪN GỌI ĐƯỢC. Đã đăng nhập thì tương tác được gắn thêm `user_id` để đếm "lượt
     khám phá" cho cấp độ. `user_id` lấy TỪ TOKEN, không lấy từ body — nếu không thì ai
     cũng tự cộng điểm cho mình bằng cách gọi thẳng API.
+
+    GIỚI HẠN TẦN SUẤT theo IP (2026-10-06): vượt -> 429 RATE_LIMITED + `Retry-After`.
+    `report_closed` có hạn mức RIÊNG, chặt hơn hẳn — một lượt báo góp phần ẩn quán với
+    mọi người. Lượt báo được đếm theo KHOÁ NGƯỜI BÁO (IP đã băm) do server tính, KHÔNG
+    theo `session_id` client gửi lên (3 session_id bịa từng đủ ẩn bất kỳ quán nào).
     """
+    limit_interaction_rate(request, body.action_type, container)
+    la_bao_dong_cua = body.action_type == ActionType.REPORT_CLOSED
     logged = use_case.execute(
         LogInteractionCommand(
             session_id=body.session_id,
@@ -50,6 +67,9 @@ def log_interaction(
             dwell_time_ms=body.dwell_time_ms,
             rank_position=body.rank_position,
             user_id=user.user_id if user is not None else None,
+            reporter_key=(
+                closure_reporter_key(request, container) if la_bao_dong_cua else None
+            ),
         )
     )
     payload = InteractionResponseData(

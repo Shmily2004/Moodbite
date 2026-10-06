@@ -15,7 +15,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Dict, List, Sequence, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 
 from src.domain.entities.dish import Dish
 from src.domain.value_objects.text import (
@@ -328,6 +328,56 @@ def _matching_dish_ids(
                             evidence,
                         )
     return matched
+
+
+# ĐỘ TIN CẬY THEO CÁCH KHỚP CỦA TỪNG QUÁN (sửa 2026-10-06, CLAUDE.md mục 4 quy tắc 4).
+#
+# Bug cũ: một hằng `"specific"` cho MỌI quán — kể cả quán chỉ khớp LOẠI HÌNH ("Nhà hàng ăn
+# nhanh") hay chỉ được REVIEW nhắc tới. Giao diện vì thế hiện "khớp loại hình cụ thể của
+# quán" cho đúng những quán ta ít bằng chứng nhất.
+#
+# Chỉ dùng 4 giá trị frontend đã có nhãn (`format.ts` DISH_CONFIDENCE_LABELS):
+#   specific         — TÊN QUÁN có tên/từ khoá món, có bằng chứng dấu.
+#   generic_fallback — mọi trường hợp yếu hơn: chỉ khớp loại hình, chỉ review nhắc, quán
+#                      đồ uống khớp tên KHÔNG dấu ("Pho Co Coffee" — phở hay phố?). Nhãn
+#                      giao diện "suy luận rộng, có thể không chính xác" nói đúng điều đó.
+# KHÔNG dùng "unknown" cho quán chỉ được review nhắc: "unknown" nghĩa là KHÔNG suy luận
+# được gì (đó là nghĩa ở `/search`), còn quán này có bằng chứng thật, chỉ là yếu. Độ yếu
+# HƠN NỮA của review so với loại hình đã thể hiện ở thứ tự xếp (tầng thấp nhất), ở
+# `match_source="review"` và ở câu `reason` riêng — không cần đẻ thêm giá trị enum mới mà
+# frontend chưa biết hiển thị.
+#
+# Mọi câu `reason` đều nhắc "chưa phải thực đơn thật": ta chưa bao giờ đọc thực đơn quán.
+CONFIDENCE_SPECIFIC = "specific"
+CONFIDENCE_WEAK = "generic_fallback"
+REASON_BY_NAME = "tên quán có tên món bạn chọn — chưa phải thực đơn thật"
+REASON_BY_CATEGORY = (
+    "chỉ khớp theo loại hình quán, tên quán không ghi món này — chưa phải thực đơn thật, "
+    "có thể quán không bán"
+)
+REASON_BY_REVIEW = (
+    "chỉ được review nhắc tới, tên quán không ghi món này — chưa phải thực đơn thật"
+)
+REASON_UNACCENTED_DRINK_VENUE = (
+    "quán đồ uống ghi tên KHÔNG DẤU nên chưa chắc là tên món — chưa phải thực đơn thật"
+)
+
+
+def dish_confidence_for(match: Optional[DishMatch]) -> Tuple[str, str]:
+    """(confidence, reason) cho MỘT quán theo cách nó khớp món.
+
+    `None` (không tra được cách khớp — không xảy ra với chỉ mục thật) -> mức YẾU: thiếu
+    bằng chứng thì không được nói chắc.
+    """
+    if match is None:
+        return CONFIDENCE_WEAK, REASON_BY_CATEGORY
+    if match.matched_by == MATCHED_BY_REVIEW:
+        return CONFIDENCE_WEAK, REASON_BY_REVIEW
+    if match.matched_field == FIELD_CATEGORY:
+        return CONFIDENCE_WEAK, REASON_BY_CATEGORY
+    if match.matched_by == MATCHED_BY_UNACCENTED_AT_DRINK_VENUE:
+        return CONFIDENCE_WEAK, REASON_UNACCENTED_DRINK_VENUE
+    return CONFIDENCE_SPECIFIC, REASON_BY_NAME
 
 
 def count_by_dish(index: Dict[str, List]) -> Dict[str, int]:

@@ -7,11 +7,14 @@
  */
 import { createAdminApi } from '@moodbite/api-client';
 import { API_BASE } from '../config';
-import { readToken } from '../lib';
+import { handleUnauthorized, readToken } from '../lib';
 
 // Truyền HÀM chứ không phải chuỗi: token đổi khi đăng nhập / đăng xuất / hết hạn, và
 // client phải luôn đọc giá trị mới nhất chứ không giữ bản chụp lúc khởi tạo.
-export const adminApi = createAdminApi(API_BASE, readToken);
+// 401 có token ở BẤT KỲ trang nào → `handleUnauthorized` → về trang đăng nhập (2026-10-06).
+export const adminApi = createAdminApi(API_BASE, readToken, ({ token }) =>
+  handleUnauthorized(token),
+);
 
 export { ApiError } from '@moodbite/api-client';
 export type {
@@ -25,6 +28,7 @@ export type {
   AdminSystemData,
   AdminSystemService,
   AuditEntry,
+  AdminClosureReportItem,
   LocMon,
   AdminRecommendationData,
   LopMoHinh,

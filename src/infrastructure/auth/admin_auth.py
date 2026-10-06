@@ -12,6 +12,11 @@ Tạo admin: `python scripts/make_admin_user.py` (có `--tu-env` để chuyển 
 VẪN GIỮ SECRET RIÊNG `MOODBITE_ADMIN_SECRET`, KHÁC secret người dùng: chữ ký token người
 dùng không bao giờ hợp lệ ở phía quản trị, kể cả khi code đọc `role` có sai.
 
+Thêm `typ`='admin' (2026-10-06): admin cũng đăng nhập được app người dùng và nhận token
+`typ`='login' với CÙNG `sub`. Nếu người triển khai lỡ đặt hai secret trùng nhau, bản cũ
+nhận token người dùng đó ở `/admin/*` (chỉ kiểm `sub` là admin + `tv` khớp). `typ` chặn
+đường đó mà không phụ thuộc cấu hình.
+
 VÌ SAO TỰ VIẾT CHỨ KHÔNG DÙNG THƯ VIỆN JWT: dự án vừa gỡ 8 thư viện chỉ phục vụ một tính
 năng đã dừng. `hmac`, `hashlib`, `secrets` trong thư viện chuẩn là đủ. Token có dạng giống
 JWT nhưng KHÔNG có header `alg`, nên không dính lỗ hổng "alg: none".
@@ -26,6 +31,7 @@ from typing import Optional
 
 from src.application.errors import AdminNotConfiguredError, InvalidCredentialsError
 from src.infrastructure.auth.crypto import (
+    PURPOSE_ADMIN,
     TokenInvalid,
     hash_password,
     sign_token,
@@ -82,9 +88,13 @@ class AdminAuthService:
                 "Kiểm tra quyền ghi ở đường dẫn MOODBITE_USERS_DB."
             )
 
-    def login(self, username: str, password: str) -> str:
+    def login(self, username: str, password: str, before_verify=None) -> str:
+        """`before_verify(user_hoac_None)`: móc để tầng gọi đếm lượt thử SAU khi tra tài
+        khoản, TRƯỚC khi băm mật khẩu — cùng hợp đồng với `LoginUseCase.execute`."""
         self.ensure_configured()
         user = self._users.get_by_username(username or "")
+        if before_verify is not None:
+            before_verify(user)
         # Luôn chạy verify_password, kể cả khi không có tài khoản - xem `_HASH_GIA`.
         ok = verify_password(password or "", user.password_hash if user else _HASH_GIA)
         if user is None or not ok or not user.is_admin:
@@ -94,6 +104,7 @@ class AdminAuthService:
             {"sub": user.user_id, "role": "admin", "tv": user.token_version},
             self._secret,
             self.token_ttl_seconds,
+            purpose=PURPOSE_ADMIN,
         )
 
     def verify(self, token: str) -> str:
@@ -105,7 +116,7 @@ class AdminAuthService:
         """
         self.ensure_configured()
         try:
-            payload = verify_token(token, self._secret)
+            payload = verify_token(token, self._secret, purpose=PURPOSE_ADMIN)
         except TokenInvalid as exc:
             raise InvalidCredentialsError(str(exc))
 

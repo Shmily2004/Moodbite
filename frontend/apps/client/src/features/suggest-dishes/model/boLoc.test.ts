@@ -5,7 +5,7 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_RADIUS_KM } from '@/shared/config';
 import { boLocTuMon } from './boLocTuMon';
-import { urlCoBoLoc } from './boLocTuUrl';
+import { docBoLocTuUrl, urlCoBoLoc } from './boLocTuUrl';
 import { chipDangBat } from './chipDangBat';
 import { NAC_KHOANG_CACH, giaTriNac, viTriNac } from './khoangCach';
 import { EMPTY_FILTERS } from './useDishFilterState';
@@ -93,5 +93,19 @@ describe('chipDangBat — chỉ quán có ghi giá', () => {
 
   it('tắt thì không có chip', () => {
     expect(chipDangBat(EMPTY_FILTERS).some((c) => c.chiCoGia)).toBe(false);
+  });
+});
+
+describe('docBoLocTuUrl - km hong', () => {
+  it('km=abc / km=-3 / km=Infinity -> bo qua (dung mac dinh), KHONG thanh "khong gioi han"', () => {
+    for (const v of ['abc', '-3', '0', 'Infinity']) {
+      const kq = docBoLocTuUrl(new URLSearchParams(`km=${v}`));
+      expect('maxDistanceKm' in kq, `km=${v}`).toBe(false);
+    }
+  });
+
+  it('km= (rong) van la "khong gioi han"; km=5 la 5', () => {
+    expect(docBoLocTuUrl(new URLSearchParams('km=')).maxDistanceKm).toBeNull();
+    expect(docBoLocTuUrl(new URLSearchParams('km=5')).maxDistanceKm).toBe(5);
   });
 });

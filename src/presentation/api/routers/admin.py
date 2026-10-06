@@ -5,8 +5,13 @@ quy tắc nghiệp vụ ở đây (quy tắc "sửa được trường nào" n�
 `domain/value_objects/restaurant_edit.py`).
 
 BẢO MẬT — hai chốt chặn độc lập:
-  1. `Depends(require_admin)` gắn ở CẤP ROUTER cho mọi endpoint dưới đây, trừ `/login`.
-     Đặt ở router thay vì từng hàm để thêm endpoint mới KHÔNG THỂ quên xác thực.
+  1. `Depends(require_admin)` gắn ở CẤP ROUTER (`router = APIRouter(..., dependencies=...)`)
+     cho mọi endpoint dưới đây, trừ `/login` (nằm ở `public_router`). Nhờ vậy thêm
+     endpoint mới KHÔNG THỂ quên xác thực. Endpoint nào cần TÊN người làm (ghi nhật ký)
+     vẫn khai thêm `_admin: str = Depends(require_admin)` — FastAPI chỉ chạy dependency
+     đó MỘT lần mỗi request (có bộ đệm), nên không tốn thêm gì.
+     ⚠️ Trước 2026-10-06 docstring này đã NÓI là gắn ở cấp router nhưng code thật gắn ở
+     từng hàm — có test khoá cả hai việc: `tests/test_audit_tai_khoan.py` (mục 6).
   2. Chưa cấu hình đủ biến môi trường -> `AdminAuthService` ném AdminNotConfiguredError
      -> 503. Fail-closed, không bao giờ mặc định cho qua.
 """
@@ -24,11 +29,11 @@ from src.application.use_cases.find_restaurants_for_dish import DishNotFoundErro
 from src.domain.entities.audit_log import tom_tat_thay_doi
 from src.presentation.api.dependencies import (
     Container,
-    client_key,
     get_container,
     require_admin,
 )
 from src.presentation.api.envelope import success
+from src.presentation.api.login_throttle import LoginThrottle
 from src.presentation.api.schemas import (
     MessageResponse,
     AdminBulkVisibilityRequest,
@@ -57,7 +62,9 @@ from src.presentation.api.schemas import (
     AdminUpdateRestaurantRequest,
 )
 
-router = APIRouter(prefix="/admin", tags=["admin"])
+router = APIRouter(
+    prefix="/admin", tags=["admin"], dependencies=[Depends(require_admin)]
+)
 
 # Router riêng cho /login: đây là endpoint DUY NHẤT không yêu cầu token, vì nó chính là
 # nơi phát token ra.
@@ -111,12 +118,15 @@ def login(
     CPU); để sau thì kẻ tấn công vẫn ép được máy chủ làm việc nặng dù request rốt cuộc
     bị từ chối. Cùng lý lẽ đã ghi ở `/auth/register`.
     """
-    container.admin_login_rate_limiter.check(client_key(request))
+    # CÙNG bộ đếm với `/auth/login` (xem `login_throttle.py`): khoá quản trị là cặp
+    # (IP, tên), nên đoán mật khẩu admin xen kẽ qua hai cửa vẫn bị cộng dồn.
+    throttle = LoginThrottle(container, request, payload.username, admin_endpoint=True)
 
-    token = container.admin_auth.login(payload.username, payload.password)
-    # Đăng nhập ĐÚNG thì xoá lịch sử đếm — người quản trị gõ nhầm vài lần rồi vào được
-    # không đáng bị chặn oan ở lần sau. Giống hệt `/auth/login`.
-    container.admin_login_rate_limiter.reset(client_key(request))
+    token = container.admin_auth.login(
+        payload.username, payload.password, before_verify=throttle.before_verify
+    )
+    # Đăng nhập ĐÚNG chỉ xoá bộ đếm của CHÍNH tài khoản này - xem `login_throttle.py`.
+    throttle.on_success()
     return success(
         {
             "token": token,

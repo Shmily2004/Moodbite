@@ -64,6 +64,7 @@ export class MoodbiteAuthApi {
   login(body: LoginRequest, options?: RequestOptions): Promise<AuthData> {
     return this.http.request<AuthData>('/auth/login', {
       ...options,
+      credentialCheck: true,
       method: 'POST',
       body,
     });
@@ -80,6 +81,7 @@ export class MoodbiteAuthApi {
   register(body: RegisterRequest, options?: RequestOptions): Promise<AuthData> {
     return this.http.request<AuthData>('/auth/register', {
       ...options,
+      credentialCheck: true,
       method: 'POST',
       body,
     });
@@ -98,6 +100,7 @@ export class MoodbiteAuthApi {
   ): Promise<MessageData> {
     return this.http.request<MessageData>('/auth/forgot-password', {
       ...options,
+      credentialCheck: true,
       method: 'POST',
       body,
     });
@@ -115,6 +118,7 @@ export class MoodbiteAuthApi {
   ): Promise<MessageData> {
     return this.http.request<MessageData>('/auth/reset-password', {
       ...options,
+      credentialCheck: true,
       method: 'POST',
       body,
     });
@@ -143,8 +147,10 @@ export class MoodbiteAuthApi {
     body: ChangePasswordRequest,
     options?: RequestOptions,
   ): Promise<ChangePasswordData> {
+    // 401 ở đây = gõ sai mật khẩu HIỆN TẠI, không phải phiên chết.
     return this.http.request<ChangePasswordData>('/auth/change-password', {
       ...options,
+      credentialCheck: true,
       method: 'POST',
       body,
     });
@@ -155,7 +161,12 @@ export class MoodbiteAuthApi {
    * `token_version`, không đăng xuất riêng từng máy được).
    */
   logout(options?: RequestOptions): Promise<MessageData> {
-    return this.http.request<MessageData>('/auth/logout', { ...options, method: 'POST' });
+    // Token đã bị thu hồi sẵn thì 401 ở đây là vô hại — đừng kích hoạt đăng xuất lần hai.
+    return this.http.request<MessageData>('/auth/logout', {
+      ...options,
+      method: 'POST',
+      credentialCheck: true,
+    });
   }
 
   /**
@@ -185,6 +196,7 @@ export class MoodbiteAuthApi {
   ): Promise<UserSelf> {
     return this.http.request<UserSelf>('/auth/verify-email/confirm', {
       ...options,
+      credentialCheck: true,
       method: 'POST',
       body,
     });

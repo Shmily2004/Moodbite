@@ -3,10 +3,11 @@
 Thuần Python - không cần model embedding, không cần GPU.
 
 VÌ SAO KHÔNG DÙNG EMBEDDING NGAY: đề án mô tả tìm kiếm ngữ nghĩa bằng vector embedding.
-Nhưng dữ liệu thật chỉ có review text cho 350/4170 quán (8.4%), và tag "Bầu không khí"
-gần như rỗng ("Yên tĩnh" chỉ gắn cho ĐÚNG 2 quán). Một mô hình embedding chạy trên 8% dữ
-liệu sẽ không tìm được gì cho 92% còn lại - tệ hơn hẳn cách khớp từ khoá trên tên + loại
-hình vốn phủ 100%.
+Nhưng lúc viết file này (2026-08, dataset 4.170 quán) chỉ 350 quán (8,4%) có review text,
+và tag "Bầu không khí" gần như rỗng ("Yên tĩnh" chỉ gắn cho ĐÚNG 2 quán). Dataset nay đã
+lên 52.871 quán nhưng nguồn mới (OSM/Overture) KHÔNG có review, nên tỷ lệ có review còn
+thấp hơn: 1.110/52.871 (2,1%, đo trên moodbite.db ngày 2026-10-06). Một mô hình embedding chạy trên phần nhỏ đó sẽ không tìm được gì
+cho phần còn lại - tệ hơn hẳn cách khớp từ khoá trên tên + loại hình vốn phủ 100%.
 
 Vì vậy dùng cách LAI, xếp theo độ tin cậy giảm dần, và LUÔN nói rõ kết quả đến từ nguồn
 nào qua `match_source` để giao diện không nói dối người dùng.
@@ -24,6 +25,7 @@ from typing import Dict, List, Optional, Tuple
 from src.domain.entities.restaurant import Restaurant
 from src.domain.value_objects.mood import MOOD_PROFILES
 from src.domain.value_objects.text import (
+    PhraseLookup,
     Token,
     contains_token_sequence,
     normalize,
@@ -90,6 +92,16 @@ def _tokenize_pairs(text: Optional[str]) -> List[Token]:
 # ĐÁNH ĐỔI ĐÃ ĐO: "phở bò" 2.070 -> 836 ms (kết quả giống hệt), đổi lại RAM tiến trình
 # +62 MB (471 -> 533 MB, đã intern chuỗi; chưa intern là +88 MB). Lượt tìm ĐẦU TIÊN sau khi
 # khởi động vẫn ~2 giây vì phải điền bộ nhớ đệm.
+#
+# VÌ SAO `lru_cache` CẤP MODULE NÀY KHÔNG PHẠM LUẬT "không singleton cấp module" (CLAUDE.md
+# mục 6): luật đó nhắm vào đối tượng ĐỌC FILE lúc import và giữ DỮ LIỆU NGHIỆP VỤ (bản cũ
+# tạo 2 bản dataset trong RAM, test khó thay). Bộ nhớ đệm này thì:
+#   - là hàm THUẦN: khoá là chính đoạn văn, giá trị chỉ phụ thuộc khoá -> không bao giờ
+#     "cũ" (admin sửa tên quán thì tên mới là một khoá mới), không cần làm mới;
+#   - không đọc file, không giữ trạng thái nghiệp vụ, không cần thay trong test;
+#   - có trần cứng `SO_DOAN_NHO_SAN`, không phình vô hạn.
+# Nếu sau này khoá phụ thuộc thứ gì NGOÀI đoạn văn (cấu hình, phiên bản dữ liệu) thì phải
+# chuyển nó vào một đối tượng lắp qua `dependencies.py`.
 SO_DOAN_NHO_SAN = 262_144
 
 
@@ -194,18 +206,30 @@ def relevance(restaurant: Restaurant, query_text: Optional[str]) -> RelevanceRes
 def infer_mood_weights(query_text: Optional[str]) -> Optional[Dict[str, float]]:
     """Đoán mood từ câu tự do -> trả về bộ trọng số mood-score tương ứng.
 
-    Đây là cầu nối cho 92% quán KHÔNG có review: dù không khớp được chữ nào trong review,
-    ta vẫn hiểu được "muốn ăn gì đó ấm bụng" nghĩa là ưu tiên comfort_cozy_score.
+    Đây là cầu nối cho phần lớn quán KHÔNG có review: dù không khớp được chữ nào trong
+    review, ta vẫn hiểu được "muốn ăn gì đó ấm bụng" nghĩa là ưu tiên comfort_cozy_score.
 
     None = câu tìm kiếm không gợi ý mood nào.
+
+    KHỚP CỤM TỪ NGUYÊN VẸN + "DẤU LÀ BẰNG CHỨNG" qua `PhraseLookup` (CLAUDE.md mục 4 quy
+    tắc 5). Bug thật trước 2026-10-06: hàm này so `normalize(kw) in normalized` — CHUỖI CON
+    trên bản ĐÃ BỎ DẤU — nên:
+        "quán phở ngon nhé" -> happy   ("nhé" = "nhẹ" sau khi bỏ dấu)
+        "chỗ ngồi lâu"      -> excited ("lâu" = "lẩu")
+        "Buôn Ma Thuột"     -> sad     ("buôn" = "buồn")
+        "quán metro"        -> sad     (chuỗi con "met" = "mệt")
+    Người gõ KHÔNG dấu ("an lau") vẫn khớp "lẩu": một vế không dấu là không đủ bằng chứng
+    để loại, đúng quy tắc chung.
     """
     if not query_text:
         return None
-    normalized = normalize(query_text)
+    # Dựng tập n-gram của câu MỘT lần rồi hỏi ~35 từ khoá trên đó, thay vì tách lại câu
+    # cho từng từ khoá.
+    cau = PhraseLookup(query_text)
 
     hits: Dict[str, int] = {}
     for mood, keywords in MOOD_KEYWORDS.items():
-        count = sum(1 for kw in keywords if normalize(kw) in normalized)
+        count = cau.count_present(keywords)
         if count:
             hits[mood] = count
     if not hits:

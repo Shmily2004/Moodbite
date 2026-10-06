@@ -10,7 +10,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { DishItem, SearchResultItem } from '@/shared/api';
-import { ApiError, api } from '@/shared/api';
+import { ApiError, accountErrorText, api } from '@/shared/api';
 import { getSessionId } from '@/shared/lib';
 import { useT } from '@/shared/i18n';
 
@@ -58,6 +58,10 @@ export function useDishDetail(
 
   const abortRef = useRef<AbortController | null>(null);
   useEffect(() => () => abortRef.current?.abort(), []);
+  // Món đang hiển thị. Đổi sang MÓN KHÁC (`:dishId` đổi, component không gỡ) thì xoá dữ
+  // liệu món cũ ngay — trước đây tên/mô tả/quán của món cũ đứng đó tới khi món mới về
+  // (audit 2026-10-06). Đổi vị trí/bán kính của CÙNG món thì giữ, đỡ nháy trang.
+  const monDangHien = useRef<string | undefined>(undefined);
 
   const reload = useCallback(() => setReloadToken((n) => n + 1), []);
 
@@ -67,6 +71,14 @@ export function useDishDetail(
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
+
+    if (monDangHien.current !== dishId) {
+      monDangHien.current = dishId;
+      setDish(null);
+      setRestaurants([]);
+      setSearchQueryId(null);
+      setWarnings([]);
+    }
 
     setLoading(true);
     setError(null);
@@ -96,7 +108,10 @@ export function useDishDetail(
           return;
         }
         setError(
-          err instanceof ApiError ? err.message : tRef.current('dishDetail.loadFailed'),
+          // NETWORK: `message` là "Failed to fetch" → câu đã dịch (audit 2026-10-06).
+          err instanceof ApiError
+            ? accountErrorText(err, tRef.current, 'dishDetail.loadFailed')
+            : tRef.current('dishDetail.loadFailed'),
         );
         setDish(null);
       });
@@ -117,7 +132,9 @@ export function useDishDetail(
         if (controller.signal.aborted) return;
         if (err instanceof ApiError && err.status === 404) return; // đã xử lý ở trên
         setRestaurantsError(
-          err instanceof ApiError ? err.message : tRef.current('dishDetail.restaurantsFailed'),
+          err instanceof ApiError
+            ? accountErrorText(err, tRef.current, 'dishDetail.restaurantsFailed')
+            : tRef.current('dishDetail.restaurantsFailed'),
         );
         setRestaurants([]);
       });

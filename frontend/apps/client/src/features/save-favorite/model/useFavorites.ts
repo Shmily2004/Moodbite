@@ -28,7 +28,7 @@
  * và báo. Đợi mạng xong mới đổi màu trái tim làm cả app có cảm giác chậm.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { authApi } from '@/shared/api';
+import { ApiError, authApi } from '@/shared/api';
 import { useUserSessionContext } from '@/entities/user';
 import { useT } from '@/shared/i18n';
 import {
@@ -75,6 +75,12 @@ function nhom(items: MucYeuThich[], danh_sach: LoaiDanhSach): NhomDaLuu {
     restaurants: cua_nhom.filter((x) => x.itemType === 'restaurant'),
     dishes: cua_nhom.filter((x) => x.itemType === 'dish'),
   };
+}
+
+/** Câu backend nếu có; lỗi MẠNG ("Failed to fetch") thì dùng câu dự phòng đã dịch. */
+function loiHienThi(err: unknown, macDinh: string): string {
+  if (err instanceof ApiError && err.code === 'NETWORK') return macDinh;
+  return err instanceof Error && err.message ? err.message : macDinh;
 }
 
 export function useFavorites(): UseFavoritesResult {
@@ -141,7 +147,7 @@ export function useFavorites(): UseFavoritesResult {
         if (!con_song) return;
         // Lỗi mạng KHÔNG được làm trắng danh sách: hiện bản cục bộ còn hơn không có gì.
         setItems(doc_cuc_bo());
-        setError(err instanceof Error ? err.message : tRef.current('err.favLoad'));
+        setError(loiHienThi(err, tRef.current('err.favLoad')));
       } finally {
         if (con_song) setLoading(false);
       }
@@ -166,7 +172,6 @@ export function useFavorites(): UseFavoritesResult {
         listType: muc.listType ?? DANH_SACH_MAC_DINH,
       };
       const dang_co = items.some((x) => khoa(x) === khoa(day_du));
-      const truoc = items;
       const sau = dang_co
         ? items.filter((x) => khoa(x) !== khoa(day_du))
         : [day_du, ...items];
@@ -188,10 +193,18 @@ export function useFavorites(): UseFavoritesResult {
           });
 
       void goi.catch((err: unknown) => {
-        // Trả về ĐÚNG trạng thái trước đó. Giữ nguyên giao diện sẽ nói dối người dùng
-        // rằng đã lưu, rồi tải lại trang là mất.
-        setItems(truoc);
-        setError(err instanceof Error ? err.message : tRef.current('err.favSave'));
+        // Hoàn tác ĐÚNG MỤC NÀY trên state HIỆN TẠI (functional update). Giữ nguyên giao
+        // diện sẽ nói dối người dùng rằng đã lưu, rồi tải lại trang là mất.
+        // ⚠️ KHÔNG trả về ảnh chụp `items` lúc bấm: lưu A rồi B thật nhanh mà A lỗi thì
+        // ảnh chụp đó chưa có B → B biến mất dù server đã lưu (audit 2026-10-06).
+        setItems((hienTai) =>
+          dang_co
+            ? hienTai.some((x) => khoa(x) === khoa(day_du))
+              ? hienTai
+              : [day_du, ...hienTai]
+            : hienTai.filter((x) => khoa(x) !== khoa(day_du)),
+        );
+        setError(loiHienThi(err, tRef.current('err.favSave')));
       });
     },
     [items, daDangNhap],

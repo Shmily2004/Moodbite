@@ -23,6 +23,26 @@ class DataNotReadyError(ApplicationError):
         self.source = source
 
 
+class StorageUnavailableError(DataNotReadyError):
+    """Kho dữ liệu GỐC (tài khoản...) có file nhưng đọc/ghi lỗi giữa chừng: CSDL bị khoá,
+    hỏng, mất bảng, hết dung lượng. -> HTTP 503 DATA_NOT_READY.
+
+    Thêm 2026-10-06. Trước đó `SqliteUserRepository` NUỐT `sqlite3.Error` rồi trả `None`/
+    `False`, nên CSDL bị khoá hiện ra với người dùng thành "tài khoản không còn tồn tại",
+    "sai mật khẩu" (401) — người dùng đi đổi mật khẩu, quản trị viên đi tìm lỗi đăng nhập,
+    không ai nhìn vào đúng chỗ. "Không tìm thấy" vẫn là `None`; chỉ LỖI mới là lỗi này.
+    """
+
+    def __init__(self, source: str) -> None:
+        # Chi tiết lỗi SQLite chỉ ghi vào LOG ở nơi ném, KHÔNG đưa vào thông điệp: thông
+        # điệp này trả nguyên cho client.
+        super().__init__(
+            source,
+            "Kiểm tra file CSDL ở MOODBITE_USERS_DB (bị khoá bởi tiến trình khác, hỏng, "
+            "hoặc hết dung lượng) rồi thử lại.",
+        )
+
+
 # --- Lỗi xác thực quản trị ---------------------------------------------------
 #
 # Đặt ở application chứ KHÔNG ở infrastructure/auth, dù bên đó mới là nơi ném ra.

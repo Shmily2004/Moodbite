@@ -30,7 +30,14 @@ from typing import Mapping
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from src.domain.entities.user import User, UserRole, validate_username  # noqa: E402
+from src.domain.entities.user import (  # noqa: E402
+    MIN_ADMIN_PASSWORD_LENGTH,
+    InvalidCredentialsFormat,
+    User,
+    UserRole,
+    validate_password_for_role,
+    validate_username,
+)
 from src.infrastructure.auth.crypto import hash_password  # noqa: E402
 from src.infrastructure.config.dotenv import DEFAULT_ENV_FILE  # noqa: E402
 from src.infrastructure.config.settings import Settings  # noqa: E402
@@ -38,9 +45,9 @@ from src.infrastructure.repositories.sqlite_user_repository import (  # noqa: E4
     SqliteUserRepository,
 )
 
-# Dài hơn mức tối thiểu của người dùng thường (8): tài khoản này ẩn/xoá được quán của
-# mọi người, bị đoán ra mật khẩu thì thiệt hại lớn hơn hẳn.
-MIN_ADMIN_PASSWORD_LENGTH = 12
+# `MIN_ADMIN_PASSWORD_LENGTH` (12) nay nằm ở DOMAIN (`domain/entities/user.py`), không còn
+# định nghĩa riêng ở đây: trước 2026-10-06 chỉ script này biết con số đó, nên admin vào
+# `/auth/change-password` hạ được mật khẩu xuống 8 ký tự. Import lại để giữ tên cũ.
 BIEN_CU = ("MOODBITE_ADMIN_USER", "MOODBITE_ADMIN_PASSWORD_HASH")
 
 # Kết quả của `nhap_tu_env` - chuỗi cố định để test và để in thông báo.
@@ -49,6 +56,7 @@ DA_LA_ADMIN = "da_la_admin"
 TRUNG_TEN_NGUOI_THUONG = "trung_ten_nguoi_thuong"
 THIEU_BIEN = "thieu_bien"
 HASH_HONG = "hash_hong"
+TEN_KHONG_HOP_LE = "ten_khong_hop_le"
 
 
 def tao_admin(repo: SqliteUserRepository, username: str, password_hash: str) -> User:
@@ -74,6 +82,12 @@ def nhap_tu_env(repo: SqliteUserRepository, env: Mapping[str, str]) -> str:
         # Chép nhầm (thiếu ký tự, dính dấu nháy) thì admin mới sẽ không bao giờ đăng nhập
         # được - báo ngay thay vì tạo ra một tài khoản chết.
         return HASH_HONG
+    try:
+        # Kiểm tên TRƯỚC mọi thao tác ghi. Bản cũ để `tao_admin` ném lỗi ra tận `main()`
+        # -> người dùng thấy traceback thay vì một câu báo lỗi đọc được.
+        validate_username(ten)
+    except InvalidCredentialsFormat:
+        return TEN_KHONG_HOP_LE
     co_san = repo.get_by_username(ten)
     if co_san is not None:
         return DA_LA_ADMIN if co_san.is_admin else TRUNG_TEN_NGUOI_THUONG
@@ -111,8 +125,14 @@ def cau_hinh_can_co(env: Mapping[str, str]) -> dict:
 
 def _hoi_mat_khau() -> str | None:
     mat_khau = getpass.getpass("Mat khau (khong hien): ")
-    if len(mat_khau) < MIN_ADMIN_PASSWORD_LENGTH:
-        print(f"[LOI] Mat khau quan tri phai it nhat {MIN_ADMIN_PASSWORD_LENGTH} ky tu.")
+    try:
+        # CÙNG luật với `/auth/change-password` và `/auth/reset-password` (domain).
+        validate_password_for_role(mat_khau, UserRole.ADMIN)
+    except InvalidCredentialsFormat:
+        print(
+            f"[LOI] Mat khau quan tri phai tu {MIN_ADMIN_PASSWORD_LENGTH} ky tu "
+            "(va khong qua 128 ky tu)."
+        )
         return None
     if mat_khau != getpass.getpass("Nhap lai mat khau: "):
         print("[LOI] Hai lan nhap khong khop.")
@@ -122,6 +142,18 @@ def _hoi_mat_khau() -> str | None:
 
 def _che_do_hoi_dap(repo: SqliteUserRepository) -> int:
     ten = input("Ten dang nhap quan tri [admin]: ").strip() or "admin"
+    # Kiểm tên NGAY, trước khi hỏi mật khẩu. Bản cũ hỏi mật khẩu (gõ 2 lần) xong mới báo
+    # tên sai - bằng một traceback.
+    try:
+        ten = validate_username(ten)
+    except InvalidCredentialsFormat:
+        # Câu KHÔNG DẤU, cố ý như mọi dòng `print` của script: console PowerShell 5.1 hay
+        # chạy bảng mã cũ, in chữ có dấu (thông điệp của domain) có thể nổ UnicodeEncodeError.
+        print(
+            "[LOI] Ten dang nhap khong hop le: chi chu a-z khong dau, so, '_', '-', "
+            "dai 3-32 ky tu."
+        )
+        return 1
     co_san = repo.get_by_username(ten)
     if co_san is not None and co_san.is_admin:
         print(f"[OK] '{co_san.username}' da la quan tri vien. Khong doi gi.")
@@ -140,7 +172,7 @@ def _che_do_hoi_dap(repo: SqliteUserRepository) -> int:
     if mat_khau is None:
         return 1
     tao_admin(repo, ten, hash_password(mat_khau))
-    print(f"[OK] Da tao tai khoan quan tri '{validate_username(ten)}'.")
+    print(f"[OK] Da tao tai khoan quan tri '{ten}'.")
     return 0
 
 
@@ -173,6 +205,10 @@ def main() -> int:
             ),
             THIEU_BIEN: "[LOI] Khong thay MOODBITE_ADMIN_USER / MOODBITE_ADMIN_PASSWORD_HASH.",
             HASH_HONG: "[LOI] MOODBITE_ADMIN_PASSWORD_HASH khong dung dinh dang pbkdf2_sha256$...",
+            TEN_KHONG_HOP_LE: (
+                "[LOI] MOODBITE_ADMIN_USER khong hop le: chi chu a-z khong dau, so, '_', '-', "
+                "dai 3-32 ky tu. Sua trong .env.local roi chay lai."
+            ),
         }[ket_qua]
         print(thong_bao)
         if ket_qua not in (DA_TAO, DA_LA_ADMIN):

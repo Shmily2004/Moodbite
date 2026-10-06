@@ -96,6 +96,10 @@
   z-index: 0;
 }
 
+.dc-picker { display: grid; gap: 6px; justify-items: start; }
+.dc-picker .dc-map { justify-self: stretch; }
+.dc-picker p { margin: 0; }
+
 .dc-list { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
 .dc-item {
   display: flex;

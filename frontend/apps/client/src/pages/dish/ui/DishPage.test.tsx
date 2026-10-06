@@ -327,3 +327,83 @@ describe('DishPage — tiêu đề danh sách nói thật số quán đang hiệ
     expect(container.querySelector('.card__chip--guess')).not.toBeNull();
   });
 });
+
+describe('DishPage — vị trí đang dùng (audit 2026-10-06)', () => {
+  afterEach(() => sessionStorage.clear());
+
+  it('không có vị trí trình duyệt -> NÓI RÕ đang tính quanh trung tâm Hà Nội', async () => {
+    vi.stubGlobal('fetch', mockApi([quan(1)]));
+    renderTrang();
+    await screen.findByText('Quán số 1');
+    expect(screen.getByText('Trung tâm Hà Nội')).toBeInTheDocument();
+  });
+
+  it('vị trí trình duyệt đã xin ở trang trước được DÙNG LẠI, gửi đúng toạ độ lên API', async () => {
+    sessionStorage.setItem('moodbite.browser_position', JSON.stringify({ lat: 21.05, lng: 105.79 }));
+    const f = mockApi([quan(1)]);
+    vi.stubGlobal('fetch', f);
+    renderTrang();
+    await screen.findByText('Quán số 1');
+
+    const urlQuan = f.mock.calls.map(([u]) => String(u)).find((u) => u.includes('/restaurants'));
+    expect(urlQuan).toContain('21.05');
+    expect(urlQuan).toContain('105.79');
+    expect(screen.queryByText('Trung tâm Hà Nội')).not.toBeInTheDocument();
+  });
+});
+
+
+describe('DishPage — đổi sang món khác (audit 2026-10-06)', () => {
+  it('xoá NGAY dữ liệu món cũ và reset "xem hết"/"ẩn bản đồ"', async () => {
+    const goc = mockApi(Array.from({ length: 12 }, (_, i) => quan(i + 1)));
+    let traPho: () => void = () => undefined;
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockImplementation((url: string, init?: RequestInit) => {
+        // Món thứ hai (`pho`) về rất chậm: chỉ phần chi tiết treo, danh sách quán về ngay.
+        if (String(url).includes('/dishes/pho') && !String(url).includes('/restaurants')) {
+          return new Promise((resolve) => {
+            traPho = () =>
+              resolve({
+                ok: true,
+                status: 200,
+                json: async () => ({ data: { ...MON, dish_id: 'pho', name: 'Phở', description: 'Phở bò.' } }),
+              });
+          });
+        }
+        return goc(url, init);
+      }),
+    );
+    renderTrang();
+
+    await screen.findByText('Quán số 1');
+    expect(screen.getByText(/Bún chả là món Hà Nội/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /Xem thêm 4 quán/ }));
+    await screen.findByText('Quán số 12');
+
+    await act(async () => {
+      dieuHuong('/dishes/pho');
+    });
+
+    // Mô tả món CŨ không còn đứng đó trong lúc món mới đang tải.
+    expect(screen.queryByText(/Bún chả là món Hà Nội/)).not.toBeInTheDocument();
+    // Món mới về: danh sách lại cắt còn 8, không giữ "xem hết" của món cũ.
+    await act(async () => traPho());
+    await screen.findByText('Phở bò.');
+    await screen.findByText('Quán số 1');
+    expect(screen.queryByText('Quán số 12')).not.toBeInTheDocument();
+  });
+});
+
+describe('DishPage — "Đã xem gần đây" (audit 2026-10-06)', () => {
+  afterEach(() => localStorage.clear());
+
+  it('mở món từ BẤT KỲ lối vào nào (vd. /recommend, link trực tiếp) đều được ghi', async () => {
+    vi.stubGlobal('fetch', mockApi([quan(1)]));
+    renderTrang('/dishes/bun-cha?gia=1');
+    await screen.findByText('Quán số 1');
+
+    const daLuu = JSON.parse(localStorage.getItem('moodbite.recent_dishes') ?? '[]');
+    expect(daLuu[0]).toEqual({ dishId: 'bun-cha', name: 'Bún chả' });
+  });
+});

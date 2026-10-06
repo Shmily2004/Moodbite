@@ -33,6 +33,7 @@ from src.application.use_cases.log_interaction import (
     InvalidInteractionError,
     RestaurantNotFoundError,
 )
+from src.domain.errors import DomainValidationError
 from src.domain.value_objects.mood import UnsupportedMoodError
 from src.presentation.api.envelope import ErrorCode, error
 
@@ -187,8 +188,16 @@ def register_error_handlers(app: FastAPI) -> None:
             status_code=409,
         )
 
-    @app.exception_handler(ValueError)
-    async def _value_error(request: Request, exc: ValueError):
+    @app.exception_handler(DomainValidationError)
+    async def _domain_validation(request: Request, exc: DomainValidationError):
+        # CHỈ lỗi kiểm dữ liệu CÓ CHỦ ĐÍCH của domain mới thành 400.
+        #
+        # ⚠️ Trước 2026-10-06 ở đây bắt MỌI `ValueError` -> 400. Hệ quả: `int("abc")` lỡ
+        # tay, `UnicodeEncodeError` (cũng là ValueError) khi token có chữ có dấu... đều
+        # thành "400 lỗi của bạn" kèm thông điệp NỘI BỘ, không ghi traceback — đúng kiểu
+        # che bug CLAUDE.md mục 5 cấm. Nay `ValueError` trần rơi xuống `_unexpected` -> 500.
+        # Thêm lỗi kiểm dữ liệu mới thì cho nó kế thừa `DomainValidationError`, ĐỪNG nới
+        # handler này ra.
         return error(ErrorCode.INVALID_REQUEST, str(exc), status_code=400)
 
     @app.exception_handler(Exception)

@@ -75,6 +75,11 @@ export interface UseDishFilterStateResult {
   /** Gợi ý nhanh này có đang bật đủ mọi vế của nó không (để tô sáng chip). */
   isPresetActive: (preset: FilterPreset) => boolean;
   reset: () => void;
+  /**
+   * Thay TOÀN BỘ bộ lọc (phần thiếu về mặc định). Dùng khi URL đổi từ BÊN NGOÀI — thanh
+   * tab dưới mở `/recommend` trơn, nút Back — để state không lệch khỏi URL.
+   */
+  replaceAll: (next: Partial<DishFilterState>) => void;
   /** Số bộ lọc đang bật. KHÔNG đếm bán kính — bán kính luôn có một giá trị mặc định. */
   activeFilterCount: number;
 }
@@ -168,6 +173,10 @@ export function useDishFilterState(
   }, []);
 
   const reset = useCallback(() => setFilters(EMPTY_FILTERS), []);
+  const replaceAll = useCallback(
+    (next: Partial<DishFilterState>) => setFilters({ ...EMPTY_FILTERS, ...next }),
+    [],
+  );
 
   const activeFilterCount =
     filters.cookingMethods.length +
@@ -191,6 +200,7 @@ export function useDishFilterState(
     applyPreset,
     isPresetActive,
     reset,
+    replaceAll,
     activeFilterCount,
   };
 }

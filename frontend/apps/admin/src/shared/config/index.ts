@@ -1,4 +1,4 @@
-export { API_BASE, ADMIN_PAGE_SIZE } from './env';
+export { API_BASE } from './env';
 export { ROUTES, DUONG_DAN_CAN_XU_LY, duongDanMon } from './routes';
 export {
   NHAN_BUA_AN,

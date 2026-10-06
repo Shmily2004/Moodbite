@@ -425,7 +425,7 @@ Nhiệm vụ của giao diện là **dịch mã đó sang câu người đọc h
 | Yêu cầu | Chi tiết |
 |---|---|
 | **Token admin** | Lưu `sessionStorage` để **rút ngắn thời gian token tồn tại trên máy** (đóng tab là mất). ⚠️ Đây **KHÔNG phải biện pháp chống XSS** — mã độc chạy cùng origin vẫn đọc được `sessionStorage`. Muốn chống thật thì phải đổi kiến trúc xác thực, và đó là quyết định riêng |
-| **Đăng xuất** | Xoá token phía client. ⚠️ Backend **chưa thu hồi token** — vẫn hợp lệ tới hết hạn (1 giờ). Giao diện không được hứa "đã đăng xuất hoàn toàn" |
+| **Đăng xuất** | Gọi `POST /api/v1/admin/logout` (app quản trị, có từ 2026-10-02) hoặc `POST /api/v1/auth/logout` (app người dùng, có từ 2026-09-29) rồi xoá token phía client. Backend thu hồi token thật (`token_version`) — áp cho **mọi thiết bị** của tài khoản đó, giao diện nên nói đúng như vậy. *(Trước 2026-09-29: chỉ xoá token phía client, token vẫn hợp lệ tới hết hạn.)* |
 | **Hết hạn** | Nhận 401 → về trang đăng nhập kèm câu "Phiên đã hết hạn", không hiện lỗi kỹ thuật |
 | **Thông báo lỗi đăng nhập** | Chỉ "sai tài khoản hoặc mật khẩu". **Không** nói sai cái nào — tránh giúp người dò tài khoản |
 | **Không render HTML thô** | Tuyệt đối không `dangerouslySetInnerHTML`. Review và tên quán là dữ liệu cào từ ngoài |

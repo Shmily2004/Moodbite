@@ -17,41 +17,22 @@
  *   2. SVG trong `shared/ui/icons.tsx` cho phần còn lại.
  */
 import { useId, useState } from 'react';
-import type { ReactNode } from 'react';
 import type { DishFilterState, MultiSelectGroup, SingleSelectGroup } from '../model/useDishFilterState';
 import { DistanceSlider } from './DistanceSlider';
 import { khoaNhan } from '../model/chipDangBat';
-import { ICON_MOOD } from '@/shared/config';
-import {
-  IconBoil,
-  IconCold,
-  IconFrown,
-  IconInfo,
-  IconHotBowl,
-  IconMix,
-  IconMoon,
-  IconNight,
-  IconPan,
-  IconPin,
-  IconSmile,
-  IconSnack,
-  IconSoup,
-  IconSteam,
-  IconStirFry,
-  IconSun,
-  IconSunrise,
-} from '@/shared/ui';
+import { IconInfo, IconPin } from '@/shared/ui';
 import { useT } from '@/shared/i18n';
+import {
+  COOKING_METHOD_OPTIONS,
+  MEAL_TIME_OPTIONS,
+  MOOD_OPTIONS,
+  TEMPERATURE_OPTIONS,
+  WEATHER_OPTIONS,
+} from './dishFilterOptions';
+import { Chip, FilterRow } from './FilterRow';
 
-/**
- * Ảnh chủ dự án gửi, dùng cho đúng những khái niệm đã có file.
- * Trả `null` khi chưa có -> nơi gọi tự lui về icon SVG.
- */
-function AnhMood({ khoa }: { khoa: string }) {
-  const anh = ICON_MOOD[khoa];
-  if (!anh) return null;
-  return <img src={anh.src} alt="" width={18} height={18} className="chip__icon" />;
-}
+// Bảng mã/icon (`dishFilterOptions.tsx`) và `FilterRow`/`Chip` (`FilterRow.tsx`) được
+// tách sang file anh em ngày 2026-10-06 vì file cũ vượt ~300 dòng.
 
 /**
  * ⚠️ KHÔNG THÊM HÀNG "GỢI Ý NHANH" VÀO ĐÂY. Đã thử và gỡ ngày 2026-08-24.
@@ -64,42 +45,6 @@ function AnhMood({ khoa }: { khoa: string }) {
  * khái niệm nằm ở hai nơi, người dùng không biết bấm chỗ nào, và thanh "đang lọc theo"
  * không phân biệt được chip đến từ đâu. Muốn thêm gợi ý nhanh -> thêm vào `LUA_CHON_NHANH`.
  */
-
-/** Thời tiết. (Nhóm này nay đứng CUỐI cột lọc, theo `design/Filler.png` — xem dưới.) */
-const WEATHER_OPTIONS = [
-  { value: 'rain', icon: <AnhMood khoa="rain" /> },
-  { value: 'clear', icon: <IconSun /> },
-];
-
-const TEMPERATURE_OPTIONS = [
-  { value: 'hot', icon: <IconHotBowl /> },
-  { value: 'cold', icon: <IconCold /> },
-];
-
-const COOKING_METHOD_OPTIONS = [
-  { value: 'nuong', icon: <AnhMood khoa="nuong" /> },
-  { value: 'nuoc', icon: <IconSoup /> },
-  { value: 'chien', icon: <IconPan /> },
-  { value: 'xao', icon: <IconStirFry /> },
-  { value: 'hap', icon: <IconSteam /> },
-  { value: 'luoc', icon: <IconBoil /> },
-  { value: 'tron', icon: <IconMix /> },
-];
-
-const MEAL_TIME_OPTIONS = [
-  { value: 'sang', icon: <IconSunrise /> },
-  { value: 'trua', icon: <IconSun /> },
-  { value: 'toi', icon: <IconMoon /> },
-  { value: 'khuya', icon: <IconNight /> },
-  { value: 'an_vat', icon: <IconSnack /> },
-];
-
-const MOOD_OPTIONS = [
-  { value: 'happy', icon: <IconSmile /> },
-  { value: 'sad', icon: <IconFrown /> },
-  { value: 'excited', icon: <AnhMood khoa="excited" /> },
-  { value: 'relaxed', icon: <AnhMood khoa="relaxed" /> },
-];
 
 interface DishFiltersProps {
   filters: DishFilterState;
@@ -275,40 +220,5 @@ export function DishFilters(props: DishFiltersProps) {
         </div>
       )}
     </div>
-  );
-}
-
-function FilterRow({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="filters__row">
-      <span className="filters__label">{label}</span>
-      <div className="chips">{children}</div>
-    </div>
-  );
-}
-
-function Chip({
-  label,
-  icon,
-  active,
-  onClick,
-}: {
-  label: string;
-  icon?: ReactNode;
-  active: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      className={active ? 'chip chip--active' : 'chip'}
-      aria-pressed={active}
-      onClick={onClick}
-    >
-      {/* Icon là hình TRANG TRÍ cạnh nhãn có sẵn -> `aria-hidden` nằm sẵn trong
-          component icon, trình đọc màn hình chỉ đọc nhãn. */}
-      {icon}
-      {label}
-    </button>
   );
 }

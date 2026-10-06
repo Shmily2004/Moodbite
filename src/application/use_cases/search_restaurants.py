@@ -18,8 +18,8 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
-from src.application.errors import DataNotReadyError
 from src.application.ports.context_provider import ContextProvider
+from src.application.use_cases.restaurant_data_guard import require_restaurant_data
 from src.application.ports.dish_knowledge_repository import DishKnowledgeRepository
 from src.application.ports.restaurant_repository import RestaurantRepository
 from src.application.ports.rule_predictor import RulePredictor
@@ -151,13 +151,9 @@ class SearchRestaurantsUseCase:
         return self._closure_tally.is_reported_closed if self._closure_tally else None
 
     def execute(self, query: SearchQuery) -> SearchResult:
-        if not self._restaurants.is_ready:
-            raise DataNotReadyError(
-                "dataset quán ăn",
-                "chạy python -m data_pipeline.merge_and_prepare_raw && "
-                "python -m data_pipeline.data_cleaning && "
-                "python -m data_pipeline.feature_engineering",
-            )
+        # Dùng CHUNG chốt chặn với luồng món, để hai lối vào nói cùng một lệnh khắc phục.
+        # Bản cũ nối lệnh bằng `&&` — lỗi cú pháp trên PowerShell 5.1 (CLAUDE.md mục 1).
+        require_restaurant_data(self._restaurants)
 
         warnings: List[str] = []
         # Tách cụm địa điểm TRƯỚC mọi bước khớp chữ. Bug thật 2026-09-16: "bún chả gần hồ

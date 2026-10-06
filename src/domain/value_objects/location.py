@@ -4,11 +4,21 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 
+from src.domain.errors import DomainValidationError
+
 EARTH_RADIUS_KM = 6371.0
 
 # Điểm mặc định của API khi client không gửi vị trí: Hồ Hoàn Kiếm, Hà Nội.
 HANOI_CENTER_LAT = 21.0285
 HANOI_CENTER_LNG = 105.8542
+
+
+class InvalidCoordinates(DomainValidationError):
+    """Toạ độ ngoài phạm vi Trái Đất -> HTTP 400.
+
+    Trước 2026-10-06 là `ValueError` trần, chỉ ra 400 nhờ bộ bắt `ValueError` toàn cục —
+    bộ bắt đó đã bị bỏ vì nó che bug lập trình (xem `domain/errors.py`).
+    """
 
 
 @dataclass(frozen=True)
@@ -18,9 +28,9 @@ class Location:
 
     def __post_init__(self) -> None:
         if not -90.0 <= self.lat <= 90.0:
-            raise ValueError(f"lat phải trong [-90, 90], nhận được {self.lat}")
+            raise InvalidCoordinates(f"lat phải trong [-90, 90], nhận được {self.lat}")
         if not -180.0 <= self.lng <= 180.0:
-            raise ValueError(f"lng phải trong [-180, 180], nhận được {self.lng}")
+            raise InvalidCoordinates(f"lng phải trong [-180, 180], nhận được {self.lng}")
 
     def distance_km(self, other: "Location") -> float:
         """Khoảng cách đường chim bay (haversine).

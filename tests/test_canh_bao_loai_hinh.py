@@ -1,4 +1,4 @@
-﻿"""Cảnh báo "quán này chỉ khớp theo LOẠI HÌNH, không phải theo tên".
+"""Cảnh báo "quán này chỉ khớp theo LOẠI HÌNH, không phải theo tên".
 
 VÌ SAO CÓ (đo 2026-09-23 trên dữ liệu thật):
   - Chỉ mục món-quán: 32.118 cặp khớp bằng TÊN quán, 14.353 cặp chỉ khớp bằng

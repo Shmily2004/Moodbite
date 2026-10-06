@@ -13,6 +13,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Dict, Mapping
 
+from src.domain.errors import DomainValidationError
+
 # Trường admin ĐƯỢC sửa: đều là thông tin mô tả, người thật kiểm chứng được bằng cách
 # gọi điện hoặc tới tận nơi.
 EDITABLE_FIELDS = frozenset(
@@ -37,7 +39,7 @@ _STRING_FIELDS = frozenset(EDITABLE_FIELDS)
 MAX_FIELD_LENGTH = 500
 
 
-class InvalidEditError(ValueError):
+class InvalidEditError(DomainValidationError):
     """Yêu cầu sửa không hợp lệ -> HTTP 400 INVALID_REQUEST."""
 
 

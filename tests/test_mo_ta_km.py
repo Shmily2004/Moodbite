@@ -1,4 +1,4 @@
-﻿"""Định dạng khoảng cách trong câu cảnh báo gửi người dùng (thêm 2026-10-02).
+"""Định dạng khoảng cách trong câu cảnh báo gửi người dùng (thêm 2026-10-02).
 
 Bug thật thấy trên giao diện: "nằm ngoài bán kính 10.0 km" - số thực in thô, dấu chấm
 thập phân kiểu Anh giữa câu tiếng Việt.

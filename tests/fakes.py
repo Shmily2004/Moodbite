@@ -275,6 +275,10 @@ def attach_disabled_auth(container):
     container.admin_login_rate_limiter = SlidingWindowRateLimiter(50, 900)
     container.register_rate_limiter = SlidingWindowRateLimiter(3, 3600)
     container.forgot_password_rate_limiter = SlidingWindowRateLimiter(3, 3600)
+    # Bộ đếm theo IP và theo tên (2026-10-06, xem `login_throttle.py`). Rộng vì lý do như
+    # trên: test về giới hạn tự gắn bộ đếm nhỏ.
+    container.login_ip_rate_limiter = SlidingWindowRateLimiter(50, 300)
+    container.login_account_rate_limiter = SlidingWindowRateLimiter(50, 900)
     return container
 
 
@@ -379,6 +383,17 @@ def attach_closure_tally(container, tally=None):
     from src.domain.services.closure_reports import ClosureReportTally
 
     container.closure_tally = tally or ClosureReportTally()
+    # Lắp CÙNG chỗ vì cùng là phần "chống lạm dụng endpoint công khai" (2026-10-06).
+    # Mặc định TẮT giới hạn tần suất: phần lớn test không nói về chuyện đó và gọi API
+    # liên tục; test về giới hạn tự gắn bộ đếm nhỏ (xem `test_rate_limits_public.py`).
+    container.search_rate_limiter = None
+    container.interaction_rate_limiter = None
+    container.closure_report_rate_limiter = None
+    container.reporter_key_salt = "muoi-dung-cho-test"
+    # Trang quản trị gỡ lượt báo: test nào cần thì tự lắp (cần kho nhật ký thật).
+    container.list_closure_reports = None
+    container.clear_closure_reports = None
+    container.dish_restaurant_index = None
     return container
 
 

@@ -32,14 +32,21 @@ export function useInteractionLogger(): UseInteractionLoggerResult {
   const timers = useRef<Map<string, number>>(new Map());
 
   const log = useCallback((input: LogInteractionInput) => {
-    void api.logInteraction({
-      session_id: getSessionId(),
-      restaurant_id: input.restaurantId,
-      action_type: input.actionType,
-      search_query_id: input.searchQueryId ?? null,
-      rank_position: input.rankPosition ?? null,
-      dwell_time_ms: input.dwellTimeMs ?? null,
-    });
+    // `api.logInteraction` đã tự nuốt lỗi, nhưng `.catch` ở đây vẫn cần: lời hứa bị bỏ
+    // `void` mà lỡ reject (client bị thay/giả lập, lỗi đồng bộ trước khi gọi fetch) là
+    // "unhandled rejection". Ghi log là best-effort, không bao giờ được làm phiền người dùng.
+    Promise.resolve()
+      .then(() =>
+        api.logInteraction({
+          session_id: getSessionId(),
+          restaurant_id: input.restaurantId,
+          action_type: input.actionType,
+          search_query_id: input.searchQueryId ?? null,
+          rank_position: input.rankPosition ?? null,
+          dwell_time_ms: input.dwellTimeMs ?? null,
+        }),
+      )
+      .catch(() => undefined);
   }, []);
 
   const startViewTimer = useCallback(

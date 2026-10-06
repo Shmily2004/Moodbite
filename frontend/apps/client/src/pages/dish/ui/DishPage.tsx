@@ -13,7 +13,7 @@
  * một món có thật sang một món bị gỡ (cùng component, chỉ đổi `:dishId`) React thấy số
  * hook giảm và ném "Rendered fewer hooks than expected" — trang trắng. Có test khoá lại.
  */
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { AssistantBubble } from '@/widgets/assistant-bubble';
 import { RestaurantList } from '@/widgets/restaurant-list';
@@ -21,6 +21,7 @@ import { RestaurantMap } from '@/widgets/restaurant-map';
 import { SiteHeader } from '@/widgets/site-header';
 import { useDishDetail } from '@/features/view-dish-detail';
 import { useUserLocation } from '@/features/pick-location';
+import { useRecentDishes } from '@/features/recent-dishes';
 import { describeRestaurantListHeading } from '@/entities/dish';
 import { IconStore } from '@/shared/ui';
 import { useT } from '@/shared/i18n';
@@ -43,6 +44,12 @@ export function DishPage() {
   const [anBanDo, setAnBanDo] = useState(false);
   const [moBoLoc, setMoBoLoc] = useState(false);
   const { dishId } = useParams<{ dishId: string }>();
+  // Đổi `:dishId` mà component KHÔNG gỡ (đi từ món này sang món kia) → "xem hết" và "ẩn
+  // bản đồ" của món cũ không được dính sang món mới.
+  useEffect(() => {
+    setXemHet(false);
+    setAnBanDo(false);
+  }, [dishId]);
   const [urlParams] = useSearchParams();
   const location = useUserLocation();
   // Công tắc giá THEO ĐƯỢC từ trang gợi ý sang: đi từ `/recommend?gia=1` mà tới đây rồi
@@ -55,6 +62,16 @@ export function DishPage() {
     DEFAULT_RADIUS_KM,
     chiQuanCoGia,
   );
+
+  // "ĐÃ XEM GẦN ĐÂY": ghi ở CHÍNH trang món, khi món đã tải xong — mọi lối vào (trang chủ,
+  // /recommend, bộ sưu tập, link chia sẻ…) đều được tính. Trước 2026-10-06 chỉ trang chủ
+  // ghi, nên món mở từ /recommend không bao giờ hiện trong mục này.
+  const { remember } = useRecentDishes();
+  const daTaiId = detail.dish?.dish_id;
+  const daTaiTen = detail.dish?.name;
+  useEffect(() => {
+    if (daTaiId && daTaiTen) remember({ dishId: daTaiId, name: daTaiTen });
+  }, [daTaiId, daTaiTen, remember]);
 
   /**
    * Thứ tự hiển thị danh sách quán.
@@ -150,6 +167,11 @@ export function DishPage() {
                 <h2 className="dish-restaurants__tieu-de">
                   <IconStore className="icon-inline" /> {tieuDeDanhSach}
                 </h2>
+                {/* "Quán gần bạn" mà KHÔNG phải vị trí thật → nói rõ đang tính quanh điểm
+                    nào (địa chỉ đã lưu / trung tâm Hà Nội), giống trang tìm quán. */}
+                {location.source !== 'browser' && (
+                  <span className="muted small dish-restaurants__vi-tri">{location.label}</span>
+                )}
 
                 {/* SẮP XẾP Ở PHÍA CLIENT, có chủ đích.
                     `/dishes/{id}/restaurants` CHƯA có tham số sort. Thêm vào API là đổi

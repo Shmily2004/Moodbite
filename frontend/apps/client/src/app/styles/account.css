@@ -97,6 +97,11 @@
 
 /* --- Bốn ô số liệu ------------------------------------------------------- */
 
+/* Bọc ô số liệu + câu báo lỗi mà KHÔNG thêm tầng hộp: hai thứ vẫn là phần tử con trực
+   tiếp của `.account__head` (flex), bố cục cũ giữ nguyên. Câu lỗi chiếm trọn một hàng. */
+.stat-tiles-wrap { display: contents; }
+.stat-tiles__loi { flex: 1 1 100%; margin: 0; }
+
 .stat-tiles {
   display: grid;
   grid-template-columns: repeat(4, minmax(84px, 1fr));

@@ -51,12 +51,14 @@ export function useUserStats(): UseUserStatsResult {
         setStats(data);
         setError(null);
       })
-      .catch((err: unknown) => {
+      .catch(() => {
         if (!con_song) return;
         // KHÔNG đặt số 0 giả khi lỗi: 0 và "không tải được" là hai chuyện khác nhau, và
         // hiện 0 sẽ khiến người dùng tưởng mình vừa mất hết điểm.
         setStats(null);
-        setError(err instanceof Error ? err.message : tRef.current('err.stats'));
+        // Câu đã dịch thay vì `err.message` ("Failed to fetch" / tiếng Việt của backend):
+        // ô số liệu chỉ cần nói "không tải được", kèm nút thử lại.
+        setError(tRef.current('err.stats'));
       })
       .finally(() => {
         if (con_song) setLoading(false);

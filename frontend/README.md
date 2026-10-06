@@ -89,13 +89,44 @@ apps/<app>/src/app/
 
 ### Cây route
 
-| App | Đường dẫn | Trang | Ghi chú |
-|---|---|---|---|
-| client | `/` | `pages/search` | trong `RootLayout` |
-| client | `*` | `pages/not-found` | vẫn trong `RootLayout` |
-| admin | `/login` | `pages/login` | công khai |
-| admin | `/` | `pages/restaurants` | sau `RequireAuth` → `AdminLayout` |
-| admin | `*` | `pages/not-found` | sau `RequireAuth` → `AdminLayout` |
+Đối chiếu `apps/*/src/app/routes.tsx` + `apps/*/src/shared/config/routes.ts` ngày 2026-10-06.
+
+**App người dùng (client)** — mọi trang nằm trong `RootLayout`. Đăng nhập là TUỲ CHỌN:
+không có route guard chung; riêng trang `/account` tự chuyển về `/login` khi chưa đăng nhập.
+
+| Đường dẫn | Trang | Ghi chú |
+|---|---|---|
+| `/` | `pages/home` | luồng chính: chọn bộ lọc → lưới MÓN |
+| `/dishes/:dishId` | `pages/dish` | giới thiệu món + bản đồ + quán gần đây (tải sau) |
+| `/search` | `pages/search` | lối vào thứ hai: tìm quán bằng câu tự do (tải sau) |
+| `/recommend` | `pages/recommend` | kết quả gợi ý món, bộ lọc nằm trên query string (tải sau) |
+| `/login` | `pages/login` | |
+| `/register` | `pages/register` | |
+| `/forgot-password` | `pages/forgot-password` | |
+| `/reset-password` | `pages/reset-password` | link nằm trong thư — đổi đường dẫn phải đổi cả backend |
+| `/verify-email` | `pages/verify-email` | link nằm trong thư — như trên |
+| `/account` | `pages/account` | trang tài khoản (tải sau) |
+| `*` | `pages/not-found` | |
+
+Đường dẫn CŨ tiếng Việt (`/mon/:dishId`, `/tim-kiem`, `/dang-nhap`, `/dang-ky`,
+`/quen-mat-khau`, `/dat-lai-mat-khau`) tự chuyển hướng sang đường mới, giữ nguyên query
+string — xem `DUONG_DAN_CU`.
+
+**App quản trị (admin)**
+
+| Đường dẫn | Trang | Ghi chú |
+|---|---|---|
+| `/login` | `pages/login` | công khai |
+| `/` | `pages/overview` | Tổng quan — sau `RequireAuth` → `AdminLayout` (như mọi dòng dưới) |
+| `/quan-an` | `pages/restaurants` | danh sách quán |
+| `/mon-an` | `pages/dishes` | danh mục món |
+| `/mon-an/:dishId` | `pages/dish-detail` | chi tiết một món |
+| `/chat-luong` | `pages/quality` | chất lượng dữ liệu |
+| `/can-xu-ly` | `pages/issues` | việc cần xử lý |
+| `/goi-y` | `pages/recommendation` | năm lớp mô hình |
+| `/nhat-ky` | `pages/activity` | nhật ký hoạt động |
+| `/cai-dat` | `pages/system` | cấu hình (chỉ đọc) |
+| `*` | `pages/not-found` | vẫn trong `AdminLayout` |
 
 Riêng app admin lồng thêm hai lớp:
 
@@ -116,9 +147,10 @@ quên** — bản song song của việc backend gắn xác thực ở cấp rou
 ### Thêm một trang mới
 
 1. Tạo `pages/<ten-trang>/` gồm `ui/<Ten>Page.tsx` và `index.ts`
-2. Thêm đường dẫn vào `shared/config/routes.ts` *(app admin — client hiện chỉ có `/`)*
+2. Thêm đường dẫn vào `shared/config/routes.ts` (cả hai app đều có file này)
 3. Thêm một dòng vào `children` trong `app/routes.tsx`
-4. Muốn hiện trên thanh điều hướng thì thêm `<NavLink>` vào `AdminLayout`
+4. Muốn hiện trên thanh điều hướng thì thêm `<NavLink>` vào `AdminLayout` (admin) hoặc
+   khung trong `app/layout/` (client)
 
 Hằng số đường dẫn để ở `shared/config/` chứ không ở `app/`, vì cả `app/` lẫn `pages/`
 đều cần — mà luật FSD cấm `pages/` import ngược lên `app/`.
@@ -131,7 +163,7 @@ Hằng số đường dẫn để ở `shared/config/` chứ không ở `app/`, 
 | `npm run dev:admin` | dev server app quản trị (5174) |
 | `npm run build` | build CẢ HAI app (đã gồm kiểm kiểu) |
 | `npm run typecheck` | kiểm kiểu toàn monorepo |
-| `npm run test` | test app client |
+| `npm run test` | test CẢ HAI app (client rồi admin) |
 | `npm run lint:arch` | luật import FSD cho CẢ HAI app |
 | `npm run gen:api` | **sinh lại kiểu từ OpenAPI** |
 

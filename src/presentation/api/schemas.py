@@ -420,8 +420,9 @@ class ResetPasswordRequest(BaseModel):
 class VerifyEmailRequest(BaseModel):
     """Xác minh email bằng token trong thư.
 
-    KHÔNG có trường email: địa chỉ nằm sẵn trong token và đã được ký. Nhận email từ
-    client rồi tin theo là mở đường cho người ta xác minh hộ địa chỉ của người khác.
+    KHÔNG có trường email: token mang VÂN TAY (bản băm) của địa chỉ đã nhận thư, đã được
+    ký; địa chỉ thật lấy từ tài khoản. Nhận email từ client rồi tin theo là mở đường cho
+    người ta xác minh hộ địa chỉ của người khác.
     """
 
     token: str = Field(..., min_length=1, description="Token lấy từ đường dẫn trong thư.")

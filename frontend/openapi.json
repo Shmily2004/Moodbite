@@ -12,7 +12,7 @@
           "search"
         ],
         "summary": "Tìm kiếm & xếp hạng nhà hàng",
-        "description": "Nhận nhu cầu bằng ngôn ngữ tự nhiên kèm ràng buộc, trả danh sách đã xếp hạng.\n\nMỗi kết quả kèm `suggested_dish` (Lớp 5 của đề án) - gợi ý MÓN đi liền với quán, thay\nvì bắt client gọi thêm một endpoint khác và tự ghép hai danh sách.",
+        "description": "Nhận nhu cầu bằng ngôn ngữ tự nhiên kèm ràng buộc, trả danh sách đã xếp hạng.\n\nMỗi kết quả kèm `suggested_dish` (Lớp 5 của đề án) - gợi ý MÓN đi liền với quán, thay\nvì bắt client gọi thêm một endpoint khác và tự ghép hai danh sách.\n\nGiới hạn tần suất theo IP (mặc định 30 lượt/60 giây, đổi bằng\n`MOODBITE_SEARCH_RATE_LIMIT=N/S`): mỗi lượt tốn ~0,8-2 giây CPU.",
         "operationId": "search_api_v1_search_post",
         "requestBody": {
           "content": {
@@ -558,7 +558,7 @@
           "interactions"
         ],
         "summary": "Log Interaction",
-        "description": "Ghi một sự kiện tương tác gắn với một nhà hàng cụ thể.\n\n`is_positive_signal` được tính Ở SERVER theo quy tắc thống nhất, không để client tự\nsuy luận - nếu không, nhãn huấn luyện sẽ nhiễu.\n\nKHÁCH VẪN GỌI ĐƯỢC. Đã đăng nhập thì tương tác được gắn thêm `user_id` để đếm \"lượt\nkhám phá\" cho cấp độ. `user_id` lấy TỪ TOKEN, không lấy từ body — nếu không thì ai\ncũng tự cộng điểm cho mình bằng cách gọi thẳng API.",
+        "description": "Ghi một sự kiện tương tác gắn với một nhà hàng cụ thể.\n\n`is_positive_signal` được tính Ở SERVER theo quy tắc thống nhất, không để client tự\nsuy luận - nếu không, nhãn huấn luyện sẽ nhiễu.\n\nKHÁCH VẪN GỌI ĐƯỢC. Đã đăng nhập thì tương tác được gắn thêm `user_id` để đếm \"lượt\nkhám phá\" cho cấp độ. `user_id` lấy TỪ TOKEN, không lấy từ body — nếu không thì ai\ncũng tự cộng điểm cho mình bằng cách gọi thẳng API.\n\nGIỚI HẠN TẦN SUẤT theo IP (2026-10-06): vượt -> 429 RATE_LIMITED + `Retry-After`.\n`report_closed` có hạn mức RIÊNG, chặt hơn hẳn — một lượt báo góp phần ẩn quán với\nmọi người. Lượt báo được đếm theo KHOÁ NGƯỜI BÁO (IP đã băm) do server tính, KHÔNG\ntheo `session_id` client gửi lên (3 session_id bịa từng đủ ẩn bất kỳ quán nào).",
         "operationId": "log_interaction_api_v1_interactions_post",
         "requestBody": {
           "content": {
@@ -3485,6 +3485,191 @@
         }
       }
     },
+    "/api/v1/admin/closure-reports": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Quán đang bị người dùng báo đóng cửa",
+        "description": "Mọi quán có ít nhất 1 lượt báo. Quán ĐANG BỊ ẨN đứng đầu.",
+        "operationId": "list_closure_reports_api_v1_admin_closure_reports_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClosureReportListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "RESTAURANT_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "DATA_NOT_READY",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/restaurants/{restaurant_id}/closure-reports/clear": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Gỡ mọi lượt báo đóng cửa của một quán",
+        "description": "Gỡ mọi lượt báo -> quán hiện lại NGAY, và vẫn hiện sau khi khởi động lại (sự kiện\ngỡ được ghi vào chính nhật ký tương tác mà bộ đếm phát lại). Có ghi nhật ký quản trị\n(`clear_closure_reports`).\n\nGỡ là \"đếm lại từ 0\", không phải \"miễn nhiễm\": quán đóng cửa thật sẽ bị báo lại.\n404 RESTAURANT_NOT_FOUND khi quán không tồn tại VÀ không có lượt báo nào.",
+        "operationId": "clear_closure_reports_api_v1_admin_restaurants__restaurant_id__closure_reports_clear_post",
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Restaurant Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClearedClosureReportsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "RESTAURANT_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "DATA_NOT_READY",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/health": {
       "get": {
         "tags": [
@@ -5788,6 +5973,113 @@
         ],
         "title": "ChangePasswordResponse"
       },
+      "ClearedClosureReportsData": {
+        "properties": {
+          "restaurant_id": {
+            "type": "string",
+            "title": "Restaurant Id"
+          },
+          "cleared_reports": {
+            "type": "integer",
+            "title": "Cleared Reports",
+            "description": "Số người báo vừa bị gỡ."
+          },
+          "is_hidden": {
+            "type": "boolean",
+            "title": "Is Hidden"
+          }
+        },
+        "type": "object",
+        "required": [
+          "restaurant_id",
+          "cleared_reports",
+          "is_hidden"
+        ],
+        "title": "ClearedClosureReportsData"
+      },
+      "ClearedClosureReportsResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ClearedClosureReportsData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "ClearedClosureReportsResponse"
+      },
+      "ClosureReportItem": {
+        "properties": {
+          "restaurant_id": {
+            "type": "string",
+            "title": "Restaurant Id"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name",
+            "description": "`null` = quán không còn trong dữ liệu. KHÔNG bịa tên."
+          },
+          "report_count": {
+            "type": "integer",
+            "title": "Report Count",
+            "description": "Số NGƯỜI BÁO khác nhau (theo IP đã băm)."
+          },
+          "is_hidden": {
+            "type": "boolean",
+            "title": "Is Hidden",
+            "description": "Đủ ngưỡng -> đang bị ẩn khỏi MỌI luồng người dùng."
+          }
+        },
+        "type": "object",
+        "required": [
+          "restaurant_id",
+          "report_count",
+          "is_hidden"
+        ],
+        "title": "ClosureReportItem"
+      },
+      "ClosureReportListData": {
+        "properties": {
+          "threshold": {
+            "type": "integer",
+            "title": "Threshold",
+            "description": "Số người báo cần để ẩn quán."
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ClosureReportItem"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "threshold",
+          "items"
+        ],
+        "title": "ClosureReportListData"
+      },
+      "ClosureReportListResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ClosureReportListData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "ClosureReportListResponse"
+      },
       "CollectionItemSchema": {
         "properties": {
           "item_type": {
@@ -8088,7 +8380,7 @@
           "token"
         ],
         "title": "VerifyEmailRequest",
-        "description": "Xác minh email bằng token trong thư.\n\nKHÔNG có trường email: địa chỉ nằm sẵn trong token và đã được ký. Nhận email từ\nclient rồi tin theo là mở đường cho người ta xác minh hộ địa chỉ của người khác."
+        "description": "Xác minh email bằng token trong thư.\n\nKHÔNG có trường email: token mang VÂN TAY (bản băm) của địa chỉ đã nhận thư, đã được\nký; địa chỉ thật lấy từ tài khoản. Nhận email từ client rồi tin theo là mở đường cho\nngười ta xác minh hộ địa chỉ của người khác."
       },
       "ViecCanXuLySchema": {
         "properties": {

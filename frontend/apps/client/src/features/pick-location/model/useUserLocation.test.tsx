@@ -138,4 +138,24 @@ describe('useUserLocation', () => {
       'Bạn đã từ chối chia sẻ vị trí. Đang dùng trung tâm Hà Nội.',
     );
   });
+
+  it('vi tri trinh duyet GIU QUA TRANG: hook moi (trang khac) dung lai, khong roi ve Ho Guom', () => {
+    vi.stubGlobal('fetch', gia_lap_fetch([]));
+    Object.defineProperty(navigator, 'geolocation', {
+      configurable: true,
+      value: {
+        getCurrentPosition: (ok: (p: { coords: { latitude: number; longitude: number } }) => void) =>
+          ok({ coords: { latitude: 21.05, longitude: 105.79 } }),
+      },
+    });
+    const trangDau = renderHook(() => useUserLocation(), { wrapper });
+    act(() => trangDau.result.current.request());
+    expect(trangDau.result.current.source).toBe('browser');
+    trangDau.unmount();
+
+    // Trang sau (vd. trang món) dựng hook MỚI — không bấm định vị lại.
+    const trangSau = renderHook(() => useUserLocation(), { wrapper });
+    expect(trangSau.result.current.source).toBe('browser');
+    expect(trangSau.result.current.position).toEqual({ lat: 21.05, lng: 105.79 });
+  });
 });

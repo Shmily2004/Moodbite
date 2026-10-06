@@ -8,15 +8,22 @@ on:
 
 jobs:
   backend:
-    name: Backend (Python)
+    name: Backend (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
+    # 3.11: bản thấp nhất đã kiểm. 3.14: bản máy phát triển đang chạy (requirements.txt
+    # đã nâng fastapi/uvicorn 2026-10-02 vì lý do 3.14). Chạy cả hai để lỗi chỉ xuất hiện
+    # trên một phiên bản không lọt qua. fail-fast: false để thấy kết quả của cả hai.
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11', '3.14']
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: ${{ matrix.python-version }}
           cache: pip
 
       - name: Install dependencies
@@ -35,6 +42,12 @@ jobs:
       # Chốt chặn kiến trúc: domain KHÔNG được phụ thuộc framework/thư viện hạ tầng.
       - name: Kiểm tra hướng phụ thuộc Clean Architecture
         run: python scripts/check_architecture.py
+
+      # Mục 4 của verify.py: chỉ MỘT backend (1 FastAPI app, không .ts/.tsx ngoài
+      # frontend/ và archive/, không package.json ở gốc). Không cần file dữ liệu.
+      # Trước 2026-10 CI không có bước này - LanguageContext.tsx rỗng ở gốc lọt qua.
+      - name: Kiểm tra chỉ có một backend (verify.py mục 4)
+        run: python scripts/verify.py --chi 4
 
   frontend:
     name: Frontend (React + TypeScript + FSD)
@@ -55,13 +68,15 @@ jobs:
       - name: Install deps
         run: npm ci
 
-      # Kiểm kiểu TOÀN monorepo: `npm run build` chỉ phủ `apps/client`, còn
-      # `packages/**` và `steiger.config.ts` thuộc project gốc `frontend/tsconfig.json`.
+      # Kiểm kiểu TOÀN monorepo: `npm run build` build CẢ HAI app (client + admin, mỗi app
+      # tự chạy tsc), nhưng `packages/**` và `steiger.config.ts` thuộc project gốc
+      # `frontend/tsconfig.json` nên chỉ bước typecheck này mới phủ.
       - name: Kiểm tra kiểu TypeScript (toàn monorepo)
         run: npm run typecheck
 
-      # Build đã bao gồm `tsc --noEmit`, nên sai tên field API là CI đỏ ngay.
-      - name: Build
+      # Build cả client lẫn admin; mỗi app đã bao gồm `tsc --noEmit`, nên sai tên field
+      # API là CI đỏ ngay.
+      - name: Build (client + admin)
         run: npm run build
 
       # Cả hai app. Trong đó có smoke test render <App /> - chốt chặn chống MÀN HÌNH

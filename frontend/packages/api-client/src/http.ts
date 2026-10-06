@@ -77,12 +77,28 @@ export interface HttpClientOptions {
    * App client KHÔNG truyền tham số này - luồng người dùng cuối không có đăng nhập.
    */
   getAuthToken?: () => string | null;
+  /**
+   * TUỲ CHỌN (opt-in, thêm 2026-10-06): gọi khi một request ĐÃ GỬI TOKEN nhận 401 —
+   * tức token hết hạn hoặc bị THU HỒI giữa phiên (đăng xuất / đổi mật khẩu ở thiết bị
+   * khác). App dùng nó để đăng xuất cục bộ ở MỘT chỗ thay vì mỗi trang tự bắt 401.
+   *
+   * `token` là chuỗi token đã gửi ĐÚNG request đó: người gọi so với token hiện tại để bỏ
+   * qua 401 của request CŨ (đã đăng nhập lại, hoặc chính lệnh đăng xuất) — không lặp.
+   * Lỗi vẫn được ném tiếp như bình thường sau khi gọi callback.
+   */
+  onUnauthorized?: (info: { error: ApiError; token: string; path: string }) => void;
 }
 
 export interface RequestOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   body?: unknown;
   signal?: AbortSignal;
+  /**
+   * 401 ở request này nghĩa là "SAI THÔNG TIN" (mật khẩu, token trong thư), KHÔNG phải
+   * "phiên chết" → không gọi `onUnauthorized`. Vd. đổi mật khẩu gõ sai mật khẩu hiện tại
+   * trả 401; đăng xuất người dùng vì thế là sai hẳn.
+   */
+  credentialCheck?: boolean;
 }
 
 export class HttpClient {
@@ -96,7 +112,7 @@ export class HttpClient {
    * người dùng gõ thêm một chữ sẽ hiện một thông báo lỗi giả.
    */
   async request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-    const { method = 'GET', body, signal } = options;
+    const { method = 'GET', body, signal, credentialCheck = false } = options;
 
     const headers: Record<string, string> = {};
     if (body) headers['Content-Type'] = 'application/json';
@@ -130,12 +146,20 @@ export class HttpClient {
 
     if (payload && typeof payload === 'object' && 'error' in payload) {
       const { error } = payload as ErrorEnvelope;
-      throw new ApiError(
+      const apiError = new ApiError(
         error.code as ApiErrorCode,
         error.message,
         error.details ?? {},
         response.status,
       );
+      if (response.status === 401 && token && !credentialCheck) {
+        try {
+          this.options.onUnauthorized?.({ error: apiError, token, path });
+        } catch {
+          // Callback của app lỗi thì vẫn phải ném lỗi API gốc cho người gọi.
+        }
+      }
+      throw apiError;
     }
 
     if (!response.ok) {

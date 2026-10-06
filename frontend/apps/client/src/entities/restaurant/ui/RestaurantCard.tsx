@@ -87,15 +87,11 @@ export function RestaurantCard({
         className={['card', gon && 'card--gon', active && 'card--active']
           .filter(Boolean)
           .join(' ')}
+        // Bấm CẢ THẺ vẫn mở chi tiết (vùng bấm to cho ngón tay) — nhưng thẻ KHÔNG mang
+        // `role="button"` nữa: nó chứa nút "Xem chi tiết" bên trong, và nút lồng trong nút
+        // là điều khiển lồng nhau, trình đọc màn hình đọc lẫn (audit 2026-10-06). Bàn phím
+        // / trình đọc màn hình dùng nút "Xem chi tiết" thật — nút đó luôn có khi mở được.
         onClick={() => onOpenDetail?.(restaurant)}
-        role={onOpenDetail ? 'button' : undefined}
-        tabIndex={onOpenDetail ? 0 : undefined}
-        onKeyDown={(event) => {
-          if (onOpenDetail && (event.key === 'Enter' || event.key === ' ')) {
-            event.preventDefault();
-            onOpenDetail(restaurant);
-          }
-        }}
       >
         <div className="card__anh">
           <RestaurantThumb

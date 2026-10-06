@@ -20,6 +20,7 @@ import { HANOI_CENTER } from '@/shared/config';
 import { useUserSessionContext } from '@/entities/user';
 import { useDefaultAddress } from '@/entities/address';
 import { HAM_DICH_VI, useT } from '@/shared/i18n';
+import { readBrowserPosition, writeBrowserPosition } from '@/shared/lib';
 import type { HamDich, Khoa } from '@/shared/i18n';
 
 export interface Coordinates {
@@ -80,7 +81,9 @@ export function useUserLocation(): UseUserLocationResult {
   const session = useUserSessionContext();
   const diaChi = useDefaultAddress(session.isLoggedIn);
   const t = useT();
-  const [browser, setBrowser] = useState<Coordinates | null>(null);
+  // Đọc vị trí trình duyệt đã có trong PHIÊN: trang trước đã xin được thì trang này dùng
+  // luôn, không lặng lẽ rơi về địa chỉ đã lưu / Hồ Gươm (xem `shared/lib/browserPosition`).
+  const [browser, setBrowser] = useState<Coordinates | null>(readBrowserPosition);
   const [errorCode, setErrorCode] = useState<number | null>(null);
   const [unsupported, setUnsupported] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -110,7 +113,9 @@ export function useUserLocation(): UseUserLocationResult {
     setLoading(true);
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
-        setBrowser({ lat: coords.latitude, lng: coords.longitude });
+        const pos = { lat: coords.latitude, lng: coords.longitude };
+        writeBrowserPosition(pos);
+        setBrowser(pos);
         setErrorCode(null);
         setLoading(false);
       },

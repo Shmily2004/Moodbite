@@ -1,6 +1,7 @@
 """Kiểm tra TOÀN BỘ dự án bằng MỘT lệnh duy nhất.
 
     python scripts/verify.py
+    python scripts/verify.py --chi 4      (chỉ chạy mục 4; CI dùng cách này)
 
 VÌ SAO CÓ FILE NÀY: tài liệu trước đây ghi 4 lệnh nối bằng `&&`, chỉ chạy được trên
 bash/macOS/Linux. PowerShell 5.1 (mặc định trên Windows) KHÔNG hỗ trợ `&&`, cũng không có
@@ -110,12 +111,14 @@ def check_single_backend() -> tuple[bool, str]:
                         f"{[str(p.relative_to(ROOT)) for p in apps]}")
 
     # TypeScript chỉ được nằm trong frontend/ (hoặc archive/).
+    # Quét CẢ *.tsx: trước 2026-10 chỉ quét "*.ts" nên một file LanguageContext.tsx
+    # rỗng ở thư mục gốc lọt qua mục này (rglob("*.ts") KHÔNG khớp đuôi .tsx).
     stray_ts = [
-        p for p in ROOT.rglob("*.ts")
+        p for pattern in ("*.ts", "*.tsx") for p in ROOT.rglob(pattern)
         if not any(part in ("archive", "node_modules", ".git", "frontend") for part in p.parts)
     ]
     if stray_ts:
-        problems.append(f"co {len(stray_ts)} file .ts ngoai frontend/ va archive/: "
+        problems.append(f"co {len(stray_ts)} file .ts/.tsx ngoai frontend/ va archive/: "
                         f"{[str(p.relative_to(ROOT)) for p in stray_ts[:5]]}")
 
     # Frontend KHÔNG được chứa code chạy phía server.
@@ -149,8 +152,9 @@ def check_frontend() -> tuple[bool, str] | tuple[None, str]:
     if not npm:
         return None, "khong tim thay npm trong PATH"
 
-    # Kiểm kiểu TRƯỚC build: `npm run build` chỉ chạy tsc cho `apps/client`, không phủ
-    # `packages/**` và `steiger.config.ts` (thuộc project gốc `frontend/tsconfig.json`).
+    # Kiểm kiểu TRƯỚC build: `npm run build` chạy tsc cho TỪNG app (`apps/client`,
+    # `apps/admin`), không phủ `packages/**` và `steiger.config.ts` (thuộc project gốc
+    # `frontend/tsconfig.json`).
     code, out = run([npm, "run", "typecheck"], cwd=frontend)
     if code != 0:
         errors = [ln.strip() for ln in out.splitlines() if ": error TS" in ln]
@@ -278,7 +282,28 @@ CHECKS = [
 ]
 
 
+def _chon_muc(argv: list[str]) -> list[tuple[str, object]]:
+    """`--chi 4` (hoặc `--chi 3,4`) chỉ chạy các mục được chọn.
+
+    VÌ SAO: CI chạy pytest/checker kiến trúc thành từng bước riêng (để log dễ đọc), nhưng
+    mục 4 "chỉ một backend" thì KHÔNG có bước nào tương đương - file LanguageContext.tsx
+    rỗng ở thư mục gốc từng tồn tại mà CI không hề hay biết. Cho CI gọi đúng mục 4 thay vì
+    chép lại logic kiểm tra sang ci.yml (hai bản sẽ lệch nhau).
+    """
+    if "--chi" not in argv:
+        return list(CHECKS)
+    idx = argv.index("--chi")
+    if idx + 1 >= len(argv):
+        raise SystemExit("Thieu so muc sau --chi, vd: python scripts/verify.py --chi 4")
+    so = {int(x) for x in argv[idx + 1].split(",") if x.strip()}
+    chon = [c for i, c in enumerate(CHECKS, start=1) if i in so]
+    if not chon:
+        raise SystemExit(f"Khong co muc nao trong {sorted(so)} (hop le: 1-{len(CHECKS)})")
+    return chon
+
+
 def main() -> int:
+    checks = _chon_muc(sys.argv[1:])
     print("=" * 68)
     print("KIEM TRA DU AN MOODBITE")
     print("=" * 68)
@@ -286,7 +311,7 @@ def main() -> int:
     failures = 0
     skipped = 0
 
-    for label, check in CHECKS:
+    for label, check in checks:
         try:
             ok, detail = check()
         except Exception as exc:  # bản thân checker hỏng cũng phải báo, không được im

@@ -29,6 +29,7 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Mapping, Optional, Sequence, Tuple
 
 from src.application.errors import DataNotReadyError
+from src.application.ports.dish_restaurant_index import current_index, index_is_ready
 from src.domain.entities.dish import Dish
 from src.domain.value_objects.text import contains_phrase, normalize
 
@@ -122,10 +123,13 @@ class DishAdminPage:
 class ListDishesForAdminUseCase:
     """Danh mục món cho quản trị, PHÂN TRANG ở server.
 
-    `dish_restaurant_index` là CHÍNH chỉ mục `{dish_id: [DishMatch]}` dựng một lần lúc khởi
-    động ở `dependencies.py` và dùng cho `/dishes/{id}/restaurants`. Dùng lại nó thay vì
-    đếm lại: viết bộ khớp thứ hai là hai con số "có bao nhiêu quán" lệch nhau ngay lần đầu
-    ai đó sửa luật khớp. Đếm `len()` trên chỉ mục đã có là O(số món), không tốn gì.
+    `dish_restaurant_index` là CHÍNH chỉ mục `{dish_id: [DishMatch]}` lắp ở
+    `dependencies.py` và dùng cho `/dishes/{id}/restaurants`. Dùng lại nó thay vì đếm lại:
+    viết bộ khớp thứ hai là hai con số "có bao nhiêu quán" lệch nhau ngay lần đầu ai đó
+    sửa luật khớp. Đếm `len()` trên chỉ mục đã có là O(số món), không tốn gì.
+
+    Từ 2026-10-06 chỉ mục TỰ LÀM MỚI khi admin ẩn/sửa/thêm quán (bản cũ dựng một lần lúc
+    khởi động nên cột "Có quán (số)" vẫn đếm quán đã ẩn tới lần khởi động lại).
     """
 
     def __init__(
@@ -136,11 +140,21 @@ class ListDishesForAdminUseCase:
         self.dish_catalog = dish_catalog
         self._index = dish_restaurant_index
 
-    def _so_quan(self, d: Dish) -> Optional[int]:
-        if self._index is None:
+    def _so_quan(self, d: Dish, index: Optional[Mapping[str, Sequence]]) -> Optional[int]:
+        if index is None:
             return None
         # Chỉ mục dựng từ món ĐANG BẬT; món tắt vắng mặt nghĩa là chưa khớp quán nào.
-        return len(self._index.get(d.identifier, ()))
+        return len(index.get(d.identifier, ()))
+
+    def _chi_muc(self) -> Optional[Mapping[str, Sequence]]:
+        """Chỉ mục cho lượt này, hoặc `None` khi chưa lắp / dataset quán chưa nạp.
+
+        `None` chứ không phải `{}`: thiếu dataset quán mà hiện "0 quán" cho mọi món là nói
+        sai — sự thật là CHƯA ĐẾM ĐƯỢC (CLAUDE.md mục 4 quy tắc 1).
+        """
+        if self._index is None or not index_is_ready(self._index):
+            return None
+        return current_index(self._index)
 
     def execute(
         self,
@@ -170,8 +184,12 @@ class ListDishesForAdminUseCase:
         co = max(1, min(int(page_size), MAX_TRANG))
         trang = max(1, int(page))
         dau = (trang - 1) * co
+        chi_muc = self._chi_muc()
         return DishAdminPage(
-            rows=[DishAdminRow.tu_dish(d, self._so_quan(d)) for d in mon[dau : dau + co]],
+            rows=[
+                DishAdminRow.tu_dish(d, self._so_quan(d, chi_muc))
+                for d in mon[dau : dau + co]
+            ],
             total=len(mon),
             page=trang,
             page_size=co,
@@ -238,11 +256,18 @@ class GetDishForAdminUseCase:
             (d for d in self.dish_catalog.list_all_dishes() if d.identifier == ma), None
         )
 
-    def restaurant_count(self, dish: Dish) -> Optional[int]:
-        """Số quán khớp — cùng chỉ mục với bảng món. `None` = chỉ mục chưa lắp."""
-        if self._index is None:
+    def _chi_muc(self) -> Optional[Mapping[str, Sequence]]:
+        """Như `ListDishesForAdminUseCase._chi_muc`: `None` = chưa đếm được."""
+        if self._index is None or not index_is_ready(self._index):
             return None
-        return len(self._index.get(dish.identifier, ()))
+        return current_index(self._index)
+
+    def restaurant_count(self, dish: Dish) -> Optional[int]:
+        """Số quán khớp — cùng chỉ mục với bảng món. `None` = chưa đếm được."""
+        chi_muc = self._chi_muc()
+        if chi_muc is None:
+            return None
+        return len(chi_muc.get(dish.identifier, ()))
 
     def restaurants(self, dish: Dish, limit: int = 20) -> DishRestaurantsPage:
         """Các quán khớp món, cho tab "Danh sách quán".
@@ -252,7 +277,8 @@ class GetDishForAdminUseCase:
         chỉ khớp loại hình > chỉ review nhắc, xem `DishMatch.strength`), cùng mức thì quán CÓ đánh giá trước, rồi theo số lượt đánh giá.
         Quán chưa có đánh giá (`None`) xếp sau chứ KHÔNG bị coi là 0 sao.
         """
-        khop = list(self._index.get(dish.identifier, ())) if self._index else []
+        chi_muc = self._chi_muc()
+        khop = list(chi_muc.get(dish.identifier, ())) if chi_muc else []
 
         def khoa_xep(m) -> Tuple:
             r = m.restaurant

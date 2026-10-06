@@ -76,7 +76,14 @@ export function useIssues(): UseIssuesResult {
 export interface UseIssueDetailResult {
   data: AdminIssueDetailData | null;
   loading: boolean;
+  /** Lỗi TẢI danh sách — không có gì để hiện. */
   error: string | null;
+  /**
+   * Lỗi ĐÁNH DẤU — tách khỏi `error` (audit 2026-10-06): trước đây một lần đánh dấu hỏng
+   * thay CẢ danh sách bằng câu lỗi, người quản trị mất chỗ đang làm. Nay danh sách vẫn
+   * hiện, câu lỗi nằm phía trên.
+   */
+  actionError: string | null;
   /** Đang gửi yêu cầu đánh dấu cho `target_id` nào. `null` = không có. */
   dangGui: string | null;
   danhDau: (targetId: string, dat: boolean) => Promise<void>;
@@ -89,10 +96,18 @@ export interface UseIssueDetailResult {
  * tác có thể hỏng ở server (kho đầy, mất quyền ghi) và một giao diện tự tô "đã xong"
  * trước khi server xác nhận sẽ nói dối người quản trị về việc mình vừa làm.
  */
-export function useIssueDetail(khoa: string | null): UseIssueDetailResult {
+export function useIssueDetail(
+  khoa: string | null,
+  /**
+   * Gọi sau khi đánh dấu THÀNH CÔNG — trang tải lại bộ đếm nhóm/thẻ số. Thiếu bước này
+   * thì đánh dấu xong mà "Số lượng" và năm thẻ số vẫn đứng yên (audit 2026-10-06).
+   */
+  onChanged?: () => void,
+): UseIssueDetailResult {
   const [data, setData] = useState<AdminIssueDetailData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const [dangGui, setDangGui] = useState<string | null>(null);
   const [lan, setLan] = useState(0);
 
@@ -100,6 +115,7 @@ export function useIssueDetail(khoa: string | null): UseIssueDetailResult {
     if (!khoa) {
       setData(null);
       setError(null);
+      setActionError(null);
       return;
     }
     let conSong = true;
@@ -135,18 +151,19 @@ export function useIssueDetail(khoa: string | null): UseIssueDetailResult {
         } else {
           await adminApi.unresolveIssue(khoa, targetId);
         }
-        setError(null);
+        setActionError(null);
         setLan((n) => n + 1);
+        onChanged?.();
       } catch (err: unknown) {
-        setError(loiThanhChu(err));
+        setActionError(loiThanhChu(err));
       } finally {
         setDangGui(null);
       }
     },
-    [khoa],
+    [khoa, onChanged],
   );
 
-  return { data, loading, error, dangGui, danhDau };
+  return { data, loading, error, actionError, dangGui, danhDau };
 }
 
 export interface UseResolvedIssuesResult {

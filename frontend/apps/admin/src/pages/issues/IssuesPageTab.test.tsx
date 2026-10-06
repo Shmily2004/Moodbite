@@ -15,7 +15,10 @@ const { issues, issueDetail, resolvedIssues } = vi.hoisted(() => ({
 
 vi.mock('@/shared/api', async () => {
   const that = await vi.importActual<typeof import('@/shared/api')>('@/shared/api');
-  return { ...that, adminApi: { issues, issueDetail, resolvedIssues } };
+  return { ...that, adminApi: { issues, issueDetail, resolvedIssues,
+    // Khối "báo đóng cửa" (2026-10-06) nằm chung trang: trả rỗng để không gây nhiễu.
+    closureReports: () => Promise.resolve({ threshold: 3, items: [] }),
+  } };
 });
 
 import { IssuesPage } from './ui/IssuesPage';

@@ -21,10 +21,14 @@ Mọi phản hồi phải được bọc trong một Envelope nhất quán, giú
   `POST /api/v1/auth/register`, `POST /api/v1/auth/login`, `GET /api/v1/auth/me`.
   Hai vai: `user` và `admin`. Token HMAC gửi qua `Authorization: Bearer <token>`, hạn 24 giờ.
   Câu gạch ngang ở trên giữ lại để thấy được điều gì đã đổi so với đặc tả gốc.
-  Chưa làm: đăng xuất có thu hồi token (token stateless nên chỉ hết hạn theo thời gian).
+  ~~Chưa làm: đăng xuất có thu hồi token.~~ **ĐÃ LÀM:** `POST /api/v1/auth/logout` (2026-09-29,
+  cơ chế `token_version` — thu hồi mọi token của tài khoản ở mọi thiết bị) và
+  `POST /api/v1/admin/logout` (2026-10-02).
 - **Định danh phiên (Session):** Sử dụng `session_id` (UUID v4) do client tự sinh, lưu cục bộ và gửi kèm trong mọi request có ghi dữ liệu. Dữ liệu này là ẩn danh và không gắn với thông tin định danh cá nhân[cite: 2].
   `session_id` **vẫn giữ** sau khi có tài khoản: khách chưa đăng nhập vẫn cần định danh
-  để ghi tương tác, và việc gắn `user_id` vào tương tác là bước riêng chưa làm.
+  để ghi tương tác. ~~Gắn `user_id` vào tương tác là bước riêng chưa làm.~~ **ĐÃ LÀM:**
+  `POST /interactions` có token thì gắn `user_id` LẤY TỪ TOKEN (không từ body); khách vẫn
+  gọi được không cần token.
 
 ## 5. MÃ LỖI (ERROR CODES) CHUẨN
 Bắt buộc sử dụng các HTTP Status và `error.code` dùng chung sau[cite: 2]:

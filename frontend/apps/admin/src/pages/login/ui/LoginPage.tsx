@@ -6,6 +6,7 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { LoginForm, useAdminSessionContext } from '@/features/admin-login';
 import { ROUTES } from '@/shared/config';
+import { safeInternalPath } from '@/shared/lib';
 
 interface LocationState {
   from?: string;
@@ -20,8 +21,10 @@ export function LoginPage() {
     //
     // Đích MẶC ĐỊNH là TỔNG QUAN (đổi 2026-08-26). Trước đó là danh sách quán, nên đăng
     // nhập xong đập thẳng vào bảng 52.854 dòng thay vì màn số liệu vận hành.
-    const from = (location.state as LocationState | null)?.from;
-    return <Navigate to={from || ROUTES.overview} replace />;
+    // Chỉ nhận đường dẫn NỘI BỘ: react-router v6 dính open redirect qua `\`
+    // (GHSA-wrjc-x8rr-h8h6) và không có bản vá cho v6 — xem `safeInternalPath`.
+    const from = safeInternalPath((location.state as LocationState | null)?.from);
+    return <Navigate to={from ?? ROUTES.overview} replace />;
   }
 
   return (

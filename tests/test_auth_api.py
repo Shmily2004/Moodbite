@@ -154,6 +154,11 @@ def build_client(
     )
     c.confirm_email_verification = ConfirmEmailVerificationUseCase(users, verify_tokens)
     c.login_rate_limiter = SlidingWindowRateLimiter(login_limit, 300)
+    # Bộ đếm theo IP / theo tên / quản trị (2026-10-06, `login_throttle.py`): để rộng —
+    # test nào nói về chúng thì tự thay bằng bộ đếm nhỏ.
+    c.login_ip_rate_limiter = SlidingWindowRateLimiter(50, 300)
+    c.login_account_rate_limiter = SlidingWindowRateLimiter(50, 900)
+    c.admin_login_rate_limiter = SlidingWindowRateLimiter(50, 900)
     c.register_rate_limiter = SlidingWindowRateLimiter(register_limit, 3600)
     c.forgot_password_rate_limiter = SlidingWindowRateLimiter(forgot_limit, 3600)
     attach_dish_catalog(c)
@@ -634,7 +639,8 @@ def test_token_CU_khong_co_tv_van_dung_duoc_toi_khi_bi_thu_hoi(tmp_path):
     _dang_ky_lay_token(client, username="tokencu")
     user_id = _me(client, login(client, "tokencu", PASSWORD).json()["data"]["token"]).json()[
         "data"]["user_id"]
-    token_cu = sign_token({"sub": user_id}, SECRET.encode("utf-8"), 3600)
+    # `purpose=None` = token kiểu CŨ, không có `typ` (phát trước 2026-10-06).
+    token_cu = sign_token({"sub": user_id}, SECRET.encode("utf-8"), 3600, purpose=None)
 
     assert _me(client, token_cu).status_code == 200
     client.post(f"{API}/auth/logout", headers={"Authorization": f"Bearer {token_cu}"})

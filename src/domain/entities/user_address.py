@@ -16,10 +16,11 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
 
+from src.domain.errors import DomainValidationError
 from src.domain.value_objects.location import HANOI_BBOX, trong_ha_noi
 
 
-class InvalidUserAddress(ValueError):
+class InvalidUserAddress(DomainValidationError):
     """Dữ liệu địa chỉ không hợp lệ hoặc vượt giới hạn -> HTTP 400."""
 
 

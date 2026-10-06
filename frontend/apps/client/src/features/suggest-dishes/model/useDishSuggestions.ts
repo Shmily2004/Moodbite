@@ -9,7 +9,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { DishItem } from '@/shared/api';
-import { ApiError, api } from '@/shared/api';
+import { ApiError, accountErrorText, api } from '@/shared/api';
 import { getSessionId } from '@/shared/lib';
 import { useT } from '@/shared/i18n';
 import { useDishFilterState } from './useDishFilterState';
@@ -114,9 +114,7 @@ export function useDishSuggestions(
           // dùng đọc không hiểu gì, mà đây lại là lỗi hay gặp nhất (quên bật backend).
           // Các mã lỗi khác thì câu của backend đã viết cho người dùng đọc.
           err instanceof ApiError
-            ? err.code === 'NETWORK'
-              ? err.userMessage
-              : err.message
+            ? accountErrorText(err, tRef.current)
             : tRef.current('suggest.serverDown'),
         );
         setDishes(null);

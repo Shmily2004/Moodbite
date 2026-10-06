@@ -44,6 +44,40 @@ def describe_path(path) -> str:
         return resolved.name
 
 
+# --- Giới hạn tần suất cho endpoint CÔNG KHAI (thêm 2026-10-06) ---------------------------
+# Dạng (số lượt tối đa, cửa sổ giây), tính theo IP. Đặt qua biến môi trường dạng "N/S",
+# ví dụ MOODBITE_SEARCH_RATE_LIMIT=60/60. "0/..." = TẮT giới hạn (lựa chọn có ý thức).
+#
+# POST /search: mỗi lượt có câu chữ tốn ~0,8-2 giây CPU (đo 2026-10-02, 52.871 quán). 30
+# lượt/phút = trung bình 1 lượt mỗi 2 giây, người thật gõ-đọc-gõ lại hiếm khi nhanh hơn,
+# nhưng đủ chặn một vòng lặp gửi liên tục chiếm hết CPU.
+DEFAULT_SEARCH_RATE_LIMIT = (30, 60)
+# POST /interactions (mọi loại): giao diện ghi 1 sự kiện cho mỗi lần xem/lưu/chỉ đường,
+# 120/phút là gấp nhiều lần người thật — chỉ chặn bot bơm nhãn rác vào dữ liệu huấn luyện.
+DEFAULT_INTERACTION_RATE_LIMIT = (120, 60)
+# Riêng `report_closed`: một lượt báo góp phần ẨN QUÁN VỚI MỌI NGƯỜI. Người thật hầu như
+# không báo quá 1-2 quán mỗi giờ; 5/giờ chặn việc một máy rải báo lên hàng loạt quán.
+DEFAULT_CLOSURE_REPORT_RATE_LIMIT = (5, 3600)
+
+
+def parse_rate_limit(raw: str | None, default: tuple[int, int]) -> tuple[int, int]:
+    """"N/S" -> (N, S). Giá trị hỏng thì GIỮ MẶC ĐỊNH, không làm sập app lúc khởi động.
+
+    `N=0` hợp lệ (tắt giới hạn). `N<0` hay `S<=0` là gõ nhầm -> mặc định: thà chạy với
+    giới hạn hợp lý còn hơn vô tình tắt hẳn vì một dấu trừ.
+    """
+    if not raw or "/" not in raw:
+        return default
+    so_luot, _, cua_so = raw.partition("/")
+    try:
+        n, s = int(so_luot.strip()), int(cua_so.strip())
+    except ValueError:
+        return default
+    if n < 0 or s <= 0:
+        return default
+    return n, s
+
+
 def parse_synthetic_flag(raw: str | None) -> bool:
     """`MOODBITE_SYNTHETIC_DATA` -> bool. CHỈ "1" (bỏ khoảng trắng hai đầu) là bật.
 
@@ -134,6 +168,11 @@ class Settings:
     # Có giá trị mặc định (False) vì đây là trường MỚI: nơi nào dựng Settings bằng tay
     # (test, script cũ) không phải sửa theo.
     synthetic_data: bool = False
+    # Giới hạn tần suất theo IP — xem các hằng số DEFAULT_*_RATE_LIMIT ở đầu file. Có giá trị
+    # mặc định vì là trường MỚI (cùng lý do với `synthetic_data`).
+    search_rate_limit: tuple[int, int] = DEFAULT_SEARCH_RATE_LIMIT
+    interaction_rate_limit: tuple[int, int] = DEFAULT_INTERACTION_RATE_LIMIT
+    closure_report_rate_limit: tuple[int, int] = DEFAULT_CLOSURE_REPORT_RATE_LIMIT
 
     @staticmethod
     def from_env() -> "Settings":
@@ -236,4 +275,15 @@ class Settings:
             # Chỉ đúng chuỗi "1" mới bật, giống MOODBITE_ENABLE_WEATHER: gõ "true"/"yes" mà
             # tưởng đã bật còn đỡ nguy hiểm hơn là vô tình bật vì một giá trị rác.
             synthetic_data=parse_synthetic_flag(os.getenv("MOODBITE_SYNTHETIC_DATA")),
+            search_rate_limit=parse_rate_limit(
+                os.getenv("MOODBITE_SEARCH_RATE_LIMIT"), DEFAULT_SEARCH_RATE_LIMIT
+            ),
+            interaction_rate_limit=parse_rate_limit(
+                os.getenv("MOODBITE_INTERACTION_RATE_LIMIT"),
+                DEFAULT_INTERACTION_RATE_LIMIT,
+            ),
+            closure_report_rate_limit=parse_rate_limit(
+                os.getenv("MOODBITE_CLOSURE_REPORT_RATE_LIMIT"),
+                DEFAULT_CLOSURE_REPORT_RATE_LIMIT,
+            ),
         )

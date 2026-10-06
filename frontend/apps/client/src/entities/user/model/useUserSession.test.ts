@@ -71,3 +71,52 @@ describe('useUserSession.logout', () => {
     expect(result.current.isLoggedIn).toBe(false);
   });
 });
+
+describe('useUserSession - phien chet giua chung (audit 2026-10-06)', () => {
+  it('request co token nhan 401 -> dang xuat cuc bo, xoa token', async () => {
+    const { handleUnauthorized } = await import('@/shared/lib');
+    sessionStorage.setItem(KEY, 'tok-1');
+    const { result } = renderHook(() => useUserSession());
+    expect(result.current.isLoggedIn).toBe(true);
+
+    act(() => handleUnauthorized('tok-1'));
+
+    expect(result.current.isLoggedIn).toBe(false);
+    expect(sessionStorage.getItem(KEY)).toBeNull();
+  });
+
+  it('401 cua request CU (token khac token hien tai) -> KHONG dang xuat', async () => {
+    const { handleUnauthorized } = await import('@/shared/lib');
+    sessionStorage.setItem(KEY, 'tok-moi');
+    const { result } = renderHook(() => useUserSession());
+
+    act(() => handleUnauthorized('tok-cu'));
+
+    expect(result.current.isLoggedIn).toBe(true);
+    expect(sessionStorage.getItem(KEY)).toBe('tok-moi');
+  });
+
+  it('tab khac dang xuat (su kien storage) -> tab nay cung dang xuat', () => {
+    localStorage.setItem(KEY, 'tok-1');
+    const { result } = renderHook(() => useUserSession());
+    expect(result.current.isLoggedIn).toBe(true);
+
+    localStorage.removeItem(KEY);
+    act(() => {
+      window.dispatchEvent(new StorageEvent('storage', { key: KEY, newValue: null }));
+    });
+    expect(result.current.isLoggedIn).toBe(false);
+  });
+
+  it('tab khac dang nhap -> tab nay thanh dang nhap va hoi lai /auth/me', () => {
+    const { result } = renderHook(() => useUserSession());
+    expect(result.current.isLoggedIn).toBe(false);
+
+    localStorage.setItem(KEY, 'tok-2');
+    act(() => {
+      window.dispatchEvent(new StorageEvent('storage', { key: KEY, newValue: 'tok-2' }));
+    });
+    expect(result.current.isLoggedIn).toBe(true);
+    expect(me).toHaveBeenCalled();
+  });
+});

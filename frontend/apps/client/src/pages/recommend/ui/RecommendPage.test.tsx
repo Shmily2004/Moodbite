@@ -6,8 +6,8 @@
  * mà không có gì báo lỗi.
  */
 import { describe, expect, it, vi, afterEach } from 'vitest';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { MemoryRouter, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { UserSessionProvider } from '@/entities/user';
 import { LanguageProvider } from '@/shared/i18n';
 import { RecommendPage } from '../index';
@@ -254,5 +254,51 @@ describe('RecommendPage', () => {
     renderTrang();
 
     expect(await screen.findByText(/Không có món nào khớp/)).toBeInTheDocument();
+  });
+});
+
+/** Lộ `navigate` ra ngoài để test đổi URL mà KHÔNG gỡ trang khỏi cây (như thanh tab). */
+let dieuHuong: (to: string) => void = () => undefined;
+function LayNav() {
+  dieuHuong = useNavigate();
+  return null;
+}
+
+describe('RecommendPage — URL đổi từ bên ngoài (audit 2026-10-06)', () => {
+  it('đang lọc mà mở /recommend trơn (thanh tab) -> bộ lọc tắt theo URL', async () => {
+    const fetchMock = mockOk([MON]);
+    vi.stubGlobal('fetch', fetchMock);
+    render(
+      <MemoryRouter initialEntries={['/recommend?mood=relaxed']}>
+        <LanguageProvider>
+          <UserSessionProvider>
+            <LayNav />
+            <Routes>
+              <Route path="/recommend" element={<RecommendPage />} />
+            </Routes>
+          </UserSessionProvider>
+        </LanguageProvider>
+      </MemoryRouter>,
+    );
+    const goiY = () =>
+      fetchMock.mock.calls.filter(([u]) => String(u).includes('/dishes/suggest'));
+    await waitFor(() => expect(goiY().length).toBeGreaterThan(0));
+    expect(JSON.parse(String(goiY().at(-1)![1].body)).mood).toBe('relaxed');
+    const soLanTruoc = goiY().length;
+
+    await act(async () => dieuHuong('/recommend'));
+
+    await waitFor(() => expect(goiY().length).toBeGreaterThan(soLanTruoc));
+    expect(JSON.parse(String(goiY().at(-1)![1].body)).mood ?? null).toBeNull();
+  });
+
+  it('không tự gọi API hai lần lúc vào trang có bộ lọc', async () => {
+    const fetchMock = mockOk([MON]);
+    vi.stubGlobal('fetch', fetchMock);
+    renderTrang('/recommend?km=3&mood=relaxed');
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+    await new Promise((r) => setTimeout(r, 30));
+    const goiGoiY = fetchMock.mock.calls.filter(([u]) => String(u).includes('/dishes/suggest'));
+    expect(goiGoiY).toHaveLength(1);
   });
 });

@@ -8,7 +8,8 @@ khẩu bằng token trong thư. Token KHÔNG lưu vào CSDL — xem `infrastruct
 
 BA CHỐT CHẶN, độc lập nhau:
   1. Chưa đặt MOODBITE_AUTH_SECRET -> 503 kèm hướng dẫn. Fail-closed.
-  2. Giới hạn tần suất theo IP trên cả `/register` lẫn `/login`.
+  2. Giới hạn tần suất trên cả `/register` lẫn `/login` (đăng nhập: theo IP, theo tên, theo
+     cặp IP+tên, và bộ đếm quản trị khi tài khoản đích là admin — `login_throttle.py`).
   3. Vai LUÔN là `user`. Router KHÔNG nhận `role` từ client - xem `RegisterUserUseCase`.
 
 `/logout` THU HỒI THẬT (từ 2026-09-29): token mang `tv`, bảng `users` có `token_version`;
@@ -28,6 +29,7 @@ from src.presentation.api.dependencies import (
     get_current_user,
 )
 from src.presentation.api.envelope import success
+from src.presentation.api.login_throttle import LoginThrottle
 from src.presentation.api.schemas import (
     AuthResponse,
     ChangePasswordRequest,
@@ -109,14 +111,17 @@ def login(
     thì đây thành công cụ dò xem tên nào đã tồn tại.
     """
     container.user_tokens.ensure_configured()
-    key = client_key(request)
-    container.login_rate_limiter.check(key)
+    # Bốn bộ đếm (IP, tên, cặp IP+tên, và bộ QUẢN TRỊ nếu tài khoản đích là admin) — xem
+    # `login_throttle.py`. Đếm SAU khi tra tài khoản, TRƯỚC khi băm mật khẩu.
+    throttle = LoginThrottle(container, request, payload.username)
 
-    user, token = container.login_user.execute(payload.username, payload.password)
+    user, token = container.login_user.execute(
+        payload.username, payload.password, before_verify=throttle.before_verify
+    )
 
-    # Đăng nhập ĐÚNG thì xoá lịch sử đếm: người gõ nhầm vài lần rồi vào được không đáng
-    # bị chặn oan ở lần đăng nhập sau.
-    container.login_rate_limiter.reset(key)
+    # Đăng nhập ĐÚNG chỉ xoá bộ đếm của CHÍNH tài khoản này. Bản cũ xoá bộ đếm theo IP
+    # trần -> đăng nhập vào tài khoản của mình là xoá được dấu vết đoán mật khẩu người khác.
+    throttle.on_success()
     return success(_auth_payload(user, token, container.user_tokens.token_ttl_seconds))
 
 

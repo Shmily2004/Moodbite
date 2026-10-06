@@ -128,7 +128,12 @@ lúc đó mới làm trang thống kê.
 **Quyết định của chủ dự án 2026-08-17:** người dùng và admin **đều phải đăng nhập**, để
 có phân quyền rõ ràng và cá nhân hoá.
 
-**Trạng thái:** 🔴 chưa code. Cần chốt hợp đồng trước.
+**Trạng thái:** ~~🔴 chưa code. Cần chốt hợp đồng trước.~~ ✅ **ĐÃ LÀM** (cập nhật 2026-10-06):
+đăng ký/đăng nhập/đăng xuất có thu hồi token, quên & đổi mật khẩu, xác minh email, admin
+trong bảng `users`, `/me/favorites`, `/me/collections`, `/me/addresses`, `/me/stats`.
+Hợp đồng thật: `docs/extracted/MoodBite_Dac_Ta_API.md` mục **BỔ SUNG 2026-10** và
+`frontend/openapi.json`. Các mục 5.1–5.5 dưới đây là **LỊCH SỬ** quyết định, giữ lại để biết
+vì sao — đừng đọc như hiện trạng.
 
 ### 5.1. ⚠️ Việc này MÂU THUẪN với tài liệu gốc — phải sửa tài liệu
 
@@ -143,14 +148,20 @@ app thấy có đăng nhập sẽ hỏi ngay.
 
 **➜ Phải cập nhật SRS/`rules/api.md` cùng lúc với việc code, không phải sau.**
 
-### 5.2. Hiện trạng: KHÔNG có gì cho người dùng
+### 5.2. ~~Hiện trạng: KHÔNG có gì cho người dùng~~ *(LỊCH SỬ — đúng ngày 2026-08-17, nay đã xây xong)*
 
 Đếm trong `src/`: **0** file có `class User`, `user_id`, `role`, hay `UserRepository`.
 Tương tác hiện gắn với `session_id` (UUID client tự sinh), không gắn với người nào.
 
 Nghĩa là đây là xây mới hoàn toàn, không phải mở rộng cái có sẵn.
 
-### 5.3. Ba chốt chặn phải quyết TRƯỚC khi code
+### 5.3. Ba chốt chặn phải quyết TRƯỚC khi code *(LỊCH SỬ — cả ba đã xử lý)*
+
+> ✅ Đã xử lý: **A** — gửi thư qua SMTP miễn phí (quên mật khẩu, xác minh email; xem nhóm
+> SMTP trong `.env.example`). **B** — rate limiting cho đăng nhập/đăng ký/quên mật khẩu
+> (429 + `Retry-After`), thu hồi token khi đăng xuất (`token_version`, 2026-09-29; admin
+> 2026-10-02). **C** — tài khoản nằm ở CSDL riêng `moodbite_users.db`, `build_sqlite.py`
+> không đụng tới. Bảng dưới giữ nguyên hiện trạng ngày audit.
 
 #### ⛔ A. Không gửi được email
 
@@ -206,7 +217,16 @@ CSDL mà không xử lý, thì **mỗi lần chạy lại pipeline là mất to�
 Chỉ **2 vai** nên dùng cột `role` đơn giản (`"user"` / `"admin"`), **không** cần bảng
 permission hay hệ RBAC đầy đủ — thêm vào chỉ tốn công mà không dùng tới.
 
-### 5.5. Hợp đồng API dự kiến *(ĐỀ XUẤT, chưa chốt)*
+### 5.5. ~~Hợp đồng API dự kiến *(ĐỀ XUẤT, chưa chốt)*~~ *(LỊCH SỬ — đã thay bằng hợp đồng thật)*
+
+> ✅ Đã làm, nhưng KHÁC đề xuất dưới đây ở vài chỗ: `/auth/logout` trả **200** kèm
+> `message` (không phải 204) và thu hồi token ở MỌI thiết bị; `/me/favorites` nhận
+> `item_type` + `item_id` + `name` (lưu được cả quán lẫn món, có `list_type`
+> favorite/bookmark); KHÔNG có `/me/history` — thay bằng `/me/stats`; thêm
+> `/me/collections*`, `/me/addresses*`, `/auth/forgot-password`, `/auth/reset-password`,
+> `/auth/change-password`, `/auth/verify-email/*`. `POST /interactions` đã gắn `user_id`
+> (lấy từ token). Danh sách đầy đủ: `docs/extracted/MoodBite_Dac_Ta_API.md` mục BỔ SUNG
+> 2026-10.
 
 ```
 POST   /api/v1/auth/register     {username, password, display_name}  -> 201 {token}
@@ -255,8 +275,8 @@ thiểu: chuẩn bị sẵn tài khoản demo và đăng nhập trước khi tr�
 | 2 | Sửa `rules/api.md` + `PROJECT_CHECKLIST.md` — bỏ "Won't-have" | ✅ xong 2026-08-17 |
 | 3 | **Backend:** bảng `users`, đăng ký/đăng nhập, `role`, rate limiting, `build_sqlite` | ✅ xong 2026-08-17 |
 | 4 | Chuyển admin sang dùng bảng `users` | ✅ xong 2026-09-29 — `role='admin'`, tạo bằng `scripts/make_admin_user.py` |
-| 5 | Gắn `user_id` vào interaction + quán yêu thích | ⬜ chưa |
-| 6 | Giao diện Login / Register / Profile | ⬜ chờ bộ asset thiết kế |
+| 5 | Gắn `user_id` vào interaction + quán yêu thích | ✅ xong — `user_id` lấy từ token; yêu thích lưu ở server (`/me/favorites`) |
+| 6 | Giao diện Login / Register / Profile | ✅ xong — `/login`, `/register`, `/account` (app người dùng) |
 
 ### 5.8. ĐÃ CHỐT 2026-09-29: phương án A (`token_version`) — đăng xuất có thu hồi token
 

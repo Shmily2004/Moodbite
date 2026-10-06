@@ -32,7 +32,10 @@ class UserAddressRepository(Protocol):
         ...
 
     def create(self, address: UserAddress) -> UserAddress:
-        """Lưu mới. `is_default=True` thì bỏ cờ mặc định của các địa chỉ khác (cùng giao dịch)."""
+        """Lưu mới. `is_default=True` thì bỏ cờ mặc định của các địa chỉ khác (cùng giao dịch).
+
+        Adapter PHẢI tự kiểm `ensure_can_add_address` trong CÙNG giao dịch ghi (ném
+        `InvalidUserAddress`) — phép đếm của use case không chặn được request song song."""
         ...
 
     def update(

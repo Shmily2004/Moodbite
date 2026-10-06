@@ -11,6 +11,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useUserSessionContext } from '@/entities/user';
 import { useT } from '@/shared/i18n';
+import { ApiError } from '@/shared/api';
 import {
   boKhoiBoSuuTap,
   doiTenBoSuuTap,
@@ -32,12 +33,23 @@ export interface UseCollectionsResult {
   remove: (id: string) => Promise<boolean>;
   addItem: (id: string, muc: MucBoSuuTap) => Promise<boolean>;
   /** Tạo bộ mới rồi thêm luôn mục vào — ô "+ Bộ sưu tập mới" trên thẻ đã lưu. */
-  createAndAdd: (name: string, muc: MucBoSuuTap) => Promise<boolean>;
+  /**
+   * Tạo bộ mới rồi thêm mục vào. Trả `createdId` = id bộ vừa tạo (kể cả khi bước THÊM
+   * lỗi) để giao diện chuyển lựa chọn sang bộ đó — bấm lại là thêm vào bộ đã có, không
+   * tạo bộ trùng tên.
+   */
+  createAndAdd: (
+    name: string,
+    muc: MucBoSuuTap,
+  ) => Promise<{ added: boolean; createdId: string | null }>;
   removeItem: (id: string, itemType: LoaiMuc, itemId: string) => Promise<boolean>;
   reload: () => void;
 }
 
 function thongBaoLoi(err: unknown, macDinh: string): string {
+  // Lỗi MẠNG: `message` là "Failed to fetch" — đọc không hiểu, lại không theo ngôn ngữ.
+  // Câu dự phòng (đã dịch) nói đúng việc gì vừa hỏng.
+  if (err instanceof ApiError && err.code === 'NETWORK') return macDinh;
   return err instanceof Error && err.message ? err.message : macDinh;
 }
 
@@ -143,8 +155,8 @@ export function useCollections(): UseCollectionsResult {
   const createAndAdd = useCallback(
     async (name: string, muc: MucBoSuuTap) => {
       const bo = await create(name);
-      if (!bo) return false;
-      return addItem(bo.id, muc);
+      if (!bo) return { added: false, createdId: null };
+      return { added: await addItem(bo.id, muc), createdId: bo.id };
     },
     [create, addItem],
   );

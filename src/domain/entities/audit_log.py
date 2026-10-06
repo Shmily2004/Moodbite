@@ -34,6 +34,8 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional
 
+from src.domain.errors import DomainValidationError
+
 
 class AuditAction(str, Enum):
     """Những việc ĐÁNG ghi lại.
@@ -47,6 +49,9 @@ class AuditAction(str, Enum):
     UPDATE_RESTAURANT = "update_restaurant"
     HIDE_RESTAURANT = "hide_restaurant"
     RESTORE_RESTAURANT = "restore_restaurant"
+    # Gỡ lượt "người dùng báo quán đã đóng cửa" (thêm 2026-10-06). KHÁC `restore_restaurant`:
+    # khôi phục chỉ bật lại `is_active`, còn quán bị ẩn vì lượt báo vẫn đang `is_active=1`.
+    CLEAR_CLOSURE_REPORTS = "clear_closure_reports"
 
 
 # Nhãn tiếng Việt để giao diện khỏi tự dịch. Để ở domain vì đây là NGÔN NGỮ NGHIỆP VỤ —
@@ -56,6 +61,7 @@ NHAN_HANH_DONG = {
     AuditAction.UPDATE_RESTAURANT: "Cập nhật thông tin quán",
     AuditAction.HIDE_RESTAURANT: "Ẩn quán",
     AuditAction.RESTORE_RESTAURANT: "Khôi phục quán",
+    AuditAction.CLEAR_CLOSURE_REPORTS: "Gỡ lượt báo đóng cửa",
 }
 
 # Chặn trên độ dài câu tóm tắt. Không phải để "bảo mật" mà để một lần sửa 30 trường không
@@ -63,7 +69,7 @@ NHAN_HANH_DONG = {
 MAX_SUMMARY_LENGTH = 500
 
 
-class InvalidAuditEntry(ValueError):
+class InvalidAuditEntry(DomainValidationError):
     """Bản ghi nhật ký không hợp lệ -> lỗi lập trình, không phải lỗi người dùng."""
 
 

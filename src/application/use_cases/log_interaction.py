@@ -43,6 +43,11 @@ class LogInteractionCommand:
     # Do ROUTER lấy từ token đăng nhập rồi truyền vào, KHÔNG lấy từ body request —
     # xem ghi chú ở `domain/entities/interaction.py`.
     user_id: Optional[str] = None
+    # Khoá NGƯỜI BÁO cho `report_closed`, do router tính từ IP đã băm — KHÔNG lấy từ body,
+    # cùng lý do với `user_id`. `None` (lời gọi không qua HTTP: script, test) thì lượt báo
+    # vẫn được GHI vào nhật ký nhưng KHÔNG được đếm để ẩn quán: không xác minh được ai báo
+    # thì không được phép làm một quán biến mất với mọi người.
+    reporter_key: Optional[str] = None
 
 
 @dataclass(frozen=True)
@@ -92,6 +97,7 @@ class LogInteractionUseCase:
             if restaurant is None or not restaurant.is_visible:
                 raise RestaurantNotFoundError(command.restaurant_id)
 
+        la_bao_dong_cua = action == ActionType.REPORT_CLOSED
         event = InteractionEvent(
             session_id=command.session_id,
             restaurant_id=command.restaurant_id,
@@ -100,6 +106,8 @@ class LogInteractionUseCase:
             dwell_time_ms=command.dwell_time_ms,
             rank_position=command.rank_position,
             user_id=command.user_id,
+            # Chỉ lượt báo đóng cửa mới mang khoá người báo — xem `InteractionEvent`.
+            reporter_key=command.reporter_key if la_bao_dong_cua else None,
         )
         event_id = self._interactions.append(event)
 
@@ -107,12 +115,24 @@ class LogInteractionUseCase:
         # Ngược lại thì một lần ghi file hỏng sẽ để lại lượt báo chỉ tồn tại trong RAM:
         # quán bị ẩn ngay bây giờ nhưng hiện lại sau khi khởi động lại, và không ai truy
         # được vì sao. Bộ đếm phải luôn dựng lại được từ nhật ký.
-        if action == ActionType.REPORT_CLOSED and self._closure_tally is not None:
-            so_luot = self._closure_tally.record(command.restaurant_id, command.session_id)
-            logger.info(
-                "Quán %s bị báo đã đóng cửa (%d/%d phiên)",
-                command.restaurant_id, so_luot, self._closure_tally.threshold,
-            )
+        #
+        # ĐẾM THEO `reporter_key`, KHÔNG theo `session_id` (sửa 2026-10-06): session_id do
+        # client tự đặt, 3 session_id bịa từng đủ ẩn bất kỳ quán nào. Xem
+        # `domain/services/closure_reports.py`.
+        if la_bao_dong_cua and self._closure_tally is not None:
+            if command.reporter_key:
+                so_nguoi = self._closure_tally.record(
+                    command.restaurant_id, command.reporter_key
+                )
+                logger.info(
+                    "Quán %s bị báo đã đóng cửa (%d/%d người báo)",
+                    command.restaurant_id, so_nguoi, self._closure_tally.threshold,
+                )
+            else:
+                logger.warning(
+                    "Lượt báo đóng cửa quán %s không có khoá người báo -> chỉ ghi nhật "
+                    "ký, KHÔNG đếm để ẩn quán.", command.restaurant_id,
+                )
 
         # Cộng vào bộ đếm hoạt động SAU khi đã ghi nhật ký, cùng lý do như bộ đếm đóng
         # cửa ở trên: bộ đếm trong RAM phải luôn dựng lại được từ nhật ký trên đĩa.

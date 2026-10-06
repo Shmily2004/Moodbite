@@ -28,6 +28,7 @@ import {
   describeTemperature,
 } from '@/entities/dish';
 import { useT } from '@/shared/i18n';
+import { safeHttpUrl } from '@/shared/lib';
 
 /**
  * Icon cho từng MÃ thuộc tính — quy tắc HIỂN THỊ thuần (2026-10-02, theo bản thiết kế:
@@ -60,6 +61,8 @@ export function DishIntro({ dish, onEditFilters }: DishIntroProps) {
   const cachCheBien = describeCookingMethod(dish.cooking_method, t);
   const bua = describeMealTimes(dish.meal_times, t);
   const nguon = describeSource(dish.source, t);
+  // Link nguồn là dữ liệu nhập/cào → chỉ render khi là http/https (chặn `javascript:`).
+  const nguonUrl = safeHttpUrl(dish.source_url);
   const tranh = ANH_GIAO_DIEN.banner_trang_chu;
   return (
     <section className="dish-detail">
@@ -124,10 +127,10 @@ export function DishIntro({ dish, onEditFilters }: DishIntroProps) {
         {nguon && (
           <p className="dish-detail__source small muted">
             {t('dishPage.source', { source: nguon })}
-            {dish.source_url && (
+            {nguonUrl && (
               <>
                 {' · '}
-                <a href={dish.source_url} target="_blank" rel="noreferrer">
+                <a href={nguonUrl} target="_blank" rel="noopener noreferrer">
                   {t('dishPage.viewSource')}
                 </a>
               </>

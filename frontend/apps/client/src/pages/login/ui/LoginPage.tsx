@@ -13,6 +13,7 @@ import { Slogan } from '@/shared/ui';
 import { useUserSessionContext } from '@/entities/user';
 import { ROUTES } from '@/shared/config';
 import { useT } from '@/shared/i18n';
+import { safeInternalPath } from '@/shared/lib';
 
 interface LocationState {
   from?: string;
@@ -25,8 +26,10 @@ export function LoginPage() {
 
   if (session.isLoggedIn) {
     // Đã đăng nhập mà vẫn mở /dang-nhap -> đưa về nơi định đến, không hiện lại form.
-    const from = (location.state as LocationState | null)?.from;
-    return <Navigate to={from || ROUTES.home} replace />;
+    // Chỉ nhận đường dẫn NỘI BỘ: react-router v6 dính open redirect qua `\`
+    // (GHSA-wrjc-x8rr-h8h6) và không có bản vá cho v6 — xem `safeInternalPath`.
+    const from = safeInternalPath((location.state as LocationState | null)?.from);
+    return <Navigate to={from ?? ROUTES.home} replace />;
   }
 
   return (

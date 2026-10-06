@@ -77,7 +77,14 @@ from src.application.use_cases.find_restaurants_for_dish import (
 )
 from src.application.use_cases.search_restaurants import SearchRestaurantsUseCase
 from src.application.use_cases.suggest_dishes import SuggestDishesUseCase
-from src.domain.services.dish_matching import build_dish_restaurant_index
+from src.application.use_cases.manage_closure_reports import (
+    ClearClosureReportsUseCase,
+    ListClosureReportsUseCase,
+)
+from src.domain.services.closure_reports import reporter_key_from_ip, tally_from_events
+from src.infrastructure.adapters.live_dish_restaurant_index import (
+    LiveDishRestaurantIndex,
+)
 from src.application.errors import (
     DataNotReadyError,
     InvalidCredentialsError,
@@ -92,12 +99,17 @@ from src.infrastructure.auth.rate_limit import (
     ADMIN_LOGIN_WINDOW_SECONDS,
     FORGOT_PASSWORD_MAX_ATTEMPTS,
     FORGOT_PASSWORD_WINDOW_SECONDS,
+    LOGIN_ACCOUNT_MAX_ATTEMPTS,
+    LOGIN_ACCOUNT_WINDOW_SECONDS,
+    LOGIN_IP_MAX_ATTEMPTS,
+    LOGIN_IP_WINDOW_SECONDS,
     LOGIN_MAX_ATTEMPTS,
     LOGIN_WINDOW_SECONDS,
     REGISTER_MAX_ATTEMPTS,
     REGISTER_WINDOW_SECONDS,
     SlidingWindowRateLimiter,
 )
+from src.infrastructure.auth.crypto import shared_secret_groups
 from src.infrastructure.auth.user_auth import UserTokenService
 from src.infrastructure.notifications.smtp_email_sender import SmtpEmailSender
 from src.infrastructure.auth.password_reset import PasswordResetTokenService
@@ -160,6 +172,43 @@ def _status_of(adapter: object) -> dict:
     return {"ready": bool(getattr(adapter, "is_ready", False))}
 
 
+def _rate_limiter(limit: tuple) -> Optional[SlidingWindowRateLimiter]:
+    """(số lượt, cửa sổ giây) từ Settings -> bộ đếm. `0` lượt = TẮT giới hạn -> `None`."""
+    so_luot, cua_so = limit
+    return SlidingWindowRateLimiter(so_luot, cua_so) if so_luot > 0 else None
+
+
+# Muối dự phòng khi CHƯA đặt secret nào. Vẫn tốt hơn băm trần (không tra bảng dựng sẵn
+# được), nhưng ai đọc được mã nguồn thì vét cạn IPv4 được — nên có cảnh báo bên dưới.
+_REPORTER_KEY_FALLBACK_SALT = "moodbite-closure-reporter-v1"
+
+
+def _reporter_key_salt(settings: Settings) -> str:
+    """Secret băm IP thành khoá người báo đóng cửa (`reporter_key_from_ip`).
+
+    DẪN XUẤT từ secret đã có thay vì thêm biến môi trường mới: thêm một secret nữa là
+    thêm một thứ để quên đặt. Dẫn xuất qua HMAC với nhãn riêng nên giá trị lưu trong nhật
+    ký không dùng ngược lại được để ký token.
+
+    ⚠️ Đổi `MOODBITE_AUTH_SECRET`/`MOODBITE_ADMIN_SECRET` -> cùng một IP ra khoá mới -> một
+    người có thể được đếm 2 lần quanh mốc đổi. Chấp nhận được: ngưỡng ẩn là 3 người và
+    admin gỡ được lượt báo.
+    """
+    import hashlib
+    import hmac
+
+    goc = settings.user_token_secret or settings.admin_token_secret
+    if not goc:
+        logger.warning(
+            "Chưa đặt MOODBITE_AUTH_SECRET/MOODBITE_ADMIN_SECRET: khoá người báo đóng cửa "
+            "dùng muối mặc định, đọc được mã nguồn là đảo ngược được IP."
+        )
+        return _REPORTER_KEY_FALLBACK_SALT
+    return hmac.new(
+        goc.encode("utf-8"), b"closure-reporter-key", hashlib.sha256
+    ).hexdigest()
+
+
 @dataclass
 class Container:
     settings: Optional[Settings]
@@ -177,6 +226,20 @@ class Container:
     # Bộ đếm báo đóng cửa. Giữ trên Container để /health nói được trạng thái,
     # và để trang quản trị sau này liệt kê được quán nào đang bị ẩn vì bị báo.
     closure_tally: ClosureReportTally
+    # --- Chống lạm dụng endpoint CÔNG KHAI (rà soát 2026-10-06) ----------------
+    # Giới hạn theo IP, cấu hình qua Settings (`MOODBITE_*_RATE_LIMIT`). `None` = giới hạn
+    # bị TẮT có chủ đích ("0/..."), không phải quên lắp — test lắp tường minh qua
+    # `tests/fakes.attach_closure_tally`.
+    search_rate_limiter: Optional[SlidingWindowRateLimiter]
+    interaction_rate_limiter: Optional[SlidingWindowRateLimiter]
+    closure_report_rate_limiter: Optional[SlidingWindowRateLimiter]
+    # Secret băm IP thành khoá người báo đóng cửa — xem `reporter_key_from_ip`.
+    reporter_key_salt: str
+    # Trang quản trị: xem/gỡ lượt báo đóng cửa (`routers/admin_closures.py`).
+    list_closure_reports: Optional[ListClosureReportsUseCase]
+    clear_closure_reports: Optional[ClearClosureReportsUseCase]
+    # Chỉ mục món -> quán TỰ LÀM MỚI theo phiên bản dữ liệu quán (`LiveDishRestaurantIndex`).
+    dish_restaurant_index: object
     # --- Luồng "chọn món trước, tìm quán sau" ---------------------------------
     suggest_dishes: SuggestDishesUseCase
     find_restaurants_for_dish: FindRestaurantsForDishUseCase
@@ -248,6 +311,9 @@ class Container:
     admin_login_rate_limiter: SlidingWindowRateLimiter
     register_rate_limiter: SlidingWindowRateLimiter
     forgot_password_rate_limiter: SlidingWindowRateLimiter
+    # Thêm 2026-10-06 (rà soát bảo mật đăng nhập) — vai trò từng bộ: `login_throttle.py`.
+    login_ip_rate_limiter: SlidingWindowRateLimiter
+    login_account_rate_limiter: SlidingWindowRateLimiter
 
     def health(self) -> dict:
         """Trạng thái từng nguồn dữ liệu, kèm LÝ DO khi chưa sẵn sàng.
@@ -336,29 +402,34 @@ def build_container(settings: Optional[Settings] = None) -> Container:
         except (OSError, ValueError) as exc:
             logger.warning("Khong doc duoc tom tat review: %s", exc)
 
-    # Chỉ mục món -> quán dựng MỘT LẦN lúc khởi động (đo được: 0.05 giây cho 79 món x
-    # 4938 quán). Dựng lại ở mỗi yêu cầu mất ~11 giây - xem `domain/services/dish_matching.py`.
+    # Chỉ mục món -> quán TỰ LÀM MỚI theo `data_version` của kho quán (sửa 2026-10-06).
     #
-    # Danh mục món hoặc kho quán chưa sẵn sàng -> chỉ mục RỖNG chứ không nổ. Endpoint món
-    # sẽ tự trả 503 kèm hướng dẫn, các endpoint khác vẫn chạy bình thường.
-    dish_restaurant_index = (
-        build_dish_restaurant_index(
-            dish_catalog_repository.list_dishes(), restaurant_repository.list_all()
-        )
-        if dish_catalog_repository.is_ready and restaurant_repository.is_ready
-        else {}
+    # Bản cũ là một `dict` dựng một lần ở đây: admin ẩn/sửa/thêm quán thì kho nạp lại
+    # nhưng chỉ mục vẫn giữ đối tượng quán CŨ -> trang món vẫn hiện quán đã ẩn, không bao
+    # giờ hiện quán mới, tên/giá cũ — tới lần khởi động lại.
+    #
+    # Dựng mất ~3,9 giây (298 món x 52.871 quán, đo 2026-10-06): dựng NGAY lúc khởi động
+    # (như trước) để request đầu không phải chờ, rồi chỉ dựng lại MỘT LẦN mỗi khi dữ liệu
+    # quán đổi, trong thread nền — xem `infrastructure/adapters/live_dish_restaurant_index.py`.
+    #
+    # Danh mục món hoặc kho quán chưa sẵn sàng -> không dựng; endpoint món trả 503 kèm
+    # lệnh cần chạy, các endpoint khác vẫn chạy bình thường.
+    dish_restaurant_index = LiveDishRestaurantIndex(
+        dish_catalog_repository, restaurant_repository
     )
+    dish_restaurant_index.snapshot()
     interaction_repository = JsonlInteractionRepository(settings.interactions_path)
 
-    # Bộ đếm "người dùng báo quán đã đóng cửa", DỰNG LẠI TỪ NHẬT KÝ lúc khởi động.
-    # Giữ trong RAM vì nó nằm trên đường đi của mọi lượt tìm kiếm, nhưng nguồn sự thật vẫn
-    # là file nhật ký - khởi động lại không làm quán đã bị ẩn hiện lại.
-    closure_tally = ClosureReportTally()
-    for place_id, session_id in interaction_repository.replay_closure_reports():
-        closure_tally.record(place_id, session_id)
+    # Bộ đếm "người dùng báo quán đã đóng cửa", DỰNG LẠI TỪ NHẬT KÝ lúc khởi động, ĐÚNG
+    # THỨ TỰ (báo -> admin gỡ -> báo). Giữ trong RAM vì nó nằm trên đường đi của mọi lượt
+    # tìm kiếm, nhưng nguồn sự thật vẫn là file nhật ký.
+    #
+    # Từ 2026-10-06 đếm theo KHOÁ NGƯỜI BÁO (IP đã băm) chứ không theo session_id do client
+    # tự đặt; lượt báo cũ chỉ có session_id bị bỏ qua — xem `replay_closure_events`.
+    closure_tally = tally_from_events(interaction_repository.replay_closure_events())
     if closure_tally.hidden_place_ids():
         logger.info(
-            "Có %d quán bị người dùng báo đã đóng cửa (ngưỡng %d phiên).",
+            "Có %d quán bị người dùng báo đã đóng cửa (ngưỡng %d người báo).",
             len(closure_tally.hidden_place_ids()), closure_tally.threshold,
         )
     rule_predictor = MlRulePredictor(
@@ -458,6 +529,26 @@ def build_container(settings: Optional[Settings] = None) -> Container:
         or settings.user_token_secret,
         settings.email_verify_token_ttl_seconds,
     )
+    # Cảnh báo (KHÔNG chặn) khi các secret trùng nhau — kể cả do lui về secret đăng nhập.
+    # Từ 2026-10-06 token mang `typ` nên trùng secret không còn mở lỗ nhầm loại token,
+    # nhưng lộ một secret vẫn là lộ cả bốn loại token. Xem `crypto.shared_secret_groups`.
+    for nhom in shared_secret_groups({
+        "MOODBITE_AUTH_SECRET": settings.user_token_secret,
+        "MOODBITE_ADMIN_SECRET": settings.admin_token_secret,
+        "MOODBITE_RESET_SECRET (hoặc giá trị lui về)": (
+            settings.reset_token_secret or settings.user_token_secret
+        ),
+        "MOODBITE_EMAIL_VERIFY_SECRET (hoặc giá trị lui về)": (
+            settings.email_verify_token_secret
+            or settings.reset_token_secret
+            or settings.user_token_secret
+        ),
+    }):
+        logger.warning(
+            "Các secret sau đang DÙNG CHUNG một giá trị: %s. Nên đặt mỗi biến một chuỗi "
+            "ngẫu nhiên riêng (python -c \"import secrets; print(secrets.token_hex(32))\").",
+            ", ".join(nhom),
+        )
     emails = SmtpEmailSender(
         host=settings.smtp_host,
         port=settings.smtp_port,
@@ -558,6 +649,24 @@ def build_container(settings: Optional[Settings] = None) -> Container:
             details_repository, restaurant_repository, review_summaries
         ),
         closure_tally=closure_tally,
+        search_rate_limiter=_rate_limiter(settings.search_rate_limit),
+        interaction_rate_limiter=_rate_limiter(settings.interaction_rate_limit),
+        closure_report_rate_limiter=_rate_limiter(settings.closure_report_rate_limit),
+        reporter_key_salt=_reporter_key_salt(settings),
+        list_closure_reports=ListClosureReportsUseCase(
+            tally=closure_tally,
+            restaurants=restaurant_repository,
+            admin_restaurants=admin_restaurants,
+        ),
+        clear_closure_reports=ClearClosureReportsUseCase(
+            tally=closure_tally,
+            # CÙNG file nhật ký mà bộ đếm được phát lại từ đó — bắt buộc, xem port.
+            log=interaction_repository,
+            restaurants=restaurant_repository,
+            admin_restaurants=admin_restaurants,
+            audit=GhiNhatKyUseCase(audit_log),
+        ),
+        dish_restaurant_index=dish_restaurant_index,
         log_interaction=LogInteractionUseCase(
             interactions=interaction_repository,
             restaurants=restaurant_repository,
@@ -569,12 +678,14 @@ def build_container(settings: Optional[Settings] = None) -> Container:
             dish_restaurant_index=dish_restaurant_index,
             context_provider=context_provider,
             closure_tally=closure_tally,
+            restaurants=restaurant_repository,
         ),
         find_restaurants_for_dish=FindRestaurantsForDishUseCase(
             catalog=dish_catalog_repository,
             dish_restaurant_index=dish_restaurant_index,
             context_provider=context_provider,
             closure_tally=closure_tally,
+            restaurants=restaurant_repository,
         ),
         users=users,
         saved_items=saved_items,
@@ -631,6 +742,12 @@ def build_container(settings: Optional[Settings] = None) -> Container:
         ),
         forgot_password_rate_limiter=SlidingWindowRateLimiter(
             FORGOT_PASSWORD_MAX_ATTEMPTS, FORGOT_PASSWORD_WINDOW_SECONDS
+        ),
+        login_ip_rate_limiter=SlidingWindowRateLimiter(
+            LOGIN_IP_MAX_ATTEMPTS, LOGIN_IP_WINDOW_SECONDS
+        ),
+        login_account_rate_limiter=SlidingWindowRateLimiter(
+            LOGIN_ACCOUNT_MAX_ATTEMPTS, LOGIN_ACCOUNT_WINDOW_SECONDS
         ),
     )
 
@@ -697,6 +814,51 @@ def client_key(request: Request) -> str:
     giới hạn bằng cách bịa IP.
     """
     return request.client.host if request.client else "unknown"
+
+
+# --- Giới hạn tần suất + khoá người báo cho endpoint CÔNG KHAI (2026-10-06) -------------
+
+
+def limit_search_rate(
+    request: Request,
+    container: Container = Depends(get_container),
+) -> None:
+    """Chốt chặn tần suất cho `POST /search`. Vượt -> `RateLimitExceeded` -> 429 kèm
+    `Retry-After` (ánh xạ ở `error_handlers.py`).
+
+    Mỗi lượt có câu chữ tốn ~0,8-2 giây CPU (đo 2026-10-02), endpoint không cần đăng nhập
+    -> không chặn thì một vòng lặp gửi liên tục là đủ chiếm hết CPU máy chủ.
+    """
+    if container.search_rate_limiter is not None:
+        container.search_rate_limiter.check(client_key(request))
+
+
+def limit_interaction_rate(
+    request: Request, action_type: ActionType, container: Container
+) -> None:
+    """Chốt chặn tần suất cho `POST /interactions`, gọi từ router SAU khi đọc body.
+
+    Hai bộ đếm RIÊNG: mọi tương tác (rộng tay) và `report_closed` (rất chặt, vì mỗi lượt
+    báo góp phần ẩn quán với MỌI người). Dùng chung một bộ thì hoặc báo đóng cửa quá lỏng,
+    hoặc người xem nhiều quán bị chặn oan.
+    """
+    key = client_key(request)
+    if container.interaction_rate_limiter is not None:
+        container.interaction_rate_limiter.check(key)
+    if (
+        action_type == ActionType.REPORT_CLOSED
+        and container.closure_report_rate_limiter is not None
+    ):
+        container.closure_report_rate_limiter.check(key)
+
+
+def closure_reporter_key(request: Request, container: Container) -> str:
+    """Khoá NGƯỜI BÁO đóng cửa = IP client đã băm HMAC. Do SERVER tính, không lấy từ body.
+
+    Vì sao không dùng `session_id` hay `user_id`: xem đầu file
+    `domain/services/closure_reports.py`.
+    """
+    return reporter_key_from_ip(client_key(request), container.reporter_key_salt)
 
 
 def get_current_user(

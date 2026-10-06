@@ -27,6 +27,9 @@ thống đóng dấu "đã xác minh" cho `b@y.com` dù chưa ai chứng minh h�
 `SqliteUserRepository.mark_email_verified` còn chặn thêm một lần nữa ở câu UPDATE — hai
 lớp cho cùng một lỗi, vì đây là chỗ sai thì im lặng, không ai thấy.
 
+Token mang `typ`='verify' (2026-10-06) nên không bao giờ được nhận làm token đăng nhập,
+kể cả khi secret lui về trùng secret đăng nhập.
+
 ⚠️ DÙNG SECRET RIÊNG. Thứ tự lui: `MOODBITE_EMAIL_VERIFY_SECRET` ->
 `MOODBITE_RESET_SECRET` -> `MOODBITE_AUTH_SECRET` (lắp ở `dependencies.py`). Lý do giống
 `password_reset.py`: token này nằm trong hộp thư, nơi dễ lộ hơn hẳn, nên chữ ký của nó
@@ -39,7 +42,12 @@ import logging
 
 from src.application.errors import AuthNotConfiguredError, InvalidCredentialsError
 from src.domain.entities.user import User
-from src.infrastructure.auth.crypto import TokenInvalid, sign_token, verify_token
+from src.infrastructure.auth.crypto import (
+    PURPOSE_VERIFY,
+    TokenInvalid,
+    sign_token,
+    verify_token,
+)
 
 logger = logging.getLogger("moodbite.auth")
 
@@ -92,39 +100,40 @@ class EmailVerificationTokenService:
             # Không có địa chỉ thì không có gì để xác minh. Ném lỗi thay vì phát một token
             # rỗng nghĩa — token đó sẽ luôn hỏng ở bước kiểm và rất khó lần ra vì sao.
             raise InvalidCredentialsError("Tài khoản này chưa khai email.")
+        # KHÔNG nhét địa chỉ email vào token (bỏ 2026-10-06). Ruột token chỉ là base64,
+        # AI CŨNG ĐỌC ĐƯỢC — và token này nằm trong URL, tức là lọt vào lịch sử trình
+        # duyệt, log máy chủ, log máy chủ thư. Bản cũ mang `em` ở dạng đọc được, trái
+        # ngược chính docstring của `_van_tay`. Không cần nó: vân tay `ev` đã băm cả địa
+        # chỉ, nên "email đã đổi" vẫn làm token chết y như trước.
         return sign_token(
-            {
-                "sub": user.user_id,
-                # Địa chỉ đi kèm token để bước kiểm biết thư này gửi cho ĐỊA CHỈ NÀO,
-                # không phải "địa chỉ hiện tại của tài khoản" (thứ có thể đã đổi).
-                "em": user.email,
-                "ev": _van_tay(user.email, user.email_verified),
-            },
+            {"sub": user.user_id, "ev": _van_tay(user.email, user.email_verified)},
             self._secret,
             self.token_ttl_seconds,
+            purpose=PURPOSE_VERIFY,
         )
 
-    def read(self, token: str) -> tuple[str, str, str]:
-        """BƯỚC 1 — kiểm chữ ký và hạn dùng. Trả `(user_id, email, vân tay)`.
+    def read(self, token: str) -> tuple[str, str]:
+        """BƯỚC 1 — kiểm chữ ký, mục đích và hạn dùng. Trả `(user_id, vân tay)`.
 
         CHƯA kiểm vân tay ở đây: muốn so vân tay thì phải biết trạng thái hiện tại của
         tài khoản, mà muốn biết thì trước hết phải biết là tài khoản NÀO. Tách hai bước
         đúng như `PasswordResetTokenService` — người gọi BẮT BUỘC gọi tiếp `ensure_unused`.
+
+        Token phát trước 2026-10-06 còn mang `em`: bỏ qua, không đọc nữa.
         """
         self.ensure_configured()
         try:
-            payload = verify_token(token, self._secret)
+            payload = verify_token(token, self._secret, purpose=PURPOSE_VERIFY)
         except TokenInvalid as exc:
             # Giữ nguyên câu của tầng dưới: nó phân biệt "hỏng" với "hết hạn", và người
             # dùng cần biết nên bấm gửi lại thư hay chỉ gõ nhầm đường dẫn.
             raise InvalidCredentialsError(str(exc))
 
         user_id = str(payload.get("sub", ""))
-        email = str(payload.get("em", ""))
         van_tay = str(payload.get("ev", ""))
-        if not user_id or not email or not van_tay:
+        if not user_id or not van_tay:
             raise InvalidCredentialsError("Đường dẫn xác minh email không hợp lệ.")
-        return user_id, email, van_tay
+        return user_id, van_tay
 
     def ensure_unused(self, van_tay_trong_token: str, user: User) -> None:
         """BƯỚC 2 — chốt chặn CHỈ DÙNG MỘT LẦN và chống đổi-email-rồi-bấm-link-cũ.

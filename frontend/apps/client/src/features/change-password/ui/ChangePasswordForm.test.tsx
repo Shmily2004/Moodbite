@@ -10,10 +10,15 @@ import { fireEvent, render, screen } from '@testing-library/react';
 
 const changePassword = vi.fn();
 
-vi.mock('@/shared/api', () => ({
-  authApi: { changePassword: (...args: unknown[]) => changePassword(...args) },
-}));
+vi.mock('@/shared/api', async () => {
+  const that = await vi.importActual<typeof import('@/shared/api')>('@/shared/api');
+  return {
+    ...that,
+    authApi: { changePassword: (...args: unknown[]) => changePassword(...args) },
+  };
+});
 
+import { ApiError } from '@/shared/api';
 import { ChangePasswordForm } from './ChangePasswordForm';
 
 const KEY = 'moodbite.user.token';
@@ -72,7 +77,10 @@ describe('ChangePasswordForm', () => {
 
   it('đổi hỏng thì KHÔNG đụng vào token đang có', async () => {
     localStorage.setItem(KEY, 'token-cu');
-    changePassword.mockRejectedValue(new Error('Mật khẩu hiện tại không đúng.'));
+    // Đúng thứ backend trả: 401 kèm câu giải thích (sai mật khẩu HIỆN TẠI).
+    changePassword.mockRejectedValue(
+      new ApiError('UNAUTHORIZED', 'Mật khẩu hiện tại không đúng.', {}, 401),
+    );
 
     const { container } = render(<ChangePasswordForm />);
     guiForm(container);

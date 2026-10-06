@@ -23,6 +23,8 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional
 
+from src.domain.errors import DomainValidationError
+
 
 class SavedItemType(str, Enum):
     """CÁI GÌ được lưu."""
@@ -53,13 +55,20 @@ class SavedListType(str, Enum):
     BOOKMARK = "bookmark"
 
 
-class InvalidSavedItem(ValueError):
+class InvalidSavedItem(DomainValidationError):
     """Dữ liệu mục lưu không hợp lệ -> HTTP 400."""
 
 
 # Chặn trên độ dài tên. Không phải để "bảo mật" mà để một request cố tình gửi 10MB tên
 # quán không làm phình CSDL. 200 ký tự thừa cho mọi tên quán có thật.
 MAX_SAVED_NAME_LENGTH = 200
+
+# Chặn trên độ dài MÃ (`item_id`). Thêm 2026-10-06 sau rà soát: trước đó mã không có trần,
+# một request gửi mã dài vài MB vẫn được ghi thẳng vào CSDL (cả "đã lưu" lẫn bộ sưu tập).
+# Mã thật dài nhất trong dataset cỡ vài chục ký tự (place_id Google ~27, "osm-node-<số>",
+# slug món) — 128 thừa gấp mấy lần. KHÁC tên: mã quá dài thì BÁO LỖI chứ không cắt, vì
+# cắt một mã là biến nó thành mã của thứ khác (hoặc của không gì cả).
+MAX_SAVED_ITEM_ID_LENGTH = 128
 
 
 @dataclass(frozen=True)
@@ -121,6 +130,10 @@ def validate_saved_item(item_type: str, item_id: str, name: str) -> tuple:
     ma = (item_id or "").strip()
     if not ma:
         raise InvalidSavedItem("Thiếu item_id.")
+    if len(ma) > MAX_SAVED_ITEM_ID_LENGTH:
+        raise InvalidSavedItem(
+            f"item_id dài quá {MAX_SAVED_ITEM_ID_LENGTH} ký tự — không phải mã quán/món hợp lệ."
+        )
 
     ten = (name or "").strip()
     if not ten:
@@ -139,4 +152,5 @@ __all__ = [
     "InvalidSavedItem",
     "validate_saved_item",
     "MAX_SAVED_NAME_LENGTH",
+    "MAX_SAVED_ITEM_ID_LENGTH",
 ]

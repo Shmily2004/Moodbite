@@ -16,13 +16,14 @@ import {
   NHAN_NHIET_DO_MON,
   nhanTheoMa,
 } from '@/shared/config';
-import { ngayGioVN } from '@/shared/lib';
+import { ngayGioVN, safeHttpUrl } from '@/shared/lib';
 
 export function DishInfo({ data }: { data: AdminDishDetail }) {
   // `match_keywords`/`meal_times` có `default_factory` ở backend nên kiểu sinh ra là
   // optional. Chuẩn hoá một lần ở đây thay vì rải `?? []` khắp phần dựng.
   const tuKhoa = data.match_keywords ?? [];
   const bua = data.meal_times ?? [];
+  const nguonAnToan = safeHttpUrl(data.source_url);
 
   return (
     <div className="chi-tiet__than">
@@ -72,9 +73,10 @@ export function DishInfo({ data }: { data: AdminDishDetail }) {
         <Muc nhan="Cập nhật" giaTri={ngayGioVN(data.last_updated)} />
       </dl>
 
-      {data.source_url && (
+      {/* Chỉ http/https: `source_url` là dữ liệu nhập/cào, `javascript:` phải bị chặn. */}
+      {nguonAnToan && (
         <p>
-          <a className="linkish" href={data.source_url} target="_blank" rel="noreferrer">
+          <a className="linkish" href={nguonAnToan} target="_blank" rel="noopener noreferrer">
             Xem nguồn gốc →
           </a>
         </p>

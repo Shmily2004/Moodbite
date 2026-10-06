@@ -11,7 +11,7 @@
  */
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { UserSessionProvider } from '@/entities/user';
 import { LanguageProvider } from '@/shared/i18n';
 import { AccountPage } from '../index';
@@ -311,5 +311,37 @@ describe('AccountPage - dau trang theo profile.png (2026-10-02)', () => {
     fireEvent.click(within(the).getByRole('button', { name: /Xem tất cả/ }));
     // Sang tab "Cấp độ & huy hiệu": ở đó hiện ĐỦ cả 6.
     await waitFor(() => expect(screen.getByText('Huy hiệu 5')).toBeInTheDocument());
+  });
+});
+
+describe('AccountPage — chưa đăng nhập / đang tải (audit 2026-10-06)', () => {
+  it('chưa đăng nhập -> sang /login KÈM state.from để đăng nhập xong quay lại đúng tab', () => {
+    sessionStorage.clear();
+    vi.stubGlobal('fetch', gia_lap_fetch());
+    let stateNhan: unknown = null;
+    function TrangLoginGia() {
+      stateNhan = useLocation().state;
+      return <p>trang-login</p>;
+    }
+    render(
+      <MemoryRouter initialEntries={['/account?tab=saved']}>
+        <LanguageProvider>
+          <UserSessionProvider>
+            <Routes>
+              <Route path="/account" element={<AccountPage />} />
+              <Route path="/login" element={<TrangLoginGia />} />
+            </Routes>
+          </UserSessionProvider>
+        </LanguageProvider>
+      </MemoryRouter>,
+    );
+    expect(screen.getByText('trang-login')).toBeInTheDocument();
+    expect(stateNhan).toEqual({ from: '/account?tab=saved' });
+  });
+
+  it('chưa tải xong /auth/me thì KHÔNG in "@" trơ trọi', () => {
+    vi.stubGlobal('fetch', vi.fn().mockReturnValue(new Promise(() => undefined)));
+    renderAccount();
+    expect(screen.queryByText('@')).not.toBeInTheDocument();
   });
 });

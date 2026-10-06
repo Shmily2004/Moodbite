@@ -11,7 +11,7 @@ from src.application.use_cases.search_restaurants import (
     SearchQuery,
     SearchRestaurantsUseCase,
 )
-from src.presentation.api.dependencies import get_search_restaurants
+from src.presentation.api.dependencies import get_search_restaurants, limit_search_rate
 from src.presentation.api.envelope import success
 from src.presentation.api.result_mapping import search_result_to_dict
 from src.presentation.api.schemas import (
@@ -25,7 +25,9 @@ router = APIRouter(tags=["search"])
 
 
 @router.post("/search", response_model=SearchResponse, responses=ERROR_RESPONSES,
-             summary="Tìm kiếm & xếp hạng nhà hàng")
+             summary="Tìm kiếm & xếp hạng nhà hàng",
+             # Giới hạn tần suất theo IP — vượt thì 429 RATE_LIMITED + `Retry-After`.
+             dependencies=[Depends(limit_search_rate)])
 def search(
     body: SearchRequest,
     use_case: SearchRestaurantsUseCase = Depends(get_search_restaurants),
@@ -34,6 +36,9 @@ def search(
 
     Mỗi kết quả kèm `suggested_dish` (Lớp 5 của đề án) - gợi ý MÓN đi liền với quán, thay
     vì bắt client gọi thêm một endpoint khác và tự ghép hai danh sách.
+
+    Giới hạn tần suất theo IP (mặc định 30 lượt/60 giây, đổi bằng
+    `MOODBITE_SEARCH_RATE_LIMIT=N/S`): mỗi lượt tốn ~0,8-2 giây CPU.
     """
     result = use_case.execute(
         SearchQuery(

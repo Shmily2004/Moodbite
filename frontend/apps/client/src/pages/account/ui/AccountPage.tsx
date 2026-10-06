@@ -20,7 +20,7 @@
  *    Vẽ mục đó ra rồi bấm vào không có gì thì tệ hơn là chưa có (CLAUDE.md mục 4).
  */
 import { useMemo } from 'react';
-import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { SiteHeader } from '@/widgets/site-header';
 import { StatTiles } from '@/widgets/user-progress';
 import { AvatarPicker } from '@/features/change-avatar';
@@ -93,11 +93,12 @@ export function AccountPage() {
     ...favorites.items.filter((m) => m.itemType === 'dish').map((m) => m.itemId),
     ...recent.recent.map((m) => m.dishId),
   ]);
-  const { stats, loading: dangTaiStats } = useUserStats();
+  const { stats, loading: dangTaiStats, error: loiStats, reload: taiLaiStats } = useUserStats();
   // Nhãn địa chỉ MẶC ĐỊNH ("Nhà"…) hiện dưới email như dòng "Hà Nội, Việt Nam" của bản
   // thiết kế. Chưa đặt mặc định thì KHÔNG hiện gì — không tự điền "Hà Nội" cho có.
   const diaChiMacDinh = useDefaultAddress(session.isLoggedIn);
   const [params, setParams] = useSearchParams();
+  const routerLocation = useLocation();
 
   // Tab lạ trên URL (gõ tay, link cũ) -> quay về Tổng quan thay vì trang trắng.
   const tab = useMemo<TabId>(() => {
@@ -106,7 +107,14 @@ export function AccountPage() {
   }, [params]);
 
   if (!session.isLoggedIn) {
-    return <Navigate to={ROUTES.login} replace />;
+    // `state.from`: đăng nhập xong quay lại ĐÚNG tab tài khoản đang mở (LoginPage đọc nó).
+    return (
+      <Navigate
+        to={ROUTES.login}
+        replace
+        state={{ from: `${routerLocation.pathname}${routerLocation.search}` }}
+      />
+    );
   }
 
   const ten = session.user?.display_name || session.user?.username || null;
@@ -148,7 +156,10 @@ export function AccountPage() {
 
             <div className="account__id">
               <h1 className="account__name">{ten ?? '…'}</h1>
-              <p className="account__line">@{session.user?.username}</p>
+              {/* Chưa tải xong `/auth/me` thì KHÔNG in "@" trơ trọi. */}
+              {session.user?.username && (
+                <p className="account__line">@{session.user.username}</p>
+              )}
               {session.user?.email ? (
                 <p className="account__line">
                   <IconMail className="icon-inline" /> {session.user.email}{' '}
@@ -189,7 +200,13 @@ export function AccountPage() {
               />
             </div>
 
-            <StatTiles stats={stats} viewedLocal={recent.recent.length} />
+            <StatTiles
+              stats={stats}
+              viewedLocal={recent.recent.length}
+              loading={dangTaiStats}
+              error={loiStats}
+              onRetry={taiLaiStats}
+            />
           </section>
 
           {tab === 'overview' ? (

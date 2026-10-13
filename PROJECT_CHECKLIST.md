@@ -1,6 +1,6 @@
 # MoodBite — Bảng theo dõi tiến độ
 
-**Cập nhật:** 2026-10-06
+**Cập nhật:** 2026-10-10
 **Nguyên tắc:** file này chỉ ghi thứ đã **chạy thật và kiểm chứng được**. Không ghi theo
 kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh để tự kiểm lại.
 
@@ -48,7 +48,7 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | **Đối chiếu đa nền tảng** | ✅ **Xong, ĐÃ HIỆN RA UI 2026-08-20** | Meta · Microsoft · Foursquare · AllThePlaces · PinMeTo qua Overture. 337 quán được ≥2 nguồn xác nhận |
 | **Quán đã đóng cửa** | ✅ **Xong, ĐÃ HIỆN RA UI 2026-08-20** | đóng hẳn → ẩn; đóng tạm → hiện + nhãn ⚠ trên thẻ |
 | **Người dùng báo đóng cửa** | ✅ **Xong 2026-08-20** | đủ 3 phiên khác nhau thì ẩn. Nút ở panel chi tiết, hỏi lại trước khi gửi |
-| **Tóm tắt review (Lớp 4)** | ✅ Xong | 851/1.310 quán, trích nguyên văn |
+| **Tóm tắt review (Lớp 4)** | ✅ Xong | **884/1.025** quán có ≥3 review (đo 2026-10-10), trích nguyên văn |
 | Kiểm tra định kỳ nguồn | ✅ Xong | `python scripts/refresh_check.py` — báo cáo quán mới/mất/đổi tên |
 | **Lớp 1 — Phân cụm trải nghiệm** | ✅ **Xong** | KMeans k=7, Silhouette 0.318 |
 | **Lớp 2 — Tìm kiếm ngữ nghĩa** | ✅ **Xong** | TF-IDF cosine, **52.854 quán · 37.450 đặc trưng** (log khởi động 2026-08-26) |
@@ -64,8 +64,8 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Xếp hạng 2 tầng cho trang món | ✅ Xong | quán có TÊN chứa tên món luôn trên quán chỉ được review nhắc |
 | **Bộ mẫu frontend** | ✅ **Đã sửa 2026-08-19** | Nguyên nhân: `HAN_MUC` viết cứng tỉ lệ của dataset 4.938 quán nên bộ mẫu không thể khớp tập gốc mới. Nay hạn mức SUY TỪ POOL. Không nới ngưỡng checker |
 | Trích món từ review (đề án mục 7) | ✅ Xong | 1076 quán có review; bún chả 86 → 94 quán |
-| Ma trận truy vết | ✅ Viết lại 2026-08-19 | bản cũ có 9/10 đường dẫn KHÔNG tồn tại — xem `traceability.md` |
-| **Lớp 4 — Tóm tắt review** | ✅ **XONG 2026-08-19** | Trích rút TF-IDF centroid, **851/1310 quán** có nhận xét tổng hợp (339 quán có cả điểm yếu). Mọi câu TRÍCH NGUYÊN VĂN, không sinh chữ. `python -m data_pipeline.review_summary` |
+| Ma trận truy vết | ✅ **Viết lại 2026-10-10 · máy kiểm** | `python scripts/verify.py` mục 10 (cũng chạy trong CI). Bản 2026-08-19 đúng đường dẫn nhưng KHÔNG ai kiểm nên thiếu 15/20 use case, 10/12 router, và ghi Lớp 4 "chưa làm". Nay mọi use case/router bắt buộc có dòng trong `traceability.md` |
+| **Lớp 4 — Tóm tắt review** | ✅ **XONG 2026-08-19** | Trích rút TF-IDF centroid, **884/1.025 quán** có ≥3 review được tóm tắt (358 quán có cả điểm yếu; đo lại 2026-10-10 — mốc 2026-08-19 là 851/1310, 339). Mọi câu TRÍCH NGUYÊN VĂN, không sinh chữ. `python -m data_pipeline.review_summary` |
 | Đăng nhập / tài khoản | ✅ **Đăng nhập · đăng ký · quên mật khẩu · TRANG TÀI KHOẢN 7 TAB (2026-08-23)** | `/api/v1/auth/*` + `/api/v1/me/*`. Trang `/account` có thanh bên 7 mục, ảnh đại diện, số liệu thật, cấp độ, huy hiệu. Đổi phạm vi có chủ đích so với SRS mục 8 — xem ghi chú dưới bảng |
 | Phân quyền (`role`) | ✅ Admin = tài khoản `role='admin'` trong bảng `users` (2026-09-29) | tạo bằng `python scripts/make_admin_user.py`; hạ quyền/đăng xuất có hiệu lực ngay |
 | **Quán & món yêu thích (server)** | ✅ **Xong 2026-08-23** | bảng `saved_items`, `GET/POST/DELETE /me/favorites`. Khách vẫn lưu ở máy và được ĐỒNG BỘ LÊN khi đăng nhập |
@@ -91,9 +91,9 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 python scripts/verify.py
 ```
 
-Lệnh này kiểm 9 việc và in rõ từng mục đạt/hỏng: app dựng được · test backend ·
+Lệnh này kiểm 10 việc và in rõ từng mục đạt/hỏng: app dựng được · test backend ·
 hướng phụ thuộc · **chỉ có 1 backend** · frontend build · test frontend · luật import
-FSD · **CI cài đặt được**.
+FSD · **CI cài đặt được** · bộ mẫu frontend · **ma trận truy vết**.
 
 > ⚠️ **Đừng nối lệnh bằng `&&` trên Windows.** PowerShell 5.1 không hỗ trợ `&&`
 > (báo lỗi *"The token '&&' is not a valid statement separator"*), cũng không có

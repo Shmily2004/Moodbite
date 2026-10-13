@@ -186,7 +186,7 @@ phân cụm.
 
 | Lệnh | Làm gì |
 |---|---|
-| `python scripts/verify.py` | **Kiểm tra toàn bộ dự án** (9 mục). Chạy sau mọi thay đổi |
+| `python scripts/verify.py` | **Kiểm tra toàn bộ dự án** (10 mục). Chạy sau mọi thay đổi |
 | `python scripts/run_dev.py` | Bật app để xem giao diện |
 | `python scripts/data_report.py` | Đo độ phủ dữ liệu — chạy trước/sau mỗi lần bổ sung |
 | `python scripts/audit_dish_images.py` | Soát ảnh món gắn nhầm (`--clear` để gỡ) |
@@ -194,6 +194,7 @@ phân cụm.
 | `python scripts/set_dish_image.py --list-missing` | Liệt kê món thiếu ảnh, và nhập ảnh tay |
 | `python scripts/prepare_design_assets.py` | Xử lý logo/ảnh từ `design/attribute/` |
 | `python scripts/check_architecture.py` | Kiểm hướng phụ thuộc backend |
+| `python scripts/check_traceability.py` | Kiểm `traceability.md` trỏ đúng file/test thật và đủ mọi use case, router |
 | `python scripts/check_email.py` | Thử kết nối máy chủ thư |
 | `python scripts/refresh_check.py` | So dữ liệu mới/cũ: quán nào mới, mất, đổi tên |
 | `python scripts/build_sqlite.py` | Dựng CSDL SQLite từ CSV |

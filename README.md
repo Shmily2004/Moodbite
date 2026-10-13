@@ -296,7 +296,7 @@ chứng minh (`npm ci` cài được hay không). Mục 9 **chỉ chạy ở má
 - ✅ **Bản đồ** — Leaflet + OpenStreetMap, miễn phí, không cần API key
 - ✅ **Phân cụm trải nghiệm (Lớp 1)** — KMeans k=7, Silhouette 0.318
 - ✅ **Tìm kiếm ngữ nghĩa (Lớp 2)** — TF-IDF cosine trên 52.871 quán (đếm lúc khởi động 2026-10-06)
-- ⬜ **Tóm tắt review (Lớp 4)** — chưa làm; đo lại thấy khả thi cho 592 quán
+- ✅ **Tóm tắt review (Lớp 4)** — trích rút nguyên văn, 884/1.025 quán có ≥3 review (đo 2026-10-10)
 - ✅ **Lọc theo khu vực / giờ mở cửa / chế độ ăn**
 - ⏸️ **Floorplan → 3D** — đã chuyển vào `archive/spatial-3d/`, không còn trong app
 - ⏸️ **Model ML gợi ý món** — model cũ bị rò rỉ nhãn nên đã gỡ; hiện dùng khớp từ khoá.

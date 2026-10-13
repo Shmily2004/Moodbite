@@ -7,7 +7,7 @@ VÌ SAO CÓ FILE NÀY: tài liệu trước đây ghi 4 lệnh nối bằng `&&`
 bash/macOS/Linux. PowerShell 5.1 (mặc định trên Windows) KHÔNG hỗ trợ `&&`, cũng không có
 `grep`/`wc`. Viết bằng Python thì chạy được ở mọi nơi, không cần nhớ cú pháp shell nào.
 
-Kiểm 9 việc:
+Kiểm 10 việc:
   1. App FastAPI dựng được               (bug từng làm app không khởi động được)
   2. Toàn bộ test xanh
   3. Hướng phụ thuộc Clean Architecture đúng
@@ -17,6 +17,7 @@ Kiểm 9 việc:
   7. Luật import Feature-Sliced Design
   8. CI cài đặt được                      (lockfile + đường dẫn trong ci.yml)
   9. Bộ dữ liệu mẫu frontend              (không được giàu hơn dữ liệu thật)
+ 10. Ma trận truy vết                     (không trỏ vào thứ không có, không bỏ sót use case)
 
 Thoát mã 0 = tất cả đạt. Khác 0 = có mục hỏng, xem chi tiết ở output.
 """
@@ -269,6 +270,19 @@ def check_ui_fixture() -> tuple[bool, str] | tuple[None, str]:
     return False, "\n        ".join(problems[:4]) or out.strip()[-300:]
 
 
+def check_traceability() -> tuple[bool, str]:
+    """`traceability.md` có trỏ đúng file/test thật và phủ đủ use case + router không.
+
+    VI SAO: file đó từng ghi "kiểm bằng verify.py" khi verify.py chưa hề đọc nó -> bảng
+    mục dần suốt 2 tháng (thiếu 15/20 use case) mà không ai biết.
+    """
+    code, out = run([sys.executable, str(ROOT / "scripts" / "check_traceability.py")])
+    lines = [ln.strip() for ln in out.splitlines() if ln.strip()]
+    if code == 0:
+        return True, lines[-1] if lines else "ma tran truy vet OK"
+    return False, "\n        ".join(lines[:8])
+
+
 CHECKS = [
     ("1. App FastAPI dung duoc", check_app_boots),
     ("2. Test", check_tests),
@@ -279,6 +293,7 @@ CHECKS = [
     ("7. Frontend FSD", check_frontend_architecture),
     ("8. CI cai dat duoc", check_ci_installable),
     ("9. Bo du lieu mau frontend", check_ui_fixture),
+    ("10. Ma tran truy vet", check_traceability),
 ]
 
 

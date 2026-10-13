@@ -49,6 +49,11 @@ jobs:
       - name: Kiểm tra chỉ có một backend (verify.py mục 4)
         run: python scripts/verify.py --chi 4
 
+      # Mục 10: traceability.md không trỏ vào file/test không có và không bỏ sót use
+      # case/router nào. Chỉ đọc mã nguồn, không cần file dữ liệu.
+      - name: Kiểm tra ma trận truy vết (verify.py mục 10)
+        run: python scripts/verify.py --chi 10
+
   frontend:
     name: Frontend (React + TypeScript + FSD)
     runs-on: ubuntu-latest

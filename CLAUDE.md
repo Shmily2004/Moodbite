@@ -328,7 +328,7 @@ merge_and_prepare_raw  →  data_cleaning  →  feature_engineering  →  cluste
 | 1. Phân cụm trải nghiệm | ✅ KMeans k=7 | `data_pipeline/clustering.py` (offline) |
 | 2. Tìm kiếm ngữ nghĩa | ✅ TF-IDF cosine | `infrastructure/adapters/tfidf_semantic_search.py` |
 | 3. Xếp hạng ngữ cảnh | 🟡 công thức trọng số | `domain/services/search_ranking.py` |
-| 4. Tóm tắt review | ❌ chưa làm | review TB 106 ký tự, quá ngắn |
+| 4. Tóm tắt review | ✅ trích rút, câu nguyên văn | `data_pipeline/review_summary.py` (offline) — 884/1.025 quán có ≥3 review |
 | 5. Gợi ý món | ✅ **cửa vào chính** | `domain/services/dish_ranking.py` + `use_cases/suggest_dishes.py` |
 
 **Quy tắc bắt buộc khi động vào các lớp này:**

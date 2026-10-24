@@ -225,6 +225,18 @@
             }
           },
           {
+            "name": "no_distance_limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "true = tắt lọc khoảng cách, tương đương `max_distance_km: null` của POST /dishes/suggest. Khi bật, `max_distance_km` bị bỏ qua.",
+              "default": false,
+              "title": "No Distance Limit"
+            },
+            "description": "true = tắt lọc khoảng cách, tương đương `max_distance_km: null` của POST /dishes/suggest. Khi bật, `max_distance_km` bị bỏ qua."
+          },
+          {
             "name": "only_with_price",
             "in": "query",
             "required": false,
@@ -363,6 +375,18 @@
               "default": 10.0,
               "title": "Max Distance Km"
             }
+          },
+          {
+            "name": "no_distance_limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "true = tắt lọc khoảng cách, tương đương `max_distance_km: null` của POST /dishes/suggest. Khi bật, `max_distance_km` bị bỏ qua.",
+              "default": false,
+              "title": "No Distance Limit"
+            },
+            "description": "true = tắt lọc khoảng cách, tương đương `max_distance_km: null` của POST /dishes/suggest. Khi bật, `max_distance_km` bị bỏ qua."
           },
           {
             "name": "mood",

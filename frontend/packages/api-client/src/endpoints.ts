@@ -30,6 +30,12 @@ export interface DishLocationParams {
   longitude?: number;
   max_distance_km?: number;
   /**
+   * `true` = KHÔNG giới hạn khoảng cách (nấc "Không giới hạn" của thanh trượt). Query
+   * string không chở được `null`, mà bỏ `max_distance_km` thì backend dùng 10 km — nên
+   * cần cờ riêng để trang món đếm giống hệt lưới món (`max_distance_km: null`).
+   */
+  no_distance_limit?: boolean;
+  /**
    * Chỉ tính/hiện quán ĐỌC ĐƯỢC giá.
    *
    * ⚠️ Hai endpoint dùng chung tham số này phải được gọi với CÙNG giá trị, nếu không

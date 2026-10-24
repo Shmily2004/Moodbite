@@ -1493,6 +1493,33 @@ thật 24/24 lượt 0 lỗi; 3 luồng sửa kiểm tay trên Edge.
 - Chưa tách: `HomePage.tsx` 437, `useRestaurantAdmin.ts` 355, backend `schemas.py` 1232, `routers/admin.py`, `dependencies.py`… (tách cần refactor hành vi).
 - `CLAUDE.md` có số liệu/đường dẫn lỗi thời (file quy tắc của chủ dự án — chưa sửa).
 
+### Đợt 2026-10-10 → 10-13 — rà soát lại trước khi chủ dự án test UI
+
+**Cách kiểm:** chạy server THẬT, gọi mọi luồng qua HTTP trên một server CÁCH LY (bản sao CSDL
+quán + kho tài khoản riêng, tắt gửi thư) — **1.635 phép kiểm, 0 lỗi 500**; dấu sha256 của 3 file
+dữ liệu thật trước/sau trùng khớp. Một luồng rà hợp đồng frontend↔backend (chỉ đọc): mọi route
+frontend gọi đều có thật, payload khớp OpenAPI. Chụp 17 trang trên Edge thật (1440px + 390px):
+0 lỗi JS, 0 tràn ngang.
+
+**Lỗi thật đã sửa (đều có test đỏ trước):**
+| Lỗi | Kết quả |
+|---|---|
+| Khối "Không khí" ở chi tiết quán KHÔNG BAO GIỜ hiện: 1101/1345 quán lưu dạng chuỗi repr Python `"[{'Thông thường': True}]"` | ✅ repository giải mã bằng `ast.literal_eval`; 1101/1101 nay trả mảng |
+| Chọn bán kính ở lưới món (VD 1 km, "Không giới hạn") rồi mở món → trang món luôn đếm trong 10 km | ✅ trang món đọc `km` từ URL; thêm `no_distance_limit` cho 2 endpoint GET món. Đo: số trên thẻ món = số trên trang món ở 1/3 km/không giới hạn |
+| Mở món từ TRANG CHỦ bỏ mất mọi bộ lọc (bán kính, "chỉ quán có giá") | ✅ mang bộ lọc theo như `/recommend` |
+| 404 quán: message lặp chữ, `details.restaurant_id` chứa cả câu (5 chỗ gọi) | ✅ truyền mã quán |
+| `verify.py` mục 9 đỏ/xanh tuỳ NGÀY chạy (ghim giờ nhưng không ghim ngày; có tín hiệu cuối tuần) | ✅ ghim cả ngày (thứ Tư); bộ mẫu gom lại |
+| `traceability.md` thiếu 15/20 use case, 10/12 router, ghi Lớp 4 "chưa làm" | ✅ viết lại + **verify.py mục 10** (cũng chạy trong CI) |
+| `chup_man_hinh.py` bỏ lại ~10 tiến trình Edge mỗi lần chạy; không bắt lỗi JS | ✅ đóng qua CDP; in lỗi JS/Promise/console/HTTP |
+
+**Không phải lỗi (đã kiểm, ghi lại để khỏi "sửa nhầm"):**
+- Đăng ký giới hạn **3 lần/giờ/IP, tính cả lần nhập sai** — có chủ đích. Test UI mà gặp "Bạn thao tác quá nhanh" thì khởi động lại backend (bộ đếm ở RAM).
+- Log tiếng Việt vỡ chữ (`Đ�`) CHỈ khi chuyển hướng output ra file/pipe; console PowerShell thật hiện đúng.
+- `uvicorn --reload` treo ở "Reloading..." khi chạy NỀN không có console — chưa tái hiện được trong terminal thật.
+- Trang chủ trắng ~vài giây ở lần mở ĐẦU sau `run_dev` = Vite biên dịch lần đầu.
+
+**Kiểm:** `verify.py` 10/10 — **930 backend + 509 frontend** (client 390 · admin 119).
+
 ---
 
 ## 🚧 VIỆC TIẾP THEO

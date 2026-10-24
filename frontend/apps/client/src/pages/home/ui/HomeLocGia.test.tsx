@@ -7,7 +7,7 @@
  */
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { UserSessionProvider } from '@/entities/user';
 import { HomePage } from '../index';
 
@@ -97,5 +97,34 @@ describe('Công tắc "chỉ quán có ghi giá"', () => {
     // Người dùng phải biết TRƯỚC khi bật rằng kết quả sẽ ít đi vì DỮ LIỆU thiếu, không
     // phải vì khu vực ít quán.
     expect(await screen.findByText(/chưa có giá/i)).toBeInTheDocument();
+  });
+
+  it('mở món từ trang chủ MANG THEO bộ lọc (giá, bán kính) sang trang món', async () => {
+    // BUG THẬT (2026-10-13): trang chủ mở món bằng `dishRoute(id)` trơn, bỏ hết bộ lọc.
+    // Bật "chỉ quán có ghi giá" ở đây, bấm món, trang món lại hiện cả quán không giá.
+    theoDoiFetch();
+    function DiaChi() {
+      const loc = useLocation();
+      return <p data-testid="dia-chi">{loc.pathname + loc.search}</p>;
+    }
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <UserSessionProvider>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/dishes/:dishId" element={<DiaChi />} />
+          </Routes>
+        </UserSessionProvider>
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(await screen.findByRole('button', { name: /Lọc/i }));
+    fireEvent.click(await screen.findByLabelText(/Chỉ hiện quán có ghi giá/i));
+    fireEvent.click((await screen.findAllByText('Bún chả'))[0]);
+
+    const diaChi = (await screen.findByTestId('dia-chi')).textContent ?? '';
+    expect(diaChi).toMatch(/^\/dishes\/bun-cha\?/);
+    expect(diaChi).toContain('gia=1');
+    expect(diaChi).toContain('km=10');
   });
 });

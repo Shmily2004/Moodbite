@@ -216,14 +216,14 @@ class UpdateRestaurantUseCase:
         edit = RestaurantEdit.from_dict(raw_changes)
 
         if self.restaurants.get_for_admin(place_id) is None:
-            raise RestaurantNotFoundError(f"Không tìm thấy quán: {place_id}")
+            raise RestaurantNotFoundError(place_id)
 
         self.restaurants.update_fields(place_id, edit.changes)
         logger.info("Admin sửa quán %s: %s", place_id, sorted(edit.changes))
 
         updated = self.restaurants.get_for_admin(place_id)
         if updated is None:  # pragma: no cover - chỉ xảy ra nếu bị xoá xen giữa
-            raise RestaurantNotFoundError(f"Không tìm thấy quán: {place_id}")
+            raise RestaurantNotFoundError(place_id)
         return updated
 
 
@@ -240,14 +240,14 @@ class SetRestaurantVisibilityUseCase:
     def execute(self, place_id: str, is_active: bool) -> Restaurant:
         _require_ready(self.restaurants)
         if self.restaurants.get_for_admin(place_id) is None:
-            raise RestaurantNotFoundError(f"Không tìm thấy quán: {place_id}")
+            raise RestaurantNotFoundError(place_id)
 
         self.restaurants.set_active(place_id, is_active)
         logger.info("Admin %s quán %s", "bỏ ẩn" if is_active else "ẩn", place_id)
 
         updated = self.restaurants.get_for_admin(place_id)
         if updated is None:  # pragma: no cover
-            raise RestaurantNotFoundError(f"Không tìm thấy quán: {place_id}")
+            raise RestaurantNotFoundError(place_id)
         return updated
 
 

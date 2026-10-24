@@ -38,3 +38,26 @@ def test_tra_lai_dong_ho_that_sau_khi_gom():
     with make_fixture.co_dinh_gio():
         assert mod.datetime is not goc
     assert mod.datetime is goc
+
+
+def test_ngu_canh_khong_doi_theo_NGAY_chay(monkeypatch):
+    """BUG THẬT (2026-10-13): `co_dinh_gio` chỉ ghim GIỜ, giữ nguyên NGÀY. Xếp hạng có tín
+    hiệu cuối tuần, nên bộ mẫu gom thứ Bảy (10/10, rating 35,6%) đo lại thứ Ba (13/10)
+    thành 30,6% -> verify.py mục 9 đỏ chỉ vì hôm nay không phải thứ Bảy."""
+    from datetime import datetime as that
+
+    def gia_ngay(y, m, d):
+        class _Ngay(that):
+            @classmethod
+            def now(cls, tz=None):
+                return that(y, m, d, 15, 30, tzinfo=tz)
+        return _Ngay
+
+    monkeypatch.setattr(mod, "datetime", gia_ngay(2026, 10, 10))   # thứ Bảy
+    with make_fixture.co_dinh_gio():
+        thu_bay = ClockOnlyContextProvider().get_context(TAM)
+    monkeypatch.setattr(mod, "datetime", gia_ngay(2026, 10, 13))   # thứ Ba
+    with make_fixture.co_dinh_gio():
+        thu_ba = ClockOnlyContextProvider().get_context(TAM)
+
+    assert thu_bay == thu_ba

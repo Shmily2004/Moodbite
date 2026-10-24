@@ -14,6 +14,8 @@ số còn lại.
 """
 from __future__ import annotations
 
+from typing import Optional
+
 from fastapi import APIRouter, Depends, Query
 
 from src.application.use_cases.find_restaurants_for_dish import (
@@ -109,6 +111,20 @@ def suggest_dishes(
     return success(payload.model_dump())
 
 
+# Query string không biểu diễn được `null`: bỏ tham số = mặc định 10 km. Nên "không giới
+# hạn" cần một cờ RIÊNG. Thiếu cờ này (trước 2026-10-13), lưới món đếm theo
+# `max_distance_km: null` còn trang món luôn đếm trong 10 km -> thẻ món và trang món nói
+# hai con số khác nhau cho cùng một món.
+NO_DISTANCE_LIMIT_DOC = (
+    "true = tắt lọc khoảng cách, tương đương `max_distance_km: null` của "
+    "POST /dishes/suggest. Khi bật, `max_distance_km` bị bỏ qua."
+)
+
+
+def _radius(max_distance_km: float, no_distance_limit: bool) -> Optional[float]:
+    return None if no_distance_limit else max_distance_km
+
+
 @router.get("/dishes/{dish_id}", response_model=DishDetailResponse,
             responses=ERROR_RESPONSES, summary="Chi tiết 1 món (giới thiệu ngắn)")
 def dish_detail(
@@ -116,6 +132,7 @@ def dish_detail(
     latitude: float = Query(default=HANOI_CENTER_LAT, ge=-90, le=90),
     longitude: float = Query(default=HANOI_CENTER_LNG, ge=-180, le=180),
     max_distance_km: float = Query(default=DEFAULT_MAX_DISTANCE_KM, gt=0, le=100),
+    no_distance_limit: bool = Query(default=False, description=NO_DISTANCE_LIMIT_DOC),
     only_with_price: bool = Query(
         default=False,
         description="Chỉ đếm quán có ghi giá — phải khớp với tham số cùng tên của "
@@ -139,7 +156,7 @@ def dish_detail(
         dish_id,
         latitude=latitude,
         longitude=longitude,
-        max_distance_km=max_distance_km,
+        max_distance_km=_radius(max_distance_km, no_distance_limit),
         only_with_price=only_with_price,
     )
     if item is None:
@@ -155,6 +172,7 @@ def restaurants_for_dish(
     latitude: float = Query(default=HANOI_CENTER_LAT, ge=-90, le=90),
     longitude: float = Query(default=HANOI_CENTER_LNG, ge=-180, le=180),
     max_distance_km: float = Query(default=DEFAULT_MAX_DISTANCE_KM, gt=0, le=100),
+    no_distance_limit: bool = Query(default=False, description=NO_DISTANCE_LIMIT_DOC),
     mood: str | None = Query(default=None),
     only_with_price: bool = Query(
         default=False,
@@ -174,7 +192,7 @@ def restaurants_for_dish(
             dish_id=dish_id,
             latitude=latitude,
             longitude=longitude,
-            max_distance_km=max_distance_km,
+            max_distance_km=_radius(max_distance_km, no_distance_limit),
             mood=mood,
             only_with_price=only_with_price,
             limit=limit,

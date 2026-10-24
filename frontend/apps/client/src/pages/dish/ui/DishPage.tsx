@@ -20,6 +20,7 @@ import { RestaurantList } from '@/widgets/restaurant-list';
 import { RestaurantMap } from '@/widgets/restaurant-map';
 import { SiteHeader } from '@/widgets/site-header';
 import { useDishDetail } from '@/features/view-dish-detail';
+import { docBoLocTuUrl } from '@/features/suggest-dishes';
 import { useUserLocation } from '@/features/pick-location';
 import { useRecentDishes } from '@/features/recent-dishes';
 import { describeRestaurantListHeading } from '@/entities/dish';
@@ -56,12 +57,13 @@ export function DishPage() {
   // thấy lại đủ quán không giá thì người dùng tưởng bộ lọc tự tắt. Cùng tham số `gia=1`
   // mà `ghiBoLocLenUrl` sinh ra, nên hai trang không thể nói lệch nhau.
   const chiQuanCoGia = urlParams.get('gia') === '1';
-  const detail = useDishDetail(
-    dishId,
-    location.position,
-    DEFAULT_RADIUS_KM,
-    chiQuanCoGia,
-  );
+  // BÁN KÍNH cũng phải theo sang, cùng lý do: `/recommend` ghi `km` lên URL khi mở món.
+  // Bản cũ luôn dùng 10 km nên chọn 1 km thì thẻ món hứa "2 quán", vào đây lại đếm trong
+  // 10 km (sửa 2026-10-13). Đọc bằng CHÍNH `docBoLocTuUrl` mà trang gợi ý dùng: `km=` là
+  // "Không giới hạn" (null), không có / hỏng thì `undefined` -> mặc định.
+  const banKinhTuUrl = docBoLocTuUrl(urlParams).maxDistanceKm;
+  const banKinh = banKinhTuUrl === undefined ? DEFAULT_RADIUS_KM : banKinhTuUrl;
+  const detail = useDishDetail(dishId, location.position, banKinh, chiQuanCoGia);
 
   // "ĐÃ XEM GẦN ĐÂY": ghi ở CHÍNH trang món, khi món đã tải xong — mọi lối vào (trang chủ,
   // /recommend, bộ sưu tập, link chia sẻ…) đều được tính. Trước 2026-10-06 chỉ trang chủ

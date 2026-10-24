@@ -427,6 +427,7 @@ def test_sua_quan_khong_ton_tai_tra_404(client):
 
     assert res.status_code == 404
     assert res.json()["error"]["code"] == "RESTAURANT_NOT_FOUND"
+    assert res.json()["error"]["details"]["restaurant_id"] == "khong-co"
 
 
 def test_yeu_cau_sai_duoc_kiem_TRUOC_khi_tra_404(client):

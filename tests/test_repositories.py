@@ -110,6 +110,34 @@ def test_details_repo_reads_and_degrades(tmp_path):
     assert missing.get("p1") is None
 
 
+def test_details_repo_decodes_python_repr_columns(tmp_path):
+    """BUG THẬT (2026-10-13): 1101/1345 quán có `additionalInfo/Bầu không khí` là CHUỖI
+    repr Python ("[{'Thông thường': True}]") chứ không phải mảng JSON. Frontend kiểm
+    `Array.isArray(...)` nên khối "Không khí" không bao giờ hiện ở bất kỳ quán nào."""
+    path = tmp_path / "details.json"
+    path.write_text(json.dumps({"p1": {
+        "additionalInfo/Bầu không khí": "[{'Thông thường': True}, {'Ấm cúng': True}]",
+        "openingHours": "[{'day': 'Thứ Hai', 'hours': '06:00 to 22:00'}]",
+    }}, ensure_ascii=False), encoding="utf-8")
+    raw = JsonRestaurantDetailsRepository(path).get("p1")
+    assert raw["additionalInfo/Bầu không khí"] == [{"Thông thường": True}, {"Ấm cúng": True}]
+    assert raw["openingHours"] == [{"day": "Thứ Hai", "hours": "06:00 to 22:00"}]
+
+
+def test_details_repo_keeps_unparseable_or_plain_values(tmp_path):
+    """Không đoán: chuỗi không phải literal thì giữ nguyên, None vẫn là None."""
+    path = tmp_path / "details.json"
+    path.write_text(json.dumps({"p1": {
+        "additionalInfo/Bầu không khí": "[hỏng",
+        "openingHours": None,
+        "price": "1-100.000 ₫",
+    }}, ensure_ascii=False), encoding="utf-8")
+    raw = JsonRestaurantDetailsRepository(path).get("p1")
+    assert raw["additionalInfo/Bầu không khí"] == "[hỏng"
+    assert raw["openingHours"] is None
+    assert raw["price"] == "1-100.000 ₫"
+
+
 def test_dish_knowledge_repo_preserves_rule_order(tmp_path):
     """Rule cụ thể phải đứng trước rule chung, nếu không rule chung nuốt mất rule cụ thể."""
     path = tmp_path / "kb.json"

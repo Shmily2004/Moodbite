@@ -83,3 +83,46 @@ describe('RestaurantList - dwell time', () => {
     expect(xem().every((g) => typeof g.dwell_time_ms === 'number')).toBe(true);
   });
 });
+
+describe('RestaurantList - khối "Không khí" trong chi tiết quán', () => {
+  it('backend trả MẢNG -> hiện từng nhãn (trước 2026-10-13 backend trả chuỗi repr nên không bao giờ hiện)', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockImplementation(() =>
+        Promise.resolve({
+          ok: true,
+          status: 200,
+          json: async () => ({
+            data: {
+              restaurant_id: 'A',
+              has_details: true,
+              reason: null,
+              name: 'Quán A',
+              price_range: null,
+              // Đúng hình dạng mà `GET /restaurants/{id}` trả SAU khi sửa repository.
+              atmosphere: [{ 'Thông thường': true }, { 'Ấm cúng': true }],
+              opening_hours: [],
+              images: [],
+              reviews: [],
+              menu_url: null,
+              website: null,
+              google_maps_url: null,
+              review_summary: null,
+            },
+          }),
+        }),
+      ),
+    );
+    render(
+      <LanguageProvider>
+        <RestaurantList restaurants={[quan('A', 'Quán A', 1)]} searchQueryId="s1" />
+      </LanguageProvider>,
+    );
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /Quán A/ }));
+    });
+
+    expect(await screen.findByText(/Thông thường, Ấm cúng/)).toBeInTheDocument();
+  });
+});

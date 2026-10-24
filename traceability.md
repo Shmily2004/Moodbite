@@ -1,6 +1,6 @@
 # Ma trận truy vết — MoodBite
 
-**Cập nhật:** 2026-10-10.
+**Cập nhật:** 2026-10-13.
 **Nguyên tắc:** mỗi dòng chỉ được ghi file **THẬT SỰ TỒN TẠI** và test **THẬT SỰ CHẠY**.
 **Máy kiểm:** `python scripts/verify.py` mục 10 (gọi `scripts/check_traceability.py`):
 mọi đường dẫn, ký hiệu, tên test trong file này phải tồn tại, và **mọi** file trong
@@ -33,6 +33,8 @@ mọi đường dẫn, ký hiệu, tên test trong file này phải tồn tại,
 | D3.3 | Trích món từ **nội dung review** (đề án mục 7) | `dish_matching._matching_dish_ids_in_review` | `test_review_mention_links_dish_to_restaurant` |
 | D3.4 | Nới bán kính thì phải **nói ra** | `find_restaurants_for_dish._warn_if_radius_was_widened` | `test_far_restaurant_is_shown_but_the_widened_radius_is_announced` |
 | D3.5 | Chỉ mục món ↔ quán dựng lại khi dữ liệu đổi | `src/infrastructure/adapters/live_dish_restaurant_index.py` | `tests/test_dish_index_freshness.py` |
+| D3.6 | Trang món đếm theo ĐÚNG bán kính đã chọn ở lưới món (kể cả "Không giới hạn") | `src/presentation/api/routers/dishes.py` (`no_distance_limit`) · `frontend/apps/client/src/pages/dish/ui/DishPage.tsx` | `test_no_distance_limit_matches_suggest_null_radius` · `frontend/apps/client/src/pages/dish/ui/DishBanKinh.test.tsx` |
+| D3.7 | Mở món từ trang chủ mang theo bộ lọc | `frontend/apps/client/src/pages/home/ui/HomePage.tsx` | `frontend/apps/client/src/pages/home/ui/HomeLocGia.test.tsx` |
 | D4.1 | Mã lỗi riêng cho món | `src/presentation/api/envelope.py` (`DISH_NOT_FOUND`) | `test_unknown_dish_returns_404_with_its_own_code` |
 | D4.2 | Thiếu dataset quán → 503 ở **cả** luồng món | `src/application/use_cases/restaurant_data_guard.py` | `test_thieu_du_lieu_quan_thi_goi_y_mon_tra_503` · `test_thieu_du_lieu_quan_thi_trang_quan_cua_mon_tra_503` |
 
@@ -44,6 +46,7 @@ mọi đường dẫn, ký hiệu, tên test trong file này phải tồn tại,
 | R2.2 | Công thức xếp hạng quán (tổng trọng số = 1.0) | `src/domain/services/search_ranking.py` | `tests/test_domain_ranking.py` |
 | R2.3 | Gợi ý món nằm TRONG từng kết quả | `search_restaurants._suggest_dish` | `test_search_nests_suggested_dish` |
 | R2.4 | Chi tiết quán (review, ảnh, giá, tóm tắt) | `src/presentation/api/routers/restaurants.py` · `src/application/use_cases/get_restaurant_details.py` | `tests/test_api.py` |
+| R2.4b | Không khí / giờ mở cửa trả MẢNG, không phải chuỗi repr Python | `src/infrastructure/repositories/json_restaurant_details_repository.py` | `test_details_repo_decodes_python_repr_columns` |
 | R2.5 | Thiếu dữ liệu → 503 kèm lệnh cần chạy | `src/application/use_cases/restaurant_data_guard.py` | `test_search_returns_503_when_data_missing` |
 | R2.6 | So khớp tiếng Việt: bỏ dấu + từ nguyên vẹn + dấu là bằng chứng | `src/domain/value_objects/text.py` | `test_khong_khop_chuoi_con` · `tests/test_text_matching.py` |
 | R2.7 | Suy mood từ câu gõ theo TỪ NGUYÊN VẸN | `src/domain/value_objects/mood.py` | `test_tu_khoa_that_van_khop` · `tests/test_mood_inference_whole_word.py` |

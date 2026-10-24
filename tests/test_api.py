@@ -297,7 +297,12 @@ def test_restaurant_detail_unknown_id_is_404(client):
     resp = client.get(f"{API}/restaurants/khong-he-ton-tai")
 
     assert resp.status_code == 404
-    assert resp.json()["error"]["code"] == "RESTAURANT_NOT_FOUND"
+    error = resp.json()["error"]
+    assert error["code"] == "RESTAURANT_NOT_FOUND"
+    # BUG THẬT (2026-10-13): use case truyền CẢ CÂU vào lỗi, nên `details.restaurant_id`
+    # thành "Không tìm thấy quán: ..." và message lặp chữ hai lần.
+    assert error["details"]["restaurant_id"] == "khong-he-ton-tai"
+    assert error["message"].count("Không tìm thấy") == 1
 
 
 # --- meta --------------------------------------------------------------------

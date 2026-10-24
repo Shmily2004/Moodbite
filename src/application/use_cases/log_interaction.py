@@ -24,6 +24,9 @@ class RestaurantNotFoundError(ApplicationError):
     """restaurant_id không tồn tại hoặc đã bị ẩn (is_active=false) -> HTTP 404."""
 
     def __init__(self, restaurant_id: str) -> None:
+        # Nhận MÃ QUÁN, không nhận câu thông báo: câu đã ghép sẵn ở đây. Từng có 5 chỗ gọi
+        # truyền "Không tìm thấy quán: <id>" vào -> message lặp chữ và `details.restaurant_id`
+        # chứa cả câu (sửa 2026-10-13).
         super().__init__(f"Không tìm thấy nhà hàng: {restaurant_id}")
         self.restaurant_id = restaurant_id
 

@@ -376,6 +376,27 @@ def test_far_restaurant_is_shown_but_the_widened_radius_is_announced(client):
     assert any("bán kính" in w for w in data["warnings"])
 
 
+def test_no_distance_limit_matches_suggest_null_radius():
+    """BUG THẬT (2026-10-13): lưới món cho chọn "Không giới hạn" (`max_distance_km: null`)
+    nhưng hai endpoint GET của trang món KHÔNG có cách nói "không giới hạn" — trang món
+    luôn rơi về 10 km. Thẻ món hứa "1 quán", bấm vào thì đếm theo bán kính khác."""
+    xa = make_restaurant("Bún Chả Xa Tít", lat=21.5000, lng=106.5000)
+    client = make_client(dishes=[BUN_CHA], index={"bun-cha": [xa]})
+
+    detail = client.get(f"{API}/dishes/bun-cha", params={"no_distance_limit": True}).json()["data"]
+    listing = client.get(
+        f"{API}/dishes/bun-cha/restaurants",
+        params={"session_id": SESSION, "no_distance_limit": True},
+    ).json()["data"]
+    trong_10km = client.get(f"{API}/dishes/bun-cha").json()["data"]
+
+    assert detail["restaurant_count"] == 1
+    assert trong_10km["restaurant_count"] == 0
+    assert [r["name"] for r in listing["results"]] == ["Bún Chả Xa Tít"]
+    # Không giới hạn thì không có bán kính nào bị "nới" -> không được cảnh báo nới bán kính.
+    assert not any("bán kính" in w for w in listing["warnings"])
+
+
 def test_nearby_restaurant_does_not_trigger_the_radius_warning(client):
     """Cảnh báo chỉ xuất hiện khi THẬT SỰ phải nới bán kính - không phải mọi lượt tìm."""
     data = client.get(

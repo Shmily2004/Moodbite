@@ -74,7 +74,7 @@ class GetRestaurantDetailsUseCase:
         # thiếu một nguồn dữ liệu không được biến thành "mọi quán đều không tồn tại".
         if self._restaurants is not None and self._restaurants.is_ready:
             if self._restaurants.get_by_place_id(place_id) is None:
-                raise RestaurantNotFoundError(f"Không tìm thấy quán: {place_id}")
+                raise RestaurantNotFoundError(place_id)
 
         raw = self._details.get(place_id)
         if raw is None:

@@ -1,10 +1,17 @@
 """ADAPTER: đọc chi tiết quán từ restaurant_details.json (do feature_engineering sinh ra)."""
 from __future__ import annotations
 
+import ast
 import json
 from pathlib import Path
 from typing import Dict, Optional
 from src.infrastructure.config.settings import describe_path
+
+# Cột mà file nguồn lưu dưới dạng CHUỖI repr Python ("[{'Thông thường': True}]") thay vì
+# mảng JSON — dấu vết của bước làm phẳng dữ liệu Apify qua CSV. Đo 2026-10-13: 1101/1345
+# quán ở cột không khí, 1292/1345 ở cột giờ mở cửa. Không giải mã thì frontend nhận chuỗi,
+# `Array.isArray` sai, và khối "Không khí" KHÔNG BAO GIỜ hiện ở bất kỳ quán nào.
+PYTHON_LITERAL_COLUMNS = ("additionalInfo/Bầu không khí", "openingHours")
 
 
 class JsonRestaurantDetailsRepository:
@@ -86,7 +93,8 @@ class JsonRestaurantDetailsRepository:
         self._ensure_loaded()
         if self._details is None:
             return None
-        return self._details.get(str(place_id))
+        raw = self._details.get(str(place_id))
+        return _decode_python_literals(raw) if raw is not None else None
 
     def _ensure_loaded(self) -> None:
         if self._details is not None or self._load_error is not None:
@@ -107,3 +115,20 @@ class JsonRestaurantDetailsRepository:
             )
             return
         self._details = data
+
+
+def _decode_python_literals(raw: dict) -> dict:
+    """Trả BẢN SAO với các cột repr Python đã được giải mã thành list/dict thật.
+
+    `ast.literal_eval` chỉ đọc literal (list, dict, chuỗi, số, True/False/None), không chạy
+    code, nên an toàn với dữ liệu ngoài. Giải mã hỏng thì GIỮ NGUYÊN giá trị cũ: không đoán.
+    """
+    decoded = dict(raw)
+    for column in PYTHON_LITERAL_COLUMNS:
+        value = decoded.get(column)
+        if isinstance(value, str) and value[:1] in "[{":
+            try:
+                decoded[column] = ast.literal_eval(value)
+            except (ValueError, SyntaxError):
+                pass
+    return decoded

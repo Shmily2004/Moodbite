@@ -76,11 +76,16 @@ REQUIRED_CASES: Dict[str, Any] = {
 # -> `verify.py` mục 9 đỏ/xanh tuỳ lúc chạy dù không ai sửa gì. Cố định một mốc để bộ mẫu
 # và phép kiểm luôn đo trên CÙNG một tập.
 GIO_GOM_MAU = (12, 0)
+# NGÀY cũng phải cố định (bug thật 2026-10-13): ngữ cảnh có tín hiệu CUỐI TUẦN. Ghim mỗi
+# giờ thì bộ mẫu gom thứ Bảy 10/10 (rating 35,6%) đo lại thứ Ba 13/10 thành 30,6% ->
+# mục 9 đỏ chỉ vì đổi ngày. Chọn một NGÀY THƯỜNG: phần lớn lượt dùng rơi vào ngày thường.
+# 2026-10-14 là thứ Tư.
+NGAY_GOM_MAU = (2026, 10, 14)
 
 
 @contextmanager
-def co_dinh_gio(gio: tuple = GIO_GOM_MAU):
-    """Cho bộ cung cấp ngữ cảnh thấy đồng hồ dừng ở `gio` (giờ, phút) - CHỈ trong script."""
+def co_dinh_gio(gio: tuple = GIO_GOM_MAU, ngay: tuple = NGAY_GOM_MAU):
+    """Cho bộ cung cấp ngữ cảnh thấy đồng hồ dừng ở `ngay` + `gio` - CHỈ trong script."""
     import src.infrastructure.adapters.open_meteo_context_provider as mod
 
     goc = mod.datetime
@@ -88,7 +93,10 @@ def co_dinh_gio(gio: tuple = GIO_GOM_MAU):
     class _DongHoCoDinh(goc):
         @classmethod
         def now(cls, tz=None):
-            return goc.now(tz).replace(hour=gio[0], minute=gio[1], second=0, microsecond=0)
+            return goc.now(tz).replace(
+                year=ngay[0], month=ngay[1], day=ngay[2],
+                hour=gio[0], minute=gio[1], second=0, microsecond=0,
+            )
 
     mod.datetime = _DongHoCoDinh
     try:

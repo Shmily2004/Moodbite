@@ -237,6 +237,26 @@ JS_DO_TRAN = r"""(() => {
 })()"""
 
 
+# Chèn TRƯỚC khi trang chạy dòng JS nào (Page.addScriptToEvaluateOnNewDocument), để bắt
+# được cả lỗi xảy ra ngay lúc khởi động. Thêm 2026-10-13: ảnh chụp chỉ cho thấy bố cục,
+# không cho thấy trang đang ném lỗi ngầm hay gọi API hỏng — đúng loại "lỗi không đâu"
+# mà test jsdom (giả lập fetch) không bao giờ thấy.
+JS_BAT_LOI = r"""(() => {
+  window.__loiTrang = [];
+  const ghi = (loai, noiDung) => window.__loiTrang.push(loai + ': ' + String(noiDung).slice(0, 300));
+  addEventListener('error', (e) => ghi('JS', e.message || e));
+  addEventListener('unhandledrejection', (e) => ghi('PROMISE', (e.reason && e.reason.message) || e.reason));
+  const goc = console.error;
+  console.error = (...a) => { ghi('console.error', a.map(String).join(' ')); goc.apply(console, a); };
+  const fetchGoc = window.fetch;
+  window.fetch = async (...a) => {
+    const r = await fetchGoc(...a);
+    if (!r.ok) ghi('HTTP ' + r.status, String(a[0] && a[0].url ? a[0].url : a[0]));
+    return r;
+  };
+})()"""
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="Chup man hinh + do tran ngang.")
     ap.add_argument("url", help="Dia chi can chup, VD http://localhost:5173/")
@@ -270,6 +290,7 @@ def main() -> int:
             mobile=args.mobile,
         )
         cdp.goi("Page.enable")
+        cdp.goi("Page.addScriptToEvaluateOnNewDocument", source=JS_BAT_LOI)
         if args.token or args.admin_token or args.dang_xuat:
             # Storage gắn theo origin: phải đứng ở origin đó trước khi ghi.
             cdp.goi("Page.navigate", url=args.url)
@@ -297,16 +318,39 @@ def main() -> int:
         print(f"URL       : {args.url}")
         print(f"Viewport  : {do['vw']}px" + (" (mobile)" if args.mobile else ""))
         print(f"Anh       : {ra}")
+        loi = json.loads(cdp.goi(
+            "Runtime.evaluate", expression="JSON.stringify(window.__loiTrang || [])",
+            returnByValue=True,
+        )["result"]["value"])
+        # HTTP 4xx có thể là CỐ Ý (401 khi chưa đăng nhập) nên chỉ in ra để người đọc xét;
+        # lỗi JS / Promise thì không bao giờ cố ý -> tính là hỏng.
+        loi_js = [x for x in loi if x.startswith(("JS:", "PROMISE:"))]
+        print(f"Loi trang : {len(loi)} ({len(loi_js)} loi JS)")
+        for x in loi:
+            print(f"   {x}")
+
         print(f"scrollWidth = {do['scrollW']}", end="  ")
         if do["scrollW"] <= do["vw"] + 1:
             print("-> KHONG tran ngang. OK.")
-            return 0
+            return 1 if loi_js else 0
         print(f"-> TRAN {do['scrollW'] - do['vw']}px. Phan tu gay tran:")
         for o in do["nguon"]:
             print(f"   <{o['tag']} class={o['cls']!r}>  right={o['right']} w={o['w']}")
         return 1
     finally:
-        proc.terminate()
+        # `terminate()` chỉ giết tiến trình MẸ: Edge còn ~10 tiến trình con chạy ngầm, chụp
+        # vài lần là dồn hàng chục tiến trình (đo 2026-10-13). Bảo trình duyệt TỰ ĐÓNG
+        # qua CDP trước, `terminate()` chỉ còn là lưới an toàn.
+        try:
+            raw = urllib.request.urlopen(f"http://127.0.0.1:{CDP_PORT}/json/version", timeout=2).read()
+            Cdp(json.loads(raw)["webSocketDebuggerUrl"]).goi("Browser.close")
+        # `Cdp.goi` báo lỗi bằng SystemExit nên phải bắt cả nó; KHÔNG bắt KeyboardInterrupt.
+        except (Exception, SystemExit):  # trình duyệt đã tự tắt / không phản hồi
+            pass
+        try:
+            proc.wait(timeout=10)
+        except subprocess.TimeoutExpired:
+            proc.terminate()
 
 
 if __name__ == "__main__":

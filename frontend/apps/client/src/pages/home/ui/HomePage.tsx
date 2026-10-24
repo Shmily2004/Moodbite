@@ -102,7 +102,14 @@ export function HomePage() {
   const openDish = (dish: DishItem) => {
     // Ghi lại TRƯỚC khi chuyển trang: sau khi `navigate` thì component này đã tháo.
     recent.remember({ dishId: dish.dish_id, name: dish.name });
-    navigate(dishRoute(dish.dish_id));
+    // MANG THEO bộ lọc (bán kính, công tắc giá…) như `/recommend` đã làm: số quán trên thẻ
+    // món tính theo bộ lọc ĐANG BẬT, nên trang món phải đếm cùng điều kiện. Bản cũ mở
+    // `dishRoute(id)` trơn -> bật "chỉ quán có ghi giá" rồi bấm món lại thấy đủ quán không
+    // giá (sửa 2026-10-13).
+    navigate({
+      pathname: dishRoute(dish.dish_id),
+      search: ghiBoLocLenUrl(suggestions.filters).toString(),
+    });
   };
 
   /** Bấm thẻ mood: đang bật thì tắt, chưa bật thì bật. Không cộng dồn cả hàng. */

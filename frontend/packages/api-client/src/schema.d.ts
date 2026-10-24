@@ -3213,6 +3213,8 @@ export interface operations {
                 latitude?: number;
                 longitude?: number;
                 max_distance_km?: number;
+                /** @description true = tắt lọc khoảng cách, tương đương `max_distance_km: null` của POST /dishes/suggest. Khi bật, `max_distance_km` bị bỏ qua. */
+                no_distance_limit?: boolean;
                 /** @description Chỉ đếm quán có ghi giá — phải khớp với tham số cùng tên của /dishes/{id}/restaurants, nếu không trang chi tiết hứa một con số rồi danh sách bên dưới hiện một con số khác. */
                 only_with_price?: boolean;
             };
@@ -3287,6 +3289,8 @@ export interface operations {
                 latitude?: number;
                 longitude?: number;
                 max_distance_km?: number;
+                /** @description true = tắt lọc khoảng cách, tương đương `max_distance_km: null` của POST /dishes/suggest. Khi bật, `max_distance_km` bị bỏ qua. */
+                no_distance_limit?: boolean;
                 mood?: string | null;
                 /** @description Chỉ hiện quán ĐỌC ĐƯỢC giá. Số quán bị bỏ luôn được nói ra ở `data.warnings` — im lặng cắt danh sách xuống 2,7% là nói dối. */
                 only_with_price?: boolean;

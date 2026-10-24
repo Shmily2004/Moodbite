@@ -88,7 +88,11 @@ export function useDishDetail(
     const params = {
       latitude: position.lat,
       longitude: position.lng,
-      ...(maxDistanceKm != null ? { max_distance_km: maxDistanceKm } : {}),
+      // `null` = "Không giới hạn". Bản cũ BỎ tham số đi, mà thiếu tham số thì backend hiểu
+      // là 10 km mặc định — trái hẳn ý người dùng (sửa 2026-10-13).
+      ...(maxDistanceKm != null
+        ? { max_distance_km: maxDistanceKm }
+        : { no_distance_limit: true }),
       only_with_price: onlyWithPrice,
     };
 

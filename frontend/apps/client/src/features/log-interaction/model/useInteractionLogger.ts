@@ -24,7 +24,7 @@ export interface LogInteractionInput {
 export interface UseInteractionLoggerResult {
   log: (input: LogInteractionInput) => void;
   /** Bắt đầu đếm thời gian xem một quán. Trả về hàm dừng + ghi log. */
-  startViewTimer: (restaurantId: string, rankPosition: number,
+  startViewTimer: (restaurantId: string, rankPosition: number | null,
                    searchQueryId: string | null) => () => void;
 }
 
@@ -50,7 +50,7 @@ export function useInteractionLogger(): UseInteractionLoggerResult {
   }, []);
 
   const startViewTimer = useCallback(
-    (restaurantId: string, rankPosition: number, searchQueryId: string | null) => {
+    (restaurantId: string, rankPosition: number | null, searchQueryId: string | null) => {
       timers.current.set(restaurantId, Date.now());
       return () => {
         const startedAt = timers.current.get(restaurantId);

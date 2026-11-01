@@ -8,6 +8,7 @@ from src.application.use_cases.get_restaurant_details import (
 )
 from src.presentation.api.dependencies import get_restaurant_details_use_case
 from src.presentation.api.envelope import success
+from src.presentation.api.result_mapping import restaurant_info_to_dict
 from src.presentation.api.schemas import (
     ERROR_RESPONSES,
     RestaurantDetailData,
@@ -45,5 +46,6 @@ def restaurant_detail(
         website=d.website,
         google_maps_url=d.google_maps_url,
         review_summary=d.review_summary,
+        info=restaurant_info_to_dict(d.restaurant),
     )
     return success(payload.model_dump())

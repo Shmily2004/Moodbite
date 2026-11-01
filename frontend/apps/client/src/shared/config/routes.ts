@@ -10,6 +10,11 @@ export const ROUTES = {
   home: '/',
   /** Chi tiết món. `/dishes/pho-bo` — số nhiều theo thông lệ REST. */
   dish: '/dishes/:dishId',
+  /**
+   * Chi tiết QUÁN (2026-10-28). `restaurantId` là `restaurant_id` trong kết quả tìm kiếm.
+   * Chưa có bản vẽ riêng - bố cục suy từ `restaurance recommend.png` + `profile.png`.
+   */
+  restaurant: '/restaurants/:restaurantId',
   search: '/search',
   /**
    * Trang KẾT QUẢ GỢI Ý MÓN. Khác `search` (tìm QUÁN bằng câu tự nhiên + bản đồ).
@@ -57,4 +62,22 @@ export const DUONG_DAN_CU: Record<string, string> = {
 /** Dựng đường dẫn tới một món cụ thể. Dùng hàm thay vì nối chuỗi tay để khỏi gõ sai. */
 export function dishRoute(dishId: string): string {
   return `/dishes/${encodeURIComponent(dishId)}`;
+}
+
+/** Dựng đường dẫn tới một quán. `placeId` của Google có ký tự đặc biệt nên phải mã hoá. */
+export function restaurantRoute(restaurantId: string): string {
+  return `/restaurants/${encodeURIComponent(restaurantId)}`;
+}
+
+/**
+ * `state` đi kèm link sang trang quán (`<Link state>`). Đặt ở `shared` vì nơi tạo link là
+ * `widgets/restaurant-list`, nơi đọc là `pages/restaurant` - FSD cấm widget import page.
+ *
+ * Để breadcrumb nói được "đến từ món nào", và để lượt xem ghi lại giữ được ngữ cảnh
+ * lượt tìm (nhãn huấn luyện). Mở thẳng link (không có state) trang vẫn chạy đủ.
+ */
+export interface RestaurantPageState {
+  fromDish?: { id: string; name: string };
+  searchQueryId?: string | null;
+  rankPosition?: number | null;
 }

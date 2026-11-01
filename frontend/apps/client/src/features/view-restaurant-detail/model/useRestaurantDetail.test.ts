@@ -17,6 +17,7 @@ vi.mock('@/shared/api', async () => {
   };
 });
 
+import { ApiError } from '@/shared/api';
 import { useRestaurantDetail } from './useRestaurantDetail';
 
 function giaLapCham() {
@@ -81,5 +82,18 @@ describe('useRestaurantDetail', () => {
       await Promise.resolve();
     });
     expect(result.current.detail).toBeNull();
+  });
+
+  it('404 bat co notFound chu khong hien loi "thu lai"', async () => {
+    restaurantDetail.mockRejectedValue(
+      new ApiError('RESTAURANT_NOT_FOUND', 'khong co', {}, 404),
+    );
+    const { result } = renderHook(() => useRestaurantDetail());
+    await act(async () => {
+      await result.current.load('X');
+    });
+    expect(result.current.notFound).toBe(true);
+    expect(result.current.error).toBeNull();
+    expect(result.current.loading).toBe(false);
   });
 });

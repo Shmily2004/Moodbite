@@ -60,6 +60,7 @@ export {
   IconBurger,
   IconSushi,
   IconLeaf,
+  IconRain,
   IconBeer,
   IconRiceBowl,
   // --- đợt đối chiếu thiết kế 2026-10-02 ---
@@ -72,3 +73,5 @@ export {
 } from './icons';
 export { LanguageSelect } from './LanguageSelect';
 export { Slogan } from './Slogan';
+export { ConfirmDialog } from './ConfirmDialog';
+export type { ConfirmDialogProps } from './ConfirmDialog';

@@ -15,7 +15,6 @@ import type { ReactNode } from 'react';
 import type { UseTastePreferencesResult } from '../model/useTastePreferences';
 import { SO_THICH } from '../model/danh_sach';
 import { useT } from '@/shared/i18n';
-import { ICON_MOOD } from '@/shared/config';
 import {
   IconChili,
   IconCold,
@@ -29,30 +28,20 @@ import {
 } from '@/shared/ui';
 
 /**
- * Ảnh chủ dự án gửi (`ICON_MOOD`) cho khái niệm đã có file; chưa có thì `null` để lui
- * về icon SVG. Cùng thứ tự ưu tiên với hàng chip lọc ở `features/suggest-dishes`.
- */
-function anhChuDuAn(khoa: string): ReactNode {
-  const anh = ICON_MOOD[khoa];
-  if (!anh) return null;
-  return <img src={anh.src} alt="" width={18} height={18} className="chip__icon" />;
-}
-
-/**
  * Icon cho từng ô sở thích, khoá theo `SoThich.id` (thay emoji 2026-09-29, checklist A9).
  * Chọn TRÙNG với hình mà hàng chip lọc món dùng cho cùng khái niệm — người dùng thấy
  * "Món nước" ở hai chỗ thì phải là cùng một hình.
  */
 const ICON_SO_THICH: Record<string, ReactNode> = {
-  nuong: anhChuDuAn('nuong') ?? <IconFlame />,
+  nuong: <IconFlame />,
   nuoc: <IconSoup />,
   chien: <IconPan />,
   hap: <IconSteam />,
   tron: <IconMix />,
   nong: <IconHotBowl />,
   mat: <IconCold />,
-  // Ảnh "cay" của chủ dự án được khai dưới khoá mood `excited` — đúng giá trị lọc của ô này.
-  cay: anhChuDuAn('excited') ?? <IconChili />,
+  // Cùng bộ icon nét với hàng chip lọc và ô mood trang chủ (2026-10-28).
+  cay: <IconChili />,
 };
 
 export interface TastePickerProps {

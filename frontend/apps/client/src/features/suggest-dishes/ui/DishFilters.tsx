@@ -11,10 +11,10 @@
  * ICON, KHÔNG EMOJI (đổi 2026-08-24 theo yêu cầu chủ dự án). Lý do đã ghi sẵn ở đầu
  * `shared/ui/icons.tsx`: emoji mỗi hệ điều hành vẽ một kiểu và không đổi màu theo giao
  * diện được — chip lọc lúc bật thì đảo màu chữ, emoji đứng im trông như lỗi.
- * Thứ tự ưu tiên khi chọn hình:
- *   1. ẢNH CHỦ DỰ ÁN GỬI (`ICON_MOOD` trong `shared/config/images.ts`) — cay, thư giãn,
- *      trời mưa, đồ nướng. Đây là nhận diện riêng của sản phẩm, không vẽ lại.
- *   2. SVG trong `shared/ui/icons.tsx` cho phần còn lại.
+ * MỘT BỘ HÌNH: mọi chip dùng SVG nét trong `shared/ui/icons.tsx` (2026-10-28). Trước đó
+ * 4 chip (cay, thư giãn, trời mưa, đồ nướng) dùng ảnh PNG màu của chủ dự án, lẫn với
+ * icon nét ở chip bên cạnh; chủ dự án duyệt chuyển hết sang một bộ. Ảnh vẫn giữ ở
+ * `ICON_CHUA_DUNG` (`shared/config/images.ts`).
  */
 import { useId, useState } from 'react';
 import type { DishFilterState, MultiSelectGroup, SingleSelectGroup } from '../model/useDishFilterState';

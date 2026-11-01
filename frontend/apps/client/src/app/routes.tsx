@@ -93,6 +93,9 @@ const trangTimKiem = taiSau(() =>
 const trangGoiY = taiSau(() =>
   import('@/pages/recommend').then((m) => ({ default: m.RecommendPage })),
 );
+const trangQuan = taiSau(() =>
+  import('@/pages/restaurant').then((m) => ({ default: m.RestaurantPage })),
+);
 const trangTaiKhoan = taiSau(() =>
   import('@/pages/account').then((m) => ({ default: m.AccountPage })),
 );
@@ -114,6 +117,8 @@ export const routes: RouteObject[] = [
         children: [
           { index: true, element: <HomePage /> },
           { path: ROUTES.dish, element: trangMon },
+          // Chi tiết QUÁN (2026-10-28) - tải sau vì kéo theo Leaflet.
+          { path: ROUTES.restaurant, element: trangQuan },
           // Đăng nhập/đăng ký là TUỲ CHỌN: không có route guard nào bắt qua đây trước.
           { path: ROUTES.login, element: <LoginPage /> },
           { path: ROUTES.register, element: <RegisterPage /> },

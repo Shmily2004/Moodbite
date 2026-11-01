@@ -8,6 +8,7 @@
  */
 import { ThemeToggle } from '@/features/switch-theme';
 import { ChangePasswordForm } from '@/features/change-password';
+import { LogoutButton } from '@/features/logout-confirm';
 import {
   IconCompass,
   IconHeart,
@@ -137,9 +138,9 @@ export function SettingsPanel({ onLogout }: { onLogout: () => void }) {
         </div>
         <div className="account__setting">
           <span>{t('account.settings.logout')}</span>
-          <button type="button" className="btn btn--sm" onClick={onLogout}>
+          <LogoutButton className="btn btn--sm" onConfirm={onLogout}>
             {t('nav.logout')}
-          </button>
+          </LogoutButton>
         </div>
       </div>
     </section>

@@ -489,14 +489,19 @@
 
 /* --- Khám phá theo nhu cầu ---------------------------------------------- */
 
+/* SỐ CỘT CỐ ĐỊNH theo bề rộng (sửa 2026-10-28), không `auto-fit`: có đúng 6 lối vào,
+   `auto-fit` 220px ra 5 cột ở màn 1440px nên "Đồ mát" nằm lẻ một mình ở hàng hai.
+   6 = 3×2 = 2×3 = 1×6 - mọi mốc đều chia hết, không bao giờ có ô lẻ. */
 .needs__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 12px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
+@media (min-width: 560px) { .needs__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 900px) { .needs__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 
 .needcard {
   width: 100%;
@@ -731,6 +736,15 @@
    ========================================================================= */
 
 .results__actions { display: flex; align-items: center; gap: 12px; }
+/* ĐIỆN THOẠI (2026-10-28): tiêu đề một hàng riêng, nút "Lọc" + "Xem tất cả" xuống hàng
+   dưới, canh hai đầu. Bản cũ ép cả ba vào một hàng 390px: tiêu đề gãy đôi, "Xem tất cả
+   (30) →" gãy ba dòng chen sát nút Lọc. */
+@media (max-width: 560px) {
+  .results__head { flex-wrap: wrap; align-items: center; row-gap: 6px; }
+  .results__head .section-title { flex: 1 1 100%; }
+  .results__actions { flex: 1 1 100%; justify-content: space-between; }
+  .results__actions .linkish { white-space: nowrap; }
+}
 
 .btn--filter { display: inline-flex; align-items: center; gap: 6px; }
 /* Đang lọc thì nút phải KHÁC HẲN: người dùng cuộn xuống giữa danh sách rất dễ quên là
@@ -1061,13 +1075,18 @@
    chuyện nhìn cụt, nó còn thiếu GHI CÔNG NGUỒN DỮ LIỆU — nghĩa vụ theo giấy
    phép ODbL / CDLA / CC BY-SA. Xem `widgets/site-footer`.
    =========================================================================== */
+/* KHÔNG dùng `margin-top` (sửa 2026-10-28): khoảng margin nằm NGOÀI `.page` nên lộ nền
+   `body` của bảng màu cũ - một dải xám (nền sáng) / nâu đen (nền tối) chen giữa trang và
+   chân trang. Khoảng thở nay là `padding` bên trong, nền cùng họ màu thương hiệu. */
 .site-footer {
-  margin-top: 3rem;
   padding: 2.5rem clamp(1rem, 5vw, 4rem) 1.5rem;
   border-top: 1px solid var(--line-warm);
-  background: var(--surface-2);
+  background: var(--footer-bg);
+  color: var(--auth-ink);
   font-size: .9rem;
 }
+.site-footer :is(p, span, small).muted,
+.site-footer .muted { color: var(--auth-muted); }
 
 .site-footer__grid {
   display: grid;
@@ -1128,14 +1147,6 @@
    =========================================================================== */
 .recommend { padding-bottom: 2rem; }
 
-.recommend__quay-lai {
-  display: inline-block;
-  margin-bottom: .75rem;
-  color: inherit;
-  text-decoration: none;
-  font-size: .92rem;
-}
-.recommend__quay-lai:hover { text-decoration: underline; }
 
 /* Đầu trang: chữ bên trái, tranh minh hoạ bên phải. */
 .recommend__dau {

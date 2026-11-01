@@ -7393,6 +7393,16 @@
               }
             ],
             "title": "Review Summary"
+          },
+          "info": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RestaurantInfoSchema"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "type": "object",
@@ -7413,6 +7423,257 @@
           "data"
         ],
         "title": "RestaurantDetailResponse"
+      },
+      "RestaurantInfoSchema": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "cuisine": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cuisine"
+          },
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address"
+          },
+          "district": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "District"
+          },
+          "latitude": {
+            "type": "number",
+            "title": "Latitude"
+          },
+          "longitude": {
+            "type": "number",
+            "title": "Longitude"
+          },
+          "price_range": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price Range"
+          },
+          "rating": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rating"
+          },
+          "user_ratings_total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Ratings Total"
+          },
+          "is_famous": {
+            "type": "boolean",
+            "title": "Is Famous",
+            "default": false
+          },
+          "thumbnail_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Thumbnail Url"
+          },
+          "opening_hours": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Opening Hours"
+          },
+          "phone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone"
+          },
+          "website": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Website"
+          },
+          "socials": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Socials"
+          },
+          "atmosphere_tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Atmosphere Tags"
+          },
+          "dietary": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Dietary"
+          },
+          "amenities": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Amenities"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          },
+          "data_confidence": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Confidence"
+          },
+          "experience_cluster_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Experience Cluster Label"
+          },
+          "temporarily_closed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temporarily Closed"
+          },
+          "source_updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Updated At"
+          },
+          "source_datasets": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Source Datasets"
+          },
+          "surveyed_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Surveyed At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "latitude",
+          "longitude"
+        ],
+        "title": "RestaurantInfoSchema",
+        "description": "Thông tin CƠ BẢN của một quán - có cho mọi quán, khác phần làm giàu (review/ảnh).\n\nThêm 2026-10-28 cho trang `/restaurants/:id`. Trường trùng tên/ý nghĩa với\n`SearchResultItemSchema` để giao diện dùng chung cách hiển thị. Không có\n`distance_m`: endpoint này không nhận vị trí người dùng."
       },
       "SaveFavoriteRequest": {
         "properties": {

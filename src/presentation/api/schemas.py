@@ -254,6 +254,44 @@ class DishDetailResponse(BaseModel):
 
 # --- GET /api/v1/restaurants/{id} --------------------------------------------
 
+class RestaurantInfoSchema(BaseModel):
+    """Thông tin CƠ BẢN của một quán - có cho mọi quán, khác phần làm giàu (review/ảnh).
+
+    Thêm 2026-10-28 cho trang `/restaurants/:id`. Trường trùng tên/ý nghĩa với
+    `SearchResultItemSchema` để giao diện dùng chung cách hiển thị. Không có
+    `distance_m`: endpoint này không nhận vị trí người dùng.
+    """
+    name: str
+    category: Optional[str] = None
+    cuisine: Optional[str] = None
+    address: Optional[str] = None
+    district: Optional[str] = None
+    latitude: float
+    longitude: float
+    # null = CHƯA CÓ DỮ LIỆU. price_range là CHUỖI, không phải số.
+    price_range: Optional[str] = None
+    rating: Optional[float] = None
+    user_ratings_total: Optional[int] = None
+    # Chỉ dùng để KHẲNG ĐỊNH - xem ghi chú ở `SearchResultItemSchema.is_famous`.
+    is_famous: bool = False
+    thumbnail_url: Optional[str] = None
+    # Chuỗi giờ mở cửa thô từ nguồn (vd. "Mo-Su 06:00-22:00"). Chỉ ~4% quán có.
+    opening_hours: Optional[str] = None
+    phone: Optional[str] = None
+    website: Optional[str] = None
+    socials: List[str] = Field(default_factory=list)
+    atmosphere_tags: List[str] = Field(default_factory=list)
+    dietary: List[str] = Field(default_factory=list)
+    amenities: List[str] = Field(default_factory=list)
+    source: Optional[str] = None
+    data_confidence: Optional[str] = None
+    experience_cluster_label: Optional[str] = None
+    temporarily_closed: Optional[bool] = None
+    source_updated_at: Optional[str] = None
+    source_datasets: List[str] = Field(default_factory=list)
+    surveyed_at: Optional[str] = None
+
+
 class RestaurantDetailData(BaseModel):
     restaurant_id: str
     has_details: bool
@@ -273,6 +311,8 @@ class RestaurantDetailData(BaseModel):
     # `null` = quán chưa đủ review (dưới 3) để tóm tắt, KHÔNG phải "quán không có gì".
     # Mọi câu là TRÍCH NGUYÊN VĂN từ review thật - UI phải nói rõ điều đó.
     review_summary: Optional[dict] = None
+    # Thông tin cơ bản (2026-10-28). `null` = kho quán chưa sẵn sàng.
+    info: Optional[RestaurantInfoSchema] = None
 
 
 # --- POST /api/v1/interactions -----------------------------------------------

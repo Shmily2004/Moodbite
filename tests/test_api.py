@@ -292,6 +292,35 @@ def test_restaurant_detail_missing_is_200_not_404(client):
     assert data["restaurant_id"] == "id-Quan Pho"
 
 
+def test_restaurant_detail_includes_base_info_for_standalone_page(client):
+    """`/restaurants/:id` là trang riêng: phải có tên, địa chỉ, toạ độ của chính quán."""
+    data = client.get(f"{API}/restaurants/id-Quan Pho").json()["data"]
+
+    info = data["info"]
+    assert info["name"] == "Quan Pho"
+    assert info["address"] == "Quan Pho address"
+    assert info["latitude"] == pytest.approx(21.03)
+    assert info["longitude"] == pytest.approx(105.85)
+    # Giá là CHUỖI, không bị ép về số.
+    assert info["price_range"] == "100-200 N ₫"
+    assert info["rating"] == 4.5
+    assert info["user_ratings_total"] == 12
+    # 12 review < ngưỡng 300 -> không gắn nhãn (tính ở backend, không ở frontend).
+    assert info["is_famous"] is False
+
+
+@pytest.mark.parametrize(
+    "raw, expected",
+    [("Mo-Su 08:00-22:00", "Mo-Su 08:00-22:00"), ("[]", None),
+     ("[{'day': 'Thứ Hai', 'hours': '08:00 to 22:00'}]", None), (None, None)],
+)
+def test_restaurant_info_never_leaks_python_repr_opening_hours(raw, expected):
+    """Dữ liệu thật: 1.311 quán có giờ mở cửa là CHUỖI repr list Python trong CSV."""
+    c = make_client(restaurants=[make_restaurant("Q", opening_hours=raw)])
+    info = c.get(f"{API}/restaurants/id-Q").json()["data"]["info"]
+    assert info["opening_hours"] == expected
+
+
 def test_restaurant_detail_unknown_id_is_404(client):
     """Quán KHÔNG tồn tại -> 404 RESTAURANT_NOT_FOUND (CLAUDE.md mục 5)."""
     resp = client.get(f"{API}/restaurants/khong-he-ton-tai")

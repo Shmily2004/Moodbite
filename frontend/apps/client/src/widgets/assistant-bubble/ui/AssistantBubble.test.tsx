@@ -5,7 +5,7 @@
  * không nằm trong nút, và nút phải là nút thật bấm được chứ không phải khối trang trí.
  */
 import { describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { AssistantBubble } from '../index';
 
 describe('AssistantBubble', () => {
@@ -43,5 +43,24 @@ describe('AssistantBubble', () => {
     const { container } = render(<AssistantBubble onOpen={() => {}} />);
 
     expect(container.querySelector('.bubble__thoai')).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  it('showAfterScroll: ẩn lúc mới vào trang, hiện khi đã cuộn qua ngưỡng (2026-10-28)', () => {
+    window.scrollY = 0;
+    render(<AssistantBubble onOpen={() => {}} showAfterScroll={400} />);
+    expect(screen.queryByRole('button')).toBeNull();
+
+    act(() => {
+      window.scrollY = 500;
+      window.dispatchEvent(new Event('scroll'));
+    });
+    expect(screen.getByRole('button')).toBeInTheDocument();
+    window.scrollY = 0;
+  });
+
+  it('showAfterScroll: đang bật bộ lọc thì vẫn hiện để thấy con số', () => {
+    window.scrollY = 0;
+    render(<AssistantBubble onOpen={() => {}} showAfterScroll={400} activeCount={2} />);
+    expect(screen.getByRole('button')).toBeInTheDocument();
   });
 });

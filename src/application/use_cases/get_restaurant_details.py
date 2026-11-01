@@ -10,6 +10,7 @@ from src.application.ports.restaurant_details_repository import (
 )
 from src.application.ports.restaurant_repository import RestaurantRepository
 from src.application.use_cases.log_interaction import RestaurantNotFoundError
+from src.domain.entities.restaurant import Restaurant
 
 # Lý do trả về khi quán tồn tại nhưng chưa cào được phần chi tiết.
 NO_DETAILS_REASON = (
@@ -34,6 +35,10 @@ class RestaurantDetails:
     # LỚP 4 đề án: nhận xét tổng hợp từ review. `None` = quán chưa đủ review để tóm tắt
     # (dưới 3 review), KHÔNG phải "quán không có gì để nói".
     review_summary: Optional[dict] = None
+    # Thông tin CƠ BẢN của quán (tên, địa chỉ, toạ độ, nguồn) - có cho MỌI quán, kể cả
+    # 97,5% quán chưa có phần chi tiết ở trên. Trang `/restaurants/:id` dựa vào nó.
+    # `None` = kho quán chưa sẵn sàng, không phải "quán không có địa chỉ".
+    restaurant: Optional[Restaurant] = None
 
 
 class GetRestaurantDetailsUseCase:
@@ -72,8 +77,13 @@ class GetRestaurantDetailsUseCase:
         # CLAUDE.md mục 5. `get_by_place_id()` đã tự lọc quán bị ẩn.
         # Kho quán chưa sẵn sàng thì BỎ QUA phép kiểm này thay vì trả 404 cho tất cả:
         # thiếu một nguồn dữ liệu không được biến thành "mọi quán đều không tồn tại".
+        #
+        # GIỮ LẠI entity đã tra (2026-10-28): bản cũ tra xong rồi bỏ, nên quán chưa cào
+        # chi tiết chỉ còn câu "chưa có dữ liệu" - trang chi tiết quán không có gì để hiện.
+        restaurant: Optional[Restaurant] = None
         if self._restaurants is not None and self._restaurants.is_ready:
-            if self._restaurants.get_by_place_id(place_id) is None:
+            restaurant = self._restaurants.get_by_place_id(place_id)
+            if restaurant is None:
                 raise RestaurantNotFoundError(place_id)
 
         raw = self._details.get(place_id)
@@ -81,7 +91,10 @@ class GetRestaurantDetailsUseCase:
             # KHÔNG phải 404: quán vẫn tồn tại và vẫn được đề xuất, chỉ là chưa cào được
             # phần chi tiết. Trả has_details=False để UI hiện "chưa có dữ liệu".
             return RestaurantDetails(
-                place_id=place_id, has_details=False, reason=NO_DETAILS_REASON
+                place_id=place_id,
+                has_details=False,
+                reason=NO_DETAILS_REASON,
+                restaurant=restaurant,
             )
 
         return RestaurantDetails(
@@ -100,4 +113,5 @@ class GetRestaurantDetailsUseCase:
             google_maps_url=raw.get("url"),
             # LỚP 4: nhận xét tổng hợp đã tính sẵn. Quán chưa đủ review thì vắng mặt.
             review_summary=self._review_summaries.get(place_id),
+            restaurant=restaurant,
         )

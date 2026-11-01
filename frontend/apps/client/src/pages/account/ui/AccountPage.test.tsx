@@ -60,13 +60,14 @@ function gia_lap_fetch(
   stats = STATS_RONG,
   favorites: unknown[] = [],
   anhMon: Record<string, string> = {},
+  nguoi: Record<string, unknown> = NGUOI_DUNG,
 ) {
   return vi.fn().mockImplementation((url: string) => {
     const duong_dan = String(url);
     const tra = (data: unknown) =>
       Promise.resolve({ ok: true, status: 200, json: async () => ({ data }) });
 
-    if (duong_dan.includes('/auth/me')) return tra(NGUOI_DUNG);
+    if (duong_dan.includes('/auth/me')) return tra(nguoi);
     if (duong_dan.includes('/me/stats')) return tra(stats);
     if (duong_dan.includes('/me/favorites'))
       return tra({ items: favorites, total: favorites.length });
@@ -343,5 +344,21 @@ describe('AccountPage — chưa đăng nhập / đang tải (audit 2026-10-06)',
     vi.stubGlobal('fetch', vi.fn().mockReturnValue(new Promise(() => undefined)));
     renderAccount();
     expect(screen.queryByText('@')).not.toBeInTheDocument();
+  });
+});
+
+describe('AccountPage khi đăng nhập bằng tài khoản QUẢN TRỊ', () => {
+  it('không hiện các mục của khách, chỉ dẫn sang app quản trị', async () => {
+    // Quản trị viên đăng nhập nhầm app người dùng: hồ sơ, yêu thích, cấp độ là của khách.
+    vi.stubGlobal('fetch', gia_lap_fetch(STATS_RONG, [], {}, { ...NGUOI_DUNG, role: 'admin' }));
+    renderAccount();
+
+    expect(await screen.findByText('Tài khoản quản trị')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Mở app quản trị/ })).toHaveAttribute(
+      'href',
+      'http://localhost:5174',
+    );
+    expect(screen.queryByRole('button', { name: /Yêu thích/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Cấp độ & huy hiệu/ })).not.toBeInTheDocument();
   });
 });

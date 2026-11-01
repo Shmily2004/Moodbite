@@ -5,6 +5,7 @@
  * Đây là tầng `widgets`: được phép dùng nhiều feature/entity, nhưng KHÔNG tự gọi API.
  */
 import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import type { SearchResultItem } from '@moodbite/api-client';
 import { RestaurantCard } from '@/entities/restaurant';
 import { useRestaurantDetail } from '@/features/view-restaurant-detail';
@@ -12,6 +13,8 @@ import { useInteractionLogger } from '@/features/log-interaction';
 import { ReportClosureButton } from '@/features/report-closure';
 import { useT } from '@/shared/i18n';
 import { safeHttpUrl } from '@/shared/lib';
+import { restaurantRoute } from '@/shared/config';
+import type { RestaurantPageState } from '@/shared/config';
 
 interface RestaurantListProps {
   restaurants: SearchResultItem[];
@@ -26,6 +29,8 @@ interface RestaurantListProps {
   danhSo?: boolean;
   /** Thẻ dáng gọn một hàng (trang chi tiết món). Xem `RestaurantCard.gon`. */
   gon?: boolean;
+  /** Món đang xem (trang chi tiết món) - để trang quán dựng breadcrumb quay về đúng món. */
+  fromDish?: { id: string; name: string };
 }
 
 export function RestaurantList({
@@ -36,6 +41,7 @@ export function RestaurantList({
   onActivate,
   danhSo = false,
   gon = false,
+  fromDish,
 }: RestaurantListProps) {
   const { detail, loading, error, load, clear } = useRestaurantDetail();
   const { log, startViewTimer } = useInteractionLogger();
@@ -83,6 +89,19 @@ export function RestaurantList({
           queryText={queryText}
           active={activeId != null && restaurant.restaurant_id === activeId}
           onOpenDetail={openId === restaurant.restaurant_id ? undefined : open}
+          // "Xem chi tiết" = sang trang quán đầy đủ (2026-10-28). Thân thẻ vẫn xem nhanh.
+          detailLink={
+            restaurant.restaurant_id
+              ? {
+                  to: restaurantRoute(restaurant.restaurant_id),
+                  state: {
+                    fromDish,
+                    searchQueryId,
+                    rankPosition: restaurant.rank_position,
+                  } satisfies RestaurantPageState,
+                }
+              : undefined
+          }
         >
           {openId === restaurant.restaurant_id && (
             <DetailPanel
@@ -91,6 +110,11 @@ export function RestaurantList({
               error={error}
               restaurantId={restaurant.restaurant_id}
               restaurantName={restaurant.name}
+              trangQuanState={{
+                fromDish,
+                searchQueryId,
+                rankPosition: restaurant.rank_position,
+              }}
               onClose={close}
               onDirections={() =>
                 restaurant.restaurant_id &&
@@ -116,6 +140,8 @@ interface DetailPanelProps {
   /** Cần cho nút báo đóng cửa - `null` thì không báo được (quán chưa có placeId). */
   restaurantId: string | null;
   restaurantName: string;
+  /** Ngữ cảnh mang sang trang quán đầy đủ - xem `RestaurantPageState`. */
+  trangQuanState: RestaurantPageState;
   onClose: () => void;
   onDirections: () => void;
 }
@@ -126,6 +152,7 @@ function DetailPanel({
   error,
   restaurantId,
   restaurantName,
+  trangQuanState,
   onClose,
   onDirections,
 }: DetailPanelProps) {
@@ -133,6 +160,14 @@ function DetailPanel({
   if (loading) return <div className="detail">{t('common.loading')}</div>;
   if (error) return <div className="detail error">{error}</div>;
   if (!detail) return null;
+
+  // Lối sang trang quán ĐẦY ĐỦ (2026-10-28). Panel này chỉ là bản xem nhanh; trang riêng
+  // có bản đồ, giờ mở cửa, nguồn dữ liệu - và có link chia sẻ được.
+  const moTrangQuan = restaurantId && (
+    <Link className="btn btn--link detail__mo-trang" to={restaurantRoute(restaurantId)} state={trangQuanState}>
+      {t('restPage.openMap')} →
+    </Link>
+  );
 
   const menuUrl = safeHttpUrl(detail.menu_url);
   const websiteUrl = safeHttpUrl(detail.website);
@@ -143,6 +178,7 @@ function DetailPanel({
     return (
       <div className="detail">
         <p className="muted">{detail.reason}</p>
+        {moTrangQuan}
         {/* Quán CHƯA cào được chi tiết vẫn phải báo đóng cửa được - đây đúng là nhóm
             dữ liệu mỏng nhất, tức là nhóm dễ đã đóng mà ta không biết nhất. */}
         {restaurantId && (
@@ -229,6 +265,8 @@ function DetailPanel({
         )}
       </div>
 
+      {moTrangQuan}
+
       {/* BÁO ĐÓNG CỬA - backend đã đếm theo phiên từ 2026-08-19, đây là cái nút còn
           thiếu. Đặt CUỐI và nhạt màu: nó là lối thoát hiểm, không phải hành động chính. */}
       {restaurantId && (
@@ -260,7 +298,7 @@ interface ReviewSummaryData {
  * Người đọc thấy một đoạn nhận xét gọn gàng rất dễ tưởng là máy viết ra, mà máy viết thì
  * có thể bịa - trong khi ở đây mọi câu đều truy được về một review có thật.
  */
-function ReviewSummary({ summary }: { summary: unknown }) {
+export function ReviewSummary({ summary }: { summary: unknown }) {
   const data = summary as ReviewSummaryData;
   const chinh = data.summary ?? [];
   const manh = data.positive ?? [];

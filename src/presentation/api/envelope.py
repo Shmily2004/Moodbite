@@ -39,6 +39,8 @@ class ErrorCode(str, Enum):
     # trả đúng mã này — không có mã nào nói "có nhưng không phải của bạn".
     COLLECTION_NOT_FOUND = "COLLECTION_NOT_FOUND"
     ADDRESS_NOT_FOUND = "ADDRESS_NOT_FOUND"
+    # Bài viết (2026-11-01). Mã riêng để client biết "bài này không còn" và quay về danh sách.
+    POST_NOT_FOUND = "POST_NOT_FOUND"
 
 
 def success(data: Any, status_code: int = 200) -> JSONResponse:

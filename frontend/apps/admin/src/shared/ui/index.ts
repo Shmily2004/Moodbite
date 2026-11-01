@@ -8,3 +8,5 @@ export { PhanTrang } from './PhanTrang';
 export type { PhanTrangProps } from './PhanTrang';
 export { Sparkline, VanhKhuyen, VongTienDo } from './BieuDo';
 export type { PhanVanhKhuyen } from './BieuDo';
+export { ConfirmDialog } from './ConfirmDialog';
+export type { ConfirmDialogProps } from './ConfirmDialog';

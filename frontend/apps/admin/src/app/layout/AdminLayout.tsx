@@ -20,12 +20,13 @@
  * Cơ chế `chuaDung` (hiện mờ, không bấm được) VẪN GIỮ LẠI dù hiện không mục nào dùng:
  * nó là cách đúng để thêm một mục đã có bản vẽ nhưng chưa có trang.
  */
+import { useCallback, useState } from 'react';
 import { NavLink, Outlet, useLocation, Link } from 'react-router-dom';
 import { useAdminSessionContext } from '@/features/admin-login';
 import { useSystem } from '@/features/view-system';
 import { APP_VERSION, ROUTES } from '@/shared/config';
 import { BreadcrumbProvider, useNhanBreadcrumb } from '@/shared/lib';
-import { Icon, type TenIcon } from '@/shared/ui';
+import { ConfirmDialog, Icon, type TenIcon } from '@/shared/ui';
 
 interface MucMenu {
   duongDan: string;
@@ -72,6 +73,9 @@ export function AdminLayout() {
 
 function Khung() {
   const session = useAdminSessionContext();
+  // Đăng xuất phải hỏi lại: bấm nhầm là mất phiên, phải đăng nhập lại.
+  const [hoiDangXuat, setHoiDangXuat] = useState(false);
+  const huyDangXuat = useCallback(() => setHoiDangXuat(false), []);
   const location = useLocation();
   const muc = mucHienTai(location.pathname);
   const laTrangCon = muc != null && muc.duongDan !== location.pathname;
@@ -171,9 +175,21 @@ function Khung() {
           </div>
           <div className="thanh-tren__phai">
             <span className="thanh-tren__ai">Quản trị viên</span>
-            <button className="ghost" onClick={session.logout}>
+            <button className="ghost" onClick={() => setHoiDangXuat(true)}>
               Đăng xuất
             </button>
+            <ConfirmDialog
+              open={hoiDangXuat}
+              title="Đăng xuất?"
+              message="Bạn có chắc chắn muốn đăng xuất không?"
+              confirmLabel="Đăng xuất"
+              cancelLabel="Huỷ"
+              onConfirm={() => {
+                setHoiDangXuat(false);
+                session.logout();
+              }}
+              onCancel={huyDangXuat}
+            />
           </div>
         </header>
 

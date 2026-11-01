@@ -1,1 +1,1 @@
-export { RestaurantList } from './ui/RestaurantList';
+export { RestaurantList, ReviewSummary } from './ui/RestaurantList';

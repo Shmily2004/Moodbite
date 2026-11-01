@@ -74,9 +74,13 @@ export function RecommendPage() {
       <SiteHeader />
 
       <main className="page__body recommend">
-        <Link className="recommend__quay-lai" to={ROUTES.home}>
-          ← {t('recommend.back')}
-        </Link>
+        {/* BREADCRUMB như trang món / trang quán (2026-10-28) thay cho "← Quay lại trang
+            chủ": ba trang cùng luồng thì đường về phải trông giống nhau. */}
+        <nav className="breadcrumb recommend__breadcrumb" aria-label={t('dishPage.breadcrumb')}>
+          <Link to={ROUTES.home}>{t('dishPage.home')}</Link>
+          <span aria-hidden="true">›</span>
+          <span className="breadcrumb__hien-tai">{t('recommend.crumb')}</span>
+        </nav>
 
         <div className="recommend-layout">
           <FilterDrawer
@@ -145,7 +149,8 @@ export function RecommendPage() {
             )}
 
             {!suggestions.loading && vm.conLai > 0 && (
-              <button type="button" className="btn btn--rong" onClick={vm.xemThem}>
+              // Cùng dáng viên thuốc với "Xem thêm N quán" ở trang món (2026-10-28).
+              <button type="button" className="btn--pill-giua" onClick={vm.xemThem}>
                 {t('recommend.showMore', { n: vm.conLai })} ▾
               </button>
             )}

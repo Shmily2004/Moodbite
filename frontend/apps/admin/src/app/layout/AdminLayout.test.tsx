@@ -5,7 +5,7 @@
  * khác nhau, giả ở tầng HTTP thì test đi qua đúng lớp envelope `{data}` thật.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter, useRoutes } from 'react-router-dom';
 import { routes } from '../routes';
 import { APP_VERSION } from '@/shared/config';
@@ -110,5 +110,32 @@ describe('Khung quan tri', () => {
     expect(
       screen.getAllByRole('link', { name: /Quản lý món ăn/ })[0].className,
     ).toMatch(/canh-trai__muc--dang/);
+  });
+
+  it('bấm Đăng xuất chỉ HỎI LẠI, chưa xoá phiên; Huỷ thì giữ nguyên phiên', async () => {
+    // Bấm nhầm là mất phiên đăng nhập, nên phải có hộp xác nhận.
+    giaFetch(heThong());
+    moTai('/nhat-ky');
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Đăng xuất' }));
+
+    expect(screen.getByRole('alertdialog')).toHaveTextContent('Bạn có chắc chắn muốn đăng xuất không?');
+    expect(sessionStorage.getItem(TOKEN_KEY)).toBe('token-gia');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Huỷ' }));
+
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    expect(sessionStorage.getItem(TOKEN_KEY)).toBe('token-gia');
+  });
+
+  it('xác nhận Đăng xuất trong hộp thì xoá phiên', async () => {
+    giaFetch(heThong());
+    moTai('/nhat-ky');
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Đăng xuất' }));
+    const hop = screen.getByRole('alertdialog');
+    fireEvent.click(hop.querySelector('.xac-nhan__dong-y') as HTMLElement);
+
+    expect(sessionStorage.getItem(TOKEN_KEY)).toBeNull();
   });
 });

@@ -1,0 +1,174 @@
+/* =========================================================================
+   TRANG CHI TIẾT QUÁN — `/restaurants/:id` (2026-10-28)
+
+   CHƯA CÓ BẢN VẼ RIÊNG. Suy từ hai bản đã duyệt:
+     - `restaurance recommend.png`: phần đầu (ảnh · tên · chip · tranh Hà Nội)
+     - `profile.png`: thân trang là các THẺ TRẮNG bo 18px, tiêu đề in hoa đậm,
+       cột chính rộng bên trái + cột phụ hẹp bên phải.
+   Chỉ dùng biến màu đã có (`--line-warm`, `--auth-card`, `--brand-orange`…), không thêm
+   màu mới - xem ghi chú bảng màu ở `brand.css`.
+   ========================================================================= */
+
+/* --- Phần đầu: dùng lại lưới `.dish-detail`, chỉ chỉnh ô ảnh ------------------ */
+.rest-hero__anh .thumb {
+  width: 100%;
+  height: 220px;
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+}
+.rest-hero__anh .thumb__glyph { font-size: 4rem; }
+@media (min-width: 1100px) {
+  /* `.dish-detail` chỉ giữ cột ảnh khi có `.dish-detail__image`; ô ảnh ở đây là `.thumb`
+     nên khai lại lưới 3 cột cho chắc. */
+  .rest-hero.dish-detail { grid-template-columns: 300px minmax(0, 1fr) minmax(0, .95fr); }
+}
+
+.rest-hero__ten { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.rest-hero__ten .card__noi-tieng { margin-left: 0; font-size: .8rem; }
+.rest-hero__dong { margin: 0 0 8px; }
+.rest-hero__dia-chi { margin: 8px 0 0; }
+
+.rest-hero__nut {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+}
+.rest-hero__nut .btn--primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+}
+/* Tim ĐÃ LƯU: đỏ trái tim, cùng màu với nút tim trên thẻ món. */
+.rest-hero__luu--on { border-color: #E0453A; }
+.rest-hero__luu--on svg { color: #E0453A; }
+
+/* --- Thân trang: hai cột thẻ ------------------------------------------------- */
+.rest-page__tai { padding: 24px 16px; }
+
+.rest-body {
+  display: grid;
+  gap: 16px;
+  padding: 0 16px 32px;
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (min-width: 900px) {
+  /* Nội dung (review, ảnh) là thứ đọc lâu nhất -> cột rộng. Thông tin liên hệ là thứ
+     liếc qua -> cột hẹp, giống tỉ lệ cột "Cấp độ / Huy hiệu" ở `profile.png`. */
+  .rest-body { grid-template-columns: minmax(0, 1.6fr) minmax(300px, 1fr); align-items: start; }
+  .rest-body--mot-cot { grid-template-columns: minmax(0, 1fr); }
+}
+.rest-main,
+.rest-side { display: grid; gap: 16px; min-width: 0; }
+
+.rest-card {
+  padding: 16px 18px;
+  border: 1px solid var(--line-warm, var(--rule));
+  border-radius: 18px;
+  background: var(--auth-card, var(--surface));
+  box-shadow: 0 6px 24px rgba(2, 29, 72, .06);
+}
+.rest-card__tieu-de {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin: 0 0 12px;
+  color: var(--auth-ink, var(--ink));
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+}
+.rest-card .rsum { margin: 0; background: none; padding: 0; }
+
+/* Quán CHƯA có phần làm giàu: thẻ giữa trang, chữ nói thẳng lý do. */
+.rest-card--trong { text-align: center; padding: 32px 24px; }
+.rest-card--trong .rest-card__tieu-de { justify-content: center; text-transform: none; }
+.rest-card__icon-lon { width: 40px; height: 40px; color: var(--brand-orange, var(--accent)); }
+.rest-card--trong p { max-width: 52ch; margin: 0 auto; line-height: 1.6; }
+
+/* --- Ảnh quán: lưới vuông, bo góc như ảnh món ở `profile.png` ----------------- */
+.rest-anh {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+}
+.rest-anh img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+}
+
+/* --- Review gốc ------------------------------------------------------------- */
+.rest-review { list-style: none; margin: 0; padding: 0; }
+.rest-review__muc { padding: 12px 0; border-top: 1px solid var(--line-warm, var(--rule)); }
+.rest-review__muc:first-child { border-top: 0; padding-top: 0; }
+.rest-review__muc p { margin: 6px 0 0; color: var(--ink-soft); line-height: 1.55; }
+.rest-review__dau { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.rest-review__sao { display: inline-flex; color: var(--brand-orange, var(--accent)); }
+.rest-review__sao svg { width: 14px; height: 14px; fill: currentColor; }
+
+/* --- Cột bên: bản đồ · thông tin · nguồn ------------------------------------- */
+.rest-card--ban-do { padding: 10px; height: 260px; }
+.rest-card--ban-do .rest-map { border-radius: 12px; overflow: hidden; }
+
+.rest-info {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2px;
+  margin: 0;
+}
+.rest-info dt {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: var(--step--1);
+  font-weight: 600;
+}
+.rest-info dt:first-child { margin-top: 0; }
+.rest-info dt .icon-inline { color: var(--brand-orange, var(--accent)); }
+.rest-info dd { margin: 0; color: var(--ink); overflow-wrap: anywhere; }
+.rest-info dd a { color: var(--brand-orange-ink, var(--accent)); }
+.rest-info__links { display: flex; flex-wrap: wrap; gap: 6px 14px; }
+
+.rest-gio { list-style: none; margin: 0; padding: 0; font-size: var(--step--1); }
+.rest-gio li { display: flex; justify-content: space-between; gap: 12px; padding: 1px 0; }
+
+.rest-card--nguon p { margin: 0 0 4px; }
+/* Bản ghi CŨ (nguồn cập nhật lâu rồi): màu cảnh báo, để người dùng cân nhắc trước khi đi. */
+.rest-nguon--cu { color: var(--warn); }
+
+/* Link "Mở trang quán →" trong panel xem nhanh của danh sách. */
+.detail__mo-trang { display: inline-block; margin: 6px 0; text-decoration: none; }
+
+/* "Người ăn nói gì" dùng lại `ReviewSummary` của panel xem nhanh - trong thẻ của trang
+   này thì tiêu đề phải in hoa đậm như mọi thẻ khác. */
+.rest-card .rsum__head strong {
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+}
+.rest-hero__anh img.rest-hero__img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+  display: block;
+}
+
+/* Trang 404 trong khung trang thường (2026-10-28): khối giữa màn hình, nút chính rõ ràng. */
+.state--404 { min-height: 50vh; align-items: center; gap: 4px; }
+.state--404 .state__title { font-size: var(--step-2); color: var(--auth-ink, var(--ink)); }
+.state--404 .btn--primary { margin-top: 12px; text-decoration: none; }
+
+/* `/recommend` dùng breadcrumb chung (2026-10-28) - bỏ lề trái riêng của `.breadcrumb`
+   vì trang này đã có lề của `.page__body`. */
+.recommend__breadcrumb { padding: 0 0 .75rem; }

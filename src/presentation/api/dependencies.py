@@ -65,6 +65,15 @@ from src.application.use_cases.manage_collections import (
     RemoveCollectionItemUseCase,
     RenameCollectionUseCase,
 )
+from src.application.use_cases.manage_posts import (
+    CreatePostUseCase,
+    DeletePostUseCase,
+    GetPostUseCase,
+    GetPublishedPostUseCase,
+    ListAllPostsUseCase,
+    ListPublishedPostsUseCase,
+    UpdatePostUseCase,
+)
 from src.application.use_cases.manage_addresses import (
     CreateAddressUseCase,
     DeleteAddressUseCase,
@@ -129,6 +138,7 @@ from src.infrastructure.repositories.sqlite_saved_item_repository import (
 from src.infrastructure.repositories.sqlite_collection_repository import (
     SqliteCollectionRepository,
 )
+from src.infrastructure.repositories.sqlite_post_repository import SqlitePostRepository
 from src.infrastructure.repositories.sqlite_user_address_repository import (
     SqliteUserAddressRepository,
 )
@@ -287,6 +297,16 @@ class Container:
     delete_collection: DeleteCollectionUseCase
     add_collection_item: AddCollectionItemUseCase
     remove_collection_item: RemoveCollectionItemUseCase
+    # --- Bài viết (cẩm nang + tin cập nhật, 2026-11-01) -----------------------
+    # Công khai: chỉ bài đã duyệt. Quản trị: mọi bài kể cả nháp.
+    posts: object
+    list_published_posts: ListPublishedPostsUseCase
+    get_published_post: GetPublishedPostUseCase
+    list_all_posts: ListAllPostsUseCase
+    get_post: GetPostUseCase
+    create_post: CreatePostUseCase
+    update_post: UpdatePostUseCase
+    delete_post: DeletePostUseCase
     addresses: object
     list_addresses: ListAddressesUseCase
     create_address: CreateAddressUseCase
@@ -343,6 +363,7 @@ class Container:
             # `getattr`: container dựng tay trong test (Container.__new__) có thể chưa lắp
             # hai kho này — /health không được sập vì thế.
             "collections": _status_of(getattr(self, "collections", None)),
+            "posts": _status_of(getattr(self, "posts", None)),
             "user_addresses": _status_of(getattr(self, "addresses", None)),
             "user_activity": _status_of(self.activity_tally),
             "user_auth": _status_of(self.user_tokens),
@@ -470,6 +491,8 @@ def build_container(settings: Optional[Settings] = None) -> Container:
     saved_items = SqliteSavedItemRepository(settings.users_db)
     # Bộ sưu tập + địa chỉ: cùng file, cùng lý do (dữ liệu gốc do người dùng tạo).
     collections = SqliteCollectionRepository(settings.users_db)
+    # Bài viết: cùng file CSDL tài khoản, cùng lý do (nội dung gốc, mất là mất hẳn).
+    posts = SqlitePostRepository(settings.users_db)
     addresses = SqliteUserAddressRepository(settings.users_db)
     # CÙNG FILE với tài khoản: nhật ký cũng là dữ liệu gốc, mất là mất hẳn.
     audit_log = SqliteAuditLogRepository(settings.users_db)
@@ -700,6 +723,14 @@ def build_container(settings: Optional[Settings] = None) -> Container:
         delete_collection=DeleteCollectionUseCase(collections),
         add_collection_item=AddCollectionItemUseCase(collections),
         remove_collection_item=RemoveCollectionItemUseCase(collections),
+        posts=posts,
+        list_published_posts=ListPublishedPostsUseCase(posts),
+        get_published_post=GetPublishedPostUseCase(posts),
+        list_all_posts=ListAllPostsUseCase(posts),
+        get_post=GetPostUseCase(posts),
+        create_post=CreatePostUseCase(posts),
+        update_post=UpdatePostUseCase(posts),
+        delete_post=DeletePostUseCase(posts),
         addresses=addresses,
         list_addresses=ListAddressesUseCase(addresses),
         create_address=CreateAddressUseCase(addresses),

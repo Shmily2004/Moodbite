@@ -73,6 +73,8 @@
   --surface-soft:      #FCF3E8;
   --line-warm:         #F5E9DA;
   --line-warm-soft:    #FAF1E6;
+  /* Chân trang: đậm hơn nền kem một nấc để tách khối, vẫn cùng họ màu (2026-10-28). */
+  --footer-bg:         #F6E9D8;
 
   --auth-shadow: 0 24px 60px rgba(2, 29, 72, .13), 0 2px 6px rgba(2, 29, 72, .06);
 
@@ -110,6 +112,7 @@
   --surface-soft:      #1B2739;
   --line-warm:         #2A3548;
   --line-warm-soft:    #212B3C;
+  --footer-bg:         #0A1120;
 
   --auth-shadow: 0 24px 60px rgba(0, 0, 0, .5), 0 2px 6px rgba(0, 0, 0, .35);
   --auth-veil: rgba(13, 21, 38, .92);

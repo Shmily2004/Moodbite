@@ -11,15 +11,16 @@
  * Muốn có đủ 7 thẻ như thiết kế thì phải THÊM MOOD Ở BACKEND trước (thêm hồ sơ điểm trong
  * `MOOD_PROFILES`), rồi thêm một dòng vào bảng dưới đây.
  */
-import { ICON_MOOD } from '@/shared/config';
 import { useT } from '@/shared/i18n';
 import type { Khoa } from '@/shared/i18n';
 
 import {
-  IconCold,
+  IconChili,
+  IconFlame,
   IconHotBowl,
+  IconLeaf,
   IconMore,
-  IconPan,
+  IconRain,
   IconSmile,
   IconSoup,
 } from '@/shared/ui';
@@ -31,21 +32,21 @@ export interface MoodChoice {
   /** Khoá từ điển, KHÔNG phải chữ viết sẵn — nếu không thì hàng thẻ này không dịch được. */
   nhan: Khoa;
   /**
-   * Icon DỰ PHÒNG khi chủ dự án chưa gửi ảnh riêng cho lựa chọn này.
-   * Component chứ không phải emoji (đổi 2026-08-25) — emoji không đảo màu theo thẻ
-   * đang chọn và mỗi hệ điều hành vẽ một kiểu.
+   * Icon nét SVG - MỘT bộ cho cả hàng (2026-10-28). Trước đó 4 ô dùng ảnh PNG màu, 3 ô
+   * dùng icon nét, nhìn như hai bộ ghép lại; chủ dự án duyệt dùng chung bộ SVG. Ảnh PNG
+   * vẫn giữ trong repo - xem `ICON_CHUA_DUNG` ở `shared/config/images.ts`.
    */
   Icon: (props: { className?: string }) => JSX.Element;
 }
 
 /** Bảng ánh xạ. Mỗi dòng đều đã đối chiếu với giá trị backend chấp nhận. */
 export const LUA_CHON_NHANH: MoodChoice[] = [
-  { group: 'mood', value: 'excited', nhan: 'mood.card.excited', Icon: IconHotBowl },
-  { group: 'mood', value: 'relaxed', nhan: 'mood.card.relaxed', Icon: IconSmile },
+  { group: 'mood', value: 'excited', nhan: 'mood.card.excited', Icon: IconChili },
+  { group: 'mood', value: 'relaxed', nhan: 'mood.card.relaxed', Icon: IconLeaf },
   { group: 'mood', value: 'happy', nhan: 'mood.card.happy', Icon: IconSmile },
   { group: 'mood', value: 'sad', nhan: 'mood.card.sad', Icon: IconSoup },
-  { group: 'weather', value: 'rain', nhan: 'mood.card.rain', Icon: IconCold },
-  { group: 'cookingMethods', value: 'nuong', nhan: 'mood.card.nuong', Icon: IconPan },
+  { group: 'weather', value: 'rain', nhan: 'mood.card.rain', Icon: IconRain },
+  { group: 'cookingMethods', value: 'nuong', nhan: 'mood.card.nuong', Icon: IconFlame },
   { group: 'temperatures', value: 'hot', nhan: 'mood.card.hot', Icon: IconHotBowl },
 ];
 
@@ -82,20 +83,7 @@ export function MoodQuickPick({ title, dangChon, onPick, onShowAll }: MoodQuickP
                 aria-pressed={chon}
                 onClick={() => onPick(choice)}
               >
-                {/* Có icon riêng thì dùng, chưa có thì emoji. Chủ dự án gửi bộ icon
-                    dần từng cái — xem `ICON_MOOD` ở `shared/config/images.ts`. */}
-                {ICON_MOOD[choice.value] ? (
-                  <img
-                    className="moodcard__icon"
-                    src={ICON_MOOD[choice.value]!.src}
-                    alt=""
-                    width={ICON_MOOD[choice.value]!.width}
-                    height={ICON_MOOD[choice.value]!.height}
-                    aria-hidden="true"
-                  />
-                ) : (
-                  <choice.Icon className="moodcard__icon-svg" />
-                )}
+                <choice.Icon className="moodcard__icon-svg" />
                 <span className="moodcard__label">{t(choice.nhan)}</span>
               </button>
             </li>

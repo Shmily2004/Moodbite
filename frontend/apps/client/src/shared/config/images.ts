@@ -208,41 +208,6 @@ export const ANH_GIAO_DIEN: Record<string, AnhUI | null> = {
 };
 
 /**
- * BỘ ICON MOOD của hàng "Gợi ý nhanh theo mood" trên trang chủ.
- *
- * Khoá là `value` của thẻ mood trong `widgets/mood-quick-pick` — KHÔNG phải nhãn hiển
- * thị. Nhãn đổi theo ngôn ngữ (VI/EN), `value` thì không; khoá theo nhãn là đổi sang
- * tiếng Anh thì icon biến mất hết.
- *
- * `null` = CHƯA CÓ ICON -> thẻ đó tự dùng emoji. Nhờ vậy chủ dự án gửi được từng cái
- * một mà không phải chờ đủ bộ, và mỗi lần thêm chỉ sửa ĐÚNG MỘT DÒNG ở đây.
- *
- * CÁCH THÊM MỘT ICON:
- *   1. Bỏ file vào `frontend/design/attribute/` (VD `relax.png`)
- *   2. Thêm một dòng vào `XU_LY` trong `scripts/prepare_design_assets.py` với chế độ
- *      `"nen_den"` — file nguồn có nền đen và thừa lề, phải tách nền + cắt sát
- *   3. `python scripts/prepare_design_assets.py` (script in ra đúng width/height)
- *   4. Thay `null` bên dưới bằng số vừa in ra
- */
-export const ICON_MOOD: Record<string, AnhUI | null> = {
-  // Chủ dự án gửi 2026-08-23. Kích thước do `prepare_design_assets.py` in ra sau khi
-  // cắt sát — đừng gõ tay.
-  excited: { src: '/anh/icon-cay.png', alt: '', width: 160, height: 155, fit: 'contain' },
-  relaxed: {
-    src: '/anh/icon-thu-gian.png', alt: '', width: 160, height: 174, fit: 'contain',
-  },
-  rain: { src: '/anh/icon-troi-mua.png', alt: '', width: 35, height: 33, fit: 'contain' },
-  nuong: {
-    src: '/anh/icon-do-nuong.png', alt: '', width: 160, height: 178, fit: 'contain',
-  },
-
-  // Chưa có icon -> thẻ tự dùng emoji.
-  happy: null,
-  sad: null,
-  hot: null,
-};
-
-/**
  * Icon ĐÃ CÓ FILE nhưng CHƯA CÓ THẺ tương ứng trên trang chủ.
  *
  * Bản thiết kế vẽ 7 thẻ: Thèm cay · Thư giãn · Lười nấu · Hẹn hò · Healthy · Trời mưa ·
@@ -252,9 +217,22 @@ export const ICON_MOOD: Record<string, AnhUI | null> = {
  *
  * File đã xử lý sẵn và để đây, KHÔNG vẽ ra giao diện: một cái thẻ bấm vào mà kết quả
  * không đổi thì tệ hơn là không có thẻ. Chốt được phần backend cho mục nào thì chuyển
- * mục đó lên `ICON_MOOD` — xem PROJECT_CHECKLIST.
+ * mục đó vào thẻ tương ứng — xem PROJECT_CHECKLIST.
  */
 export const ICON_CHUA_DUNG: Record<string, AnhUI> = {
+  // --- Bốn ảnh từng dùng cho ô mood / chip lọc, THÔI DÙNG 2026-10-28 ----------------
+  // Cả hàng ô mood có 7 ô mà chỉ 4 ô có ảnh PNG màu, 3 ô còn lại là icon nét SVG: nhìn
+  // như hai bộ ghép lại. Chủ dự án chọn dùng chung bộ SVG (`shared/ui/icons.tsx`) thay vì
+  // chờ đủ bộ ảnh. File giữ lại đây - muốn quay về ảnh thì dùng lại các mục này.
+  excited: { src: '/anh/icon-cay.png', alt: '', width: 160, height: 155, fit: 'contain' },
+  relaxed: {
+    src: '/anh/icon-thu-gian.png', alt: '', width: 160, height: 174, fit: 'contain',
+  },
+  rain: { src: '/anh/icon-troi-mua.png', alt: '', width: 35, height: 33, fit: 'contain' },
+  nuong: {
+    src: '/anh/icon-do-nuong.png', alt: '', width: 160, height: 178, fit: 'contain',
+  },
+  // --- Có file nhưng chưa có thẻ (backend chưa có bộ lọc tương ứng) ------------------
   hen_ho: { src: '/anh/icon-hen-ho.png', alt: '', width: 160, height: 142, fit: 'contain' },
   healthy: { src: '/anh/icon-healthy.png', alt: '', width: 160, height: 176, fit: 'contain' },
   bia: { src: '/anh/icon-bia.png', alt: '', width: 30, height: 33, fit: 'contain' },

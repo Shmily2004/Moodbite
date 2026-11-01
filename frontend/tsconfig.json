@@ -9,7 +9,11 @@
   // include ở đây để hai project không chồng lấn.
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "types": ["node"]
+    "types": ["node"],
+    // packages/ui có component React (.tsx) — cần JSX để kiểm kiểu đúng.
+    "jsx": "react-jsx",
+    // Có component chạm DOM (window, KeyboardEvent, HTMLButtonElement).
+    "lib": ["ES2022", "DOM"]
   },
   "include": ["packages/**/*.ts", "packages/**/*.d.ts", "steiger.config.ts"]
 }

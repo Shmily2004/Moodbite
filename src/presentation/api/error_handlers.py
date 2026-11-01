@@ -29,6 +29,7 @@ from src.application.ports.user_repository import UsernameAlreadyExists
 from src.application.use_cases.find_restaurants_for_dish import DishNotFoundError
 from src.application.use_cases.manage_addresses import AddressNotFoundError
 from src.application.use_cases.manage_collections import CollectionNotFoundError
+from src.application.use_cases.manage_posts import PostNotFoundError
 from src.application.use_cases.log_interaction import (
     InvalidInteractionError,
     RestaurantNotFoundError,
@@ -77,6 +78,16 @@ def register_error_handlers(app: FastAPI) -> None:
             str(exc),
             status_code=404,
             details={"collection_id": exc.collection_id},
+        )
+
+    @app.exception_handler(PostNotFoundError)
+    async def _post_not_found(request: Request, exc: PostNotFoundError):
+        # Bài nháp cũng trả đúng mã này: khách không được biết nháp có tồn tại.
+        return error(
+            ErrorCode.POST_NOT_FOUND,
+            str(exc),
+            status_code=404,
+            details={"ref": exc.ref},
         )
 
     @app.exception_handler(AddressNotFoundError)

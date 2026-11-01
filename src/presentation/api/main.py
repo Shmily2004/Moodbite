@@ -17,6 +17,7 @@ from src.presentation.api.error_handlers import register_error_handlers
 from src.presentation.api.routers import (
     admin,
     admin_closures,
+    admin_posts,
     auth,
     dishes,
     interactions,
@@ -24,6 +25,7 @@ from src.presentation.api.routers import (
     me_addresses,
     me_collections,
     meta,
+    posts,
     restaurants,
     search,
 )
@@ -93,6 +95,9 @@ def create_app(
     app.include_router(admin.router, prefix=API_PREFIX)
     # Xem/gỡ lượt "người dùng báo quán đã đóng cửa" — file riêng, cũng bắt buộc token admin.
     app.include_router(admin_closures.router, prefix=API_PREFIX)
+    # Bài viết: công khai ở `/posts`, quản trị ở `/admin/posts` (router riêng, cũng token admin).
+    app.include_router(posts.router, prefix=API_PREFIX)
+    app.include_router(admin_posts.router, prefix=API_PREFIX)
 
     # /health không prefix để hạ tầng (Railway/Heroku) probe được theo mặc định.
     # Chỉ health, không nhân bản cả router meta.

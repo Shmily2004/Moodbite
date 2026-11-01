@@ -1,8 +1,11 @@
 // Tách từ DishFilters.tsx ngày 2026-10-06 vì file vượt ~300 dòng (CLAUDE.md mục 6).
 // Chỉ chứa MÃ + ICON của từng chip; NHÃN vẫn nằm ở từ điển `filterOpt.*` (xem `khoaNhan`).
-import { ICON_MOOD } from '@/shared/config';
 import {
   IconBoil,
+  IconChili,
+  IconFlame,
+  IconLeaf,
+  IconRain,
   IconCold,
   IconFrown,
   IconHotBowl,
@@ -19,19 +22,11 @@ import {
   IconSunrise,
 } from '@/shared/ui';
 
-/**
- * Ảnh chủ dự án gửi, dùng cho đúng những khái niệm đã có file.
- * Trả `null` khi chưa có -> nơi gọi tự lui về icon SVG.
- */
-function AnhMood({ khoa }: { khoa: string }) {
-  const anh = ICON_MOOD[khoa];
-  if (!anh) return null;
-  return <img src={anh.src} alt="" width={18} height={18} className="chip__icon" />;
-}
-
+// MỘT bộ icon nét SVG cho mọi chip (2026-10-28) - trước đó 4 chip dùng ảnh PNG màu,
+// lẫn với icon nét ở các chip bên cạnh. Hình TRÙNG với hàng ô mood trang chủ.
 /** Thời tiết. (Nhóm này nay đứng CUỐI cột lọc, theo `design/Filler.png` — xem `DishFilters.tsx`.) */
 export const WEATHER_OPTIONS = [
-  { value: 'rain', icon: <AnhMood khoa="rain" /> },
+  { value: 'rain', icon: <IconRain /> },
   { value: 'clear', icon: <IconSun /> },
 ];
 
@@ -41,7 +36,7 @@ export const TEMPERATURE_OPTIONS = [
 ];
 
 export const COOKING_METHOD_OPTIONS = [
-  { value: 'nuong', icon: <AnhMood khoa="nuong" /> },
+  { value: 'nuong', icon: <IconFlame /> },
   { value: 'nuoc', icon: <IconSoup /> },
   { value: 'chien', icon: <IconPan /> },
   { value: 'xao', icon: <IconStirFry /> },
@@ -61,6 +56,6 @@ export const MEAL_TIME_OPTIONS = [
 export const MOOD_OPTIONS = [
   { value: 'happy', icon: <IconSmile /> },
   { value: 'sad', icon: <IconFrown /> },
-  { value: 'excited', icon: <AnhMood khoa="excited" /> },
-  { value: 'relaxed', icon: <AnhMood khoa="relaxed" /> },
+  { value: 'excited', icon: <IconChili /> },
+  { value: 'relaxed', icon: <IconLeaf /> },
 ];

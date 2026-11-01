@@ -20,6 +20,7 @@ import { BrandLogo, IconPin, LanguageSelect,
 import { ThemeToggle } from '@/features/switch-theme';
 import { UserAvatar, useUserSessionContext } from '@/entities/user';
 import { useAvatar } from '@/features/change-avatar';
+import { LogoutButton } from '@/features/logout-confirm';
 import { ROUTES } from '@/shared/config';
 import { useT } from '@/shared/i18n';
 import type { Khoa } from '@/shared/i18n';
@@ -108,9 +109,9 @@ export function SiteHeader() {
                 {ten ?? '…'}
               </span>
             </Link>
-            <button type="button" className="linkish" onClick={session.logout}>
+            <LogoutButton className="linkish" onConfirm={session.logout}>
               {t('nav.logout')}
-            </button>
+            </LogoutButton>
           </div>
         ) : (
           <div className="site-header__account">

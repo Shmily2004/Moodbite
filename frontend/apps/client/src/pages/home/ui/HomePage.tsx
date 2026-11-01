@@ -58,6 +58,9 @@ import {
 import { useT } from '@/shared/i18n';
 import { boLocTuSoThich, coBoLocTuSoThich } from '../model/boLocTuSoThich';
 
+/** Cuộn quá bao nhiêu px thì bong bóng trợ lý mới hiện (đã qua phần chào + ô tìm kiếm). */
+const BONG_BONG_HIEN_SAU_PX = 400;
+
 export function HomePage() {
   const t = useT();
   const navigate = useNavigate();
@@ -410,6 +413,8 @@ export function HomePage() {
         <AssistantBubble
           onOpen={() => setMoBoLoc(true)}
           activeCount={suggestions.activeFilterCount}
+          // Ẩn lúc mới vào - xem `showAfterScroll`. ~Nửa màn hình: đã qua phần chào.
+          showAfterScroll={BONG_BONG_HIEN_SAU_PX}
         />
 
         <FilterDrawer

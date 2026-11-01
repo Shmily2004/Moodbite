@@ -202,6 +202,7 @@ export function DishPage() {
                     // Đánh số khớp ghim bản đồ — chỉ ở trang này, không ở trang tìm kiếm.
                     danhSo
                     gon
+                    fromDish={dish ? { id: dish.dish_id, name: dish.name } : undefined}
                   />
 
                   {/* "XEM THÊM QUÁN" (bản thiết kế): viên thuốc nhỏ ở giữa, nói rõ CÒN

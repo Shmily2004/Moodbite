@@ -5,6 +5,7 @@
  * hay sai tên trường (`token`) là test đỏ ngay — cùng lý do đã ghi ở
  * `ResetPasswordPage.test.tsx`.
  */
+import { StrictMode } from 'react';
 import { describe, expect, it, vi, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
@@ -111,6 +112,25 @@ describe('VerifyEmailPage', () => {
 
     expect(await screen.findByText(/thiếu mã xác minh/)).toBeInTheDocument();
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+  it('dưới StrictMode thật vẫn ra kết quả, KHÔNG kẹt ở "đang xác minh"', async () => {
+    // Lỗi thật: effect chạy hai lần (mount -> huỷ -> mount). Lần đầu bị huỷ nên kết quả
+    // của request bị bỏ, lần sau thoát sớm vì đã gọi rồi -> trang đứng mãi ở trạng thái
+    // đang xác minh. `rerender` ở test trên KHÔNG tái hiện được việc này.
+    const fetchMock = mockOk('ai.do@vi.du.com');
+    vi.stubGlobal('fetch', fetchMock);
+
+    render(
+      <StrictMode>
+        <MemoryRouter initialEntries={['/verify-email?token=token-trong-thu']}>
+          <VerifyEmailPage />
+        </MemoryRouter>
+      </StrictMode>,
+    );
+
+    expect(await screen.findByText(/Đã xác minh email/)).toBeInTheDocument();
+    expect(screen.queryByText(/Đang xác minh/)).not.toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
   it('xác minh xong thì TỰ chuyển về trang chủ', async () => {
     // Lỗi thật 2026-08-26: bấm link trong thư xong trang chỉ hiện một dòng chữ rồi đứng

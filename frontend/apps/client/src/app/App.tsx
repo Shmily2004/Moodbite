@@ -15,6 +15,7 @@ import './styles/auth.css';
 import './styles/home.css';
 import './styles/account.css';
 import './styles/my-places.css';
+import './styles/restaurant.css';
 
 // Bật sớm hai hành vi của React Router v7 (2026-10-02): hết cảnh báo "Future Flag" ở MỌI
 // trang, và lên v7 sau này không đổi hành vi bất ngờ. Route `*` duy nhất là trang 404,

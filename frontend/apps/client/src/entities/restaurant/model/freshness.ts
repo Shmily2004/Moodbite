@@ -94,6 +94,10 @@ const TEN_NEN_TANG: Record<string, string> = {
   osm: 'OpenStreetMap',
   pinmeto: 'PinMeTo',
   alltheplaces: 'AllThePlaces',
+  // Giá trị cột `source` của dataset (đo 2026-10-28: overture 48.406 · openstreetmap
+  // 3.025 · google_maps_apify 1.441) - trang chi tiết quán hiện chúng ra chữ.
+  overture: 'Overture Maps',
+  google_maps_apify: 'Google Maps (qua Apify)',
 };
 
 export function tenNenTang(dataset: string): string {

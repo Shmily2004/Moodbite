@@ -25,6 +25,7 @@ export type {
   InteractionResponseData,
   MoodsData,
   RestaurantDetailData,
+  RestaurantInfo,
   RestaurantsForDishParams,
   SearchRequest,
   SearchResponseData,

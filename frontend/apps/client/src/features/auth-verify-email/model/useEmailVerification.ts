@@ -50,28 +50,25 @@ export function useEmailVerification(token: string): UseEmailVerificationResult 
   // của backend.
   const daGoi = useRef(false);
 
+  // KHÔNG hủy kết quả khi effect bị dọn dẹp. Lý do: StrictMode gỡ effect rồi chạy lại ngay,
+  // nếu hủy kết quả của lần đầu thì lần chạy lại lại bị `daGoi` chặn, và không ai ghi
+  // trạng thái nữa -> trang kẹt mãi ở "Đang xác minh…". Request chỉ phát đi MỘT lần nên
+  // không cần cờ hủy; setState sau khi unmount chỉ là no-op trong React 18.
   useEffect(() => {
     if (!token || daGoi.current) return;
     daGoi.current = true;
 
-    let conHieuLuc = true;
     void (async () => {
       try {
         const nguoiDung = await authApi.confirmEmailVerification({ token });
-        if (!conHieuLuc) return;
         setEmail(nguoiDung.email ?? null);
         setMessage(tRef.current('verify.done'));
         setStatus('done');
       } catch (err) {
-        if (!conHieuLuc) return;
         setError(accountErrorText(err, tRef.current));
         setStatus('error');
       }
     })();
-
-    return () => {
-      conHieuLuc = false;
-    };
   }, [token]);
 
   const resend = useCallback(async () => {

@@ -19,6 +19,7 @@ from __future__ import annotations
 from typing import Any, Dict, Optional
 
 from src.application.use_cases.search_restaurants import SearchResultItem, SuggestedDish
+from src.domain.entities.restaurant import Restaurant
 from src.domain.services.restaurant_badges import la_quan_noi_tieng
 
 
@@ -36,6 +37,59 @@ def suggested_dish_to_dict(dish: Optional[SuggestedDish]) -> Optional[Dict[str, 
         # `confidence` là trường BẮT BUỘC đi kèm - giao diện phải hiện nó ra chữ.
         "confidence": dish.confidence,
         "reason": dish.reason,
+    }
+
+
+def _opening_hours_text(raw: Optional[str]) -> Optional[str]:
+    """Chỉ trả giờ mở cửa dạng CHỮ của OSM ("Mo-Su 08:00-22:00").
+
+    Cột này trong CSV trộn hai định dạng (đo 2026-10-28, 1.968 quán có giá trị):
+    1.311 quán Apify là CHUỖI repr của list Python ("[{'day': 'Chủ Nhật', ...}]", 333
+    quán là "[]"), phần còn lại là chữ OSM. Bản Apify đã có dạng list chuẩn ở
+    `opening_hours` cấp trên của `RestaurantDetailData`, nên ở đây bỏ qua để client
+    không bao giờ phải hiện hay tự parse repr Python.
+    """
+    if not raw or raw.lstrip().startswith("["):
+        return None
+    return raw
+
+
+def restaurant_info_to_dict(restaurant: Optional[Restaurant]) -> Optional[Dict[str, Any]]:
+    """Thông tin cơ bản của một quán, đúng `RestaurantInfoSchema` (trang chi tiết quán).
+
+    Tên trường cố ý TRÙNG với `search_result_to_dict` (`price_range`, `user_ratings_total`
+    thay vì `price`, `reviews_count` của entity) để giao diện không phải học hai bộ tên.
+    """
+    if restaurant is None:
+        return None
+    return {
+        "name": restaurant.name,
+        "category": restaurant.category,
+        "cuisine": restaurant.cuisine,
+        "address": restaurant.address,
+        "district": restaurant.district,
+        "latitude": restaurant.location.lat,
+        "longitude": restaurant.location.lng,
+        # `None` giữ nguyên = CHƯA CÓ DỮ LIỆU (CLAUDE.md mục 4).
+        "price_range": restaurant.price,
+        "rating": restaurant.rating,
+        "user_ratings_total": restaurant.reviews_count,
+        "is_famous": la_quan_noi_tieng(restaurant.rating, restaurant.reviews_count),
+        "thumbnail_url": restaurant.thumbnail_url,
+        "opening_hours": _opening_hours_text(restaurant.opening_hours),
+        "phone": restaurant.phone,
+        "website": restaurant.website,
+        "socials": list(restaurant.socials),
+        "atmosphere_tags": list(restaurant.atmosphere_tags),
+        "dietary": list(restaurant.dietary),
+        "amenities": list(restaurant.amenities),
+        "source": restaurant.source,
+        "data_confidence": restaurant.data_confidence,
+        "experience_cluster_label": restaurant.experience_cluster_label,
+        "temporarily_closed": restaurant.temporarily_closed,
+        "source_updated_at": restaurant.source_updated_at,
+        "source_datasets": list(restaurant.source_datasets),
+        "surveyed_at": restaurant.surveyed_at,
     }
 
 

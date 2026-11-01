@@ -152,6 +152,19 @@ export function IconSun(props: IconProps) {
   );
 }
 
+/**
+ * Mây mưa — thời tiết "trời mưa" (2026-10-28). Vẽ cùng lưới 24px, nét 1.7 như cả bộ để
+ * thay ảnh PNG màu: một hàng ô mood lẫn ảnh màu với icon nét trông như hai bộ ghép lại.
+ */
+export function IconRain(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M7 15.5a4 4 0 0 1-.6-7.95A5.5 5.5 0 0 1 17 8a3.75 3.75 0 0 1 .5 7.5H7Z" />
+      <path d="M8.5 18.5l-1 2M12.5 18.5l-1 2M16.5 18.5l-1 2" />
+    </Icon>
+  );
+}
+
 /** Mặt cười — mood "vui". */
 export function IconSmile(props: IconProps) {
   return (

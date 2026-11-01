@@ -14,6 +14,7 @@ export type SearchResponseData = components['schemas']['SearchResponseData'];
 export type SearchResultItem = components['schemas']['SearchResultItemSchema'];
 export type SuggestedDish = components['schemas']['SuggestedDishSchema'];
 export type RestaurantDetailData = components['schemas']['RestaurantDetailData'];
+export type RestaurantInfo = components['schemas']['RestaurantInfoSchema'];
 export type InteractionRequest = components['schemas']['InteractionRequest'];
 export type InteractionResponseData = components['schemas']['InteractionResponseData'];
 export type HealthData = components['schemas']['HealthData'];

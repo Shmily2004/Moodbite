@@ -2,6 +2,7 @@
  * Mảnh dùng chung của thẻ quán - tách khỏi `RestaurantCard.tsx` ngày 2026-10-02 khi file đó
  * vượt ~300 dòng (CLAUDE.md mục 6). Chỉ là quy tắc HIỂN THỊ, không có nghiệp vụ.
  */
+import { Link } from 'react-router-dom';
 import type { SearchResultItem } from '@moodbite/api-client';
 import type { ReasonKind } from '../model/format';
 import { IconSearch, IconSmile } from '@/shared/ui';
@@ -16,6 +17,12 @@ export const REASON_ICON: Record<ReasonKind, JSX.Element> = {
   match: <IconSearch className="icon-inline" />,
 };
 
+/** Đích của nút "Xem chi tiết" khi nó là LINK sang trang quán (2026-10-28). */
+export interface LinkChiTiet {
+  to: string;
+  state?: unknown;
+}
+
 /**
  * NÚT "XEM CHI TIẾT" — có trong bản thiết kế.
  *
@@ -26,11 +33,34 @@ export const REASON_ICON: Record<ReasonKind, JSX.Element> = {
 export function NutXemChiTiet({
   restaurant,
   onOpenDetail,
+  link,
 }: {
   restaurant: SearchResultItem;
-  onOpenDetail: (restaurant: SearchResultItem) => void;
+  onOpenDetail?: (restaurant: SearchResultItem) => void;
+  /**
+   * Có `link` -> nút là đường sang TRANG QUÁN đầy đủ. Bấm THÂN THẺ vẫn mở panel xem nhanh.
+   * Trước 2026-10-28 nút này chỉ mở panel, nên khi đã có trang quán riêng thì cùng một
+   * chữ "Xem chi tiết" lại dẫn tới hai nơi khác nhau tuỳ trang.
+   */
+  link?: LinkChiTiet;
 }) {
   const t = useT();
+  if (link) {
+    return (
+      <Link
+        className="card__xem"
+        to={link.to}
+        state={link.state}
+        aria-label={`${t('rest.viewDetail')}: ${restaurant.name}`}
+        // Không để cú bấm nổi bọt lên thẻ: thẻ sẽ mở panel xem nhanh ngay trước khi
+        // chuyển trang, và bộ đếm thời gian xem ghi một lượt rác.
+        onClick={(event) => event.stopPropagation()}
+      >
+        {t('rest.viewDetail')}
+      </Link>
+    );
+  }
+  if (!onOpenDetail) return null;
   return (
     <button
       type="button"

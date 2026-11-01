@@ -5,6 +5,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import type { SearchResultItem } from '@moodbite/api-client';
+import { MemoryRouter } from 'react-router-dom';
 import { LanguageProvider } from '@/shared/i18n';
 import { RestaurantList } from './RestaurantList';
 
@@ -62,16 +63,20 @@ describe('RestaurantList - dwell time', () => {
   it('mo quan B khi dang xem quan A -> ghi luot xem cua A; roi trang -> ghi luot cua B', async () => {
     const ghi = giaLapFetch();
     const { unmount } = render(
+      <MemoryRouter>
       <LanguageProvider>
         <RestaurantList restaurants={[quan('A', 'Quán A', 1), quan('B', 'Quán B', 2)]} searchQueryId="s1" />
-      </LanguageProvider>,
+      </LanguageProvider>
+      </MemoryRouter>,
     );
 
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /Quán A/ }));
+      // Bấm THÂN THẺ mở panel xem nhanh; nút "Xem chi tiết" nay là link sang trang quán.
+      fireEvent.click(screen.getByText('Quán A'));
     });
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /Quán B/ }));
+      // Bấm THÂN THẺ mở panel xem nhanh; nút "Xem chi tiết" nay là link sang trang quán.
+      fireEvent.click(screen.getByText('Quán B'));
     });
 
     const xem = () => ghi.filter((g) => g.action_type === 'view_detail');
@@ -114,15 +119,31 @@ describe('RestaurantList - khối "Không khí" trong chi tiết quán', () => {
       ),
     );
     render(
+      <MemoryRouter>
       <LanguageProvider>
         <RestaurantList restaurants={[quan('A', 'Quán A', 1)]} searchQueryId="s1" />
-      </LanguageProvider>,
+      </LanguageProvider>
+      </MemoryRouter>,
     );
 
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /Quán A/ }));
+      // Bấm THÂN THẺ mở panel xem nhanh; nút "Xem chi tiết" nay là link sang trang quán.
+      fireEvent.click(screen.getByText('Quán A'));
     });
 
     expect(await screen.findByText(/Thông thường, Ấm cúng/)).toBeInTheDocument();
+  });
+
+  it('nút "Xem chi tiết" là LINK sang trang quán, mang theo ngữ cảnh lượt tìm', () => {
+    giaLapFetch();
+    render(
+      <MemoryRouter>
+      <LanguageProvider>
+        <RestaurantList restaurants={[quan('A', 'Quán A', 1)]} searchQueryId="s1" />
+      </LanguageProvider>
+      </MemoryRouter>,
+    );
+    const link = screen.getByRole('link', { name: /Quán A/ });
+    expect(link).toHaveAttribute('href', '/restaurants/A');
   });
 });

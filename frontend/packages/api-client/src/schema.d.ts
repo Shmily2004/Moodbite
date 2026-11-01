@@ -2644,10 +2644,76 @@ export interface components {
             review_summary?: {
                 [key: string]: unknown;
             } | null;
+            info?: components["schemas"]["RestaurantInfoSchema"] | null;
         };
         /** RestaurantDetailResponse */
         RestaurantDetailResponse: {
             data: components["schemas"]["RestaurantDetailData"];
+        };
+        /**
+         * RestaurantInfoSchema
+         * @description Thông tin CƠ BẢN của một quán - có cho mọi quán, khác phần làm giàu (review/ảnh).
+         *
+         *     Thêm 2026-10-28 cho trang `/restaurants/:id`. Trường trùng tên/ý nghĩa với
+         *     `SearchResultItemSchema` để giao diện dùng chung cách hiển thị. Không có
+         *     `distance_m`: endpoint này không nhận vị trí người dùng.
+         */
+        RestaurantInfoSchema: {
+            /** Name */
+            name: string;
+            /** Category */
+            category?: string | null;
+            /** Cuisine */
+            cuisine?: string | null;
+            /** Address */
+            address?: string | null;
+            /** District */
+            district?: string | null;
+            /** Latitude */
+            latitude: number;
+            /** Longitude */
+            longitude: number;
+            /** Price Range */
+            price_range?: string | null;
+            /** Rating */
+            rating?: number | null;
+            /** User Ratings Total */
+            user_ratings_total?: number | null;
+            /**
+             * Is Famous
+             * @default false
+             */
+            is_famous: boolean;
+            /** Thumbnail Url */
+            thumbnail_url?: string | null;
+            /** Opening Hours */
+            opening_hours?: string | null;
+            /** Phone */
+            phone?: string | null;
+            /** Website */
+            website?: string | null;
+            /** Socials */
+            socials?: string[];
+            /** Atmosphere Tags */
+            atmosphere_tags?: string[];
+            /** Dietary */
+            dietary?: string[];
+            /** Amenities */
+            amenities?: string[];
+            /** Source */
+            source?: string | null;
+            /** Data Confidence */
+            data_confidence?: string | null;
+            /** Experience Cluster Label */
+            experience_cluster_label?: string | null;
+            /** Temporarily Closed */
+            temporarily_closed?: boolean | null;
+            /** Source Updated At */
+            source_updated_at?: string | null;
+            /** Source Datasets */
+            source_datasets?: string[];
+            /** Surveyed At */
+            surveyed_at?: string | null;
         };
         /** SaveFavoriteRequest */
         SaveFavoriteRequest: {

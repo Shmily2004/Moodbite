@@ -138,7 +138,7 @@ describe('Layout dung chung', () => {
   it('trang 404 co loi thoat ve trang chinh', () => {
     renderAt('/duong-dan-khong-ton-tai');
 
-    const back = screen.getByRole('link', { name: /Quay lại trang tìm quán/i });
+    const back = screen.getByRole('link', { name: /Về trang chủ/i });
     expect(back).toHaveAttribute('href', '/');
   });
 });

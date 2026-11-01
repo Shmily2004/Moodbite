@@ -1522,6 +1522,28 @@ frontend gọi đều có thật, payload khớp OpenAPI. Chụp 17 trang trên 
 
 ---
 
+### Đợt 2026-10-28 — trang chi tiết quán + rà UI bằng trình duyệt thật
+
+Chụp Edge thật (1440px · 390px · nền tối), sửa những gì làm được ngay:
+
+| Việc | Kết quả |
+|---|---|
+| Trang chi tiết QUÁN `/restaurants/:id` | ✅ xem mục B9 |
+| Dải màu lạ trên chân trang (lộ nền `body` cũ) | ✅ chân trang + `body` về màu thương hiệu, cả nền tối |
+| Trang 404 không có thanh trên, link về luồng cũ | ✅ trong khung trang thường, nút "Về trang chủ" |
+| Bong bóng trợ lý che nội dung lúc mở trang chủ | ✅ trang chủ: chỉ hiện sau khi cuộn 400px (đang lọc thì luôn hiện) |
+| "Xem chi tiết →" dẫn tới hai nơi khác nhau | ✅ nút = sang trang quán; bấm thân thẻ = xem nhanh |
+| Lưới "Khám phá theo nhu cầu" 6 ô chia 5 cột (1 ô lẻ) | ✅ 3×2 / 2×3 / 1×6 |
+| Thẻ quán gọn lặp "Đang cập nhật" ở mọi thẻ | ✅ bỏ ở thẻ gọn; trang quán vẫn hiện |
+| Link dáng nút bị gạch chân | ✅ `a.btn` không gạch chân |
+| `/recommend` dùng "← Quay lại" khác các trang | ✅ breadcrumb + nút "Xem thêm" viên thuốc |
+| Mobile: hàng tiêu đề "Món phổ biến" chật, placeholder bị cắt | ✅ |
+| Icon mood lẫn ảnh PNG màu + icon nét | ✅ một bộ SVG nét (vẽ thêm `IconRain`); ảnh PNG giữ ở `ICON_CHUA_DUNG` |
+
+Còn lại, KHÔNG phải lỗi giao diện: 2 món ("Lẩu gà lá é", "Lẩu nướng") chưa có ảnh nên hiện ô chữ "L";
+thứ tự "Món phổ biến" buổi tối (Bia hơi đứng đầu, gắn "MoodBite đề xuất") do backend xếp.
+Chưa chụp: trang tài khoản, app admin (cần đăng nhập).
+
 ## 🚧 VIỆC TIẾP THEO
 
 > **Quy ước:** mục dưới đây CHỈ chứa việc **chưa làm hoặc chưa xong**.
@@ -1569,7 +1591,7 @@ ký tự chữ chứ không phải emoji:
 | ~~1-6~~ | ~~Bật quản trị · `POST /admin/restaurants` + form thêm quán~~ | — | ✅ **XONG 2026-08-23** |
 | ~~7~~ | ~~Bản mobile: thanh ☰~~ | — | ✅ **XONG 2026-08-23** |
 | ~~8~~ | ~~Xác minh email lúc đăng ký~~ | — | ✅ **XONG 2026-08-24**, sửa lá thư 2026-08-26 |
-| 9 | **Trang chi tiết QUÁN riêng** (`/restaurants/:id`) | **chờ bản thiết kế** — `restaurance recommend.png` là bản vẽ cho trang CHI TIẾT MÓN, không phải màn này | chờ chủ dự án |
+| ~~9~~ | ~~Trang chi tiết QUÁN riêng~~ (`/restaurants/:id`) | — | ✅ **Xong 2026-10-28** — chủ dự án duyệt hướng *suy từ bản vẽ khác* (đầu trang theo `restaurance recommend.png`, thân theo `profile.png`). `GET /restaurants/{id}` thêm khối `info` (địa chỉ, toạ độ, nguồn… cho MỌI quán, không chỉ 2,5% có chi tiết). Panel xem nhanh có link "Mở trang quán →". Chụp bằng Edge thật: 1440px + 390px, 0 lỗi JS, không tràn ngang |
 | ~~10~~ | ~~Thu hồi token khi đăng xuất~~ | — | ✅ **Xong 2026-09-29** — `token_version` + `POST /auth/logout` |
 | 11 | Bổ sung dữ liệu qua Apify | tài khoản + credit | cần người thật — xem `docs/apify_huong_dan.md` |
 | 12 | Nhập tay 50-100 quán Hoàn Kiếm | — (admin đã bật) | cần người thật |
@@ -1584,7 +1606,7 @@ ký tự chữ chứ không phải emoji:
 **Đọc nhanh:**
 - Phần giao diện A1–A8, A11, A12 đã xong ngày 2026-08-27; **A10 xong 2026-09-08**.
 - **A9 xong 2026-09-29** (45 → 0 emoji).
-- Cần bản vẽ: **9** (trang chi tiết QUÁN riêng, `/restaurants/:id`).
+- ~~Cần bản vẽ: 9~~ → **9 xong 2026-10-28** bằng bố cục suy từ bản vẽ khác.
 - **13 vẫn là thứ quan trọng nhất và không code thay được** — mọi mục ML phía sau đều đợi nó.
 
 Tự đếm lại emoji còn sót bất cứ lúc nào:

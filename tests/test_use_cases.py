@@ -265,6 +265,32 @@ def test_details_maps_raw_fields():
     assert out.google_maps_url == "http://maps.google/x"
 
 
+def test_details_carries_base_restaurant_info_even_without_enrichment():
+    """Trang chi tiết quán cần địa chỉ + toạ độ cho MỌI quán, không chỉ 2,5% có chi tiết.
+
+    Trước 2026-10-28 use case đã tra entity để kiểm 404 rồi BỎ ĐI, nên quán chưa cào
+    chi tiết chỉ còn mỗi câu "chưa có dữ liệu" - trang riêng không có gì để hiện.
+    """
+    quan = make_restaurant("Quan Pho", address="12 Hàng Bạc", rating=None)
+    out = GetRestaurantDetailsUseCase(
+        FakeDetailsRepo({}), FakeRestaurantRepo([quan])
+    ).execute("id-Quan Pho")
+
+    assert out.has_details is False
+    assert out.restaurant is not None
+    assert out.restaurant.address == "12 Hàng Bạc"
+    # None = CHƯA CÓ DỮ LIỆU, phải giữ nguyên chứ không thành 0.
+    assert out.restaurant.rating is None
+
+
+def test_details_info_is_none_when_restaurant_store_not_ready():
+    """Kho quán chưa sẵn sàng thì vẫn trả phần chi tiết, chỉ thiếu khối thông tin cơ bản."""
+    out = GetRestaurantDetailsUseCase(
+        FakeDetailsRepo({}), FakeRestaurantRepo([], ready=False)
+    ).execute("p1")
+    assert out.restaurant is None
+
+
 def test_details_raises_when_source_not_ready():
     with pytest.raises(DataNotReadyError):
         GetRestaurantDetailsUseCase(FakeDetailsRepo({}, ready=False)).execute("p1")

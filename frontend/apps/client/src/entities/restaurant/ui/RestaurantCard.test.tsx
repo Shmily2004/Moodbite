@@ -85,6 +85,16 @@ describe('RestaurantCard', () => {
     expect(screen.getByText(/Đang cập nhật/)).toBeInTheDocument();
   });
 
+  it('thẻ GỌN không lặp "Đang cập nhật" cho quán chưa phân cụm (2026-10-28)', () => {
+    render(
+      <RestaurantCard
+        gon
+        restaurant={makeRestaurant({ experience_cluster_id: null, experience_cluster_label: null })}
+      />,
+    );
+    expect(screen.queryByText(/Đang cập nhật/)).toBeNull();
+  });
+
   it('báo sự kiện lên trên thay vì tự gọi API', async () => {
     const onOpenDetail = vi.fn();
     render(<RestaurantCard restaurant={makeRestaurant()} onOpenDetail={onOpenDetail} />);

@@ -55,7 +55,7 @@ const viGoc = {
   'forYou.dishes': 'Món',
   'forYou.places': 'Quán',
   // --- Trang kết quả gợi ý món (thêm 2026-08-25) --------------------------
-  'recommend.back': 'Quay lại trang chủ',
+  'recommend.crumb': 'Gợi ý món',
   'recommend.heading': 'Món phù hợp với bạn hôm nay',
   'recommend.sub': 'Dựa trên mood, thời tiết và những gì bạn vừa chọn.',
   'recommend.edit': 'Chỉnh sửa',
@@ -109,7 +109,7 @@ const viGoc = {
   'hero.introGuest':
     'MoodBite gợi ý những món ăn phù hợp với cảm xúc, thời tiết và thói quen của bạn.',
   'hero.searchLabel': 'Tìm món ăn hoặc quán ăn',
-  'hero.searchPlaceholder': 'Tìm món ăn, quán ăn, món bạn muốn…',
+  'hero.searchPlaceholder': 'Tìm món hoặc quán bạn muốn…',
   'hero.searchButton': 'Tìm ngay',
   'hero.nudge': 'để nhận gợi ý phù hợp với bạn hơn',
   'hero.signals': 'Ngữ cảnh đang được dùng để gợi ý',
@@ -183,6 +183,13 @@ const viGoc = {
 
   // --- Trang tài khoản: khung -----------------------------------------------
   'account.sectionLabel': 'TÀI KHOẢN',
+  'logout.confirm.title': 'Đăng xuất?',
+  'logout.confirm.message': 'Bạn có chắc chắn muốn đăng xuất không?',
+  'logout.confirm.yes': 'Đăng xuất',
+  'logout.confirm.no': 'Huỷ',
+  'account.admin.title': 'Tài khoản quản trị',
+  'account.admin.body': 'Tài khoản này là quản trị viên, không phải khách hàng. Hồ sơ, yêu thích và cấp độ chỉ dành cho khách. Quản trị dữ liệu ở app quản trị.',
+  'account.admin.open': 'Mở app quản trị',
   'account.tab.overview': 'Tổng quan',
   'account.tab.profile': 'Hồ sơ cá nhân',
   'account.tab.taste': 'Sở thích & khẩu vị',
@@ -358,7 +365,7 @@ const enGoc: Record<keyof typeof viGoc, string> = {
   'forYou.dishes': 'Dishes',
   'forYou.places': 'Places',
   // --- Dish recommendation results page (added 2026-08-25) ----------------
-  'recommend.back': 'Back to home',
+  'recommend.crumb': 'Dish suggestions',
   'recommend.heading': 'Dishes that suit you today',
   'recommend.sub': 'Based on your mood, the weather and what you just picked.',
   'recommend.edit': 'Edit',
@@ -410,7 +417,7 @@ const enGoc: Record<keyof typeof viGoc, string> = {
   'hero.introGuest':
     'MoodBite suggests dishes that match your mood, the weather and your habits.',
   'hero.searchLabel': 'Search for a dish or a restaurant',
-  'hero.searchPlaceholder': 'Search a dish, a place, anything you crave…',
+  'hero.searchPlaceholder': 'Search a dish or a place…',
   'hero.searchButton': 'Search',
   'hero.nudge': 'to get suggestions that fit you better',
   'hero.signals': 'Context used for these suggestions',
@@ -473,6 +480,13 @@ const enGoc: Record<keyof typeof viGoc, string> = {
   'cta.register': 'Create an account',
 
   'account.sectionLabel': 'ACCOUNT',
+  'logout.confirm.title': 'Log out?',
+  'logout.confirm.message': 'Are you sure you want to log out?',
+  'logout.confirm.yes': 'Log out',
+  'logout.confirm.no': 'Cancel',
+  'account.admin.title': 'Admin account',
+  'account.admin.body': 'This account is an administrator, not a customer. Profile, favorites and levels are for customers only. Manage the data in the admin app.',
+  'account.admin.open': 'Open the admin app',
   'account.tab.overview': 'Overview',
   'account.tab.profile': 'Profile',
   'account.tab.taste': 'Taste & preferences',

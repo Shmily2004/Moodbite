@@ -11,6 +11,7 @@
  * KHÔNG gọi API, KHÔNG giữ bộ lọc: chỉ báo lên trên là người dùng muốn mở bộ lọc. Trang
  * mới là nơi giữ trạng thái lọc — nếu bong bóng cũng giữ một bản thì hai chỗ sẽ lệch nhau.
  */
+import { useEffect, useState } from 'react';
 import { ANH_GIAO_DIEN } from '@/shared/config';
 import { IconSparkle } from '@/shared/ui';
 import { useT } from '@/shared/i18n';
@@ -27,11 +28,42 @@ export interface AssistantBubbleProps {
    * Màn hẹp CSS vẫn trả nó về góc màn hình — khung bản đồ khi đó chỉ cao 240px.
    */
   inFrame?: boolean;
+  /**
+   * Chỉ hiện khi người dùng đã cuộn quá ngần này pixel (thêm 2026-10-28, trang chủ).
+   *
+   * Bong bóng nổi cố định nên LUÔN che thứ gì đó. Ở trang chủ, lúc vừa mở nó đè lên lối
+   * vào "Món nóng hổi" (1440px) và hai ô mood (điện thoại) - đúng những thứ người dùng
+   * cần bấm đầu tiên, trong khi lúc đó họ chưa xem món nào để mà "tinh chỉnh".
+   * Bỏ trống = hiện ngay như trước (trang món, trang gợi ý).
+   */
+  showAfterScroll?: number;
 }
 
-export function AssistantBubble({ onOpen, activeCount = 0, inFrame = false }: AssistantBubbleProps) {
+/** `true` khi đã cuộn quá `nguong` px. `undefined` = luôn `true`. */
+function useDaCuonQua(nguong: number | undefined): boolean {
+  const [qua, setQua] = useState(nguong === undefined);
+  useEffect(() => {
+    if (nguong === undefined) return;
+    const kiem = () => setQua(window.scrollY > nguong);
+    kiem();
+    window.addEventListener('scroll', kiem, { passive: true });
+    return () => window.removeEventListener('scroll', kiem);
+  }, [nguong]);
+  return qua;
+}
+
+export function AssistantBubble({
+  onOpen,
+  activeCount = 0,
+  inFrame = false,
+  showAfterScroll,
+}: AssistantBubbleProps) {
   const t = useT();
   const anh = ANH_GIAO_DIEN.mascot_bubble;
+  const hien = useDaCuonQua(showAfterScroll);
+  // Đang BẬT bộ lọc thì luôn hiện: con số trên nút là cách duy nhất người dùng thấy
+  // mình đang lọc mà không phải mở ngăn kéo.
+  if (!hien && activeCount === 0) return null;
 
   return (
     <div className={inFrame ? 'bubble bubble--trong-khung' : 'bubble'}>

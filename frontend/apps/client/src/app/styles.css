@@ -105,7 +105,9 @@ body {
   font-size: var(--step-0);
   line-height: 1.5;
   color: var(--ink);
-  background: var(--bg);
+  /* Nền kem/navy THƯƠNG HIỆU, không phải `--bg` cũ: chỗ nào lộ `body` (cuối trang ngắn,
+     khoảng giữa các khối) phải cùng màu với `.page`, nếu không sẽ thành một dải lạ. */
+  background: var(--brand-cream, var(--bg));
   -webkit-font-smoothing: antialiased;
 }
 
@@ -249,6 +251,10 @@ body {
 }
 .btn:hover:not(:disabled) { background: var(--surface-2); }
 .btn:disabled { opacity: .55; cursor: not-allowed; }
+/* LINK MANG DÁNG NÚT ("Đăng ký", "Đăng ký tài khoản", "Chỉ đường"…) không được gạch chân
+   (2026-10-28): trình duyệt gạch chân mọi `<a>` mặc định, nên cùng một kiểu nút lúc có
+   gạch lúc không tuỳ nó là `<button>` hay `<a>`. `.btn--link` cố ý trông như link, giữ. */
+a.btn:not(.btn--link) { text-decoration: none; }
 .btn--primary {
   background: var(--accent); color: var(--accent-ink); border-color: var(--accent);
 }
@@ -937,6 +943,9 @@ body {
   cursor: pointer;
 }
 .card__xem:hover { background: var(--surface-2); }
+/* Nút này là `<a>` khi dẫn sang trang quán (2026-10-28) - giữ đúng dáng viên thuốc,
+   không để trình duyệt gạch chân như link chữ. */
+a.card__xem { display: inline-block; text-decoration: none; }
 
 /* Nút rộng hết dòng: "Xem thêm N quán", "Hiện lại bản đồ". */
 .btn--rong {
@@ -1258,4 +1267,34 @@ body {
     max-width: calc(100% - 44px);
   }
   .bubble.bubble--trong-khung .bubble__mascot { width: 64px; margin-bottom: -16px; }
+}
+
+/* Hộp xác nhận dùng chung (ConfirmDialog, ví dụ: hỏi lại trước khi đăng xuất). */
+.xac-nhan {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.45);
+}
+.xac-nhan__hop {
+  width: min(360px, 100%);
+  padding: 20px;
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+}
+.xac-nhan__tieu-de { margin: 0 0 8px; font-size: 1.1rem; }
+.xac-nhan__noi-dung { margin: 0 0 18px; }
+.xac-nhan__nut { display: flex; justify-content: flex-end; gap: 8px; }
+.xac-nhan__dong-y {
+  padding: 8px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  cursor: pointer;
 }

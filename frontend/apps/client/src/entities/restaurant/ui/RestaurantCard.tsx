@@ -32,6 +32,7 @@ import { RestaurantThumb } from './RestaurantThumb';
 import { ThanTheDayDu } from './ThanTheDayDu';
 import { ThanTheGon } from './ThanTheGon';
 import { NutXemChiTiet } from './phanTheQuan';
+import type { LinkChiTiet } from './phanTheQuan';
 import { IconPin } from '@/shared/ui';
 import { useT } from '@/shared/i18n';
 
@@ -56,6 +57,8 @@ interface RestaurantCardProps {
   soThuTu?: number;
   /** Dáng GỌN một hàng (trang chi tiết món) - xem `ThanTheGon`. */
   gon?: boolean;
+  /** Có thì nút "Xem chi tiết" sang TRANG QUÁN; thân thẻ vẫn mở panel xem nhanh. */
+  detailLink?: LinkChiTiet;
 }
 
 export function RestaurantCard({
@@ -66,6 +69,7 @@ export function RestaurantCard({
   children,
   soThuTu,
   gon = false,
+  detailLink,
 }: RestaurantCardProps) {
   const t = useT();
   const price = formatPrice(restaurant.price_range);
@@ -137,7 +141,13 @@ export function RestaurantCard({
               fit={fit}
               reasons={reasons}
               dongNguon={[
-                describeCluster(restaurant.experience_cluster_label, t),
+                // Thẻ GỌN: cụm CHƯA CÓ thì bỏ hẳn, không in "Đang cập nhật" (2026-10-28).
+                // Đo trên trang Phở bò: 8/8 thẻ đầu đều mang đúng chữ đó - lặp 8 lần một
+                // câu không nói gì về quán. Trang chi tiết quán vẫn hiện "Đang cập nhật"
+                // (đặc tả API mục 3.1), nên thông tin không mất, chỉ không lặp.
+                restaurant.experience_cluster_label
+                  ? describeCluster(restaurant.experience_cluster_label, t)
+                  : null,
                 restaurant.category,
                 freshness?.text,
                 ...bangChung,
@@ -157,8 +167,8 @@ export function RestaurantCard({
             />
           )}
 
-          {!gon && onOpenDetail && (
-            <NutXemChiTiet restaurant={restaurant} onOpenDetail={onOpenDetail} />
+          {!gon && (onOpenDetail || detailLink) && (
+            <NutXemChiTiet restaurant={restaurant} onOpenDetail={onOpenDetail} link={detailLink} />
           )}
         </div>
 
@@ -172,7 +182,9 @@ export function RestaurantCard({
               </span>
             )}
             {price && <span className="card__ben-gia">{price}</span>}
-            {onOpenDetail && <NutXemChiTiet restaurant={restaurant} onOpenDetail={onOpenDetail} />}
+            {(onOpenDetail || detailLink) && (
+              <NutXemChiTiet restaurant={restaurant} onOpenDetail={onOpenDetail} link={detailLink} />
+            )}
           </div>
         )}
       </div>

@@ -90,7 +90,7 @@ mọi đường dẫn, ký hiệu, tên test trong file này phải tồn tại,
 | Q3.3 | Inbox "Cần xử lý" | `src/application/use_cases/manage_issues.py` · `src/domain/services/data_issues.py` · `src/domain/entities/issue_resolution.py` | `test_tab_da_xu_ly_KHONG_bi_route_issues_key_nuot` · `test_can_xu_ly_giu_lai_ca_dong_bang_0` |
 | Q3.4 | Xem và gỡ lượt báo đóng cửa | `src/presentation/api/routers/admin_closures.py` · `src/application/use_cases/manage_closure_reports.py` | `test_xoa_luot_bao_thi_quan_hien_lai_va_dem_lai_tu_dau` |
 | Q3.5 | Nhật ký hoạt động quản trị | `src/application/use_cases/manage_audit_log.py` · `src/domain/entities/audit_log.py` | `test_sua_quan_thi_nhat_ky_noi_ro_CU_ROI_MOI` · `test_GHI_NHAT_KY_HONG_KHONG_LAM_HONG_THAO_TAC` |
-| Q4.1 | Giao diện admin | `frontend/apps/admin/src/` | steiger (verify.py mục 7) · Vitest (verify.py mục 6) |
+| Q4.1 | Giao diện admin | `frontend/packages/admin/src/` | steiger (verify.py mục 7) · Vitest (verify.py mục 6) |
 
 ## Bảo mật
 
@@ -137,7 +137,7 @@ Số đo 2026-10-10.
 | R0.1 | Hướng phụ thuộc Clean Architecture | `src/` (4 tầng) | `scripts/check_architecture.py` |
 | R0.2 | Cấu hình tập trung | `src/infrastructure/config/settings.py` | `tests/test_repositories.py` · `tests/test_dotenv.py` |
 | R0.3 | Chuẩn viết code | `CODING_STANDARDS.md`, `CLAUDE.md` | đọc tay |
-| R0.4 | Kiến trúc frontend FSD | `frontend/apps/client/src/` · `frontend/apps/admin/src/` | steiger cho cả hai app (verify.py mục 7) |
+| R0.4 | Kiến trúc frontend FSD | `frontend/apps/client/src/` · `frontend/packages/admin/src/` | steiger cho cả hai (verify.py mục 7) |
 | R0.5 | Một backend duy nhất | `src/` | `scripts/verify.py` mục 4 |
 | R0.6 | Ma trận truy vết này không trỏ vào thứ không có | `scripts/check_traceability.py` | `scripts/verify.py` mục 10 |
 

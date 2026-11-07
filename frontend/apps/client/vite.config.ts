@@ -15,15 +15,26 @@ export default defineConfig({
       '@moodbite/ui': fileURLToPath(
         new URL('../../packages/ui/src/index.ts', import.meta.url),
       ),
+      // Khu QUẢN TRỊ (gộp 2026-11-01) là package riêng nằm cạnh app này. Alias `@admin` dành
+      // cho nội bộ package (tránh đụng `@/` của app người dùng); `@moodbite/admin` là API công khai.
+      '@admin': fileURLToPath(new URL('../../packages/admin/src', import.meta.url)),
+      '@moodbite/admin': fileURLToPath(
+        new URL('../../packages/admin/src/index.ts', import.meta.url),
+      ),
     },
   },
   test: {
     environment: 'jsdom',
     globals: true,
     setupFiles: './src/shared/test/setup.ts',
+    // Test của khu quản trị nằm trong package `packages/admin` nên phải khai thêm đường dẫn.
+    include: [
+      'src/**/*.{test,spec}.{ts,tsx}',
+      '../../packages/admin/src/**/*.{test,spec}.{ts,tsx}',
+    ],
     // `afterEach` chạy theo thứ tự đăng ký: cleanup của Testing Library unmount xong rồi
     // mới tới `vi.restoreAllMocks()` của file test. Mặc định 'stack' đảo ngược thứ tự đó
-    // và đã gây test chập chờn thật ở app admin (2026-09-29) - xem apps/admin/vite.config.ts.
+    // và đã gây test chập chờn thật ở khu quản trị (2026-09-29).
     sequence: { hooks: 'list' },
   },
 });

@@ -348,17 +348,23 @@ describe('AccountPage — chưa đăng nhập / đang tải (audit 2026-10-06)',
 });
 
 describe('AccountPage khi đăng nhập bằng tài khoản QUẢN TRỊ', () => {
-  it('không hiện các mục của khách, chỉ dẫn sang app quản trị', async () => {
-    // Quản trị viên đăng nhập nhầm app người dùng: hồ sơ, yêu thích, cấp độ là của khách.
+  it('không hiện các mục của khách, chuyển thẳng vào khu quản trị', async () => {
+    // Quản trị viên không có hồ sơ khách: hồ sơ, yêu thích, cấp độ là của khách hàng.
     vi.stubGlobal('fetch', gia_lap_fetch(STATS_RONG, [], {}, { ...NGUOI_DUNG, role: 'admin' }));
-    renderAccount();
-
-    expect(await screen.findByText('Tài khoản quản trị')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Mở app quản trị/ })).toHaveAttribute(
-      'href',
-      'http://localhost:5174',
+    render(
+      <MemoryRouter initialEntries={['/account']}>
+        <LanguageProvider>
+          <UserSessionProvider>
+            <Routes>
+              <Route path="/account" element={<AccountPage />} />
+              <Route path="/quan-tri" element={<p>KHU-QUAN-TRI</p>} />
+            </Routes>
+          </UserSessionProvider>
+        </LanguageProvider>
+      </MemoryRouter>,
     );
+
+    expect(await screen.findByText('KHU-QUAN-TRI')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Yêu thích/ })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /Cấp độ & huy hiệu/ })).not.toBeInTheDocument();
   });
 });

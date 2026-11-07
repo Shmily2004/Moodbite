@@ -21,6 +21,7 @@ import { ThemeToggle } from '@/features/switch-theme';
 import { UserAvatar, useUserSessionContext } from '@/entities/user';
 import { useAvatar } from '@/features/change-avatar';
 import { LogoutButton } from '@/features/logout-confirm';
+import { QUAN_TRI_ROUTES } from '@moodbite/admin';
 import { ROUTES } from '@/shared/config';
 import { useT } from '@/shared/i18n';
 import type { Khoa } from '@/shared/i18n';
@@ -109,6 +110,12 @@ export function SiteHeader() {
                 {ten ?? '…'}
               </span>
             </Link>
+            {/* Tài khoản admin có lối vào khu quản trị ngay trên thanh đầu trang. */}
+            {session.user?.role === 'admin' && (
+              <Link className="linkish" to={QUAN_TRI_ROUTES.overview}>
+                {t('nav.quanTri')}
+              </Link>
+            )}
             <LogoutButton className="linkish" onConfirm={session.logout}>
               {t('nav.logout')}
             </LogoutButton>

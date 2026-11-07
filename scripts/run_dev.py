@@ -1,8 +1,10 @@
-"""Chạy TOÀN BỘ MoodBite bằng MỘT lệnh: backend + app người dùng + app quản trị.
+"""Chạy TOÀN BỘ MoodBite bằng MỘT lệnh: backend + app (gồm cả khu quản trị ở /quan-tri).
 
-    python scripts/run_dev.py                # backend + app người dùng
-    python scripts/run_dev.py --admin        # thêm cả app quản trị
-    python scripts/run_dev.py --admin-only   # chỉ backend + app quản trị
+    python scripts/run_dev.py              # backend + app người dùng + khu quản trị
+    python scripts/run_dev.py --no-open    # không tự mở trình duyệt
+
+Từ 2026-11-01 khu quản trị KHÔNG còn là app riêng (cổng 5174 đã bỏ): đăng nhập một lần ở
+http://localhost:5173/login, tài khoản admin được đưa vào http://localhost:5173/quan-tri.
 
 VÌ SAO CÓ FILE NÀY: trước đây muốn xem giao diện phải mở 3 cửa sổ terminal và nhớ 3 lệnh
 khác nhau ở 2 thư mục khác nhau. Thiếu một bước là màn hình trắng, mà KHÔNG có gì nói cho
@@ -56,10 +58,9 @@ def tim_cong_backend() -> int:
         "khởi động lại máy rồi thử lại."
     )
 CLIENT_PORT = 5173
-ADMIN_PORT = 5174
 
 
-def kiem_dieu_kien(can_admin: bool) -> list[str]:
+def kiem_dieu_kien() -> list[str]:
     """Trả về danh sách vấn đề. Rỗng = chạy được."""
     van_de: list[str] = []
 
@@ -86,33 +87,35 @@ def kiem_dieu_kien(can_admin: bool) -> list[str]:
             "      Sửa: python -m data_pipeline.feature_engineering"
         )
 
-    if can_admin:
-        # Không chặn, chỉ cảnh báo: app quản trị vẫn mở được, chỉ là đăng nhập sẽ trả 503.
-        # Từ 2026-09-29 tài khoản admin nằm trong bảng `users`, chỉ còn secret ở môi trường.
-        thieu = [] if settings.admin_token_secret else ["MOODBITE_ADMIN_SECRET"]
-        if thieu or settings.storage_backend != "sqlite":
-            print("!" * 70)
-            print("CANH BAO: trang quan tri CHUA duoc cau hinh.")
-            print("  Giao dien van mo duoc, nhung dang nhap se tra 503.")
-            print("  Xem thieu gi: python scripts/check_permissions.py")
-            print("!" * 70)
-            print()
+    # Không chặn, chỉ cảnh báo: khu quản trị vẫn mở được, chỉ là đăng nhập admin sẽ trả 503.
+    # Từ 2026-09-29 tài khoản admin nằm trong bảng `users`, chỉ còn secret ở môi trường.
+    thieu = [] if settings.admin_token_secret else ["MOODBITE_ADMIN_SECRET"]
+    if thieu or settings.storage_backend != "sqlite":
+        print("!" * 70)
+        print("CANH BAO: khu quan tri CHUA duoc cau hinh.")
+        print("  Giao dien van mo duoc, nhung dang nhap admin se tra 503.")
+        print("  Xem thieu gi: python scripts/check_permissions.py")
+        print("!" * 70)
+        print()
 
     return van_de
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Chay MoodBite o che do phat trien")
-    parser.add_argument("--admin", action="store_true", help="Chay them app quan tri")
-    parser.add_argument("--admin-only", action="store_true", help="Chi backend + admin")
+    # Cờ cũ của app quản trị riêng. Giữ để lệnh quen tay không lỗi, nhưng không còn tác dụng.
+    parser.add_argument("--admin", action="store_true", help=argparse.SUPPRESS)
+    parser.add_argument("--admin-only", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--no-open", action="store_true", help="Khong tu mo trinh duyet")
     args = parser.parse_args()
 
     sys.path.insert(0, str(ROOT))
-    chay_client = not args.admin_only
-    chay_admin = args.admin or args.admin_only
+    if args.admin or args.admin_only:
+        print("Luu y: khu quan tri nay nam trong app nguoi dung. Chay binh thuong, roi mo")
+        print(f"       http://localhost:{CLIENT_PORT}/login (tai khoan admin se duoc dua vao /quan-tri).")
+        print()
 
-    van_de = kiem_dieu_kien(chay_admin)
+    van_de = kiem_dieu_kien()
     if van_de:
         print("=" * 70)
         print("CHUA CHAY DUOC - can sua truoc:")
@@ -146,18 +149,11 @@ def main() -> int:
         ))
 
         # npm trên Windows là npm.cmd -> shell=True cho chắc chạy được ở cả hai nơi.
-        if chay_client:
-            print("Dang khoi dong app nguoi dung...")
-            tien_trinh.append((
-                "client",
-                subprocess.Popen("npm run dev", cwd=FRONTEND, shell=True, env=moi_truong),
-            ))
-        if chay_admin:
-            print("Dang khoi dong app quan tri...")
-            tien_trinh.append((
-                "admin",
-                subprocess.Popen("npm run dev:admin", cwd=FRONTEND, shell=True, env=moi_truong),
-            ))
+        print("Dang khoi dong app (gom ca khu quan tri)...")
+        tien_trinh.append((
+            "client",
+            subprocess.Popen("npm run dev", cwd=FRONTEND, shell=True, env=moi_truong),
+        ))
 
         # Vite cần vài giây mới sẵn sàng; mở trình duyệt sớm quá sẽ ra trang lỗi.
         time.sleep(4)
@@ -168,19 +164,14 @@ def main() -> int:
         print("=" * 70)
         print(f"  Backend  (API)      : http://localhost:{cong_api}/api/v1/health")
         print(f"  Tai lieu API        : http://localhost:{cong_api}/docs")
-        if chay_client:
-            print(f"  >> APP NGUOI DUNG   : http://localhost:{CLIENT_PORT}")
-        if chay_admin:
-            print(f"  >> APP QUAN TRI     : http://localhost:{ADMIN_PORT}")
+        print(f"  >> APP NGUOI DUNG   : http://localhost:{CLIENT_PORT}")
+        print(f"  >> KHU QUAN TRI     : http://localhost:{CLIENT_PORT}/login  (admin -> /quan-tri)")
         print("=" * 70)
         print("  Dung lai: bam Ctrl+C")
         print("=" * 70)
 
         if not args.no_open:
-            if chay_client:
-                webbrowser.open(f"http://localhost:{CLIENT_PORT}")
-            if chay_admin:
-                webbrowser.open(f"http://localhost:{ADMIN_PORT}")
+            webbrowser.open(f"http://localhost:{CLIENT_PORT}")
 
         # Bất kỳ tiến trình nào chết thì dừng tất cả - tránh cảnh "frontend chạy nhưng
         # backend chết" mà người dùng không biết.

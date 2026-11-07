@@ -52,9 +52,10 @@ def test_cors_mac_dinh_khong_mo_cho_moi_trang_web(app_mac_dinh):
 def test_cors_mac_dinh_van_cho_frontend_cua_du_an(app_mac_dinh):
     """Siết CORS KHÔNG được làm chết môi trường phát triển của chính dự án.
 
-    5173 = app người dùng, 5174 = app quản trị (xem `frontend/apps/*/vite.config.ts`).
+    5173 = app người dùng, cả khu quản trị nằm trong app đó từ 2026-11-01
+    (xem `frontend/apps/client/vite.config.ts`).
     """
-    for cong in (5173, 5174):
+    for cong in (5173,):
         res = app_mac_dinh.get(
             f"{API}/health", headers={"Origin": f"http://localhost:{cong}"}
         )

@@ -12,8 +12,10 @@
     "paths": {
       "@/*": ["./src/*"],
       "@moodbite/api-client": ["../../packages/api-client/src/index.ts"],
-      "@moodbite/ui": ["../../packages/ui/src/index.ts"]
+      "@moodbite/ui": ["../../packages/ui/src/index.ts"],
+      "@admin/*": ["../../packages/admin/src/*"],
+      "@moodbite/admin": ["../../packages/admin/src/index.ts"]
     }
   },
-  "include": ["src", "vite.config.ts"]
+  "include": ["src", "vite.config.ts", "../../packages/admin/src"]
 }

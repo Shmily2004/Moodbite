@@ -15,8 +15,8 @@ from src.infrastructure.auth.user_auth import DEFAULT_USER_TOKEN_TTL_SECONDS
 from src.infrastructure.config.dotenv import nap_env_local
 
 # Cổng phát triển của hai app frontend — xem `frontend/apps/*/vite.config.ts`.
-# 5173 = app người dùng, 5174 = app quản trị. Đổi cổng ở vite thì phải đổi cả ở đây.
-DEFAULT_CORS_ORIGINS = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174"
+# 5173 = app người dùng (gồm cả khu /quan-tri từ 2026-11-01). Đổi cổng ở vite thì phải đổi cả ở đây.
+DEFAULT_CORS_ORIGINS = "http://localhost:5173,http://127.0.0.1:5173"
 from src.infrastructure.auth.password_reset import DEFAULT_RESET_TTL_SECONDS
 from src.infrastructure.auth.email_verification import (
     DEFAULT_VERIFY_TTL_SECONDS,

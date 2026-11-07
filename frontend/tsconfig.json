@@ -13,7 +13,14 @@
     // packages/ui có component React (.tsx) — cần JSX để kiểm kiểu đúng.
     "jsx": "react-jsx",
     // Có component chạm DOM (window, KeyboardEvent, HTMLButtonElement).
-    "lib": ["ES2022", "DOM"]
+    "lib": ["ES2022", "DOM"],
+    // Khu quản trị (packages/admin) dùng alias nội bộ `@admin/*` như app người dùng.
+    "paths": {
+      "@admin/*": ["./packages/admin/src/*"]
+    }
   },
-  "include": ["packages/**/*.ts", "packages/**/*.d.ts", "steiger.config.ts"]
+  // packages/admin dùng `import.meta.env` (kiểu của Vite): nó được kiểm bởi tsconfig của app
+  // người dùng (apps/client), nơi có đủ kiểu Vite. Ở đây loại ra để không báo lỗi giả.
+  "include": ["packages/**/*.ts", "packages/**/*.d.ts", "steiger.config.ts"],
+  "exclude": ["packages/admin"]
 }

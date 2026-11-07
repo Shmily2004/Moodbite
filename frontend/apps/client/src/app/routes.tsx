@@ -32,6 +32,8 @@ import { NotFoundPage } from '@/pages/not-found';
 import { DUONG_DAN_CU, ROUTES } from '@/shared/config';
 import { useT } from '@/shared/i18n';
 import { RootLayout } from './layout/RootLayout';
+import { QuanTriLayout } from './layout/QuanTriLayout';
+import { quanTriRoutes } from '@moodbite/admin';
 import { RouteError } from './layout/RouteError';
 import { LanguageProvider } from '@/shared/i18n';
 
@@ -142,5 +144,11 @@ export const routes: RouteObject[] = [
         ],
       },
     ],
+  },
+  // Khu QUẢN TRỊ (`/quan-tri`) — package riêng, KHÔNG nằm dưới RootLayout nên không có
+  // chân trang/thanh tab của app khách. Chỉ bọc ngôn ngữ và phiên.
+  {
+    element: <QuanTriLayout />,
+    children: quanTriRoutes,
   },
 ];

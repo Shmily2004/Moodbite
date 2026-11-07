@@ -11,7 +11,7 @@ production — production nằm ở `src/`.
 
 | Script | Làm gì | Ví dụ |
 |---|---|---|
-| `run_dev.py` | Chạy backend + app người dùng (+ app quản trị) bằng một lệnh, tự chọn cổng | `python scripts/run_dev.py --admin` |
+| `run_dev.py` | Chạy backend + app (gồm khu quản trị ở `/quan-tri`) bằng một lệnh, tự chọn cổng | `python scripts/run_dev.py` |
 | `verify.py` | Kiểm 9 mục: app dựng được · pytest · Clean Architecture · chỉ 1 backend · frontend typecheck+build · frontend test · FSD · CI cài được · bộ dữ liệu mẫu | `python scripts/verify.py` (một mục: `--chi 4`) |
 | `check_architecture.py` | Kiểm hướng phụ thuộc backend (chạy trong CI) | `python scripts/check_architecture.py` |
 | `check_permissions.py` | Trang quản trị đã cấu hình đủ chưa (fail-closed → 503 nếu thiếu) | `python scripts/check_permissions.py` |
@@ -104,7 +104,7 @@ Trang cần đăng nhập (thêm 2026-10-02):
 
 ```
 python scripts/chup_man_hinh.py http://localhost:5173/account --token <token-nguoi-dung>
-python scripts/chup_man_hinh.py http://localhost:5174/ --admin-token <token-quan-tri>
+python scripts/chup_man_hinh.py http://localhost:5173/quan-tri --admin-token <token-quan-tri>
 python scripts/chup_man_hinh.py http://localhost:5173/login --dang-xuat
 ```
 
@@ -161,7 +161,7 @@ In bảng và ghi `data_pipeline/data_synthetic/eval_results.json`.
 $env:MOODBITE_SYNTHETIC_DATA="1"
 $env:MOODBITE_INTERACTIONS="data_pipeline/data_synthetic/interactions.jsonl"
 $env:MOODBITE_USERS_DB="data_pipeline/data_synthetic/moodbite_users.db"
-python scripts/run_dev.py --admin
+python scripts/run_dev.py
 ```
 
 Kiểm tra: `GET /api/v1/health` và `GET /api/v1/admin/system` trả `synthetic_data: true`.

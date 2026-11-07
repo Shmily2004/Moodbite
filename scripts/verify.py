@@ -153,9 +153,8 @@ def check_frontend() -> tuple[bool, str] | tuple[None, str]:
     if not npm:
         return None, "khong tim thay npm trong PATH"
 
-    # Kiểm kiểu TRƯỚC build: `npm run build` chạy tsc cho TỪNG app (`apps/client`,
-    # `apps/admin`), không phủ `packages/**` và `steiger.config.ts` (thuộc project gốc
-    # `frontend/tsconfig.json`).
+    # Kiểm kiểu TRƯỚC build: `npm run typecheck` chạy tsc của gốc (`packages/**`,
+    # `steiger.config.ts`) và của app người dùng (kéo theo khu quản trị qua alias).
     code, out = run([npm, "run", "typecheck"], cwd=frontend)
     if code != 0:
         errors = [ln.strip() for ln in out.splitlines() if ": error TS" in ln]
@@ -174,22 +173,15 @@ def check_frontend_tests() -> tuple[bool, str] | tuple[None, str]:
     if not (frontend / "node_modules").exists() or not npm:
         return None, "bo qua - chua cai node_modules"
 
-    # Chạy test của CẢ HAI app. App admin trước đây có 0 test - nghĩa là màn hình trắng
-    # ở trang quản trị sẽ lọt qua CI mà không ai biết.
-    ket_qua: list[str] = []
-    hong = False
-    for app in ("client", "admin"):
-        code, out = run(
-            [npm, "run", "test", "--workspace", f"@moodbite/{app}"], cwd=frontend
-        )
-        summary = next(
-            (ln.strip() for ln in out.splitlines()
-             if "Tests " in ln and ("passed" in ln or "failed" in ln)),
-            "khong doc duoc ket qua",
-        )
-        ket_qua.append(f"{app}: {summary}")
-        hong = hong or code != 0
-    return not hong, " · ".join(ket_qua)
+    # Một bộ test cho cả app người dùng LẪN khu quản trị (`packages/admin`, gộp 2026-11-01):
+    # vitest của app khách đã khai đường dẫn tới test của khu quản trị.
+    code, out = run([npm, "run", "test", "--workspace", "@moodbite/client"], cwd=frontend)
+    summary = next(
+        (ln.strip() for ln in out.splitlines()
+         if "Tests " in ln and ("passed" in ln or "failed" in ln)),
+        "khong doc duoc ket qua",
+    )
+    return code == 0, f"client (gom ca khu quan tri): {summary}"
 
 
 def check_frontend_architecture() -> tuple[bool, str] | tuple[None, str]:
@@ -200,16 +192,16 @@ def check_frontend_architecture() -> tuple[bool, str] | tuple[None, str]:
     if not (frontend / "node_modules").exists() or not npx:
         return None, "bo qua - chua cai node_modules"
 
-    # Kiểm CẢ HAI app. Bỏ sót app admin nghĩa là kiến trúc chỉ được canh một nửa.
+    # Kiểm app người dùng VÀ khu quản trị (`packages/admin`). Bỏ sót khu quản trị là kiến trúc chỉ được canh một nửa.
     problems: list[str] = []
-    for app in ("client", "admin"):
-        code, out = run([npx, "steiger", f"./apps/{app}/src", "--no-watch"], cwd=frontend)
+    for duong in ("./apps/client/src", "./packages/admin/src"):
+        code, out = run([npx, "steiger", duong, "--no-watch"], cwd=frontend)
         if code != 0:
             found = [ln.strip() for ln in out.splitlines() if "×" in ln or "Found" in ln]
-            problems.append(f"apps/{app}: " + ("; ".join(found[-4:]) or out.strip()[-300:]))
+            problems.append(f"{duong}: " + ("; ".join(found[-4:]) or out.strip()[-300:]))
     if problems:
         return False, "\n        ".join(problems)
-    return True, "FSD OK (client + admin): khong vi pham luat import"
+    return True, "FSD OK (client + khu quan tri): khong vi pham luat import"
 
 
 def check_ci_installable() -> tuple[bool, str]:

@@ -41,7 +41,7 @@ cd ..
 
 ```powershell
 python scripts/run_dev.py            # backend + app người dùng
-python scripts/run_dev.py --admin    # thêm cả app quản trị
+# Khu quản trị nằm TRONG app người dùng (gộp 2026-11-01): không còn cờ --admin.
 ```
 
 Script tự kiểm điều kiện, khởi động mọi thứ, rồi in ra địa chỉ để mở.
@@ -51,7 +51,7 @@ Script tự kiểm điều kiện, khởi động mọi thứ, rồi in ra đị
 | Cái gì | Địa chỉ | Cần gì trước |
 |---|---|---|
 | **App người dùng** (chọn món → tìm quán) | **http://localhost:5173** | backend chạy |
-| **App quản trị** (sửa/ẩn quán) | **http://localhost:5174** | backend chạy + [đã cấu hình quyền](#bật-trang-quản-trị) |
+| **Khu quản trị** (sửa/ẩn quán) | **http://localhost:5173/login** → tài khoản admin vào `/quan-tri` | backend chạy + [đã cấu hình quyền](#bật-trang-quản-trị) |
 | Swagger UI (thử API tay) | http://localhost:8001/docs | backend chạy |
 | Trạng thái hệ thống | http://localhost:8001/api/v1/health | backend chạy |
 
@@ -75,7 +75,6 @@ npm run dev          # app người dùng  -> http://localhost:5173
 ```
 ```powershell
 cd frontend
-npm run dev:admin    # app quản trị    -> http://localhost:5174
 ```
 
 ### Bật trang quản trị
@@ -291,7 +290,7 @@ chứng minh (`npm ci` cài được hay không). Mục 9 **chỉ chạy ở má
 - ✅ **Ghi nhận tương tác** — chuẩn bị dữ liệu cho mô hình xếp hạng
 - 🟡 **Ngữ cảnh thời điểm** — giờ ăn đã bật; thời tiết tắt mặc định (`MOODBITE_ENABLE_WEATHER=1`)
 - ✅ **App người dùng** (`localhost:5173`) — ô tìm kiếm tự do + định vị thật
-- ✅ **App quản trị** (`localhost:5174`) — đăng nhập, sửa, ẩn/bỏ ẩn quán.
+- ✅ **Khu quản trị** (`localhost:5173/quan-tri`, cùng app với người dùng) — đăng nhập chung ở `/login`, sửa, ẩn/bỏ ẩn quán.
   ⚠️ Phải cấu hình quyền trước, xem [Bật trang quản trị](#bật-trang-quản-trị)
 - ✅ **Bản đồ** — Leaflet + OpenStreetMap, miễn phí, không cần API key
 - ✅ **Phân cụm trải nghiệm (Lớp 1)** — KMeans k=7, Silhouette 0.318

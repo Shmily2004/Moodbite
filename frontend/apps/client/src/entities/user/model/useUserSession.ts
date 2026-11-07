@@ -17,6 +17,7 @@ import type { UserSelf } from '@/shared/api';
 import { ApiError, accountErrorText, authApi } from '@/shared/api';
 import { useT } from '@/shared/i18n';
 import { TOKEN_KEY, clearToken, onSessionExpired, readToken, writeToken } from '@/shared/lib';
+import { PHAT_DANG_XUAT_KHACH, xoaPhienQuanTri } from '@moodbite/admin';
 
 export interface UseUserSessionResult {
   isLoggedIn: boolean;
@@ -30,7 +31,16 @@ export interface UseUserSessionResult {
   user: UserSelf | null;
   loading: boolean;
   error: string | null;
-  login: (username: string, password: string, remember: boolean) => Promise<void>;
+  /**
+   * `buocSau` chạy SAU khi backend nhận mật khẩu đúng, TRƯỚC khi phiên được lưu. Nó ném lỗi
+   * thì phiên không được lưu — dùng cho tài khoản admin cần thêm phiên quản trị.
+   */
+  login: (
+    username: string,
+    password: string,
+    remember: boolean,
+    buocSau?: (user: UserSelf) => Promise<void>,
+  ) => Promise<void>;
   register: (
     username: string,
     password: string,
@@ -108,6 +118,12 @@ export function useUserSession(): UseUserSessionResult {
       setIsLoggedIn(false);
     };
     const boLang = onSessionExpired(dangXuatCucBo);
+    // Khu quản trị đăng xuất -> khách cũng đăng xuất (xem `PHAT_DANG_XUAT_KHACH`).
+    const dangXuatTuQuanTri = () => {
+      clearToken();
+      dangXuatCucBo();
+    };
+    window.addEventListener(PHAT_DANG_XUAT_KHACH, dangXuatTuQuanTri);
     const khiKhoDoi = (event: StorageEvent) => {
       // `key === null` = tab kia gọi `localStorage.clear()`.
       if (event.key !== null && event.key !== TOKEN_KEY) return;
@@ -122,18 +138,25 @@ export function useUserSession(): UseUserSessionResult {
     window.addEventListener('storage', khiKhoDoi);
     return () => {
       boLang();
+      window.removeEventListener(PHAT_DANG_XUAT_KHACH, dangXuatTuQuanTri);
       window.removeEventListener('storage', khiKhoDoi);
     };
   }, []);
 
   const login = useCallback(
-    async (username: string, password: string, remember: boolean) => {
+    async (
+      username: string,
+      password: string,
+      remember: boolean,
+      buocSau?: (user: UserSelf) => Promise<void>,
+    ) => {
       setLoading(true);
       setError(null);
       try {
         // Cắt khoảng trắng thừa ở tên đăng nhập (hay dính khi copy/paste). KHÔNG đụng
         // vào mật khẩu: khoảng trắng ở đó có thể là ký tự người dùng cố ý đặt.
         const data = await authApi.login({ username: username.trim(), password });
+        if (buocSau) await buocSau(data.user);
         writeToken(data.token, remember);
         setUser(data.user);
         setIsLoggedIn(true);
@@ -193,6 +216,8 @@ export function useUserSession(): UseUserSessionResult {
     // phải được đăng xuất khỏi máy này - chặn lại chỉ vì server không trả lời là sai.
     authApi.logout().catch(() => undefined);
     clearToken();
+    // Đăng xuất khách thì cũng bỏ phiên quản trị ở máy này (cùng trình duyệt).
+    xoaPhienQuanTri();
     setUser(null);
     setIsLoggedIn(false);
     setError(null);

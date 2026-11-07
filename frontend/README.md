@@ -7,7 +7,6 @@ Monorepo: **React + TypeScript + Feature-Sliced Design**.
 ```powershell
 npm install
 npm run dev          # app người dùng  -> http://localhost:5173
-npm run dev:admin    # app quản trị    -> http://localhost:5174
 ```
 
 Backend phải chạy trước ở `http://localhost:8001` (xem README ở gốc dự án).
@@ -27,11 +26,11 @@ $env:MOODBITE_STORAGE = "sqlite"      # 3. bật kho SQLite rồi khởi động
 
 Đây là điểm quan trọng nhất của cấu trúc này:
 
-| | `apps/client` | `apps/admin` |
+| | `apps/client` | `packages/admin` (khu `/quan-tri`) |
 |---|---|---|
 | Dành cho | người đi ăn | người quản lý dữ liệu |
-| Cổng dev | 5173 | 5174 |
-| Đăng nhập | ❌ không có | ✅ 1 tài khoản + token 1 giờ |
+| Cổng dev | 5173 | 5173 (cùng app, đường dẫn `/quan-tri`) |
+| Đăng nhập | ❌ không có | ✅ đăng nhập chung ở `/login`, admin vào `/quan-tri` (token 1 giờ) |
 | Gọi API bằng | `createApi()` | `createAdminApi()` |
 | Thấy quán đã ẩn | ❌ không bao giờ | ✅ có, để bỏ ẩn lại được |
 | Sửa dữ liệu | ❌ | ✅ tên/loại hình/địa chỉ/giá/điện thoại/website |
@@ -61,7 +60,7 @@ frontend/
     │   │       └── model/       VIEWMODEL — hook: state + điều phối
     │   ├── entities/            khái niệm nghiệp vụ (restaurant)
     │   └── shared/              api, lib, config
-    └── admin/src/               app quản trị - CÙNG cấu trúc FSD
+    └── (packages/admin/src/)    khu quản trị - CÙNG cấu trúc FSD, gắn vào app người dùng ở /quan-tri
         ├── app/                 App.tsx, styles.css (tông màu khác client)
         ├── pages/restaurants/   trang quản lý quán
         ├── features/
@@ -160,10 +159,9 @@ Hằng số đường dẫn để ở `shared/config/` chứ không ở `app/`, 
 | Lệnh | Việc |
 |---|---|
 | `npm run dev` | dev server app người dùng (5173) |
-| `npm run dev:admin` | dev server app quản trị (5174) |
 | `npm run build` | build CẢ HAI app (đã gồm kiểm kiểu) |
 | `npm run typecheck` | kiểm kiểu toàn monorepo |
-| `npm run test` | test CẢ HAI app (client rồi admin) |
+| `npm run test` | test app người dùng (gồm cả khu quản trị) |
 | `npm run lint:arch` | luật import FSD cho CẢ HAI app |
 | `npm run gen:api` | **sinh lại kiểu từ OpenAPI** |
 

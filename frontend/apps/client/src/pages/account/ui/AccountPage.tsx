@@ -46,12 +46,12 @@ import {
 } from '@/shared/ui';
 import { useT } from '@/shared/i18n';
 import type { Khoa } from '@/shared/i18n';
-import { ADMIN_APP_URL, ROUTES } from '@/shared/config';
+import { ROUTES } from '@/shared/config';
+import { QUAN_TRI_ROUTES } from '@moodbite/admin';
 import { BadgesTab, ProfileTab, SettingsPanel, thangNam } from './tabs';
 import { RecentTab } from './savedTabs';
 import { OverviewTab } from './OverviewTab';
 import { AddressesTab, CollectionsTab, SavedTabWithCollections } from './placesTabs';
-import { AdminAccountNotice } from './AdminAccountNotice';
 
 /**
  * Mã tab nằm trên URL. Đổi giá trị ở đây là đổi đường dẫn — cân nhắc trước khi sửa.
@@ -119,14 +119,9 @@ export function AccountPage() {
   }
 
   // Quản trị viên KHÔNG có hồ sơ khách: hồ sơ, yêu thích, cấp độ... là của khách hàng.
-  // Chỉ dẫn sang app quản trị. Đặt SAU mọi hook để thứ tự gọi hook không đổi.
+  // Đưa thẳng về khu quản trị. Đặt SAU mọi hook để thứ tự gọi hook không đổi.
   if (session.user?.role === 'admin') {
-    return (
-      <div className="page">
-        <SiteHeader />
-        <AdminAccountNotice href={ADMIN_APP_URL} />
-      </div>
-    );
+    return <Navigate to={QUAN_TRI_ROUTES.overview} replace />;
   }
 
   const ten = session.user?.display_name || session.user?.username || null;

@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="590" viewBox="0 0 1000 590"><defs><marker id="dac" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#000"/></marker><marker id="ho" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto"><path d="M1,1 L11,6 L1,11" fill="none" stroke="#000" stroke-width="1.2"/></marker></defs><rect width="100%" height="100%" fill="#fff"/><text x="20" y="26" font-family="Arial, Helvetica, sans-serif" font-size="15" text-anchor="start" font-weight="bold" fill="#000">Nhóm 4 — Quản lý dữ liệu (quản trị)</text>
-<rect x="230" y="44" width="700" height="510" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="610" viewBox="0 0 1000 610"><defs><marker id="dac" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#000"/></marker><marker id="ho" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto"><path d="M1,1 L11,6 L1,11" fill="none" stroke="#000" stroke-width="1.2"/></marker></defs><rect width="100%" height="100%" fill="#fff"/><text x="20" y="26" font-family="Arial, Helvetica, sans-serif" font-size="15" text-anchor="start" font-weight="bold" fill="#000">Use case lớn: Quản lý dữ liệu</text>
+<rect x="230" y="44" width="700" height="530" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <text x="580.0" y="66" font-family="Arial, Helvetica, sans-serif" font-size="14" text-anchor="middle" font-weight="bold" fill="#000">Hệ thống MoodBite</text>
 <line x1="442.29577435655557" y1="424.1525823376605" x2="717.7042256434444" y2="255.84741766233952" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#dac)"/>
 <text x="580.0" y="334.0" font-family="Arial, Helvetica, sans-serif" font-size="10" text-anchor="middle" font-weight="normal" fill="#000">«extend»</text>
@@ -11,27 +11,27 @@
 <text x="760.0" y="279.0" font-family="Arial, Helvetica, sans-serif" font-size="10" text-anchor="middle" font-weight="normal" fill="#000">«include»</text>
 <line x1="510.0" y1="340.0" x2="650.0" y2="340.0" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#dac)"/>
 <text x="580.0" y="334.0" font-family="Arial, Helvetica, sans-serif" font-size="10" text-anchor="middle" font-weight="normal" fill="#000">«include»</text>
-<line x1="104" y1="265.0" x2="347.4196628267671" y2="144.5940286778025" stroke="#000" stroke-width="1"/>
-<line x1="104" y1="265.0" x2="299.4473182750655" y2="241.35272213023455" stroke="#000" stroke-width="1"/>
-<line x1="104" y1="265.0" x2="652.2457327496983" y2="235.6289542593441" stroke="#000" stroke-width="1"/>
-<line x1="104" y1="265.0" x2="320.26841183571935" y2="320.71009963767403" stroke="#000" stroke-width="1"/>
-<line x1="104" y1="265.0" x2="356.842961654713" y2="424.24499324555455" stroke="#000" stroke-width="1"/>
-<line x1="104" y1="265.0" x2="659.3066424604741" y2="328.7283554993068" stroke="#000" stroke-width="1"/>
+<line x1="104" y1="275.0" x2="350.0948655263164" y2="144.9525672368418" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<line x1="104" y1="275.0" x2="304.4458690159786" y2="243.87076094929344" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<line x1="104" y1="275.0" x2="653.6401835583644" y2="237.14356976100538" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<line x1="104" y1="275.0" x2="315.09614532578667" y2="322.1975788586327" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<line x1="104" y1="275.0" x2="354.78408872860194" y2="424.4748887984043" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<line x1="104" y1="275.0" x2="657.2124262085379" y2="330.0280711993358" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
 <ellipse cx="400" cy="120" rx="110.0" ry="28.0" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<text x="400" y="124" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">UC18 Xem và sửa mô tả món</text>
+<text x="400" y="125" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Sửa mô tả món</text>
 <ellipse cx="400" cy="230" rx="110.0" ry="28.0" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<text x="400" y="234" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">UC19 Quản lý quán</text>
+<text x="400" y="235" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Quản lý quán</text>
 <ellipse cx="760" cy="230" rx="110.0" ry="28.0" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<text x="760" y="234" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">UC20 Xử lý vấn đề dữ liệu</text>
+<text x="760" y="235" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Xử lý vấn đề dữ liệu</text>
 <ellipse cx="400" cy="340" rx="110.0" ry="28.0" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<text x="400" y="344" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">UC21 Xem xét báo đóng cửa</text>
+<text x="400" y="345" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Xem xét báo đóng cửa</text>
 <ellipse cx="400" cy="450" rx="110.0" ry="28.0" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<text x="400" y="454" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">UC22 Xem chất lượng dữ liệu</text>
+<text x="400" y="455" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Xem chất lượng dữ liệu</text>
 <ellipse cx="760" cy="340" rx="110.0" ry="28.0" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<text x="760" y="344" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">UC16 Đăng nhập quản trị</text>
-<circle cx="90" cy="225.0" r="9" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<line x1="90" y1="234.0" x2="90" y2="261.0" stroke="#000" stroke-width="1.2"/>
-<line x1="76" y1="245.0" x2="104" y2="245.0" stroke="#000" stroke-width="1.2"/>
-<line x1="90" y1="261.0" x2="79" y2="275.0" stroke="#000" stroke-width="1.2"/>
-<line x1="90" y1="261.0" x2="101" y2="275.0" stroke="#000" stroke-width="1.2"/>
-<text x="90" y="295.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Quản trị viên</text></svg>
+<text x="760" y="345" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Đăng nhập quản trị</text>
+<circle cx="90" cy="235.0" r="9" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<line x1="90" y1="244.0" x2="90" y2="271.0" stroke="#000" stroke-width="1.2"/>
+<line x1="76" y1="255.0" x2="104" y2="255.0" stroke="#000" stroke-width="1.2"/>
+<line x1="90" y1="271.0" x2="79" y2="285.0" stroke="#000" stroke-width="1.2"/>
+<line x1="90" y1="271.0" x2="101" y2="285.0" stroke="#000" stroke-width="1.2"/>
+<text x="90" y="305.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Quản trị viên</text></svg>

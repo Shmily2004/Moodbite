@@ -102,6 +102,18 @@ class SVG:
                 f'<rect width="100%" height="100%" fill="#fff"/>' + "\n".join(self.p) + "</svg>\n")
 
 
+# Tên use case hiển thị trên hình: động từ, không có mã. Mã UCxx chỉ dùng trong code.
+TEN_UC = {
+    "UC01": "Tìm kiếm quán", "UC02": "Gợi ý món", "UC03": "Xem chi tiết món",
+    "UC04": "Xem quán bán món", "UC05": "Xem chi tiết quán", "UC06": "Báo đóng cửa",
+    "UC07": "Lưu yêu thích", "UC08": "Đăng ký", "UC09": "Đăng nhập",
+    "UC10": "Đặt lại mật khẩu", "UC11": "Đổi mật khẩu", "UC12": "Quản lý hồ sơ",
+    "UC13": "Quản lý bộ sưu tập", "UC14": "Xem tin tức", "UC15": "Đăng xuất",
+    "UC16": "Đăng nhập quản trị", "UC17": "Xem tổng quan", "UC18": "Sửa mô tả món",
+    "UC19": "Quản lý quán", "UC20": "Xử lý vấn đề dữ liệu", "UC21": "Xem xét báo đóng cửa",
+    "UC22": "Xem chất lượng dữ liệu", "UC23": "Quản lý bài viết", "UC24": "Xem nhật ký hoạt động",
+}
+
 # ---------------------------------------------------------------------------
 # TRÌNH TỰ
 # ---------------------------------------------------------------------------
@@ -192,7 +204,7 @@ def ve_trinh_tu(uc: dict) -> str:
     s = SVG(int(W), int(H))
 
     # tiêu đề
-    s.text(20, 26, f"{uc['ma']} — {uc['ten']}", size=15, weight="bold")
+    s.text(20, 26, TEN_UC[uc["ma"]], size=15, weight="bold")
     s.text(20, 46, f"API: {uc['api']}", size=11, italic=True)
 
     # tên và ký hiệu tham gia (đầu cột)
@@ -329,7 +341,7 @@ def ve_hoat_dong(uc: dict) -> str:
     W = 40 + n_lanes * LANE_W + 40
     s = SVG(W, 900)  # chiều cao sẽ chỉnh sau
 
-    s.text(20, 22, f"{uc['ma']} — {uc['ten']}", size=15, weight="bold")
+    s.text(20, 22, TEN_UC[uc["ma"]], size=15, weight="bold")
     s.text(20, 40, f"API: {uc['api']}", size=11, italic=True)
     top = 60
     # nền làn và tên làn
@@ -489,14 +501,21 @@ def _ve_nut(s: SVG, nd: dict) -> None:
 # ---------------------------------------------------------------------------
 # USE CASE
 # ---------------------------------------------------------------------------
-NHOM_UC = [
-    ("Khám phá quán và món", ["UC01", "UC02", "UC03", "UC04", "UC05", "UC06", "UC07", "UC14"], "left"),
-    ("Tài khoản", ["UC08", "UC09", "UC10", "UC11", "UC12", "UC13", "UC15"], "left"),
-    ("Đăng nhập và tổng quan", ["UC16", "UC17"], "right"),
-    ("Quản lý dữ liệu", ["UC18", "UC19", "UC20", "UC21", "UC22"], "right"),
-    ("Nội dung và nhật ký", ["UC23", "UC24"], "right"),
+import math
+
+# Use case lớn (tổng quát) và nhóm chi tiết tương ứng. Khoá là mã nội bộ, không hiển thị.
+NHOM_LON = [
+    ("UC_nhom1_kham_pha", "Khám phá quán và món", "Khách",
+     ["UC01", "UC02", "UC03", "UC04", "UC05", "UC06", "UC07", "UC14"]),
+    ("UC_nhom2_tai_khoan", "Quản lý tài khoản", "Khách",
+     ["UC08", "UC09", "UC10", "UC11", "UC12", "UC13", "UC15"]),
+    ("UC_nhom3_tong_quan", "Xem tổng quan", "Quản trị viên",
+     ["UC16", "UC17"]),
+    ("UC_nhom4_quan_ly_du_lieu", "Quản lý dữ liệu", "Quản trị viên",
+     ["UC18", "UC19", "UC20", "UC21", "UC22"]),
+    ("UC_nhom5_noi_dung_nhat_ky", "Quản lý nội dung và nhật ký", "Quản trị viên",
+     ["UC23", "UC24"]),
 ]
-# Quan hệ: (từ, đến, loại). include: từ gọi đến. extend: từ là phần mở rộng, mũi tên về đến.
 QUAN_HE = [
     ("UC03", "UC04", "include"),
     ("UC03", "UC02", "extend"),
@@ -514,107 +533,71 @@ QUAN_HE = [
     ("UC23", "UC16", "include"),
     ("UC24", "UC16", "include"),
 ]
-KHACH_NOI = ["UC01", "UC02", "UC03", "UC04", "UC05", "UC06", "UC07", "UC08", "UC09", "UC10", "UC11", "UC12", "UC13", "UC14", "UC15"]
-# UC04 chỉ được gọi bởi UC03 (include), không có đường nối trực tiếp từ khách
-KHACH_KHONG_NOI = {"UC04"}
-QT_NOI = ["UC16", "UC17", "UC18", "UC19", "UC20", "UC21", "UC22", "UC23", "UC24"]
+# Use case mà tác nhân thao tác trực tiếp (không chỉ bị include)
+TRUC_TIEP = {
+    "Khách": {"UC01", "UC02", "UC03", "UC05", "UC06", "UC07", "UC08", "UC09", "UC10", "UC11",
+              "UC12", "UC13", "UC14", "UC15"},
+    "Quản trị viên": {"UC16", "UC17", "UC18", "UC19", "UC20", "UC21", "UC22", "UC23", "UC24"},
+}
+
+
+def _mep_elip(cx, cy, rx, ry, toward):
+    """Điểm trên mép elip (tâm cx, cy) theo hướng về `toward`."""
+    dx, dy = toward[0] - cx, toward[1] - cy
+    if dx == 0 and dy == 0:
+        return cx, cy
+    t = 1 / math.sqrt((dx / rx) ** 2 + (dy / ry) ** 2)
+    return cx + dx * t, cy + dy * t
+
+
+def _ve_tac_nhan_noi(s, x, y, cx, cy, rx, ry):
+    """Tác nhân -> use case: mũi tên đen, nét liền, đầu đặc."""
+    x2, y2 = _mep_elip(cx, cy, rx, ry, (x, y))
+    s.line(x + 14, y, x2, y2, arrow="dac", sw=1.2)
+
+
+def _ve_ellipse_ten(s, cx, cy, rx, ry, ten, size=12):
+    s.add(f'<ellipse cx="{cx}" cy="{cy}" rx="{rx}" ry="{ry}" fill="#fff" stroke="#000" stroke-width="1.2"/>')
+    lines = _cat_chu(ten, 24)
+    y0 = cy - (len(lines) - 1) * 8 + 5
+    for i, t in enumerate(lines):
+        s.text(cx, y0 + i * 16, t, size=size, anchor="middle")
 
 
 def ve_use_case() -> str:
-    """Bố cục: use case gốc ở cột giữa; use case mở rộng/được gọi ở hai bên để mũi tên
-    ngang hoặc dọc, tránh cắt nhau. Tọa độ đặt tay, sửa trong bảng VI_TRI bên dưới."""
-    ten_uc = {uc["ma"]: uc["ten"] for uc in dac_ta.DAC_TA}
-    W, H = 1480, 960
+    """Biểu đồ use case TỔNG QUÁT: tác nhân -> các use case lớn."""
+    W, H = 1000, 560
     s = SVG(W, H)
-    s.text(20, 26, "Biểu đồ use case — MoodBite", size=15, weight="bold")
-    s.rect(220, 44, 650, 880, fill="#fff")
-    s.text(545, 66, "Hệ thống MoodBite — phía người dùng", size=14, anchor="middle", weight="bold")
-    s.rect(900, 44, 540, 560, fill="#fff")
-    s.text(1170, 66, "Hệ thống MoodBite — quản trị", size=14, anchor="middle", weight="bold")
-
-    VI_TRI = {
-        # Người dùng — cột giữa: use case gốc
-        "UC01": (560, 130), "UC02": (560, 220), "UC03": (560, 310), "UC04": (560, 400),
-        "UC05": (560, 490), "UC14": (560, 580), "UC09": (560, 670), "UC15": (560, 760),
-        "UC08": (560, 850),
-        # cột trái: use case mở rộng
-        "UC06": (330, 490), "UC07": (330, 580), "UC10": (330, 670),
-        # cột phải: use case được đăng nhập gọi
-        "UC11": (790, 610), "UC12": (790, 670), "UC13": (790, 730),
-        # Quản trị — cột giữa: đăng nhập là gốc
-        "UC16": (1190, 130), "UC17": (1190, 580), "UC22": (1190, 410),
-        "UC18": (1000, 230), "UC19": (1000, 320), "UC20": (1000, 410),
-        "UC21": (1000, 500), "UC23": (1000, 590), "UC24": (1000, 680),
-    }
-    ELW, ELH = 190, 52
-    pos = VI_TRI
-
-    def ellipse(ma: str) -> None:
-        cx, cy = pos[ma]
-        s.add(f'<ellipse cx="{cx}" cy="{cy}" rx="{ELW / 2}" ry="{ELH / 2}" fill="#fff" stroke="#000" stroke-width="1.2"/>')
-        lines = _cat_chu(f"{ma} {ten_uc[ma]}", 26)
-        y0 = cy - (len(lines) - 1) * 7 + 4
-        for i, t in enumerate(lines):
-            s.text(cx, y0 + i * 14, t, size=11, anchor="middle")
-
-    def mep(ma: str, toward: tuple[float, float]) -> tuple[float, float]:
-        """Điểm trên mép elip của `ma` theo hướng về `toward`."""
-        import math
-        cx, cy = pos[ma]
-        dx, dy = toward[0] - cx, toward[1] - cy
-        if dx == 0 and dy == 0:
-            return cx, cy
-        t = 1 / math.sqrt((dx / (ELW / 2)) ** 2 + (dy / (ELH / 2)) ** 2)
-        return cx + dx * t, cy + dy * t
-
-    for a, b, loai in QUAN_HE:
-        pa, pb = pos[a], pos[b]
-        x1, y1 = mep(a, pb)
-        x2, y2 = mep(b, pa)
-        s.line(x1, y1, x2, y2, dash=True, arrow="dac")
-        # nhãn đặt ở điểm giữa, lệch lên một chút để không đè lên đường
-        s.text((x1 + x2) / 2 + 4, (y1 + y2) / 2 - 6, f"«{loai}»", size=10, anchor="middle")
-
-    KH_X, KH_Y = 90, 470
-    QT_X, QT_Y = 1420, 400
-    for ma in KHACH_NOI:
-        if ma in KHACH_KHONG_NOI:
-            continue
-        x2, y2 = mep(ma, (KH_X, KH_Y))
-        s.line(KH_X + 14, KH_Y, x2, y2, sw=1)
-    for ma in QT_NOI:
-        x2, y2 = mep(ma, (QT_X, QT_Y))
-        s.line(QT_X - 14, QT_Y, x2, y2, sw=1)
-    for ma in pos:
-        ellipse(ma)
-    _ve_actor(s, KH_X, KH_Y)
-    s.text(KH_X, KH_Y + 30, "Khách", size=12, anchor="middle")
-    _ve_actor(s, QT_X, QT_Y)
-    s.text(QT_X, QT_Y + 30, "Quản trị viên", size=12, anchor="middle")
+    s.text(20, 26, "Biểu đồ use case tổng quát — MoodBite", size=15, weight="bold")
+    BX, BW = 300, 400
+    s.rect(BX, 44, BW, 480, fill="#fff")
+    s.text(BX + BW / 2, 66, "Hệ thống MoodBite", size=14, anchor="middle", weight="bold")
+    RX, RY = 130, 46
+    cot_giua = BX + BW / 2
+    vi_tri = {}
+    for i, (ten_file, ten, tac_nhan, ids) in enumerate(NHOM_LON):
+        vi_tri[ten_file] = (cot_giua, 120 + i * 84)
+    KH = (90, 240)
+    QT = (910, 330)
+    for ten_file, ten, tac_nhan, ids in NHOM_LON:
+        cx, cy = vi_tri[ten_file]
+        if tac_nhan == "Khách":
+            _ve_tac_nhan_noi(s, KH[0], KH[1], cx, cy, RX, RY)
+        else:
+            _ve_tac_nhan_noi(s, QT[0], QT[1], cx, cy, RX, RY)
+    for ten_file, ten, tac_nhan, ids in NHOM_LON:
+        cx, cy = vi_tri[ten_file]
+        _ve_ellipse_ten(s, cx, cy, RX, RY, ten, size=13)
+    _ve_actor(s, KH[0], KH[1])
+    s.text(KH[0], KH[1] + 30, "Khách", size=12, anchor="middle")
+    _ve_actor(s, QT[0], QT[1])
+    s.text(QT[0], QT[1] + 30, "Quản trị viên", size=12, anchor="middle")
     return s.out()
 
 
-# ---------------------------------------------------------------------------
-# USE CASE THEO NHÓM LỚN
-# ---------------------------------------------------------------------------
-NHOM_LON = [
-    ("UC_nhom1_kham_pha", "Nhóm 1 — Khám phá quán và món", "Khách",
-     ["UC01", "UC02", "UC03", "UC04", "UC05", "UC06", "UC07", "UC14"]),
-    ("UC_nhom2_tai_khoan", "Nhóm 2 — Tài khoản người dùng", "Khách",
-     ["UC08", "UC09", "UC10", "UC11", "UC12", "UC13", "UC15"]),
-    ("UC_nhom3_quan_tri_dang_nhap", "Nhóm 3 — Đăng nhập và tổng quan (quản trị)", "Quản trị viên",
-     ["UC16", "UC17"]),
-    ("UC_nhom4_quan_ly_du_lieu", "Nhóm 4 — Quản lý dữ liệu (quản trị)", "Quản trị viên",
-     ["UC18", "UC19", "UC20", "UC21", "UC22"]),
-    ("UC_nhom5_noi_dung_nhat_ky", "Nhóm 5 — Nội dung và nhật ký (quản trị)", "Quản trị viên",
-     ["UC23", "UC24"]),
-]
-
-
-def ve_use_case_nhom(tieu_de: str, ids: list[str], tac_nhan: str) -> str:
-    """Biểu đồ use case cho một nhóm. Gồm các use case trong nhóm và use case gốc
-    mà nhóm đó được include/extend tới, để mũi tên luôn có đích."""
-    ten_uc = {uc["ma"]: uc["ten"] for uc in dac_ta.DAC_TA}
+def ve_use_case_nhom(tieu_de, ids, tac_nhan):
+    """Biểu đồ use case CHI TIẾT của một use case lớn. Gồm các use case trong nhóm và use case
+    gốc mà nhóm được include/extend tới. Tác nhân -> use case: đen, nét liền, đầu đặc."""
     thanh_vien = list(ids)
     quan_he = []
     for a, b, loai in QUAN_HE:
@@ -623,61 +606,39 @@ def ve_use_case_nhom(tieu_de: str, ids: list[str], tac_nhan: str) -> str:
             for x in (a, b):
                 if x not in thanh_vien:
                     thanh_vien.append(x)
-    # Đích của quan hệ (use case gốc) nằm cột phải, phần còn lại cột trái
     dich = {b for _, b, _ in quan_he}
     trai = [x for x in thanh_vien if x not in dich]
     phai = [x for x in thanh_vien if x in dich]
     ELW, ELH = 220, 56
     n = max(len(trai), len(phai), 1)
-    H = max(420, 150 + n * 110)
+    H = max(420, 170 + n * 110)
     W = 1000
     s = SVG(W, H)
     s.text(20, 26, tieu_de, size=15, weight="bold")
     BX, BW = 230, 700
     s.rect(BX, 44, BW, H - 80, fill="#fff")
     s.text(BX + BW / 2, 66, "Hệ thống MoodBite", size=14, anchor="middle", weight="bold")
-    pos: dict[str, tuple[float, float]] = {}
+    pos = {}
     for i, ma in enumerate(trai):
         pos[ma] = (BX + 170, 120 + i * 110 + (n - len(trai)) * 55)
     for i, ma in enumerate(phai):
         pos[ma] = (BX + BW - 170, 120 + i * 110 + (n - len(phai)) * 55)
-
-    import math
-
-    def mep(ma: str, toward: tuple[float, float]) -> tuple[float, float]:
-        cx, cy = pos[ma]
-        dx, dy = toward[0] - cx, toward[1] - cy
-        if dx == 0 and dy == 0:
-            return cx, cy
-        t = 1 / math.sqrt((dx / (ELW / 2)) ** 2 + (dy / (ELH / 2)) ** 2)
-        return cx + dx * t, cy + dy * t
-
     KX, KY = 90, H / 2 - 30
+    ten_tac_nhan = "Khách" if tac_nhan == "Khách" else "Quản trị viên"
     for a, b, loai in quan_he:
-        x1, y1 = mep(a, pos[b])
-        x2, y2 = mep(b, pos[a])
+        x1, y1 = _mep_elip(pos[a][0], pos[a][1], ELW / 2, ELH / 2, pos[b])
+        x2, y2 = _mep_elip(pos[b][0], pos[b][1], ELW / 2, ELH / 2, pos[a])
         s.line(x1, y1, x2, y2, dash=True, arrow="dac")
         s.text((x1 + x2) / 2, (y1 + y2) / 2 - 6, f"«{loai}»", size=10, anchor="middle")
     for ma in thanh_vien:
-        if ma == "UC04" and "UC03" in ids:
-            pass
-        if ma in KHACH_KHONG_NOI and tac_nhan == "Khách":
-            continue
-        if tac_nhan == "Khách" and ma not in KHACH_NOI:
-            continue
-        if tac_nhan != "Khách" and ma not in QT_NOI:
-            continue
-        x2, y2 = mep(ma, (KX, KY))
-        s.line(KX + 14, KY, x2, y2, sw=1)
+        if ma in TRUC_TIEP[ten_tac_nhan]:
+            cx, cy = pos[ma]
+            _ve_tac_nhan_noi(s, KX, KY, cx, cy, ELW / 2, ELH / 2)
     for ma in thanh_vien:
         cx, cy = pos[ma]
-        s.add(f'<ellipse cx="{cx}" cy="{cy}" rx="{ELW / 2}" ry="{ELH / 2}" fill="#fff" stroke="#000" stroke-width="1.2"/>')
-        lines = _cat_chu(f"{ma} {ten_uc[ma]}", 28)
-        y0 = cy - (len(lines) - 1) * 7 + 4
-        for i, t in enumerate(lines):
-            s.text(cx, y0 + i * 14, t, size=12, anchor="middle")
+        _ve_ellipse_ten(s, cx, cy, ELW / 2, ELH / 2, TEN_UC[ma])
     _ve_actor(s, KX, KY)
-    s.text(KX, KY + 30, tac_nhan, size=12, anchor="middle")
+    s.text(KX, KY + 30, ten_tac_nhan, size=12, anchor="middle")
     return s.out()
 
 
@@ -699,7 +660,7 @@ def main() -> None:
     cac_nhom = []
     for ten_file, tieu_de, tac_nhan, ids in NHOM_LON:
         f = THU_MUC_SVG / f"{ten_file}.svg"
-        f.write_text(ve_use_case_nhom(tieu_de, ids, tac_nhan), encoding="utf-8")
+        f.write_text(ve_use_case_nhom(f"Use case lớn: {tieu_de}", ids, tac_nhan), encoding="utf-8")
         cac_nhom.append((tieu_de, f))
     _viet_index(cac_muc, cac_nhom)
     print(f"Đã vẽ {len(cac_muc)} use case x 2 biểu đồ và 1 biểu đồ use case vào {THU_MUC_SVG}")
@@ -708,7 +669,7 @@ def main() -> None:
 def _viet_index(cac_muc, cac_nhom) -> None:
     dong = []
     for uc, f1, f2 in cac_muc:
-        dong.append(f"<section><h2>{_esc(uc['ma'])} — {_esc(uc['ten'])}</h2>"
+        dong.append(f"<section><h2>{_esc(TEN_UC[uc['ma']])}</h2>"
                     f"<div class=\"hang\"><figure><figcaption>Hoạt động</figcaption>"
                     f"<img src=\"svg/hoat_dong/{f1.name}\"></figure>"
                     f"<figure><figcaption>Trình tự</figcaption>"

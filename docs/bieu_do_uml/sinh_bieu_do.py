@@ -110,7 +110,7 @@ DAC_TA = [
     },
     {
         "ma": "UC03", "ten": "Xem chi tiết món", "nhom": "Khách",
-        "api": "GET /api/v1/dishes/{id}  (song song với UC04)",
+        "api": "GET /api/v1/dishes/{id} (song song với xem quán bán món)",
         "trinh_tu": [
             ("msg", "KH", "UI", "1. Chọn một món"),
             ("msg", "UI", "CTRL", "2. GET /dishes/{id}"),
@@ -123,7 +123,7 @@ DAC_TA = [
             ("lane", KH_TEN), ("act", "Chọn một món"),
             ("lane", "Hệ thống"),
             ("fork", [[("act", "GET /dishes/{id}: tải thông tin món")],
-                      [("act", "GET /dishes/{id}/restaurants (UC04)")]]),
+                      [("act", "GET /dishes/{id}/restaurants (xem quán bán món)")]]),
             ("act", "Hiển thị trang món"), ("stop",),
         ],
     },

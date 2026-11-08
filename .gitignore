@@ -153,6 +153,9 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
+# IDE (JetBrains): cấu hình riêng từng máy, không đưa vào git.
+.idea/
+
 # OS
 .DS_Store
 Thumbs.db

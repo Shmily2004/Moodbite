@@ -22,9 +22,9 @@
 <line x1="860" y1="138" x2="860" y2="534" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4"/>
 <rect x="854" y="274" width="12" height="42" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <rect x="604" y="238" width="12" height="114" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<rect x="354" y="202" width="12" height="186" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<line x1="112" y1="202" x2="358" y2="202" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<text x="118" y="194" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">1. Mở trang chất lượng dữ liệu</text>
+<rect x="354" y="176" width="12" height="212" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<line x1="112" y1="176" x2="358" y2="176" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<text x="118" y="168" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">1. Mở trang chất lượng dữ liệu</text>
 <line x1="362" y1="238" x2="608" y2="238" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
 <text x="368" y="230" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">2. Tổng hợp chỉ số chất lượng</text>
 <line x1="612" y1="274" x2="858" y2="274" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
@@ -39,9 +39,9 @@
 <text x="80" y="414" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">[không]</text>
 <line x1="358" y1="448" x2="112" y2="448" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
 <text x="118" y="440" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">7. Chuyển về trang đăng nhập quản trị</text>
-<rect x="70" y="150" width="830" height="316" rx="0" fill="none" stroke="#000" stroke-width="1.2"/>
-<rect x="70" y="150" width="44" height="18" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<text x="74" y="163" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="bold" fill="#000">alt</text>
-<text x="124" y="164" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">[Đã đăng nhập quản trị?]</text>
+<rect x="70" y="186" width="830" height="280" rx="0" fill="none" stroke="#000" stroke-width="1.2"/>
+<rect x="70" y="186" width="44" height="18" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="74" y="199" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="bold" fill="#000">alt</text>
+<text x="124" y="200" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">[Đã đăng nhập quản trị?]</text>
 <line x1="358" y1="504" x2="112" y2="504" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
 <text x="118" y="496" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">8. Trả kết quả cho người dùng</text></svg>

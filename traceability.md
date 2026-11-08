@@ -106,6 +106,24 @@ mọi đường dẫn, ký hiệu, tên test trong file này phải tồn tại,
 | S1.3 | CORS mặc định không mở cho mọi trang | `src/presentation/api/main.py` | `test_cors_mac_dinh_khong_mo_cho_moi_trang_web` |
 | S1.4 | Lỗi ánh xạ tập trung, 500 không lộ traceback | `src/presentation/api/error_handlers.py` | `tests/test_api.py` |
 
+## Bài viết (cẩm nang và tin cập nhật)
+
+| ID | Yêu cầu | Hiện thực | Kiểm chứng |
+|---|---|---|---|
+| B1.1 | Bài web tổng hợp BẮT BUỘC có nguồn (tên + đường dẫn) | `src/domain/entities/post.py` (`validate_post_fields`) | `test_bai_web_thieu_nguon_bi_tu_choi` |
+| B1.2 | Tiêu đề quá dài thì báo lỗi, không cắt im lặng | `src/domain/entities/post.py` | `test_tieu_de_qua_dai_bi_bao_loi_khong_tu_cat` |
+| B1.3 | Đường dẫn nguồn phải là http(s) | `src/domain/entities/post.py` | `test_nguon_khong_phai_http_bi_tu_choi` |
+| B2.1 | Bài mới luôn là NHÁP khi admin không chọn công khai | `src/application/use_cases/manage_posts.py` (`CreatePostUseCase`) | `test_tao_bai_moi_luon_la_nhap_khi_admin_khong_chon` |
+| B2.2 | Nháp KHÔNG lọt ra trang công khai (danh sách và chi tiết) | `src/application/use_cases/manage_posts.py` · `src/presentation/api/routers/posts.py` | `test_nhap_khong_lot_ra_trang_cong_khai` · `test_cong_khai_khong_thay_nhap_qua_http` · `test_mot_bai_nhap_tra_404_qua_http_nhu_khong_ton_tai` |
+| B2.3 | Giờ công khai đóng dấu một lần; về nháp rồi công khai lại không đổi | `src/application/use_cases/manage_posts.py` (`UpdatePostUseCase`) | `test_cong_bo_roi_moi_hien_va_dong_dau_gio_mot_lan` |
+| B2.4 | Trùng tiêu đề vẫn tạo được, đường dẫn tự thêm hậu tố | `src/application/use_cases/manage_posts.py` (`_slug_khong_trung`) | `test_trung_tieu_de_van_tao_duoc_va_co_duong_dan_khac` |
+| B2.5 | Sửa tiêu đề không làm gãy đường dẫn đã gửi đi | `src/application/use_cases/manage_posts.py` | `test_sua_tieu_de_khong_doi_duong_dan` |
+| B2.6 | Kho không mở được thì 503 kèm cách khắc phục, không sập app | `src/application/use_cases/manage_posts.py` (`PostsNotAvailable`) | `test_kho_khong_mo_duoc_thi_bao_503_khong_lam_sap` |
+| B3.1 | Router quản trị bài viết gắn chốt `require_admin` ở cấp router | `src/presentation/api/routers/admin_posts.py` | `test_router_quan_tri_gan_chot_admin` |
+| B3.2 | Sửa / xoá bài không tồn tại trả 404 | `src/application/use_cases/manage_posts.py` | `test_sua_bai_khong_ton_tai_bao_404` · `test_xoa_roi_khong_con_thay` |
+| B4.1 | Kho SQLite bài viết (chống trùng đường dẫn trong giao dịch) | `src/infrastructure/repositories/sqlite_post_repository.py` | `test_kho_thiet_lap_dung_trang_thai_cua_bai` |
+| B4.2 | Router công khai `/posts` | `src/presentation/api/routers/posts.py` | `test_cong_bo_roi_cong_khai_qua_http` |
+
 ## Dữ liệu
 
 | ID | Yêu cầu | Hiện thực | Kiểm chứng |

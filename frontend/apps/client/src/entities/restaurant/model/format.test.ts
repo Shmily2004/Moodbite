@@ -49,7 +49,7 @@ describe('formatPrice', () => {
 describe('describeMatchSource', () => {
   it('dịch mã nguồn khớp sang tiếng Việt', () => {
     expect(describeMatchSource('name')).toBe('tên quán');
-    expect(describeMatchSource('semantic')).toBe('ngữ nghĩa');
+    expect(describeMatchSource('semantic')).toBe('nội dung gần với câu tìm');
   });
 
   it('ghép nhiều nguồn bằng dấu phẩy', () => {

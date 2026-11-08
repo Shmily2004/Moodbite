@@ -49,6 +49,13 @@ export interface UseUserLocationResult {
    * Địa chỉ đã lưu KHÔNG tính là mặc định: đó là một chỗ thật người dùng tự chọn.
    */
   isDefault: boolean;
+  /**
+   * Có được HIỆN khoảng cách từ quán tới người dùng hay không.
+   * Quy tắc nghiệp vụ: khách chưa đăng nhập KHÔNG thấy khoảng cách, dù đã bấm "Vị trí của tôi".
+   * Khoảng cách chỉ hiện khi đã đăng nhập VÀ đang dùng vị trí thật (không phải trung tâm).
+   * Đừng suy ra điều này từ `isDefault` ở nơi khác: thiếu điều kiện đăng nhập là lỗi đã có.
+   */
+  canShowDistance: boolean;
   source: NguonViTri;
   /** Câu hiện cho người dùng: điểm nào đang được dùng. */
   label: string;
@@ -146,6 +153,7 @@ export function useUserLocation(): UseUserLocationResult {
   return {
     position: chon.position,
     isDefault: chon.source === 'center',
+    canShowDistance: session.isLoggedIn && chon.source !== 'center',
     source: chon.source,
     label: chon.label,
     error,

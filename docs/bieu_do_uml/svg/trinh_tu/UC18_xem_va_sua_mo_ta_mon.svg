@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1220" height="866" viewBox="0 0 1220 866"><defs><marker id="dac" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#000"/></marker><marker id="ho" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto"><path d="M1,1 L11,6 L1,11" fill="none" stroke="#000" stroke-width="1.2"/></marker></defs><rect width="100%" height="100%" fill="#fff"/><text x="20" y="26" font-family="Arial, Helvetica, sans-serif" font-size="15" text-anchor="start" font-weight="bold" fill="#000">Sửa mô tả món</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1220" height="974" viewBox="0 0 1220 974"><defs><marker id="dac" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#000"/></marker><marker id="ho" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto"><path d="M1,1 L11,6 L1,11" fill="none" stroke="#000" stroke-width="1.2"/></marker></defs><rect width="100%" height="100%" fill="#fff"/><text x="20" y="26" font-family="Arial, Helvetica, sans-serif" font-size="15" text-anchor="start" font-weight="bold" fill="#000">Sửa mô tả món</text>
 <text x="20" y="46" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000" font-style="italic">API: GET /admin/dishes, GET/PATCH /admin/dishes/{id}</text>
 <circle cx="110" cy="60" r="9" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <line x1="110" y1="69" x2="110" y2="96" stroke="#000" stroke-width="1.2"/>
@@ -19,53 +19,61 @@
 <circle cx="1110" cy="100" r="16" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <line x1="1092" y1="116" x2="1128" y2="116" stroke="#000" stroke-width="1.2"/>
 <text x="1110" y="138" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Ent_NhatKy</text>
-<line x1="110" y1="138" x2="110" y2="826" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4"/>
-<line x1="360" y1="138" x2="360" y2="826" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4"/>
-<line x1="610" y1="138" x2="610" y2="826" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4"/>
-<line x1="860" y1="138" x2="860" y2="826" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4"/>
-<line x1="1110" y1="138" x2="1110" y2="826" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4"/>
-<rect x="1104" y="310" width="12" height="42" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<rect x="604" y="274" width="12" height="114" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<rect x="1104" y="480" width="12" height="42" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<rect x="604" y="444" width="12" height="114" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<rect x="354" y="202" width="12" height="422" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<line x1="112" y1="202" x2="358" y2="202" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<text x="118" y="194" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">1. Mở món, bấm Sửa mô tả</text>
-<line x1="112" y1="238" x2="358" y2="238" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<text x="118" y="230" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">2. Nhập mô tả, bấm Lưu (hoặc Gỡ bản sửa)</text>
-<line x1="362" y1="274" x2="608" y2="274" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<text x="368" y="266" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">3. Lưu bản sửa mô tả, ghi nhật ký</text>
-<line x1="612" y1="310" x2="1108" y2="310" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<text x="618" y="302" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">4. Ghi dữ liệu</text>
-<line x1="1108" y1="346" x2="612" y2="346" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
-<text x="618" y="338" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">5. Kết quả</text>
-<line x1="608" y1="382" x2="362" y2="382" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
-<text x="368" y="374" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">6. Kết quả</text>
-<line x1="362" y1="444" x2="608" y2="444" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<text x="368" y="436" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">7. Lưu bản sửa, ghi nhật ký</text>
-<line x1="612" y1="480" x2="1108" y2="480" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<text x="618" y="472" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">8. Ghi dữ liệu</text>
-<line x1="1108" y1="516" x2="612" y2="516" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
-<text x="618" y="508" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">9. Kết quả</text>
-<line x1="608" y1="552" x2="362" y2="552" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
-<text x="368" y="544" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">10. Kết quả</text>
-<line x1="70" y1="568" x2="1150" y2="568" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4"/>
-<text x="80" y="584" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">[không]</text>
-<line x1="358" y1="618" x2="112" y2="618" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
-<text x="118" y="610" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">11. Trả lỗi 400, không ghi gì</text>
-<rect x="70" y="392" width="1080" height="244" rx="0" fill="none" stroke="#000" stroke-width="1.2"/>
-<rect x="70" y="392" width="44" height="18" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<text x="74" y="405" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="bold" fill="#000">alt</text>
-<text x="124" y="406" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">[Mô tả hợp lệ?]</text>
-<line x1="358" y1="674" x2="112" y2="674" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
-<text x="118" y="666" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">12. Trả kết quả cho người dùng</text>
-<line x1="70" y1="690" x2="1150" y2="690" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4"/>
-<text x="80" y="706" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">[không]</text>
-<line x1="358" y1="740" x2="112" y2="740" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
-<text x="118" y="732" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">13. Chuyển về trang đăng nhập quản trị</text>
-<rect x="70" y="150" width="1080" height="608" rx="0" fill="none" stroke="#000" stroke-width="1.2"/>
-<rect x="70" y="150" width="44" height="18" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<text x="74" y="163" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="bold" fill="#000">alt</text>
-<text x="124" y="164" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">[Đã đăng nhập quản trị?]</text>
-<line x1="358" y1="796" x2="112" y2="796" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
-<text x="118" y="788" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">14. Trả kết quả cho người dùng</text></svg>
+<line x1="110" y1="138" x2="110" y2="934" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4"/>
+<line x1="360" y1="138" x2="360" y2="934" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4"/>
+<line x1="610" y1="138" x2="610" y2="934" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4"/>
+<line x1="860" y1="138" x2="860" y2="934" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4"/>
+<line x1="1110" y1="138" x2="1110" y2="934" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4"/>
+<rect x="854" y="274" width="12" height="42" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<rect x="604" y="238" width="12" height="114" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<rect x="1104" y="418" width="12" height="42" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<rect x="604" y="382" width="12" height="114" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<rect x="1104" y="588" width="12" height="42" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<rect x="604" y="552" width="12" height="114" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<rect x="354" y="176" width="12" height="556" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<line x1="112" y1="176" x2="358" y2="176" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<text x="118" y="168" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">1. Mở món, bấm Sửa mô tả</text>
+<line x1="362" y1="238" x2="608" y2="238" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<text x="368" y="230" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">2. Nhập mô tả, bấm Lưu (hoặc Gỡ bản sửa)</text>
+<line x1="612" y1="274" x2="858" y2="274" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<text x="618" y="266" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">3. Đọc dữ liệu</text>
+<line x1="858" y1="310" x2="612" y2="310" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
+<text x="618" y="302" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">4. Kết quả</text>
+<line x1="608" y1="346" x2="362" y2="346" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
+<text x="368" y="338" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">5. Kết quả</text>
+<line x1="362" y1="382" x2="608" y2="382" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<text x="368" y="374" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">6. Lưu bản sửa mô tả, ghi nhật ký</text>
+<line x1="612" y1="418" x2="1108" y2="418" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<text x="618" y="410" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">7. Ghi dữ liệu</text>
+<line x1="1108" y1="454" x2="612" y2="454" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
+<text x="618" y="446" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">8. Kết quả</text>
+<line x1="608" y1="490" x2="362" y2="490" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
+<text x="368" y="482" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">9. Kết quả</text>
+<line x1="362" y1="552" x2="608" y2="552" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<text x="368" y="544" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">10. Lưu bản sửa, ghi nhật ký</text>
+<line x1="612" y1="588" x2="1108" y2="588" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<text x="618" y="580" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">11. Ghi dữ liệu</text>
+<line x1="1108" y1="624" x2="612" y2="624" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
+<text x="618" y="616" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">12. Kết quả</text>
+<line x1="608" y1="660" x2="362" y2="660" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
+<text x="368" y="652" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">13. Kết quả</text>
+<line x1="70" y1="676" x2="1150" y2="676" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4"/>
+<text x="80" y="692" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">[không]</text>
+<line x1="358" y1="726" x2="112" y2="726" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
+<text x="118" y="718" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">14. Trả lỗi 400, không ghi gì</text>
+<rect x="70" y="500" width="1080" height="244" rx="0" fill="none" stroke="#000" stroke-width="1.2"/>
+<rect x="70" y="500" width="44" height="18" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="74" y="513" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="bold" fill="#000">alt</text>
+<text x="124" y="514" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">[Mô tả hợp lệ?]</text>
+<line x1="358" y1="782" x2="112" y2="782" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
+<text x="118" y="774" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">15. Trả kết quả cho người dùng</text>
+<line x1="70" y1="798" x2="1150" y2="798" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4"/>
+<text x="80" y="814" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">[không]</text>
+<line x1="358" y1="848" x2="112" y2="848" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
+<text x="118" y="840" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">16. Chuyển về trang đăng nhập quản trị</text>
+<rect x="70" y="186" width="1080" height="680" rx="0" fill="none" stroke="#000" stroke-width="1.2"/>
+<rect x="70" y="186" width="44" height="18" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="74" y="199" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="bold" fill="#000">alt</text>
+<text x="124" y="200" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">[Đã đăng nhập quản trị?]</text>
+<line x1="358" y1="904" x2="112" y2="904" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
+<text x="118" y="896" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">17. Trả kết quả cho người dùng</text></svg>

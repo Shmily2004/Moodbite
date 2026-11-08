@@ -1,9 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="804" viewBox="0 0 1120 804"><defs><marker id="dac" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#000"/></marker><marker id="ho" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto"><path d="M1,1 L11,6 L1,11" fill="none" stroke="#000" stroke-width="1.2"/></marker></defs><rect width="100%" height="100%" fill="#fff"/><text x="20" y="22" font-family="Arial, Helvetica, sans-serif" font-size="15" text-anchor="start" font-weight="bold" fill="#000">Lưu yêu thích</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="764" viewBox="0 0 1120 764"><defs><marker id="dac" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#000"/></marker><marker id="ho" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto"><path d="M1,1 L11,6 L1,11" fill="none" stroke="#000" stroke-width="1.2"/></marker></defs><rect width="100%" height="100%" fill="#fff"/><text x="20" y="22" font-family="Arial, Helvetica, sans-serif" font-size="15" text-anchor="start" font-weight="bold" fill="#000">Lưu yêu thích</text>
 <rect x="560" y="60" width="520" height="1" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<rect x="40" y="60" width="520" height="684" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<rect x="40" y="60" width="520" height="644" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <rect x="40" y="60" width="520" height="34" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <text x="300.0" y="82" font-family="Arial, Helvetica, sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#000">Khách hàng</text>
-<rect x="560" y="60" width="520" height="684" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<rect x="560" y="60" width="520" height="644" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <rect x="560" y="60" width="520" height="34" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <text x="820.0" y="82" font-family="Arial, Helvetica, sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#000">Hệ thống</text>
 <line x1="300" y1="151.0" x2="300" y2="189.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
@@ -15,7 +15,7 @@
 <line x1="820" y1="425.0" x2="820" y2="504.5" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
 <line x1="990" y1="425.0" x2="990" y2="504.5" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
 <path d="M 905.0 511.5 V 528.25 H 300 V 545.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<line x1="300" y1="595.0" x2="300" y2="653.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<line x1="300" y1="595.0" x2="300.0" y2="634.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
 <circle cx="300" cy="140" r="10" fill="#000" stroke="#000" stroke-width="1.2"/>
 <rect x="220.0" y="189.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <text x="300" y="211.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Bấm biểu tượng yêu</text>
@@ -32,5 +32,5 @@
 <rect x="220.0" y="545.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <text x="300" y="567.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Thấy nút đổi trạng</text>
 <text x="300" y="582.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">thái</text>
-<circle cx="300" cy="664" r="11" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<circle cx="300" cy="664" r="6" fill="#000" stroke="#000" stroke-width="1.2"/></svg>
+<circle cx="300" cy="645.0" r="11" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<circle cx="300" cy="645.0" r="6" fill="#000" stroke="#000" stroke-width="1.2"/></svg>

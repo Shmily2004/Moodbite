@@ -22,6 +22,7 @@ bo góc; rẽ nhánh = hình thoi; fork/join = thanh đen dày.
 from __future__ import annotations
 
 import html
+import math
 import sys
 from pathlib import Path
 
@@ -452,6 +453,9 @@ def ve_hoat_dong(uc: dict) -> str:
     quet(uc["hoat_dong"])
     if not lanes:
         lanes = ["Hệ thống"]
+    # Làn của NGƯỜI DÙNG (Khách / Quản trị viên) luôn đứng bên trái, Hệ thống bên phải:
+    # luồng đọc từ người bấm đi vào hệ thống. Đặt Hệ thống trước thì điểm bắt đầu nằm sai làn.
+    lanes.sort(key=lambda nm: 0 if nm in (dac_ta.KH_TEN, dac_ta.QT_TEN) else 1)
     if len(lanes) == 1:
         lanes = [lanes[0]]
     n_lanes = len(lanes)
@@ -471,6 +475,9 @@ def ve_hoat_dong(uc: dict) -> str:
     st = {"y": body_top + 120, "lane": lanes[0], "tails": [], "start": None}
     nodes: list[dict] = []
     edges: list[tuple] = []
+    # Mọi nhánh kết thúc (kể cả nhánh "không" đăng nhập) đổ về MỘT nút kết thúc duy nhất.
+    # Vẽ mỗi nhánh một nút kết thúc riêng thì biểu đồ có hai ký hiệu kết thúc, sai chuẩn.
+    fin_tails: list = []
 
     def them_nut(kind: str, x: float, y: float, text: str = "", lane: str = "", w: int = BOX_W, h: int = BOX_H) -> dict:
         nd = {"kind": kind, "x": x, "y": y, "text": text, "lane": lane, "w": w, "h": h}
@@ -505,11 +512,8 @@ def ve_hoat_dong(uc: dict) -> str:
                 tails = [(nd, "")]
                 y += BOX_H + GAP
             elif loai == "stop":
-                nd = them_nut("end", x, y, "", cur_lane, w=22, h=22)
-                for t_nd, t_nhan in tails:
-                    noi(t_nd, nd, t_nhan)
+                fin_tails.extend(tails)
                 tails = []
-                y += 40
             elif loai == "if":
                 d = them_nut("dec", x, y, it[1], cur_lane, w=170, h=70)
                 for t_nd, t_nhan in tails:
@@ -552,6 +556,11 @@ def ve_hoat_dong(uc: dict) -> str:
     # Điểm bắt đầu
     start = them_nut("start", x_lan[lanes[0]], st["y"] - 74, "", lanes[0], w=22, h=22)
     tails, y_end = chain(uc["hoat_dong"], lanes[0], 0, st["y"], [(start, "")])
+    fin_tails.extend(tails)
+    y_fin = max(nd["y"] + nd["h"] / 2 for nd in nodes) + 50
+    ket_thuc = them_nut("end", x_lan[lanes[0]], y_fin, "", lanes[0], w=22, h=22)
+    for t_nd, t_nhan in fin_tails:
+        noi(t_nd, ket_thuc, t_nhan)
 
     # Chiều cao làn
     ymax = max([nd["y"] + nd["h"] / 2 for nd in nodes] + [y_end]) + 40
@@ -565,14 +574,24 @@ def ve_hoat_dong(uc: dict) -> str:
         s.text(x0 + LANE_W / 2, top + 22, _ten_lan(nm), size=13, anchor="middle", weight="bold")
 
     # Vẽ mũi tên trước, nút vẽ sau để nút che đầu đường
+    vao_ket = [e for e in edges if e[1] is ket_thuc]
     for a, b, nhan in edges:
-        _ve_noi(s, a, b, nhan)
+        lech = (0.0, 0.0)
+        if b is ket_thuc and len(vao_ket) > 1:
+            k = next(i for i, e in enumerate(vao_ket) if e[0] is a)
+            n = len(vao_ket)
+            # 2 mũi tên: chạm hai điểm cách nhau 12px trên vòng tròn (r=11); 3+: cách 8px
+            buoc_x = 12 if n == 2 else 8
+            lech = ((k - (n - 1) / 2) * buoc_x, -(n - 1 - k) * 6)
+        _ve_noi(s, a, b, nhan, lech)
     for nd in nodes:
         _ve_nut(s, nd)
     return s.out()
 
 
-def _ve_noi(s: SVG, a: dict, b: dict, nhan: str) -> None:
+def _ve_noi(s: SVG, a: dict, b: dict, nhan: str, lech: tuple = (0.0, 0.0)) -> None:
+    """`lech` = (dx, dy): khi nhiều mũi tên cùng vào một nút kết thúc, mỗi mũi tên chạm vào
+    một điểm khác nhau trên vòng tròn (xem `ve_hoat_dong`)."""
     if a["kind"] == "dec" and nhan == "không":
         # nhánh "không" đi từ góc phải của hình thoi, rẽ ngang rồi xuống hành động
         x1, y1 = a["x"] + a["w"] / 2, a["y"]
@@ -592,12 +611,18 @@ def _ve_noi(s: SVG, a: dict, b: dict, nhan: str) -> None:
         # tới thanh gộp: mũi tên đi thẳng xuống từ vị trí nhánh, không dồn vào giữa
         x2 = a["x"] if b.get("merge") else b["x"]
         y2 = b["y"] - b["h"] / 2
+        if b["kind"] == "end":
+            dx = lech[0]
+            x2 = b["x"] + dx
+            y2 = b["y"] - math.sqrt(max(0.0, (b["h"] / 2) ** 2 - dx * dx))
     else:
         x2, y2 = b["x"], b["y"] - b["h"] / 2
     if abs(x1 - x2) < 1:
         s.line(x1, y1, x2, y2, arrow="dac")
     else:
-        my = (y1 + y2) / 2
+        # Đường vào nút kết thúc: đoạn ngang đi SÁT PHÍA TRÊN nút kết thúc, dưới mọi hành động.
+        # Nếu lấy điểm giữa thì đoạn ngang đi xuyên qua các hành động ở làn giữa.
+        my = y2 - 24 + lech[1] if b["kind"] == "end" else (y1 + y2) / 2
         s.path(f"M {x1} {y1} V {my} H {x2} V {y2}", arrow="dac")
     if nhan:
         s.text((x1 + x2) / 2 + 6 if abs(x1 - x2) >= 1 else x1 + 8, (y1 + y2) / 2 - 4, nhan, size=11)
@@ -632,7 +657,6 @@ def _ve_nut(s: SVG, nd: dict) -> None:
 # ---------------------------------------------------------------------------
 # USE CASE
 # ---------------------------------------------------------------------------
-import math
 
 # Use case lớn (tổng quát) và nhóm chi tiết tương ứng. Khoá là mã nội bộ, không hiển thị.
 NHOM_LON = [
@@ -727,19 +751,26 @@ def ve_use_case() -> str:
 
 
 def ve_use_case_nhom(tieu_de, ids, tac_nhan):
-    """Biểu đồ use case CHI TIẾT của một use case lớn. Gồm các use case trong nhóm và use case
-    gốc mà nhóm được include/extend tới. Tác nhân -> use case: đen, nét liền, đầu đặc."""
-    thanh_vien = list(ids)
-    quan_he = []
-    for a, b, loai in QUAN_HE:
-        if a in ids or b in ids:
-            quan_he.append((a, b, loai))
-            for x in (a, b):
-                if x not in thanh_vien:
-                    thanh_vien.append(x)
-    dich = {b for _, b, _ in quan_he}
-    trai = [x for x in thanh_vien if x not in dich]
-    phai = [x for x in thanh_vien if x in dich]
+    """Biểu đồ use case CHI TIẾT của một use case lớn.
+
+    Bố cục để đường nối không đè lên nhau:
+      - Cột TRÁI: use case mà tác nhân thao tác trực tiếp. Mọi đường từ tác nhân chỉ tới cột
+        này, nên không bao giờ cắt qua một use case khác.
+      - Cột PHẢI: use case chỉ được include/extend tới (không do tác nhân gọi trực tiếp).
+      - Quan hệ giữa hai use case cùng cột mà KHÔNG kề nhau đi vòng ra mép phải bằng đường
+        gấp khúc, mỗi đường một khe, khe ngắn nằm gần use case hơn.
+    Chỉ vẽ quan hệ ĐI RA từ thành viên nhóm. Quan hệ đi VÀO nhóm từ nhóm khác thuộc biểu đồ
+    của nhóm kia; vẽ chung thì biểu đồ "Xem tổng quan" kéo cả mọi use case quản trị vào.
+    """
+    ten_tac_nhan = "Khách" if tac_nhan == "Khách" else "Quản trị viên"
+    truc_tiep = TRUC_TIEP[ten_tac_nhan]
+    quan_he = [(a, b, loai) for a, b, loai in QUAN_HE if a in ids]
+    ngoai: list[str] = []
+    for _, b, _ in quan_he:
+        if b not in ids and b not in ngoai:
+            ngoai.append(b)
+    trai = [m for m in ids if m in truc_tiep]
+    phai = [m for m in ids if m not in truc_tiep] + ngoai
     ELW, ELH = 220, 56
     n = max(len(trai), len(phai), 1)
     H = max(420, 170 + n * 110)
@@ -749,23 +780,49 @@ def ve_use_case_nhom(tieu_de, ids, tac_nhan):
     BX, BW = 230, 700
     s.rect(BX, 44, BW, H - 80, fill="#fff")
     s.text(BX + BW / 2, 66, "Hệ thống MoodBite", size=14, anchor="middle", weight="bold")
-    pos = {}
+    cot_trai, cot_phai = BX + 150, BX + BW - 150
+    pos: dict[str, tuple[float, float]] = {}
     for i, ma in enumerate(trai):
-        pos[ma] = (BX + 170, 120 + i * 110 + (n - len(trai)) * 55)
+        pos[ma] = (cot_trai, 120 + i * 110 + (n - len(trai)) * 55)
     for i, ma in enumerate(phai):
-        pos[ma] = (BX + BW - 170, 120 + i * 110 + (n - len(phai)) * 55)
+        pos[ma] = (cot_phai, 120 + i * 110 + (n - len(phai)) * 55)
+    thu_tu = {ma: i for i, ma in enumerate(trai)}
     KX, KY = 90, H / 2 - 30
-    ten_tac_nhan = "Khách" if tac_nhan == "Khách" else "Quản trị viên"
+
+    vong: list[tuple[str, str, str]] = []
     for a, b, loai in quan_he:
+        cung_cot_trai = a in thu_tu and b in thu_tu
+        if cung_cot_trai and abs(thu_tu[a] - thu_tu[b]) > 1:
+            vong.append((a, b, loai))
+            continue
         x1, y1 = _mep_elip(pos[a][0], pos[a][1], ELW / 2, ELH / 2, pos[b])
         x2, y2 = _mep_elip(pos[b][0], pos[b][1], ELW / 2, ELH / 2, pos[a])
         s.line(x1, y1, x2, y2, dash=True, arrow="dac")
-        s.text((x1 + x2) / 2, (y1 + y2) / 2 - 6, f"«{loai}»", size=10, anchor="middle")
-    for ma in thanh_vien:
-        if ma in TRUC_TIEP[ten_tac_nhan]:
-            cx, cy = pos[ma]
-            _ve_tac_nhan_noi(s, KX, KY, cx, cy, ELW / 2, ELH / 2)
-    for ma in thanh_vien:
+        s.text((x1 + x2) / 2 + 6, (y1 + y2) / 2 - 4, f"«{loai}»", size=10)
+
+    # Đường vòng: khe ngắn (cặp kề nhau trong thứ tự) nằm gần use case, khe dài nằm xa hơn,
+    # nên các đường lồng nhau không cắt nhau.
+    vong.sort(key=lambda t: abs(thu_tu[t[0]] - thu_tu[t[1]]))
+    khe_goc = pos[trai[0]][0] + ELW / 2 + 18 if trai else cot_trai
+    # Nhiều đường cùng vào một đích: rải điểm đến theo chiều dọc trên mép đích, để các mũi tên
+    # không dồn vào một điểm và nhãn không đè nhau. Nhãn đặt ngay trên đường ngang đầu tiên.
+    dem_den: dict[str, int] = {}
+    tong_den: dict[str, int] = {}
+    for _, b, _ in vong:
+        tong_den[b] = tong_den.get(b, 0) + 1
+    for k, (a, b, loai) in enumerate(vong):
+        xg = khe_goc + 14 * k
+        j = dem_den.get(b, 0)
+        dem_den[b] = j + 1
+        lech = (j - (tong_den[b] - 1) / 2) * 14
+        xa, ya = pos[a][0] + ELW / 2, pos[a][1]
+        xb, yb = pos[b][0] + ELW / 2, pos[b][1] + lech
+        s.path(f"M {xa} {ya} H {xg} V {yb} H {xb}", dash=True, arrow="dac")
+        s.text(xa + 8, ya - 6, f"«{loai}»", size=10)
+
+    for ma in trai:
+        _ve_tac_nhan_noi(s, KX, KY, pos[ma][0], pos[ma][1], ELW / 2, ELH / 2)
+    for ma in ids + ngoai:
         cx, cy = pos[ma]
         _ve_ellipse_ten(s, cx, cy, ELW / 2, ELH / 2, TEN_UC[ma])
     _ve_actor(s, KX, KY)

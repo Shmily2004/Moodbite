@@ -103,6 +103,7 @@ DAC_TA = [
         "ma": "UC04", "ten": "Xem danh sách quán của món", "nhom": "Khách",
         "api": "GET /api/v1/dishes/{id}/restaurants",
         "hoat_dong": [
+            ("lane", KH_TEN), ("act", "Bấm xem quán bán món này"),
             ("lane", "Hệ thống"), ("act", "Tra các quán khớp món theo chỉ mục"),
             ("if", "Có quán trong bán kính?", [("act", "Xếp quán theo mức phù hợp")],
              [("act", "Nới bán kính, lấy quán gần nhất, CẢNH BÁO khoảng cách")]),
@@ -465,9 +466,22 @@ def main() -> None:
 # ---------------------------------------------------------------------------
 # RÀNG BUỘC NGHIỆP VỤ — áp lên đặc tả hoạt động (trình tự được sinh từ đây)
 # ---------------------------------------------------------------------------
-def _boc_dieu_kien(buoc: list, dieu_kien: str, co: list, khong: list) -> list:
-    """Bọc toàn bộ luồng bằng một điều kiện (ràng buộc truy cập)."""
-    return [("lane", "Hệ thống"), ("if", dieu_kien, co, khong)]
+def _boc_dieu_kien(buoc: list, dieu_kien: str, khong: list) -> list:
+    """Bọc luồng bằng một chốt kiểm tra truy cập (ràng buộc).
+
+    Các bước MỞ ĐẦU của người dùng (làn Khách/Quản trị ở đầu luồng, ví dụ "Mở trang hồ sơ")
+    đứng TRƯỚC chốt: người dùng bấm trước, hệ thống mới kiểm tra. Nếu chốt đứng đầu thì
+    điểm bắt đầu nằm ở làn Hệ thống, đọc ngược với thực tế.
+    """
+    mo_dau: list = []
+    i = 0
+    while i + 1 < len(buoc) and buoc[i][0] == "lane" and buoc[i][1] != "Hệ thống":
+        if buoc[i + 1][0] != "act":
+            break
+        mo_dau += [buoc[i], buoc[i + 1]]
+        i += 2
+    con = buoc[i:]  # luồng chính: phần còn lại sau bước mở đầu
+    return mo_dau + [("lane", "Hệ thống"), ("if", dieu_kien, con, khong)]
 
 
 def _chen_sau(buoc: list, tien_to: str, moi: list) -> list:
@@ -489,13 +503,11 @@ for _uc in DAC_TA:
     if _uc["nhom"] == "Quản trị" and _ma != "UC16":
         _uc["hoat_dong"] = _boc_dieu_kien(
             _hd, "Đã đăng nhập quản trị?",
-            _hd,
             [("act", "Chuyển về trang đăng nhập quản trị"), ("stop",)])
     # Chức năng cần tài khoản: trang hồ sơ, bộ sưu tập.
     elif _ma in ("UC12", "UC13"):
         _uc["hoat_dong"] = _boc_dieu_kien(
             _hd, "Đã đăng nhập?",
-            _hd,
             [("act", "Chuyển tới trang đăng nhập"), ("stop",)])
     # Khoảng cách chỉ hiện khi đã đăng nhập và có vị trí (khách không thấy khoảng cách).
     if _ma == "UC01":

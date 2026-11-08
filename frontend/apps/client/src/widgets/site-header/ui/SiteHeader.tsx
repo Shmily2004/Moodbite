@@ -12,7 +12,7 @@
  * Làm trang nào thì thêm một dòng vào `MUC_DIEU_HUONG` là nó tự hiện ra.
  */
 import { useEffect, useState } from 'react';
-import { Link, NavLink, useLocation } from 'react-router-dom';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { BrandLogo, IconPin, LanguageSelect,
   IconClose,
   IconMenu,
@@ -41,6 +41,13 @@ const MUC_DIEU_HUONG: MucDieuHuong[] = [
 export function SiteHeader() {
   const t = useT();
   const session = useUserSessionContext();
+  const navigate = useNavigate();
+  // Đăng xuất LUÔN về trang chủ (ràng buộc nghiệp vụ). Không để người dùng đứng lại ở trang
+  // chỉ có nội dung của tài khoản vừa rời khỏi (ví dụ hồ sơ, yêu thích).
+  const dangXuat = () => {
+    session.logout();
+    navigate(ROUTES.home);
+  };
   // Menu ☰ cho màn hình hẹp. Dưới 760px hàng điều hướng + khu công cụ không đủ chỗ và
   // phải cuộn ngang — thao tác không ai nghĩ tới nên coi như các mục đó biến mất.
   const [moMenu, setMoMenu] = useState(false);
@@ -116,7 +123,7 @@ export function SiteHeader() {
                 {t('nav.quanTri')}
               </Link>
             )}
-            <LogoutButton className="linkish" onConfirm={session.logout}>
+            <LogoutButton className="linkish" onConfirm={dangXuat}>
               {t('nav.logout')}
             </LogoutButton>
           </div>

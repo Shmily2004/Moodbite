@@ -199,7 +199,7 @@ export function DishPage() {
                     restaurants={quanHien}
                     searchQueryId={detail.searchQueryId}
                     queryText={dish?.name ?? null}
-                    hienKhoangCach={!location.isDefault}
+                    hienKhoangCach={location.canShowDistance}
                     // Đánh số khớp ghim bản đồ — chỉ ở trang này, không ở trang tìm kiếm.
                     danhSo
                     gon
@@ -256,11 +256,11 @@ export function DishPage() {
                 <RestaurantMap
                   restaurants={quanHien}
                   center={location.position}
-                  userPosition={location.isDefault ? null : location.position}
+                  userPosition={location.canShowDistance ? location.position : null}
                   activeId={null}
                   onSelect={() => undefined}
                   danhSo
-                  hienKhoangCach={!location.isDefault}
+                  hienKhoangCach={location.canShowDistance}
                 />
                 {/* Bong bóng NẰM TRONG khung bản đồ (2026-10-02) — trước đó nó dính góc
                     màn hình và thò ra ngoài mép phải bản đồ. */}

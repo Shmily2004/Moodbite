@@ -121,10 +121,10 @@ export function SearchPage() {
           <RestaurantMap
             restaurants={results}
             center={location.position}
-            userPosition={location.isDefault ? null : location.position}
+            userPosition={location.canShowDistance ? location.position : null}
             activeId={activeId}
             onSelect={(restaurant) => setActiveId(restaurant.restaurant_id ?? null)}
-            hienKhoangCach={!location.isDefault}
+            hienKhoangCach={location.canShowDistance}
           />
         </div>
 
@@ -194,7 +194,7 @@ export function SearchPage() {
                 queryText={search.queryText}
                 activeId={activeId}
                 onActivate={(id) => setActiveId(id)}
-                hienKhoangCach={!location.isDefault}
+                hienKhoangCach={location.canShowDistance}
               />
             )}
           </div>

@@ -52,6 +52,7 @@ from src.presentation.api.schemas import (
     AdminLoginResponse,
     AdminOverviewResponse,
     AdminDishDetailResponse,
+    AdminUpdateDishRequest,
     AdminDishListResponse,
     AdminRecommendationResponse,
     AdminSystemResponse,
@@ -304,6 +305,29 @@ def _ty_le(phan: int, tong: int, don_vi: str) -> str:
     return f"{phan:,}/{tong:,} {don_vi} ({phan / tong * 100:.1f}%)".replace(",", ".")
 
 
+def _chi_tiet_mon(container: Container, mon) -> dict:
+    """Dựng một món theo dạng trang quản trị. Dùng chung cho GET và PATCH để hai nơi không lệch."""
+    return {
+        "dish_id": mon.identifier,
+        "name": mon.name,
+        "cuisine": mon.cuisine,
+        "image_url": mon.image_url,
+        "description": mon.description,
+        "spice_level": mon.spice_level,
+        "temperature": mon.temperature,
+        "cooking_method": mon.cooking_method,
+        "meal_times": list(mon.meal_times or []),
+        "match_keywords": list(mon.match_keywords or []),
+        "is_category": mon.is_category,
+        "is_active": mon.is_active,
+        "source": mon.source,
+        "source_url": mon.source_url,
+        "last_updated": mon.last_updated,
+        "restaurant_count": container.get_dish_for_admin.restaurant_count(mon),
+        "mo_ta_da_sua": container.dish_overrides.get_description(mon.identifier) is not None,
+    }
+
+
 @router.get("/dishes/{dish_id}", response_model=AdminDishDetailResponse)
 def get_dish(
     dish_id: str,
@@ -318,26 +342,38 @@ def get_dish(
     mon = container.get_dish_for_admin.execute(dish_id)
     if mon is None:
         raise DishNotFoundError(dish_id)
-    return success(
-        {
-            "dish_id": mon.identifier,
-            "name": mon.name,
-            "cuisine": mon.cuisine,
-            "image_url": mon.image_url,
-            "description": mon.description,
-            "spice_level": mon.spice_level,
-            "temperature": mon.temperature,
-            "cooking_method": mon.cooking_method,
-            "meal_times": list(mon.meal_times or []),
-            "match_keywords": list(mon.match_keywords or []),
-            "is_category": mon.is_category,
-            "is_active": mon.is_active,
-            "source": mon.source,
-            "source_url": mon.source_url,
-            "last_updated": mon.last_updated,
-            "restaurant_count": container.get_dish_for_admin.restaurant_count(mon),
-        }
+    return success(_chi_tiet_mon(container, mon))
+
+
+@router.patch("/dishes/{dish_id}", response_model=AdminDishDetailResponse)
+def update_dish(
+    dish_id: str,
+    payload: AdminUpdateDishRequest = Body(...),
+    container: Container = Depends(get_container),
+    _admin: str = Depends(require_admin),
+):
+    """Sửa mô tả món. Bản sửa nằm ở CSDL riêng, KHÔNG ghi đè danh mục gốc.
+
+    Ghi nhật ký `update_dish` để biết ai đã đổi chữ nào; sửa xong trả lại chi tiết mới nhất.
+    """
+    truoc = container.get_dish_for_admin.execute(dish_id)
+    if truoc is None:
+        raise DishNotFoundError(dish_id)
+
+    mon = container.edit_dish_description.execute(dish_id, payload.description, _admin)
+    # Nhật ký chỉ ghi ĐỘ DÀI, không chép cả đoạn văn (tối đa 1000 ký tự) vào mỗi dòng log.
+    if payload.description is None or not payload.description.strip():
+        tom_tat = "gỡ bản sửa, trở về mô tả gốc"
+    else:
+        tom_tat = f"sửa mô tả ({len(mon.description or '')} ký tự)"
+    container.ghi_nhat_ky.ghi(
+        actor=_admin,
+        action="update_dish",
+        target_type="dish",
+        target_id=mon.identifier,
+        summary=f"{mon.name} — {tom_tat}",
     )
+    return success(_chi_tiet_mon(container, mon))
 
 
 @router.get("/dishes/{dish_id}/restaurants", response_model=AdminDishRestaurantsResponse)

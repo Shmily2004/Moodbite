@@ -1,0 +1,24 @@
+@startuml UC12_trinh_tu
+' UC12 — Quản lý hồ sơ, địa chỉ, sở thích
+' API: GET /auth/me; /me/addresses (GET, POST, PATCH, DELETE); /me/stats
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+
+actor "Khách" as KH
+boundary "UI_GiaoDienWeb" as UI
+control "Ctrl_HeThongXuLy" as CTRL
+entity "Ent_CoSoDuLieu" as DB
+entity "Ent_TaiKhoan" as TK
+
+KH -> UI : 1. Mở trang hồ sơ
+UI -> CTRL : 2. GET /auth/me, /me/addresses
+CTRL -> TK : 3. Đọc hồ sơ và địa chỉ
+TK --> CTRL : 4. Dữ liệu
+CTRL --> UI : 5. Hồ sơ + danh sách địa chỉ
+UI --> KH : 6. Hiển thị
+KH -> UI : 7. Thêm / sửa / xoá địa chỉ
+UI -> CTRL : 8. POST | PATCH | DELETE /me/addresses
+CTRL -> TK : 9. Ghi thay đổi
+CTRL --> UI : 10. Kết quả
+UI --> KH : 11. Cập nhật danh sách
+@enduml

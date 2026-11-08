@@ -200,6 +200,14 @@ class SuggestDishesUseCase:
         )
         dish_filter = self._to_filter(query)
         candidates = dish_ranking.filter_dishes(available, dish_filter)
+        # Lọc xong rỗng thì nói rõ, KHÔNG để người dùng tự đoán vì sao trang trống.
+        # Lỗi cũ: domain từng trả lại cả danh sách khi lọc rỗng, nên không ai biết bộ lọc
+        # đã bị bỏ qua (CLAUDE.md mục 5: không lặng lẽ bỏ tham số client gửi lên).
+        if available and not candidates and not dish_filter.is_empty:
+            warnings.append(
+                "Không có món nào khớp hết các bộ lọc bạn chọn (bữa ăn, cách chế biến, "
+                "ẩm thực, độ cay…) trong khu vực này. Thử bỏ bớt một bộ lọc."
+            )
 
         ranked = dish_ranking.rank_dishes(
             dishes=candidates,

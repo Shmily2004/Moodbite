@@ -1,0 +1,16 @@
+@startuml UC11_hoat_dong
+' UC11 — Đổi mật khẩu
+' API: POST /api/v1/auth/change-password
+skinparam shadowing false
+start
+|Khách|
+:Nhập mật khẩu cũ và mật khẩu mới;
+|Hệ thống|
+:POST /auth/change-password;
+if (Phiên hợp lệ và mật khẩu cũ đúng?) then (có)
+  :Cập nhật mật khẩu mới;
+else (không)
+  :Báo lỗi;
+endif
+stop
+@enduml

@@ -774,10 +774,20 @@ class AdminDishDetail(BaseModel):
     source_url: Optional[str] = None
     last_updated: Optional[str] = None
     restaurant_count: Optional[int] = None
+    mo_ta_da_sua: bool = Field(
+        default=False,
+        description="True = mô tả đang hiện là bản quản trị viên sửa tay, không phải bản gốc",
+    )
 
 
 class AdminDishDetailResponse(BaseModel):
     data: AdminDishDetail
+
+
+class AdminUpdateDishRequest(BaseModel):
+    """Sửa mô tả một món. Gửi `null` hoặc chuỗi rỗng = GỠ bản sửa, trở về mô tả gốc."""
+
+    description: Optional[str] = None
 
 
 class AdminDishRestaurant(BaseModel):

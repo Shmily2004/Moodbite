@@ -1,0 +1,24 @@
+@startuml UC16_trinh_tu
+' UC16 — Đăng nhập quản trị
+' API: POST /api/v1/admin/login; POST /admin/logout
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+
+actor "Quản trị viên" as QT
+boundary "UI_TrangQuanTri" as UI
+control "Ctrl_QuanTriHeThong" as CTRL
+entity "Ent_CoSoDuLieu" as DB
+entity "Ent_TaiKhoan" as TK
+
+QT -> UI : 1. Nhập tài khoản quản trị
+UI -> CTRL : 2. POST /admin/login
+CTRL -> TK : 3. Kiểm tra quyền quản trị
+TK --> CTRL : 4. Đúng quyền
+alt đúng quyền
+  CTRL --> UI : 5a. 200 OK + phiên quản trị
+  UI --> QT : 6a. Vào trang quản trị
+else khác
+  CTRL --> UI : 5b. 401/403
+  UI --> QT : 6b. Báo lỗi
+end
+@enduml

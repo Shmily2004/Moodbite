@@ -1,0 +1,17 @@
+@startuml UC20_hoat_dong
+' UC20 — Xử lý vấn đề dữ liệu
+' API: GET /admin/issues; POST | DELETE /admin/issues/resolve
+skinparam shadowing false
+start
+|Quản trị viên|
+:Mở danh sách vấn đề;
+|Hệ thống|
+:GET /admin/issues;
+|Quản trị viên|
+:Xem chi tiết, đánh dấu đã xử lý;
+|Hệ thống|
+:POST /admin/issues/resolve;
+|Quản trị viên|
+:Xem danh sách đã cập nhật;
+stop
+@enduml

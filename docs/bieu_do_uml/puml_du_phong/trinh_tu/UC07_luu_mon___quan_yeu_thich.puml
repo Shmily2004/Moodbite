@@ -1,0 +1,21 @@
+@startuml UC07_trinh_tu
+' UC07 — Lưu món / quán yêu thích
+' API: Khách: lưu trên máy. Đã đăng nhập: POST /api/v1/me/favorites
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+
+actor "Khách" as KH
+boundary "UI_GiaoDienWeb" as UI
+control "Ctrl_HeThongXuLy" as CTRL
+entity "Ent_CoSoDuLieu" as DB
+
+KH -> UI : 1. Bấm biểu tượng yêu thích
+alt đã đăng nhập
+  UI -> CTRL : 2a. POST /me/favorites
+  CTRL -> DB : 3a. Ghi bảng saved_items
+  CTRL --> UI : 4a. 201 Created
+else khác
+  UI -> UI : 2b. Ghi vào bộ nhớ trình duyệt (trên máy)
+end
+UI --> KH : 5. Đổi trạng thái nút
+@enduml

@@ -753,7 +753,13 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
+        /**
+         * Update Dish
+         * @description Sửa mô tả món. Bản sửa nằm ở CSDL riêng, KHÔNG ghi đè danh mục gốc.
+         *
+         *     Ghi nhật ký `update_dish` để biết ai đã đổi chữ nào; sửa xong trả lại chi tiết mới nhất.
+         */
+        patch: operations["update_dish_api_v1_admin_dishes__dish_id__patch"];
         trace?: never;
     };
     "/api/v1/admin/dishes/{dish_id}/restaurants": {
@@ -1178,6 +1184,77 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/posts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Danh sách bài viết đã công khai */
+        get: operations["list_posts_api_v1_posts_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/posts/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Một bài viết đã công khai, theo đường dẫn */
+        get: operations["get_post_api_v1_posts__slug__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/posts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Mọi bài viết, kể cả nháp */
+        get: operations["list_posts_api_v1_admin_posts_get"];
+        put?: never;
+        /** Tạo bài viết mới */
+        post: operations["create_post_api_v1_admin_posts_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/posts/{post_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Một bài viết (kể cả nháp) */
+        get: operations["get_post_api_v1_admin_posts__post_id__get"];
+        /** Sửa bài viết */
+        put: operations["update_post_api_v1_admin_posts__post_id__put"];
+        post?: never;
+        /** Xoá bài viết */
+        delete: operations["delete_post_api_v1_admin_posts__post_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -1383,6 +1460,12 @@ export interface components {
             last_updated?: string | null;
             /** Restaurant Count */
             restaurant_count?: number | null;
+            /**
+             * Mo Ta Da Sua
+             * @description True = mô tả đang hiện là bản quản trị viên sửa tay, không phải bản gốc
+             * @default false
+             */
+            mo_ta_da_sua: boolean;
         };
         /** AdminDishDetailResponse */
         AdminDishDetailResponse: {
@@ -1869,6 +1952,14 @@ export interface components {
             ready: boolean;
             /** Detail */
             detail?: string | null;
+        };
+        /**
+         * AdminUpdateDishRequest
+         * @description Sửa mô tả một món. Gửi `null` hoặc chuỗi rỗng = GỠ bản sửa, trở về mô tả gốc.
+         */
+        AdminUpdateDishRequest: {
+            /** Description */
+            description?: string | null;
         };
         /**
          * AdminUpdateRestaurantRequest
@@ -2569,6 +2660,57 @@ export interface components {
         /** MoodsResponse */
         MoodsResponse: {
             data: components["schemas"]["MoodsData"];
+        };
+        /** PostDetailData */
+        PostDetailData: {
+            /** Post */
+            post: {
+                [key: string]: unknown;
+            };
+        };
+        /** PostListData */
+        PostListData: {
+            /** Posts */
+            posts: unknown[];
+            /** Total */
+            total: number;
+        };
+        /**
+         * PostWriteRequest
+         * @description Admin gửi lên khi tạo hoặc sửa. KHÔNG có `origin`: bài tạo từ giao diện luôn là
+         *     bài của admin; bài tổng hợp từ web chỉ đi qua script seed, không qua API.
+         */
+        PostWriteRequest: {
+            /**
+             * Title
+             * @default
+             */
+            title: string;
+            /**
+             * Summary
+             * @default
+             */
+            summary: string;
+            /**
+             * Body
+             * @default
+             */
+            body: string;
+            /**
+             * Status
+             * @default draft
+             * @enum {string}
+             */
+            status: "draft" | "published";
+            /** Source Name */
+            source_name?: string | null;
+            /** Source Url */
+            source_url?: string | null;
+            /**
+             * Last Updated
+             * @description Ngày nội dung được cập nhật
+             */
+            last_updated?: string | null;
         };
         /** RegisterRequest */
         RegisterRequest: {
@@ -5026,6 +5168,41 @@ export interface operations {
             };
         };
     };
+    update_dish_api_v1_admin_dishes__dish_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                dish_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminUpdateDishRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminDishDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_dish_restaurants_api_v1_admin_dishes__dish_id__restaurants_get: {
         parameters: {
             query?: {
@@ -5746,6 +5923,365 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
+            };
+        };
+    };
+    list_posts_api_v1_posts_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostListData"];
+                };
+            };
+            /** @description Dữ liệu bài viết không hợp lệ (INVALID_REQUEST) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Không có bài viết này (POST_NOT_FOUND) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Kho bài viết không sẵn sàng (DATA_NOT_READY) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    get_post_api_v1_posts__slug__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostDetailData"];
+                };
+            };
+            /** @description Dữ liệu bài viết không hợp lệ (INVALID_REQUEST) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Không có bài viết này (POST_NOT_FOUND) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Kho bài viết không sẵn sàng (DATA_NOT_READY) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    list_posts_api_v1_admin_posts_get: {
+        parameters: {
+            query?: {
+                status?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostListData"];
+                };
+            };
+            /** @description Dữ liệu bài viết không hợp lệ (INVALID_REQUEST) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Không có bài viết này (POST_NOT_FOUND) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Kho bài viết không sẵn sàng (DATA_NOT_READY) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    create_post_api_v1_admin_posts_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PostWriteRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostDetailData"];
+                };
+            };
+            /** @description Dữ liệu bài viết không hợp lệ (INVALID_REQUEST) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Không có bài viết này (POST_NOT_FOUND) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Kho bài viết không sẵn sàng (DATA_NOT_READY) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    get_post_api_v1_admin_posts__post_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                post_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostDetailData"];
+                };
+            };
+            /** @description Dữ liệu bài viết không hợp lệ (INVALID_REQUEST) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Không có bài viết này (POST_NOT_FOUND) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Kho bài viết không sẵn sàng (DATA_NOT_READY) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    update_post_api_v1_admin_posts__post_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                post_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PostWriteRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostDetailData"];
+                };
+            };
+            /** @description Dữ liệu bài viết không hợp lệ (INVALID_REQUEST) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Không có bài viết này (POST_NOT_FOUND) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Kho bài viết không sẵn sàng (DATA_NOT_READY) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    delete_post_api_v1_admin_posts__post_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                post_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageResponse"];
+                };
+            };
+            /** @description Dữ liệu bài viết không hợp lệ (INVALID_REQUEST) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Không có bài viết này (POST_NOT_FOUND) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Kho bài viết không sẵn sàng (DATA_NOT_READY) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

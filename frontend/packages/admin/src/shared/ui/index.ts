@@ -10,3 +10,5 @@ export { Sparkline, VanhKhuyen, VongTienDo } from './BieuDo';
 export type { PhanVanhKhuyen } from './BieuDo';
 export { ConfirmDialog } from './ConfirmDialog';
 export type { ConfirmDialogProps } from './ConfirmDialog';
+export { OTimKiem } from './OTimKiem';
+export type { OTimKiemProps } from './OTimKiem';

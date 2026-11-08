@@ -1,0 +1,13 @@
+@startuml UC24_hoat_dong
+' UC24 — Xem nhật ký hoạt động
+' API: GET /api/v1/admin/activity
+skinparam shadowing false
+start
+|Quản trị viên|
+:Mở nhật ký;
+|Hệ thống|
+:GET /admin/activity;
+|Quản trị viên|
+:Lọc và xem các thao tác;
+stop
+@enduml

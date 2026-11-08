@@ -1,0 +1,17 @@
+@startuml UC14_hoat_dong
+' UC14 — Xem tin tức
+' API: GET /api/v1/posts, GET /api/v1/posts/{slug}
+skinparam shadowing false
+start
+|Khách|
+:Mở trang tin tức;
+|Hệ thống|
+:GET /posts (chỉ bài đã công khai);
+|Khách|
+:Chọn một bài;
+|Hệ thống|
+:GET /posts/{slug};
+|Khách|
+:Đọc bài;
+stop
+@enduml

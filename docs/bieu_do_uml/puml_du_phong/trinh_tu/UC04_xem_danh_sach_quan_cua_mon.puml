@@ -1,0 +1,18 @@
+@startuml UC04_trinh_tu
+' UC04 — Xem danh sách quán của món
+' API: GET /api/v1/dishes/{id}/restaurants
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+
+actor "Khách" as KH
+boundary "UI_GiaoDienWeb" as UI
+control "Ctrl_HeThongXuLy" as CTRL
+entity "Ent_CoSoDuLieu" as DB
+
+UI -> CTRL : 1. GET /dishes/{id}/restaurants
+CTRL -> DB : 2. Quán khớp món theo chỉ mục
+DB --> CTRL : 3. Danh sách quán
+note over CTRL : 4. Lọc bán kính; nới và cảnh báo nếu không có quán gần
+CTRL --> UI : 5. Quán + warnings
+UI --> KH : 6. Hiển thị danh sách quán và bản đồ
+@enduml

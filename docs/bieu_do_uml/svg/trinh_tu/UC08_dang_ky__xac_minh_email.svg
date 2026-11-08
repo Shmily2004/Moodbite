@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1220" height="642" viewBox="0 0 1220 642"><defs><marker id="dac" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#000"/></marker><marker id="ho" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto"><path d="M1,1 L11,6 L1,11" fill="none" stroke="#000" stroke-width="1.2"/></marker></defs><rect width="100%" height="100%" fill="#fff"/><text x="20" y="26" font-family="Arial, Helvetica, sans-serif" font-size="15" text-anchor="start" font-weight="bold" fill="#000">UC08 — Đăng ký (xác minh email)</text>
+<text x="20" y="46" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000" font-style="italic">API: POST /api/v1/auth/register; POST /auth/verify-email/request; POST /auth/verify-email/confirm</text>
+<circle cx="110" cy="60" r="9" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<line x1="110" y1="69" x2="110" y2="96" stroke="#000" stroke-width="1.2"/>
+<line x1="96" y1="80" x2="124" y2="80" stroke="#000" stroke-width="1.2"/>
+<line x1="110" y1="96" x2="99" y2="110" stroke="#000" stroke-width="1.2"/>
+<line x1="110" y1="96" x2="121" y2="110" stroke="#000" stroke-width="1.2"/>
+<text x="110" y="138" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Khách</text>
+<line x1="336" y1="84" x2="336" y2="116" stroke="#000" stroke-width="1.2"/>
+<line x1="336" y1="100" x2="344" y2="100" stroke="#000" stroke-width="1.2"/>
+<circle cx="360" cy="100" r="16" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="360" y="138" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">UI_GiaoDienWeb</text>
+<circle cx="610" cy="100" r="16" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<path d="M 604 83 L 612 78 L 613 84 Z" fill="#000" stroke="#000" stroke-width="1.2"/>
+<text x="610" y="138" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Ctrl_HeThongXuLy</text>
+<circle cx="860" cy="100" r="16" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<line x1="847" y1="109" x2="873" y2="109" stroke="#000" stroke-width="1.2"/>
+<text x="860" y="138" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Ent_CoSoDuLieu</text>
+<circle cx="1110" cy="100" r="16" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<line x1="1097" y1="109" x2="1123" y2="109" stroke="#000" stroke-width="1.2"/>
+<text x="1110" y="138" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Ent_TaiKhoan</text>
+<line x1="110" y1="138" x2="110" y2="602" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4"/>
+<line x1="360" y1="138" x2="360" y2="602" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4"/>
+<line x1="610" y1="138" x2="610" y2="602" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4"/>
+<line x1="860" y1="138" x2="860" y2="602" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4"/>
+<line x1="1110" y1="138" x2="1110" y2="602" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4"/>
+<rect x="1104" y="248" width="12" height="42" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<rect x="604" y="212" width="12" height="150" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<rect x="354" y="176" width="12" height="222" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<rect x="604" y="464" width="12" height="78" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<rect x="354" y="428" width="12" height="150" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<rect x="1104" y="320" width="12" height="272" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<line x1="112" y1="176" x2="358" y2="176" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<text x="118" y="168" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">1. Nhập email, mật khẩu</text>
+<line x1="362" y1="212" x2="608" y2="212" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<text x="368" y="204" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">2. POST /auth/register</text>
+<line x1="612" y1="248" x2="1108" y2="248" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<text x="618" y="240" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">3. Kiểm tra email chưa tồn tại, lưu tài khoản chưa xác minh</text>
+<line x1="1108" y1="284" x2="612" y2="284" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
+<text x="618" y="276" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">4. Đã lưu</text>
+<line x1="612" y1="320" x2="1108" y2="320" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<text x="618" y="312" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">5. Tạo mã xác minh</text>
+<line x1="608" y1="356" x2="362" y2="356" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
+<text x="368" y="348" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">6. 201 Created, yêu cầu xác minh</text>
+<line x1="358" y1="392" x2="112" y2="392" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
+<text x="118" y="384" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">7. Yêu cầu nhập mã xác minh email</text>
+<line x1="112" y1="428" x2="358" y2="428" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<text x="118" y="420" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">8. Nhập mã từ email</text>
+<line x1="362" y1="464" x2="608" y2="464" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<text x="368" y="456" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">9. POST /auth/verify-email/confirm</text>
+<line x1="612" y1="500" x2="1108" y2="500" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<text x="618" y="492" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">10. Đánh dấu email đã xác minh</text>
+<line x1="608" y1="536" x2="362" y2="536" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
+<text x="368" y="528" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">11. 200 OK</text>
+<line x1="358" y1="572" x2="112" y2="572" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
+<text x="118" y="564" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">12. Tài khoản đã kích hoạt</text></svg>

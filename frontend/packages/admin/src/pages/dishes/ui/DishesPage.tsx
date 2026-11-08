@@ -24,7 +24,7 @@ import { useDishAdmin } from '@admin/features/manage-dishes';
 import type { AdminDishRow, LocMon } from '@admin/shared/api';
 import { NHAN_NGUON_MON, duongDanMon, nhanTheoMa } from '@admin/shared/config';
 import { ngayGioVN, phanTramVN, soVN } from '@admin/shared/lib';
-import { AnhThuNho, IconTron, PhanTrang, VongTienDo } from '@admin/shared/ui';
+import { AnhThuNho, IconTron, OTimKiem, PhanTrang, VongTienDo } from '@admin/shared/ui';
 
 const BO_LOC: { khoa: LocMon; nhan: string }[] = [
   { khoa: 'all', nhan: 'Tất cả' },
@@ -91,13 +91,13 @@ export function DishesPage() {
               </button>
             ))}
           </div>
-          <input
-            className="o-nhap"
-            type="search"
+          {/* Ô có trễ + xử lý IME tiếng Việt: xem ghi chú ở shared/ui/OTimKiem.tsx.
+              Gõ thẳng lên URL mỗi phím làm vỡ chuỗi gõ dấu (lỗi 2026-11-08). */}
+          <OTimKiem
+            q={m.query}
+            onQuery={m.setQuery}
             placeholder="Tìm theo tên hoặc mã món…"
-            value={m.query}
-            onChange={(e) => m.setQuery(e.target.value)}
-            aria-label="Tìm món"
+            label="Tìm món"
           />
         </div>
 

@@ -9,7 +9,7 @@
  * Tách trạng thái vì một khối hỏng không được làm trắng cả trang: nhật ký không mở được
  * thì người quản trị vẫn phải xem được món và danh sách quán.
  */
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { adminApi, ApiError } from '@admin/shared/api';
 import type {
   AdminDishDetail,
@@ -31,17 +31,26 @@ interface KhoiTai<T> {
 }
 
 export interface UseDishDetailResult {
-  dish: KhoiTai<AdminDishDetail>;
+  dish: KhoiTai<AdminDishDetail> & { capNhat: (moi: AdminDishDetail) => void };
   restaurants: KhoiTai<AdminDishRestaurantsData>;
   history: KhoiTai<AuditEntry[]> & { available: boolean };
+  /**
+   * Lưu mô tả (`null` hoặc chuỗi rỗng = gỡ bản sửa). Trả về `null` nếu lưu được, hoặc
+   * câu lỗi để hiện ngay tại ô sửa. Thành công thì khối món được cập nhật tại chỗ.
+   */
+  luuMoTa: (text: string | null) => Promise<string | null>;
 }
 
-function useTai<T>(tai: () => Promise<T>, khoa: string): KhoiTai<T> {
+function useTai<T>(tai: () => Promise<T>, khoa: string) {
   const [trangThai, setTrangThai] = useState<KhoiTai<T>>({
     data: null,
     loading: true,
     error: null,
   });
+  const capNhat = useCallback(
+    (data: T) => setTrangThai((cu) => ({ ...cu, data, error: null })),
+    [],
+  );
 
   useEffect(() => {
     let conSong = true;
@@ -60,11 +69,12 @@ function useTai<T>(tai: () => Promise<T>, khoa: string): KhoiTai<T> {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [khoa]);
 
-  return trangThai;
+  return { ...trangThai, capNhat };
 }
 
 export function useDishDetail(dishId: string): UseDishDetailResult {
   const dish = useTai(() => adminApi.getDish(dishId), `mon:${dishId}`);
+  const { capNhat } = dish;
   const restaurants = useTai(
     () => adminApi.dishRestaurants(dishId, { limit: SO_QUAN_CUA_MON }),
     `quan:${dishId}`,
@@ -74,8 +84,22 @@ export function useDishDetail(dishId: string): UseDishDetailResult {
     `nhat-ky:${dishId}`,
   );
 
+  const luuMoTa = useCallback(
+    async (text: string | null): Promise<string | null> => {
+      try {
+        const moi = await adminApi.updateDish(dishId, { description: text });
+        capNhat(moi);
+        return null;
+      } catch (err) {
+        return loiThanhChu(err);
+      }
+    },
+    [dishId, capNhat],
+  );
+
   return {
     dish,
+    luuMoTa,
     restaurants,
     history: {
       data: nhatKy.data ? nhatKy.data.entries : null,

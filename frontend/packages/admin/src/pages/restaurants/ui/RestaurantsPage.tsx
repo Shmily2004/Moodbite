@@ -26,8 +26,13 @@ import {
 } from '@admin/features/manage-restaurants';
 import { NHAN_NGUON_QUAN, nhanTheoMa } from '@admin/shared/config';
 import { phanTramVN, soVN } from '@admin/shared/lib';
-import { IconTron, PhanTrang, type MauIconTron, type TenIcon } from '@admin/shared/ui';
-import { OTimQuan } from './OTimQuan';
+import {
+  IconTron,
+  OTimKiem,
+  PhanTrang,
+  type MauIconTron,
+  type TenIcon,
+} from '@admin/shared/ui';
 
 /** Nhãn tiếng Việt cho `?loc=`. Khoá do backend đặt — xem `data_quality.py`. */
 const NHAN_LOC: Record<string, string> = {
@@ -152,7 +157,12 @@ export function RestaurantsPage() {
               <option value="hidden">Đã ẩn</option>
             </select>
           </label>
-          <OTimQuan q={a.filters.q} onQuery={a.setQuery} />
+          <OTimKiem
+            q={a.filters.q}
+            onQuery={a.setQuery}
+            placeholder="Tìm theo tên, địa chỉ hoặc placeId…"
+            label="Tìm quán"
+          />
           <button type="button" className="ghost" onClick={a.clearFilters} disabled={!coLoc}>
             Xoá bộ lọc
           </button>

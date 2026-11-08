@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="882" viewBox="0 0 1120 882"><defs><marker id="dac" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#000"/></marker><marker id="ho" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto"><path d="M1,1 L11,6 L1,11" fill="none" stroke="#000" stroke-width="1.2"/></marker></defs><rect width="100%" height="100%" fill="#fff"/><text x="20" y="22" font-family="Arial, Helvetica, sans-serif" font-size="15" text-anchor="start" font-weight="bold" fill="#000">UC18 — Xem và sửa mô tả món</text>
+<text x="20" y="40" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000" font-style="italic">API: GET /admin/dishes, GET/PATCH /admin/dishes/{id}</text>
+<rect x="560" y="60" width="520" height="1" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<rect x="40" y="60" width="520" height="762" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<rect x="40" y="60" width="520" height="34" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="300.0" y="82" font-family="Arial, Helvetica, sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#000">Quản trị viên</text>
+<rect x="560" y="60" width="520" height="762" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<rect x="560" y="60" width="520" height="34" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="820.0" y="82" font-family="Arial, Helvetica, sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#000">Hệ thống</text>
+<line x1="300" y1="133.0" x2="300" y2="149.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<line x1="300" y1="199.0" x2="300" y2="243.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<path d="M 300 293.0 V 315.0 H 820 V 337.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<line x1="820" y1="387.0" x2="820" y2="421.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<line x1="820" y1="491.0" x2="820" y2="523.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<text x="828" y="503.0" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">có</text>
+<path d="M 905.0 456 H 990 V 523.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<text x="911.0" y="450" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">không</text>
+<path d="M 820 573.0 V 598.0 H 300 V 623.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<path d="M 990 573.0 V 598.0 H 300 V 623.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<line x1="300" y1="673.0" x2="300" y2="731.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<circle cx="300" cy="122" r="10" fill="#000" stroke="#000" stroke-width="1.2"/>
+<rect x="220.0" y="149.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="300" y="179.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Mở món, bấm Sửa mô tả</text>
+<rect x="220.0" y="243.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="300" y="265.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Nhập mô tả, bấm Lưu</text>
+<text x="300" y="280.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">(hoặc Gỡ bản sửa)</text>
+<rect x="740.0" y="337.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="820" y="359.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">PATCH</text>
+<text x="820" y="374.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">/admin/dishes/{id}</text>
+<path d="M 820 421.0 L 905.0 456 L 820 491.0 L 735.0 456 Z" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="820" y="460" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="middle" font-weight="normal" fill="#000">Mô tả hợp lệ?</text>
+<rect x="740.0" y="523.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="820" y="545.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Lưu bản sửa, ghi nhật</text>
+<text x="820" y="560.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">ký</text>
+<rect x="910.0" y="523.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="990" y="545.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Trả lỗi 400, không ghi</text>
+<text x="990" y="560.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">gì</text>
+<rect x="220.0" y="623.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="300" y="653.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Xem mô tả mới</text>
+<circle cx="300" cy="742" r="11" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<circle cx="300" cy="742" r="6" fill="#000" stroke="#000" stroke-width="1.2"/></svg>

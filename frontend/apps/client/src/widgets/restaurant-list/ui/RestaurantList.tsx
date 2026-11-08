@@ -31,6 +31,8 @@ interface RestaurantListProps {
   gon?: boolean;
   /** Món đang xem (trang chi tiết món) - để trang quán dựng breadcrumb quay về đúng món. */
   fromDish?: { id: string; name: string };
+  /** Xem `RestaurantCard.hienKhoangCach`. Tắt khi chưa có vị trí thật của người dùng. */
+  hienKhoangCach?: boolean;
 }
 
 export function RestaurantList({
@@ -42,6 +44,7 @@ export function RestaurantList({
   danhSo = false,
   gon = false,
   fromDish,
+  hienKhoangCach = true,
 }: RestaurantListProps) {
   const { detail, loading, error, load, clear } = useRestaurantDetail();
   const { log, startViewTimer } = useInteractionLogger();
@@ -86,6 +89,7 @@ export function RestaurantList({
           // lại theo "gần nhất" thì số phải đổi theo, để còn khớp với ghim bản đồ.
           soThuTu={danhSo ? chiSo + 1 : undefined}
           gon={gon}
+          hienKhoangCach={hienKhoangCach}
           queryText={queryText}
           active={activeId != null && restaurant.restaurant_id === activeId}
           onOpenDetail={openId === restaurant.restaurant_id ? undefined : open}

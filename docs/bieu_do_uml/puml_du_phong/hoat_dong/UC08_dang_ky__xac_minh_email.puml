@@ -1,0 +1,25 @@
+@startuml UC08_hoat_dong
+' UC08 — Đăng ký (xác minh email)
+' API: POST /api/v1/auth/register; POST /auth/verify-email/request; POST /auth/verify-email/confirm
+skinparam shadowing false
+start
+|Khách|
+:Nhập email và mật khẩu;
+|Hệ thống|
+:POST /auth/register;
+if (Email đã tồn tại?) then (có)
+  :Báo lỗi, yêu cầu email khác;
+else (không)
+  :Lưu tài khoản chưa xác minh, gửi mã xác minh;
+endif
+|Khách|
+:Nhập mã xác minh từ email;
+|Hệ thống|
+:POST /auth/verify-email/confirm;
+if (Mã đúng và còn hạn?) then (có)
+  :Kích hoạt tài khoản;
+else (không)
+  :Báo mã sai hoặc hết hạn, cho gửi lại;
+endif
+stop
+@enduml

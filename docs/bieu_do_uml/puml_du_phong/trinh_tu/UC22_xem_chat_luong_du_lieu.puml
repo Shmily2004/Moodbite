@@ -1,0 +1,18 @@
+@startuml UC22_trinh_tu
+' UC22 — Xem chất lượng dữ liệu
+' API: GET /api/v1/admin/quality; /admin/restaurants/stats
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+
+actor "Quản trị viên" as QT
+boundary "UI_TrangQuanTri" as UI
+control "Ctrl_QuanTriHeThong" as CTRL
+entity "Ent_CoSoDuLieu" as DB
+
+QT -> UI : 1. Mở trang chất lượng dữ liệu
+UI -> CTRL : 2. GET /admin/quality
+CTRL -> DB : 3. Đo tỷ lệ phủ: tọa độ, giá, đánh giá, ảnh
+DB --> CTRL : 4. Số đo
+CTRL --> UI : 5. Chỉ số chất lượng
+UI --> QT : 6. Hiển thị, kèm tỷ lệ phủ
+@enduml

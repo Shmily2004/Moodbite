@@ -1,0 +1,18 @@
+@startuml UC02_hoat_dong
+' UC02 — Gợi ý món theo bộ lọc
+' API: POST /api/v1/dishes/suggest
+skinparam shadowing false
+start
+|Khách|
+:Chọn bộ lọc: tâm trạng, bữa ăn, khoảng cách;
+|Hệ thống|
+:POST /dishes/suggest;
+if (Có món phù hợp?) then (có)
+  :Hiển thị lưới món kèm cảnh báo nếu có;
+else (không)
+  :Thông báo không khớp, gợi ý bỏ bớt bộ lọc;
+endif
+|Khách|
+:Chọn một món hoặc bỏ bớt bộ lọc;
+stop
+@enduml

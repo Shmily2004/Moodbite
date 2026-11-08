@@ -1,0 +1,13 @@
+@startuml UC13_hoat_dong
+' UC13 — Quản lý bộ sưu tập
+' API: /api/v1/me/collections (GET, POST, PATCH, DELETE) và /items
+skinparam shadowing false
+start
+|Khách|
+:Tạo, đổi tên hoặc xoá bộ sưu tập;
+|Hệ thống|
+:POST / PATCH / DELETE /me/collections;
+|Khách|
+:Thêm hoặc bỏ món, quán trong bộ sưu tập;
+stop
+@enduml

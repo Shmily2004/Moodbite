@@ -1,0 +1,21 @@
+@startuml UC14_trinh_tu
+' UC14 — Xem tin tức
+' API: GET /api/v1/posts, GET /api/v1/posts/{slug}
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+
+actor "Khách" as KH
+boundary "UI_GiaoDienWeb" as UI
+control "Ctrl_HeThongXuLy" as CTRL
+entity "Ent_CoSoDuLieu" as DB
+
+KH -> UI : 1. Mở trang tin tức
+UI -> CTRL : 2. GET /posts
+CTRL -> DB : 3. Bài đã công khai
+DB --> CTRL : 4. Danh sách bài
+CTRL --> UI : 5. Danh sách bài
+UI --> KH : 6. Hiển thị danh sách
+KH -> UI : 7. Mở một bài
+UI -> CTRL : 8. GET /posts/{slug}
+CTRL --> UI : 9. Nội dung bài
+@enduml

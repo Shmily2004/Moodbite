@@ -1,0 +1,16 @@
+@startuml UC23_hoat_dong
+' UC23 — Quản lý bài viết
+' API: /api/v1/admin/posts (GET, POST, PUT, DELETE)
+skinparam shadowing false
+start
+|Quản trị viên|
+:Soạn, sửa hoặc xoá bài;
+|Hệ thống|
+:POST / PUT / DELETE /admin/posts;
+if (Bài đang công khai?) then (có)
+  :Hiển thị trên trang tin tức của khách;
+else (không)
+  :Giữ ở trạng thái nháp, chỉ quản trị thấy;
+endif
+stop
+@enduml

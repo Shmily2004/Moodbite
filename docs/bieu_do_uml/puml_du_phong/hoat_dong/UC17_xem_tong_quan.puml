@@ -1,0 +1,13 @@
+@startuml UC17_hoat_dong
+' UC17 — Xem tổng quan
+' API: GET /api/v1/admin/overview; /admin/interactions/stats; /admin/system
+skinparam shadowing false
+start
+|Quản trị viên|
+:Mở trang tổng quan;
+|Hệ thống|
+:GET /admin/overview;
+|Quản trị viên|
+:Xem số liệu;
+stop
+@enduml

@@ -1,0 +1,19 @@
+@startuml UC06_trinh_tu
+' UC06 — Báo quán đã đóng cửa
+' API: POST /api/v1/interactions {action_type: report_closed}
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+
+actor "Khách" as KH
+boundary "UI_GiaoDienWeb" as UI
+control "Ctrl_HeThongXuLy" as CTRL
+entity "Ent_CoSoDuLieu" as DB
+
+KH -> UI : 1. Bấm Báo đã đóng cửa
+UI -> CTRL : 2. POST /interactions {report_closed}
+note over CTRL : 3. Server tính khoá người báo = IP đã băm HMAC (không lấy từ body)
+CTRL -> DB : 4. Ghi lượt báo
+DB --> CTRL : 5. Đã ghi
+CTRL --> UI : 6. 201 Created
+UI --> KH : 7. Cảm ơn, quán chờ quản trị xác nhận
+@enduml

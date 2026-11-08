@@ -1,0 +1,37 @@
+# Biểu đồ UML — MoodBite
+
+**Cách xem:** mở `index.html` bằng trình duyệt. Trang có biểu đồ use case và 24 cặp (hoạt động, trình tự), mỗi use case một cặp.
+
+| Thư mục / file | Nội dung |
+|---|---|
+| `index.html` | Trang xem tất cả biểu đồ |
+| `svg/01_use_case.svg` | Biểu đồ use case: 2 actor, 24 use case, `<<include>>` và `<<extend>>` |
+| `svg/hoat_dong/UCxx_*.svg` | 24 biểu đồ hoạt động, làn bơi Khách hàng / Hệ thống / Quản trị viên |
+| `svg/trinh_tu/UCxx_*.svg` | 24 biểu đồ trình tự, ký hiệu actor, boundary, control, entity |
+| `sinh_bieu_do.py` | Đặc tả 24 use case (biến `DAC_TA`): API, các bước trình tự và hoạt động |
+| `ve_bieu_do.py` | Bộ vẽ đọc đặc tả và sinh SVG + `index.html` |
+| `puml_du_phong/` | Bản PlantUML của cùng đặc tả, dự phòng khi có PlantUML để render |
+| `_cu/` | Bản cũ (một luồng chọn món, Mermaid), không dùng nữa |
+
+## Ký hiệu
+
+- **Trình tự** (theo hình 2.16a của giáo trình): actor là hình người; boundary là vòng tròn có vạch đứng bên trái; control là vòng tròn có mũi tên; entity là vòng tròn có gạch ngang phía dưới. Lời gọi là mũi tên đặc, trả về là nét đứt mũi hở. Thanh kích hoạt là hình chữ nhật hẹp trên đường đời. Khung `alt` có nhãn điều kiện và ngăn `[khác]`.
+- **Hoạt động** (theo hình 2.15): làn bơi có tiêu đề; chấm đen là bắt đầu; vòng tròn có chấm là kết thúc; hành động là hình chữ nhật bo góc; rẽ nhánh là hình thoi có nhãn "có" / "không"; fork/join là thanh đen.
+- **Use case**: actor là hình người; use case là elip; `<<include>>` nét đứt mũi tên về use case con; `<<extend>>` nét đứt mũi tên từ use case mở rộng về use case gốc.
+
+## Cách sửa và sinh lại
+
+1. Sửa **nội dung** (bước, nhãn, thứ tự): sửa đặc tả trong `sinh_bieu_do.py`, rồi chạy:
+   ```
+   python docs/bieu_do_uml/ve_bieu_do.py
+   ```
+   Lệnh này ghi đè `svg/` và `index.html`.
+2. Sửa **vị trí** use case: bảng `VI_TRI` trong `ve_bieu_do.py`.
+3. Lệnh trên chạy được nguyên dạng trên PowerShell 5.1 (không dùng `&&`).
+
+## Trạng thái kiểm chứng
+
+- Đã vẽ đủ 49 file SVG (24 hoạt động, 24 trình tự, 1 use case). Đã chụp màn hình bằng Microsoft Edge và kiểm bằng mắt các mẫu: UC01 (alt), UC02 (rẽ nhánh), UC03 (fork/join), UC06 và UC19 (trình tự có kích hoạt).
+- **Chưa kiểm** tất cả 49 file từng cái một, và chưa đối chiếu từng ký hiệu với hình mẫu theo kiểu so pixel. Nếu thấy chỗ nào lệch chuẩn, gửi tên file để sửa.
+- Nội dung đối chiếu với `frontend/openapi.json` và các route trong `src/presentation/api/routers/`. Một số bước (cơ chế phiên đăng nhập, gửi email xác minh) được ghi ở mức tổng quát, chưa kiểm chứng chi tiết.
+- Bản PlantUML trong `puml_du_phong/` chưa được render. Nếu sau này có PlantUML, có thể dùng để so sánh.

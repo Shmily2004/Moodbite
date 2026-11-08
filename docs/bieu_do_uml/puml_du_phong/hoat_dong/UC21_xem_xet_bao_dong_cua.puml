@@ -1,0 +1,18 @@
+@startuml UC21_hoat_dong
+' UC21 — Xem xét báo đóng cửa
+' API: GET /admin/closure-reports; POST /admin/restaurants/{id}/closure-reports/clear
+skinparam shadowing false
+start
+|Quản trị viên|
+:Mở danh sách quán bị báo;
+|Hệ thống|
+:GET /admin/closure-reports;
+|Quản trị viên|
+:Kiểm tra và quyết định;
+if (Quán thực sự đã đóng cửa?) then (có)
+  :Ẩn quán (POST /hide), ghi nhật ký;
+else (không)
+  :POST .../closure-reports/clear, gỡ lượt báo;
+endif
+stop
+@enduml

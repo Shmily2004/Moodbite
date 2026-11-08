@@ -1,0 +1,18 @@
+@startuml UC01_hoat_dong
+' UC01 — Tìm quán bằng câu tự do
+' API: POST /api/v1/search
+skinparam shadowing false
+start
+|Khách|
+:Nhập câu tìm kiếm tự do;
+|Hệ thống|
+:POST /search;
+if (Có quán khớp?) then (có)
+  :Hiển thị danh sách quán, gợi ý món trong từng kết quả;
+else (không)
+  :Thông báo không có quán khớp, gợi ý nới bộ lọc;
+endif
+|Khách|
+:Xem kết quả;
+stop
+@enduml

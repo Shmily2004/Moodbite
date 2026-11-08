@@ -97,6 +97,7 @@ export type {
   UuTienVanDe,
   LopMoHinh,
   AdminUpdateRestaurantRequest,
+  AdminUpdateDishRequest,
   AdminResolvedIssuesData,
   AdminResolvedIssue,
   AdminRestaurantStatsData,

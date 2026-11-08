@@ -57,6 +57,12 @@ interface RestaurantCardProps {
   soThuTu?: number;
   /** Dáng GỌN một hàng (trang chi tiết món) - xem `ThanTheGon`. */
   gon?: boolean;
+  /**
+   * `false` khi người dùng CHƯA có vị trí thật (đang dùng trung tâm Hà Nội): khoảng cách
+   * server trả về là tính từ Hồ Gươm, nên hiện "500 m" cho người đang ở Đông Anh là sai.
+   * Lỗi báo 2026-11-08. Ẩn luôn, không hiện số có nhãn — số đó không trả lời câu hỏi.
+   */
+  hienKhoangCach?: boolean;
   /** Có thì nút "Xem chi tiết" sang TRANG QUÁN; thân thẻ vẫn mở panel xem nhanh. */
   detailLink?: LinkChiTiet;
 }
@@ -70,10 +76,11 @@ export function RestaurantCard({
   soThuTu,
   gon = false,
   detailLink,
+  hienKhoangCach = true,
 }: RestaurantCardProps) {
   const t = useT();
   const price = formatPrice(restaurant.price_range);
-  const distance = formatDistance(restaurant.distance_m);
+  const distance = hienKhoangCach ? formatDistance(restaurant.distance_m) : null;
   const fit = describeFit(restaurant.predicted_score, t);
   const reasons = describeReasons(restaurant.match_source, queryText, t);
   // TRẠNG THÁI & TUỔI THẬT - backend cào về từ 2026-08-19 nhưng giao diện chưa dùng,

@@ -1,0 +1,18 @@
+@startuml UC17_trinh_tu
+' UC17 — Xem tổng quan
+' API: GET /api/v1/admin/overview; /admin/interactions/stats; /admin/system
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+
+actor "Quản trị viên" as QT
+boundary "UI_TrangQuanTri" as UI
+control "Ctrl_QuanTriHeThong" as CTRL
+entity "Ent_CoSoDuLieu" as DB
+
+QT -> UI : 1. Mở trang tổng quan
+UI -> CTRL : 2. GET /admin/overview
+CTRL -> DB : 3. Đọc số liệu quán, món, tương tác
+DB --> CTRL : 4. Số liệu
+CTRL --> UI : 5. Tổng quan
+UI --> QT : 6. Hiển thị số liệu
+@enduml

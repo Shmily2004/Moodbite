@@ -124,6 +124,7 @@ export function SearchPage() {
             userPosition={location.isDefault ? null : location.position}
             activeId={activeId}
             onSelect={(restaurant) => setActiveId(restaurant.restaurant_id ?? null)}
+            hienKhoangCach={!location.isDefault}
           />
         </div>
 
@@ -193,6 +194,7 @@ export function SearchPage() {
                 queryText={search.queryText}
                 activeId={activeId}
                 onActivate={(id) => setActiveId(id)}
+                hienKhoangCach={!location.isDefault}
               />
             )}
           </div>

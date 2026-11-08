@@ -247,9 +247,12 @@ def test_dem_theo_uu_tien_luon_du_ba_khoa():
 def test_ghi_hai_lan_trong_cung_ngay_chi_con_MOT_dong(tmp_path):
     """Mở trang 50 lần trong ngày mà đẻ 50 điểm thì biểu đồ vẽ ra xu hướng không có thật."""
     kho = SqliteQualitySnapshotRepository(tmp_path / "q.db")
+    # Ngày LẤY THEO HÔM NAY, không ghi cố định: `doc_gan_day` chỉ trả 60 ngày gần nhất, nên
+    # một ngày cứng sẽ tự "hết hạn" theo đồng hồ và test đỏ vô cớ (đã gặp 2026-11-08).
+    hom_nay = date.today().isoformat()
 
-    kho.ghi(AnhChupChatLuong("2026-09-08", 10, 5, 90.0, 1, 1, 1))
-    kho.ghi(AnhChupChatLuong("2026-09-08", 20, 6, 91.0, 0, 1, 1))
+    kho.ghi(AnhChupChatLuong(hom_nay, 10, 5, 90.0, 1, 1, 1))
+    kho.ghi(AnhChupChatLuong(hom_nay, 20, 6, 91.0, 0, 1, 1))
 
     dong = kho.doc_gan_day()
     assert len(dong) == 1

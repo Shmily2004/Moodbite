@@ -1,0 +1,17 @@
+@startuml UC12_hoat_dong
+' UC12 — Quản lý hồ sơ, địa chỉ, sở thích
+' API: GET /auth/me; /me/addresses (GET, POST, PATCH, DELETE); /me/stats
+skinparam shadowing false
+start
+|Khách|
+:Mở trang hồ sơ;
+|Hệ thống|
+:GET /auth/me, GET /me/addresses;
+|Khách|
+:Thêm, sửa hoặc xoá địa chỉ, chỉnh sở thích;
+|Hệ thống|
+:POST / PATCH / DELETE /me/addresses;
+|Khách|
+:Thấy hồ sơ đã cập nhật;
+stop
+@enduml

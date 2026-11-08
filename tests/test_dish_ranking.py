@@ -107,15 +107,16 @@ def test_empty_filter_keeps_everything():
     assert filter_dishes(dishes, DishFilter()) == dishes
 
 
-def test_filter_that_matches_nothing_falls_back_instead_of_white_screen():
-    """Lọc xong rỗng -> trả nguyên danh sách. Thà đề xuất món chưa chắc khớp còn hơn đưa
-    người dùng vào màn hình trắng không có lối ra."""
+def test_filter_that_matches_nothing_returns_empty_NOT_the_whole_list():
+    """Lọc xong rỗng -> TRẢ RỖNG. Trước đây trả lại cả danh sách (`kept or dishes`), nên
+    "bữa sáng" hiện lẩu nướng mà không có cảnh báo nào. Báo lỗi cho người dùng là việc của
+    tầng gọi, không phải lặng lẽ nới bộ lọc ở domain."""
     dishes = [
         make_dish("Phở bò", cooking_method=METHOD_SOUP),
         make_dish("Bún riêu", cooking_method=METHOD_SOUP),
     ]
     kept = filter_dishes(dishes, DishFilter(cooking_methods=[METHOD_GRILLED]))
-    assert kept == dishes
+    assert kept == []
 
 
 def test_spice_filter_uses_upper_bound():
@@ -436,3 +437,14 @@ def test_phrase_does_not_span_name_and_category_boundary():
     index = build_dish_restaurant_index([dish], [quan], use_reviews=False)
 
     assert index["bun-cha"] == []
+
+
+def test_bua_sang_KHONG_lot_lau_toi_khi_khong_mon_sang_nao_khop():
+    """BUG 2026-11-08: chọn "bữa sáng" mà ra lẩu nướng (chỉ có bữa tối/khuya).
+
+    Nguyên nhân: `filter_dishes` có `kept or dishes`, nên lọc rỗng thì trả cả danh sách.
+    Lẩu nướng bị loại đúng, nhưng vẫn quay lại qua nhánh lùi đó.
+    """
+    lau = make_dish("Lẩu nướng", meal_times=[MEAL_DINNER])
+    kept = filter_dishes([lau], DishFilter(meal_times=[MEAL_BREAKFAST]))
+    assert kept == []

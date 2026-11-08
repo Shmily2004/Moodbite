@@ -93,6 +93,8 @@ interface RestaurantMapProps {
    * lập với bản đồ nên số thứ tự không nối được hai bên với nhau.
    */
   danhSo?: boolean;
+  /** Xem `RestaurantCard.hienKhoangCach`. Tắt khi chưa có vị trí thật của người dùng. */
+  hienKhoangCach?: boolean;
 }
 
 export function RestaurantMap({
@@ -102,6 +104,7 @@ export function RestaurantMap({
   activeId,
   onSelect,
   danhSo = false,
+  hienKhoangCach = true,
 }: RestaurantMapProps) {
   const t = useT();
   // ⚠️ Đánh số TRƯỚC khi lọc toạ độ, để số trên ghim khớp số trên thẻ.
@@ -144,7 +147,7 @@ export function RestaurantMap({
             <Popup>
               <strong>{restaurant.name}</strong>
               {restaurant.address && <div>{restaurant.address}</div>}
-              <div>{formatDistance(restaurant.distance_m)}</div>
+              {hienKhoangCach && <div>{formatDistance(restaurant.distance_m)}</div>}
               {/* null = CHƯA CÓ dữ liệu, không phải "0 sao". */}
               <div>{formatRating(restaurant.rating, restaurant.user_ratings_total, t)}</div>
               {formatPrice(restaurant.price_range) && (

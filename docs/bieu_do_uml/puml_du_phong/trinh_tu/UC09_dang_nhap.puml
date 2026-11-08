@@ -1,0 +1,24 @@
+@startuml UC09_trinh_tu
+' UC09 — Đăng nhập
+' API: POST /api/v1/auth/login
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+
+actor "Khách" as KH
+boundary "UI_GiaoDienWeb" as UI
+control "Ctrl_HeThongXuLy" as CTRL
+entity "Ent_CoSoDuLieu" as DB
+entity "Ent_TaiKhoan" as TK
+
+KH -> UI : 1. Nhập email, mật khẩu
+UI -> CTRL : 2. POST /auth/login
+CTRL -> TK : 3. Tìm tài khoản, kiểm tra mật khẩu
+TK --> CTRL : 4. Kết quả
+alt đúng mật khẩu và đã xác minh
+  CTRL --> UI : 5a. 200 OK + phiên đăng nhập
+  UI --> KH : 6a. Vào trang cá nhân
+else khác
+  CTRL --> UI : 5b. 401 Sai thông tin
+  UI --> KH : 6b. Báo lỗi
+end
+@enduml

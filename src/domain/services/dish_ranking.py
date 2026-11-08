@@ -111,14 +111,14 @@ def effective_weather(f: DishFilter, context: ContextSignal) -> WeatherCondition
 
 
 def filter_dishes(dishes: List[Dish], f: DishFilter) -> List[Dish]:
-    """Ràng buộc CỨNG. Món thiếu dữ liệu ở chiều đang lọc thì VẪN GIỮ.
+    """Ràng buộc CỨNG. Món thiếu dữ liệu ở chiều đang lọc thì VẪN GIỮ (không biết != không khớp).
 
-    Lọc xong rỗng thì trả nguyên danh sách vào - thà đề xuất món chưa chắc khớp còn hơn
-    đưa người dùng vào màn hình trắng. Cùng nguyên tắc với `_filter_opening_hours` ở
-    use case tìm quán.
+    Lọc xong rỗng thì TRẢ RỖNG, KHÔNG trả lại cả danh sách. Trước đây có `kept or dishes`:
+    bấm "bữa sáng" mà không món nào có dữ liệu bữa sáng trong bán kính thì app lặng lẽ đưa
+    lẩu nướng (chỉ có bữa tối) vào kết quả - đúng lỗi người dùng báo 2026-11-08. Tầng gọi
+    chịu trách nhiệm nói với người dùng vì sao rỗng (xem `suggest_dishes`).
     """
-    kept = [d for d in dishes if _passes_hard_filter(d, f)]
-    return kept or dishes
+    return [d for d in dishes if _passes_hard_filter(d, f)]
 
 
 def _passes_hard_filter(dish: Dish, f: DishFilter) -> bool:

@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Biểu đồ UML — MoodBite</title>
+<style>
+  :root { --nen:#FDF4E9; --chu:#10203C; --vien:#D9C8B0; --phu:#4A5769; --trang:#FFFFFF; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --nen:#15181f; --chu:#EDEFF4; --vien:#3a414f; --phu:#A3ABBA; --trang:#1d222c; }
+  }
+  :root[data-theme="dark"] { --nen:#15181f; --chu:#EDEFF4; --vien:#3a414f; --phu:#A3ABBA; --trang:#1d222c; }
+  body { margin:0; font:15px/1.5 system-ui,"Segoe UI",sans-serif; background:var(--nen); color:var(--chu); }
+  header { position:sticky; top:0; z-index:10; background:var(--nen); border-bottom:1px solid var(--vien); padding:12px 20px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+  h1 { font-size:1.1rem; margin:0 10px 0 0; }
+  nav button, .cong button { font:inherit; color:var(--chu); background:var(--trang); border:1px solid var(--vien); border-radius:8px; padding:6px 12px; cursor:pointer; }
+  nav button.dang { border-color:var(--chu); font-weight:600; }
+  .cong { display:flex; gap:6px; margin-left:auto; }
+  .ghi-chu { color:var(--phu); font-size:.85rem; padding:8px 20px 0; }
+  section { display:none; padding:12px 20px 40px; }
+  section.dang { display:block; }
+  .khung { position:relative; overflow:hidden; height:calc(100vh - 150px); min-height:420px; background:var(--trang); border:1px solid var(--vien); border-radius:10px; cursor:grab; touch-action:none; }
+  .khung.keo { cursor:grabbing; }
+  .noi { position:absolute; left:0; top:0; transform-origin:0 0; }
+  .noi svg, .noi .mermaid svg { display:block; }
+  .loi { color:#b00020; padding:12px; white-space:pre-wrap; }
+  text { font-family:"Segoe UI",system-ui,sans-serif; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Biểu đồ UML — MoodBite</h1>
+  <nav>
+    <button data-tab="uc" class="dang">Use case</button>
+    <button data-tab="hd">Hoạt động</button>
+    <button data-tab="tt">Trình tự</button>
+  </nav>
+  <div class="cong">
+    <button id="zin" title="Phóng to">+</button>
+    <button id="zout" title="Thu nhỏ">−</button>
+    <button id="vua" title="Vừa khung">Vừa khung</button>
+  </div>
+</header>
+<p class="ghi-chu">Kéo chuột để di chuyển, cuộn chuột để phóng to/thu nhỏ. Nguồn gốc: các file <code>.puml</code> cùng thư mục; sơ đồ use case vẽ trực tiếp bằng SVG (xem ghi chú ở cuối trang).</p>
+
+<section id="uc" class="dang">
+  <div class="khung" data-khung></div>
+</section>
+
+<section id="hd">
+  <div class="khung" data-khung><div class="noi" id="noi-hd"></div></div>
+</section>
+
+<section id="tt">
+  <div class="khung" data-khung><div class="noi" id="noi-tt"></div></div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<script>
+const CSS_NS = "http://www.w3.org/2000/svg";
+const KHUNG = {};   // id tab -> {noi, scale, x, y}
+
+// ---------- 1. USE CASE: vẽ SVG trực tiếp ----------
+// Ký hiệu UML: actor = hình người; use case = elip; quan hệ include/extend = mũi tên nét đứt
+// (include: mũi tên về use case con; extend: mũi tên TỪ use case mở rộng VỀ use case gốc).
+function ucSVG() {
+  const W = 1120, H = 860, RX = 92, RY = 22;
+  const parts = [];
+  const add = (s) => parts.push(s);
+  add(`<defs>
+    <marker id="mui" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#333"/></marker></defs>`);
+
+  // Ranh giới hệ thống
+  add(`<rect x="200" y="30" width="420" height="800" fill="none" stroke="#333" stroke-width="1.5"/>`);
+  add(`<text x="410" y="50" text-anchor="middle" font-size="13" font-weight="600" fill="#333">Hệ thống MoodBite — phía người dùng</text>`);
+  add(`<rect x="670" y="30" width="290" height="480" fill="none" stroke="#333" stroke-width="1.5"/>`);
+  add(`<text x="815" y="50" text-anchor="middle" font-size="13" font-weight="600" fill="#333">Hệ thống MoodBite — quản trị</text>`);
+
+  const KH = [
+    ["UC_Search","Tìm quán bằng câu tự do"],["UC_Suggest","Gợi ý món theo bộ lọc"],
+    ["UC_DishDetail","Xem chi tiết món"],["UC_DishRestaurants","Xem danh sách quán của món"],
+    ["UC_RestDetail","Xem chi tiết quán"],["UC_Log","Ghi nhận tương tác"],
+    ["UC_Closure","Báo quán đã đóng cửa"],["UC_Fav","Lưu món / quán yêu thích"],
+    ["UC_Register","Đăng ký (xác minh email)"],["UC_Login","Đăng nhập"],
+    ["UC_Reset","Quên / đặt lại mật khẩu"],["UC_ChangePw","Đổi mật khẩu"],
+    ["UC_Profile","Quản lý hồ sơ, địa chỉ, sở thích"],["UC_Posts","Xem tin tức"],["UC_Logout","Đăng xuất"]
+  ];
+  const AD = [
+    ["A_Login","Đăng nhập quản trị"],["A_Overview","Xem tổng quan"],["A_Dish","Xem và sửa mô tả món"],
+    ["A_Restaurant","Quản lý quán (sửa, ẩn, khôi phục, thêm)"],["A_Issue","Xử lý vấn đề dữ liệu"],
+    ["A_Closure","Xem xét báo đóng cửa"],["A_Quality","Xem chất lượng dữ liệu"],
+    ["A_Posts","Quản lý bài viết"],["A_Log","Xem nhật ký hoạt động"]
+  ];
+  const pos = {};
+  KH.forEach(([id], i) => pos[id] = { x: 410, y: 80 + i * 52 });
+  AD.forEach(([id], i) => pos[id] = { x: 815, y: 80 + i * 52 });
+
+  // Actor (hình người) — bên trái và bên phải
+  const nguoi = (x, y, ten) => `
+    <g>
+      <circle cx="${x}" cy="${y-62}" r="9" fill="none" stroke="#333" stroke-width="1.5"/>
+      <line x1="${x}" y1="${y-53}" x2="${x}" y2="${y-18}" stroke="#333" stroke-width="1.5"/>
+      <line x1="${x-14}" y1="${y-42}" x2="${x+14}" y2="${y-42}" stroke="#333" stroke-width="1.5"/>
+      <line x1="${x}" y1="${y-18}" x2="${x-12}" y2="${y+6}" stroke="#333" stroke-width="1.5"/>
+      <line x1="${x}" y1="${y-18}" x2="${x+12}" y2="${y+6}" stroke="#333" stroke-width="1.5"/>
+      <text x="${x}" y="${y+26}" text-anchor="middle" font-size="13" fill="#333">${ten}</text>
+    </g>`;
+  const KH_X = 70, KH_Y = 420, AD_X = 1050, AD_Y = 280;
+
+  // Đường liền: actor — use case (không mũi tên)
+  KH.forEach(([id]) => add(`<line x1="${KH_X+14}" y1="${KH_Y-40}" x2="${pos[id].x-RX}" y2="${pos[id].y}" stroke="#777" stroke-width="1"/>`));
+  AD.forEach(([id]) => add(`<line x1="${AD_X-14}" y1="${AD_Y-40}" x2="${pos[id].x+RX}" y2="${pos[id].y}" stroke="#777" stroke-width="1"/>`));
+
+  // Quan hệ nét đứt
+  const nét = (d, nhan, lx, ly) => add(`
+    <path d="${d}" fill="none" stroke="#333" stroke-width="1.3" stroke-dasharray="6 4" marker-end="url(#mui)"/>
+    <text x="${lx}" y="${ly}" font-size="11" fill="#333" text-anchor="middle">${nhan}</text>`);
+  const doc = (a, b) => ({ x1: pos[a].x, y1: pos[a].y + (pos[b].y > pos[a].y ? RY : -RY),
+                           x2: pos[b].x, y2: pos[b].y + (pos[b].y > pos[a].y ? -RY : RY) });
+  const thang = (a, b, nhan) => { const c = doc(a, b); nét(`M${c.x1},${c.y1} L${c.x2},${c.y2}`, nhan, 520, (c.y1+c.y2)/2 + 4); };
+  const lane = (a, b, lx, nhan) => { // đi vòng bên trái, tránh cắt các elip khác
+    const pa = pos[a], pb = pos[b];
+    nét(`M${pa.x-RX},${pa.y} H${lx} V${pb.y} H${pb.x-RX}`, nhan, lx - 4, (pa.y+pb.y)/2 - 6);
+  };
+  const laneAdmin = (a, b, lx, nhan) => {
+    const pa = pos[a], pb = pos[b];
+    nét(`M${pa.x+RX},${pa.y} H${lx} V${pb.y} H${pb.x+RX}`, nhan, lx + 4, (pa.y+pb.y)/2 - 6);
+  };
+
+  // include (đứt, mũi tên về use case con)
+  thang("UC_DishDetail","UC_DishRestaurants","«include»");
+  thang("UC_RestDetail","UC_Log","«include»");
+  lane("UC_Profile","UC_Login",265,"«include»");
+  lane("UC_ChangePw","UC_Login",245,"«include»");
+  laneAdmin("A_Dish","A_Login",705,"«include»");
+  laneAdmin("A_Restaurant","A_Login",700,"«include»");
+  laneAdmin("A_Issue","A_Login",695,"«include»");
+  laneAdmin("A_Closure","A_Login",690,"«include»");
+  // extend (đứt, mũi tên từ use case mở rộng về use case gốc)
+  thang("UC_DishDetail","UC_Suggest","«extend»");
+  lane("UC_Closure","UC_RestDetail",240,"«extend»");
+  lane("UC_Fav","UC_RestDetail",258,"«extend»");
+  thang("UC_Reset","UC_Login","«extend»");
+  laneAdmin("A_Issue","A_Quality",935,"«extend»");
+
+  // Ca sử dụng (elip) — vẽ sau cùng để che đường nối
+  const elip = (id, ten, nen) => {
+    const p = pos[id];
+    add(`<ellipse cx="${p.x}" cy="${p.y}" rx="${RX}" ry="${RY}" fill="${nen}" stroke="#333" stroke-width="1.2"/>`);
+    add(`<text x="${p.x}" y="${p.y+4}" text-anchor="middle" font-size="12" fill="#222">${ten}</text>`);
+  };
+  KH.forEach(([id, ten]) => elip(id, ten, "#FFFFFF"));
+  AD.forEach(([id, ten]) => elip(id, ten, "#FFFFFF"));
+
+  add(nguoi(KH_X, KH_Y, "Khách (người dùng)"));
+  add(nguoi(AD_X, AD_Y, "Quản trị viên"));
+
+  return `<svg xmlns="${CSS_NS}" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="Segoe UI, system-ui, sans-serif">${parts.join("\n")}</svg>`;
+}
+
+// ---------- 2. HOẠT ĐỘNG & 3. TRÌNH TỰ: Mermaid ----------
+const HOAT_DONG = `flowchart TD
+  subgraph K["Khách"]
+    direction TB
+    k0((Bắt đầu)) --> k1[Mở trang chủ] --> k2[Chọn bộ lọc: tâm trạng, khoảng cách, bữa ăn]
+    k3[Chọn một món]
+    k4[Chọn một quán]
+    k5[Thao tác tiếp theo?]
+    k6[Mở chỉ đường Google Maps]
+    k7[Lưu quán / món vào yêu thích]
+    k8[Báo quán đã đóng cửa, cần xác nhận lần 2]
+    kend((Kết thúc))
+    k5 -- chỉ đường --> k6 --> kend
+    k5 -- lưu --> k7 --> kend
+    k5 -- báo đóng cửa --> k8 --> kend
+  end
+  subgraph H["Hệ thống"]
+    direction TB
+    h1[Gửi yêu cầu gợi ý món: POST /dishes/suggest]
+    h2{Có món phù hợp?}
+    h3[Hiển thị lưới món và cảnh báo nếu có]
+    h4[Hiển thị thông báo không khớp và gợi ý bỏ bớt bộ lọc]
+    h5[[Tải thông tin món: GET /dishes/id]]
+    h6[[Tải danh sách quán bán món: GET /dishes/id/restaurants]]
+    hj[ ]
+    h7[Hiển thị trang món: giới thiệu, quán, bản đồ]
+    h8{Có quán trong bán kính?}
+    h9[Xếp quán theo mức phù hợp]
+    h10[Nới bán kính, lấy quán gần nhất, CẢNH BÁO khoảng cách]
+    h11[Hiển thị chi tiết quán và mức tin cậy món]
+    h12[Ghi nhận lượt xem: POST /interactions]
+  end
+  k2 --> h1 --> h2
+  h2 -- có --> h3 --> k3
+  h2 -- không --> h4 --> k4x[Khách bỏ bớt một bộ lọc] --> stop1((Dừng))
+  k3 --> h5
+  k3 --> h6
+  h5 --> hj
+  h6 --> hj
+  hj --> h7 --> h8
+  h8 -- có --> h9 --> k4
+  h8 -- không --> h10 --> k4
+  k4 --> h11 --> h12 --> k5
+  classDef thanh fill:#222,stroke:#222,color:#222
+  class hj thanh`;
+
+const TRINH_TU = `sequenceDiagram
+  actor KH as Khách hàng
+  participant UI as UI_GiaoDienWeb
+  participant CTRL as Ctrl_HeThongXuLy
+  participant DB as Ent_CoSoDuLieu
+  KH->>UI: 1. Mở trang chủ, chọn bộ lọc
+  UI->>CTRL: 2. POST /dishes/suggest
+  CTRL->>DB: 3. Lấy danh mục món đang bật và chỉ mục món-quán
+  DB-->>CTRL: 4. Danh sách món và số quán
+  Note over CTRL: 5. Suy ngữ cảnh (giờ, thời tiết) rồi xếp hạng món
+  CTRL-->>UI: 6. Danh sách món và warnings
+  UI-->>KH: 7. Hiển thị lưới món
+  alt Có món phù hợp
+    KH->>UI: 8. Chọn một món
+    par Tải song song
+      UI->>CTRL: 9a. GET /dishes/id
+      CTRL->>DB: 10a. Tra món theo id
+      DB-->>CTRL: 11a. Thông tin món
+      CTRL-->>UI: 12a. Chi tiết món
+    and
+      UI->>CTRL: 9b. GET /dishes/id/restaurants
+      CTRL->>DB: 10b. Quán khớp món theo chỉ mục
+      DB-->>CTRL: 11b. Danh sách quán
+      Note over CTRL: 12b. Lọc bán kính, nới và cảnh báo nếu không có quán gần
+      CTRL-->>UI: 13b. Quán và warnings
+    end
+    UI-->>KH: 14. Hiển thị giới thiệu, danh sách quán và bản đồ
+    opt Khách mở chi tiết một quán
+      KH->>UI: 15. Chọn quán
+      UI->>CTRL: 16. GET /restaurants/id
+      CTRL->>DB: 17. Đọc chi tiết quán
+      DB-->>CTRL: 18. Chi tiết quán
+      CTRL-->>UI: 19. Chi tiết quán
+      UI-->>KH: 20. Hiển thị chi tiết quán
+      UI->>CTRL: 21. POST /interactions ghi lượt xem
+      CTRL-->>UI: 22. 201 Created
+    end
+  else Không có món phù hợp
+    UI-->>KH: 8a. Thông báo không có món khớp và gợi ý bỏ bớt bộ lọc
+  end`;
+
+// ---------- Khung kéo / phóng to ----------
+function gắnKhung(khung, noi) {
+  const st = { s: 1, x: 0, y: 0 };
+  const áp = () => { noi.style.transform = `translate(${st.x}px, ${st.y}px) scale(${st.s})`; };
+  let dang = null;
+  khung.addEventListener("pointerdown", e => {
+    dang = { id: e.pointerId, x: e.clientX - st.x, y: e.clientY - st.y };
+    khung.setPointerCapture(e.pointerId); khung.classList.add("keo");
+  });
+  khung.addEventListener("pointermove", e => {
+    if (!dang || dang.id !== e.pointerId) return;
+    st.x = e.clientX - dang.x; st.y = e.clientY - dang.y; áp();
+  });
+  const thôi = () => { dang = null; khung.classList.remove("keo"); };
+  khung.addEventListener("pointerup", thôi);
+  khung.addEventListener("pointercancel", thôi);
+  khung.addEventListener("wheel", e => {
+    e.preventDefault();
+    const r = khung.getBoundingClientRect();
+    const mx = e.clientX - r.left, my = e.clientY - r.top;
+    const cu = st.s, moi = Math.min(4, Math.max(0.2, cu * (e.deltaY < 0 ? 1.1 : 1/1.1)));
+    st.x = mx - (mx - st.x) * (moi / cu); st.y = my - (my - st.y) * (moi / cu); st.s = moi; áp();
+  }, { passive: false });
+  return {
+    phóng(k) { const r = khung.getBoundingClientRect(); const mx = r.width/2, my = r.height/2;
+      const moi = Math.min(4, Math.max(0.2, st.s * k));
+      st.x = mx - (mx - st.x) * (moi / st.s); st.y = my - (my - st.y) * (moi / st.s); st.s = moi; áp(); },
+    vừa(kichThuoc) {
+      const r = khung.getBoundingClientRect();
+      const s = Math.min((r.width - 40) / kichThuoc.w, (r.height - 40) / kichThuoc.h, 2.5);
+      st.s = s; st.x = (r.width - kichThuoc.w * s) / 2; st.y = 20; áp();
+    },
+    áp
+  };
+}
+
+const ĐIỀU_KHIỂN = {};
+function khungHienTai() {
+  const tab = document.querySelector("nav button.dang").dataset.tab;
+  return ĐIỀU_KHIỂN[tab];
+}
+
+// Vẽ use case
+(function () {
+  const khung = document.querySelector('#uc [data-khung]');
+  const noi = document.createElement("div");
+  noi.className = "noi"; noi.innerHTML = ucSVG(); khung.appendChild(noi);
+  const đk = gắnKhung(khung, noi);
+  ĐIỀU_KHIỂN.uc = { đk, kich: { w: 1120, h: 860 } };
+  đk.vừa({ w: 1120, h: 860 });
+})();
+
+// Mermaid
+mermaid.initialize({ startOnLoad: false, securityLevel: "strict", theme: "neutral", themeVariables: { fontSize: "18px" }, flowchart: { htmlLabels: true, curve: "basis", padding: 14 }, sequence: { mirrorActors: false, actorMargin: 60, messageFontSize: 16, noteFontSize: 15, actorFontSize: 16 } });
+
+async function veMermaid(id, code, kich) {
+  const noi = document.getElementById(id);
+  const khung = noi.parentElement;
+  try {
+    const { svg } = await mermaid.render(id + "-svg", code);
+    noi.innerHTML = svg;
+    const svgEl = noi.querySelector("svg");
+    svgEl.removeAttribute("height"); svgEl.style.maxWidth = "none";
+    const r = svgEl.getBBox ? svgEl.getBoundingClientRect() : { width: 900, height: 700 };
+    const đk = gắnKhung(khung, noi);
+    const tab = id === "noi-hd" ? "hd" : "tt";
+    ĐIỀU_KHIỂN[tab] = { đk, kich: { w: svgEl.getBoundingClientRect().width, h: svgEl.getBoundingClientRect().height } };
+    đk.vừa(ĐIỀU_KHIỂN[tab].kich);
+  } catch (err) {
+    noi.innerHTML = `<div class="loi">Không vẽ được biểu đồ: ${String(err && err.message || err)}</div>`;
+  }
+}
+veMermaid("noi-hd", HOAT_DONG);
+veMermaid("noi-tt", TRINH_TU);
+
+// Chuyển tab + nút điều khiển
+document.querySelectorAll("nav button").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll("nav button").forEach(x => x.classList.remove("dang"));
+  b.classList.add("dang");
+  document.querySelectorAll("section").forEach(s => s.classList.toggle("dang", s.id === b.dataset.tab));
+  const d = khungHienTai();
+  if (d) d.đk.vừa(d.kich);
+}));
+document.getElementById("zin").onclick = () => { const d = khungHienTai(); if (d) d.đk.phóng(1.2); };
+document.getElementById("zout").onclick = () => { const d = khungHienTai(); if (d) d.đk.phóng(1/1.2); };
+document.getElementById("vua").onclick = () => { const d = khungHienTai(); if (d) d.đk.vừa(d.kich); };
+
+// Mở thẳng một tab qua đường dẫn, ví dụ xem_bieu_do.html#tt
+const tabMo = location.hash.replace("#", "");
+if (tabMo) { const nut = document.querySelector(`nav button[data-tab="${tabMo}"]`); if (nut) nut.click(); }
+</script>
+</body>
+</html>

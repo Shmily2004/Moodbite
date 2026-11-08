@@ -28,6 +28,7 @@ from typing import Callable, Dict, List, Mapping, Optional, Sequence, Tuple
 
 from src.domain.entities.restaurant import Restaurant
 from src.domain.value_objects.location import Location
+from src.domain.value_objects.text import normalize
 from src.application.ports.admin_restaurant_repository import (
     ADMIN_STATUS_HIDDEN,
     ADMIN_STATUS_VISIBLE,
@@ -41,6 +42,15 @@ from src.infrastructure.config.settings import describe_path
 from src.infrastructure.repositories.sqlite_ket_noi import mo_ket_noi
 
 logger = logging.getLogger("moodbite.repository")
+
+# Tên hàm SQL đăng ký trên kết nối đọc. Gọi bằng tên để câu SQL đọc được; logic thật nằm ở
+# domain (`normalize`), không viết lại trong SQL.
+_HAM_BO_DAU_SQL = "moodbite_bo_dau"
+
+
+def _bo_dau_cho_sql(value):
+    """Cầu nối cho SQLite: chữ có dấu -> bản bỏ dấu, hạ chữ thường. NULL -> chuỗi rỗng."""
+    return normalize(value) if value is not None else ""
 
 # Cột admin được phép GHI. Danh sách này là chốt chặn cuối chống SQL injection: tên cột
 # không tham số hoá được nên phải so với danh sách trắng cố định.
@@ -318,8 +328,13 @@ class SqliteRestaurantRepository:
             # LIKE không phân biệt hoa thường cho ASCII; tiếng Việt có dấu vẫn khớp
             # được vì admin thường gõ đúng tên hiển thị. Tìm kiếm cho NGƯỜI DÙNG mới
             # cần bỏ dấu - đó là việc của domain, không phải của lớp quản trị.
-            conditions.append("(name LIKE ? OR place_id LIKE ? OR address LIKE ?)")
-            params.extend([f"%{filters.query}%"] * 3)
+            # Cả hai vế đều đi qua cùng hàm bỏ dấu + hạ chữ thường -> không phụ thuộc
+            # người gõ có dấu, viết hoa hay không.
+            conditions.append(
+                f"({_HAM_BO_DAU_SQL}(name) LIKE ? OR {_HAM_BO_DAU_SQL}(place_id) LIKE ? "
+                f"OR {_HAM_BO_DAU_SQL}(address) LIKE ?)"
+            )
+            params.extend([f"%{normalize(filters.query)}%"] * 3)
         where = (" WHERE " + " AND ".join(conditions)) if conditions else ""
         return where, params
 
@@ -474,6 +489,10 @@ class SqliteRestaurantRepository:
                 f"file:{self.db_path.as_posix()}?mode=ro", uri=True
             ) as conn:
                 conn.row_factory = sqlite3.Row
+                # Hàm bỏ dấu dùng CHUNG với domain (`normalize`) để ô tìm của admin khớp
+                # "pho thin" với "Phở Thìn". SQLite `LIKE` chỉ bỏ hoa/thường với chữ ASCII,
+                # nên "PHỞ THÌN" trước đây chỉ ra 2 quán còn "phở thìn" ra 21.
+                conn.create_function(_HAM_BO_DAU_SQL, 1, _bo_dau_cho_sql, deterministic=True)
                 return conn.execute(sql, params).fetchall()
         except sqlite3.Error as exc:
             logger.error("Lỗi đọc CSDL quản trị: %s", exc)

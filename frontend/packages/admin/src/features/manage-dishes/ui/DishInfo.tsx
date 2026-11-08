@@ -8,6 +8,7 @@
  * ⚠️ CHỈ ĐỌC. Không có nút Sửa vì `dish_catalog.json` là file do
  * `scripts/build_dish_catalog.py` SINH RA — sửa qua đây sẽ bị lần chạy sau ghi đè.
  */
+import { useState } from 'react';
 import type { AdminDishDetail } from '@admin/shared/api';
 import {
   NHAN_BUA_AN,
@@ -18,7 +19,114 @@ import {
 } from '@admin/shared/config';
 import { ngayGioVN, safeHttpUrl } from '@admin/shared/lib';
 
-export function DishInfo({ data }: { data: AdminDishDetail }) {
+/** Trần độ dài mô tả — khớp `DESCRIPTION_MAX_LENGTH` ở backend (domain/value_objects). */
+const MO_TA_MAX = 1000;
+
+/**
+ * Mô tả món + nút sửa. Tách riêng vì nó có TRẠNG THÁI RIÊNG (đang sửa, đang lưu, lỗi),
+ * không được làm bẩn phần còn lại của tab thông tin.
+ *
+ * Chữ đang gõ giữ trong state cục bộ và CHỈ gửi khi bấm Lưu, nên bộ gõ tiếng Việt không bị
+ * ngắt giữa chừng (cùng lý do với ô tìm kiếm — xem `shared/ui/OTimKiem.tsx`).
+ */
+function KhoiMoTa({
+  data,
+  onLuu,
+}: {
+  data: AdminDishDetail;
+  onLuu?: (text: string | null) => Promise<string | null>;
+}) {
+  const [dangSua, setDangSua] = useState(false);
+  const [nhap, setNhap] = useState('');
+  const [dangLuu, setDangLuu] = useState(false);
+  const [loi, setLoi] = useState<string | null>(null);
+
+  const batDauSua = () => {
+    setNhap(data.description ?? '');
+    setLoi(null);
+    setDangSua(true);
+  };
+
+  const luu = async (text: string | null) => {
+    if (!onLuu) return;
+    setDangLuu(true);
+    const loiMoi = await onLuu(text);
+    setDangLuu(false);
+    if (loiMoi) setLoi(loiMoi);
+    else setDangSua(false);
+  };
+
+  if (dangSua) {
+    return (
+      <div>
+        <textarea
+          className="o-nhap"
+          rows={5}
+          maxLength={MO_TA_MAX}
+          value={nhap}
+          onChange={(e) => setNhap(e.target.value)}
+          aria-label="Mô tả món"
+        />
+        <p className="muted">
+          {nhap.trim().length}/{MO_TA_MAX} ký tự. Để trống rồi lưu = gỡ bản sửa, trở về mô tả
+          gốc.
+        </p>
+        {loi && <p className="notice notice--warn">{loi}</p>}
+        <div>
+          <button
+            type="button"
+            className="btn nut-chinh"
+            onClick={() => luu(nhap)}
+            disabled={dangLuu}
+          >
+            {dangLuu ? 'Đang lưu…' : 'Lưu'}
+          </button>{' '}
+          <button type="button" className="btn" onClick={() => setDangSua(false)} disabled={dangLuu}>
+            Huỷ
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      {data.description ? (
+        <p className="chi-tiet__mo-ta">{data.description}</p>
+      ) : (
+        <p className="muted">Chưa tra được giới thiệu cho món này.</p>
+      )}
+      {data.mo_ta_da_sua && (
+        <p className="muted">Đang hiện bản do quản trị viên sửa tay (mô tả gốc đã được giữ nguyên).</p>
+      )}
+      {onLuu && (
+        <div>
+          <button type="button" className="btn" onClick={batDauSua}>
+            Sửa mô tả
+          </button>
+          {data.mo_ta_da_sua && (
+            <>
+              {' '}
+              <button type="button" className="btn" onClick={() => luu(null)} disabled={dangLuu}>
+                Gỡ bản sửa
+              </button>
+            </>
+          )}
+          {loi && <p className="notice notice--warn">{loi}</p>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function DishInfo({
+  data,
+  onLuuMoTa,
+}: {
+  data: AdminDishDetail;
+  /** Có thì hiện nút sửa mô tả. Không có thì khối vẫn CHỈ ĐỌC như trước. */
+  onLuuMoTa?: (text: string | null) => Promise<string | null>;
+}) {
   // `match_keywords`/`meal_times` có `default_factory` ở backend nên kiểu sinh ra là
   // optional. Chuẩn hoá một lần ở đây thay vì rải `?? []` khắp phần dựng.
   const tuKhoa = data.match_keywords ?? [];
@@ -28,11 +136,7 @@ export function DishInfo({ data }: { data: AdminDishDetail }) {
   return (
     <div className="chi-tiet__than">
       <h4 className="chi-tiet__nhan">Giới thiệu</h4>
-      {data.description ? (
-        <p className="chi-tiet__mo-ta">{data.description}</p>
-      ) : (
-        <p className="muted">Chưa tra được giới thiệu cho món này.</p>
-      )}
+      <KhoiMoTa data={data} onLuu={onLuuMoTa} />
 
       {/* Từ khoá đối chiếu là thứ QUYẾT ĐỊNH món này ra quán nào. Với admin đang đi tìm
           "vì sao món X không ra quán nào", đây là thông tin quan trọng nhất. */}

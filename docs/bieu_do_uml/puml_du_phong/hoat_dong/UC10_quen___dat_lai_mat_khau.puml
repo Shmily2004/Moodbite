@@ -1,0 +1,19 @@
+@startuml UC10_hoat_dong
+' UC10 — Quên / đặt lại mật khẩu
+' API: POST /api/v1/auth/forgot-password; POST /auth/reset-password
+skinparam shadowing false
+start
+|Khách|
+:Nhập email quên mật khẩu;
+|Hệ thống|
+:POST /auth/forgot-password (gửi mã);
+|Khách|
+:Nhập mã và mật khẩu mới;
+|Hệ thống|
+if (Mã đúng và còn hạn?) then (có)
+  :POST /auth/reset-password, cập nhật mật khẩu;
+else (không)
+  :Báo mã sai hoặc hết hạn;
+endif
+stop
+@enduml

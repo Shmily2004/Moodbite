@@ -1,0 +1,71 @@
+' ============================================================================
+' BIỂU ĐỒ HOẠT ĐỘNG — luồng "Chọn món trước, tìm quán sau" (lối vào chính)
+' Khớp code thật:
+'   - Trang chủ gọi POST /dishes/suggest          (features/suggest-dishes)
+'   - Trang món gọi GET /dishes/{id} VÀ          (features/view-dish-detail)
+'     GET /dishes/{id}/restaurants SONG SONG      -> thanh fork/join bên dưới
+'   - Khi không có quán trong bán kính: app nới bán kính và CẢNH BÁO (warnings)
+' Ký hiệu: nút tròn đen = bắt đầu · tròn có viền = kết thúc · hình thoi = rẽ nhánh
+'          thanh đen dày = fork/join · cột = swimlane (ai thực hiện bước đó)
+' Sửa: thêm  :Bước mới;  giữa hai dòng; rẽ nhánh dùng if/else/endif.
+' ============================================================================
+@startuml 02_bieu_do_hoat_dong
+skinparam shadowing false
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #333333
+  ArrowColor #333333
+  DiamondBackgroundColor #FFFFFF
+}
+
+|Khách|
+start
+:Mở trang chủ;
+:Chọn bộ lọc\n(tâm trạng, khoảng cách, bữa ăn);
+
+|Hệ thống|
+:Gửi yêu cầu gợi ý món\nPOST /dishes/suggest;
+if (Có món phù hợp?) then (có)
+  :Hiển thị lưới món\n+ cảnh báo nếu có;
+else (không)
+  :Hiển thị thông báo\n"không có món khớp bộ lọc"\n+ gợi ý bỏ bớt bộ lọc;
+  |Khách|
+  :Bỏ bớt một bộ lọc;
+  stop
+endif
+
+|Khách|
+:Chọn một món;
+
+|Hệ thống|
+fork
+  :Tải thông tin món\nGET /dishes/{id};
+fork again
+  :Tải danh sách quán bán món\nGET /dishes/{id}/restaurants;
+end fork
+:Hiển thị trang món:\ngiới thiệu + danh sách quán + bản đồ;
+
+if (Có quán trong bán kính?) then (có)
+  :Xếp quán theo mức phù hợp;
+else (không)
+  :Nới bán kính, lấy quán gần nhất\nvà CẢNH BÁO khoảng cách;
+endif
+
+|Khách|
+:Chọn một quán;
+
+|Hệ thống|
+:Hiển thị chi tiết quán\n(địa chỉ, giờ, nguồn dữ liệu,\nmức tin cậy của gợi ý món);
+:Ghi nhận lượt xem\nPOST /interactions;
+
+|Khách|
+if (Thao tác tiếp theo?) then (chỉ đường)
+  :Mở chỉ đường\n(liên kết Google Maps);
+elseif (Lưu?) then (lưu)
+  :Lưu quán / món vào yêu thích;
+else (báo đóng cửa)
+  :Báo quán đã đóng cửa\n(cần xác nhận lần 2);
+endif
+stop
+
+@enduml

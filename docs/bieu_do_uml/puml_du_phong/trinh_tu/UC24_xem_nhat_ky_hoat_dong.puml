@@ -1,0 +1,19 @@
+@startuml UC24_trinh_tu
+' UC24 — Xem nhật ký hoạt động
+' API: GET /api/v1/admin/activity
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+
+actor "Quản trị viên" as QT
+boundary "UI_TrangQuanTri" as UI
+control "Ctrl_QuanTriHeThong" as CTRL
+entity "Ent_CoSoDuLieu" as DB
+entity "Ent_NhatKy" as NK
+
+QT -> UI : 1. Mở nhật ký
+UI -> CTRL : 2. GET /admin/activity
+CTRL -> NK : 3. Đọc nhật ký
+NK --> CTRL : 4. Các dòng nhật ký
+CTRL --> UI : 5. Danh sách
+UI --> QT : 6. Hiển thị theo thời gian
+@enduml

@@ -1,0 +1,16 @@
+@startuml UC04_hoat_dong
+' UC04 — Xem danh sách quán của món
+' API: GET /api/v1/dishes/{id}/restaurants
+skinparam shadowing false
+start
+|Hệ thống|
+:Tra các quán khớp món theo chỉ mục;
+if (Có quán trong bán kính?) then (có)
+  :Xếp quán theo mức phù hợp;
+else (không)
+  :Nới bán kính, lấy quán gần nhất, CẢNH BÁO khoảng cách;
+endif
+|Khách|
+:Xem danh sách quán;
+stop
+@enduml

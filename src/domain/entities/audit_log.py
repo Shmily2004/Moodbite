@@ -52,6 +52,8 @@ class AuditAction(str, Enum):
     # Gỡ lượt "người dùng báo quán đã đóng cửa" (thêm 2026-10-06). KHÁC `restore_restaurant`:
     # khôi phục chỉ bật lại `is_active`, còn quán bị ẩn vì lượt báo vẫn đang `is_active=1`.
     CLEAR_CLOSURE_REPORTS = "clear_closure_reports"
+    # Sửa (hoặc gỡ sửa) mô tả MÓN. Bản sửa nằm ở `dish_overrides`, không đụng `dish_catalog.json`.
+    UPDATE_DISH = "update_dish"
 
 
 # Nhãn tiếng Việt để giao diện khỏi tự dịch. Để ở domain vì đây là NGÔN NGỮ NGHIỆP VỤ —

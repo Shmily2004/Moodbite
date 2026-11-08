@@ -24,6 +24,7 @@ mọi đường dẫn, ký hiệu, tên test trong file này phải tồn tại,
 | D1.2 | Quy tắc lọc & xếp hạng món | `src/domain/services/dish_ranking.py` | `tests/test_dish_ranking.py` |
 | D1.3 | Tổng trọng số xếp hạng = 1.0 | `dish_ranking.W_*` | `test_weights_sum_to_one` |
 | D1.4 | Món thiếu dữ liệu KHÔNG bị loại | `dish_ranking._passes_hard_filter` | `test_hard_filter_keeps_dish_with_missing_data` |
+| D1.5 | Lọc rỗng thì TRẢ RỖNG + cảnh báo (không trả lại cả danh sách khi bữa sáng không khớp) | `dish_ranking.filter_dishes` · `suggest_dishes.py` | `test_filter_that_matches_nothing_returns_empty_NOT_the_whole_list` · `test_bua_sang_KHONG_lot_lau_toi_khi_khong_mon_sang_nao_khop` |
 | D1.5 | Ẩn món 0 quán **và nói rõ đã ẩn** | `suggest_dishes._drop_dead_ends` | `test_dish_without_nearby_restaurant_is_hidden_and_announced` |
 | D1.6 | Lọc "chỉ quán có ghi giá" phải nói ra món bị ẩn | `src/application/use_cases/suggest_dishes.py` | `test_suggest_an_mon_khong_quan_nao_ghi_gia_va_noi_ra` |
 | D2.1 | Giới thiệu ngắn về món | `src/domain/entities/dish.py` (`description`, `has_description`) | `test_dish_detail_returns_short_intro` |
@@ -90,6 +91,10 @@ mọi đường dẫn, ký hiệu, tên test trong file này phải tồn tại,
 | Q3.3 | Inbox "Cần xử lý" | `src/application/use_cases/manage_issues.py` · `src/domain/services/data_issues.py` · `src/domain/entities/issue_resolution.py` | `test_tab_da_xu_ly_KHONG_bi_route_issues_key_nuot` · `test_can_xu_ly_giu_lai_ca_dong_bang_0` |
 | Q3.4 | Xem và gỡ lượt báo đóng cửa | `src/presentation/api/routers/admin_closures.py` · `src/application/use_cases/manage_closure_reports.py` | `test_xoa_luot_bao_thi_quan_hien_lai_va_dem_lai_tu_dau` |
 | Q3.5 | Nhật ký hoạt động quản trị | `src/application/use_cases/manage_audit_log.py` · `src/domain/entities/audit_log.py` | `test_sua_quan_thi_nhat_ky_noi_ro_CU_ROI_MOI` · `test_GHI_NHAT_KY_HONG_KHONG_LAM_HONG_THAO_TAC` |
+| Q3.6 | Sửa mô tả món (bản sửa tay, đọc chồng lên danh mục gốc, có nhật ký) | `src/application/use_cases/edit_dish_description.py` · `src/domain/value_objects/dish_description.py` · `src/infrastructure/repositories/overlay_dish_catalog_repository.py` · `src/infrastructure/repositories/sqlite_dish_override_repository.py` | `test_sua_xong_chi_tiet_hien_ban_moi_va_danh_dau_da_sua` · `test_overlay_doc_chong_ban_sua_nhung_goc_van_nguyen` · `test_moi_lan_sua_deu_vao_nhat_ky` |
+| Q3.7 | Tìm quán (admin) không phân biệt dấu và hoa/thường | `src/infrastructure/repositories/sqlite_restaurant_repository.py` · `src/domain/value_objects/text.py` | `test_tim_khong_phan_biet_hoa_thuong_va_dau` · `test_tim_khong_dau_khop_quan_co_dau` |
+| Q3.8 | Ô tìm kiếm admin: không ghi URL mỗi phím, không phá bộ gõ tiếng Việt | `frontend/packages/admin/src/shared/ui/OTimKiem.tsx` | `OTimKiem.test.tsx` (ca composition) |
+| Q3.9 | Sửa mô tả món ngay trên trang chi tiết (nút Sửa / Gỡ bản sửa) | `frontend/packages/admin/src/features/manage-dishes/ui/DishInfo.tsx` · `frontend/packages/admin/src/features/manage-dishes/model/useDishDetail.ts` | `DishInfo.test.tsx` |
 | Q4.1 | Giao diện admin | `frontend/packages/admin/src/` | steiger (verify.py mục 7) · Vitest (verify.py mục 6) |
 
 ## Bảo mật

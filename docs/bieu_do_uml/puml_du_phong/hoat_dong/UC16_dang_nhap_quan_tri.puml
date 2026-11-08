@@ -1,0 +1,18 @@
+@startuml UC16_hoat_dong
+' UC16 — Đăng nhập quản trị
+' API: POST /api/v1/admin/login; POST /admin/logout
+skinparam shadowing false
+start
+|Quản trị viên|
+:Nhập tài khoản quản trị;
+|Hệ thống|
+:POST /admin/login;
+if (Đúng quyền quản trị?) then (có)
+  :Tạo phiên quản trị;
+else (không)
+  :Báo lỗi, từ chối truy cập;
+endif
+|Quản trị viên|
+:Vào trang quản trị;
+stop
+@enduml

@@ -58,6 +58,13 @@ from src.application.use_cases.manage_restaurants import (
 from src.application.use_cases.search_restaurants import SearchRestaurantsUseCase
 from src.domain.entities.user import User, UserRole
 from src.infrastructure.auth.admin_auth import AdminAuthService, hash_password
+from src.application.use_cases.edit_dish_description import EditDishDescriptionUseCase
+from src.infrastructure.repositories.overlay_dish_catalog_repository import (
+    OverlayDishCatalogRepository,
+)
+from src.infrastructure.repositories.sqlite_dish_override_repository import (
+    SqliteDishOverrideRepository,
+)
 from src.infrastructure.repositories.sqlite_restaurant_repository import (
     SqliteRestaurantRepository,
 )
@@ -123,7 +130,7 @@ def db(tmp_path):
     )
 
 
-def build_client(db_path, *, configured=True, writable=True):
+def build_client(db_path, *, configured=True, writable=True, dishes=None):
     repo = SqliteRestaurantRepository(db_path)
     knowledge = FakeDishKnowledge([PHO_RULE, GENERIC_RULE])
     details_repo = FakeDetailsRepo({})
@@ -171,7 +178,16 @@ def build_client(db_path, *, configured=True, writable=True):
     )
     # Tài khoản người dùng cuối TẮT: file này chỉ test luồng quản trị.
     attach_disabled_auth(c)
-    attach_dish_catalog(c)
+    attach_dish_catalog(c, dishes=dishes)
+    # Bản SỬA TAY mô tả món, đọc chồng lên danh mục như `build_container` làm thật.
+    # Lắp ngay sau danh mục để mọi use case dựng sau đây đều thấy cùng một nguồn.
+    c.dish_overrides = SqliteDishOverrideRepository(Path(db_path).parent / "users.db")
+    c.dish_catalog_repository = OverlayDishCatalogRepository(
+        c.dish_catalog_repository, c.dish_overrides
+    )
+    c.edit_dish_description = EditDishDescriptionUseCase(
+        c.dish_catalog_repository, c.dish_overrides
+    )
     # Nhật ký hoạt động: kho THẬT trong thư mục tạm, để test đi qua đúng đường ghi/đọc.
     c.audit_log = SqliteAuditLogRepository(Path(db_path).parent / "audit.db")
     c.ghi_nhat_ky = GhiNhatKyUseCase(c.audit_log)

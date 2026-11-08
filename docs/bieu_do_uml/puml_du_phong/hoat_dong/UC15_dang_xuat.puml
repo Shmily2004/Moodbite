@@ -1,0 +1,13 @@
+@startuml UC15_hoat_dong
+' UC15 — Đăng xuất
+' API: POST /api/v1/auth/logout
+skinparam shadowing false
+start
+|Khách|
+:Bấm đăng xuất, xác nhận;
+|Hệ thống|
+:POST /auth/logout, thu hồi phiên;
+|Khách|
+:Về trang khách;
+stop
+@enduml

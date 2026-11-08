@@ -155,6 +155,13 @@ from src.infrastructure.repositories.csv_restaurant_repository import (
 from src.infrastructure.repositories.json_dish_catalog_repository import (
     JsonDishCatalogRepository,
 )
+from src.infrastructure.repositories.overlay_dish_catalog_repository import (
+    OverlayDishCatalogRepository,
+)
+from src.infrastructure.repositories.sqlite_dish_override_repository import (
+    SqliteDishOverrideRepository,
+)
+from src.application.use_cases.edit_dish_description import EditDishDescriptionUseCase
 from src.infrastructure.repositories.json_dish_knowledge_repository import (
     JsonDishKnowledgeRepository,
 )
@@ -226,6 +233,9 @@ class Container:
     details_repository: object
     dish_knowledge_repository: object
     dish_catalog_repository: object
+    # Bản sửa tay mô tả món + use case ghi nó. Danh mục đã được đọc chồng bản sửa này.
+    dish_overrides: object
+    edit_dish_description: EditDishDescriptionUseCase
     interaction_repository: object
     rule_predictor: object
     context_provider: object
@@ -405,7 +415,12 @@ def build_container(settings: Optional[Settings] = None) -> Container:
     dish_knowledge_repository = JsonDishKnowledgeRepository(
         settings.dish_knowledge_json
     )
-    dish_catalog_repository = JsonDishCatalogRepository(settings.dish_catalog_json)
+    # Danh mục = file gốc (sinh tự động) + bản sửa tay trong `moodbite_users.db`. Ghép ở đây
+    # để MỌI nơi dùng danh mục đều thấy cùng một mô tả, và build lại file gốc không làm mất chữ sửa.
+    dish_overrides = SqliteDishOverrideRepository(settings.users_db)
+    dish_catalog_repository = OverlayDishCatalogRepository(
+        JsonDishCatalogRepository(settings.dish_catalog_json), dish_overrides
+    )
 
     # LỚP 4 - nhận xét tổng hợp từ review, ĐÃ TÍNH SẴN offline bởi
     # `python -m data_pipeline.review_summary`. Đọc ở composition root rồi truyền vào use
@@ -592,6 +607,10 @@ def build_container(settings: Optional[Settings] = None) -> Container:
         doc_nhat_ky=DocNhatKyUseCase(audit_log),
         # CÙNG chỉ mục món -> quán với `/dishes/{id}/restaurants`, để cột "Có quán (số)"
         # của trang quản trị không bao giờ lệch với số quán người dùng thật sự thấy.
+        dish_overrides=dish_overrides,
+        edit_dish_description=EditDishDescriptionUseCase(
+            dish_catalog_repository, dish_overrides
+        ),
         list_dishes_for_admin=ListDishesForAdminUseCase(
             dish_catalog_repository, dish_restaurant_index
         ),

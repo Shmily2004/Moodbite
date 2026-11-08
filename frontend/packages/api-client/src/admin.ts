@@ -20,6 +20,7 @@ import type {
   AdminRestaurantListData,
   AdminCreateRestaurantRequest,
   AdminUpdateRestaurantRequest,
+  AdminUpdateDishRequest,
   AdminOverviewData,
   AdminDishListData,
   AdminDishDetail,
@@ -129,6 +130,21 @@ export class MoodbiteAdminApi {
     return this.http.request<AdminDishDetail>(
       `/admin/dishes/${encodeURIComponent(dishId)}`,
       options,
+    );
+  }
+
+  /**
+   * Sửa mô tả món. `description: null` (hoặc chuỗi rỗng) = GỠ bản sửa, trở về mô tả gốc.
+   * Trả lại chi tiết món đã cập nhật để giao diện hiện đúng ngay, không cần tải lại trang.
+   */
+  updateDish(
+    dishId: string,
+    changes: AdminUpdateDishRequest,
+    options?: RequestOptions,
+  ): Promise<AdminDishDetail> {
+    return this.http.request<AdminDishDetail>(
+      `/admin/dishes/${encodeURIComponent(dishId)}`,
+      { ...options, method: 'PATCH', body: changes },
     );
   }
 

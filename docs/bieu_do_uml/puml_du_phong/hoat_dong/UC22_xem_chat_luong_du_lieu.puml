@@ -1,0 +1,13 @@
+@startuml UC22_hoat_dong
+' UC22 — Xem chất lượng dữ liệu
+' API: GET /api/v1/admin/quality; /admin/restaurants/stats
+skinparam shadowing false
+start
+|Quản trị viên|
+:Mở trang chất lượng dữ liệu;
+|Hệ thống|
+:GET /admin/quality;
+|Quản trị viên|
+:Xem chỉ số và tỷ lệ phủ;
+stop
+@enduml

@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="694" viewBox="0 0 1120 694"><defs><marker id="dac" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#000"/></marker><marker id="ho" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto"><path d="M1,1 L11,6 L1,11" fill="none" stroke="#000" stroke-width="1.2"/></marker></defs><rect width="100%" height="100%" fill="#fff"/><text x="20" y="22" font-family="Arial, Helvetica, sans-serif" font-size="15" text-anchor="start" font-weight="bold" fill="#000">UC07 — Lưu món / quán yêu thích</text>
+<text x="20" y="40" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000" font-style="italic">API: Khách: lưu trên máy. Đã đăng nhập: POST /api/v1/me/favorites</text>
+<rect x="560" y="60" width="520" height="1" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<rect x="40" y="60" width="520" height="574" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<rect x="40" y="60" width="520" height="34" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="300.0" y="82" font-family="Arial, Helvetica, sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#000">Khách hàng</text>
+<rect x="560" y="60" width="520" height="574" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<rect x="560" y="60" width="520" height="34" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="820.0" y="82" font-family="Arial, Helvetica, sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#000">Hệ thống</text>
+<line x1="300" y1="133.0" x2="300" y2="149.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<path d="M 300 199.0 V 216.0 H 820 V 233.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<line x1="820" y1="303.0" x2="820" y2="335.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<text x="828" y="315.0" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">có</text>
+<path d="M 905.0 268 H 990 V 335.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<text x="911.0" y="262" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">không</text>
+<path d="M 820 385.0 V 410.0 H 300 V 435.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<path d="M 990 385.0 V 410.0 H 300 V 435.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<line x1="300" y1="485.0" x2="300" y2="543.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<circle cx="300" cy="122" r="10" fill="#000" stroke="#000" stroke-width="1.2"/>
+<rect x="220.0" y="149.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="300" y="171.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Bấm biểu tượng yêu</text>
+<text x="300" y="186.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">thích</text>
+<path d="M 820 233.0 L 905.0 268 L 820 303.0 L 735.0 268 Z" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="820" y="272" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="middle" font-weight="normal" fill="#000">Đã đăng nhập?</text>
+<rect x="740.0" y="335.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="820" y="357.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">POST /me/favorites,</text>
+<text x="820" y="372.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">lưu trên server</text>
+<rect x="910.0" y="335.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="990" y="357.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Lưu vào bộ nhớ trình</text>
+<text x="990" y="372.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">duyệt của khách</text>
+<rect x="220.0" y="435.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="300" y="457.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Thấy nút đổi trạng</text>
+<text x="300" y="472.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">thái</text>
+<circle cx="300" cy="554" r="11" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<circle cx="300" cy="554" r="6" fill="#000" stroke="#000" stroke-width="1.2"/></svg>

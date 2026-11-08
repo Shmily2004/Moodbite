@@ -36,7 +36,7 @@ const SO_QUAN_TOP = 5;
 
 export function DishDetailPage() {
   const { dishId = '' } = useParams();
-  const { dish, restaurants, history } = useDishDetail(dishId);
+  const { dish, restaurants, history, luuMoTa } = useDishDetail(dishId);
   // Tab nằm trên URL: F5 hoặc gửi link vẫn mở đúng tab.
   const [thamSo, setThamSo] = useSearchParams();
   const tuUrl = thamSo.get('tab') as Tab | null;
@@ -124,7 +124,7 @@ export function DishDetailPage() {
             <div className="chi-tiet-mon__luoi">
               <section className="panel">
                 <h3 className="panel__tieu-de">Thông tin chi tiết</h3>
-                <DishInfo data={mon} />
+                <DishInfo data={mon} onLuuMoTa={luuMoTa} />
               </section>
               <section className="panel">
                 <div className="bang__dau">
@@ -176,7 +176,7 @@ export function DishDetailPage() {
 
           {tab === 'thong-tin' && (
             <section className="panel">
-              <DishInfo data={mon} />
+              <DishInfo data={mon} onLuuMoTa={luuMoTa} />
             </section>
           )}
 

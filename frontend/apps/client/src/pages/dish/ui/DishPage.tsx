@@ -199,6 +199,7 @@ export function DishPage() {
                     restaurants={quanHien}
                     searchQueryId={detail.searchQueryId}
                     queryText={dish?.name ?? null}
+                    hienKhoangCach={!location.isDefault}
                     // Đánh số khớp ghim bản đồ — chỉ ở trang này, không ở trang tìm kiếm.
                     danhSo
                     gon
@@ -259,6 +260,7 @@ export function DishPage() {
                   activeId={null}
                   onSelect={() => undefined}
                   danhSo
+                  hienKhoangCach={!location.isDefault}
                 />
                 {/* Bong bóng NẰM TRONG khung bản đồ (2026-10-02) — trước đó nó dính góc
                     màn hình và thò ra ngoài mép phải bản đồ. */}

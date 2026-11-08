@@ -1,0 +1,18 @@
+@startuml UC15_trinh_tu
+' UC15 — Đăng xuất
+' API: POST /api/v1/auth/logout
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+
+actor "Khách" as KH
+boundary "UI_GiaoDienWeb" as UI
+control "Ctrl_HeThongXuLy" as CTRL
+entity "Ent_CoSoDuLieu" as DB
+entity "Ent_TaiKhoan" as TK
+
+KH -> UI : 1. Bấm đăng xuất và xác nhận
+UI -> CTRL : 2. POST /auth/logout
+CTRL -> TK : 3. Thu hồi phiên
+CTRL --> UI : 4. 200 OK
+UI --> KH : 5. Về trang khách
+@enduml

@@ -1,0 +1,15 @@
+@startuml UC05_hoat_dong
+' UC05 — Xem chi tiết quán
+' API: GET /api/v1/restaurants/{id}, POST /api/v1/interactions (view)
+skinparam shadowing false
+start
+|Khách|
+:Chọn một quán;
+|Hệ thống|
+:GET /restaurants/{id};
+:Hiển thị chi tiết quán và nguồn dữ liệu;
+:POST /interactions (ghi lượt xem);
+|Khách|
+:Xem thông tin quán;
+stop
+@enduml

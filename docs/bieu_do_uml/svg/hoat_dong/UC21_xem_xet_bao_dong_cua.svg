@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="788" viewBox="0 0 1120 788"><defs><marker id="dac" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#000"/></marker><marker id="ho" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto"><path d="M1,1 L11,6 L1,11" fill="none" stroke="#000" stroke-width="1.2"/></marker></defs><rect width="100%" height="100%" fill="#fff"/><text x="20" y="22" font-family="Arial, Helvetica, sans-serif" font-size="15" text-anchor="start" font-weight="bold" fill="#000">UC21 — Xem xét báo đóng cửa</text>
+<text x="20" y="40" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000" font-style="italic">API: GET /admin/closure-reports; POST /admin/restaurants/{id}/closure-reports/clear</text>
+<rect x="560" y="60" width="520" height="1" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<rect x="40" y="60" width="520" height="668" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<rect x="40" y="60" width="520" height="34" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="300.0" y="82" font-family="Arial, Helvetica, sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#000">Quản trị viên</text>
+<rect x="560" y="60" width="520" height="668" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<rect x="560" y="60" width="520" height="34" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="820.0" y="82" font-family="Arial, Helvetica, sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#000">Hệ thống</text>
+<line x1="300" y1="133.0" x2="300" y2="149.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<path d="M 300 199.0 V 221.0 H 820 V 243.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<path d="M 820 293.0 V 315.0 H 300 V 337.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<line x1="300" y1="387.0" x2="300" y2="421.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<line x1="300" y1="491.0" x2="300" y2="523.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<text x="308" y="503.0" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">có</text>
+<path d="M 385.0 456 H 470 V 523.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<text x="391.0" y="450" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">không</text>
+<line x1="300" y1="573.0" x2="300" y2="637.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<path d="M 470 573.0 V 605.0 H 300 V 637.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<circle cx="300" cy="122" r="10" fill="#000" stroke="#000" stroke-width="1.2"/>
+<rect x="220.0" y="149.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="300" y="171.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Mở danh sách quán bị</text>
+<text x="300" y="186.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">báo</text>
+<rect x="740.0" y="243.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="820" y="265.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">GET</text>
+<text x="820" y="280.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">/admin/closure-reports</text>
+<rect x="220.0" y="337.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="300" y="367.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Kiểm tra và quyết định</text>
+<path d="M 300 421.0 L 385.0 456 L 300 491.0 L 215.0 456 Z" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="300" y="453" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="middle" font-weight="normal" fill="#000">Quán thực sự đã đóng</text>
+<text x="300" y="467" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="middle" font-weight="normal" fill="#000">cửa?</text>
+<rect x="220.0" y="523.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="300" y="545.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Ẩn quán (POST /hide),</text>
+<text x="300" y="560.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">ghi nhật ký</text>
+<rect x="390.0" y="523.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="470" y="538.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">POST</text>
+<text x="470" y="553.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">.../closure-reports/clear,</text>
+<text x="470" y="568.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">gỡ lượt báo</text>
+<circle cx="300" cy="648" r="11" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<circle cx="300" cy="648" r="6" fill="#000" stroke="#000" stroke-width="1.2"/></svg>

@@ -1,0 +1,79 @@
+' ============================================================================
+' BIỂU ĐỒ TRÌNH TỰ — Chọn món → xem quán phù hợp (Chọn món trước, tìm quán sau)
+' Ký hiệu theo mẫu hình 2.16a:
+'   actor      = Khách hàng                      (người dùng)
+'   boundary   = UI_GiaoDienWeb                  (giao diện React)
+'   control    = Ctrl_HeThongXuLy                (router FastAPI + use case)
+'   entity     = Ent_CoSoDuLieu                  (danh mục món, chỉ mục món-quán, kho quán)
+'   mũi tên đặc  = lời gọi đồng bộ ; mũi tên đứt = trả về
+'   alt / opt / par = rẽ nhánh / tùy chọn / chạy song song
+' Sửa: đổi tên trong "..." hoặc thêm  A -> B : nội dung  như các dòng bên dưới.
+' ============================================================================
+@startuml 03_bieu_do_trinh_tu
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam ParticipantPadding 40
+skinparam BoxPadding 12
+
+actor "Khách hàng" as KH
+boundary "UI_GiaoDienWeb" as UI
+control "Ctrl_HeThongXuLy" as CTRL
+entity "Ent_CoSoDuLieu" as DB
+
+KH -> UI : 1. Mở trang chủ, chọn bộ lọc
+UI -> CTRL : 2. POST /dishes/suggest\n{tâm trạng, vị trí, bán kính}
+activate CTRL
+CTRL -> DB : 3. Lấy danh mục món đang bật\nvà chỉ mục món-quán
+activate DB
+DB --> CTRL : 4. Danh sách món + số quán
+deactivate DB
+CTRL -> CTRL : 5. Suy ngữ cảnh (giờ, thời tiết)\nrồi xếp hạng món
+CTRL --> UI : 6. Danh sách món + warnings
+deactivate CTRL
+UI --> KH : 7. Hiển thị lưới món
+
+alt [Có món phù hợp]
+  KH -> UI : 8. Chọn một món
+  par
+    UI -> CTRL : 9a. GET /dishes/{id}
+    activate CTRL
+    CTRL -> DB : 10a. Tra món theo id
+    activate DB
+    DB --> CTRL : 11a. Thông tin món
+    deactivate DB
+    CTRL --> UI : 12a. Chi tiết món
+    deactivate CTRL
+  also
+    UI -> CTRL : 9b. GET /dishes/{id}/restaurants
+    activate CTRL
+    CTRL -> DB : 10b. Quán khớp món (theo chỉ mục)
+    activate DB
+    DB --> CTRL : 11b. Danh sách quán
+    deactivate DB
+    CTRL -> CTRL : 12b. Lọc bán kính\n(nới và cảnh báo nếu không có quán gần)
+    CTRL --> UI : 13b. Quán + warnings
+    deactivate CTRL
+  end par
+  UI --> KH : 14. Hiển thị giới thiệu, danh sách quán và bản đồ
+
+  opt [Khách mở chi tiết một quán]
+    KH -> UI : 15. Chọn quán
+    UI -> CTRL : 16. GET /restaurants/{id}
+    activate CTRL
+    CTRL -> DB : 17. Đọc chi tiết quán
+    activate DB
+    DB --> CTRL : 18. Chi tiết quán
+    deactivate DB
+    CTRL --> UI : 19. Chi tiết quán
+    deactivate CTRL
+    UI --> KH : 20. Hiển thị chi tiết quán
+    UI -> CTRL : 21. POST /interactions (ghi lượt xem)
+    activate CTRL
+    CTRL --> UI : 22. 201 Created
+    deactivate CTRL
+  end
+else [Không có món phù hợp]
+  UI --> KH : 8a. Thông báo không có món khớp\nvà gợi ý bỏ bớt bộ lọc
+end
+
+@enduml

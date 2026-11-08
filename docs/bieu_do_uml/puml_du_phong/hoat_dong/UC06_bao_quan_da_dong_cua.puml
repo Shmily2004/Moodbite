@@ -1,0 +1,14 @@
+@startuml UC06_hoat_dong
+' UC06 — Báo quán đã đóng cửa
+' API: POST /api/v1/interactions {action_type: report_closed}
+skinparam shadowing false
+start
+|Khách|
+:Bấm Báo đã đóng cửa;
+|Hệ thống|
+:POST /interactions (report_closed);
+:Ghi lượt báo, đưa quán vào hàng chờ quản trị;
+|Khách|
+:Nhận thông báo đã ghi nhận;
+stop
+@enduml

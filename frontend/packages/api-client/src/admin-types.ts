@@ -14,6 +14,7 @@ export type AdminCreateRestaurantRequest =
   components['schemas']['AdminCreateRestaurantRequest'];
 export type AdminUpdateRestaurantRequest =
   components['schemas']['AdminUpdateRestaurantRequest'];
+export type AdminUpdateDishRequest = components['schemas']['AdminUpdateDishRequest'];
 export type AdminOverviewData = components['schemas']['AdminOverviewData'];
 export type DoPhuTruong = components['schemas']['DoPhuTruongSchema'];
 export type ThongKeNguon = components['schemas']['ThongKeNguonSchema'];

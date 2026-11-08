@@ -2547,6 +2547,57 @@
             }
           }
         }
+      },
+      "patch": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Update Dish",
+        "description": "Sửa mô tả món. Bản sửa nằm ở CSDL riêng, KHÔNG ghi đè danh mục gốc.\n\nGhi nhật ký `update_dish` để biết ai đã đổi chữ nào; sửa xong trả lại chi tiết mới nhất.",
+        "operationId": "update_dish_api_v1_admin_dishes__dish_id__patch",
+        "parameters": [
+          {
+            "name": "dish_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dish Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminUpdateDishRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDishDetailResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/v1/admin/dishes/{dish_id}/restaurants": {
@@ -3694,6 +3745,353 @@
         }
       }
     },
+    "/api/v1/posts": {
+      "get": {
+        "tags": [
+          "posts"
+        ],
+        "summary": "Danh sách bài viết đã công khai",
+        "operationId": "list_posts_api_v1_posts_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostListData"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu bài viết không hợp lệ (INVALID_REQUEST)"
+          },
+          "404": {
+            "description": "Không có bài viết này (POST_NOT_FOUND)"
+          },
+          "503": {
+            "description": "Kho bài viết không sẵn sàng (DATA_NOT_READY)"
+          }
+        }
+      }
+    },
+    "/api/v1/posts/{slug}": {
+      "get": {
+        "tags": [
+          "posts"
+        ],
+        "summary": "Một bài viết đã công khai, theo đường dẫn",
+        "operationId": "get_post_api_v1_posts__slug__get",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Slug"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostDetailData"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu bài viết không hợp lệ (INVALID_REQUEST)"
+          },
+          "404": {
+            "description": "Không có bài viết này (POST_NOT_FOUND)"
+          },
+          "503": {
+            "description": "Kho bài viết không sẵn sàng (DATA_NOT_READY)"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/posts": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Mọi bài viết, kể cả nháp",
+        "operationId": "list_posts_api_v1_admin_posts_get",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(draft|published)$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostListData"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu bài viết không hợp lệ (INVALID_REQUEST)"
+          },
+          "404": {
+            "description": "Không có bài viết này (POST_NOT_FOUND)"
+          },
+          "503": {
+            "description": "Kho bài viết không sẵn sàng (DATA_NOT_READY)"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Tạo bài viết mới",
+        "operationId": "create_post_api_v1_admin_posts_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostWriteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostDetailData"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu bài viết không hợp lệ (INVALID_REQUEST)"
+          },
+          "404": {
+            "description": "Không có bài viết này (POST_NOT_FOUND)"
+          },
+          "503": {
+            "description": "Kho bài viết không sẵn sàng (DATA_NOT_READY)"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/posts/{post_id}": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Một bài viết (kể cả nháp)",
+        "operationId": "get_post_api_v1_admin_posts__post_id__get",
+        "parameters": [
+          {
+            "name": "post_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Post Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostDetailData"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu bài viết không hợp lệ (INVALID_REQUEST)"
+          },
+          "404": {
+            "description": "Không có bài viết này (POST_NOT_FOUND)"
+          },
+          "503": {
+            "description": "Kho bài viết không sẵn sàng (DATA_NOT_READY)"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Sửa bài viết",
+        "operationId": "update_post_api_v1_admin_posts__post_id__put",
+        "parameters": [
+          {
+            "name": "post_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Post Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostWriteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostDetailData"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu bài viết không hợp lệ (INVALID_REQUEST)"
+          },
+          "404": {
+            "description": "Không có bài viết này (POST_NOT_FOUND)"
+          },
+          "503": {
+            "description": "Kho bài viết không sẵn sàng (DATA_NOT_READY)"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Xoá bài viết",
+        "operationId": "delete_post_api_v1_admin_posts__post_id__delete",
+        "parameters": [
+          {
+            "name": "post_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Post Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu bài viết không hợp lệ (INVALID_REQUEST)"
+          },
+          "404": {
+            "description": "Không có bài viết này (POST_NOT_FOUND)"
+          },
+          "503": {
+            "description": "Kho bài viết không sẵn sàng (DATA_NOT_READY)"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/health": {
       "get": {
         "tags": [
@@ -4210,6 +4608,12 @@
               }
             ],
             "title": "Restaurant Count"
+          },
+          "mo_ta_da_sua": {
+            "type": "boolean",
+            "title": "Mo Ta Da Sua",
+            "description": "True = mô tả đang hiện là bản quản trị viên sửa tay, không phải bản gốc",
+            "default": false
           }
         },
         "type": "object",
@@ -5546,6 +5950,24 @@
           "ready"
         ],
         "title": "AdminSystemService"
+      },
+      "AdminUpdateDishRequest": {
+        "properties": {
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          }
+        },
+        "type": "object",
+        "title": "AdminUpdateDishRequest",
+        "description": "Sửa mô tả một món. Gửi `null` hoặc chuỗi rỗng = GỠ bản sửa, trở về mô tả gốc."
       },
       "AdminUpdateRestaurantRequest": {
         "properties": {
@@ -7202,6 +7624,105 @@
           "data"
         ],
         "title": "MoodsResponse"
+      },
+      "PostDetailData": {
+        "properties": {
+          "post": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Post"
+          }
+        },
+        "type": "object",
+        "required": [
+          "post"
+        ],
+        "title": "PostDetailData"
+      },
+      "PostListData": {
+        "properties": {
+          "posts": {
+            "items": {},
+            "type": "array",
+            "title": "Posts"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "posts",
+          "total"
+        ],
+        "title": "PostListData"
+      },
+      "PostWriteRequest": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "default": ""
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary",
+            "default": ""
+          },
+          "body": {
+            "type": "string",
+            "title": "Body",
+            "default": ""
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "published"
+            ],
+            "title": "Status",
+            "default": "draft"
+          },
+          "source_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Name"
+          },
+          "source_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Url"
+          },
+          "last_updated": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Updated",
+            "description": "Ngày nội dung được cập nhật"
+          }
+        },
+        "type": "object",
+        "title": "PostWriteRequest",
+        "description": "Admin gửi lên khi tạo hoặc sửa. KHÔNG có `origin`: bài tạo từ giao diện luôn là\nbài của admin; bài tổng hợp từ web chỉ đi qua script seed, không qua API."
       },
       "RegisterRequest": {
         "properties": {

@@ -1,0 +1,111 @@
+' ============================================================================
+' BIỂU ĐỒ USE CASE — MoodBite (24 use case, khớp hoạt động/trình tự trong thư mục con)
+' Ký hiệu UML chuẩn:
+'   - Đường liền      : actor tham gia use case (association, không mũi tên)
+'   - Mũi tên nét đứt <<include>> : use case gốc LUÔN gọi use case con (mũi tên về phía con)
+'   - Mũi tên nét đứt <<extend>>  : use case mở rộng THÊM hành vi TÙY CHỌN vào use case gốc
+'                                   (mũi tên đi TỪ use case mở rộng VỀ use case gốc)
+' Bố cục: actor Khách bên trái, Quản trị viên bên phải, các nhóm chức năng gom trong package.
+' Sửa: đổi tên trong "..." hoặc thêm dòng  A -- UCxx  /  UCa ..> UCb : <<include>>
+' ============================================================================
+@startuml 01_bieu_do_use_case
+left to right direction
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam usecase {
+  BackgroundColor #FFFFFF
+  BorderColor #333333
+  FontSize 13
+}
+skinparam actorStyle awesome
+skinparam ArrowColor #333333
+
+actor "Khách\n(người dùng)" as KH
+actor "Quản trị viên" as QT
+
+rectangle "MoodBite — phía người dùng" {
+  package "Khám phá quán và món" {
+    usecase "UC01\nTìm quán bằng\ncâu tự do" as UC01
+    usecase "UC02\nGợi ý món theo\nbộ lọc" as UC02
+    usecase "UC03\nXem chi tiết món" as UC03
+    usecase "UC04\nXem danh sách quán\ncủa món" as UC04
+    usecase "UC05\nXem chi tiết quán" as UC05
+    usecase "UC06\nBáo quán đã\nđóng cửa" as UC06
+    usecase "UC07\nLưu món / quán\nyêu thích" as UC07
+    usecase "UC14\nXem tin tức" as UC14
+  }
+  package "Tài khoản" {
+    usecase "UC08\nĐăng ký\n(xác minh email)" as UC08
+    usecase "UC09\nĐăng nhập" as UC09
+    usecase "UC10\nQuên / đặt lại\nmật khẩu" as UC10
+    usecase "UC11\nĐổi mật khẩu" as UC11
+    usecase "UC12\nQuản lý hồ sơ,\nđịa chỉ, sở thích" as UC12
+    usecase "UC13\nQuản lý bộ sưu tập" as UC13
+    usecase "UC15\nĐăng xuất" as UC15
+  }
+}
+
+rectangle "MoodBite — quản trị" {
+  package "Đăng nhập và tổng quan" {
+    usecase "UC16\nĐăng nhập quản trị" as UC16
+    usecase "UC17\nXem tổng quan" as UC17
+  }
+  package "Quản lý dữ liệu" {
+    usecase "UC18\nXem và sửa mô tả món" as UC18
+    usecase "UC19\nQuản lý quán\n(sửa, ẩn, khôi phục)" as UC19
+    usecase "UC20\nXử lý vấn đề dữ liệu" as UC20
+    usecase "UC21\nXem xét báo đóng cửa" as UC21
+    usecase "UC22\nXem chất lượng dữ liệu" as UC22
+  }
+  package "Nội dung và nhật ký" {
+    usecase "UC23\nQuản lý bài viết" as UC23
+    usecase "UC24\nXem nhật ký hoạt động" as UC24
+  }
+}
+
+' --- Liên kết actor — use case (đường liền)
+KH -- UC01
+KH -- UC02
+KH -- UC03
+KH -- UC05
+KH -- UC06
+KH -- UC07
+KH -- UC08
+KH -- UC09
+KH -- UC10
+KH -- UC11
+KH -- UC12
+KH -- UC13
+KH -- UC14
+KH -- UC15
+
+QT -- UC16
+QT -- UC17
+QT -- UC18
+QT -- UC19
+QT -- UC20
+QT -- UC21
+QT -- UC22
+QT -- UC23
+QT -- UC24
+
+' --- <<include>>: use case gốc BẮT BUỘC gọi use case con (mũi tên về phía con)
+UC03 ..> UC04 : <<include>>
+UC11 ..> UC09 : <<include>>
+UC12 ..> UC09 : <<include>>
+UC13 ..> UC09 : <<include>>
+UC18 ..> UC16 : <<include>>
+UC19 ..> UC16 : <<include>>
+UC20 ..> UC16 : <<include>>
+UC21 ..> UC16 : <<include>>
+UC23 ..> UC16 : <<include>>
+UC24 ..> UC16 : <<include>>
+
+' --- <<extend>>: use case mở rộng (tùy chọn) trỏ VỀ use case gốc
+UC03 ..> UC02 : <<extend>>
+UC06 ..> UC05 : <<extend>>
+UC07 ..> UC05 : <<extend>>
+UC10 ..> UC09 : <<extend>>
+UC22 ..> UC20 : <<extend>>
+
+@enduml

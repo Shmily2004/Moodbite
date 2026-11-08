@@ -1,0 +1,22 @@
+@startuml UC21_trinh_tu
+' UC21 — Xem xét báo đóng cửa
+' API: GET /admin/closure-reports; POST /admin/restaurants/{id}/closure-reports/clear
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+
+actor "Quản trị viên" as QT
+boundary "UI_TrangQuanTri" as UI
+control "Ctrl_QuanTriHeThong" as CTRL
+entity "Ent_CoSoDuLieu" as DB
+entity "Ent_NhatKy" as NK
+
+QT -> UI : 1. Mở danh sách quán bị báo
+UI -> CTRL : 2. GET /admin/closure-reports
+CTRL -> DB : 3. Đọc lượt báo chưa xử lý
+CTRL --> UI : 4. Danh sách quán bị báo
+QT -> UI : 5. Xác nhận đã đóng cửa, hoặc gỡ các lượt báo
+UI -> CTRL : 6. POST .../closure-reports/clear
+CTRL -> DB : 7. Gỡ lượt báo của quán
+CTRL -> NK : 8. Ghi nhật ký
+CTRL --> UI : 9. 200 OK
+@enduml

@@ -1,0 +1,27 @@
+@startuml UC18_trinh_tu
+' UC18 — Xem và sửa mô tả món
+' API: GET /admin/dishes, GET/PATCH /admin/dishes/{id}
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+
+actor "Quản trị viên" as QT
+boundary "UI_TrangQuanTri" as UI
+control "Ctrl_QuanTriHeThong" as CTRL
+entity "Ent_CoSoDuLieu" as DB
+entity "Ent_NhatKy" as NK
+
+QT -> UI : 1. Mở một món
+UI -> CTRL : 2. GET /admin/dishes/{id}
+CTRL -> DB : 3. Đọc món kèm bản sửa (nếu có)
+CTRL --> UI : 4. Chi tiết món
+QT -> UI : 5. Sửa mô tả, bấm Lưu
+UI -> CTRL : 6. PATCH /admin/dishes/{id} {description}
+alt mô tả hợp lệ (<= 1000 ký tự)
+  CTRL -> NK : 7a. Ghi nhật ký update_dish
+  CTRL -> DB : 8a. Lưu bản sửa (không đụng dữ liệu gốc)
+  CTRL --> UI : 9a. 200 OK
+else khác
+  CTRL --> UI : 7b. 400 INVALID_REQUEST
+  UI --> QT : 8b. Báo lỗi tại ô sửa
+end
+@enduml

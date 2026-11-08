@@ -1,0 +1,21 @@
+@startuml UC05_trinh_tu
+' UC05 — Xem chi tiết quán
+' API: GET /api/v1/restaurants/{id}, POST /api/v1/interactions (view)
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+
+actor "Khách" as KH
+boundary "UI_GiaoDienWeb" as UI
+control "Ctrl_HeThongXuLy" as CTRL
+entity "Ent_CoSoDuLieu" as DB
+
+KH -> UI : 1. Chọn một quán
+UI -> CTRL : 2. GET /restaurants/{id}
+CTRL -> DB : 3. Đọc quán và chi tiết (nếu có)
+DB --> CTRL : 4. Dữ liệu quán
+CTRL --> UI : 5. Chi tiết quán, has_details
+UI --> KH : 6. Hiển thị địa chỉ, giờ, nguồn, mức tin cậy
+UI -> CTRL : 7. POST /interactions {view}
+CTRL -> DB : 8. Ghi lượt xem
+CTRL --> UI : 9. 201 Created
+@enduml

@@ -1,0 +1,24 @@
+@startuml UC19_trinh_tu
+' UC19 — Quản lý quán
+' API: /admin/restaurants (GET, POST, PATCH), /hide, /restore, /bulk-visibility
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+
+actor "Quản trị viên" as QT
+boundary "UI_TrangQuanTri" as UI
+control "Ctrl_QuanTriHeThong" as CTRL
+entity "Ent_CoSoDuLieu" as DB
+entity "Ent_NhatKy" as NK
+
+QT -> UI : 1. Tìm quán, sửa hoặc ẩn
+UI -> CTRL : 2. GET /admin/restaurants?q=...
+CTRL -> DB : 3. Tìm không phân biệt dấu và hoa thường
+DB --> CTRL : 4. Kết quả
+CTRL --> UI : 5. Danh sách quán
+QT -> UI : 6. Bấm Ẩn / Khôi phục / Sửa
+UI -> CTRL : 7. POST /hide | /restore hoặc PATCH
+CTRL -> DB : 8. Ghi trạng thái
+CTRL -> NK : 9. Ghi nhật ký
+CTRL --> UI : 10. 200 OK
+UI --> QT : 11. Cập nhật danh sách
+@enduml

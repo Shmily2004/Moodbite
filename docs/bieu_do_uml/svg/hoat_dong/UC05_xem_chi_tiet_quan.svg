@@ -1,30 +1,47 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="784" viewBox="0 0 1120 784"><defs><marker id="dac" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#000"/></marker><marker id="ho" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto"><path d="M1,1 L11,6 L1,11" fill="none" stroke="#000" stroke-width="1.2"/></marker></defs><rect width="100%" height="100%" fill="#fff"/><text x="20" y="22" font-family="Arial, Helvetica, sans-serif" font-size="15" text-anchor="start" font-weight="bold" fill="#000">Xem chi tiết quán</text>
-<text x="20" y="40" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000" font-style="italic">API: GET /api/v1/restaurants/{id}, POST /api/v1/interactions (view)</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="1086" viewBox="0 0 1120 1086"><defs><marker id="dac" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#000"/></marker><marker id="ho" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto"><path d="M1,1 L11,6 L1,11" fill="none" stroke="#000" stroke-width="1.2"/></marker></defs><rect width="100%" height="100%" fill="#fff"/><text x="20" y="22" font-family="Arial, Helvetica, sans-serif" font-size="15" text-anchor="start" font-weight="bold" fill="#000">Xem chi tiết quán</text>
 <rect x="560" y="60" width="520" height="1" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<rect x="40" y="60" width="520" height="664" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<rect x="40" y="60" width="520" height="966" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <rect x="40" y="60" width="520" height="34" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <text x="300.0" y="82" font-family="Arial, Helvetica, sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#000">Khách hàng</text>
-<rect x="560" y="60" width="520" height="664" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<rect x="560" y="60" width="520" height="966" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <rect x="560" y="60" width="520" height="34" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <text x="820.0" y="82" font-family="Arial, Helvetica, sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#000">Hệ thống</text>
-<line x1="300" y1="133.0" x2="300" y2="149.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<path d="M 300 199.0 V 221.0 H 820 V 243.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<line x1="820" y1="293.0" x2="820" y2="337.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<line x1="820" y1="387.0" x2="820" y2="431.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<path d="M 820 481.0 V 503.0 H 300 V 525.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<line x1="300" y1="575.0" x2="300" y2="633.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<circle cx="300" cy="122" r="10" fill="#000" stroke="#000" stroke-width="1.2"/>
-<rect x="220.0" y="149.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<text x="300" y="179.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Chọn một quán</text>
-<rect x="740.0" y="243.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<text x="820" y="273.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">GET /restaurants/{id}</text>
-<rect x="740.0" y="337.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<text x="820" y="359.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Hiển thị chi tiết quán</text>
-<text x="820" y="374.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">và nguồn dữ liệu</text>
-<rect x="740.0" y="431.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<text x="820" y="453.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">POST /interactions</text>
-<text x="820" y="468.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">(ghi lượt xem)</text>
-<rect x="220.0" y="525.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<text x="300" y="555.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Xem thông tin quán</text>
-<circle cx="300" cy="644" r="11" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<circle cx="300" cy="644" r="6" fill="#000" stroke="#000" stroke-width="1.2"/></svg>
+<line x1="300" y1="151.0" x2="300" y2="189.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<path d="M 300 239.0 V 261.0 H 820 V 283.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<line x1="820" y1="333.0" x2="820" y2="377.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<line x1="820" y1="427.0" x2="820" y2="461.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<line x1="820" y1="531.0" x2="820" y2="563.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<text x="828" y="543.0" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">có</text>
+<path d="M 905.0 496 H 990 V 563.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<text x="911.0" y="490" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">không</text>
+<line x1="820" y1="613.0" x2="820" y2="692.5" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<line x1="990" y1="613.0" x2="990" y2="692.5" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<path d="M 905.0 699.5 V 716.25 H 820 V 733.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<path d="M 820 783.0 V 805.0 H 300 V 827.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<line x1="300" y1="877.0" x2="300" y2="935.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<circle cx="300" cy="140" r="10" fill="#000" stroke="#000" stroke-width="1.2"/>
+<rect x="220.0" y="189.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="300" y="219.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Chọn một quán</text>
+<rect x="740.0" y="283.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="820" y="313.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Tải chi tiết quán</text>
+<rect x="740.0" y="377.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="820" y="399.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Hiển thị chi tiết quán</text>
+<text x="820" y="414.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">và nguồn dữ liệu</text>
+<path d="M 820 461.0 L 905.0 496 L 820 531.0 L 735.0 496 Z" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="820" y="493" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="middle" font-weight="normal" fill="#000">Đã đăng nhập và có</text>
+<text x="820" y="507" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="middle" font-weight="normal" fill="#000">vị trí của bạn?</text>
+<rect x="740.0" y="563.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="820" y="578.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Hiển thị khoảng cách</text>
+<text x="820" y="593.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">từ vị trí của bạn đến</text>
+<text x="820" y="608.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">quán</text>
+<rect x="910.0" y="563.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="990" y="578.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Ẩn khoảng cách, chỉ</text>
+<text x="990" y="593.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">hiển thị tên và địa</text>
+<text x="990" y="608.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">chỉ quán</text>
+<rect x="730.0" y="692.5" width="350" height="7" rx="0" fill="#000" stroke="#000" stroke-width="1.2"/>
+<rect x="740.0" y="733.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="820" y="763.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Ghi nhận lượt xem</text>
+<rect x="220.0" y="827.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="300" y="857.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Xem thông tin quán</text>
+<circle cx="300" cy="946" r="11" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<circle cx="300" cy="946" r="6" fill="#000" stroke="#000" stroke-width="1.2"/></svg>

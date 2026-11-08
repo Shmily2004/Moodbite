@@ -1,41 +1,39 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="788" viewBox="0 0 1120 788"><defs><marker id="dac" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#000"/></marker><marker id="ho" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto"><path d="M1,1 L11,6 L1,11" fill="none" stroke="#000" stroke-width="1.2"/></marker></defs><rect width="100%" height="100%" fill="#fff"/><text x="20" y="22" font-family="Arial, Helvetica, sans-serif" font-size="15" text-anchor="start" font-weight="bold" fill="#000">Đặt lại mật khẩu</text>
-<text x="20" y="40" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000" font-style="italic">API: POST /api/v1/auth/forgot-password; POST /auth/reset-password</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="898" viewBox="0 0 1120 898"><defs><marker id="dac" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#000"/></marker><marker id="ho" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto"><path d="M1,1 L11,6 L1,11" fill="none" stroke="#000" stroke-width="1.2"/></marker></defs><rect width="100%" height="100%" fill="#fff"/><text x="20" y="22" font-family="Arial, Helvetica, sans-serif" font-size="15" text-anchor="start" font-weight="bold" fill="#000">Đặt lại mật khẩu</text>
 <rect x="560" y="60" width="520" height="1" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<rect x="40" y="60" width="520" height="668" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<rect x="40" y="60" width="520" height="778" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <rect x="40" y="60" width="520" height="34" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <text x="300.0" y="82" font-family="Arial, Helvetica, sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#000">Khách hàng</text>
-<rect x="560" y="60" width="520" height="668" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<rect x="560" y="60" width="520" height="778" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <rect x="560" y="60" width="520" height="34" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <text x="820.0" y="82" font-family="Arial, Helvetica, sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#000">Hệ thống</text>
-<line x1="300" y1="133.0" x2="300" y2="149.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<path d="M 300 199.0 V 221.0 H 820 V 243.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<path d="M 820 293.0 V 315.0 H 300 V 337.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<path d="M 300 387.0 V 404.0 H 820 V 421.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<line x1="820" y1="491.0" x2="820" y2="523.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<text x="828" y="503.0" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">có</text>
-<path d="M 905.0 456 H 990 V 523.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<text x="911.0" y="450" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">không</text>
-<line x1="820" y1="573.0" x2="820" y2="637.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<path d="M 990 573.0 V 605.0 H 820 V 637.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<circle cx="300" cy="122" r="10" fill="#000" stroke="#000" stroke-width="1.2"/>
-<rect x="220.0" y="149.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<text x="300" y="171.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Nhập email quên mật</text>
-<text x="300" y="186.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">khẩu</text>
-<rect x="740.0" y="243.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<text x="820" y="258.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">POST</text>
-<text x="820" y="273.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">/auth/forgot-password</text>
-<text x="820" y="288.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">(gửi mã)</text>
-<rect x="220.0" y="337.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<text x="300" y="359.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Nhập mã và mật khẩu</text>
-<text x="300" y="374.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">mới</text>
-<path d="M 820 421.0 L 905.0 456 L 820 491.0 L 735.0 456 Z" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<text x="820" y="460" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="middle" font-weight="normal" fill="#000">Mã đúng và còn hạn?</text>
-<rect x="740.0" y="523.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<text x="820" y="538.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">POST</text>
-<text x="820" y="553.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">/auth/reset-password,</text>
-<text x="820" y="568.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">cập nhật mật khẩu</text>
-<rect x="910.0" y="523.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<text x="990" y="545.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Báo mã sai hoặc hết</text>
-<text x="990" y="560.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">hạn</text>
-<circle cx="820" cy="648" r="11" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<circle cx="820" cy="648" r="6" fill="#000" stroke="#000" stroke-width="1.2"/></svg>
+<line x1="300" y1="151.0" x2="300" y2="189.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<path d="M 300 239.0 V 261.0 H 820 V 283.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<path d="M 820 333.0 V 355.0 H 300 V 377.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<path d="M 300 427.0 V 444.0 H 820 V 461.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<line x1="820" y1="531.0" x2="820" y2="563.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<text x="828" y="543.0" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">có</text>
+<path d="M 905.0 496 H 990 V 563.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<text x="911.0" y="490" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">không</text>
+<line x1="820" y1="613.0" x2="820" y2="692.5" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<line x1="990" y1="613.0" x2="990" y2="692.5" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<path d="M 905.0 699.5 V 723.25 H 820 V 747.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<circle cx="300" cy="140" r="10" fill="#000" stroke="#000" stroke-width="1.2"/>
+<rect x="220.0" y="189.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="300" y="211.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Nhập email quên mật</text>
+<text x="300" y="226.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">khẩu</text>
+<rect x="740.0" y="283.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="820" y="305.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Gửi mã đặt lại mật</text>
+<text x="820" y="320.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">khẩu</text>
+<rect x="220.0" y="377.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="300" y="399.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Nhập mã và mật khẩu</text>
+<text x="300" y="414.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">mới</text>
+<path d="M 820 461.0 L 905.0 496 L 820 531.0 L 735.0 496 Z" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="820" y="500" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="middle" font-weight="normal" fill="#000">Mã đúng và còn hạn?</text>
+<rect x="740.0" y="563.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="820" y="593.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Cập nhật mật khẩu mới</text>
+<rect x="910.0" y="563.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="990" y="585.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Báo mã sai hoặc hết</text>
+<text x="990" y="600.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">hạn</text>
+<rect x="730.0" y="692.5" width="350" height="7" rx="0" fill="#000" stroke="#000" stroke-width="1.2"/>
+<circle cx="820" cy="758" r="11" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<circle cx="820" cy="758" r="6" fill="#000" stroke="#000" stroke-width="1.2"/></svg>

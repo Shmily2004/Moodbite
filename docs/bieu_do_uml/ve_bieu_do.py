@@ -131,8 +131,102 @@ def _thu_thap_nguoi(buoc: list, dung: set[str]) -> None:
         elif b[0] == "alt":
             _thu_thap_nguoi(b[2], dung)
             _thu_thap_nguoi(b[3], dung)
+        elif b[0] == "par":
+            for nhanh in b[1]:
+                _thu_thap_nguoi(nhanh, dung)
         elif b[0] == "opt":
             _thu_thap_nguoi(b[2], dung)
+
+
+
+# ---------------------------------------------------------------------------
+# SINH TRÌNH TỰ TỪ HOẠT ĐỘNG
+# Trình tự được suy ra từ biểu đồ hoạt động, nên hai biểu đồ luôn khớp nhau:
+#   bước Khách (có hành động nhập liệu)  -> thông điệp Khách -> Giao diện
+#   bước Hệ thống                        -> Giao diện -> Xử lý (-> Dữ liệu nếu đọc/ghi)
+#   bước chỉ hiển thị                    -> Giao diện trả về Khách
+#   rẽ nhánh (if)                        -> khung alt; fork -> khung par
+# ---------------------------------------------------------------------------
+_HIEN_THI = ("Hiển thị", "Thông báo", "Báo ", "Đưa ra", "Trả ", "Chuyển", "Vào ", "Về ", "Mở ")
+_TINH_TOAN = ("Xếp", "Nới", "Suy", "Phân")
+_NHAP_KHACH = ("Chọn", "Nhập", "Bấm", "Mở", "Thêm", "Sửa", "Tạo", "Tải", "Xoá", "Xóa", "Đổi",
+               "Thu", "Tìm", "Bỏ", "Lưu", "Gỡ", "Đánh", "Soạn", "Đăng", "Cập", "Ẩn", "Khôi")
+_GHI_DU_LIEU = ("Ghi", "Lưu", "Cập nhật", "Tạo", "Ẩn", "Gỡ", "Khôi phục", "Sửa", "Thêm", "Xoá",
+                "Xóa", "Đánh dấu", "Thu hồi", "Kiểm tra mã", "Lưu thay đổi", "Kích hoạt", "Gửi")
+
+
+def _nguoi_du_lieu(text: str) -> str:
+    t = text.lower()
+    if "nhật ký" in t:
+        return "NK"
+    if any(k in t for k in ("tài khoản", "mật khẩu", "đăng nhập", "xác minh", "hồ sơ",
+                            "địa chỉ", "phiên", "bộ sưu tập")):
+        return "TK"
+    return "DB"
+
+
+def dan_trinh_tu(uc: dict) -> list:
+    la_qt = uc["nhom"] == "Quản trị"
+    nguoi = "QT" if la_qt else "KH"
+    lane_nguoi = {dac_ta.QT_TEN if la_qt else dac_ta.KH_TEN}
+
+    def la_nguoi_dung(lane: str) -> bool:
+        return lane in lane_nguoi
+
+    def them_tra_ve(out: list, lane_truoc_la_he_thong: bool) -> None:
+        if out and not (out[-1][0] == "ret" and out[-1][2] == nguoi):
+            out.append(("ret", "UI", nguoi, "Trả kết quả cho người dùng"))
+
+    def walk(items: list, lane: str, out: list) -> str:
+        for it in items:
+            loai = it[0]
+            if loai == "lane":
+                moi = it[1]
+                if not la_nguoi_dung(lane) and la_nguoi_dung(moi) and out:
+                    them_tra_ve(out, True)
+                lane = moi
+            elif loai == "act":
+                text = it[1]
+                if la_nguoi_dung(lane):
+                    if text.startswith(_NHAP_KHACH):
+                        out.append(("msg", nguoi, "UI", text))
+                else:
+                    if text.startswith(_HIEN_THI):
+                        out.append(("ret", "UI", nguoi, text))
+                    elif text.startswith(_TINH_TOAN):
+                        out.append(("msg", "UI", "CTRL", text))
+                        out.append(("msg", "CTRL", "CTRL", text))
+                        out.append(("ret", "CTRL", "UI", "Kết quả"))
+                    else:
+                        out.append(("msg", "UI", "CTRL", text))
+                        dich = _nguoi_du_lieu(text)
+                        nhan = "Ghi dữ liệu" if text.startswith(_GHI_DU_LIEU) else "Đọc dữ liệu"
+                        out.append(("msg", "CTRL", dich, nhan))
+                        out.append(("ret", dich, "CTRL", "Kết quả"))
+                        out.append(("ret", "CTRL", "UI", "Kết quả"))
+            elif loai == "if":
+                a: list = []
+                b: list = []
+                walk(it[2], lane, a)
+                walk(it[3], lane, b)
+                out.append(("alt", it[1], a, b))
+            elif loai == "fork":
+                nhanh = []
+                for n in it[1]:
+                    r: list = []
+                    walk(n, lane, r)
+                    nhanh.append(r)
+                out.append(("par", nhanh))
+            elif loai == "stop":
+                break
+        return lane
+
+    out: list = []
+    lane_bat_dau = dac_ta.QT_TEN if la_qt else dac_ta.KH_TEN
+    lane_cuoi = walk(uc["hoat_dong"], lane_bat_dau, out)
+    if not la_nguoi_dung(lane_cuoi):
+        them_tra_ve(out, True)
+    return out
 
 
 def _ve_actor(s: SVG, x: float, y: float) -> None:
@@ -152,13 +246,18 @@ def _ve_boundary(s: SVG, x: float, y: float) -> None:
 
 def _ve_control(s: SVG, x: float, y: float) -> None:
     s.circle(x, y, 16)
-    # mũi tên ở đầu vòng tròn, chỉ lên-phải
-    s.path(f"M {x - 6} {y - 17} L {x + 2} {y - 22} L {x + 3} {y - 16} Z", fill="#000")
+    # Cung tròn bám mép phía trên-bên-trái, chiều kim đồng hồ, đầu mũi tên đặc ở đỉnh.
+    # Đây là ký hiệu control chuẩn: một vòng tròn có mũi tên đi theo đường tròn.
+    r = 16  # nằm trên đúng viền vòng tròn, đầu mũi tên không vượt ra ngoài
+    # từ đỉnh đi ngược chiều kim đồng hồ sang phía trên-bên-trái; đầu mũi tên ở đó
+    ex, ey = x - r * 0.707, y - r * 0.707
+    s.path(f"M {x} {y - r} A {r} {r} 0 0 0 {ex:.2f} {ey:.2f}", arrow="dac", sw=1.4)
 
 
 def _ve_entity(s: SVG, x: float, y: float) -> None:
+    # vòng tròn + gạch ngang tiếp tuyến ở đáy (ký hiệu entity theo mẫu)
     s.circle(x, y, 16)
-    s.line(x - 13, y + 9, x + 13, y + 9)
+    s.line(x - 18, y + 16, x + 18, y + 16)
 
 
 def _ve_nhan_tham_gia(s: SVG, kieu: str, x: float, y: float) -> None:
@@ -173,8 +272,9 @@ def ve_trinh_tu(uc: dict) -> str:
     ui = dac_ta.UI_QT if la_qt else dac_ta.UI_KH
     ctrl = dac_ta.CTRL_QT if la_qt else dac_ta.CTRL_KH
     ten_db = dac_ta.DB
+    buoc_tt = dan_trinh_tu(uc)
     dung: set[str] = set()
-    _thu_thap_nguoi(uc["trinh_tu"], dung)
+    _thu_thap_nguoi(buoc_tt, dung)
 
     # thứ tự cột: tác nhân, giao diện, xử lý, dữ liệu, rồi các bảng dữ liệu phụ
     cot = [ma_nguoi, "UI", "CTRL", "DB"] + [k for k in ("TK", "NK") if k in dung]
@@ -197,10 +297,12 @@ def ve_trinh_tu(uc: dict) -> str:
                 n += 2 + dem(b[2]) + dem(b[3])
             elif b[0] == "opt":
                 n += 2 + dem(b[2])
+            elif b[0] == "par":
+                n += 2 + sum(dem(nh) for nh in b[1])
         return n
 
     TOP_Y = 150
-    H = TOP_Y + dem(uc["trinh_tu"]) * 40 + 120
+    H = TOP_Y + dem(buoc_tt) * 40 + 120
     s = SVG(int(W), int(H))
 
     # tiêu đề
@@ -233,7 +335,8 @@ def ve_trinh_tu(uc: dict) -> str:
                     continue
                 xa, xb = x_cot[b[1]], x_cot[b[2]]
                 yy = y[0] + 26
-                nhan = b[3]
+                so[0] += 1
+                nhan = f"{so[0]}. {b[3]}"
                 if b[1] == b[2]:
                     # tự gọi: vòng nhỏ bên phải
                     s.path(f"M {xa} {yy} H {xa + 34} V {yy + 18} H {xa + 2}", arrow="dac" if loai == "msg" else None,
@@ -267,7 +370,7 @@ def ve_trinh_tu(uc: dict) -> str:
                 ve_buoc(b[2])
                 y_mid = y[0] + 6
                 s.line(x_cot[cot[0]] - 40, y_mid, x_cot[cot[-1]] + 40, y_mid, dash=True)
-                s.text(x_cot[cot[0]] - 30, y_mid + 16, "[khác]", size=11)
+                s.text(x_cot[cot[0]] - 30, y_mid + 16, "[không]", size=11)
                 y[0] = y_mid + 24
                 ve_buoc(b[3])
                 y_end = y[0] + 8
@@ -275,6 +378,20 @@ def ve_trinh_tu(uc: dict) -> str:
                 s.add(f'<rect x="{x_cot[cot[0]] - 40}" y="{y0}" width="44" height="18" fill="#fff" stroke="#000" stroke-width="1.2"/>')
                 s.text(x_cot[cot[0]] - 36, y0 + 13, "alt", size=11, weight="bold")
                 s.text(x_cot[cot[0]] + 14, y0 + 14, f"[{b[1]}]", size=11)
+                y[0] = y_end + 12
+            elif loai == "par":
+                y0 = y[0]
+                y[0] += 26
+                for j, nhanh in enumerate(b[1]):
+                    if j:
+                        y_mid = y[0] + 6
+                        s.line(x_cot[cot[0]] - 40, y_mid, x_cot[cot[-1]] + 40, y_mid, dash=True)
+                        y[0] = y_mid + 14
+                    ve_buoc(nhanh)
+                y_end = y[0] + 8
+                s.rect(x_cot[cot[0]] - 40, y0, x_cot[cot[-1]] - x_cot[cot[0]] + 80, y_end - y0, fill="none")
+                s.add(f'<rect x="{x_cot[cot[0]] - 40}" y="{y0}" width="44" height="18" fill="#fff" stroke="#000" stroke-width="1.2"/>')
+                s.text(x_cot[cot[0]] - 36, y0 + 13, "par", size=11, weight="bold")
                 y[0] = y_end + 12
             elif loai == "opt":
                 y0 = y[0]
@@ -286,8 +403,9 @@ def ve_trinh_tu(uc: dict) -> str:
                 s.text(x_cot[cot[0]] - 36, y0 + 13, "opt", size=11, weight="bold")
                 y[0] = y_end + 12
 
+    so = [0]
     vi_tri_duong_doi = len(s.p)  # chèn đường đời vào đây, để thông điệp và ghi chú nằm trên
-    ve_buoc(uc["trinh_tu"])
+    ve_buoc(buoc_tt)
     y_cuoi = y[0] + 20
     for k, y0 in dang_kich.items():
         kich_hoat.append((x_cot[k], y0, y_cuoi - 10))
@@ -342,7 +460,6 @@ def ve_hoat_dong(uc: dict) -> str:
     s = SVG(W, 900)  # chiều cao sẽ chỉnh sau
 
     s.text(20, 22, TEN_UC[uc["ma"]], size=15, weight="bold")
-    s.text(20, 40, f"API: {uc['api']}", size=11, italic=True)
     top = 60
     # nền làn và tên làn
     for i, nm in enumerate(lanes):
@@ -351,7 +468,7 @@ def ve_hoat_dong(uc: dict) -> str:
     body_top = top + LANE_HEAD
 
     # trạng thái bố trí
-    st = {"y": body_top + 80, "lane": lanes[0], "tails": [], "start": None}
+    st = {"y": body_top + 120, "lane": lanes[0], "tails": [], "start": None}
     nodes: list[dict] = []
     edges: list[tuple] = []
 
@@ -402,6 +519,16 @@ def ve_hoat_dong(uc: dict) -> str:
                 tails_khong, y_khong = chain(it[3], cur_lane, x_off + OFF, y_nhanh, [(d, "không")])
                 tails = tails_co + tails_khong
                 y = max(y_co, y_khong) + 6
+                # Hai nhánh cùng còn chạy tiếp thì gộp lại bằng nút merge (hình thoi nhỏ),
+                # để việc sau đó chỉ viết một lần thay vì lặp ở từng nhánh.
+                if len(tails) > 1:
+                    # gộp bằng thanh đen ngang (ký hiệu gộp nhánh trong mẫu), trải dưới cả hai nhánh
+                    g = them_nut("bar", x + OFF / 2, y + 8, "", cur_lane, w=OFF + BOX_W + 20, h=7)
+                    g["merge"] = True
+                    for t_nd, t_nhan in tails:
+                        noi(t_nd, g, t_nhan)
+                    tails = [(g, "")]
+                    y = g["y"] + 62  # chừa khoảng để đường nối từ thanh gộp đi xuống rõ ràng
             elif loai == "fork":
                 rong_thanh = 2 * (OFF / 2) + BOX_W + 24
                 bar = them_nut("bar", x, y, "", cur_lane, w=rong_thanh, h=7)
@@ -423,7 +550,7 @@ def ve_hoat_dong(uc: dict) -> str:
         return tails, y
 
     # Điểm bắt đầu
-    start = them_nut("start", x_lan[lanes[0]], st["y"] - 52, "", lanes[0], w=22, h=22)
+    start = them_nut("start", x_lan[lanes[0]], st["y"] - 74, "", lanes[0], w=22, h=22)
     tails, y_end = chain(uc["hoat_dong"], lanes[0], 0, st["y"], [(start, "")])
 
     # Chiều cao làn
@@ -462,7 +589,9 @@ def _ve_noi(s: SVG, a: dict, b: dict, nhan: str) -> None:
     else:
         x1, y1 = a["x"], a["y"] + a["h"] / 2
     if b["kind"] in ("bar", "end", "start"):
-        x2, y2 = b["x"], b["y"] - b["h"] / 2
+        # tới thanh gộp: mũi tên đi thẳng xuống từ vị trí nhánh, không dồn vào giữa
+        x2 = a["x"] if b.get("merge") else b["x"]
+        y2 = b["y"] - b["h"] / 2
     else:
         x2, y2 = b["x"], b["y"] - b["h"] / 2
     if abs(x1 - x2) < 1:
@@ -484,6 +613,8 @@ def _ve_nut(s: SVG, nd: dict) -> None:
         s.circle(x, y, 6, fill="#000")
     elif k == "bar":
         s.rect(x - w / 2, y - h / 2, w, h, fill="#000")
+    elif k == "merge":
+        s.path(f"M {x} {y - w / 2} L {x + w / 2} {y} L {x} {y + w / 2} L {x - w / 2} {y} Z", fill="#fff")
     elif k == "dec":
         s.path(f"M {x} {y - h / 2} L {x + w / 2} {y} L {x} {y + h / 2} L {x - w / 2} {y} Z", fill="#fff")
         lines = _cat_chu(nd["text"], 20)
@@ -566,19 +697,19 @@ def _ve_ellipse_ten(s, cx, cy, rx, ry, ten, size=12):
 
 def ve_use_case() -> str:
     """Biểu đồ use case TỔNG QUÁT: tác nhân -> các use case lớn."""
-    W, H = 1000, 560
+    W, H = 1000, 640
     s = SVG(W, H)
     s.text(20, 26, "Biểu đồ use case tổng quát — MoodBite", size=15, weight="bold")
     BX, BW = 300, 400
-    s.rect(BX, 44, BW, 480, fill="#fff")
+    s.rect(BX, 44, BW, 580, fill="#fff")
     s.text(BX + BW / 2, 66, "Hệ thống MoodBite", size=14, anchor="middle", weight="bold")
-    RX, RY = 130, 46
+    RX, RY = 130, 36  # elip cao 72, cách nhau 104 nên không đè lên nhau
     cot_giua = BX + BW / 2
     vi_tri = {}
     for i, (ten_file, ten, tac_nhan, ids) in enumerate(NHOM_LON):
-        vi_tri[ten_file] = (cot_giua, 120 + i * 84)
-    KH = (90, 240)
-    QT = (910, 330)
+        vi_tri[ten_file] = (cot_giua, 130 + i * 104)
+    KH = (90, 290)
+    QT = (910, 390)
     for ten_file, ten, tac_nhan, ids in NHOM_LON:
         cx, cy = vi_tri[ten_file]
         if tac_nhan == "Khách":

@@ -5,17 +5,18 @@
 | Thư mục / file | Nội dung |
 |---|---|
 | `index.html` | Trang xem tất cả biểu đồ |
-| `svg/01_use_case.svg` | Biểu đồ use case: 2 actor, 24 use case, `<<include>>` và `<<extend>>` |
+| `svg/00_use_case_tong_quat.svg` | Biểu đồ use case tổng quát: tác nhân → các use case lớn |
+| `svg/UC_nhom*.svg` | Biểu đồ use case chi tiết cho 5 nhóm lớn, có `<<include>>` và `<<extend>>` |
 | `svg/hoat_dong/UCxx_*.svg` | 24 biểu đồ hoạt động, làn bơi Khách hàng / Hệ thống / Quản trị viên |
-| `svg/trinh_tu/UCxx_*.svg` | 24 biểu đồ trình tự, ký hiệu actor, boundary, control, entity |
-| `sinh_bieu_do.py` | Đặc tả 24 use case (biến `DAC_TA`): API, các bước trình tự và hoạt động |
+| `svg/trinh_tu/UCxx_*.svg` | 24 biểu đồ trình tự, **sinh tự động từ biểu đồ hoạt động** (cùng bước, cùng rẽ nhánh/fork) |
+| `sinh_bieu_do.py` | Đặc tả 24 use case (biến `DAC_TA`): API và các bước biểu đồ hoạt động |
 | `ve_bieu_do.py` | Bộ vẽ đọc đặc tả và sinh SVG + `index.html` |
-| `puml_du_phong/` | Bản PlantUML của cùng đặc tả, dự phòng khi có PlantUML để render |
+| `puml_du_phong/hoat_dong/` | Bản PlantUML của biểu đồ hoạt động, dự phòng khi có PlantUML để render |
 | `_cu/` | Bản cũ (một luồng chọn món, Mermaid), không dùng nữa |
 
 ## Ký hiệu
 
-- **Trình tự** (theo hình 2.16a của giáo trình): actor là hình người; boundary là vòng tròn có vạch đứng bên trái; control là vòng tròn có mũi tên; entity là vòng tròn có gạch ngang phía dưới. Lời gọi là mũi tên đặc, trả về là nét đứt mũi hở. Thanh kích hoạt là hình chữ nhật hẹp trên đường đời. Khung `alt` có nhãn điều kiện và ngăn `[khác]`.
+- **Trình tự** (theo hình 2.16a của giáo trình): actor là hình người; boundary là vòng tròn có vạch đứng bên trái; control là vòng tròn có mũi tên; entity là vòng tròn có gạch ngang phía dưới. Lời gọi là mũi tên đặc, trả về là nét đứt mũi hở. Thanh kích hoạt là hình chữ nhật hẹp trên đường đời. Khung `alt` có nhãn điều kiện và ngăn `[không]`; khung `par` cho hai nhánh song song.
 - **Hoạt động** (theo hình 2.15): làn bơi có tiêu đề; chấm đen là bắt đầu; vòng tròn có chấm là kết thúc; hành động là hình chữ nhật bo góc; rẽ nhánh là hình thoi có nhãn "có" / "không"; fork/join là thanh đen.
 - **Use case**: actor là hình người; use case là elip; `<<include>>` nét đứt mũi tên về use case con; `<<extend>>` nét đứt mũi tên từ use case mở rộng về use case gốc.
 
@@ -35,3 +36,10 @@
 - **Chưa kiểm** tất cả 49 file từng cái một, và chưa đối chiếu từng ký hiệu với hình mẫu theo kiểu so pixel. Nếu thấy chỗ nào lệch chuẩn, gửi tên file để sửa.
 - Nội dung đối chiếu với `frontend/openapi.json` và các route trong `src/presentation/api/routers/`. Một số bước (cơ chế phiên đăng nhập, gửi email xác minh) được ghi ở mức tổng quát, chưa kiểm chứng chi tiết.
 - Bản PlantUML trong `puml_du_phong/` chưa được render. Nếu sau này có PlantUML, có thể dùng để so sánh.
+
+## Quy tắc sinh trình tự từ hoạt động
+
+- Bước của **Khách** có hành động nhập liệu (Chọn, Nhập, Bấm, Mở…) → thông điệp Khách → Giao diện. Bước chỉ xem thì không có thông điệp.
+- Bước của **Hệ thống** → Giao diện → Xử lý. Nếu bước đọc/ghi dữ liệu thì Xử lý gọi tới Dữ liệu (Ent_CoSoDuLieu, hoặc Ent_TaiKhoan / Ent_NhatKy tuỳ nội dung).
+- Bước chỉ **hiển thị** (Hiển thị, Thông báo, Báo…) → Giao diện trả về Khách.
+- Rẽ nhánh (hình thoi) → khung **alt**; hai nhánh song song (fork) → khung **par**.

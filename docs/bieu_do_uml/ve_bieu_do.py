@@ -431,10 +431,6 @@ GAP = 44
 OFF = 170  # khoảng lệch của nhánh "không": đủ để không đè lên nhánh "có"
 
 
-def _ten_lan(lane_name: str) -> str:
-    return "Khách hàng" if lane_name == dac_ta.KH_TEN else lane_name
-
-
 def ve_hoat_dong(uc: dict) -> str:
     # Thu thập các làn theo thứ tự xuất hiện
     lanes: list[str] = []
@@ -571,7 +567,7 @@ def ve_hoat_dong(uc: dict) -> str:
         x0 = 40 + i * LANE_W
         s.rect(x0, top, LANE_W, ymax - top, fill="#fff")
         s.rect(x0, top, LANE_W, LANE_HEAD, fill="#fff")
-        s.text(x0 + LANE_W / 2, top + 22, _ten_lan(nm), size=13, anchor="middle", weight="bold")
+        s.text(x0 + LANE_W / 2, top + 22, nm, size=13, anchor="middle", weight="bold")
 
     # Vẽ mũi tên trước, nút vẽ sau để nút che đầu đường
     vao_ket = [e for e in edges if e[1] is ket_thuc]
@@ -660,9 +656,9 @@ def _ve_nut(s: SVG, nd: dict) -> None:
 
 # Use case lớn (tổng quát) và nhóm chi tiết tương ứng. Khoá là mã nội bộ, không hiển thị.
 NHOM_LON = [
-    ("UC_nhom1_kham_pha", "Khám phá quán và món", "Khách",
+    ("UC_nhom1_kham_pha", "Khám phá quán và món", "Khách hàng",
      ["UC01", "UC02", "UC03", "UC04", "UC05", "UC06", "UC07", "UC14"]),
-    ("UC_nhom2_tai_khoan", "Quản lý tài khoản", "Khách",
+    ("UC_nhom2_tai_khoan", "Quản lý tài khoản", "Khách hàng",
      ["UC08", "UC09", "UC10", "UC11", "UC12", "UC13", "UC15"]),
     ("UC_nhom3_tong_quan", "Xem tổng quan", "Quản trị viên",
      ["UC16", "UC17"]),
@@ -690,7 +686,7 @@ QUAN_HE = [
 ]
 # Use case mà tác nhân thao tác trực tiếp (không chỉ bị include)
 TRUC_TIEP = {
-    "Khách": {"UC01", "UC02", "UC03", "UC05", "UC06", "UC07", "UC08", "UC09", "UC10", "UC11",
+    "Khách hàng": {"UC01", "UC02", "UC03", "UC05", "UC06", "UC07", "UC08", "UC09", "UC10", "UC11",
               "UC12", "UC13", "UC14", "UC15"},
     "Quản trị viên": {"UC16", "UC17", "UC18", "UC19", "UC20", "UC21", "UC22", "UC23", "UC24"},
 }
@@ -736,7 +732,7 @@ def ve_use_case() -> str:
     QT = (910, 390)
     for ten_file, ten, tac_nhan, ids in NHOM_LON:
         cx, cy = vi_tri[ten_file]
-        if tac_nhan == "Khách":
+        if tac_nhan == "Khách hàng":
             _ve_tac_nhan_noi(s, KH[0], KH[1], cx, cy, RX, RY)
         else:
             _ve_tac_nhan_noi(s, QT[0], QT[1], cx, cy, RX, RY)
@@ -744,7 +740,7 @@ def ve_use_case() -> str:
         cx, cy = vi_tri[ten_file]
         _ve_ellipse_ten(s, cx, cy, RX, RY, ten, size=13)
     _ve_actor(s, KH[0], KH[1])
-    s.text(KH[0], KH[1] + 30, "Khách", size=12, anchor="middle")
+    s.text(KH[0], KH[1] + 30, "Khách hàng", size=12, anchor="middle")
     _ve_actor(s, QT[0], QT[1])
     s.text(QT[0], QT[1] + 30, "Quản trị viên", size=12, anchor="middle")
     return s.out()
@@ -762,7 +758,7 @@ def ve_use_case_nhom(tieu_de, ids, tac_nhan):
     Chỉ vẽ quan hệ ĐI RA từ thành viên nhóm. Quan hệ đi VÀO nhóm từ nhóm khác thuộc biểu đồ
     của nhóm kia; vẽ chung thì biểu đồ "Xem tổng quan" kéo cả mọi use case quản trị vào.
     """
-    ten_tac_nhan = "Khách" if tac_nhan == "Khách" else "Quản trị viên"
+    ten_tac_nhan = "Khách hàng" if tac_nhan == "Khách hàng" else "Quản trị viên"
     truc_tiep = TRUC_TIEP[ten_tac_nhan]
     quan_he = [(a, b, loai) for a, b, loai in QUAN_HE if a in ids]
     ngoai: list[str] = []

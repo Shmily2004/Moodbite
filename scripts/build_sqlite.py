@@ -105,6 +105,49 @@ def _schema_khac(conn) -> bool:
     return not mong_doi.issubset(existing)
 
 
+# Quán Admin NHẬP TAY có place_id bắt đầu bằng `manual:` (xem `domain/value_objects/
+# restaurant_new.py`). Chúng KHÔNG có trong CSV, nên mỗi lần dựng lại CSDL sẽ xoá mất.
+# Phát hiện 2026-11-08: endpoint `POST /admin/restaurants` đã chạy nhưng `build_sqlite`
+# vẫn `DELETE FROM restaurants` rồi chỉ ghi CSV — quán nhập tay biến mất lặng lẽ.
+_TIEN_TO_QUAN_THU_CONG = "manual:%"
+
+
+def _doc_quan_thu_cong(db_path: Path) -> list[dict]:
+    """Đọc các quán nhập tay còn trong CSDL cũ, TRƯỚC khi bảng bị xoá hoặc dựng lại.
+
+    Đọc theo tên cột (dict) để ghi lại được ngay cả khi lược đồ cũ thiếu vài cột: bước
+    ghi lại chỉ dùng các cột mà bảng mới có.
+    """
+    if not db_path.exists():
+        return []
+    try:
+        with mo_ket_noi(db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute(
+                "SELECT * FROM restaurants WHERE place_id LIKE ?", (_TIEN_TO_QUAN_THU_CONG,)
+            ).fetchall()
+            return [dict(r) for r in rows]
+    except sqlite3.Error:
+        # Bảng chưa có / file hỏng: không có quán nhập tay nào để giữ.
+        return []
+
+
+def _ghi_lai_quan_thu_cong(conn, rows: list[dict]) -> int:
+    """Ghi lại quán nhập tay vào bảng vừa dựng. `is_active` giữ nguyên giá trị cũ (đã ẩn
+    thì vẫn ẩn)."""
+    if not rows:
+        return 0
+    cot_moi = {r[1] for r in conn.execute("PRAGMA table_info(restaurants)").fetchall()}
+    for row in rows:
+        cot = [c for c in row if c in cot_moi]
+        conn.execute(
+            f"INSERT OR REPLACE INTO restaurants ({', '.join(cot)}) "
+            f"VALUES ({', '.join('?' for _ in cot)})",
+            [row[c] for c in cot],
+        )
+    return len(rows)
+
+
 def _hidden_place_ids(db_path: Path) -> set[str]:
     """placeId của các quán Admin đã ẩn, để dựng lại CSDL không làm chúng hiện lại."""
     if not db_path.exists():
@@ -201,6 +244,10 @@ def main() -> int:
     print(f"Doc duoc: {len(restaurants)} quan")
 
     db_path.parent.mkdir(parents=True, exist_ok=True)
+    # Phải đọc quán nhập tay TRƯỚC khi DROP/DELETE bên dưới.
+    quan_thu_cong = _doc_quan_thu_cong(db_path)
+    if quan_thu_cong:
+        print(f"Giu lai {len(quan_thu_cong)} quan nhap tay (manual:)")
     with mo_ket_noi(db_path) as conn:
         # CSDL cũ có thể thiếu cột mới thêm về sau (`CREATE TABLE IF NOT EXISTS` KHÔNG
         # thêm cột vào bảng đã tồn tại). Bug thật 2026-08-19: file .db dựng từ trước khi
@@ -219,6 +266,7 @@ def main() -> int:
             INSERT,
             [_row(r, is_active=(r.place_id not in hidden)) for r in restaurants],
         )
+        _ghi_lai_quan_thu_cong(conn, quan_thu_cong)
         conn.commit()
         total = conn.execute("SELECT COUNT(*) FROM restaurants").fetchone()[0]
         active = conn.execute(

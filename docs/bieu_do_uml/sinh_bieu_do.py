@@ -33,7 +33,7 @@ GOC = Path(__file__).resolve().parent
 THU_MUC_HD = GOC / "puml_du_phong" / "hoat_dong"
 THU_MUC_TT = GOC / "puml_du_phong" / "trinh_tu"
 
-KH_TEN = "Khách"
+KH_TEN = "Khách hàng"
 QT_TEN = "Quản trị viên"
 
 # Tên thành phần: đặt theo vai trò, không theo tên file code.
@@ -67,7 +67,7 @@ def _ten_an_toan(s: str) -> str:
 DAC_TA = [
     # ---------------- PHÍA NGƯỜI DÙNG ----------------
     {
-        "ma": "UC01", "ten": "Tìm quán bằng câu tự do", "nhom": "Khách",
+        "ma": "UC01", "ten": "Tìm quán bằng câu tự do", "nhom": "Khách hàng",
         "api": "POST /api/v1/search",
         "hoat_dong": [
             ("lane", KH_TEN), ("act", "Nhập câu tìm kiếm tự do"),
@@ -78,7 +78,7 @@ DAC_TA = [
         ],
     },
     {
-        "ma": "UC02", "ten": "Gợi ý món theo bộ lọc", "nhom": "Khách",
+        "ma": "UC02", "ten": "Gợi ý món theo bộ lọc", "nhom": "Khách hàng",
         "api": "POST /api/v1/dishes/suggest",
         "hoat_dong": [
             ("lane", KH_TEN), ("act", "Chọn bộ lọc: tâm trạng, bữa ăn, khoảng cách"),
@@ -89,7 +89,7 @@ DAC_TA = [
         ],
     },
     {
-        "ma": "UC03", "ten": "Xem chi tiết món", "nhom": "Khách",
+        "ma": "UC03", "ten": "Xem chi tiết món", "nhom": "Khách hàng",
         "api": "GET /api/v1/dishes/{id} (song song với xem quán bán món)",
         "hoat_dong": [
             ("lane", KH_TEN), ("act", "Chọn một món"),
@@ -100,7 +100,7 @@ DAC_TA = [
         ],
     },
     {
-        "ma": "UC04", "ten": "Xem danh sách quán của món", "nhom": "Khách",
+        "ma": "UC04", "ten": "Xem danh sách quán của món", "nhom": "Khách hàng",
         "api": "GET /api/v1/dishes/{id}/restaurants",
         "hoat_dong": [
             ("lane", KH_TEN), ("act", "Bấm xem quán bán món này"),
@@ -111,7 +111,7 @@ DAC_TA = [
         ],
     },
     {
-        "ma": "UC05", "ten": "Xem chi tiết quán", "nhom": "Khách",
+        "ma": "UC05", "ten": "Xem chi tiết quán", "nhom": "Khách hàng",
         "api": "GET /api/v1/restaurants/{id}, POST /api/v1/interactions (view)",
         "hoat_dong": [
             ("lane", KH_TEN), ("act", "Chọn một quán"),
@@ -122,7 +122,7 @@ DAC_TA = [
         ],
     },
     {
-        "ma": "UC06", "ten": "Báo quán đã đóng cửa", "nhom": "Khách",
+        "ma": "UC06", "ten": "Báo quán đã đóng cửa", "nhom": "Khách hàng",
         "api": "POST /api/v1/interactions {action_type: report_closed}",
         "hoat_dong": [
             ("lane", KH_TEN), ("act", "Bấm Báo đã đóng cửa"),
@@ -132,7 +132,7 @@ DAC_TA = [
         ],
     },
     {
-        "ma": "UC07", "ten": "Lưu món / quán yêu thích", "nhom": "Khách",
+        "ma": "UC07", "ten": "Lưu món / quán yêu thích", "nhom": "Khách hàng",
         "api": "Khách: lưu trên máy. Đã đăng nhập: POST /api/v1/me/favorites",
         "hoat_dong": [
             ("lane", KH_TEN), ("act", "Bấm biểu tượng yêu thích"),
@@ -213,7 +213,7 @@ DAC_TA = [
         ],
     },
     {
-        "ma": "UC14", "ten": "Xem tin tức", "nhom": "Khách",
+        "ma": "UC14", "ten": "Xem tin tức", "nhom": "Khách hàng",
         "api": "GET /api/v1/posts, GET /api/v1/posts/{slug}",
         "hoat_dong": [
             ("lane", KH_TEN), ("act", "Mở trang tin tức"),

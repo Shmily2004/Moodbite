@@ -12,7 +12,7 @@ production — production nằm ở `src/`.
 | Script | Làm gì | Ví dụ |
 |---|---|---|
 | `run_dev.py` | Chạy backend + app (gồm khu quản trị ở `/quan-tri`) bằng một lệnh, tự chọn cổng | `python scripts/run_dev.py` |
-| `verify.py` | Kiểm 9 mục: app dựng được · pytest · Clean Architecture · chỉ 1 backend · frontend typecheck+build · frontend test · FSD · CI cài được · bộ dữ liệu mẫu | `python scripts/verify.py` (một mục: `--chi 4`) |
+| `verify.py` | Kiểm 10 mục: app dựng được · pytest · Clean Architecture · chỉ 1 backend · frontend typecheck+build · frontend test · FSD · CI cài được · bộ dữ liệu mẫu · ma trận truy vết | `python scripts/verify.py` (một mục: `--chi 4`) |
 | `check_architecture.py` | Kiểm hướng phụ thuộc backend (chạy trong CI) | `python scripts/check_architecture.py` |
 | `check_permissions.py` | Trang quản trị đã cấu hình đủ chưa (fail-closed → 503 nếu thiếu) | `python scripts/check_permissions.py` |
 | `make_admin_user.py` | Tạo / nâng quyền tài khoản admin trong bảng `users`; ghi `MOODBITE_ADMIN_SECRET` + `MOODBITE_STORAGE=sqlite` vào `.env.local`. `--tu-env`: chuyển admin cũ (biến môi trường) sang bảng `users`, giữ nguyên mật khẩu | `python scripts/make_admin_user.py` |
@@ -78,7 +78,7 @@ Thư mục `synthetic/` là module dùng chung của hai script giả lập ở 
 
 | Script | Vì sao |
 |---|---|
-| `predict_dish_from_model.py` | Demo model phân loại món đã GỠ (rò rỉ nhãn); cần `scripts/train_dish_classifier.py` — file không tồn tại |
+| `predict_dish_from_model.py` | Demo model phân loại món đã GỠ (rò rỉ nhãn); cần `scripts/train_dish_classifier.py` — file không tồn tại. Đã chuyển sang `archive/scripts/` (rà soát 2026-11-08) |
 | `legacy/` | Công cụ chạy một lần hoặc bản cũ, giữ để tham khảo: `check_mood_improvement.py`, `convert_seed_to_intro.py`, `extract_docs.py` (docx → `docs/extracted/`), `merge_csv_direct.py`, `merge_csv_direct_v2.py` |
 
 `download_model.py` (tải model đã gỡ) đã chuyển sang `archive/model-download/` ngày 2026-10-06.

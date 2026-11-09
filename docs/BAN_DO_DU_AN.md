@@ -89,10 +89,11 @@ Toàn bộ chữ nằm ở **một file duy nhất**: `shared/i18n/tu_dien.ts`.
   `frontend/apps/client/public/anh/`
 - Khai báo kích thước ảnh: `shared/config/images.ts`
 
-### 2.5. Trang quản trị (app `admin`, chạy riêng)
+### 2.5. Trang quản trị (package `admin`, cùng cổng với app người dùng)
 
-Gốc `frontend/apps/admin/src/`. Bật bằng `python scripts/run_dev.py --admin`,
-mở <http://localhost:5174>.
+Gốc `frontend/packages/admin/src/`. Từ 2026-11-01 không còn cổng 5174 riêng: đăng nhập ở
+<http://localhost:5173/login>, tài khoản admin được đưa vào <http://localhost:5173/quan-tri>.
+Bật bằng `python scripts/run_dev.py`.
 
 | Màn hình | Đường dẫn | File |
 |---|---|---|

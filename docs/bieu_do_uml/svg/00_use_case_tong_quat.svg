@@ -22,7 +22,7 @@
 <line x1="76" y1="270" x2="104" y2="270" stroke="#000" stroke-width="1.2"/>
 <line x1="90" y1="286" x2="79" y2="300" stroke="#000" stroke-width="1.2"/>
 <line x1="90" y1="286" x2="101" y2="300" stroke="#000" stroke-width="1.2"/>
-<text x="90" y="320" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Khách</text>
+<text x="90" y="320" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Khách hàng</text>
 <circle cx="910" cy="350" r="9" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <line x1="910" y1="359" x2="910" y2="386" stroke="#000" stroke-width="1.2"/>
 <line x1="896" y1="370" x2="924" y2="370" stroke="#000" stroke-width="1.2"/>

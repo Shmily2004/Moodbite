@@ -47,9 +47,10 @@ def create_app(
     """Dựng app.
 
     `container` cho phép TIÊM sẵn bộ phụ thuộc thay vì tự lắp. Chỉ dùng trong test:
-    `build_container()` đọc cả dataset (4938 quán) và dựng chỉ mục TF-IDF, mất ~1.5s.
+    `build_container()` đọc cả dataset (52.871 quán) và dựng chỉ mục TF-IDF. Đo ngày
+    2026-11-07 (QA): 39-50 giây — con số cũ "~1.5s" là của thời 4.938 quán, đừng tin nó.
     Test dựng app hàng chục lần rồi ghi đè container ngay sau đó, nên nếu không có
-    tham số này thì mỗi test phải trả 1.5s cho công việc bị vứt đi.
+    tham số này thì mỗi test phải trả thời gian đó cho công việc bị vứt đi.
     """
     settings = settings or Settings.from_env()
 

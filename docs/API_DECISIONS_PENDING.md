@@ -65,7 +65,13 @@ chỉ là chưa ai dùng.
 
 ## 2. `POST /api/v1/admin/restaurants` — thêm quán thủ công
 
-**Trạng thái:** 🔴 **BLOCKING DECISION** — đây là thay đổi data model, chưa được duyệt.
+**Trạng thái (cập nhật 2026-11-08):** endpoint ĐÃ CÓ trong code (`POST /admin/restaurants`,
+`routers/admin.py`), và quán nhập tay (`place_id` = `manual:…`) nay được GIỮ LẠI khi chạy
+`scripts/build_sqlite.py` (`_doc_quan_thu_cong` / `_ghi_lai_quan_thu_cong`, có test
+`tests/test_build_sqlite_quan_nhap_tay.py`). Chưa làm: cột `origin` và các quyết định ở bảng
+bên dưới — đó vẫn là thay đổi data model cần chủ dự án duyệt. Phần dưới giữ nguyên làm lịch sử.
+
+Trạng thái gốc: 🔴 **BLOCKING DECISION** — đây là thay đổi data model, chưa được duyệt.
 
 ### Vấn đề chặn: quán thêm tay sẽ BỊ XOÁ
 

@@ -231,6 +231,35 @@ def test_search_cum_o_ten_phuong_doi_tam_tim_kiem_ve_phuong_do():
     assert any("Phường Cầu Giấy" in w for w in data["warnings"])
 
 
+def test_search_noi_ro_khi_bo_loc_ban_kinh_vi_khong_quan_nao_trong_pham_vi():
+    """QA 2026-11-07, mục Q4. Domain bỏ lọc bán kính khi không quán nào nằm trong đó (thà
+    gợi ý quán xa còn hơn danh sách trống) — nhưng trước đây KHÔNG có cảnh báo, nên người ở
+    xa chọn 2 km thấy quán cách 9 km mà không hiểu vì sao."""
+    c = make_client(restaurants=[
+        make_restaurant("Lẩu Xa Xôi", lat=21.0330, lng=105.7900),  # cách điểm tìm ~6,4 km
+    ])
+    data = c.post(f"{API}/search", json={
+        "session_id": SESSION, "query_text": "lẩu",
+        "latitude": 21.0288, "longitude": 105.8525, "max_distance_km": 2, "limit": 3,
+    }).json()["data"]
+
+    assert [r["name"] for r in data["results"]] == ["Lẩu Xa Xôi"]
+    assert any("bán kính 2 km" in w for w in data["warnings"])
+
+
+def test_search_khong_bao_bo_loc_ban_kinh_khi_con_quan_trong_pham_vi():
+    c = make_client(restaurants=[
+        make_restaurant("Lẩu Gần Nhà", lat=21.0288, lng=105.8525),
+        make_restaurant("Lẩu Xa Xôi", lat=21.0330, lng=105.7900),
+    ])
+    data = c.post(f"{API}/search", json={
+        "session_id": SESSION, "query_text": "lẩu",
+        "latitude": 21.0288, "longitude": 105.8525, "max_distance_km": 2, "limit": 3,
+    }).json()["data"]
+
+    assert not any("Không có quán nào trong bán kính" in w for w in data["warnings"])
+
+
 # --- POST /interactions ------------------------------------------------------
 
 
@@ -269,6 +298,32 @@ def test_log_interaction_rejects_unknown_action(client):
     resp = client.post(
         f"{API}/interactions",
         json={"session_id": SESSION, "restaurant_id": "id-Quan Pho", "action_type": "fly"},
+    )
+    assert resp.status_code == 400
+
+
+def test_log_interaction_dwell_vo_ly_bi_tu_choi(client):
+    """QA Q5: `dwell_time_ms = 10^15` từng được nhận và tính thành tín hiệu dương, đi thẳng
+    vào dữ liệu huấn luyện. Trần 1 giờ (MAX_DWELL_TIME_MS) chặn việc này ở biên."""
+    resp = client.post(
+        f"{API}/interactions",
+        json={
+            "session_id": SESSION,
+            "restaurant_id": "id-Quan Pho",
+            "action_type": "view_detail",
+            "dwell_time_ms": 10**15,
+        },
+    )
+    assert resp.status_code == 400
+    assert resp.json()["error"]["code"] == "INVALID_REQUEST"
+
+
+def test_log_interaction_session_id_qua_dai_bi_tu_choi(client):
+    """QA Q5: `session_id` 100 KB từng được ghi thẳng vào interactions.jsonl."""
+    resp = client.post(
+        f"{API}/interactions",
+        json={"session_id": "x" * 100_000, "restaurant_id": "id-Quan Pho",
+              "action_type": "save"},
     )
     assert resp.status_code == 400
 

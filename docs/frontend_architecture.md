@@ -264,8 +264,8 @@ tiến trình backend chứ không nằm trong bundle JavaScript. Đây là ki�
 | Luật import FSD | `npm run lint:arch` | import ngược lên, import ngang giữa 2 feature |
 | Kiểu TypeScript toàn monorepo | `npm run typecheck` | sai tên field API (sau khi `npm run gen:api`) |
 | Build | `npm run build` | gồm cả `tsc --noEmit` |
-| Test | `npm run test --workspace @moodbite/client` | 21 test |
-| **Tất cả, kể cả backend** | **`python scripts/verify.py`** | 8 mục |
+| Test | `npm run test --workspace @moodbite/client` | 536 test trong 79 file (đo 2026-11-08, gồm cả khu quản trị) |
+| **Tất cả, kể cả backend** | **`python scripts/verify.py`** | 10 mục |
 
 ### Cơ chế chống "sửa backend, frontend vỡ mà không ai biết"
 
@@ -304,7 +304,7 @@ frontend/                          monorepo npm workspaces
 │   │   ├── http.ts                nơi DUY NHẤT biết envelope {data}/{error}
 │   │   ├── endpoints.ts           các endpoint, gắn kiểu từ schema
 │   │   └── index.ts
-│   └── ui/src/index.ts            cố ý còn rỗng — chờ apps/admin
+│   └── ui/src/index.ts            cố ý còn rỗng — chờ khu quản trị (packages/admin)
 │
 └── apps/client/src/
     ├── app/                       App.tsx, styles.css
@@ -332,6 +332,6 @@ frontend/                          monorepo npm workspaces
 | FSD + MVVM, **không** phải MVC theo tên thư mục | React không có Controller kiểu server-render; hook đúng là ViewModel |
 | Business logic **chỉ** ở backend | Hai nguồn sự thật = sửa 2 chỗ = chắc chắn có lúc quên |
 | TypeScript, không phải JavaScript | Đổi field backend → CI đỏ ngay, không đợi người dùng gặp lỗi |
-| Monorepo `packages/` + `apps/` | `api-client` sẽ dùng lại nguyên vẹn cho `apps/admin` |
+| Monorepo `packages/` + `apps/` | `api-client` sẽ dùng lại nguyên vẹn cho `packages/admin` |
 | Leaflet + OpenStreetMap, không Google Maps | Google Maps bắt bật thanh toán mới dùng được; chủ dự án không có thẻ |
 | `schema.d.ts` sinh tự động | Ngăn frontend và backend trôi khác nhau |

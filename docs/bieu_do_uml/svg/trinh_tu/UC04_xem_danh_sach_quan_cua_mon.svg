@@ -5,7 +5,7 @@
 <line x1="96" y1="80" x2="124" y2="80" stroke="#000" stroke-width="1.2"/>
 <line x1="110" y1="96" x2="99" y2="110" stroke="#000" stroke-width="1.2"/>
 <line x1="110" y1="96" x2="121" y2="110" stroke="#000" stroke-width="1.2"/>
-<text x="110" y="138" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Khách</text>
+<text x="110" y="138" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Khách hàng</text>
 <line x1="336" y1="84" x2="336" y2="116" stroke="#000" stroke-width="1.2"/>
 <line x1="336" y1="100" x2="344" y2="100" stroke="#000" stroke-width="1.2"/>
 <circle cx="360" cy="100" r="16" fill="#fff" stroke="#000" stroke-width="1.2"/>

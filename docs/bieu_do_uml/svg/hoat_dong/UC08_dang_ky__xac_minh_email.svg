@@ -52,6 +52,6 @@
 <rect x="910.0" y="919.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <text x="990" y="941.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Báo mã sai hoặc hết</text>
 <text x="990" y="956.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">hạn, cho gửi lại</text>
-<rect x="740.0" y="991.5" width="330.0" height="7" rx="0" fill="#000" stroke="#000" stroke-width="1.2"/>
+<rect x="808.0" y="991.5" width="194" height="7" rx="0" fill="#000" stroke="#000" stroke-width="1.2"/>
 <circle cx="905.0" cy="1045.0" r="11" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <circle cx="905.0" cy="1045.0" r="6" fill="#000" stroke="#000" stroke-width="1.2"/></svg>

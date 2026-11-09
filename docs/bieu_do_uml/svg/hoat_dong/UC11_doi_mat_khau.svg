@@ -31,6 +31,6 @@
 <text x="820" y="499.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Cập nhật mật khẩu mới</text>
 <rect x="910.0" y="469.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <text x="990" y="499.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Báo lỗi</text>
-<rect x="740.0" y="541.5" width="330.0" height="7" rx="0" fill="#000" stroke="#000" stroke-width="1.2"/>
+<rect x="808.0" y="541.5" width="194" height="7" rx="0" fill="#000" stroke="#000" stroke-width="1.2"/>
 <circle cx="905.0" cy="595.0" r="11" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <circle cx="905.0" cy="595.0" r="6" fill="#000" stroke="#000" stroke-width="1.2"/></svg>

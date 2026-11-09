@@ -36,6 +36,6 @@
 <rect x="910.0" y="375.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <text x="990" y="397.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Chuyển tới trang đăng</text>
 <text x="990" y="412.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">nhập</text>
-<rect x="220.0" y="729.5" width="850.0" height="7" rx="0" fill="#000" stroke="#000" stroke-width="1.2"/>
+<rect x="288.0" y="729.5" width="714" height="7" rx="0" fill="#000" stroke="#000" stroke-width="1.2"/>
 <circle cx="645.0" cy="783.0" r="11" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <circle cx="645.0" cy="783.0" r="6" fill="#000" stroke="#000" stroke-width="1.2"/></svg>

@@ -564,11 +564,14 @@ def ve_hoat_dong(uc: dict) -> str:
     if len(fin_tails) > 1:
         # Thanh gộp chỉ trải dưới các đuôi THẬT SỰ đi tới đó, không trải cả biểu đồ (bản cũ
         # kéo thanh qua cả làn người dùng, trông như một luồng thừa).
-        x_trai = min(nd["x"] - nd["w"] / 2 for nd, _ in fin_tails)
-        x_phai = max(nd["x"] + nd["w"] / 2 for nd, _ in fin_tails)
+        # Thanh chỉ kéo đúng từ mũi tên ngoài cùng tới mũi tên ngoài cùng (+ đệm nhỏ), không
+        # vượt ra ngoài các ô. Mũi tên đi từ TÂM ô xuống nên dùng tâm, không dùng mép.
+        x_trai = min(nd["x"] for nd, _ in fin_tails)
+        x_phai = max(nd["x"] for nd, _ in fin_tails)
         y_day = max(nd["y"] + nd["h"] / 2 for nd, _ in fin_tails)
+        rong_gop = max(60, (x_phai - x_trai) + 24)
         gop_ket = them_nut("bar", (x_trai + x_phai) / 2, y_day + 26, "", lanes[0],
-                           w=(x_phai - x_trai), h=7)
+                           w=rong_gop, h=7)
         gop_ket["merge"] = True
         for t_nd, t_nhan in fin_tails:
             noi(t_nd, gop_ket, t_nhan)

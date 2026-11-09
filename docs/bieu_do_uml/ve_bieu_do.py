@@ -495,11 +495,14 @@ def ve_hoat_dong(uc: dict) -> str:
     def chain(items: list, lane: str, x_off: float, y: float, tails: list) -> tuple[list, float]:
         """Xếp chuỗi bước; trả về (các đuôi cần nối tiếp, y kế tiếp)."""
         cur_lane = lane
-        for it in items:
+        for idx, it in enumerate(items):
             loai = it[0]
             if loai == "lane":
                 cur_lane = it[1]
                 continue
+            # Biết bước kế tiếp có phải `stop` không: nếu có thì không cần gộp nhánh ở đây,
+            # vì `stop` sẽ đẩy từng đuôi vào thanh gộp CHUNG cuối biểu đồ (tránh hai thanh chồng).
+            sau = items[idx + 1] if idx + 1 < len(items) else None
             x = x_lan.get(cur_lane, x_lan[lanes[0]]) + x_off
             if loai == "act":
                 nd = them_nut("act", x, y, it[1], cur_lane)
@@ -521,7 +524,7 @@ def ve_hoat_dong(uc: dict) -> str:
                 y = max(y_co, y_khong) + 6
                 # Hai nhánh cùng còn chạy tiếp thì gộp lại bằng nút merge (hình thoi nhỏ),
                 # để việc sau đó chỉ viết một lần thay vì lặp ở từng nhánh.
-                if len(tails) > 1:
+                if len(tails) > 1 and not (sau and sau[0] == "stop"):
                     # gộp bằng thanh đen ngang (ký hiệu gộp nhánh trong mẫu), trải dưới cả hai nhánh
                     g = them_nut("bar", x + OFF / 2, y + 8, "", cur_lane, w=OFF + BOX_W + 20, h=7)
                     g["merge"] = True
@@ -553,10 +556,28 @@ def ve_hoat_dong(uc: dict) -> str:
     start = them_nut("start", x_lan[lanes[0]], st["y"] - 74, "", lanes[0], w=22, h=22)
     tails, y_end = chain(uc["hoat_dong"], lanes[0], 0, st["y"], [(start, "")])
     fin_tails.extend(tails)
-    y_fin = max(nd["y"] + nd["h"] / 2 for nd in nodes) + 50
-    ket_thuc = them_nut("end", x_lan[lanes[0]], y_fin, "", lanes[0], w=22, h=22)
-    for t_nd, t_nhan in fin_tails:
-        noi(t_nd, ket_thuc, t_nhan)
+    # Quy tắc mẫu UML: khi nhiều đường cùng kết thúc, phải GỘP bằng thanh đen trước, rồi chỉ
+    # MỘT mũi tên từ thanh gộp về nút kết thúc. Nối thẳng nhiều mũi tên vào nút kết thúc
+    # (bản cũ) làm nút bị đâm từ nhiều phía. Đặc tả (`("stop",)` trong từng nhánh) là nguyên
+    # nhân: mỗi nhánh tự đẩy đuôi của nó vào đây.
+    y_day = max(nd["y"] + nd["h"] / 2 for nd in nodes)
+    if len(fin_tails) > 1:
+        # Thanh gộp chỉ trải dưới các đuôi THẬT SỰ đi tới đó, không trải cả biểu đồ (bản cũ
+        # kéo thanh qua cả làn người dùng, trông như một luồng thừa).
+        x_trai = min(nd["x"] - nd["w"] / 2 for nd, _ in fin_tails)
+        x_phai = max(nd["x"] + nd["w"] / 2 for nd, _ in fin_tails)
+        y_day = max(nd["y"] + nd["h"] / 2 for nd, _ in fin_tails)
+        gop_ket = them_nut("bar", (x_trai + x_phai) / 2, y_day + 26, "", lanes[0],
+                           w=(x_phai - x_trai), h=7)
+        gop_ket["merge"] = True
+        for t_nd, t_nhan in fin_tails:
+            noi(t_nd, gop_ket, t_nhan)
+        ket_thuc = them_nut("end", gop_ket["x"], gop_ket["y"] + 50, "", lanes[0], w=22, h=22)
+        noi(gop_ket, ket_thuc)
+    else:
+        ket_thuc = them_nut("end", x_lan[lanes[0]], y_day + 50, "", lanes[0], w=22, h=22)
+        for t_nd, t_nhan in fin_tails:
+            noi(t_nd, ket_thuc, t_nhan)
 
     # Chiều cao làn
     ymax = max([nd["y"] + nd["h"] / 2 for nd in nodes] + [y_end]) + 40

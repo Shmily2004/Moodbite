@@ -1,9 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="862" viewBox="0 0 1120 862"><defs><marker id="dac" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#000"/></marker><marker id="ho" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto"><path d="M1,1 L11,6 L1,11" fill="none" stroke="#000" stroke-width="1.2"/></marker></defs><rect width="100%" height="100%" fill="#fff"/><text x="20" y="22" font-family="Arial, Helvetica, sans-serif" font-size="15" text-anchor="start" font-weight="bold" fill="#000">Quản lý bài viết</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="798" viewBox="0 0 1120 798"><defs><marker id="dac" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#000"/></marker><marker id="ho" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto"><path d="M1,1 L11,6 L1,11" fill="none" stroke="#000" stroke-width="1.2"/></marker></defs><rect width="100%" height="100%" fill="#fff"/><text x="20" y="22" font-family="Arial, Helvetica, sans-serif" font-size="15" text-anchor="start" font-weight="bold" fill="#000">Quản lý bài viết</text>
 <rect x="560" y="60" width="520" height="1" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<rect x="40" y="60" width="520" height="742" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<rect x="40" y="60" width="520" height="678.0" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <rect x="40" y="60" width="520" height="34" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <text x="300.0" y="82" font-family="Arial, Helvetica, sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#000">Quản trị viên</text>
-<rect x="560" y="60" width="520" height="742" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<rect x="560" y="60" width="520" height="678.0" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <rect x="560" y="60" width="520" height="34" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <text x="820.0" y="82" font-family="Arial, Helvetica, sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#000">Hệ thống</text>
 <line x1="300" y1="151.0" x2="300" y2="189.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
@@ -15,12 +15,12 @@
 <text x="828" y="541.0" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">có</text>
 <path d="M 905.0 494 H 990 V 561.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
 <text x="911.0" y="488" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">không</text>
-<line x1="820" y1="611.0" x2="820" y2="690.5" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<line x1="990" y1="611.0" x2="990" y2="690.5" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
 <path d="M 905.0 308 H 990 V 375.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
 <text x="911.0" y="302" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">không</text>
-<path d="M 905.0 697.5 V 708.2804555427072 H 294.0 V 738.2804555427072" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<path d="M 990 425.0 V 714.2804555427072 H 306.0 V 738.2804555427072" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<line x1="820" y1="611.0" x2="820" y2="633.5" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<line x1="990" y1="611.0" x2="990" y2="633.5" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<line x1="990" y1="425.0" x2="990" y2="633.5" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<line x1="905.0" y1="640.5" x2="905.0" y2="676.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
 <circle cx="300" cy="140" r="10" fill="#000" stroke="#000" stroke-width="1.2"/>
 <rect x="220.0" y="189.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <text x="300" y="219.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Soạn, sửa hoặc xoá bài</text>
@@ -38,9 +38,9 @@
 <rect x="910.0" y="561.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <text x="990" y="583.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Giữ ở trạng thái nháp,</text>
 <text x="990" y="598.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">chỉ quản trị thấy</text>
-<rect x="730.0" y="690.5" width="350" height="7" rx="0" fill="#000" stroke="#000" stroke-width="1.2"/>
 <rect x="910.0" y="375.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <text x="990" y="397.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Chuyển về trang đăng</text>
 <text x="990" y="412.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">nhập quản trị</text>
-<circle cx="300" cy="747.5" r="11" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<circle cx="300" cy="747.5" r="6" fill="#000" stroke="#000" stroke-width="1.2"/></svg>
+<rect x="740.0" y="633.5" width="330.0" height="7" rx="0" fill="#000" stroke="#000" stroke-width="1.2"/>
+<circle cx="905.0" cy="687.0" r="11" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<circle cx="905.0" cy="687.0" r="6" fill="#000" stroke="#000" stroke-width="1.2"/></svg>

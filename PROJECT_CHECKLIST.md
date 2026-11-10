@@ -1,6 +1,6 @@
 # MoodBite — Bảng theo dõi tiến độ
 
-**Cập nhật:** 2026-10-10
+**Cập nhật:** 2026-11-08 (rà soát toàn dự án — xem [`docs/bao_cao_qa_2026-11-07.md`](docs/bao_cao_qa_2026-11-07.md) mục "Cập nhật trạng thái")
 **Nguyên tắc:** file này chỉ ghi thứ đã **chạy thật và kiểm chứng được**. Không ghi theo
 kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh để tự kiểm lại.
 
@@ -19,7 +19,8 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Frontend Client | ✅ **TypeScript + FSD** | có bản đồ, steiger trong CI. Số test: xem dòng **Test** bên dưới (con số "86 test" cũ là của 2026-08) |
 | Bản đồ | ✅ **Xong** | Leaflet + OpenStreetMap, miễn phí, không cần key |
 | Kiến trúc | ✅ Sạch | Clean Architecture + checker tự động trong CI |
-| Test | ✅ **918 backend + 503 frontend** | client 384 · admin 119. Đo bằng `python scripts/verify.py` ngày 2026-10-06 |
+| Test | ✅ **985 backend + 536 frontend** | Đo bằng `python scripts/verify.py` ngày 2026-11-08 (10/10 mục xanh) |
+| Rà soát QA 2026-11-07 | 🟡 **4/9 đã xong, 1 xong một phần (Q5)** | Còn mở: lượt hiển thị (Q1, cần chủ dự án duyệt), proxy/giới hạn tần suất (Q2), tải đồng thời (Q7), Lớp 3 vs baseline (Q9). Chi tiết ở `docs/bao_cao_qa_2026-11-07.md` |
 | Giao diện | ✅ Theo bản duyệt · **trang chủ + tài khoản dựng lại 2026-08-22** | trang chủ = LƯỚI MÓN + chips lọc; trang món = giới thiệu + bản đồ + danh sách quán; `/tim-kiem` giữ bố cục bản đồ + rail cũ |
 | Router + layout | ✅ Xong | react-router v6, khung dùng chung, `RequireAuth` cho admin |
 | Chạy xem giao diện | ✅ **một lệnh** | `python scripts/run_dev.py --admin` |
@@ -425,7 +426,7 @@ Phát hiện gốc: `last_updated` ghi 97,4% dữ liệu "cập nhật 3 ngày t
       - Trường sửa được do DOMAIN quyết định (`domain/value_objects/restaurant_edit.py`),
         không phải router. Sửa `rating`/cụm → 400, vì chúng do pipeline sinh ra.
       - Xác thực gắn ở CẤP ROUTER → thêm endpoint mới KHÔNG THỂ quên bảo vệ.
-- [x] **`apps/admin`** — React + TS, cùng cấu trúc FSD với client, cổng 5174
+- [x] **`apps/admin`** — React + TS, cùng cấu trúc FSD với client, cổng 5174 *(LỊCH SỬ: nay là `packages/admin`, gắn vào cổng 5173 từ 2026-11-01)*
 - [x] **Ranh giới client/admin cưỡng chế bằng KIỂU**: `createApi()` trả lớp không hề có
       method quản trị; `createAdminApi()` bắt buộc truyền hàm lấy token
 - [x] 37 test ở `tests/test_admin_api.py`, chạy thật end-to-end với uvicorn
@@ -1230,8 +1231,9 @@ NGƯỜI THẬT và cần THỜI GIAN TRÔI QUA — không rút ngắn được 
 
 ### Có đang chậm tiến độ không?
 
-**Không chậm về khối lượng code** — 26 ngày, 112 commit, 628 test, 9/9 mục kiểm đạt là
-nhịp tốt.
+**Không chậm về khối lượng code** — 153 commit (đếm 2026-11-09), 985 test backend + 536 test
+frontend, 10/10 mục `verify.py` đạt là nhịp tốt. (Các con số "26 ngày, 112 commit, 628 test"
+của bản cũ là ảnh chụp ngày 2026-08, không còn đúng.)
 
 **Chậm ở đúng một chỗ: thu thập tương tác người dùng.** Và đó lại là thứ chặn phần "học
 máy" — phần dễ bị hỏi nhất khi bảo vệ. Nhắc lại ở mỗi lần cập nhật file này cho tới khi
@@ -1623,7 +1625,8 @@ python scripts/make_admin_user.py
 
 Ghi thẳng vào `.env.local` (đã .gitignore), rồi khởi động lại backend.
 Kiểm bất cứ lúc nào: `python scripts/check_permissions.py`.
-Chạy app quản trị: `python scripts/run_dev.py --admin` (cổng 5174).
+Chạy app quản trị: `python scripts/run_dev.py` rồi đăng nhập ở `http://localhost:5173/login`
+(tài khoản admin vào `/quan-tri`). Cổng 5174 đã bỏ từ 2026-11-01.
 
 ### Mở rộng dữ liệu — miễn phí trước, trả phí sau
 

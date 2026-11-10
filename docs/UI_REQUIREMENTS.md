@@ -280,9 +280,10 @@ Frontend là **monorepo npm workspaces**, React + TypeScript, kiến trúc Featu
 ```
 frontend/
 ├── packages/api-client/     tầng gọi API dùng chung, kiểu sinh tự động từ OpenAPI
-└── apps/
-    ├── client/              cổng 5173
-    └── admin/               cổng 5174
+├── apps/
+│   └── client/              cổng 5173 (khu quản trị /quan-tri nằm trong cùng app)
+└── packages/
+    └── admin/               khu quản trị — gắn vào client ở /quan-tri (2026-11-01)
 ```
 
 Đang có: 2 layout (client, admin), react-router v6, 47 test frontend.
@@ -307,7 +308,7 @@ python scripts/run_dev.py --admin
 ```
 python scripts/data_report.py      # độ phủ dữ liệu
 python scripts/review_report.py    # dữ liệu review
-python scripts/verify.py           # toàn bộ dự án, 8 mục
+python scripts/verify.py           # toàn bộ dự án, 10 mục
 ```
 
 > **Quy ước về số lượng bản ghi:** con số 4938 là của **dataset hiện tại, đo 2026-08-17**.

@@ -4,7 +4,7 @@ QUY ƯỚC TÊN TRƯỜNG: snake_case, theo đặc tả API mục 1.3 - khớp t
 Data Dictionary để bớt một tầng ánh xạ DTO. Đây là quyết định CÓ CHỦ ĐÍCH, đánh đổi việc
 không theo convention camelCase phổ biến của JSON.
 
-Đổi field ở đây là BREAKING CHANGE với frontend - phải sửa frontend/src/services/ cùng lúc.
+Đổi field ở đây là BREAKING CHANGE với frontend - phải sửa `frontend/packages/api-client/` và `frontend/apps/client/src/shared/api/` cùng lúc.
 """
 from __future__ import annotations
 
@@ -317,14 +317,22 @@ class RestaurantDetailData(BaseModel):
 
 # --- POST /api/v1/interactions -----------------------------------------------
 
+# Giới hạn nhãn tương tác (QA 2026-11-07, mục Q5). Không có trần thì `dwell_time_ms = 10^15`
+# được tính thành tín hiệu dương và đi thẳng vào dữ liệu huấn luyện Lớp 3.
+# 1 giờ: lâu hơn nữa thì đó là tab bị bỏ quên chứ không phải người đang đọc quán.
+MAX_DWELL_TIME_MS = 60 * 60 * 1000
+# UUID v4 dài 36 ký tự; 64 vẫn thừa chỗ, nhưng chặn được chuỗi vài trăm KB ghi thẳng vào log.
+MAX_ID_LENGTH = 64
+
+
 class InteractionRequest(BaseModel):
-    session_id: str
+    session_id: str = Field(..., min_length=1, max_length=MAX_ID_LENGTH)
     restaurant_id: str
     action_type: ActionType
-    search_query_id: Optional[str] = None
+    search_query_id: Optional[str] = Field(default=None, max_length=MAX_ID_LENGTH)
     dwell_time_ms: Optional[int] = Field(
-        default=None, ge=0,
-        description="Bắt buộc khi action_type = view_detail.",
+        default=None, ge=0, le=MAX_DWELL_TIME_MS,
+        description="Bắt buộc khi action_type = view_detail. Tối đa 1 giờ (3.600.000 ms).",
     )
     rank_position: Optional[int] = Field(default=None, ge=1)
 
@@ -569,7 +577,7 @@ class ChangePasswordResponse(BaseModel):
 # --- Quản trị ---------------------------------------------------------------
 #
 # Tách hẳn khỏi schema của người dùng cuối: đây là hợp đồng của MỘT ỨNG DỤNG KHÁC
-# (`apps/admin`), có nhu cầu khác — nó cần thấy cả quán đã ẩn và cả trường `is_active`,
+# (khu quản trị, `frontend/packages/admin`), có nhu cầu khác — nó cần thấy cả quán đã ẩn và cả trường `is_active`,
 # những thứ luồng người dùng cuối không bao giờ được thấy.
 
 

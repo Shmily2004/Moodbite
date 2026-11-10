@@ -252,10 +252,10 @@ Một lệnh, chạy được ở PowerShell / CMD / bash / macOS / Linux:
 python scripts/verify.py
 ```
 
-Kiểm 9 mục: (1) app FastAPI dựng được · (2) toàn bộ test backend (pytest) · (3) hướng
+Kiểm 10 mục: (1) app FastAPI dựng được · (2) toàn bộ test backend (pytest) · (3) hướng
 phụ thuộc Clean Architecture · (4) chỉ có 1 backend · (5) frontend typecheck + build ·
 (6) test frontend (client + admin) · (7) luật import FSD · (8) CI cài đặt được (lockfile,
-đường dẫn trong `ci.yml`) · (9) bộ dữ liệu mẫu frontend không giàu hơn dữ liệu thật.
+đường dẫn trong `ci.yml`) · (9) bộ dữ liệu mẫu frontend không giàu hơn dữ liệu thật · (10) ma trận truy vết không trỏ vào thứ không tồn tại.
 Số test hiện tại: xem output của lệnh trên, hoặc dòng *Test* trong `PROJECT_CHECKLIST.md`.
 Chạy một mục: `python scripts/verify.py --chi 4`.
 

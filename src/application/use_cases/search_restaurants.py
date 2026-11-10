@@ -38,7 +38,12 @@ from src.domain.services.search_ranking import DEFAULT_MAX_DISTANCE_KM
 from src.domain.value_objects.opening_hours import parse_opening_hours
 from src.domain.value_objects.text import normalize
 from src.domain.value_objects.context_signal import NEUTRAL_CONTEXT, ContextSignal
-from src.domain.value_objects.location import HANOI_CENTER_LAT, HANOI_CENTER_LNG, Location
+from src.domain.value_objects.location import (
+    HANOI_CENTER_LAT,
+    HANOI_CENTER_LNG,
+    Location,
+    mo_ta_km,
+)
 from src.domain.value_objects.mood import MOOD_PROFILES, normalize_mood
 
 DEFAULT_LIMIT = 10
@@ -185,6 +190,20 @@ class SearchRestaurantsUseCase:
             warnings.append(
                 "Không quán nào khớp trực tiếp nội dung tìm kiếm - kết quả dưới đây xếp "
                 "theo mức phù hợp chung, khoảng cách và đánh giá."
+            )
+
+        # Domain bỏ lọc bán kính khi không quán nào nằm trong đó (thà gợi ý quán xa còn hơn
+        # danh sách trống). Lúc đó MỌI quán trả về đều ngoài bán kính — phải NÓI RA, nếu
+        # không người ở Ba Vì/Sóc Sơn chọn 2 km sẽ thấy quán cách 9 km mà không hiểu vì sao.
+        # Luồng món đã có cảnh báo tương tự (`suggest_dishes`); đây là phần bị thiếu.
+        if (
+            query.max_distance_km is not None
+            and ranked
+            and all(r.distance_km > query.max_distance_km for r in ranked)
+        ):
+            warnings.append(
+                f"Không có quán nào trong bán kính {mo_ta_km(query.max_distance_km)} quanh "
+                "bạn - kết quả dưới đây là các quán gần nhất, nằm ngoài bán kính đó."
             )
 
         results = [

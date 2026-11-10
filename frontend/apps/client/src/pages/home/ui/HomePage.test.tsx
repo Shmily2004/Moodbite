@@ -137,49 +137,32 @@ describe('HomePage - nut tim luu mon', () => {
     sessionStorage.clear();
   });
 
-  it('bam tim thi luu lai o may, bam lai thi bo luu', async () => {
-    vi.stubGlobal('fetch', mockSuggestResponse([BUN_CHA]));
-    renderHome();
-
-    const tim = await screen.findByRole('button', {
-      name: /Thêm Bún chả vào Món yêu thích/,
-    });
-    fireEvent.click(tim);
-
-    // KHÁCH lưu ở localStorage; người đã đăng nhập thì đồng bộ lên `/me/favorites`
-    // (xem `features/save-favorite`). Test này chạy ở trạng thái CHƯA đăng nhập.
-    // Lưu kèm TÊN chứ không chỉ id: trang tài khoản hiện danh sách đã lưu mà không phải
-    // gọi API lấy tên từng món. Và kèm `listType` — hai danh sách tách bạch từ 2026-08-26.
-    expect(JSON.parse(localStorage.getItem('moodbite.favorites') ?? '[]')).toEqual([
-      { itemType: 'dish', itemId: 'bun-cha', name: 'Bún chả', listType: 'favorite' },
-    ]);
-
-    fireEvent.click(
-      screen.getByRole('button', { name: /Bỏ Bún chả khỏi Món yêu thích/ }),
-    );
-    expect(JSON.parse(localStorage.getItem('moodbite.favorites') ?? '[]')).toHaveLength(0);
-  });
-
-  it('trai tim va dau trang la HAI danh sach TACH BACH', async () => {
-    // Chủ dự án chốt 2026-08-26. Lỗi dễ mắc nhất: bỏ tim xoá luôn dấu trang.
+  // Từ 2026-11-10: KHÁCH bấm tim/dấu trang KHÔNG lưu gì lên máy — chuyển sang đăng nhập
+  // (xem `features/save-favorite`). Lưu trên máy không có ý nghĩa: đổi máy là mất.
+  it('KHACH bam tim: khong luu gi len may, chuyen sang dang nhap', async () => {
     vi.stubGlobal('fetch', mockSuggestResponse([BUN_CHA]));
     renderHome();
 
     fireEvent.click(
       await screen.findByRole('button', { name: /Thêm Bún chả vào Món yêu thích/ }),
     );
-    fireEvent.click(screen.getByRole('button', { name: /Lưu Bún chả để xem sau/ }));
 
-    const luu = () => JSON.parse(localStorage.getItem('moodbite.favorites') ?? '[]');
-    expect(luu()).toHaveLength(2);
-
-    // Bỏ TIM — dấu trang phải còn nguyên.
-    fireEvent.click(screen.getByRole('button', { name: /Bỏ Bún chả khỏi Món yêu thích/ }));
-
-    expect(luu()).toEqual([
-      { itemType: 'dish', itemId: 'bun-cha', name: 'Bún chả', listType: 'bookmark' },
-    ]);
+    expect(localStorage.getItem('moodbite.favorites')).toBeNull();
   });
+
+  it('KHACH bam dau trang: cung khong luu gi len may', async () => {
+    vi.stubGlobal('fetch', mockSuggestResponse([BUN_CHA]));
+    renderHome();
+
+    fireEvent.click(
+      await screen.findByRole('button', { name: /Lưu Bún chả để xem sau/ }),
+    );
+
+    expect(localStorage.getItem('moodbite.favorites')).toBeNull();
+  });
+
+  // CHƯA CÓ test cho việc tim và dấu trang tách bạch KHI ĐÃ ĐĂNG NHẬP (chủ dự án chốt
+  // 2026-08-26). Phần đó nằm ở đường server; cần bổ sung khi có thời gian.
 
   it('bam tim KHONG mo trang chi tiet mon', async () => {
     vi.stubGlobal('fetch', mockSuggestResponse([BUN_CHA]));

@@ -1,7 +1,10 @@
 /**
  * "Món yêu thích" + "Đã lưu" — MỘT hook cho cả hai danh sách, cả hai trường hợp.
  *
- *   KHÁCH          -> localStorage (xem `luu_cuc_bo.ts`)
+ *   KHÁCH          -> KHÔNG lưu được: bấm tim/dấu trang là chuyển sang trang đăng nhập
+ *                     (rà soát 2026-11-10). Lưu trên máy không có ý nghĩa — đổi máy, xoá
+ *                     trình duyệt là mất. Phần `localStorage` cũ vẫn được đọc và ĐẨY LÊN
+ *                     server khi đăng nhập, để không mất dữ liệu đã lưu trước đây.
  *   ĐÃ ĐĂNG NHẬP   -> bảng `saved_items` ở server qua `/api/v1/me/favorites`
  *
  * HAI DANH SÁCH TÁCH BẠCH (chủ dự án chốt 2026-08-26):
@@ -28,9 +31,11 @@
  * và báo. Đợi mạng xong mới đổi màu trái tim làm cả app có cảm giác chậm.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ApiError, authApi } from '@/shared/api';
 import { useUserSessionContext } from '@/entities/user';
 import { useT } from '@/shared/i18n';
+import { ROUTES } from '@/shared/config';
 import {
   DANH_SACH_MAC_DINH,
   doc_cuc_bo,
@@ -85,6 +90,8 @@ function loiHienThi(err: unknown, macDinh: string): string {
 
 export function useFavorites(): UseFavoritesResult {
   const session = useUserSessionContext();
+  const navigate = useNavigate();
+  const location = useLocation();
   const daDangNhap = session.isLoggedIn;
 
   const [items, setItems] = useState<MucYeuThich[]>([]);
@@ -167,6 +174,14 @@ export function useFavorites(): UseFavoritesResult {
 
   const toggle = useCallback(
     (muc: MucYeuThich) => {
+      // Khách bấm lưu: đưa sang đăng nhập và quay lại đúng trang này sau khi đăng nhập
+      // (LoginPage đọc `state.from`). Không đổi state, không ghi localStorage.
+      if (!daDangNhap) {
+        navigate(ROUTES.login, {
+          state: { from: `${location.pathname}${location.search}` },
+        });
+        return;
+      }
       const day_du: MucYeuThich = {
         ...muc,
         listType: muc.listType ?? DANH_SACH_MAC_DINH,
@@ -207,7 +222,7 @@ export function useFavorites(): UseFavoritesResult {
         setError(loiHienThi(err, tRef.current('err.favSave')));
       });
     },
-    [items, daDangNhap],
+    [items, daDangNhap, navigate, location.pathname, location.search],
   );
 
   const favorite = useMemo(() => nhom(items, 'favorite'), [items]);

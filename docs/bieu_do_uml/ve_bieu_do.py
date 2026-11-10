@@ -492,6 +492,20 @@ def ve_hoat_dong(uc: dict) -> str:
     def day(nd: dict) -> tuple[float, float]:
         return nd["x"], nd["y"] + nd["h"] / 2
 
+    # Số CỘT mà một nhánh chiếm: nhánh lồng thêm hình thoi thì cần thêm cột, nếu không
+    # nhánh "không" của hình thoi ngoài sẽ đè lên nhánh "không" của hình thoi bên trong
+    # (lỗi thật, phát hiện 2026-11-10 ở UC01 sau khi bọc chốt đăng nhập).
+    def rong_cot(buoc: list) -> int:
+        w = 1
+        for b in buoc:
+            if b[0] == "if":
+                w = max(w, rong_cot(b[2]) + rong_cot(b[3]))
+        return w
+
+    # Làn Hệ thống được căn GIỮA theo tổng số cột của luồng; làn người dùng giữ nguyên
+    # (điểm bắt đầu nằm đúng tâm làn người dùng).
+    lech_he_thong = -(rong_cot(uc["hoat_dong"]) - 1) * OFF / 2
+
     def chain(items: list, lane: str, x_off: float, y: float, tails: list) -> tuple[list, float]:
         """Xếp chuỗi bước; trả về (các đuôi cần nối tiếp, y kế tiếp)."""
         cur_lane = lane
@@ -503,7 +517,8 @@ def ve_hoat_dong(uc: dict) -> str:
             # Biết bước kế tiếp có phải `stop` không: nếu có thì không cần gộp nhánh ở đây,
             # vì `stop` sẽ đẩy từng đuôi vào thanh gộp CHUNG cuối biểu đồ (tránh hai thanh chồng).
             sau = items[idx + 1] if idx + 1 < len(items) else None
-            x = x_lan.get(cur_lane, x_lan[lanes[0]]) + x_off
+            x = x_lan.get(cur_lane, x_lan[lanes[0]]) + x_off + (
+                lech_he_thong if cur_lane != lanes[0] else 0.0)
             if loai == "act":
                 nd = them_nut("act", x, y, it[1], cur_lane)
                 for t_nd, t_nhan in tails:
@@ -519,14 +534,18 @@ def ve_hoat_dong(uc: dict) -> str:
                     noi(t_nd, d, t_nhan)
                 y_nhanh = y + 92
                 tails_co, y_co = chain(it[2], cur_lane, x_off, y_nhanh, [(d, "có")])
-                tails_khong, y_khong = chain(it[3], cur_lane, x_off + OFF, y_nhanh, [(d, "không")])
+                lech_khong = rong_cot(it[2]) * OFF  # nhánh "không" đặt sau TOÀN BỘ cột của nhánh "có"
+                tails_khong, y_khong = chain(it[3], cur_lane, x_off + lech_khong, y_nhanh, [(d, "không")])
                 tails = tails_co + tails_khong
                 y = max(y_co, y_khong) + 6
                 # Hai nhánh cùng còn chạy tiếp thì gộp lại bằng nút merge (hình thoi nhỏ),
                 # để việc sau đó chỉ viết một lần thay vì lặp ở từng nhánh.
                 if len(tails) > 1 and not (sau and sau[0] == "stop"):
                     # gộp bằng thanh đen ngang (ký hiệu gộp nhánh trong mẫu), trải dưới cả hai nhánh
-                    g = them_nut("bar", x + OFF / 2, y + 8, "", cur_lane, w=OFF + BOX_W + 20, h=7)
+                    cot_khong = rong_cot(it[3])
+                    tam = (lech_khong + (cot_khong - 1) * OFF) / 2
+                    rong_g = lech_khong + (cot_khong - 1) * OFF + BOX_W + 20
+                    g = them_nut("bar", x + tam, y + 8, "", cur_lane, w=rong_g, h=7)
                     g["merge"] = True
                     for t_nd, t_nhan in tails:
                         noi(t_nd, g, t_nhan)

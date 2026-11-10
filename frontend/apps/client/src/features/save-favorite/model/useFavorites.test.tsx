@@ -5,6 +5,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 
 const saveFavorite = vi.fn();
 const removeFavorite = vi.fn();
@@ -29,8 +30,20 @@ import { UserSessionProvider } from '@/entities/user';
 import { useFavorites } from './useFavorites';
 
 const wrapper = ({ children }: { children: ReactNode }) => (
-  <UserSessionProvider>{children}</UserSessionProvider>
+  <MemoryRouter initialEntries={['/recommend?mood=relaxed']}>
+    <UserSessionProvider>{children}</UserSessionProvider>
+  </MemoryRouter>
 );
+
+/** Hiện đường dẫn + state hiện tại để test đọc được việc điều hướng. */
+function DoDuongDan() {
+  const vi_tri = useLocation();
+  return (
+    <div data-testid="duong-dan" data-from={(vi_tri.state as { from?: string } | null)?.from ?? ''}>
+      {vi_tri.pathname}
+    </div>
+  );
+}
 
 beforeEach(() => {
   localStorage.clear();
@@ -102,3 +115,55 @@ describe('useFavorites.toggle - hoan tac dung muc', () => {
     expect(result.current.items.map((x) => x.itemId).sort()).toEqual(['A', 'C']);
   });
 });
+
+describe('useFavorites.toggle - khách (chưa đăng nhập)', () => {
+  it('bấm lưu khi chưa đăng nhập: chuyển sang đăng nhập, KHÔNG ghi gì lên máy', async () => {
+    sessionStorage.clear(); // không có token = khách
+    const khachWrapper = ({ children }: { children: ReactNode }) => (
+      <MemoryRouter initialEntries={['/recommend?mood=relaxed']}>
+        <UserSessionProvider>
+          <Routes>
+            <Route path="/login" element={<DoDuongDan />} />
+            <Route path="*" element={children} />
+          </Routes>
+        </UserSessionProvider>
+      </MemoryRouter>
+    );
+    const { result } = renderHook(() => useFavorites(), { wrapper: khachWrapper });
+
+    act(() => result.current.toggle({ itemType: 'dish', itemId: 'A', name: 'Món A' }));
+
+    expect(saveFavorite).not.toHaveBeenCalled();
+    expect(result.current.items).toEqual([]);
+    expect(localStorage.length).toBe(0);
+  });
+
+  it('bấm lưu khi chưa đăng nhập: đường dẫn đăng nhập mang theo trang đang xem', async () => {
+    sessionStorage.clear();
+    const ghi: { pathname: string; from: string } = { pathname: '', from: '' };
+    function Ghi() {
+      const vi_tri = useLocation();
+      ghi.pathname = vi_tri.pathname;
+      ghi.from = (vi_tri.state as { from?: string } | null)?.from ?? '';
+      return null;
+    }
+    const khachWrapper = ({ children }: { children: ReactNode }) => (
+      <MemoryRouter initialEntries={['/recommend?mood=relaxed']}>
+        <UserSessionProvider>
+          <Ghi />
+          <Routes>
+            <Route path="/login" element={<DoDuongDan />} />
+            <Route path="*" element={children} />
+          </Routes>
+        </UserSessionProvider>
+      </MemoryRouter>
+    );
+    const { result } = renderHook(() => useFavorites(), { wrapper: khachWrapper });
+
+    act(() => result.current.toggle({ itemType: 'dish', itemId: 'A', name: 'Món A' }));
+
+    await waitFor(() => expect(ghi.pathname).toBe('/login'));
+    expect(ghi.from).toBe('/recommend?mood=relaxed');
+  });
+});
+

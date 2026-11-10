@@ -44,15 +44,43 @@ describe('App - smoke test', () => {
   let errorSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
-    // Không gọi API thật trong test. Trả về lỗi mạng để đi vào nhánh xấu nhất:
-    // kể cả khi backend CHẾT, giao diện vẫn phải hiện ra chứ không được trắng trơn.
-    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('backend tat')));
+    // Từ 2026-11-10 mọi trang (trừ đăng nhập/đăng ký) YÊU CẦU đăng nhập. Test giả lập một
+    // phiên đăng nhập: token trong sessionStorage + `/auth/me` trả về người dùng.
+    // Mọi API khác vẫn lỗi mạng — để đi vào nhánh xấu nhất: backend CHẾT, giao diện vẫn
+    // phải dựng được khung chứ không được trắng trơn.
+    sessionStorage.setItem('moodbite.user.token', 'token-gia-lap');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockImplementation((url: string) => {
+        if (String(url).includes('/auth/me')) {
+          return Promise.resolve({
+            ok: true,
+            status: 200,
+            json: async () => ({
+              data: { user_id: 'u1', username: 'mung', role: 'user' },
+            }),
+          });
+        }
+        return Promise.reject(new Error('backend tat'));
+      }),
+    );
     errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
     vi.unstubAllGlobals();
+    sessionStorage.clear();
     errorSpy.mockRestore();
+  });
+
+  it('khach chua dang nhap bi chuyen sang trang dang nhap, KHONG vao duoc trang chu', async () => {
+    sessionStorage.clear();
+    renderAt('/');
+
+    expect(
+      await screen.findByRole('heading', { name: /Chào mừng trở lại/i }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Trời mưa/i })).not.toBeInTheDocument();
   });
 
   it('render duoc, khong nem loi', () => {
@@ -86,9 +114,9 @@ describe('App - smoke test', () => {
     // Khách (chưa đăng nhập) thấy KHẨU HIỆU dạng ảnh; lời chào có tên chỉ dành cho người
     // đã đăng nhập (chốt 2026-08-22). Kiểm qua `alt` vì đó là chữ thật của tấm ảnh.
     expect(screen.getByAltText(/Ăn gì ở Hà Nội/i)).toBeInTheDocument();
-    // `getAllBy…`: "Bữa sáng" nay xuất hiện ở CẢ hàng "Khám phá theo nhu cầu" lẫn bảng
-    // "Lọc chi tiết" — cùng một bộ lọc, hai lối vào, đúng như thiết kế.
-    expect(screen.getAllByRole('button', { name: /Bữa sáng/i }).length).toBeGreaterThan(0);
+    // Người đã đăng nhập: nút "Lọc" (ngăn kéo bộ lọc) nằm cạnh tiêu đề kết quả và không
+    // cần API để hiện. Phần "Khám phá theo nhu cầu" chỉ dành cho khách, nên không kiểm ở đây.
+    expect(screen.getByRole('button', { name: /^Lọc/ })).toBeInTheDocument();
   });
 
   it('duong dan CU chuyen huong sang duong dan MOI, giu nguyen token', async () => {

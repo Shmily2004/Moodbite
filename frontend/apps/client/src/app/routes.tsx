@@ -32,6 +32,7 @@ import { NotFoundPage } from '@/pages/not-found';
 import { DUONG_DAN_CU, ROUTES } from '@/shared/config';
 import { useT } from '@/shared/i18n';
 import { RootLayout } from './layout/RootLayout';
+import { RequireLogin } from './layout/RequireLogin';
 import { QuanTriLayout } from './layout/QuanTriLayout';
 import { quanTriRoutes } from '@moodbite/admin';
 import { RouteError } from './layout/RouteError';
@@ -117,20 +118,13 @@ export const routes: RouteObject[] = [
         // hiện ngay trong layout — header/footer, ngôn ngữ, phiên vẫn còn.
         errorElement: <RouteError />,
         children: [
-          { index: true, element: <HomePage /> },
-          { path: ROUTES.dish, element: trangMon },
-          // Chi tiết QUÁN (2026-10-28) - tải sau vì kéo theo Leaflet.
-          { path: ROUTES.restaurant, element: trangQuan },
-          // Đăng nhập/đăng ký là TUỲ CHỌN: không có route guard nào bắt qua đây trước.
+          // ─── CÔNG KHAI: khách chưa đăng nhập vào được ───────────────────────────
+          // Đăng nhập / đăng ký / quên & đặt lại mật khẩu / xác minh email.
           { path: ROUTES.login, element: <LoginPage /> },
           { path: ROUTES.register, element: <RegisterPage /> },
           { path: ROUTES.forgotPassword, element: <ForgotPasswordPage /> },
           { path: ROUTES.resetPassword, element: <ResetPasswordPage /> },
           { path: ROUTES.verifyEmail, element: <VerifyEmailPage /> },
-          { path: ROUTES.account, element: trangTaiKhoan },
-          // Luồng cũ: tìm quán bằng câu tự nhiên.
-          { path: ROUTES.search, element: trangTimKiem },
-          { path: ROUTES.recommend, element: trangGoiY },
           // Đường dẫn CŨ (tiếng Việt) -> chuyển hướng sang đường mới, GIỮ nguyên query string.
           // Quan trọng nhất là `/dat-lai-mat-khau?token=…`: link đó đã nằm trong hộp thư người
           // dùng từ trước khi đổi, xoá thẳng là thư cũ chết.
@@ -138,6 +132,20 @@ export const routes: RouteObject[] = [
             path: cu,
             element: <ChuyenHuong den={moi} />,
           })),
+          // ─── YÊU CẦU ĐĂNG NHẬP (chốt 2026-11-10): mọi trang còn lại đi qua RequireLogin ───
+          {
+            element: <RequireLogin />,
+            children: [
+              { index: true, element: <HomePage /> },
+              { path: ROUTES.dish, element: trangMon },
+              // Chi tiết QUÁN (2026-10-28) - tải sau vì kéo theo Leaflet.
+              { path: ROUTES.restaurant, element: trangQuan },
+              { path: ROUTES.account, element: trangTaiKhoan },
+              // Luồng cũ: tìm quán bằng câu tự nhiên.
+              { path: ROUTES.search, element: trangTimKiem },
+              { path: ROUTES.recommend, element: trangGoiY },
+            ],
+          },
           // '*' phải nằm CUỐI: react-router chọn route khớp nhất, nhưng để nhầm thứ tự
           // vẫn dễ gây hiểu lầm khi đọc.
           { path: '*', element: <NotFoundPage /> },

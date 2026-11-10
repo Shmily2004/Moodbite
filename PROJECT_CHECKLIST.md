@@ -19,7 +19,7 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Frontend Client | ✅ **TypeScript + FSD** | có bản đồ, steiger trong CI. Số test: xem dòng **Test** bên dưới (con số "86 test" cũ là của 2026-08) |
 | Bản đồ | ✅ **Xong** | Leaflet + OpenStreetMap, miễn phí, không cần key |
 | Kiến trúc | ✅ Sạch | Clean Architecture + checker tự động trong CI |
-| Test | ✅ **985 backend + 536 frontend** | Đo bằng `python scripts/verify.py` ngày 2026-11-08 (10/10 mục xanh) |
+| Test | ✅ **985 backend + 539 frontend** | Đo bằng `python scripts/verify.py` ngày 2026-11-08 (10/10 mục xanh) |
 | Rà soát QA 2026-11-07 | 🟡 **4/9 đã xong, 1 xong một phần (Q5)** | Còn mở: lượt hiển thị (Q1, cần chủ dự án duyệt), proxy/giới hạn tần suất (Q2), tải đồng thời (Q7), Lớp 3 vs baseline (Q9). Chi tiết ở `docs/bao_cao_qa_2026-11-07.md` |
 | Giao diện | ✅ Theo bản duyệt · **trang chủ + tài khoản dựng lại 2026-08-22** | trang chủ = LƯỚI MÓN + chips lọc; trang món = giới thiệu + bản đồ + danh sách quán; `/tim-kiem` giữ bố cục bản đồ + rail cũ |
 | Router + layout | ✅ Xong | react-router v6, khung dùng chung, `RequireAuth` cho admin |
@@ -69,7 +69,7 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | **Lớp 4 — Tóm tắt review** | ✅ **XONG 2026-08-19** | Trích rút TF-IDF centroid, **884/1.025 quán** có ≥3 review được tóm tắt (358 quán có cả điểm yếu; đo lại 2026-10-10 — mốc 2026-08-19 là 851/1310, 339). Mọi câu TRÍCH NGUYÊN VĂN, không sinh chữ. `python -m data_pipeline.review_summary` |
 | Đăng nhập / tài khoản | ✅ **Đăng nhập · đăng ký · quên mật khẩu · TRANG TÀI KHOẢN 7 TAB (2026-08-23)** | `/api/v1/auth/*` + `/api/v1/me/*`. Trang `/account` có thanh bên 7 mục, ảnh đại diện, số liệu thật, cấp độ, huy hiệu. Đổi phạm vi có chủ đích so với SRS mục 8 — xem ghi chú dưới bảng |
 | Phân quyền (`role`) | ✅ Admin = tài khoản `role='admin'` trong bảng `users` (2026-09-29) | tạo bằng `python scripts/make_admin_user.py`; hạ quyền/đăng xuất có hiệu lực ngay |
-| **Quán & món yêu thích (server)** | ✅ **Xong 2026-08-23** | bảng `saved_items`, `GET/POST/DELETE /me/favorites`. Khách vẫn lưu ở máy và được ĐỒNG BỘ LÊN khi đăng nhập |
+| **Quán & món yêu thích (server)** | ✅ **Xong 2026-08-23** | bảng `saved_items`, `GET/POST/DELETE /me/favorites`. Từ 2026-11-10 TOÀN BỘ app người dùng (trừ đăng nhập/đăng ký/quên mật khẩu) yêu cầu đăng nhập — `RequireLogin` ở `app/layout/`, chốt theo `docs/UI_REQUIREMENTS.md`. Backend `/search`, `/dishes`, `/restaurants` VẪN công khai: chặn thật ở server là việc riêng, cần duyệt. Dữ liệu cũ trên máy vẫn được đẩy lên khi đăng nhập |
 | **Lượt khám phá · cấp độ · huy hiệu** | ✅ **Xong 2026-08-23** | `GET /me/stats`. `POST /interactions` nay ghi thêm `user_id` (LẤY TỪ TOKEN, không nhận từ body) |
 | **Song ngữ Việt–Anh** | ✅ **Giao diện xong 2026-08-23** · ⬜ dữ liệu vẫn tiếng Việt | `shared/i18n/tu_dien.ts` — 1 file, kiểm kiểu lúc biên dịch. Tên món/quán và chữ do máy chủ sinh KHÔNG dịch (cần i18n ở backend) |
 

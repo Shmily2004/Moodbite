@@ -133,12 +133,10 @@ DAC_TA = [
     },
     {
         "ma": "UC07", "ten": "Lưu món / quán yêu thích", "nhom": "Khách hàng",
-        "api": "Khách: lưu trên máy. Đã đăng nhập: POST /api/v1/me/favorites",
+        "api": "POST /api/v1/me/favorites (chỉ người đã đăng nhập; khách bị chuyển sang đăng nhập)",
         "hoat_dong": [
             ("lane", KH_TEN), ("act", "Bấm biểu tượng yêu thích"),
-            ("lane", "Hệ thống"),
-            ("if", "Đã đăng nhập?", [("act", "Lưu yêu thích trên máy chủ")],
-             [("act", "Lưu vào bộ nhớ trình duyệt của khách")]),
+            ("lane", "Hệ thống"), ("act", "Lưu yêu thích trên máy chủ"),
             ("lane", KH_TEN), ("act", "Thấy nút đổi trạng thái"), ("stop",),
         ],
     },
@@ -485,37 +483,69 @@ def _boc_dieu_kien(buoc: list, dieu_kien: str, khong: list) -> list:
 
 
 def _chen_sau(buoc: list, tien_to: str, moi: list) -> list:
-    """Chèn các bước mới ngay sau bước (hành động hoặc hình thoi) ở mức trên cùng."""
-    for i, b in enumerate(buoc):
-        if b[0] in ("act", "if") and b[1].startswith(tien_to):
-            return buoc[: i + 1] + moi + buoc[i + 1:]
-    raise SystemExit(f"Không tìm thấy mốc để chèn ràng buộc: {tien_to!r}")
+    """Chèn các bước mới ngay sau bước (hành động hoặc hình thoi) có nhãn bắt đầu bằng
+    `tien_to`. Tìm ĐỆ QUY vào các nhánh: sau khi bọc chốt đăng nhập, mốc nằm trong nhánh
+    "có" chứ không còn ở mức trên cùng."""
+    ket_qua, da_chen = _chen_de_quy(buoc, tien_to, moi)
+    if not da_chen:
+        raise SystemExit(f"Không tìm thấy mốc để chèn ràng buộc: {tien_to!r}")
+    return ket_qua
+
+
+def _chen_de_quy(buoc: list, tien_to: str, moi: list) -> tuple[list, bool]:
+    out: list = []
+    da_chen = False
+    for b in buoc:
+        if not da_chen and b[0] in ("act", "if") and b[1].startswith(tien_to):
+            out.append(b)
+            out.extend(moi)
+            da_chen = True
+            continue
+        if not da_chen and b[0] == "if":
+            co, ok = _chen_de_quy(b[2], tien_to, moi)
+            if ok:
+                out.append(("if", b[1], co, b[3]))
+                da_chen = True
+                continue
+            khong, ok = _chen_de_quy(b[3], tien_to, moi)
+            if ok:
+                out.append(("if", b[1], b[2], khong))
+                da_chen = True
+                continue
+        out.append(b)
+    return out, da_chen
 
 
 _KHOANG_CACH = ("if", "Đã đăng nhập và có vị trí của bạn?",
                 [("act", "Hiển thị khoảng cách từ vị trí của bạn đến quán")],
                 [("act", "Ẩn khoảng cách, chỉ hiển thị tên và địa chỉ quán")])
 
+# Chốt 2026-11-10 (`docs/UI_REQUIREMENTS.md`): khách chưa đăng nhập KHÔNG dùng được app,
+# chỉ đăng nhập / đăng ký / quên mật khẩu (UC08–UC10) là mở. Các luồng dưới đây phải có
+# chốt này, đúng như `RequireLogin` ở frontend.
+_CAN_DANG_NHAP = {"UC01", "UC02", "UC03", "UC04", "UC05", "UC06", "UC07",
+                  "UC11", "UC12", "UC13", "UC14", "UC15"}
+
 for _uc in DAC_TA:
     _ma = _uc["ma"]
-    _hd = _uc["hoat_dong"]
+    # Đọc `_uc["hoat_dong"]` HIỆN TẠI ở mỗi bước: đọc một biến lưu từ trước sẽ làm chốt
+    # áp trước đó bị ghi đè (lỗi thật, phát hiện 2026-11-10).
     # Khu quản trị: chỉ vào được khi đã đăng nhập quản trị (trừ chính màn đăng nhập).
     if _uc["nhom"] == "Quản trị" and _ma != "UC16":
         _uc["hoat_dong"] = _boc_dieu_kien(
-            _hd, "Đã đăng nhập quản trị?",
+            _uc["hoat_dong"], "Đã đăng nhập quản trị?",
             [("act", "Chuyển về trang đăng nhập quản trị"), ("stop",)])
-    # Chức năng cần tài khoản: trang hồ sơ, bộ sưu tập.
-    elif _ma in ("UC12", "UC13"):
+    elif _ma in _CAN_DANG_NHAP:
         _uc["hoat_dong"] = _boc_dieu_kien(
-            _hd, "Đã đăng nhập?",
+            _uc["hoat_dong"], "Đã đăng nhập?",
             [("act", "Chuyển tới trang đăng nhập"), ("stop",)])
     # Khoảng cách chỉ hiện khi đã đăng nhập và có vị trí (khách không thấy khoảng cách).
     if _ma == "UC01":
-        _uc["hoat_dong"] = _chen_sau(_hd, "Có quán khớp", [_KHOANG_CACH])
+        _uc["hoat_dong"] = _chen_sau(_uc["hoat_dong"], "Có quán khớp", [_KHOANG_CACH])
     elif _ma == "UC04":
-        _uc["hoat_dong"] = _chen_sau(_hd, "Có quán trong bán kính", [_KHOANG_CACH])
+        _uc["hoat_dong"] = _chen_sau(_uc["hoat_dong"], "Có quán trong bán kính", [_KHOANG_CACH])
     elif _ma == "UC05":
-        _uc["hoat_dong"] = _chen_sau(_hd, "Hiển thị chi tiết quán", [_KHOANG_CACH])
+        _uc["hoat_dong"] = _chen_sau(_uc["hoat_dong"], "Hiển thị chi tiết quán", [_KHOANG_CACH])
 
 
 if __name__ == "__main__":

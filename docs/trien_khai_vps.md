@@ -4,7 +4,7 @@ Hướng dẫn từng bước đưa MoodBite lên một VPS Linux có domain ri�
 Soạn 2026-11-08 cho gói **Vietnix VPS SSD Linux 1** (2 vCPU, 2 GB RAM, Ubuntu 24.04 LTS).
 
 > **Đọc trước:** phần B (bước 3 trở đi) chạy TRÊN SERVER nên chưa được chạy thử khi soạn tài
-> liệu này. Chỉ phần build frontend (bước 2) đã được chạy thật. Mục 12 liệt kê rõ cái gì đã
+> liệu này. Lúc soạn chỉ bước 2 (build frontend) được chạy thật; mục 12 ghi những bước đã chạy thử trên VPS thật, và cập nhật dần. Mục 12 liệt kê rõ cái gì đã
 > kiểm chứng, cái gì chưa. Gặp lệnh nào báo lỗi thì dừng lại và hỏi, đừng chạy tiếp.
 
 Thay hai giá trị này trong MỌI lệnh bên dưới:
@@ -103,7 +103,9 @@ ufw --force enable
 ```
 
 Swap 2 GB (đệm an toàn: backend đo được ~470 MB, đỉnh ~520 MB trên máy Windows của bạn; số
-trên Linux có thể khác, kiểm bằng `free -h`). Báo lỗi thì bỏ qua, không bắt buộc:
+trên Linux có thể khác, kiểm bằng `free -h`). **Không bắt buộc**: máy Vietnix Linux 1 có
+1,9 GiB RAM và còn trống ~1,6 GiB khi mới cài (đo thật 2026-11-09), nên có thể bỏ qua rồi
+chỉ tạo swap nếu sau bước 7 thấy RAM trống thấp. Báo lỗi thì bỏ qua:
 
 ```bash
 fallocate -l 2G /swapfile
@@ -122,11 +124,20 @@ passwd
 ## 4. Cài gói, tạo user chạy ứng dụng, lấy mã nguồn
 
 ```bash
-apt install -y python3-venv python3-pip git caddy
+apt update
+apt install -y --no-install-recommends python3-venv git caddy
 ```
 
-Nếu báo không tìm thấy gói `caddy`, cài theo hướng dẫn chính thức:
-https://caddyserver.com/docs/install#debian-ubuntu-raspbian
+Vì sao lệnh trông thế này (đã gặp lỗi thật ngày 2026-11-09):
+
+- **Không có `python3-pip`:** môi trường ảo ở bước 5 tự có pip, nên không cần.
+- **`--no-install-recommends`:** không có cờ này, `python3-pip` kéo theo ~120 gói biên dịch
+  (gcc, perl, binutils...). Kho `mirror.vietnix.vn` lúc đó thiếu file của hàng chục gói trong
+  số đó và `apt` báo `404 Not Found`. Thư viện Python của dự án thường có sẵn bản dựng sẵn
+  (wheel) nên không cần trình biên dịch. Nếu bước 5 báo thiếu trình biên dịch thì chạy
+  `apt install -y build-essential python3-dev`.
+- **`apt update` trước:** danh sách gói cũ là nguyên nhân hay gặp của lỗi 404.
+- `caddy` có trong kho Ubuntu 24.04 (cài ra bản 2.6.2), không cần kho riêng của Caddy.
 
 Chạy ứng dụng bằng user riêng, không dùng root (lỡ có lỗ hổng thì kẻ tấn công không có
 quyền root):
@@ -139,8 +150,8 @@ sudo -u moodbite git clone https://github.com/Shmily2004/Moodbite.git /opt/moodb
 ```
 
 Kho đang trỏ tới `github.com/Shmily2004/Moodbite`. Nếu kho là **private**, lệnh clone sẽ đòi
-đăng nhập: cần tạo token hoặc deploy key trên GitHub (chưa kiểm tra kho là public hay
-private).
+đăng nhập: cần tạo token hoặc deploy key trên GitHub. Kho này đã được kiểm tra ngày
+2026-11-09 là **public** nên không cần.
 
 ## 5. Python và dữ liệu
 
@@ -302,13 +313,23 @@ Rồi mở `https://TENMIEN.CUA.BAN` bằng trình duyệt và thử: tìm món,
 khoản, đăng nhập admin ở `/login` (sẽ được đưa vào `/quan-tri`), và **tải lại trang (F5)
 khi đang ở `/quan-tri`** để chắc phần try_files hoạt động.
 
-Chạy bộ kiểm tra bảo mật theo `docs/ra_soat_bao_mat.md` mục 7 (trên VPS):
+Kiểm tra cấu hình quản trị bằng script chỉ đọc (an toàn trên VPS):
 
 ```bash
 cd /opt/moodbite
-sudo -u moodbite .venv/bin/python -m pytest tests/test_bao_mat.py -q
 sudo -u moodbite .venv/bin/python scripts/check_permissions.py
 ```
+
+> ⚠️ **Đừng chạy `pytest` trên VPS** (bản đầu của tài liệu này từng bảo chạy
+> `tests/test_bao_mat.py` ở đây, đó là sai). Bộ test viết cho máy phát triển:
+> - `create_app()` trong test gọi `Settings.from_env()` nên đọc `.env.local` THẬT của server.
+>   Đã đọc `tests/test_bao_mat.py`: các test "CORS mặc định" sẽ lỗi giả, vì `.env.local` trên
+>   server đặt CORS là domain thật chứ không phải `localhost:5173`.
+> - `tests/conftest.py` không cô lập biến môi trường hay đường dẫn dữ liệu, nên một số test có
+>   thể dùng `moodbite_users.db` / `interactions.jsonl` thật. Mình CHƯA đọc hết từng test nên
+>   không chắc có test nào ghi vào đó; không đáng đánh cược dữ liệu tài khoản gốc.
+>
+> Chạy `pytest` ở máy phát triển trước khi đẩy code (`docs/ra_soat_bao_mat.md` mục 7).
 
 ---
 
@@ -355,6 +376,7 @@ systemctl restart moodbite
 | Admin đăng nhập 503 | Thiếu `MOODBITE_ADMIN_SECRET` hoặc `MOODBITE_STORAGE=sqlite` trong `.env.local` |
 | Người dùng cùng bị "quá nhiều lượt tìm kiếm" | Thiếu `--proxy-headers` ở bước 7 |
 | Quên mật khẩu không gửi được thư | Chưa khai báo nhóm `MOODBITE_SMTP_*` |
+| `apt install` báo hàng loạt `404 Not Found` từ `mirror.vietnix.vn` | Danh sách gói lệch với kho. Chạy `apt update` rồi cài lại bằng lệnh ở bước 4. Vẫn lỗi thì xem file cấu hình kho bằng `grep -rn vietnix /etc/apt/` trước khi đổi sang kho chính thức của Ubuntu |
 
 ## 12. Đã kiểm chứng và CHƯA kiểm chứng
 
@@ -366,11 +388,33 @@ systemctl restart moodbite
   nên đường dẫn tương đối dùng được.
 - Backend không phục vụ frontend (không có `StaticFiles` trong `src/`).
 
-**CHƯA chạy thử (không có quyền vào server khi soạn):**
-- Toàn bộ lệnh ở phần B trên Ubuntu 24.04 thật.
-- Backend trên **Python 3.12** (mặc định của Ubuntu 24.04). CI chỉ chạy 3.11 và 3.14; hãy
-  chạy `pytest` trên server để biết.
-- RAM thực tế trên Linux (số 470 MB là đo trên Windows, Python 3.14).
-- Gói `caddy` có trong kho `apt` của Ubuntu hay không.
-- Cổng 80/443 có bị tường lửa phía Vietnix chặn mặc định không.
-- Kho GitHub là public hay private.
+**Đã chạy thật trên VPS Vietnix Linux 1 (2026-11-09):**
+- Ubuntu 24.04.3 LTS, Python 3.12.3, RAM 1,9 GiB (còn trống ~1,6 GiB, chưa có swap), ổ đĩa
+  38 GB trống 37 GB.
+- Khi mới cài chỉ có `sshd` (cổng 22) nghe ra ngoài; còn lại chỉ nghe nội bộ.
+- Bước 4: `git 2.43.0` và `caddy 2.6.2` cài được từ kho Ubuntu. Lệnh cài cũ (có `python3-pip`,
+  không có `--no-install-recommends`) lỗi 404 như đã nói ở bước 4.
+
+**Đã chạy thật trên VPS, hoàn tất triển khai (2026-11-10):**
+- Kho GitHub là public: `git clone` không cần đăng nhập.
+- Bước 5: dữ liệu dựng xong, `moodbite.db` 32 MB, `dish_catalog.json` 853 KB (nhỏ hơn bản
+  Windows ~19 KB chỉ vì Windows dùng dấu xuống dòng CRLF), 298 món có quán.
+- Bước 6–7: `.env.local` đủ 7 biến, tạo được tài khoản admin, `systemctl enable --now moodbite`
+  chạy. `/health` báo 52.871 quán, 298 món, tìm kiếm ngữ nghĩa đã lập chỉ mục 52.871, 1 tài
+  khoản. Mục email báo chưa sẵn sàng vì chưa đặt `MOODBITE_SMTP_*` (đúng thiết kế).
+- Bước 8: Caddy lấy được chứng chỉ Let's Encrypt (thử thách tls-alpn-01, cổng 443); HTTP chuyển
+  `308` sang HTTPS; `/quan-tri` và đường dẫn con trả `index.html`; file JS tải qua Caddy đúng
+  459.063 byte như bản build; CORS chỉ nhận đúng domain; `POST /dishes/suggest` trả kết quả
+  (~0,9 giây).
+- RAM khi backend và Caddy cùng chạy: dùng 799 MiB, khả dụng 1,1 GiB, chưa có swap. Máy sạch
+  lúc đầu dùng 302 MiB, nên backend + Caddy khoảng 500 MiB, khớp ước tính 470–520 MB.
+- Cổng nghe ra ngoài: `22`, `80`, `443`. Cổng `8001` (backend) và `2019` (quản trị của Caddy)
+  chỉ nghe ở `127.0.0.1`.
+
+**CHƯA chạy thử:**
+- Giao diện đầy đủ trên trình duyệt (mới kiểm qua dòng lệnh).
+- `pytest` trên Python 3.12. Backend đã chạy và trả lời API thật trên 3.12, nhưng bộ test chưa
+  chạy ở đó và KHÔNG nên chạy trên VPS (xem bước 9).
+- Server khởi động lại (`reboot`) có tự chạy lại backend và Caddy không.
+- Tường lửa `ufw` (bước 3) chưa được bật trên VPS này.
+- Gửi email (quên mật khẩu, xác minh email): chưa khai báo SMTP.

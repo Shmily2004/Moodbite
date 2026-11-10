@@ -213,3 +213,7 @@ data_pipeline/data_cleaned/*.db
 # Du lieu NGUOI DUNG GIA LAP (scripts/gia_lap_nguoi_dung.py). Sinh lai duoc bang --seed,
 # va TUYET DOI khong duoc tron vao data_cleaned/ (du lieu that).
 data_pipeline/data_synthetic/
+
+# Bản sao lưu tài khoản kéo từ VPS về (scripts/deploy_vps.py backup). Chứa CHUỖI BĂM MẬT KHẨU
+# của người dùng thật: tuyệt đối không commit.
+backups/

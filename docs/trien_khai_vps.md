@@ -337,6 +337,9 @@ sudo -u moodbite .venv/bin/python scripts/check_permissions.py
 
 ## 10. Sao lưu và cập nhật
 
+> Cập nhật thường xuyên: dùng script một lệnh `scripts/deploy_vps.py`, hướng dẫn ở
+> `docs/cap_nhat_production.md`. Các lệnh làm tay dưới đây là phương án dự phòng.
+
 **`moodbite_users.db` (tài khoản người dùng) là dữ liệu gốc, mất là mất hẳn.** Sao lưu bằng
 cách dùng chính cơ chế backup của SQLite (không chép file đang ghi dở), trên VPS:
 

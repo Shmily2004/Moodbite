@@ -23,6 +23,7 @@ production — production nằm ở `src/`.
 | `chuan_bi_may_moi.py` | Dựng môi trường trên máy mới (kiểm tra, `--cai` để cài, `--du-lieu` để tải dữ liệu) | `python scripts/chuan_bi_may_moi.py --cai` |
 | `dong_bo_du_lieu.py` | Đồng bộ dữ liệu giữa các máy qua HuggingFace Hub (miễn phí) | `python scripts/dong_bo_du_lieu.py --xem` |
 | `disk_report.py` | Đo dung lượng dự án, chỉ chỗ dọn được | `python scripts/disk_report.py` |
+| `deploy_vps.py` | Cập nhật production (VPS) bằng một lệnh: `backend` / `frontend` / `data` / `all` / `backup` / `status` / `rollback`. Cần `MOODBITE_DEPLOY_HOST`; `--dry-run` chỉ in lệnh. Xem `docs/cap_nhat_production.md` | `python scripts/deploy_vps.py status` |
 
 ## Đo dữ liệu quán
 

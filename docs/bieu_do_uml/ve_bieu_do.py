@@ -500,6 +500,9 @@ def ve_hoat_dong(uc: dict) -> str:
         for b in buoc:
             if b[0] == "if":
                 w = max(w, rong_cot(b[2]) + rong_cot(b[3]))
+            elif b[0] == "fork":
+                # Thanh rẽ nhánh (fork) cũng chiếm cột: mỗi nhánh song song một cột riêng.
+                w = max(w, sum(rong_cot(n) for n in b[1]))
         return w
 
     # Làn Hệ thống được căn GIỮA theo tổng số cột của luồng; làn người dùng giữ nguyên
@@ -552,15 +555,22 @@ def ve_hoat_dong(uc: dict) -> str:
                     tails = [(g, "")]
                     y = g["y"] + 62  # chừa khoảng để đường nối từ thanh gộp đi xuống rõ ràng
             elif loai == "fork":
-                rong_thanh = 2 * (OFF / 2) + BOX_W + 24
+                # Các nhánh song song xếp CẠNH NHAU, căn đều quanh tâm thanh rẽ nhánh.
+                # Bản cũ chỉ lệch ±OFF/2 cố định nên nhánh song song đè lên nhánh khác.
+                cot_nhanh = [rong_cot(n) for n in it[1]]
+                tong_cot = sum(cot_nhanh)
+                rong_thanh = (tong_cot - 1) * OFF + BOX_W + 24
                 bar = them_nut("bar", x, y, "", cur_lane, w=rong_thanh, h=7)
                 for t_nd, t_nhan in tails:
                     noi(t_nd, bar, t_nhan)
                 y_nhanh = y + 56
                 nhanh_tails: list = []
                 y_max = y_nhanh
+                cum = 0
                 for j, nhanh in enumerate(it[1]):
-                    dx = (-OFF / 2) if j == 0 else (OFF / 2)
+                    tam_cot = cum + (cot_nhanh[j] - 1) / 2
+                    cum += cot_nhanh[j]
+                    dx = (tam_cot - (tong_cot - 1) / 2) * OFF
                     t_j, y_j = chain(nhanh, cur_lane, x_off + dx, y_nhanh, [(bar, "")])
                     nhanh_tails += t_j
                     y_max = max(y_max, y_j)

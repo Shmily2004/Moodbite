@@ -6,7 +6,7 @@ start
 |Quản trị viên|
 :Nhập tài khoản quản trị;
 |Hệ thống|
-:POST /admin/login;
+:Kiểm tra quyền quản trị;
 if (Đúng quyền quản trị?) then (có)
   :Tạo phiên quản trị;
 else (không)

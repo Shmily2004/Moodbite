@@ -40,7 +40,7 @@
 <line x1="608" y1="346" x2="362" y2="346" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
 <text x="368" y="338" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">5. Kết quả</text>
 <line x1="362" y1="408" x2="608" y2="408" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<text x="368" y="400" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">6. Cập nhật mật khẩu mới</text>
+<text x="368" y="400" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">6. Cập nhật mật khẩu mới, thu hồi phiên ở các máy khác</text>
 <line x1="612" y1="444" x2="1108" y2="444" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
 <text x="618" y="436" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">7. Ghi dữ liệu</text>
 <line x1="1108" y1="480" x2="612" y2="480" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>

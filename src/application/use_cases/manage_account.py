@@ -11,7 +11,7 @@ from typing import Callable, Optional, Protocol
 
 from src.application.errors import InvalidCredentialsError
 from src.application.emails import thu_co_nut
-from src.application.ports.email_sender import EmailSender
+from src.application.ports.email_sender import EmailSender, EmailSendFailed
 from src.application.ports.user_repository import UserRepository, UsernameAlreadyExists
 from src.domain.entities.user import (
     InvalidCredentialsFormat,
@@ -24,6 +24,14 @@ from src.domain.entities.user import (
 )
 
 logger = logging.getLogger("moodbite.account")
+
+# Câu hiện cho người dùng khi máy chủ chưa khai báo SMTP. Nói rõ CÁCH KHẮC PHỤC (CLAUDE.md
+# mục 4.3) vì người đọc thật sự là chủ dự án đang thử tính năng, không phải khách lạ.
+CHUA_CAU_HINH_SMTP = (
+    "Máy chủ chưa cấu hình gửi thư nên chưa thể gửi thư đặt lại mật khẩu. Người quản trị cần "
+    "đặt MOODBITE_SMTP_HOST, MOODBITE_SMTP_USER và MOODBITE_SMTP_PASSWORD (xem .env.example) "
+    "rồi khởi động lại backend."
+)
 
 
 class PasswordHasher(Protocol):
@@ -144,16 +152,30 @@ class RequestPasswordResetUseCase:
         Giá trị trả về CHỈ để ghi log và cho test — router không được đem nó ra ngoài,
         nếu không thì lộ đúng thứ vừa nói ở trên.
         """
+        # Kiểm cấu hình TRƯỚC KHI tra tài khoản. Để sau thì chỉ tài khoản có thật mới chạm
+        # tới máy gửi thư và nhận 503, còn tên/email không tồn tại nhận 200 "thư đã gửi"
+        # — vừa nói dối (máy chủ không gửi được thư nào), vừa cho kẻ lạ phân biệt được ai
+        # đã đăng ký (bug thật 2026-11-11 trên VPS chưa đặt `MOODBITE_SMTP_*`).
+        if not self.emails.is_configured:
+            raise EmailSendFailed(CHUA_CAU_HINH_SMTP)
+
         khoa = (dinh_danh or "").strip().lower()
         if not khoa:
             return False
 
         # Thử cả hai đường: người dùng nhớ email hay nhớ tên đăng nhập đều dùng được.
         user = self.users.get_by_email(khoa) or self.users.get_by_username(khoa)
-        if user is None or not user.has_email:
-            # Không có tài khoản, hoặc có nhưng chưa khai email -> không gửi được gì.
-            # Ghi log ở mức info để chủ dự án còn chẩn đoán được khi thử.
-            logger.info("Yêu cầu đặt lại mật khẩu không gửi được cho %r", khoa)
+        # HAI lý do không gửi được, và người dùng KHÔNG ĐƯỢC biết cái nào (cùng một câu trả
+        # lời, chống dò tài khoản). Log là chỗ duy nhất chủ dự án phân biệt được "không thấy
+        # thư" là vì gõ sai hay vì tài khoản cũ chưa khai email.
+        if user is None:
+            logger.info("Quên mật khẩu: KHÔNG CÓ tài khoản nào khớp %r -> không gửi thư.", khoa)
+            return False
+        if not user.has_email:
+            logger.info(
+                "Quên mật khẩu: tài khoản %r CHƯA KHAI EMAIL -> không có nơi để gửi thư.",
+                user.username,
+            )
             return False
 
         token = self.issue_reset_token(user)

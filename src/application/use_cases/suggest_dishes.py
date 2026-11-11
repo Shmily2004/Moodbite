@@ -200,6 +200,17 @@ class SuggestDishesUseCase:
         )
         dish_filter = self._to_filter(query)
         candidates = dish_ranking.filter_dishes(available, dish_filter)
+        # Chọn cách chế biến sẽ ẨN món chưa gắn nhãn (luật chốt 2026-11-11). Nói ra bao nhiêu
+        # món, vì danh sách ngắn đi là do TA chưa gắn nhãn đủ, không phải khu này thiếu món
+        # đó — để người dùng tự suy ra vế sai là lỗi `/suggest-dish` cũ (CLAUDE.md mục 5).
+        an_vi_chua_biet = dish_ranking.dishes_hidden_only_by_unknown_method(
+            available, dish_filter
+        )
+        if an_vi_chua_biet:
+            warnings.append(
+                f"Bộ lọc cách chế biến đã ẩn {len(an_vi_chua_biet)} món vì chưa có thông tin "
+                "cách chế biến của chúng. Chưa biết không có nghĩa là món đó không khớp."
+            )
         # Lọc xong rỗng thì nói rõ, KHÔNG để người dùng tự đoán vì sao trang trống.
         # Lỗi cũ: domain từng trả lại cả danh sách khi lọc rỗng, nên không ai biết bộ lọc
         # đã bị bỏ qua (CLAUDE.md mục 5: không lặng lẽ bỏ tham số client gửi lên).

@@ -6,11 +6,17 @@ start
 |Quản trị viên|
 :Soạn, sửa hoặc xoá bài;
 |Hệ thống|
-:POST / PUT / DELETE /admin/posts;
-if (Bài đang công khai?) then (có)
-  :Hiển thị trên trang tin tức của khách;
+if (Đã đăng nhập quản trị?) then (có)
+  |Hệ thống|
+  :Ghi bài viết, ghi nhật ký;
+  if (Bài đang công khai?) then (có)
+    :Hiển thị trên trang tin tức của khách;
+  else (không)
+    :Giữ ở trạng thái nháp, chỉ quản trị thấy;
+  endif
+  stop
 else (không)
-  :Giữ ở trạng thái nháp, chỉ quản trị thấy;
+  :Chuyển về trang đăng nhập quản trị;
+  stop
 endif
-stop
 @enduml

@@ -11,13 +11,21 @@ HAI TẦNG, ĐỪNG LẪN:
   1. `filter_dishes`  - ràng buộc CỨNG. Người dùng bấm "đồ nướng" thì phở phải biến mất.
   2. `rank_dishes`    - xếp hạng MỀM trong số món còn lại.
 
-Quy tắc xuyên suốt dự án, áp dụng lại ở đây: THIẾU DỮ LIỆU KHÔNG BỊ LOẠI. Món chưa
-điền `cooking_method` vẫn qua được bộ lọc "đồ nướng" - vì chưa biết KHÁC HẲN với biết là
-không phải. Loại chúng đi là trừng phạt món chỉ vì ta chưa nhập đủ dữ liệu.
+Quy tắc xuyên suốt dự án, áp dụng lại ở đây: THIẾU DỮ LIỆU KHÔNG BỊ LOẠI. Món chưa điền
+nhiệt độ / ẩm thực / độ cay / bữa ăn vẫn qua được bộ lọc tương ứng - vì chưa biết KHÁC HẲN
+với biết là không phải. Loại chúng đi là trừng phạt món chỉ vì ta chưa nhập đủ dữ liệu.
+
+⚠️ NGOẠI LỆ DUY NHẤT: `cooking_methods` (chủ dự án chốt 2026-11-11). Chọn "đồ luộc" thì món
+chưa gắn nhãn cách chế biến bị ẨN. Đo thật: 785/856 món chưa có nhãn, nên luật cũ cho ra
+2 món luộc đúng rồi 18 món bất kỳ (Cà phê sữa đá, Bia hơi, Cơm gà…) xếp ngay sau, trông như
+thể cũng là đồ luộc. Ở chiều này người dùng nói rõ họ muốn THẤY món có cách chế biến đó, và
+ta không thể xác nhận được món chưa nhãn. Cái giá (danh sách ngắn đi) được nói ra ở
+`suggest_dishes` qua `dishes_hidden_only_by_unknown_method`, không để ẩn lặng lẽ.
+Đừng "đồng bộ lại" với các chiều khác: có test khoá ranh giới này.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Dict, List, Mapping, Optional
 
 from src.domain.entities.dish import (
@@ -111,7 +119,8 @@ def effective_weather(f: DishFilter, context: ContextSignal) -> WeatherCondition
 
 
 def filter_dishes(dishes: List[Dish], f: DishFilter) -> List[Dish]:
-    """Ràng buộc CỨNG. Món thiếu dữ liệu ở chiều đang lọc thì VẪN GIỮ (không biết != không khớp).
+    """Ràng buộc CỨNG. Món thiếu dữ liệu ở chiều đang lọc thì VẪN GIỮ (không biết != không
+    khớp) - TRỪ chiều cách chế biến, nơi món chưa nhãn bị ẩn (xem docstring đầu file).
 
     Lọc xong rỗng thì TRẢ RỖNG, KHÔNG trả lại cả danh sách. Trước đây có `kept or dishes`:
     bấm "bữa sáng" mà không món nào có dữ liệu bữa sáng trong bán kính thì app lặng lẽ đưa
@@ -121,8 +130,27 @@ def filter_dishes(dishes: List[Dish], f: DishFilter) -> List[Dish]:
     return [d for d in dishes if _passes_hard_filter(d, f)]
 
 
+def dishes_hidden_only_by_unknown_method(dishes: List[Dish], f: DishFilter) -> List[Dish]:
+    """Món bị ẩn vì chưa gắn cách chế biến VÀ KHÔNG VÌ LÝ DO NÀO KHÁC.
+
+    Dùng để nói với người dùng "đã ẩn N món vì chưa biết cách chế biến". Chỉ đếm món vẫn
+    qua được MỌI bộ lọc còn lại: món chưa nhãn mà còn trượt bộ lọc nóng/mát thì sẽ bị ẩn dù
+    ta có biết cách chế biến của nó hay không, đếm nó vào đây là đổ sai nguyên nhân (cùng
+    nguyên tắc với `_warn_price_filter` ở use case: mỗi món chỉ có MỘT lý do bị ẩn).
+    """
+    if not f.cooking_methods:
+        return []
+    # Bỏ riêng chiều cách chế biến rồi hỏi "các chiều còn lại có cho qua không".
+    ngoai_cach_che_bien = replace(f, cooking_methods=[])
+    return [
+        d for d in dishes
+        if d.cooking_method is None and _passes_hard_filter(d, ngoai_cach_che_bien)
+    ]
+
+
 def _passes_hard_filter(dish: Dish, f: DishFilter) -> bool:
-    if f.cooking_methods and dish.cooking_method is not None:
+    if f.cooking_methods:
+        # `None` bị loại, KHÁC các chiều bên dưới - xem "NGOẠI LỆ DUY NHẤT" ở đầu file.
         if dish.cooking_method not in f.cooking_methods:
             return False
 
@@ -222,6 +250,9 @@ def _score_filter(dish: Dish, f: DishFilter) -> tuple[float, List[str]]:
 
     if f.cooking_methods:
         if dish.cooking_method is None:
+            # Qua `filter_dishes` thì nhánh này KHÔNG BAO GIỜ chạy (món chưa nhãn đã bị ẩn).
+            # Giữ lại vì `rank_dishes` là hàm công khai, có thể được gọi với danh sách chưa
+            # lọc; lúc đó chưa biết vẫn phải ra điểm trung tính chứ không phải 0.
             parts.append(NEUTRAL_SCORE)
         elif dish.cooking_method in f.cooking_methods:
             parts.append(1.0)

@@ -149,7 +149,8 @@ def _thu_thap_nguoi(buoc: list, dung: set[str]) -> None:
 #   rẽ nhánh (if)                        -> khung alt; fork -> khung par
 # ---------------------------------------------------------------------------
 _HIEN_THI = ("Hiển thị", "Thông báo", "Báo ", "Đưa ra", "Trả ", "Chuyển", "Vào ", "Về ", "Mở ")
-_TINH_TOAN = ("Xếp", "Nới", "Suy", "Phân")
+# "Kiểm tra cấu hình": đọc biến môi trường + bộ đếm trong bộ nhớ, KHÔNG chạm CSDL (UC10).
+_TINH_TOAN = ("Xếp", "Nới", "Suy", "Phân", "Kiểm tra cấu hình")
 _NHAP_KHACH = ("Chọn", "Nhập", "Bấm", "Mở", "Thêm", "Sửa", "Tạo", "Tải", "Xoá", "Xóa", "Đổi",
                "Thu", "Tìm", "Bỏ", "Lưu", "Gỡ", "Đánh", "Soạn", "Đăng", "Cập", "Ẩn", "Khôi")
 _GHI_DU_LIEU = ("Ghi", "Lưu", "Cập nhật", "Tạo", "Ẩn", "Gỡ", "Khôi phục", "Sửa", "Thêm", "Xoá",

@@ -6,8 +6,14 @@ start
 |Quản trị viên|
 :Mở trang chất lượng dữ liệu;
 |Hệ thống|
-:GET /admin/quality;
-|Quản trị viên|
-:Xem chỉ số và tỷ lệ phủ;
-stop
+if (Đã đăng nhập quản trị?) then (có)
+  |Hệ thống|
+  :Tổng hợp chỉ số chất lượng;
+  |Quản trị viên|
+  :Xem chỉ số và tỷ lệ phủ;
+  stop
+else (không)
+  :Chuyển về trang đăng nhập quản trị;
+  stop
+endif
 @enduml

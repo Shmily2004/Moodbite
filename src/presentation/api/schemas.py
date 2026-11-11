@@ -152,7 +152,9 @@ class DishSuggestRequest(BaseModel):
     cooking_methods: List[str] = Field(
         default_factory=list,
         description=f"Cách chế biến. Hợp lệ: {list(COOKING_METHODS)}. "
-                    "Món CHƯA khai cách chế biến vẫn được giữ (chưa biết ≠ không phải).",
+                    "Món CHƯA gắn nhãn cách chế biến bị ẨN khi có bộ lọc này (chỉ chiều này; "
+                    "các bộ lọc khác vẫn giữ món thiếu dữ liệu). Số món bị ẩn nằm ở "
+                    "`data.warnings`.",
     )
     temperatures: List[str] = Field(
         default_factory=list, description='"hot" | "cold" | "room".'

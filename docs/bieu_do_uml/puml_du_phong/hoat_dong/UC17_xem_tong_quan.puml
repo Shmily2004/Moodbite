@@ -6,8 +6,14 @@ start
 |Quản trị viên|
 :Mở trang tổng quan;
 |Hệ thống|
-:GET /admin/overview;
-|Quản trị viên|
-:Xem số liệu;
-stop
+if (Đã đăng nhập quản trị?) then (có)
+  |Hệ thống|
+  :Tổng hợp số liệu;
+  |Quản trị viên|
+  :Xem số liệu;
+  stop
+else (không)
+  :Chuyển về trang đăng nhập quản trị;
+  stop
+endif
 @enduml

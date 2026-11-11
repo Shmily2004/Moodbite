@@ -1,39 +1,60 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="800" viewBox="0 0 1120 800"><defs><marker id="dac" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#000"/></marker><marker id="ho" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto"><path d="M1,1 L11,6 L1,11" fill="none" stroke="#000" stroke-width="1.2"/></marker></defs><rect width="100%" height="100%" fill="#fff"/><text x="20" y="22" font-family="Arial, Helvetica, sans-serif" font-size="15" text-anchor="start" font-weight="bold" fill="#000">Đặt lại mật khẩu</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="992" viewBox="0 0 1120 992"><defs><marker id="dac" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#000"/></marker><marker id="ho" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto"><path d="M1,1 L11,6 L1,11" fill="none" stroke="#000" stroke-width="1.2"/></marker></defs><rect width="100%" height="100%" fill="#fff"/><text x="20" y="22" font-family="Arial, Helvetica, sans-serif" font-size="15" text-anchor="start" font-weight="bold" fill="#000">Đặt lại mật khẩu</text>
 <rect x="560" y="60" width="520" height="1" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<rect x="40" y="60" width="520" height="680.0" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<rect x="40" y="60" width="520" height="872.0" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <rect x="40" y="60" width="520" height="34" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <text x="300.0" y="82" font-family="Arial, Helvetica, sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#000">Khách hàng</text>
-<rect x="560" y="60" width="520" height="680.0" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<rect x="560" y="60" width="520" height="872.0" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <rect x="560" y="60" width="520" height="34" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <text x="820.0" y="82" font-family="Arial, Helvetica, sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#000">Hệ thống</text>
 <line x1="300" y1="151.0" x2="300.0" y2="189.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
 <path d="M 300.0 239.0 V 261.0 H 735.0 V 283.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<path d="M 735.0 333.0 V 355.0 H 300.0 V 377.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<path d="M 300.0 427.0 V 444.0 H 735.0 V 461.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<line x1="735.0" y1="531.0" x2="735.0" y2="563.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<text x="743.0" y="543.0" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">có</text>
-<path d="M 820.0 496 H 905.0 V 563.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<text x="826.0" y="490" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">không</text>
-<line x1="735.0" y1="613.0" x2="735.0" y2="635.5" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<line x1="905.0" y1="613.0" x2="905.0" y2="635.5" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<line x1="820.0" y1="642.5" x2="820.0" y2="678.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<line x1="735.0" y1="333.0" x2="735.0" y2="367.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<line x1="735.0" y1="437.0" x2="735.0" y2="469.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<text x="743.0" y="449.0" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">có</text>
+<path d="M 820.0 402 H 905.0 V 469.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<text x="826.0" y="396" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">không</text>
+<path d="M 735.0 519.0 V 544.0 H 300.0 V 569.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<path d="M 300.0 619.0 V 636.0 H 735.0 V 653.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<line x1="735.0" y1="723.0" x2="735.0" y2="755.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<text x="743.0" y="735.0" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">có</text>
+<path d="M 820.0 688 H 905.0 V 755.0" fill="none" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<text x="826.0" y="682" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">không</text>
+<line x1="905.0" y1="519.0" x2="905.0" y2="827.5" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<line x1="735.0" y1="805.0" x2="735.0" y2="827.5" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<line x1="905.0" y1="805.0" x2="905.0" y2="827.5" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
+<line x1="820.0" y1="834.5" x2="820.0" y2="870.0" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
 <circle cx="300" cy="140" r="10" fill="#000" stroke="#000" stroke-width="1.2"/>
 <rect x="220.0" y="189.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<text x="300.0" y="211.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Nhập email quên mật</text>
-<text x="300.0" y="226.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">khẩu</text>
+<text x="300.0" y="211.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Nhập email hoặc tên</text>
+<text x="300.0" y="226.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">đăng nhập</text>
 <rect x="655.0" y="283.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<text x="735.0" y="305.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Gửi mã đặt lại mật</text>
-<text x="735.0" y="320.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">khẩu</text>
-<rect x="220.0" y="377.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<text x="300.0" y="399.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Nhập mã và mật khẩu</text>
-<text x="300.0" y="414.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">mới</text>
-<path d="M 735.0 461.0 L 820.0 496 L 735.0 531.0 L 650.0 496 Z" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<text x="735.0" y="500" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="middle" font-weight="normal" fill="#000">Mã đúng và còn hạn?</text>
-<rect x="655.0" y="563.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<text x="735.0" y="593.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Cập nhật mật khẩu mới</text>
-<rect x="825.0" y="563.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<text x="905.0" y="585.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Báo mã sai hoặc hết</text>
-<text x="905.0" y="600.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">hạn</text>
-<rect x="723.0" y="635.5" width="194.0" height="7" rx="0" fill="#000" stroke="#000" stroke-width="1.2"/>
-<circle cx="820.0" cy="689.0" r="11" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<circle cx="820.0" cy="689.0" r="6" fill="#000" stroke="#000" stroke-width="1.2"/></svg>
+<text x="735.0" y="298.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Kiểm tra cấu hình gửi</text>
+<text x="735.0" y="313.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">thư và giới hạn số lần</text>
+<text x="735.0" y="328.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">gọi</text>
+<path d="M 735.0 367.0 L 820.0 402 L 735.0 437.0 L 650.0 402 Z" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="735.0" y="399" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="middle" font-weight="normal" fill="#000">Gửi thư được và chưa</text>
+<text x="735.0" y="413" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="middle" font-weight="normal" fill="#000">vượt giới hạn?</text>
+<rect x="655.0" y="469.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="735.0" y="484.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Gửi thư kèm đường dẫn</text>
+<text x="735.0" y="499.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">nếu có email, luôn trả</text>
+<text x="735.0" y="514.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">cùng một câu</text>
+<rect x="825.0" y="469.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="905.0" y="484.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Báo lỗi (chưa cấu hình</text>
+<text x="905.0" y="499.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">thư hoặc gọi quá nhiều</text>
+<text x="905.0" y="514.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">lần), không gửi thư</text>
+<rect x="220.0" y="569.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="300.0" y="591.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Mở đường dẫn trong thư</text>
+<text x="300.0" y="606.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">và nhập mật khẩu mới</text>
+<path d="M 735.0 653.0 L 820.0 688 L 735.0 723.0 L 650.0 688 Z" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="735.0" y="685" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="middle" font-weight="normal" fill="#000">Đường dẫn còn hạn và</text>
+<text x="735.0" y="699" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="middle" font-weight="normal" fill="#000">chưa dùng?</text>
+<rect x="655.0" y="755.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="735.0" y="770.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Cập nhật mật khẩu mới,</text>
+<text x="735.0" y="785.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">thu hồi các phiên đăng</text>
+<text x="735.0" y="800.0" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">nhập cũ</text>
+<rect x="825.0" y="755.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="905.0" y="777.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Báo đường dẫn không</text>
+<text x="905.0" y="792.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">hợp lệ hoặc hết hạn</text>
+<rect x="723.0" y="827.5" width="194.0" height="7" rx="0" fill="#000" stroke="#000" stroke-width="1.2"/>
+<circle cx="820.0" cy="881.0" r="11" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<circle cx="820.0" cy="881.0" r="6" fill="#000" stroke="#000" stroke-width="1.2"/></svg>

@@ -3,11 +3,17 @@
 ' API: POST /api/v1/auth/logout
 skinparam shadowing false
 start
-|Khách|
+|Khách hàng|
 :Bấm đăng xuất, xác nhận;
 |Hệ thống|
-:POST /auth/logout, thu hồi phiên;
-|Khách|
-:Về trang khách;
-stop
+if (Đã đăng nhập?) then (có)
+  |Hệ thống|
+  :Thu hồi phiên đăng nhập;
+  |Khách hàng|
+  :Tự động chuyển về trang chủ;
+  stop
+else (không)
+  :Chuyển tới trang đăng nhập;
+  stop
+endif
 @enduml

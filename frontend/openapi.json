@@ -6923,7 +6923,7 @@
             },
             "type": "array",
             "title": "Cooking Methods",
-            "description": "Cách chế biến. Hợp lệ: ['nuong', 'chien', 'luoc', 'hap', 'xao', 'nuoc', 'song', 'tron', 'nuong_lo']. Món CHƯA khai cách chế biến vẫn được giữ (chưa biết ≠ không phải)."
+            "description": "Cách chế biến. Hợp lệ: ['nuong', 'chien', 'luoc', 'hap', 'xao', 'nuoc', 'song', 'tron', 'nuong_lo']. Món CHƯA gắn nhãn cách chế biến bị ẨN khi có bộ lọc này (chỉ chiều này; các bộ lọc khác vẫn giữ món thiếu dữ liệu). Số món bị ẩn nằm ở `data.warnings`."
           },
           "temperatures": {
             "items": {
@@ -7320,6 +7320,8 @@
         "properties": {
           "session_id": {
             "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
             "title": "Session Id"
           },
           "restaurant_id": {
@@ -7332,7 +7334,8 @@
           "search_query_id": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "maxLength": 64
               },
               {
                 "type": "null"
@@ -7344,6 +7347,7 @@
             "anyOf": [
               {
                 "type": "integer",
+                "maximum": 3600000.0,
                 "minimum": 0.0
               },
               {
@@ -7351,7 +7355,7 @@
               }
             ],
             "title": "Dwell Time Ms",
-            "description": "Bắt buộc khi action_type = view_detail."
+            "description": "Bắt buộc khi action_type = view_detail. Tối đa 1 giờ (3.600.000 ms)."
           },
           "rank_position": {
             "anyOf": [

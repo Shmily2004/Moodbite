@@ -35,21 +35,21 @@
 <rect x="604" y="854" width="12" height="114" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <rect x="354" y="648" width="12" height="386" rx="0" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <line x1="112" y1="176" x2="358" y2="176" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<text x="118" y="168" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">1. Nhập email và mật khẩu</text>
+<text x="118" y="168" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">1. Nhập tên đăng nhập, email và mật khẩu</text>
 <line x1="362" y1="212" x2="608" y2="212" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<text x="368" y="204" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">2. Tạo tài khoản chưa xác minh</text>
+<text x="368" y="204" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">2. Kiểm tra định dạng và tên đăng nhập</text>
 <line x1="612" y1="248" x2="1108" y2="248" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<text x="618" y="240" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">3. Ghi dữ liệu</text>
+<text x="618" y="240" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">3. Đọc dữ liệu</text>
 <line x1="1108" y1="284" x2="612" y2="284" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
 <text x="618" y="276" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">4. Kết quả</text>
 <line x1="608" y1="320" x2="362" y2="320" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
 <text x="368" y="312" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">5. Kết quả</text>
 <line x1="358" y1="382" x2="112" y2="382" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
-<text x="118" y="374" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">6. Báo lỗi, yêu cầu email khác</text>
+<text x="118" y="374" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">6. Báo lỗi, yêu cầu chọn tên khác</text>
 <line x1="70" y1="398" x2="1150" y2="398" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4"/>
 <text x="80" y="414" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">[không]</text>
 <line x1="362" y1="448" x2="608" y2="448" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<text x="368" y="440" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">7. Lưu tài khoản chưa xác minh, gửi mã xác minh</text>
+<text x="368" y="440" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">7. Lưu tài khoản, cấp phiên, gửi thư xác minh kèm đường dẫn</text>
 <line x1="612" y1="484" x2="1108" y2="484" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
 <text x="618" y="476" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">8. Ghi dữ liệu</text>
 <line x1="1108" y1="520" x2="612" y2="520" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
@@ -59,21 +59,21 @@
 <rect x="70" y="330" width="1080" height="244" rx="0" fill="none" stroke="#000" stroke-width="1.2"/>
 <rect x="70" y="330" width="44" height="18" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <text x="74" y="343" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="bold" fill="#000">alt</text>
-<text x="124" y="344" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">[Email đã tồn tại?]</text>
+<text x="124" y="344" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">[Tên đăng nhập đã có người dùng?]</text>
 <line x1="358" y1="612" x2="112" y2="612" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
 <text x="118" y="604" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">11. Trả kết quả cho người dùng</text>
 <line x1="112" y1="648" x2="358" y2="648" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<text x="118" y="640" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">12. Nhập mã xác minh từ email</text>
+<text x="118" y="640" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">12. Mở đường dẫn xác minh trong thư</text>
 <line x1="362" y1="684" x2="608" y2="684" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<text x="368" y="676" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">13. Kiểm tra mã xác minh</text>
+<text x="368" y="676" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">13. Kiểm tra đường dẫn xác minh</text>
 <line x1="612" y1="720" x2="1108" y2="720" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<text x="618" y="712" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">14. Ghi dữ liệu</text>
+<text x="618" y="712" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">14. Đọc dữ liệu</text>
 <line x1="1108" y1="756" x2="612" y2="756" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
 <text x="618" y="748" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">15. Kết quả</text>
 <line x1="608" y1="792" x2="362" y2="792" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
 <text x="368" y="784" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">16. Kết quả</text>
 <line x1="362" y1="854" x2="608" y2="854" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
-<text x="368" y="846" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">17. Kích hoạt tài khoản</text>
+<text x="368" y="846" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">17. Đánh dấu email đã xác minh</text>
 <line x1="612" y1="890" x2="1108" y2="890" stroke="#000" stroke-width="1.2" marker-end="url(#dac)"/>
 <text x="618" y="882" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">18. Ghi dữ liệu</text>
 <line x1="1108" y1="926" x2="612" y2="926" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
@@ -83,10 +83,10 @@
 <line x1="70" y1="978" x2="1150" y2="978" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4"/>
 <text x="80" y="994" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">[không]</text>
 <line x1="358" y1="1028" x2="112" y2="1028" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
-<text x="118" y="1020" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">21. Báo mã sai hoặc hết hạn, cho gửi lại</text>
+<text x="118" y="1020" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">21. Báo đường dẫn không hợp lệ, cho gửi lại thư</text>
 <rect x="70" y="802" width="1080" height="244" rx="0" fill="none" stroke="#000" stroke-width="1.2"/>
 <rect x="70" y="802" width="44" height="18" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <text x="74" y="815" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="bold" fill="#000">alt</text>
-<text x="124" y="816" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">[Mã đúng và còn hạn?]</text>
+<text x="124" y="816" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#000">[Đường dẫn còn hạn và chưa dùng?]</text>
 <line x1="358" y1="1084" x2="112" y2="1084" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#ho)"/>
 <text x="118" y="1076" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#000">22. Trả kết quả cho người dùng</text></svg>

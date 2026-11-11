@@ -272,7 +272,6 @@
       "name": "Trà chanh",
       "cuisine": "Việt Nam",
       "temperature": "cold",
-      "cooking_method": "tron",
       "spice_level": 0,
       "meal_times": [
         "an_vat"
@@ -296,7 +295,6 @@
       "name": "Sữa chua trân châu",
       "cuisine": "Việt Nam",
       "temperature": "cold",
-      "cooking_method": "tron",
       "spice_level": 0,
       "meal_times": [
         "an_vat"
@@ -540,7 +538,7 @@
       "name": "Mì Ý",
       "cuisine": "Ý",
       "temperature": "hot",
-      "cooking_method": "luoc",
+      "cooking_method": "tron",
       "spice_level": 0,
       "meal_times": [
         "trua",
@@ -932,7 +930,7 @@
       "source": "manual",
       "description": "Miến là sợi khô làm từ tinh bột dong hoặc đậu xanh, khi nấu trở nên trong và dai, dùng cho cả món nước lẫn món trộn.",
       "skip_wikipedia": true,
-      "cuisine": "Philippines",
+      "cuisine": "Việt Nam",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Dongfen.JPG/330px-Dongfen.JPG?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "image_source": "wikipedia_vi",
       "image_credit": "Wikipedia (VI): Miến — CC BY-SA"
@@ -1288,7 +1286,7 @@
       "source": "manual",
       "description": "Xôi là gạo nếp đồ chín bằng hơi nước, có cả loại ngọt lẫn mặn, là món ăn sáng quen thuộc.",
       "skip_wikipedia": true,
-      "cuisine": "Thái Lan",
+      "cuisine": "Việt Nam",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/X%C3%B4i_%C4%91%E1%BB%97_xanh.jpg/330px-X%C3%B4i_%C4%91%E1%BB%97_xanh.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "image_source": "wikipedia_vi",
       "image_credit": "Wikipedia (VI): Xôi — CC BY-SA"
@@ -1417,7 +1415,6 @@
     {
       "dish_id": "com-ga",
       "name": "Cơm gà",
-      "cooking_method": "luoc",
       "meal_times": [
         "trua"
       ],
@@ -1426,7 +1423,7 @@
       ],
       "source": "manual",
       "description": "Cơm gà là món cơm nấu cùng nước luộc gà, ăn kèm thịt gà và nước chấm gừng.",
-      "cuisine": "Tây Ban Nha"
+      "cuisine": "Việt Nam"
     },
     {
       "dish_id": "mi-xao-gion",
@@ -1462,7 +1459,7 @@
     {
       "dish_id": "mi-y-sot-bo-bam",
       "name": "Mì Ý sốt bò bằm",
-      "cooking_method": "luoc",
+      "cooking_method": "tron",
       "meal_times": [
         "trua",
         "toi"
@@ -1831,6 +1828,7 @@
     {
       "dish_id": "vit-quay-bac-kinh",
       "name": "Vịt quay Bắc Kinh",
+      "cooking_method": "nuong",
       "description": "Vịt quay Bắc Kinh là một món ăn từ Bắc Kinh được chế biến từ thời phong kiến. Đặc điểm của loại thịt này là lớp da mỏng và giòn, trong đó cách ăn truyền thống thường đi kèm với da và ít thịt, được người nấu thái lát trước mặt thực khách.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Roasted_Beijing_Duck_sliced.jpg/330px-Roasted_Beijing_Duck_sliced.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
@@ -2544,6 +2542,7 @@
     {
       "dish_id": "banh-bot-chien",
       "name": "Bánh bột chiên",
+      "cooking_method": "chien",
       "description": "Bột chiên là món ăn đơn giản có nguồn gốc từ Trung Quốc, được du nhập vào Việt Nam và là món ăn sáng, ăn chiều hoặc ăn khuya quen thuộc ở khu vực Sài Gòn cũng như một số nơi khác. Món bột chiên tại Việt Nam chủ yếu do người Việt gốc Hoa chế biến và thưởng thức nên không khác biệt nhiều so với nguyên gốc.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Botchien_in_Vietnam.jpg/330px-Botchien_in_Vietnam.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
@@ -2953,6 +2952,7 @@
     {
       "dish_id": "banh-mi-nuong-kieu-phap",
       "name": "Bánh mì nướng kiểu Pháp",
+      "cooking_method": "nuong_lo",
       "description": "Bánh mì nướng kiểu Pháp là một món ăn gồm có các lát bánh mì được nhúng qua trứng đánh tan và đặc biệt hỗn hợp trứng có pha thêm sữa hoặc kem, sau đó được chiên trên chảo.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/French_Toast_%2816251867289%29.jpg/330px-French_Toast_%2816251867289%29.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
@@ -2965,6 +2965,7 @@
     {
       "dish_id": "banh-mi-nuong-mat-ong",
       "name": "Bánh mì nướng mật ong",
+      "cooking_method": "nuong_lo",
       "description": "Bánh mì nướng mật ong, còn được gọi là bánh mì nướng Shibuya, là một món tráng miệng của Nhật Bản có nguồn gốc từ quận Shibuya trong thời kỳ bong bóng giá tài sản của Nhật Bản, thường được phục vụ tại các quán karaoke. Món ăn cũng phổ biến ở các nơi khác trên thế giới, nổi bật nhất là Đài Loan và Singapore.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Dazzling_Caf%C3%A9_-_Chocolate_Fantasy_Honey_Toast_%285194822243%29.jpg/330px-Dazzling_Caf%C3%A9_-_Chocolate_Fantasy_Honey_Toast_%285194822243%29.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
@@ -3065,6 +3066,7 @@
     {
       "dish_id": "banh-nuong",
       "name": "Bánh nướng",
+      "cooking_method": "nuong_lo",
       "description": "Bánh nướng hay bánh nướng trung thu là một trong những loại bánh được làm và sử dụng nhiều trong lễ tiết trung thu. Bánh xuất xứ từ ẩm thực Trung Hoa nhưng trong chiều dài lịch sử giao thoa, ảnh hưởng và tiếp biến văn hóa, đã lan tỏa và phổ biến tại nhiều quốc gia châu Á khác.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/B%C3%A1nh_n%C6%B0%E1%BB%9Bng_th%E1%BA%ADp_c%E1%BA%A9m_tr%E1%BB%A9ng_mu%E1%BB%91i.JPG/330px-B%C3%A1nh_n%C6%B0%E1%BB%9Bng_th%E1%BA%ADp_c%E1%BA%A9m_tr%E1%BB%A9ng_mu%E1%BB%91i.JPG?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
@@ -3078,6 +3080,7 @@
     {
       "dish_id": "banh-nuong-alaska",
       "name": "Bánh nướng Alaska",
+      "cooking_method": "nuong_lo",
       "description": "Bánh nướng Alaska còn gọi là Bombe Alaska, omelette norvégienne, omelette surprise, hoặc omelette sibérienne tùy thuộc vào quốc gia, là món tráng miệng bao gồm kem và bánh phủ loại bánh trứng đường nâu.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Baked_Alaska.jpg/330px-Baked_Alaska.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
@@ -3090,6 +3093,7 @@
     {
       "dish_id": "banh-nuong-chao",
       "name": "Bánh nướng chảo",
+      "cooking_method": "nuong",
       "description": "Bánh nướng chảo, dịch từ pancake trong tiếng Anh, hay bánh phèng la/ phèn la trong tiếng Việt, là một loại bánh phẳng được chế biến từ bột làm từ tinh bột có thể chứa trứng, sữa và bơ. Món ăn thường mỏng và tròn và có thể nấu trên một bề mặt nóng như vỉ nướng hoặc chảo rán, thường chiên với dầu hoặc bơ.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Blueberry_pancakes_%283%29.jpg/330px-Blueberry_pancakes_%283%29.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
@@ -3508,6 +3512,7 @@
     {
       "dish_id": "banh-uot-thit-nuong",
       "name": "Bánh ướt thịt nướng",
+      "cooking_method": "nuong",
       "description": "Bánh ướt thịt nướng là một món ăn phổ biến tại Huế, có nguồn gốc từ vùng Kim Long – khu vực vốn được biết đến với hệ thống nhà vườn đặc trưng của địa phương. Món ăn này có thể được sử dụng như một lựa chọn cho bữa điểm tâm, bữa chính hoặc dùng trong các cuộc gặp gỡ mang tính chất ăn chơi, đều phù hợp.",
       "image_url": null,
       "match_keywords": [
@@ -3541,6 +3546,7 @@
     {
       "dish_id": "bit-tet-ga-ran",
       "name": "Bít tết gà rán",
+      "cooking_method": "chien",
       "description": "Bít tết gà rán, còn được gọi là bít tết chiên đồng quê, là một món thịt chiên xù của Mỹ bao gồm một miếng thịt bò được phủ một lớp bột dày rồi chiên trên chảo. Nó đôi khi được gắn liền với ẩm thực miền Nam Hoa Kỳ.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Chicken_Fried_Steak.jpg/330px-Chicken_Fried_Steak.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
@@ -4015,6 +4021,7 @@
     {
       "dish_id": "chuoi-nuong",
       "name": "Chuối nướng",
+      "cooking_method": "nuong",
       "description": "Chuối nướng hay còn gọi là chè chuối nướng, là một món ăn bắt nguồn từ tỉnh Bến Tre lan ra khắp các tỉnh miền Tây rồi đến Sài Gòn. Đây là một món ăn đường phố có vị ngọt của chuối thêm vị béo của nước dừa nướng trên bếp than đỏ hồng toả ra mùi thơm đánh thức vị giác của người đi đường.",
       "image_url": null,
       "match_keywords": [
@@ -4026,6 +4033,7 @@
     {
       "dish_id": "chuoi-nep-nuong",
       "name": "Chuối nếp nướng",
+      "cooking_method": "nuong",
       "description": "Chuối nếp nướng là món ăn đường phố phổ biến ở Việt Nam, đặc biệt là khu vực phía Nam. Món này được CNN vinh danh là một trong số 9 món tráng miệng ngon nhất thế giới.",
       "image_url": null,
       "match_keywords": [
@@ -4431,6 +4439,7 @@
     {
       "dish_id": "ca-loc-nuong-trui",
       "name": "Cá lóc nướng trui",
+      "cooking_method": "nuong",
       "description": "Cá lóc nướng trui là một món ăn dân dã đặc trưng cho miền đồng nước Nam Bộ Việt Nam, với hương vị độc đáo và cách chế biến rất đơn giản. Món ăn này gắn liền với quá trình khai hóa đất phương Nam của dân tộc Việt.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/C%C3%A1_l%C3%B3c_n%C6%B0%E1%BB%9Bng_trui.JPG/330px-C%C3%A1_l%C3%B3c_n%C6%B0%E1%BB%9Bng_trui.JPG?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
@@ -4479,6 +4488,7 @@
     {
       "dish_id": "canh-ga-chien",
       "name": "Cánh gà chiên",
+      "cooking_method": "chien",
       "description": "Cánh gà chiên hay còn gọi là cánh gà rán giòn là một món ăn có nguồn gốc từ ẩm thực Hoa Kỳ, món ăn này là một phần cánh gà thường được chiên giòn sau đó phủ một loại nước sốt bao gồm nước sốt ớt cayenne cay và bơ tan chảy trước khi ăn.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Hot_Wings_at_KFC_India.jpg/330px-Hot_Wings_at_KFC_India.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
@@ -4514,6 +4524,7 @@
     {
       "dish_id": "com-chien",
       "name": "Cơm chiên",
+      "cooking_method": "xao",
       "description": "Cơm chiên hay cơm rang là một món cơm nấu đã được chế biến trong chảo hoặc chảo rán và thường được trộn với các thành phần khác như trứng, rau, hải sản hoặc thịt. Nó thường được ăn riêng lẻ hoặc như một món ăn kèm cho món ăn khác.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Fried_rice_with_chicken_%2817234644521%29.jpg/330px-Fried_rice_with_chicken_%2817234644521%29.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
@@ -4526,6 +4537,7 @@
     {
       "dish_id": "com-chien-duong-chau",
       "name": "Cơm chiên Dương Châu",
+      "cooking_method": "xao",
       "description": "Cơm chiên Dương Châu là một loại cơm chiên nổi tiếng thế giới, là một món ăn ngon và nổi tiếng đến nỗi hầu như tất cả các nhà hàng Trung Quốc nào cũng có. Món ăn này được xuất phát từ triều đại nhà Thanh của Trung Quốc vào năm 1754.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Chinese_fried_rice_by_stu_spivack_in_Cleveland%2C_OH.jpg/330px-Chinese_fried_rice_by_stu_spivack_in_Cleveland%2C_OH.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
@@ -5065,6 +5077,7 @@
     {
       "dish_id": "ga-luoc",
       "name": "Gà luộc",
+      "cooking_method": "luoc",
       "description": "Gà luộc là một món ăn phổ biến từ thịt gà bằng phương pháp luộc chín, gà được bỏ vào nồi và được nấu chín hoàn toàn trong nước nóng hoặc nước luộc gà.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/BeiQieJi-WhiteCutChicken.jpg/330px-BeiQieJi-WhiteCutChicken.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
@@ -5080,6 +5093,7 @@
     {
       "dish_id": "ga-nuong-lo-dat-tandoori",
       "name": "Gà nướng lò đất Tandoori",
+      "cooking_method": "nuong",
       "description": "Gà nướng lò đất Tandoori hay còn được gọi là gà nướng sữa chua, là một món ăn có nguồn gốc tại tiểu lục địa Ấn Độ và hiện đã phổ biến rộng rãi ở Nam Á, Malaysia, Singapore, Indonesia, Trung Đông và thế giới phương Tây.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Chickentandoori.jpg/330px-Chickentandoori.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
@@ -5092,6 +5106,7 @@
     {
       "dish_id": "ga-ran-han-quoc",
       "name": "Gà rán Hàn Quốc",
+      "cooking_method": "chien",
       "description": "Gà rán Hàn Quốc còn gọi là chikin hay Dakgangjeong là một món gà rán có nguồn gốc từ Hàn Quốc. Đây là là món gà rán giòn cùng xốt cay ngọt trong ẩm thực Hàn Quốc, có thể sử dụng bất cứ phần thịt gà nào để chế biến món ăn này. Món gà này hích hợp nhất khi chế biến với phần thịt lườn gà, vì nhanh và dễ làm.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Korean_fried_chicken_2.jpg/330px-Korean_fried_chicken_2.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
@@ -5367,6 +5382,7 @@
     {
       "dish_id": "hanh-tay-chien-gion",
       "name": "Hành tây chiên giòn",
+      "cooking_method": "chien",
       "description": "Hành tây chiên giòn, hay còn được gọi là Hành tây chiên giòn kiểu Pháp, là một món khai vị hoặc món phụ trong ẩm thực Anh và ẩm thực Mỹ. Chúng thường bao gồm một \"vòng\" mặt cắt ngang gồm hành tây được nhúng vào bột ướt hoặc vụn bánh mì và sau đó chiên ngập dầu; một biến thể được làm với bột hành.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/OnionRings.JPG/330px-OnionRings.JPG?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
@@ -5767,6 +5783,7 @@
     {
       "dish_id": "kem-chien",
       "name": "Kem chiên",
+      "cooking_method": "chien",
       "description": "Kem chiên là một món tráng miệng được làm từ một muỗng kem tẩm bột và được chiên giòn, tạo ra lớp vỏ ngoài, nóng, giòn xung quanh lớp kem vẫn còn lạnh.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/FriedIceCream.jpg/330px-FriedIceCream.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
@@ -5980,6 +5997,7 @@
     {
       "dish_id": "khoai-lang-nuong",
       "name": "Khoai lang nướng",
+      "cooking_method": "nuong",
       "description": "Khoai lang nướng là một món ăn đường phố mùa đông phổ biến ở Đông Á. Món ăn này cũng phổ biến vào mùa đông ở miền Bắc Việt Nam.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Gungoguma_%28roasted_sweet_potatoes%29_2.jpg/330px-Gungoguma_%28roasted_sweet_potatoes%29_2.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
@@ -6678,6 +6696,7 @@
     {
       "dish_id": "mit-tron",
       "name": "Mít trộn",
+      "cooking_method": "tron",
       "description": "Mít trộn là một món ăn đặc sản của hai tỉnh Quảng Ngãi và thành phố Đà Nẵng. Mít trộn là mít non được luộc chín vừa tới, xé tơi để trộn với gỏi thịt ba rọi hoặc tôm thẻ hay da heo cắt sợi. Mít trộn làm ngon nhất là vào mùa mít non.",
       "image_url": null,
       "match_keywords": [
@@ -6923,6 +6942,7 @@
     {
       "dish_id": "nhen-chien",
       "name": "Nhện chiên",
+      "cooking_method": "chien",
       "description": "Nhện chiên là một món ăn nhẹ của vùng miền Campuchia. Ở thị trấn Skuon của Campuchia, việc bán nhện chiên như một món ăn vặt đặc sản là một điểm thu hút đông đảo du khách khi đến thị trấn này.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Skun_spiders_closeup.jpg/330px-Skun_spiders_closeup.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
@@ -8507,6 +8527,7 @@
     {
       "dish_id": "thit-nuong-mong-co",
       "name": "Thịt nướng Mông Cổ",
+      "cooking_method": "nuong",
       "description": "Thịt nướng Mông Cổ hay tiệc nướng Mông Cổ là một món ăn chiên được phát triển trong các nhà hàng Đài Loan bắt đầu vào đầu những năm 1950. Thịt và rau được nấu trên các tấm thiếc (sắt) lớn, tròn và rắn ở nhiệt độ lên tới 300 °C (572 °F) còn gọi là Teppanyaki.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Mongolianbbq.jpg/330px-Mongolianbbq.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
@@ -8522,6 +8543,7 @@
     {
       "dish_id": "thit-nuong-xau",
       "name": "Thịt nướng xâu",
+      "cooking_method": "nuong",
       "description": "Thịt nướng xâu hay là thịt nướng xiên que là một món ăn thịt nguyên miếng xắt nhỏ, xiên que và nướng, thường được phục vụ với một loại nước sốt.",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Sate_Ponorogo.jpg/330px-Sate_Ponorogo.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
       "match_keywords": [
@@ -9443,6 +9465,7 @@
     {
       "dish_id": "oc-sen-nuong",
       "name": "Ốc sên nướng",
+      "cooking_method": "nuong",
       "description": "Ốc sên nướng là một món ăn bắt nguồn từ dân tộc Mường. Món này thường được dùng với nước chấm là nước mắm.",
       "image_url": null,
       "match_keywords": [
@@ -9610,6 +9633,7 @@
     {
       "dish_id": "buffet-lau-nuong",
       "name": "Buffet lẩu nướng",
+      "cooking_method": "nuong",
       "match_keywords": [
         "Buffet lẩu nướng"
       ],
@@ -9628,6 +9652,7 @@
     {
       "dish_id": "bo-nuong",
       "name": "Bò nướng",
+      "cooking_method": "nuong",
       "match_keywords": [
         "Bò nướng"
       ],
@@ -9745,6 +9770,7 @@
     {
       "dish_id": "bo-nam-nuong",
       "name": "Bò nầm nướng",
+      "cooking_method": "nuong",
       "match_keywords": [
         "Bò nầm nướng"
       ],
@@ -9907,6 +9933,7 @@
     {
       "dish_id": "thit-xien-nuong",
       "name": "Thịt xiên nướng",
+      "cooking_method": "nuong",
       "match_keywords": [
         "Thịt xiên nướng"
       ],
@@ -10030,6 +10057,7 @@
     {
       "dish_id": "buffet-nuong",
       "name": "Buffet nướng",
+      "cooking_method": "nuong",
       "match_keywords": [
         "Buffet nướng"
       ],
@@ -10078,6 +10106,7 @@
     {
       "dish_id": "banh-ran",
       "name": "Bánh rán",
+      "cooking_method": "chien",
       "match_keywords": [
         "Bánh rán",
         "bánh cam"
@@ -10170,6 +10199,7 @@
     {
       "dish_id": "lau-nuong-han-quoc",
       "name": "Lẩu nướng hàn quốc",
+      "cooking_method": "nuong",
       "match_keywords": [
         "Lẩu nướng hàn quốc"
       ],
@@ -10242,6 +10272,7 @@
     {
       "dish_id": "bun-tron",
       "name": "Bún trộn",
+      "cooking_method": "tron",
       "match_keywords": [
         "Bún trộn"
       ],
@@ -10342,6 +10373,7 @@
     {
       "dish_id": "pho-xao",
       "name": "phở xào",
+      "cooking_method": "xao",
       "description": "món xào Việt Nam",
       "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Ph%E1%BB%9F_x%C3%A0o_b%C3%B2.jpg?width=320",
       "match_keywords": [
@@ -10497,6 +10529,7 @@
     {
       "dish_id": "bo-nuong-la-lot",
       "name": "Bò nướng lá lốt",
+      "cooking_method": "nuong",
       "description": "món ăn có xuất xứ và thịnh hành ở vùng Nam Bộ, Việt Nam",
       "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/B%C3%B2_n%C6%B0%E1%BB%9Bng_l%C3%A1_l%E1%BB%91t_t%E1%BA%A1i_Manchester.jpg?width=320",
       "match_keywords": [

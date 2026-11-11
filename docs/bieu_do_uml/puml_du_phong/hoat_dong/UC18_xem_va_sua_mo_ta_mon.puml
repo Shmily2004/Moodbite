@@ -5,15 +5,21 @@ skinparam shadowing false
 start
 |Quản trị viên|
 :Mở món, bấm Sửa mô tả;
-:Nhập mô tả, bấm Lưu (hoặc Gỡ bản sửa);
 |Hệ thống|
-:PATCH /admin/dishes/{id};
-if (Mô tả hợp lệ?) then (có)
-  :Lưu bản sửa, ghi nhật ký;
+if (Đã đăng nhập quản trị?) then (có)
+  :Nhập mô tả, bấm Lưu (hoặc Gỡ bản sửa);
+  |Hệ thống|
+  :Lưu bản sửa mô tả, ghi nhật ký;
+  if (Mô tả hợp lệ?) then (có)
+    :Lưu bản sửa, ghi nhật ký;
+  else (không)
+    :Trả lỗi 400, không ghi gì;
+  endif
+  |Quản trị viên|
+  :Xem mô tả mới;
+  stop
 else (không)
-  :Trả lỗi 400, không ghi gì;
+  :Chuyển về trang đăng nhập quản trị;
+  stop
 endif
-|Quản trị viên|
-:Xem mô tả mới;
-stop
 @enduml

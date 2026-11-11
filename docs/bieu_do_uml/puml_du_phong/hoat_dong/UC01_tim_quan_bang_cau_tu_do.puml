@@ -3,16 +3,27 @@
 ' API: POST /api/v1/search
 skinparam shadowing false
 start
-|Khách|
+|Khách hàng|
 :Nhập câu tìm kiếm tự do;
 |Hệ thống|
-:POST /search;
-if (Có quán khớp?) then (có)
-  :Hiển thị danh sách quán, gợi ý món trong từng kết quả;
+if (Đã đăng nhập?) then (có)
+  |Hệ thống|
+  :Tìm quán khớp câu tìm kiếm;
+  if (Có quán khớp?) then (có)
+    :Hiển thị danh sách quán, gợi ý món trong từng kết quả;
+  else (không)
+    :Thông báo không có quán khớp, gợi ý nới bộ lọc;
+  endif
+  if (Đã đăng nhập và có vị trí của bạn?) then (có)
+    :Hiển thị khoảng cách từ vị trí của bạn đến quán;
+  else (không)
+    :Ẩn khoảng cách, chỉ hiển thị tên và địa chỉ quán;
+  endif
+  |Khách hàng|
+  :Xem kết quả;
+  stop
 else (không)
-  :Thông báo không có quán khớp, gợi ý nới bộ lọc;
+  :Chuyển tới trang đăng nhập;
+  stop
 endif
-|Khách|
-:Xem kết quả;
-stop
 @enduml

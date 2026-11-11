@@ -6,13 +6,19 @@ start
 |Quản trị viên|
 :Mở danh sách quán bị báo;
 |Hệ thống|
-:GET /admin/closure-reports;
-|Quản trị viên|
-:Kiểm tra và quyết định;
-if (Quán thực sự đã đóng cửa?) then (có)
-  :Ẩn quán (POST /hide), ghi nhật ký;
+if (Đã đăng nhập quản trị?) then (có)
+  |Hệ thống|
+  :Tải danh sách quán bị báo;
+  |Quản trị viên|
+  :Kiểm tra và quyết định;
+  if (Quán thực sự đã đóng cửa?) then (có)
+    :Ẩn quán, ghi nhật ký;
+  else (không)
+    :Gỡ các lượt báo của quán;
+  endif
+  stop
 else (không)
-  :POST .../closure-reports/clear, gỡ lượt báo;
+  :Chuyển về trang đăng nhập quản trị;
+  stop
 endif
-stop
 @enduml

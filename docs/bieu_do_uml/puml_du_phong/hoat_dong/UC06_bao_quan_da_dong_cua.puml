@@ -3,12 +3,18 @@
 ' API: POST /api/v1/interactions {action_type: report_closed}
 skinparam shadowing false
 start
-|Khách|
+|Khách hàng|
 :Bấm Báo đã đóng cửa;
 |Hệ thống|
-:POST /interactions (report_closed);
-:Ghi lượt báo, đưa quán vào hàng chờ quản trị;
-|Khách|
-:Nhận thông báo đã ghi nhận;
-stop
+if (Đã đăng nhập?) then (có)
+  |Hệ thống|
+  :Ghi nhận lượt báo đóng cửa;
+  :Ghi lượt báo, đưa quán vào hàng chờ quản trị;
+  |Khách hàng|
+  :Nhận thông báo đã ghi nhận;
+  stop
+else (không)
+  :Chuyển tới trang đăng nhập;
+  stop
+endif
 @enduml

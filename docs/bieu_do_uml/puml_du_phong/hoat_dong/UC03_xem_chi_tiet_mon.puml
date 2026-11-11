@@ -1,16 +1,22 @@
 @startuml UC03_hoat_dong
 ' UC03 — Xem chi tiết món
-' API: GET /api/v1/dishes/{id}  (song song với UC04)
+' API: GET /api/v1/dishes/{id} (song song với xem quán bán món)
 skinparam shadowing false
 start
-|Khách|
+|Khách hàng|
 :Chọn một món;
 |Hệ thống|
-fork
-  :GET /dishes/{id}: tải thông tin món;
-fork again
-  :GET /dishes/{id}/restaurants (UC04);
-end fork
-:Hiển thị trang món;
-stop
+if (Đã đăng nhập?) then (có)
+  |Hệ thống|
+  fork
+    :Tải thông tin món;
+  fork again
+    :Tải danh sách quán bán món;
+  end fork
+  :Hiển thị trang món;
+  stop
+else (không)
+  :Chuyển tới trang đăng nhập;
+  stop
+endif
 @enduml

@@ -2361,7 +2361,7 @@ export interface components {
             longitude: number;
             /**
              * Cooking Methods
-             * @description Cách chế biến. Hợp lệ: ['nuong', 'chien', 'luoc', 'hap', 'xao', 'nuoc', 'song', 'tron', 'nuong_lo']. Món CHƯA khai cách chế biến vẫn được giữ (chưa biết ≠ không phải).
+             * @description Cách chế biến. Hợp lệ: ['nuong', 'chien', 'luoc', 'hap', 'xao', 'nuoc', 'song', 'tron', 'nuong_lo']. Món CHƯA gắn nhãn cách chế biến bị ẨN khi có bộ lọc này (chỉ chiều này; các bộ lọc khác vẫn giữ món thiếu dữ liệu). Số món bị ẩn nằm ở `data.warnings`.
              */
             cooking_methods?: string[];
             /**
@@ -2557,7 +2557,7 @@ export interface components {
             search_query_id?: string | null;
             /**
              * Dwell Time Ms
-             * @description Bắt buộc khi action_type = view_detail.
+             * @description Bắt buộc khi action_type = view_detail. Tối đa 1 giờ (3.600.000 ms).
              */
             dwell_time_ms?: number | null;
             /** Rank Position */

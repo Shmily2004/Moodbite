@@ -6,12 +6,18 @@ start
 |Quản trị viên|
 :Mở danh sách vấn đề;
 |Hệ thống|
-:GET /admin/issues;
-|Quản trị viên|
-:Xem chi tiết, đánh dấu đã xử lý;
-|Hệ thống|
-:POST /admin/issues/resolve;
-|Quản trị viên|
-:Xem danh sách đã cập nhật;
-stop
+if (Đã đăng nhập quản trị?) then (có)
+  |Hệ thống|
+  :Tải danh sách vấn đề;
+  |Quản trị viên|
+  :Xem chi tiết, đánh dấu đã xử lý;
+  |Hệ thống|
+  :Đánh dấu đã xử lý;
+  |Quản trị viên|
+  :Xem danh sách đã cập nhật;
+  stop
+else (không)
+  :Chuyển về trang đăng nhập quản trị;
+  stop
+endif
 @enduml

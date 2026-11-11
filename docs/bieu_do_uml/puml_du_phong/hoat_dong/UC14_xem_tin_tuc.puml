@@ -3,15 +3,21 @@
 ' API: GET /api/v1/posts, GET /api/v1/posts/{slug}
 skinparam shadowing false
 start
-|Khách|
+|Khách hàng|
 :Mở trang tin tức;
 |Hệ thống|
-:GET /posts (chỉ bài đã công khai);
-|Khách|
-:Chọn một bài;
-|Hệ thống|
-:GET /posts/{slug};
-|Khách|
-:Đọc bài;
-stop
+if (Đã đăng nhập?) then (có)
+  |Hệ thống|
+  :Tải bài đã công khai;
+  |Khách hàng|
+  :Chọn một bài;
+  |Hệ thống|
+  :Tải nội dung bài;
+  |Khách hàng|
+  :Đọc bài;
+  stop
+else (không)
+  :Chuyển tới trang đăng nhập;
+  stop
+endif
 @enduml

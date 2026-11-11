@@ -3,13 +3,24 @@
 ' API: GET /api/v1/restaurants/{id}, POST /api/v1/interactions (view)
 skinparam shadowing false
 start
-|Khách|
+|Khách hàng|
 :Chọn một quán;
 |Hệ thống|
-:GET /restaurants/{id};
-:Hiển thị chi tiết quán và nguồn dữ liệu;
-:POST /interactions (ghi lượt xem);
-|Khách|
-:Xem thông tin quán;
-stop
+if (Đã đăng nhập?) then (có)
+  |Hệ thống|
+  :Tải chi tiết quán;
+  :Hiển thị chi tiết quán và nguồn dữ liệu;
+  if (Đã đăng nhập và có vị trí của bạn?) then (có)
+    :Hiển thị khoảng cách từ vị trí của bạn đến quán;
+  else (không)
+    :Ẩn khoảng cách, chỉ hiển thị tên và địa chỉ quán;
+  endif
+  :Ghi nhận lượt xem;
+  |Khách hàng|
+  :Xem thông tin quán;
+  stop
+else (không)
+  :Chuyển tới trang đăng nhập;
+  stop
+endif
 @enduml

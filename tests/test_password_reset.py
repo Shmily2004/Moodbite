@@ -234,6 +234,59 @@ def test_may_chu_thu_hong_thi_bao_loi_chu_khong_im_lang(tmp_path):
     assert res.status_code == 503
 
 
+def test_chua_cau_hinh_SMTP_thi_503_nhu_nhau_cho_ca_tai_khoan_co_that_lan_khong_co(tmp_path):
+    """Bug thật 2026-11-11: VPS chưa đặt `MOODBITE_SMTP_*`.
+
+    Bản cũ chỉ phát hiện thiếu cấu hình TẠI LÚC GỬI, mà lúc gửi chỉ xảy ra khi tìm thấy
+    tài khoản có email. Hệ quả kép:
+      1. Người nhập email/tên KHÔNG tồn tại nhận 200 "thư đã được gửi" — một lời nói dối,
+         vì máy chủ không thể gửi thư nào cả.
+      2. Tài khoản có thật nhận 503, tài khoản không có nhận 200 -> kẻ lạ phân biệt được
+         ai đã đăng ký, đúng thứ mà câu trả lời giống hệt nhau ở trên cố tránh.
+    Phải kiểm cấu hình TRƯỚC khi tra tài khoản, để mọi người nhận cùng một câu trả lời.
+    """
+    emails = FakeEmailSender(configured=False)
+    client, _ = build_client(tmp_path, emails=emails)
+    register(client, email=EMAIL)
+
+    co_that = quen(client, EMAIL)
+    khong_co = quen(client, "khongtontai@vidu.com")
+
+    assert co_that.status_code == khong_co.status_code == 503
+    assert co_that.json() == khong_co.json()
+    assert co_that.json()["error"]["code"] == "EXTERNAL_SERVICE_UNAVAILABLE"
+    # Câu lỗi phải nói được CÁCH KHẮC PHỤC (CLAUDE.md mục 4.3), không chỉ "lỗi".
+    assert "MOODBITE_SMTP" in co_that.json()["error"]["message"]
+    # Lọc riêng thư ĐẶT LẠI: lúc đăng ký hệ thống vẫn thử gửi thư xác minh (xem `thu_dat_lai`).
+    assert thu_dat_lai(emails) == []
+
+
+def test_log_noi_ro_vi_sao_khong_gui_thu(tmp_path, caplog):
+    """Người dùng chỉ thấy MỘT câu chung (cố ý, chống dò tài khoản), nên log là chỗ DUY NHẤT
+    chủ dự án biết "không thấy thư" là do không có tài khoản hay do tài khoản chưa khai email.
+    Bản cũ gộp hai trường hợp vào một dòng log, nên không phân biệt được."""
+    import logging
+    import sqlite3
+
+    emails = FakeEmailSender()
+    client, _ = build_client(tmp_path, emails=emails)
+    register(client, username="khongemail")
+    with sqlite3.connect(tmp_path / "users.db") as conn:
+        conn.execute("UPDATE users SET email = NULL WHERE username = 'khongemail'")
+        conn.commit()
+
+    with caplog.at_level(logging.INFO, logger="moodbite.account"):
+        quen(client, "khongemail")
+        chua_khai = caplog.text
+        caplog.clear()
+        quen(client, "khongtontai@vidu.com")
+        khong_co = caplog.text
+
+    assert "CHƯA KHAI EMAIL" in chua_khai
+    assert "KHÔNG CÓ tài khoản" in khong_co
+    assert "CHƯA KHAI EMAIL" not in khong_co
+
+
 def test_gioi_han_tan_suat_chat_hon_dang_nhap(tmp_path):
     """Mỗi lần gọi là một lá thư thật -> phải chặn, nếu không là kênh spam miễn phí."""
     emails = FakeEmailSender()

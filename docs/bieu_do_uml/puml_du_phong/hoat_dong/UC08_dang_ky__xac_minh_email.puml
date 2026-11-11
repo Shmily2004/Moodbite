@@ -3,23 +3,24 @@
 ' API: POST /api/v1/auth/register; POST /auth/verify-email/request; POST /auth/verify-email/confirm
 skinparam shadowing false
 start
-|Khách|
-:Nhập email và mật khẩu;
+|Khách hàng|
+:Nhập tên đăng nhập, email và mật khẩu;
 |Hệ thống|
-:POST /auth/register;
-if (Email đã tồn tại?) then (có)
-  :Báo lỗi, yêu cầu email khác;
+:Kiểm tra định dạng và tên đăng nhập;
+if (Tên đăng nhập đã có người dùng?) then (có)
+  :Báo lỗi, yêu cầu chọn tên khác;
+  stop
 else (không)
-  :Lưu tài khoản chưa xác minh, gửi mã xác minh;
+  :Lưu tài khoản, cấp phiên, gửi thư xác minh kèm đường dẫn;
 endif
-|Khách|
-:Nhập mã xác minh từ email;
+|Khách hàng|
+:Mở đường dẫn xác minh trong thư;
 |Hệ thống|
-:POST /auth/verify-email/confirm;
-if (Mã đúng và còn hạn?) then (có)
-  :Kích hoạt tài khoản;
+:Kiểm tra đường dẫn xác minh;
+if (Đường dẫn còn hạn và chưa dùng?) then (có)
+  :Đánh dấu email đã xác minh;
 else (không)
-  :Báo mã sai hoặc hết hạn, cho gửi lại;
+  :Báo đường dẫn không hợp lệ, cho gửi lại thư;
 endif
 stop
 @enduml

@@ -3,15 +3,21 @@
 ' API: GET /auth/me; /me/addresses (GET, POST, PATCH, DELETE); /me/stats
 skinparam shadowing false
 start
-|Khách|
+|Khách hàng|
 :Mở trang hồ sơ;
 |Hệ thống|
-:GET /auth/me, GET /me/addresses;
-|Khách|
-:Thêm, sửa hoặc xoá địa chỉ, chỉnh sở thích;
-|Hệ thống|
-:POST / PATCH / DELETE /me/addresses;
-|Khách|
-:Thấy hồ sơ đã cập nhật;
-stop
+if (Đã đăng nhập?) then (có)
+  |Hệ thống|
+  :Tải hồ sơ và danh sách địa chỉ;
+  |Khách hàng|
+  :Thêm, sửa hoặc xoá địa chỉ, chỉnh sở thích;
+  |Hệ thống|
+  :Lưu thay đổi địa chỉ;
+  |Khách hàng|
+  :Thấy hồ sơ đã cập nhật;
+  stop
+else (không)
+  :Chuyển tới trang đăng nhập;
+  stop
+endif
 @enduml

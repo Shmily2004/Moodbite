@@ -1,17 +1,19 @@
 @startuml UC07_hoat_dong
 ' UC07 — Lưu món / quán yêu thích
-' API: Khách: lưu trên máy. Đã đăng nhập: POST /api/v1/me/favorites
+' API: POST /api/v1/me/favorites (chỉ người đã đăng nhập; khách bị chuyển sang đăng nhập)
 skinparam shadowing false
 start
-|Khách|
+|Khách hàng|
 :Bấm biểu tượng yêu thích;
 |Hệ thống|
 if (Đã đăng nhập?) then (có)
-  :POST /me/favorites, lưu trên server;
+  |Hệ thống|
+  :Lưu yêu thích trên máy chủ;
+  |Khách hàng|
+  :Thấy nút đổi trạng thái;
+  stop
 else (không)
-  :Lưu vào bộ nhớ trình duyệt của khách;
+  :Chuyển tới trang đăng nhập;
+  stop
 endif
-|Khách|
-:Thấy nút đổi trạng thái;
-stop
 @enduml

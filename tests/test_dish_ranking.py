@@ -88,18 +88,69 @@ def test_hard_filter_removes_mismatching_dish():
     assert kept == [nuong]
 
 
-def test_hard_filter_keeps_dish_with_missing_data():
-    """CHƯA BIẾT khác hẳn BIẾT LÀ KHÔNG PHẢI.
+def test_cooking_method_filter_HIDES_dish_with_unknown_method():
+    """Chọn "đồ luộc" thì chỉ được thấy món ĐÃ BIẾT là luộc (chủ dự án chốt 2026-11-11).
 
-    Món chưa nhập `cooking_method` vẫn phải qua được bộ lọc, nếu không ta đang trừng phạt
-    món chỉ vì mình chưa nhập đủ dữ liệu - đúng nguyên tắc đã áp cho quán thiếu giờ mở cửa.
+    Luật cũ "chưa biết thì vẫn giữ" áp cho chiều này làm bộ lọc vô nghĩa: danh mục có
+    785/856 món chưa gắn nhãn, nên chọn "Luộc" ra 2 món đúng rồi 18 món bất kỳ (Cà phê sữa
+    đá, Bia hơi, Cơm gà…) chen vào ngay sau, nhìn như thể cũng là đồ luộc.
     """
     chua_biet = make_dish("Món chưa nhập cách chế biến")
     nuong = make_dish("Thịt nướng", cooking_method=METHOD_GRILLED)
 
     kept = filter_dishes([chua_biet, nuong], DishFilter(cooking_methods=[METHOD_GRILLED]))
 
-    assert chua_biet in kept
+    assert kept == [nuong]
+
+
+def test_unknown_method_is_kept_when_user_did_NOT_filter_by_method():
+    """Luật mới chỉ có hiệu lực KHI người dùng lọc theo cách chế biến."""
+    chua_biet = make_dish("Món chưa nhập cách chế biến")
+
+    assert filter_dishes([chua_biet], DishFilter()) == [chua_biet]
+    assert filter_dishes([chua_biet], DishFilter(temperatures=["hot"])) == [chua_biet]
+
+
+def test_other_filters_STILL_keep_dish_with_missing_data():
+    """PHẠM VI HẸP: chỉ `cooking_methods` ẩn món thiếu dữ liệu.
+
+    Các chiều khác (nóng/mát, ẩm thực, độ cay, bữa ăn) giữ nguyên luật "chưa biết khác hẳn
+    biết là không phải" — chủ dự án chỉ yêu cầu đổi chiều cách chế biến. Gộp cả vào là đổi
+    hành vi của bộ lọc mà chưa ai yêu cầu.
+    """
+    chua_biet = make_dish("Món chưa nhập gì")
+
+    for bo_loc in (
+        DishFilter(temperatures=["hot"]),
+        DishFilter(cuisines=["Việt Nam"]),
+        DishFilter(meal_times=["sang"]),
+        DishFilter(max_spice_level=1),
+    ):
+        assert filter_dishes([chua_biet], bo_loc) == [chua_biet], bo_loc
+
+
+def test_hidden_count_only_counts_dishes_hidden_SOLELY_by_unknown_method():
+    """Số "đã ẩn N món" phải nói về đúng lý do này, không đếm trùng với bộ lọc khác.
+
+    Món chưa nhãn mà CÒN trượt bộ lọc nóng/mát thì sẽ bị ẩn dù có biết cách chế biến hay
+    không — cảnh báo "ẩn vì chưa biết cách chế biến" sẽ nói sai nếu tính cả món đó.
+    """
+    chi_vi_thieu_nhan = make_dish("A", temperature="hot")
+    truot_ca_nhiet_do = make_dish("B", temperature="cold")
+    da_khop = make_dish("C", temperature="hot", cooking_method=METHOD_GRILLED)
+    bo_loc = DishFilter(cooking_methods=[METHOD_GRILLED], temperatures=["hot"])
+
+    an = dish_ranking.dishes_hidden_only_by_unknown_method(
+        [chi_vi_thieu_nhan, truot_ca_nhiet_do, da_khop], bo_loc
+    )
+
+    assert an == [chi_vi_thieu_nhan]
+
+
+def test_hidden_count_is_empty_when_no_method_filter():
+    assert dish_ranking.dishes_hidden_only_by_unknown_method(
+        [make_dish("A")], DishFilter(temperatures=["hot"])
+    ) == []
 
 
 def test_empty_filter_keeps_everything():

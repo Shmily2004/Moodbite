@@ -6,13 +6,19 @@ start
 |Quản trị viên|
 :Tìm quán (không cần gõ dấu);
 |Hệ thống|
-:GET /admin/restaurants?q=...;
-|Quản trị viên|
-:Chọn quán: sửa, ẩn, khôi phục hoặc thêm;
-|Hệ thống|
-:POST /hide / /restore, PATCH, POST;
-:Ghi trạng thái và nhật ký;
-|Quản trị viên|
-:Xem danh sách đã cập nhật;
-stop
+if (Đã đăng nhập quản trị?) then (có)
+  |Hệ thống|
+  :Tìm quán theo từ khoá;
+  |Quản trị viên|
+  :Chọn quán: sửa, ẩn, khôi phục hoặc thêm;
+  |Hệ thống|
+  :Ẩn, khôi phục hoặc sửa quán;
+  :Ghi trạng thái và nhật ký;
+  |Quản trị viên|
+  :Xem danh sách đã cập nhật;
+  stop
+else (không)
+  :Chuyển về trang đăng nhập quản trị;
+  stop
+endif
 @enduml

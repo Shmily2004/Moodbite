@@ -3,17 +3,23 @@
 ' API: POST /api/v1/auth/forgot-password; POST /auth/reset-password
 skinparam shadowing false
 start
-|Khách|
-:Nhập email quên mật khẩu;
+|Khách hàng|
+:Nhập email hoặc tên đăng nhập;
 |Hệ thống|
-:POST /auth/forgot-password (gửi mã);
-|Khách|
-:Nhập mã và mật khẩu mới;
-|Hệ thống|
-if (Mã đúng và còn hạn?) then (có)
-  :POST /auth/reset-password, cập nhật mật khẩu;
+:Kiểm tra cấu hình gửi thư và giới hạn số lần gọi;
+if (Gửi thư được và chưa vượt giới hạn?) then (có)
+  :Gửi thư kèm đường dẫn nếu có email, luôn trả cùng một câu;
 else (không)
-  :Báo mã sai hoặc hết hạn;
+  :Báo lỗi (chưa cấu hình thư hoặc gọi quá nhiều lần), không gửi thư;
+  stop
+endif
+|Khách hàng|
+:Mở đường dẫn trong thư và nhập mật khẩu mới;
+|Hệ thống|
+if (Đường dẫn còn hạn và chưa dùng?) then (có)
+  :Cập nhật mật khẩu mới, thu hồi các phiên đăng nhập cũ;
+else (không)
+  :Báo đường dẫn không hợp lệ hoặc hết hạn;
 endif
 stop
 @enduml

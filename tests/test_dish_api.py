@@ -67,6 +67,15 @@ MON_THIEU_DU_LIEU = Dish(
 )
 
 
+# Món CÓ quán bán nhưng CHƯA gắn `cooking_method` (92% danh mục thật ở trạng thái này).
+MON_CHUA_GAN_NHAN = Dish(
+    name="Món chưa gắn nhãn",
+    dish_id="mon-chua-nhan",
+    temperature="hot",
+    match_keywords=["quán món lạ"],
+)
+
+
 class NullSemanticSearch:
     is_ready = False
 
@@ -154,6 +163,29 @@ def test_grilled_filter_excludes_soup_dish(client):
 
     names = [item["name"] for item in data["results"]]
     assert names == ["Bún chả"]
+
+
+def test_method_filter_hides_unlabelled_dish_and_ANNOUNCES_it():
+    """Ẩn món chưa gắn nhãn là ĐÚNG (2026-11-11), nhưng im lặng ẩn thì KHÔNG.
+
+    Danh sách ngắn đi là do TA chưa gắn nhãn đủ chứ không phải khu này thiếu đồ nướng —
+    để người dùng tự suy ra vế sai là đúng lỗi `/suggest-dish` cũ (CLAUDE.md mục 5).
+    """
+    quan = make_restaurant("Quán Món Lạ", lat=21.0285, lng=105.8542)
+    client = make_client(
+        dishes=[BUN_CHA, MON_CHUA_GAN_NHAN],
+        index={"bun-cha": [quan], "mon-chua-nhan": [quan]},
+    )
+
+    loc = suggest(client, cooking_methods=["nuong"]).json()["data"]
+    khong_loc = suggest(client).json()["data"]
+
+    assert [i["name"] for i in loc["results"]] == ["Bún chả"]
+    canh_bao = [w for w in loc["warnings"] if "cách chế biến" in w]
+    assert len(canh_bao) == 1 and "1 món" in canh_bao[0]
+    # Không lọc theo cách chế biến thì món chưa nhãn vẫn hiện và KHÔNG có cảnh báo này.
+    assert {i["name"] for i in khong_loc["results"]} == {"Bún chả", "Món chưa gắn nhãn"}
+    assert not any("cách chế biến" in w for w in khong_loc["warnings"])
 
 
 def test_rain_puts_hot_soup_first(client):

@@ -3,16 +3,22 @@
 ' API: POST /api/v1/dishes/suggest
 skinparam shadowing false
 start
-|Khách|
-:Chọn bộ lọc: tâm trạng, bữa ăn, khoảng cách;
+|Khách hàng|
+:Chọn bộ lọc: tâm trạng, bữa ăn, cách chế biến, khoảng cách;
 |Hệ thống|
-:POST /dishes/suggest;
-if (Có món phù hợp?) then (có)
-  :Hiển thị lưới món kèm cảnh báo nếu có;
+if (Đã đăng nhập?) then (có)
+  |Hệ thống|
+  :Tính gợi ý món theo bộ lọc;
+  if (Có món phù hợp?) then (có)
+    :Hiển thị lưới món kèm cảnh báo món bị ẩn;
+  else (không)
+    :Thông báo không khớp, gợi ý bỏ bớt bộ lọc;
+  endif
+  |Khách hàng|
+  :Chọn một món hoặc bỏ bớt bộ lọc;
+  stop
 else (không)
-  :Thông báo không khớp, gợi ý bỏ bớt bộ lọc;
+  :Chuyển tới trang đăng nhập;
+  stop
 endif
-|Khách|
-:Chọn một món hoặc bỏ bớt bộ lọc;
-stop
 @enduml

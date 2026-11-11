@@ -3,11 +3,17 @@
 ' API: /api/v1/me/collections (GET, POST, PATCH, DELETE) và /items
 skinparam shadowing false
 start
-|Khách|
+|Khách hàng|
 :Tạo, đổi tên hoặc xoá bộ sưu tập;
 |Hệ thống|
-:POST / PATCH / DELETE /me/collections;
-|Khách|
-:Thêm hoặc bỏ món, quán trong bộ sưu tập;
-stop
+if (Đã đăng nhập?) then (có)
+  |Hệ thống|
+  :Lưu thay đổi bộ sưu tập;
+  |Khách hàng|
+  :Thêm hoặc bỏ món, quán trong bộ sưu tập;
+  stop
+else (không)
+  :Chuyển tới trang đăng nhập;
+  stop
+endif
 @enduml

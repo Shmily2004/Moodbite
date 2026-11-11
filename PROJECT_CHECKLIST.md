@@ -1546,6 +1546,60 @@ Còn lại, KHÔNG phải lỗi giao diện: 2 món ("Lẩu gà lá é", "Lẩu 
 thứ tự "Món phổ biến" buổi tối (Bia hơi đứng đầu, gắn "MoodBite đề xuất") do backend xếp.
 Chưa chụp: trang tài khoản, app admin (cần đăng nhập).
 
+### Đợt 2026-11-11 — lọc "Luộc" trả sai món + quên mật khẩu không thấy thư
+
+Hai lỗi chủ dự án báo. Đều tái hiện được bằng dữ liệu/ code thật trước khi sửa.
+
+| Việc | Kết quả |
+|---|---|
+| Lọc "Luộc" ra **Cơm gà, Mì Ý, Mì Ý sốt bò bằm** kèm lý do "đúng cách chế biến" | ✅ nguyên nhân là DỮ LIỆU: nhãn `luoc` gắn theo *mô tả* (bước "luộc mì", "nước luộc gà"), không theo cách món được ăn. Seed: Mì Ý ×2 → `tron`, Cơm gà → bỏ nhãn |
+| "Gà luộc" (món luộc đúng nghĩa) không bao giờ khớp bộ lọc | ✅ thêm nhãn `luoc`; kết quả mới: Ốc luộc (592 quán), Gà luộc (3 quán) |
+| Quên mật khẩu: SMTP chưa cấu hình mà tên không tồn tại vẫn nhận 200 "đã gửi thư" | ✅ `RequestPasswordResetUseCase` kiểm `is_configured` TRƯỚC khi tra tài khoản → mọi người cùng nhận 503 kèm tên biến cần đặt (đồng thời bịt kênh dò tài khoản 503/200) |
+| Không phân biệt được "gõ sai" với "tài khoản chưa khai email" | ✅ hai dòng log riêng (người dùng vẫn thấy một câu chung) |
+
+Kiểm chứng (`python scripts/verify.py`, 2026-11-11, chạy lại sau khi thêm luật ẩn món chưa nhãn): backend
+**1047 passed, 6 skipped, 1 failed**; frontend
+**538 passed, 1 failed** (đo lại sau khi gộp với upstream `743551a`); kiến trúc, 1 backend, build frontend, FSD, CI: đạt. 3 mục hỏng đều **có sẵn trên
+HEAD sạch** (đã chạy lại trên HEAD khi tạm cất thay đổi), KHÔNG do đợt này:
+`test_ma_tran_that_cua_du_an_dat` + mục 10 (`traceability.md` dòng 171 trỏ `data_raw/floorplans_yolo`, thư mục
+bị `.gitignore`) và `RestaurantCard.test.tsx` (ký tự `★` ở điểm rating khớp `Extended_Pictographic`).
+
+⚠️ Dữ liệu catalog là **sinh ra** (`dish_catalog.json` không nằm trong git): sau khi pull phải chạy
+`python scripts/build_dish_catalog.py` (VPS: `python scripts/deploy_vps.py data`).
+
+Bổ sung cùng ngày, theo quyết định của chủ dự án:
+
+| Việc | Kết quả |
+|---|---|
+| Lọc cách chế biến phải ẨN món chưa có nhãn (trước đây để lọt: dưới "Luộc" vẫn thấy Cơm gà, Cà phê sữa đá… ở đuôi) | ✅ đổi `dish_ranking._passes_hard_filter`; CHỈ chiều `cooking_methods` (nóng/mát, ẩm thực, độ cay, bữa ăn vẫn giữ luật "thiếu dữ liệu không bị loại", có test khoá ranh giới). Đo thật: "Luộc" → 2 món (Ốc luộc, Gà luộc); "Nướng" → 12 món, đều đúng nhãn |
+| Ẩn mà không nói | ✅ `data.warnings` ghi "Bộ lọc cách chế biến đã ẩn N món vì chưa có thông tin…" (N chỉ đếm món bị ẩn DUY NHẤT vì lý do này) |
+| Mô tả tham số `cooking_methods` ở OpenAPI còn ghi "món chưa khai vẫn được giữ" | ✅ sửa ở `schemas.py`, sinh lại `openapi.json` + `schema.d.ts` |
+
+⚠️ Hệ quả cần biết: 785/856 món chưa có nhãn nên mọi bộ lọc cách chế biến đều cho danh sách NGẮN
+(Luộc: 2 món). Muốn dài hơn phải gắn nhãn thêm vào `dish_seed_manual.json`, không phải nới bộ lọc.
+`openapi.json` sinh lại cũng kéo theo 2 thay đổi lệch có sẵn (giới hạn `maxLength`/`maximum` của
+API ghi tương tác) — backend đã đổi trước đó mà chưa ai chạy `export_openapi.py`.
+
+Rà soát tiếp cùng ngày (chủ dự án yêu cầu "check lại biểu đồ, kiểm tra các trường hợp tương tự, và luồng gửi thư"):
+
+| Việc | Kết quả |
+|---|---|
+| Biểu đồ UML lệch code | ✅ **UC10** vẽ "gửi mã / nhập mã" nhưng code gửi ĐƯỜNG DẪN (người dùng không nhập mã nào); **UC08** ghi đăng ký bằng email + "kích hoạt tài khoản", **UC09** ghi đăng nhập phải "đã xác minh" — thật ra dùng TÊN đăng nhập và `user.py` cố ý KHÔNG chặn đăng nhập khi chưa xác minh; **UC02** chưa có lọc cách chế biến/cảnh báo ẩn món; **UC11** chưa ghi thu hồi phiên. Đã sửa đặc tả `sinh_bieu_do.py`, sinh lại SVG (10 file) + 24 `.puml`. Đã đo: 0/24 biểu đồ hoạt động có khung tràn chữ (3 nhãn đầu của tôi bị tràn, đã rút gọn). **19 use case còn lại chưa đối chiếu lại với code** |
+| Nhãn món sai CÙNG GỐC với "Gà luộc" | ✅ quét toàn bộ seed. (1) 35 món có từ chỉ cách chế biến trong TÊN nhưng thiếu nhãn ("Bò nướng", "Cánh gà chiên"…) → đã gắn; (2) Trà chanh, Sữa chua trân châu mang nhãn `tron` (chọn "Trộn" ra Trà chanh số 1) → bỏ nhãn; (3) `cuisine` do script làm giàu khớp NHẦM Wikipedia: Cơm gà "Tây Ban Nha", Miến "Philippines", Xôi "Thái Lan" → "Việt Nam". Đo thật: Nướng 12→22 món, Chiên 9, Xào 6, Hấp 6, Trộn 6 (không còn đồ uống) |
+| Chống tái diễn | ✅ `tests/test_dish_seed_cooking_method.py` (9 test): tên có từ chỉ cách chế biến thì nhãn phải khớp, nhãn `luoc`/`tron` thì tên phải có từ tương ứng, 3 món Việt không được mang ẩm thực nước ngoài. Đỏ trên seed cũ (6 test), xanh trên seed mới. Lần sau `discover_dishes` thêm món kiểu "Gà luộc" mà quên nhãn thì test đỏ ngay |
+| Luồng thư quên mật khẩu đầu-cuối | ✅ chạy trên app THẬT + cấu hình SMTP thật, `smtplib` thay bằng bản ghi lại (không thư nào ra ngoài, DB tài khoản thật không bị đụng): đăng ký → quên mật khẩu → bóc link → đặt mật khẩu mới → mật khẩu cũ 401, mới 200, link dùng lại 401. **CHƯA** thử gửi thư thật tới hộp thư |
+| `UI_REQUIREMENTS.md` dòng 37 nói "không có Quên mật khẩu, đừng vẽ nút đó" | ✅ sửa: email bắt buộc từ 2026-08-24, CÓ Quên mật khẩu (gửi ĐƯỜNG DẪN, KHÔNG gửi mật khẩu tạm) |
+
+Đáng ngờ, CHƯA đổi (cần chủ dự án quyết): `Bít tết` ẩm thực "Ý" (+ "Pháp"); `Kimbap` nhãn `song`;
+`Gà luộc` ẩm thực "Trung Quốc" (nguồn Wikipedia) nên biến mất khi chọn "Việt Nam" + "Luộc"; seed có 2 `dish_id`
+trùng (`mi-xao-gion`, `pizza-pho-mai`, bản sau bị `build_dish_catalog` bỏ). Khoảng trống chiều quán→món
+cho "luộc" không đáng kể: chỉ 22/52.872 quán có "luộc" trong tên (ốc luộc 9, gà luộc 4, còn lại ≤2).
+
+Chưa làm / cần quyết định:
+- Tài khoản cũ KHÔNG có email (tài khoản local duy nhất hiện nay) không có cách khai email sau, nên
+  không bao giờ nhận được thư quên mật khẩu.
+- VPS vẫn chưa có `MOODBITE_SMTP_*` trong `.env.local` (xem `docs/trien_khai_vps.md` mục 6).
+
 ## 🚧 VIỆC TIẾP THEO
 
 > **Quy ước:** mục dưới đây CHỈ chứa việc **chưa làm hoặc chưa xong**.

@@ -23,7 +23,9 @@ mọi đường dẫn, ký hiệu, tên test trong file này phải tồn tại,
 | D1.1 | Bộ lọc trang chủ → danh sách MÓN | `src/presentation/api/routers/dishes.py` · `src/application/use_cases/suggest_dishes.py` | `test_suggest_returns_dishes_not_restaurants` |
 | D1.2 | Quy tắc lọc & xếp hạng món | `src/domain/services/dish_ranking.py` | `tests/test_dish_ranking.py` |
 | D1.3 | Tổng trọng số xếp hạng = 1.0 | `dish_ranking.W_*` | `test_weights_sum_to_one` |
-| D1.4 | Món thiếu dữ liệu KHÔNG bị loại | `dish_ranking._passes_hard_filter` | `test_hard_filter_keeps_dish_with_missing_data` |
+| D1.4 | Món thiếu dữ liệu KHÔNG bị loại (nóng/mát, ẩm thực, độ cay, bữa ăn) — TRỪ cách chế biến, xem dòng dưới | `dish_ranking._passes_hard_filter` | `test_other_filters_STILL_keep_dish_with_missing_data` · `test_unknown_method_is_kept_when_user_did_NOT_filter_by_method` |
+| D1.4b | Lọc cách chế biến ẨN món chưa gắn nhãn **và nói rõ đã ẩn N món** (chủ dự án chốt 2026-11-11) | `dish_ranking._passes_hard_filter` · `dish_ranking.dishes_hidden_only_by_unknown_method` · `suggest_dishes.py` | `test_cooking_method_filter_HIDES_dish_with_unknown_method` · `test_hidden_count_only_counts_dishes_hidden_SOLELY_by_unknown_method` · `test_method_filter_hides_unlabelled_dish_and_ANNOUNCES_it` · `test_loc_luoc_chi_con_lai_mon_da_biet_la_luoc` |
+| D1.6 | Nhãn cách chế biến / ẩm thực trong seed món khớp với tên món (không gắn theo mô tả, không khớp nhầm Wikipedia) | `data_pipeline/dish_seed_manual.json` | `test_ten_mon_noi_ro_cach_che_bien_thi_nhan_phai_khop` · `test_mon_mang_nhan_phai_co_tu_tuong_ung_trong_TEN` · `test_mon_viet_khong_bi_gan_am_thuc_nuoc_ngoai` · `test_loc_tron_khong_con_do_uong` |
 | D1.5 | Lọc rỗng thì TRẢ RỖNG + cảnh báo (không trả lại cả danh sách khi bữa sáng không khớp) | `dish_ranking.filter_dishes` · `suggest_dishes.py` | `test_filter_that_matches_nothing_returns_empty_NOT_the_whole_list` · `test_bua_sang_KHONG_lot_lau_toi_khi_khong_mon_sang_nao_khop` |
 | D1.5 | Ẩn món 0 quán **và nói rõ đã ẩn** | `suggest_dishes._drop_dead_ends` | `test_dish_without_nearby_restaurant_is_hidden_and_announced` |
 | D1.6 | Lọc "chỉ quán có ghi giá" phải nói ra món bị ẩn | `src/application/use_cases/suggest_dishes.py` | `test_suggest_an_mon_khong_quan_nao_ghi_gia_va_noi_ra` |
@@ -68,6 +70,7 @@ mọi đường dẫn, ký hiệu, tên test trong file này phải tồn tại,
 | A1.2 | Không tự đăng ký thành admin | `src/domain/entities/user.py` | `test_khong_the_tu_dang_ky_thanh_admin_qua_tham_so` |
 | A1.3 | Băm mật khẩu, ký token | `src/infrastructure/auth/crypto.py` · `src/infrastructure/auth/user_auth.py` | `tests/test_audit_tai_khoan.py` |
 | A1.4 | Quên / đặt lại mật khẩu qua thư | `src/infrastructure/auth/password_reset.py` · `src/infrastructure/notifications/smtp_email_sender.py` | `test_quen_mat_khau_gui_thu_va_doi_duoc_mat_khau` |
+| A1.4b | Quên mật khẩu: kiểm cấu hình thư TRƯỚC khi tra tài khoản (mọi người cùng nhận 503, không dò được tài khoản) · log phân biệt vì sao không gửi | `src/application/use_cases/manage_account.py` (`RequestPasswordResetUseCase`) | `test_chua_cau_hinh_SMTP_thi_503_nhu_nhau_cho_ca_tai_khoan_co_that_lan_khong_co` · `test_log_noi_ro_vi_sao_khong_gui_thu` |
 | A1.5 | Xác minh email | `src/infrastructure/auth/email_verification.py` | `test_xac_minh_thanh_cong_thi_email_verified_thanh_true` |
 | A2.1 | Quán & món yêu thích (đồng bộ từ máy khách) | `src/presentation/api/routers/me.py` · `src/application/use_cases/manage_favorites.py` · `src/domain/entities/saved_item.py` | `test_luu_va_doc_lai_duoc` · `test_chua_dang_nhap_thi_401_chu_khong_phai_danh_sach_rong` |
 | A2.2 | Hai danh sách lưu (yêu thích / muốn thử) | `src/infrastructure/repositories/sqlite_saved_item_repository.py` | `test_bo_trong_list_type_thi_mac_dinh_la_trai_tim` |

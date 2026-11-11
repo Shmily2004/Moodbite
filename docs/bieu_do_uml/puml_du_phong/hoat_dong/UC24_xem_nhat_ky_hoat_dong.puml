@@ -6,8 +6,14 @@ start
 |Quản trị viên|
 :Mở nhật ký;
 |Hệ thống|
-:GET /admin/activity;
-|Quản trị viên|
-:Lọc và xem các thao tác;
-stop
+if (Đã đăng nhập quản trị?) then (có)
+  |Hệ thống|
+  :Tải nhật ký hoạt động;
+  |Quản trị viên|
+  :Lọc và xem các thao tác;
+  stop
+else (không)
+  :Chuyển về trang đăng nhập quản trị;
+  stop
+endif
 @enduml

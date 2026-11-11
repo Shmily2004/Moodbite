@@ -34,6 +34,7 @@
 
 - Đã vẽ đủ 49 file SVG (24 hoạt động, 24 trình tự, 1 use case). Đã chụp màn hình bằng Microsoft Edge và kiểm bằng mắt các mẫu: UC01 (alt), UC02 (rẽ nhánh), UC03 (fork/join), UC06 và UC19 (trình tự có kích hoạt).
 - **Chưa kiểm** tất cả 49 file từng cái một, và chưa đối chiếu từng ký hiệu với hình mẫu theo kiểu so pixel. Nếu thấy chỗ nào lệch chuẩn, gửi tên file để sửa.
+- **Đối chiếu lại với code ngày 2026-11-11: UC02, UC08, UC09, UC10, UC11** (cụm gợi ý món và tài khoản/thư). Đã sửa: UC10 từng vẽ "gửi mã / nhập mã" trong khi code gửi ĐƯỜNG DẪN trong thư; UC08/UC09 từng ghi đăng ký bằng email và đăng nhập phải "đã xác minh" (thật ra dùng tên đăng nhập, và không chặn đăng nhập khi chưa xác minh); UC02 thêm bộ lọc cách chế biến và cảnh báo món bị ẩn. **19 use case còn lại CHƯA đối chiếu lại**; đã đo bằng số liệu rằng không khung hành động nào bị tràn chữ (24/24 biểu đồ hoạt động).
 - Nội dung đối chiếu với `frontend/openapi.json` và các route trong `src/presentation/api/routers/`. Một số bước (cơ chế phiên đăng nhập, gửi email xác minh) được ghi ở mức tổng quát, chưa kiểm chứng chi tiết.
 - Bản PlantUML trong `puml_du_phong/` chưa được render. Nếu sau này có PlantUML, có thể dùng để so sánh.
 

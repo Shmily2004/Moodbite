@@ -119,6 +119,18 @@ describe('App - smoke test', () => {
     expect(screen.getByRole('button', { name: /^Lọc/ })).toBeInTheDocument();
   });
 
+  // Quyết định 2026-11-11 (chủ dự án): quên mật khẩu GIỮ luồng gửi đường dẫn qua email,
+  // không đổi sang mật khẩu tạm. Link trong thư là `/reset-password?token=…` và
+  // `/verify-email?token=…` — hai trang này PHẢI mở được khi chưa đăng nhập, nếu không
+  // người dùng bấm link trong thư sẽ bị đá sang đăng nhập.
+  it('khach chua dang nhap van mo duoc link dat lai mat khau va xac minh email trong thu', async () => {
+    sessionStorage.clear();
+    renderAt('/reset-password?token=abc123');
+    expect(
+      await screen.findByRole('heading', { name: /Đặt mật khẩu mới/i }),
+    ).toBeInTheDocument();
+  });
+
   it('duong dan CU chuyen huong sang duong dan MOI, giu nguyen token', async () => {
     // Link `/dat-lai-mat-khau?token=…` đã nằm trong hộp thư người dùng từ trước khi đổi
     // đường dẫn. Mất chuyển hướng này là những lá thư đó chết.

@@ -19,7 +19,7 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Frontend Client | ✅ **TypeScript + FSD** | có bản đồ, steiger trong CI. Số test: xem dòng **Test** bên dưới (con số "86 test" cũ là của 2026-08) |
 | Bản đồ | ✅ **Xong** | Leaflet + OpenStreetMap, miễn phí, không cần key |
 | Kiến trúc | ✅ Sạch | Clean Architecture + checker tự động trong CI |
-| Test | ✅ **985 backend + 539 frontend** | Đo bằng `python scripts/verify.py` ngày 2026-11-08 (10/10 mục xanh) |
+| Test | ✅ **1048 backend + 540 frontend** | Đo bằng `python scripts/verify.py` ngày 2026-11-08 (10/10 mục xanh) |
 | Rà soát QA 2026-11-07 | 🟡 **4/9 đã xong, 1 xong một phần (Q5)** | Còn mở: lượt hiển thị (Q1, cần chủ dự án duyệt), proxy/giới hạn tần suất (Q2), tải đồng thời (Q7), Lớp 3 vs baseline (Q9). Chi tiết ở `docs/bao_cao_qa_2026-11-07.md` |
 | Giao diện | ✅ Theo bản duyệt · **trang chủ + tài khoản dựng lại 2026-08-22** | trang chủ = LƯỚI MÓN + chips lọc; trang món = giới thiệu + bản đồ + danh sách quán; `/tim-kiem` giữ bố cục bản đồ + rail cũ |
 | Router + layout | ✅ Xong | react-router v6, khung dùng chung, `RequireAuth` cho admin |

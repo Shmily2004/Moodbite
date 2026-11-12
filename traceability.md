@@ -126,6 +126,9 @@ mọi đường dẫn, ký hiệu, tên test trong file này phải tồn tại,
 | B3.2 | Sửa / xoá bài không tồn tại trả 404 | `src/application/use_cases/manage_posts.py` | `test_sua_bai_khong_ton_tai_bao_404` · `test_xoa_roi_khong_con_thay` |
 | B4.1 | Kho SQLite bài viết (chống trùng đường dẫn trong giao dịch) | `src/infrastructure/repositories/sqlite_post_repository.py` | `test_kho_thiet_lap_dung_trang_thai_cua_bai` |
 | B4.2 | Router công khai `/posts` | `src/presentation/api/routers/posts.py` | `test_cong_bo_roi_cong_khai_qua_http` |
+| B5.1 | UC14 "Xem tin tức": route tin tức nằm trong nhóm `RequireLogin` (khai báo ở routes.ts của client) | `frontend/apps/client/src/app/routes.tsx` · `frontend/apps/client/src/entities/post/` · `frontend/apps/client/src/pages/news/ui/NewsPage.tsx` · `frontend/apps/client/src/pages/news-article/ui/NewsArticlePage.tsx` | `frontend/apps/client/src/pages/news/ui/NewsPage.test.tsx` · `frontend/apps/client/src/pages/news-article/ui/NewsArticlePage.test.tsx` (5 test) |
+| B5.2 | UC23 "Quản lý bài viết": màn bài viết của admin (soạn, sửa, xoá, lọc nháp/công khai) | `frontend/packages/admin/src/pages/posts/ui/PostsPage.tsx` · `frontend/packages/admin/src/features/manage-posts/` | **CHƯA có test riêng** — chỉ kiểm bằng typecheck |
+| B5.3 | UC23 ghi nhật ký `create_post` / `update_post` / `delete_post` | `src/presentation/api/routers/admin_posts.py` · `src/domain/entities/audit_log.py` | `test_tao_sua_xoa_bai_deu_ghi_nhat_ky_dung_nguoi_lam` · `test_sua_bai_khong_ton_tai_khong_ghi_nhat_ky_sai` (`tests/test_bai_viet.py`) |
 
 ## Dữ liệu
 

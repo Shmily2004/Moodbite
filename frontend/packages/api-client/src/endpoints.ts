@@ -7,6 +7,7 @@
  */
 import type { components } from './schema';
 import type { HttpClient, RequestOptions } from './http';
+import type { PostDetailData, PostListData } from './posts';
 
 /** Kiểu lấy TRỰC TIẾP từ OpenAPI - không gõ tay, không lệch được với backend. */
 export type SearchRequest = components['schemas']['SearchRequest'];
@@ -156,5 +157,15 @@ export class MoodbiteApi {
 
   moods(options?: RequestOptions): Promise<MoodsData> {
     return this.http.request<MoodsData>('/moods', options);
+  }
+
+  /** Danh sách bài ĐÃ CÔNG KHAI (nháp không bao giờ có ở đây). */
+  listPosts(options?: RequestOptions): Promise<PostListData> {
+    return this.http.request<PostListData>('/posts', options);
+  }
+
+  /** Một bài đã công khai theo đường dẫn. Nháp trả 404 như bài không tồn tại. */
+  getPost(slug: string, options?: RequestOptions): Promise<PostDetailData> {
+    return this.http.request<PostDetailData>(`/posts/${encodeURIComponent(slug)}`, options);
   }
 }

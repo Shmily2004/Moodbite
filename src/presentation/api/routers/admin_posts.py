@@ -17,6 +17,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, Query
 
 from src.application.use_cases.manage_posts import PostInput
+from src.domain.entities.audit_log import AuditAction
 from src.domain.entities.post import PostOrigin, PostStatus
 from src.presentation.api.dependencies import Container, get_container, require_admin
 from src.presentation.api.envelope import success
@@ -43,6 +44,8 @@ def _to_input(body: PostWriteRequest) -> PostInput:
         source_url=body.source_url,
         last_updated=body.last_updated,
         origin=PostOrigin.ADMIN,
+        image_url=body.image_url,
+        image_credit=body.image_credit,
     )
 
 
@@ -59,8 +62,20 @@ def list_posts(
 
 @router.post("", response_model=PostDetailData, status_code=201,
              responses=POST_ERROR_RESPONSES, summary="Tạo bài viết mới")
-def create_post(body: PostWriteRequest, container: Container = Depends(get_container)):
+def create_post(
+    body: PostWriteRequest,
+    container: Container = Depends(get_container),
+    _admin: str = Depends(require_admin),
+):
     bai = container.create_post.execute(_to_input(body))
+    # Ghi nhật ký SAU khi thao tác chính xong. Ghi lỗi cũng không làm hỏng việc tạo bài.
+    container.ghi_nhat_ky.ghi(
+        actor=_admin,
+        action=AuditAction.CREATE_POST.value,
+        target_type="post",
+        target_id=bai.post_id,
+        summary=f"Tạo bài '{bai.title}' ({bai.status.value})",
+    )
     return success({"post": bai.to_public()}, status_code=201)
 
 
@@ -76,15 +91,40 @@ def update_post(
     post_id: str,
     body: PostWriteRequest,
     container: Container = Depends(get_container),
+    _admin: str = Depends(require_admin),
 ):
+    truoc = container.get_post.execute(post_id)  # 404 nếu không có, trước khi sửa
     bai = container.update_post.execute(post_id, _to_input(body))
+    # Nhật ký ghi tiêu đề và trạng thái, KHÔNG chép cả nội dung bài (xem `audit_log.py`).
+    tom_tat = f"Sửa bài '{bai.title}'"
+    if truoc.status is not bai.status:
+        tom_tat += f" ({truoc.status.value} -> {bai.status.value})"
+    container.ghi_nhat_ky.ghi(
+        actor=_admin,
+        action=AuditAction.UPDATE_POST.value,
+        target_type="post",
+        target_id=bai.post_id,
+        summary=tom_tat,
+    )
     return success({"post": bai.to_public()})
 
 
 @router.delete("/{post_id}", response_model=MessageResponse, responses=POST_ERROR_RESPONSES,
                summary="Xoá bài viết")
-def delete_post(post_id: str, container: Container = Depends(get_container)):
+def delete_post(
+    post_id: str,
+    container: Container = Depends(get_container),
+    _admin: str = Depends(require_admin),
+):
+    truoc = container.get_post.execute(post_id)  # lấy tiêu đề TRƯỚC khi xoá
     container.delete_post.execute(post_id)
+    container.ghi_nhat_ky.ghi(
+        actor=_admin,
+        action=AuditAction.DELETE_POST.value,
+        target_type="post",
+        target_id=post_id,
+        summary=f"Xoá bài '{truoc.title}'",
+    )
     return success({"message": "Đã xoá bài viết."})
 
 

@@ -24,6 +24,8 @@ export const ROUTES = {
   quality: '/quan-tri/chat-luong',
   issues: '/quan-tri/can-xu-ly',
   recommendation: '/quan-tri/goi-y',
+  /** Quản lý bài viết (UC23 trong `docs/bieu_do_uml`). */
+  posts: '/quan-tri/bai-viet',
   activity: '/quan-tri/nhat-ky',
   system: '/quan-tri/cai-dat',
 } as const;

@@ -13,6 +13,7 @@
  * đúng MỘT nơi định nghĩa.
  */
 import type { HttpClient, RequestOptions } from './http';
+import type { PostDetailData, PostListData, PostStatus, PostWriteRequest } from './posts';
 import type {
   AdminLoginRequest,
   AdminLoginData,
@@ -416,5 +417,42 @@ export class MoodbiteAdminApi {
       ...options,
       method: 'DELETE',
     });
+  }
+
+  /** Mọi bài viết, kể cả nháp. `status` để lọc; bỏ trống = tất cả. */
+  listPosts(status?: PostStatus, options?: RequestOptions): Promise<PostListData> {
+    const q = status ? `?status=${status}` : '';
+    return this.http.request<PostListData>(`/admin/posts${q}`, options);
+  }
+
+  getPost(postId: string, options?: RequestOptions): Promise<PostDetailData> {
+    return this.http.request<PostDetailData>(
+      `/admin/posts/${encodeURIComponent(postId)}`,
+      options,
+    );
+  }
+
+  /** Tạo bài. Mặc định là nháp nếu không chọn `published`. */
+  createPost(body: PostWriteRequest, options?: RequestOptions): Promise<PostDetailData> {
+    return this.http.request<PostDetailData>('/admin/posts', { ...options, method: 'POST', body });
+  }
+
+  /** Sửa bài — gửi ĐỦ mọi trường (xem `PostWriteRequest`). */
+  updatePost(
+    postId: string,
+    body: PostWriteRequest,
+    options?: RequestOptions,
+  ): Promise<PostDetailData> {
+    return this.http.request<PostDetailData>(
+      `/admin/posts/${encodeURIComponent(postId)}`,
+      { ...options, method: 'PUT', body },
+    );
+  }
+
+  deletePost(postId: string, options?: RequestOptions): Promise<{ message: string }> {
+    return this.http.request<{ message: string }>(
+      `/admin/posts/${encodeURIComponent(postId)}`,
+      { ...options, method: 'DELETE' },
+    );
   }
 }

@@ -36,6 +36,7 @@ interface MucDieuHuong {
 const MUC_DIEU_HUONG: MucDieuHuong[] = [
   { to: ROUTES.home, nhan: 'nav.suggest' },
   { to: ROUTES.search, nhan: 'nav.search' },
+  { to: ROUTES.news, nhan: 'nav.news' },
 ];
 
 export function SiteHeader() {

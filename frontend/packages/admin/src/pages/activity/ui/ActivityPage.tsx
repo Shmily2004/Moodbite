@@ -21,6 +21,9 @@ const LOC: { khoa: string | null; nhan: string }[] = [
   { khoa: 'hide_restaurant', nhan: 'Ẩn quán' },
   { khoa: 'restore_restaurant', nhan: 'Khôi phục' },
   { khoa: 'update_dish', nhan: 'Sửa món' },
+  { khoa: 'create_post', nhan: 'Tạo bài viết' },
+  { khoa: 'update_post', nhan: 'Sửa bài viết' },
+  { khoa: 'delete_post', nhan: 'Xoá bài viết' },
 ];
 
 export function ActivityPage() {

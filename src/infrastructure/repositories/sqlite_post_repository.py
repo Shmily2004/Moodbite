@@ -38,7 +38,10 @@ CREATE TABLE IF NOT EXISTS posts (
     last_updated TEXT,
     created_at  TEXT NOT NULL,
     updated_at  TEXT NOT NULL,
-    published_at TEXT
+    published_at TEXT,
+    -- Ảnh minh hoạ (tuỳ chọn). Hai cột này được THÊM SAU; bảng cũ được nâng ở `_nang_cap_bang`.
+    image_url    TEXT,
+    image_credit TEXT
 );
 -- Trang công khai chỉ lọc theo trạng thái rồi sắp theo thời gian đăng.
 CREATE INDEX IF NOT EXISTS idx_posts_status ON posts(status, published_at DESC);
@@ -46,7 +49,7 @@ CREATE INDEX IF NOT EXISTS idx_posts_status ON posts(status, published_at DESC);
 
 _COT = (
     "post_id, slug, title, summary, body, status, origin, source_name, source_url, "
-    "last_updated, created_at, updated_at, published_at"
+    "last_updated, created_at, updated_at, published_at, image_url, image_credit"
 )
 
 
@@ -61,6 +64,7 @@ class SqlitePostRepository:
             conn = sqlite3.connect(self.db_path)
             try:
                 conn.executescript(SCHEMA)
+                _nang_cap_bang(conn)
             finally:
                 conn.close()
         except (sqlite3.Error, OSError) as exc:
@@ -130,7 +134,7 @@ class SqlitePostRepository:
         try:
             with self._mo() as conn:
                 conn.execute(
-                    f"INSERT INTO posts ({_COT}) VALUES ({','.join('?' * 13)})",
+                    f"INSERT INTO posts ({_COT}) VALUES ({','.join('?' * 15)})",
                     _to_row(record),
                 )
         except sqlite3.IntegrityError as exc:
@@ -144,7 +148,7 @@ class SqlitePostRepository:
                 cur = conn.execute(
                     "UPDATE posts SET slug=?, title=?, summary=?, body=?, status=?, origin=?, "
                     "source_name=?, source_url=?, last_updated=?, created_at=?, updated_at=?, "
-                    "published_at=? WHERE post_id=?",
+                    "published_at=?, image_url=?, image_credit=? WHERE post_id=?",
                     (*_to_row(post)[1:], post.post_id),
                 )
                 return cur.rowcount > 0
@@ -192,7 +196,22 @@ def _to_row(post: Post) -> tuple:
         post.created_at.isoformat() if post.created_at else None,
         post.updated_at.isoformat() if post.updated_at else None,
         post.published_at.isoformat() if post.published_at else None,
+        post.image_url,
+        post.image_credit,
     )
+
+
+def _nang_cap_bang(conn: sqlite3.Connection) -> None:
+    """Thêm cột ảnh vào kho CŨ (đã tạo trước khi có ảnh minh hoạ).
+
+    `CREATE TABLE IF NOT EXISTS` KHÔNG thêm cột vào bảng đã có, nên phải kiểm và `ALTER`
+    tay. Không làm vậy thì kho cũ sẽ lỗi `no such column` ngay lần đọc đầu tiên.
+    """
+    cot_hien_co = {r[1] for r in conn.execute("PRAGMA table_info(posts)")}
+    for cot in ("image_url", "image_credit"):
+        if cot not in cot_hien_co:
+            conn.execute(f"ALTER TABLE posts ADD COLUMN {cot} TEXT")
+    conn.commit()
 
 
 def _to_post(row: sqlite3.Row) -> Post:
@@ -210,6 +229,8 @@ def _to_post(row: sqlite3.Row) -> Post:
         created_at=_parse_dt(row["created_at"]),
         updated_at=_parse_dt(row["updated_at"]),
         published_at=_parse_dt(row["published_at"]),
+        image_url=row["image_url"],
+        image_credit=row["image_credit"],
     )
 
 

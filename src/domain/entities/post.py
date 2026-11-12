@@ -72,6 +72,10 @@ class Post:
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
     published_at: Optional[datetime] = None
+    # Ảnh minh hoạ (tuỳ chọn). Đường dẫn `/anh/...` = ảnh tự có trong dự án; `https://...` =
+    # ảnh từ mạng, BẮT BUỘC kèm `image_credit` (nguồn + giấy phép) — CLAUDE.md mục 4b.
+    image_url: Optional[str] = None
+    image_credit: Optional[str] = None
 
     def to_public(self) -> dict:
         """Dạng trả cho client. Nguồn đi kèm MỌI bài, kể cả bài admin tự viết (có thể
@@ -89,7 +93,41 @@ class Post:
             "last_updated": self.last_updated.isoformat() if self.last_updated else None,
             "published_at": self.published_at.isoformat() if self.published_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+            "image_url": self.image_url,
+            "image_credit": self.image_credit,
         }
+
+
+# Đường dẫn ảnh dài quá thường là dán nhầm cả đoạn văn; 500 ký tự là đủ cho mọi URL thật.
+MAX_IMAGE_URL_LENGTH = 500
+
+
+def validate_image(
+    image_url: Optional[str], image_credit: Optional[str]
+) -> tuple[Optional[str], Optional[str]]:
+    """Kiểm ảnh minh hoạ. Trả về (url, credit) đã làm sạch; không có ảnh thì cả hai là None.
+
+    Ảnh tự có (`/anh/...`) không cần ghi nguồn vì do chính dự án làm ra. Ảnh từ mạng
+    (`https://...`) thì BẮT BUỘC ghi nguồn: không ghi thì không ai kiểm được giấy phép, và
+    đó là chỗ dễ bị hỏi nhất khi bảo vệ đồ án.
+    """
+    url = (image_url or "").strip() or None
+    credit = " ".join((image_credit or "").split()) or None
+    if url is None:
+        return None, None
+    if len(url) > MAX_IMAGE_URL_LENGTH:
+        raise InvalidPost(f"Đường dẫn ảnh tối đa {MAX_IMAGE_URL_LENGTH} ký tự.")
+    if url.startswith("/anh/") and ".." not in url and not url.startswith("//"):
+        return url, None
+    if url.startswith("https://"):
+        if credit is None:
+            raise InvalidPost(
+                "Ảnh từ mạng phải ghi rõ nguồn và giấy phép (image_credit)."
+            )
+        return url, credit
+    raise InvalidPost(
+        "Đường dẫn ảnh phải là `/anh/...` (ảnh trong dự án) hoặc `https://...` (ảnh từ mạng)."
+    )
 
 
 def validate_post_fields(

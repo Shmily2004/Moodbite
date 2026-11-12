@@ -17,6 +17,7 @@ from src.domain.entities.post import (
     PostOrigin,
     PostStatus,
     make_slug,
+    validate_image,
     validate_post_fields,
 )
 
@@ -56,6 +57,8 @@ class PostInput:
     source_url: Optional[str] = None
     last_updated: Optional[date] = None
     origin: PostOrigin = PostOrigin.ADMIN
+    image_url: Optional[str] = None
+    image_credit: Optional[str] = None
 
 
 def _new_id() -> str:
@@ -118,6 +121,7 @@ class CreatePostUseCase(_PostUseCase):
             source_name=data.source_name,
             source_url=data.source_url,
         )
+        anh, credit_anh = validate_image(data.image_url, data.image_credit)
         bay_gio = _now()
         return self._repo.create(
             Post(
@@ -134,6 +138,8 @@ class CreatePostUseCase(_PostUseCase):
                 created_at=bay_gio,
                 updated_at=bay_gio,
                 published_at=bay_gio if data.status is PostStatus.PUBLISHED else None,
+                image_url=anh,
+                image_credit=credit_anh,
             )
         )
 
@@ -167,6 +173,7 @@ class UpdatePostUseCase(_PostUseCase):
         published_at = hien_co.published_at
         if data.status is PostStatus.PUBLISHED and published_at is None:
             published_at = _now()
+        anh, credit_anh = validate_image(data.image_url, data.image_credit)
         ban_moi = Post(
             post_id=hien_co.post_id,
             slug=hien_co.slug,
@@ -181,6 +188,8 @@ class UpdatePostUseCase(_PostUseCase):
             created_at=hien_co.created_at,
             updated_at=_now(),
             published_at=published_at,
+            image_url=anh,
+            image_credit=credit_anh,
         )
         self._repo.update(ban_moi)
         return ban_moi

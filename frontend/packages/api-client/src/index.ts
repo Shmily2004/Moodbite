@@ -65,6 +65,16 @@ export type {
   UserAddressData,
 } from './my-places';
 
+// Bài viết (UC14 đọc tin, UC23 quản lý bài) — xem `posts.ts`.
+export type {
+  PostDetailData,
+  PostListData,
+  PostOrigin,
+  PostPublic,
+  PostStatus,
+  PostWriteRequest,
+} from './posts';
+
 export { MoodbiteAdminApi } from './admin';
 export type {
   AdminCreateRestaurantRequest,

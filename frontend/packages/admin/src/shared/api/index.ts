@@ -18,6 +18,13 @@ export const adminApi = createAdminApi(API_BASE, readToken, ({ token }) =>
 
 export { ApiError } from '@moodbite/api-client';
 export type {
+  PostPublic,
+  PostStatus,
+  PostWriteRequest,
+  PostListData,
+  PostDetailData,
+} from '@moodbite/api-client';
+export type {
   AdminRestaurantSummary,
   AdminOverviewData,
   DoPhuTruong,

@@ -54,6 +54,11 @@ class AuditAction(str, Enum):
     CLEAR_CLOSURE_REPORTS = "clear_closure_reports"
     # Sửa (hoặc gỡ sửa) mô tả MÓN. Bản sửa nằm ở `dish_overrides`, không đụng `dish_catalog.json`.
     UPDATE_DISH = "update_dish"
+    # Bài viết (UC23, thêm 2026-11-12). Ghi để biết ai đã đăng/gỡ bài nào — bài là nội dung
+    # hiển thị cho khách, đổi mà không ai biết thì không truy được.
+    CREATE_POST = "create_post"
+    UPDATE_POST = "update_post"
+    DELETE_POST = "delete_post"
 
 
 # Nhãn tiếng Việt để giao diện khỏi tự dịch. Để ở domain vì đây là NGÔN NGỮ NGHIỆP VỤ —
@@ -64,6 +69,9 @@ NHAN_HANH_DONG = {
     AuditAction.HIDE_RESTAURANT: "Ẩn quán",
     AuditAction.RESTORE_RESTAURANT: "Khôi phục quán",
     AuditAction.CLEAR_CLOSURE_REPORTS: "Gỡ lượt báo đóng cửa",
+    AuditAction.CREATE_POST: "Tạo bài viết",
+    AuditAction.UPDATE_POST: "Sửa bài viết",
+    AuditAction.DELETE_POST: "Xoá bài viết",
 }
 
 # Chặn trên độ dài câu tóm tắt. Không phải để "bảo mật" mà để một lần sửa 30 trường không

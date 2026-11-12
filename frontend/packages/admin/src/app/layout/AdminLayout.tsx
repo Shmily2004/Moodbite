@@ -44,6 +44,7 @@ const MENU: MucMenu[] = [
   { duongDan: ROUTES.quality, nhan: 'Chất lượng dữ liệu', icon: 'chat-luong' },
   { duongDan: ROUTES.issues, nhan: 'Cần xử lý', icon: 'can-xu-ly' },
   { duongDan: ROUTES.recommendation, nhan: 'Gợi ý & Hệ thống', icon: 'goi-y' },
+  { duongDan: ROUTES.posts, nhan: 'Quản lý bài viết', icon: 'bai-viet' },
   { duongDan: ROUTES.activity, nhan: 'Nhật ký hoạt động', icon: 'nhat-ky' },
   { duongDan: ROUTES.system, nhan: 'Cài đặt hệ thống', icon: 'cai-dat' },
 ];

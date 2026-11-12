@@ -28,6 +28,10 @@ class PostWriteRequest(BaseModel):
     source_name: Optional[str] = None
     source_url: Optional[str] = None
     last_updated: Optional[date] = Field(default=None, description="Ngày nội dung được cập nhật")
+    image_url: Optional[str] = Field(
+        default=None, description="Ảnh minh hoạ: `/anh/...` hoặc `https://...` (cần image_credit)"
+    )
+    image_credit: Optional[str] = Field(default=None, description="Nguồn + giấy phép ảnh từ mạng")
 
 
 class PostListData(BaseModel):

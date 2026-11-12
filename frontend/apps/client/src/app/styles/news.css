@@ -1,0 +1,231 @@
+/* =========================================================================
+   TRANG TIN TỨC & ĐỌC BÀI — `/tin-tuc` và `/tin-tuc/:slug` (UC14).
+
+   CHƯA CÓ BẢN VẼ RIÊNG. Bố cục theo ngôn ngữ thị giác đã duyệt ở `restaurant.css` và
+   `home.css`: nền ấm `--bg`, thẻ `--surface` bo `--r-lg`, bóng `--shadow-sm`, một màu nhấn
+   caramel `--accent`. Không thêm màu mới — đổi màu toàn app thì trang này đổi theo.
+
+   Ô bìa không có ảnh: bài là chữ nên mỗi bài có một khối màu với chữ cái đầu — chủ đích,
+   không phải ảnh vỡ.
+   ========================================================================= */
+
+/* --- Trang danh sách --------------------------------------------------- */
+
+.news-page {
+  padding-top: 8px;
+}
+
+.news-hero {
+  padding: 28px 4px 8px;
+  max-width: 680px;
+}
+.news-hero__eyebrow {
+  margin: 0 0 6px;
+  font-size: var(--step--1);
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.news-hero__title {
+  margin: 0;
+  font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.25rem);
+  line-height: 1.15;
+  color: var(--ink);
+}
+.news-hero__intro {
+  margin: 10px 0 0;
+  font-size: var(--step-0);
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+
+/* Lưới thẻ: 1 cột trên điện thoại, tự xếp thêm cột theo bề rộng. */
+.news-grid {
+  list-style: none;
+  margin: 24px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+.news-card {
+  background: var(--surface);
+  border: 1px solid var(--rule-soft);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: box-shadow .2s ease, transform .2s ease;
+}
+.news-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+.news-card__link {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+
+.news-card__cover {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 112px;
+  background: linear-gradient(135deg, var(--accent-soft), var(--surface-2));
+  border-bottom: 1px solid var(--rule-soft);
+}
+.news-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.news-card__initial {
+  width: 56px;
+  height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  color: var(--accent);
+  font-size: 1.6rem;
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+}
+
+.news-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 18px 18px;
+  flex: 1;
+}
+.news-card__date {
+  font-size: var(--step--2);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.news-card__title {
+  font-size: var(--step-1);
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--ink);
+}
+.news-card__summary {
+  font-size: var(--step--1);
+  line-height: 1.55;
+  color: var(--ink-soft);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.news-card__more {
+  margin-top: auto;
+  padding-top: 8px;
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* --- Trang đọc một bài ------------------------------------------------- */
+
+.news-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 16px;
+  padding: 6px 14px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--rule);
+  background: var(--surface);
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  font-weight: 600;
+  text-decoration: none;
+}
+.news-back:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.news-article {
+  max-width: 720px;
+  margin: 20px auto 0;
+  padding: 28px clamp(18px, 4vw, 40px) 36px;
+  background: var(--surface);
+  border: 1px solid var(--rule-soft);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+}
+.news-article__figure {
+  margin: -28px calc(-1 * clamp(18px, 4vw, 40px)) 22px;
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+.news-article__img {
+  display: block;
+  width: 100%;
+  max-height: 340px;
+  object-fit: cover;
+}
+.news-article__credit {
+  padding: 6px 14px;
+  font-size: var(--step--2);
+  color: var(--muted);
+}
+.news-article__head {
+  padding-bottom: 18px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.news-article__date {
+  margin: 0 0 8px;
+  font-size: var(--step--2);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.news-article__title {
+  margin: 0;
+  font-size: clamp(1.5rem, 1.1rem + 1.5vw, 2rem);
+  line-height: 1.2;
+  color: var(--ink);
+}
+.news-article__lead {
+  margin: 14px 0 0;
+  font-size: var(--step-1);
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+.news-article__body {
+  font-size: var(--step-0);
+  line-height: 1.8;
+  color: var(--ink);
+}
+.news-article__body p {
+  margin: 0 0 1.1em;
+}
+.news-article__source {
+  margin-top: 24px;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule-soft);
+  font-size: var(--step--1);
+  color: var(--muted);
+}
+.news-article__source a {
+  color: var(--accent);
+}
+
+/* Điện thoại: thẻ không cần bóng đậm, khoảng cách hẹp lại. */
+@media (max-width: 600px) {
+  .news-hero { padding-top: 16px; }
+  .news-article { margin-top: 12px; border-radius: var(--r-md); }
+}

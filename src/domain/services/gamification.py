@@ -41,8 +41,13 @@ from typing import List, Optional, Tuple
 DIEM_XEM_QUAN = 2
 DIEM_CHI_DUONG = 3
 DIEM_LUU = 5
-DIEM_DANH_GIA = 3
 DIEM_BAO_DONG_CUA = 10
+
+# KHÔNG có điểm cho "thích / không thích" (explicit_positive / explicit_negative) lúc này:
+# giao diện CHƯA có nút đó, nên người dùng không có cách nào kiếm điểm. Điểm chỉ được thưởng
+# cho những hành động giao diện THẬT SỰ gửi lên (xem bảng ở đầu file). Khi thêm nút 👍/👎 thì
+# thêm lại `DIEM_DANH_GIA` và cộng vào `points`. Bảng điểm mà người dùng không làm được là
+# nhiệm vụ giả.
 
 
 @dataclass(frozen=True)
@@ -56,6 +61,8 @@ class UserActivity:
     viewed_restaurants: int = 0
     directions: int = 0
     saved_items: int = 0
+    # Số quán đã thích/không thích. Đếm sẵn để sau này có nút thì không phải sửa cấu trúc,
+    # nhưng CHƯA tính điểm (xem ghi chú ở trên).
     ratings: int = 0
     closure_reports: int = 0
     active_days: int = 0
@@ -76,7 +83,6 @@ class UserActivity:
             self.viewed_restaurants * DIEM_XEM_QUAN
             + self.directions * DIEM_CHI_DUONG
             + self.saved_items * DIEM_LUU
-            + self.ratings * DIEM_DANH_GIA
             + self.closure_reports * DIEM_BAO_DONG_CUA
         )
 
@@ -223,6 +229,5 @@ def tinh_huy_hieu(activity: UserActivity) -> List[BadgeProgress]:
 __all__ = [
     "UserActivity", "Level", "LevelProgress", "LEVELS", "tinh_cap_do",
     "BadgeRule", "BadgeProgress", "BADGES", "tinh_huy_hieu",
-    "DIEM_XEM_QUAN", "DIEM_CHI_DUONG", "DIEM_LUU", "DIEM_DANH_GIA",
-    "DIEM_BAO_DONG_CUA",
+    "DIEM_XEM_QUAN", "DIEM_CHI_DUONG", "DIEM_LUU", "DIEM_BAO_DONG_CUA",
 ]

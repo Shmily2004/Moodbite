@@ -56,4 +56,5 @@ export type {
   CollectionItemData,
   UserAddressData,
 } from '@moodbite/api-client';
+export type { PostPublic, PostListData, PostDetailData } from '@moodbite/api-client';
 export { accountErrorText, apiErrorText } from './loiApi';

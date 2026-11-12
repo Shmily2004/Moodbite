@@ -38,6 +38,7 @@ import { RecommendationPage } from '@admin/pages/recommendation';
 import { SystemPage } from '@admin/pages/system';
 import { NotFoundPage } from '@admin/pages/not-found';
 import { RestaurantsPage } from '@admin/pages/restaurants';
+import { PostsPage } from '@admin/pages/posts';
 import { ROUTES } from '@admin/shared/config';
 import { AdminLayout } from './layout/AdminLayout';
 import { RequireAuth } from './layout/RequireAuth';
@@ -69,6 +70,7 @@ export const quanTriRoutes: RouteObject[] = [
               { path: ROUTES.quality, element: <QualityPage /> },
               { path: ROUTES.issues, element: <IssuesPage /> },
               { path: ROUTES.recommendation, element: <RecommendationPage /> },
+              { path: ROUTES.posts, element: <PostsPage /> },
               { path: ROUTES.activity, element: <ActivityPage /> },
               { path: ROUTES.system, element: <SystemPage /> },
               { path: '*', element: <NotFoundPage /> },

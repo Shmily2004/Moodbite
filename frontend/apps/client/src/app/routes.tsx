@@ -96,6 +96,12 @@ const trangTimKiem = taiSau(() =>
 const trangGoiY = taiSau(() =>
   import('@/pages/recommend').then((m) => ({ default: m.RecommendPage })),
 );
+const trangTinTuc = taiSau(() =>
+  import('@/pages/news').then((m) => ({ default: m.NewsPage })),
+);
+const trangBaiViet = taiSau(() =>
+  import('@/pages/news-article').then((m) => ({ default: m.NewsArticlePage })),
+);
 const trangQuan = taiSau(() =>
   import('@/pages/restaurant').then((m) => ({ default: m.RestaurantPage })),
 );
@@ -144,6 +150,9 @@ export const routes: RouteObject[] = [
               // Luồng cũ: tìm quán bằng câu tự nhiên.
               { path: ROUTES.search, element: trangTimKiem },
               { path: ROUTES.recommend, element: trangGoiY },
+              // Tin tức / cẩm nang — UC14 trong biểu đồ (phải đăng nhập, như mọi trang app).
+              { path: ROUTES.news, element: trangTinTuc },
+              { path: ROUTES.newsArticle, element: trangBaiViet },
             ],
           },
           // '*' phải nằm CUỐI: react-router chọn route khớp nhất, nhưng để nhầm thứ tự

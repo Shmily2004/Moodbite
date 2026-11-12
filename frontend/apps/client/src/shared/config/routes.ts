@@ -17,6 +17,12 @@ export const ROUTES = {
   restaurant: '/restaurants/:restaurantId',
   search: '/search',
   /**
+   * Tin tức / cẩm nang (UC14 trong `docs/bieu_do_uml`). Yêu cầu đăng nhập như mọi trang app,
+   * đúng luồng trong biểu đồ: chưa đăng nhập thì `RequireLogin` chuyển sang trang đăng nhập.
+   */
+  news: '/tin-tuc',
+  newsArticle: '/tin-tuc/:slug',
+  /**
    * Trang KẾT QUẢ GỢI Ý MÓN. Khác `search` (tìm QUÁN bằng câu tự nhiên + bản đồ).
    * Bộ lọc nằm trên query string — xem `pages/recommend/ui/boLocTuUrl.ts`.
    */
@@ -58,6 +64,11 @@ export const DUONG_DAN_CU: Record<string, string> = {
   '/quen-mat-khau': '/forgot-password',
   '/dat-lai-mat-khau': '/reset-password',
 };
+
+/** Dựng đường dẫn tới một bài viết theo đường dẫn (slug). */
+export function newsArticleRoute(slug: string): string {
+  return `/tin-tuc/${encodeURIComponent(slug)}`;
+}
 
 /** Dựng đường dẫn tới một món cụ thể. Dùng hàm thay vì nối chuỗi tay để khỏi gõ sai. */
 export function dishRoute(dishId: string): string {

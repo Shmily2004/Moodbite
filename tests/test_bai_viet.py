@@ -241,3 +241,147 @@ def test_cong_bo_roi_cong_khai_qua_http(client, uc):
     assert chi_tiet.status_code == 200
     assert chi_tiet.json()["data"]["post"]["title"] == "Phở Hà Nội"
 
+
+
+# ==========================================================================
+# NHẬT KÝ — UC23 trong biểu đồ: admin sửa bài thì phải có dòng nhật ký
+# ==========================================================================
+# VÌ SAO PHẢI KHOÁ: biểu đồ `UC23_quan_ly_bai_viet.puml` có bước "ghi bài viết, ghi nhật
+# ký". Không có test thì ai sửa router sau này có thể bỏ mất bước đó mà không ai biết.
+
+
+class _GhiNhatKyGia:
+    def __init__(self):
+        self.da_ghi = []
+
+    def ghi(self, **kwargs):
+        self.da_ghi.append(kwargs)
+        return True
+
+
+@pytest.fixture
+def client_nhat_ky(tmp_path, uc):
+    app = FastAPI()
+    register_error_handlers(app)
+    app.include_router(admin_posts.router, prefix="/api/v1")
+    app.dependency_overrides[require_admin] = lambda: "admin-test"
+    nhat_ky = _GhiNhatKyGia()
+    app.state.container = SimpleNamespace(
+        list_all_posts=uc.danh_sach_tat_ca,
+        get_post=uc.xem,
+        create_post=uc.tao,
+        update_post=uc.sua,
+        delete_post=uc.xoa,
+        ghi_nhat_ky=nhat_ky,
+    )
+    return TestClient(app, raise_server_exceptions=False), nhat_ky
+
+
+def _body(**ghi_de) -> dict:
+    than = {"title": "Bài thử", "summary": "", "body": "nội dung", "status": "draft"}
+    than.update(ghi_de)
+    return than
+
+
+def test_tao_sua_xoa_bai_deu_ghi_nhat_ky_dung_nguoi_lam(client_nhat_ky):
+    client, nhat_ky = client_nhat_ky
+
+    tao = client.post("/api/v1/admin/posts", json=_body(title="Cẩm nang phở"))
+    assert tao.status_code == 201
+    post_id = tao.json()["data"]["post"]["post_id"]
+
+    sua = client.put(
+        f"/api/v1/admin/posts/{post_id}", json=_body(title="Cẩm nang phở", status="published")
+    )
+    assert sua.status_code == 200
+
+    xoa = client.delete(f"/api/v1/admin/posts/{post_id}")
+    assert xoa.status_code == 200
+
+    assert [d["action"] for d in nhat_ky.da_ghi] == [
+        "create_post",
+        "update_post",
+        "delete_post",
+    ]
+    assert all(d["actor"] == "admin-test" for d in nhat_ky.da_ghi)
+    assert all(d["target_id"] == post_id for d in nhat_ky.da_ghi)
+    # Sửa từ nháp sang công khai phải hiện trong tóm tắt — đó là việc admin cần truy được.
+    assert "draft -> published" in nhat_ky.da_ghi[1]["summary"]
+    # Nhật ký KHÔNG được chép nội dung bài (xem `audit_log.py`).
+    assert all("nội dung" not in d["summary"] for d in nhat_ky.da_ghi)
+
+
+def test_sua_bai_khong_ton_tai_khong_ghi_nhat_ky_sai(client_nhat_ky):
+    client, nhat_ky = client_nhat_ky
+    res = client.put("/api/v1/admin/posts/khong-co", json=_body())
+    assert res.status_code == 404
+    assert nhat_ky.da_ghi == []
+
+
+# ==========================================================================
+# ẢNH MINH HOẠ — ảnh tự có được tự do, ảnh từ mạng BẮT BUỘC ghi nguồn
+# ==========================================================================
+
+
+def test_anh_tu_co_khong_can_nguon():
+    from src.domain.entities.post import validate_image
+
+    assert validate_image("/anh/banner-trang-chu.png", None) == ("/anh/banner-trang-chu.png", None)
+
+
+def test_anh_tu_mang_thieu_nguon_bi_tu_choi():
+    from src.domain.entities.post import validate_image
+
+    with pytest.raises(InvalidPost):
+        validate_image("https://vidu.com/pho.jpg", "   ")
+
+
+def test_anh_tu_mang_co_nguon_duoc_giu_nguyen():
+    from src.domain.entities.post import validate_image
+
+    url, credit = validate_image("https://vidu.com/pho.jpg", "Ảnh: Vidu, CC BY 4.0")
+    assert url == "https://vidu.com/pho.jpg"
+    assert credit == "Ảnh: Vidu, CC BY 4.0"
+
+
+@pytest.mark.parametrize(
+    "url",
+    ["http://vidu.com/a.jpg", "javascript:alert(1)", "/anh/../bi-mat.png", "//vidu.com/a.jpg"],
+)
+def test_duong_dan_anh_la_bi_tu_choi(url):
+    from src.domain.entities.post import validate_image
+
+    with pytest.raises(InvalidPost):
+        validate_image(url, "nguồn")
+
+
+def test_anh_luu_xuong_kho_va_doc_lai_dung(kho):
+    uc_tao = CreatePostUseCase(kho)
+    bai = uc_tao.execute(
+        _nhap(status=PostStatus.PUBLISHED, image_url="/anh/banner-trang-chu.png")
+    )
+    doc = kho.get(bai.post_id)
+    assert doc.image_url == "/anh/banner-trang-chu.png"
+    assert doc.to_public()["image_url"] == "/anh/banner-trang-chu.png"
+
+
+def test_kho_cu_chua_co_cot_anh_duoc_nang_cap_khong_loi(tmp_path):
+    import sqlite3
+
+    db = tmp_path / "users.db"
+    # Mô phỏng kho TẠO TRƯỚC khi có cột ảnh: bảng đầy đủ các cột cũ, không có image_*.
+    with sqlite3.connect(db) as conn:
+        conn.execute(
+            "CREATE TABLE posts (post_id TEXT PRIMARY KEY, slug TEXT NOT NULL UNIQUE, "
+            "title TEXT NOT NULL, summary TEXT NOT NULL, body TEXT NOT NULL, status TEXT NOT NULL, "
+            "origin TEXT NOT NULL, source_name TEXT, source_url TEXT, last_updated TEXT, "
+            "created_at TEXT NOT NULL, updated_at TEXT NOT NULL, published_at TEXT)"
+        )
+        conn.execute(
+            "INSERT INTO posts VALUES ('p1','cu','Bài cũ','t','nd','published','admin',NULL,NULL,NULL,"
+            "'2026-01-01T00:00:00+07:00','2026-01-01T00:00:00+07:00','2026-01-01T00:00:00+07:00')"
+        )
+    kho_cu = SqlitePostRepository(db)
+    assert kho_cu.is_ready
+    doc = kho_cu.get("p1")
+    assert doc is not None and doc.image_url is None

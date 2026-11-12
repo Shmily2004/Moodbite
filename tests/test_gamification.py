@@ -182,3 +182,10 @@ def test_snapshot_nhan_so_muc_da_luu_tu_ben_ngoai():
     tally = ActivityTally()
 
     assert tally.snapshot("u1", saved_items=3).points == 3 * DIEM_LUU
+
+
+def test_thich_khong_thich_chua_co_diem_vi_giao_dien_chua_co_nut():
+    # Khoá quyết định: không cho điểm cho hành động người dùng KHÔNG làm được. Khi thêm nút
+    # 👍/👎 thì đổi test này cùng lúc với việc thêm điểm — đừng để hai bên lệch nhau.
+    assert UserActivity(ratings=5).points == 0
+

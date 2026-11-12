@@ -27,7 +27,6 @@ from src.application.ports.restaurant_repository import RestaurantRepository
 from src.application.use_cases.restaurant_data_guard import require_restaurant_data
 from src.domain.entities.dish import Dish
 from src.domain.services import dish_ranking
-from src.domain.services.closure_reports import ClosureReportTally
 from src.domain.services.dish_ranking import DishFilter
 from src.domain.services.search_ranking import DEFAULT_MAX_DISTANCE_KM
 from src.domain.value_objects.context_signal import NEUTRAL_CONTEXT, ContextSignal
@@ -141,7 +140,6 @@ class SuggestDishesUseCase:
         catalog: DishCatalogRepository,
         dish_restaurant_index: Mapping[str, Sequence],
         context_provider: Optional[ContextProvider] = None,
-        closure_tally: Optional[ClosureReportTally] = None,
         restaurants: Optional[RestaurantRepository] = None,
     ) -> None:
         self._catalog = catalog
@@ -149,7 +147,6 @@ class SuggestDishesUseCase:
         # `application/ports/dish_restaurant_index.py`.
         self._index = dish_restaurant_index
         self._context_provider = context_provider
-        self._closure_tally = closure_tally
         # Chỉ để kiểm "dataset quán đã nạp chưa" -> 503 (xem `_require_data`).
         self._restaurants = restaurants
 
@@ -323,12 +320,6 @@ class SuggestDishesUseCase:
             for match in index.get(dish.identifier, ()):
                 restaurant = match.restaurant
                 if not restaurant.is_visible:
-                    continue
-                # Quán bị báo đóng cửa cũng không được tính vào số quán của món: đếm cả
-                # chúng thì món hiện lên trang chủ với "12 quán gần đây", bấm vào chỉ còn 9.
-                if self._closure_tally and self._closure_tally.is_reported_closed(
-                    restaurant.place_id
-                ):
                     continue
                 khoang_cach = origin.distance_km(restaurant.location)
                 if max_distance_km is not None and khoang_cach > max_distance_km:

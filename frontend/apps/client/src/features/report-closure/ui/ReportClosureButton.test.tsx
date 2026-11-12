@@ -68,7 +68,7 @@ describe('ReportClosureButton', () => {
     expect(await screen.findByText(/đã ghi nhận/i)).toBeInTheDocument();
   });
 
-  it('KHÔNG hứa quán biến mất ngay, và không nhắc con số ngưỡng', async () => {
+  it('KHÔNG hứa quán biến mất ngay, và không nhắc con số', async () => {
     // Ngưỡng ẩn quán là quy tắc NGHIỆP VỤ, chỉ được nằm ở backend. Viết lại con số ở đây
     // là tạo nơi thứ hai chứa cùng một luật (CLAUDE.md mục 1b).
     renderNut();
@@ -76,7 +76,7 @@ describe('ReportClosureButton', () => {
     fireEvent.click(screen.getByRole('button', { name: /đúng, đã đóng/i }));
 
     const loiCamOn = await screen.findByText(/đã ghi nhận/i);
-    expect(loiCamOn.textContent).toMatch(/thêm người xác nhận/i);
+    expect(loiCamOn.textContent).toMatch(/kiểm tra/i);
     expect(loiCamOn.textContent).not.toMatch(/\d/);
   });
 

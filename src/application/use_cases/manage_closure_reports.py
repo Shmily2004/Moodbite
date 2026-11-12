@@ -1,4 +1,8 @@
-"""USE CASE quản trị: xem và GỠ lượt "người dùng báo quán đã đóng cửa".
+"""USE CASE quản trị: hàng chờ "quán bị khách báo đóng cửa" (UC21 trong biểu đồ).
+
+Theo biểu đồ `UC21_xem_xet_bao_dong_cua`: quản trị mở danh sách, kiểm tra, rồi quyết định.
+Quán thật sự đã đóng -> ẩn quán (`hide_restaurant`); không thì gỡ lượt báo. Lượt báo của
+khách KHÔNG tự ẩn quán (đổi từ 2026-11-12, xem `domain/services/closure_reports.py`).
 
 VÌ SAO CẦN (rà soát 2026-10-06): trước file này admin KHÔNG có cách nào bỏ ẩn một quán bị
 ẩn vì lượt báo:
@@ -8,7 +12,7 @@ VÌ SAO CẦN (rà soát 2026-10-06): trước file này admin KHÔNG có cách 
 Kết hợp với việc lượt báo từng giả mạo được (đếm theo session_id do client đặt), một
 người là đủ ẩn VĨNH VIỄN bất kỳ quán nào.
 
-Chỉ ĐIỀU PHỐI: quy tắc đếm/ngưỡng nằm ở `domain/services/closure_reports.py`.
+Chỉ ĐIỀU PHỐI: quy tắc đếm nằm ở `domain/services/closure_reports.py`.
 """
 from __future__ import annotations
 
@@ -28,6 +32,7 @@ class ClosureReportRow:
     # `None` = quán không còn trong dữ liệu (đã bị xoá khỏi dataset). KHÔNG bịa tên.
     name: Optional[str]
     report_count: int
+    # Quán ĐANG bị quản trị ẩn (`is_active=0`). Lượt báo không đặt cờ này nữa.
     is_hidden: bool
 
 
@@ -35,24 +40,21 @@ class ClosureReportRow:
 class ClearedClosureReports:
     restaurant_id: str
     cleared_reports: int
-    # Sau khi gỡ: luôn False ngay lúc đó. Trả về để client khỏi tự suy luận.
+    # Gỡ lượt báo KHÔNG đổi trạng thái ẩn của quán. Trả về trạng thái thật để client khỏi
+    # tự suy luận.
     is_hidden: bool
 
 
-def _ten_quan(restaurant_id: str, restaurants, admin_restaurants) -> Optional[str]:
-    """Tên quán, tra ở kho thường trước rồi kho quản trị (thấy cả quán admin đã ẩn)."""
+def _tra_quan(restaurant_id: str, restaurants, admin_restaurants):
+    """Quán (kể cả quán admin đã ẩn), hoặc None nếu không còn trong dữ liệu."""
     quan = restaurants.get_by_place_id(restaurant_id) if restaurants is not None else None
     if quan is None and admin_restaurants is not None:
         quan = admin_restaurants.get_for_admin(restaurant_id)
-    return quan.name if quan is not None else None
+    return quan
 
 
 class ListClosureReportsUseCase:
-    """Quán nào đang bị báo, bao nhiêu người báo, đã bị ẩn chưa.
-
-    Ẩn tự động mà admin không tra lại được là ẩn mù — trang quản trị cần danh sách này để
-    biết bấm "gỡ" vào đâu.
-    """
+    """Hàng chờ: quán nào đang bị báo, bao nhiêu người báo, đã bị admin ẩn chưa."""
 
     def __init__(
         self,
@@ -64,23 +66,19 @@ class ListClosureReportsUseCase:
         self._restaurants = restaurants
         self._admin_restaurants = admin_restaurants
 
-    @property
-    def threshold(self) -> int:
-        return self._tally.threshold
-
     def execute(self) -> List[ClosureReportRow]:
-        rows = [
-            ClosureReportRow(
+        rows = []
+        for place_id, so in self._tally.reported_counts().items():
+            quan = _tra_quan(place_id, self._restaurants, self._admin_restaurants)
+            rows.append(ClosureReportRow(
                 restaurant_id=place_id,
-                name=_ten_quan(place_id, self._restaurants, self._admin_restaurants),
+                name=quan.name if quan is not None else None,
                 report_count=so,
-                is_hidden=so >= self._tally.threshold,
-            )
-            for place_id, so in self._tally.reported_counts().items()
-        ]
-        # Quán ĐANG BỊ ẨN lên đầu — đó là việc admin cần xử lý trước; rồi theo số người
-        # báo giảm dần, cuối cùng theo mã để thứ tự ổn định giữa các lần tải trang.
-        rows.sort(key=lambda r: (not r.is_hidden, -r.report_count, r.restaurant_id))
+                is_hidden=quan is not None and not quan.is_visible,
+            ))
+        # Quán CHƯA XỬ LÝ lên đầu (admin còn phải quyết định); rồi theo số người báo giảm
+        # dần, cuối cùng theo mã để thứ tự ổn định giữa các lần tải trang.
+        rows.sort(key=lambda r: (r.is_hidden, -r.report_count, r.restaurant_id))
         return rows
 
 
@@ -112,11 +110,12 @@ class ClearClosureReportsUseCase:
     def execute(self, restaurant_id: str, actor: str) -> ClearedClosureReports:
         ma = (restaurant_id or "").strip()
         so_nguoi_bao = self._tally.report_count(ma)
-        ten = _ten_quan(ma, self._restaurants, self._admin_restaurants)
+        quan = _tra_quan(ma, self._restaurants, self._admin_restaurants)
+        ten = quan.name if quan is not None else None
         # 404 chỉ khi KHÔNG có cả quán lẫn lượt báo. Quán đã bị xoá khỏi dataset nhưng
         # còn lượt báo treo thì vẫn phải gỡ được, nếu không danh sách "đang bị báo" có
         # dòng không bao giờ dọn nổi.
-        if ten is None and so_nguoi_bao == 0:
+        if quan is None and so_nguoi_bao == 0:
             raise RestaurantNotFoundError(ma)
 
         if not getattr(self._log, "is_ready", False):
@@ -141,7 +140,7 @@ class ClearClosureReportsUseCase:
         return ClearedClosureReports(
             restaurant_id=ma,
             cleared_reports=da_go,
-            is_hidden=self._tally.is_reported_closed(ma),
+            is_hidden=quan is not None and not quan.is_visible,
         )
 
 

@@ -146,7 +146,7 @@ GetRestaurantDetailUseCase ⚠ mới — xem mục 6
 
 FR-5.2, FR-1.5 (khi kèm origin)
 
-GET /restaurants/{id}/directions
+GET /restaurants/{id}/directions   (KHÔNG LÀM — xem mục 3.3)
 
 4. External Context Signals
 
@@ -551,12 +551,14 @@ trắng) **nhưng phải nói ra** trong `warnings` — không được im lặn
 > `openapi.json` đúng, sửa tài liệu này.
 >
 > **Đã chốt 2026-10-06 (sau đợt sửa rà soát):**
-> - `GET /admin/closure-reports` → `{threshold, items: [{restaurant_id, name|null, report_count, is_hidden}]}`
->   (quán đang bị ẩn đứng đầu). `POST /admin/restaurants/{id}/closure-reports/clear` →
+> - `GET /admin/closure-reports` → `{items: [{restaurant_id, name|null, report_count, is_hidden}]}`
+>   (hàng chờ UC21; quán chưa xử lý đứng đầu; `is_hidden` = quản trị đã ẩn quán. Đổi 2026-11-12: bỏ
+>   `threshold`). `POST /admin/restaurants/{id}/closure-reports/clear` →
 >   `{restaurant_id, cleared_reports, is_hidden}`; 404 `RESTAURANT_NOT_FOUND` nếu quán không có và
 >   cũng không có lượt báo. Cả hai cần token admin. Gỡ lượt báo KHÁC "restore" (bỏ ẩn do admin).
-> - Lượt `report_closed` đếm theo IP đã băm (không theo `session_id` client tự đặt); đủ 3 người
->   báo khác nhau thì quán ẩn khỏi mọi luồng.
+> - Lượt `report_closed` đếm theo IP đã băm (không theo `session_id` client tự đặt). Theo biểu đồ
+>   UC06 (đổi 2026-11-12): lượt báo chỉ đưa quán vào hàng chờ, KHÔNG tự ẩn quán. Quản trị ẩn quán
+>   (`POST /admin/restaurants/{id}/hide`) hoặc gỡ lượt báo (UC21).
 > - 429 `RATE_LIMITED` + header `Retry-After` (và `details.retry_after_seconds`) ở `POST /search`
 >   (mặc định 30/60 s mỗi IP), `POST /interactions` (120/60 s; riêng `report_closed` 5/3600 s),
 >   đổi bằng `MOODBITE_SEARCH_RATE_LIMIT` / `MOODBITE_INTERACTION_RATE_LIMIT` /
@@ -591,6 +593,8 @@ vào (`/dishes/*` là luồng chính, `/search` là lối vào thứ hai). Đế
 | GET | `/restaurants/{restaurant_id}` | 🔓 | Không có query param; quán chưa có chi tiết → 200 + `has_details: false` |
 | POST | `/interactions` | 🔓 (👤 tuỳ chọn) | Body thật: `session_id`*, `restaurant_id`*, `action_type`*, `search_query_id`, `dwell_time_ms`, `rank_position` — **không** dùng `search_result_item_id` như mục 3.4. `action_type`: `view_detail` · `get_directions` · `save` · `explicit_positive` · `explicit_negative` · `report_closed`. Trả **201**. Có token thì server gắn `user_id` LẤY TỪ TOKEN (không lấy từ body) |
 | GET | `/moods` | 🔓 | Danh sách mood cho nút bấm nhanh |
+| GET | `/posts` | 🔓 | Bài viết ĐÃ CÔNG KHAI (`{posts, total}`), không có nháp. UC14. Thêm 2026-11-12 |
+| GET | `/posts/{slug}` | 🔓 | Một bài đã công khai. Nháp hoặc không tồn tại → 404 `POST_NOT_FOUND` (cùng một câu). UC14 |
 | GET | `/health` | 🔓 | Xem ghi chú ở mục 3.5 (`status`, `api_version`, `services`, `synthetic_data`) |
 
 ## B. Tài khoản người dùng — `/auth/*`
@@ -652,12 +656,20 @@ không xác nhận mã đó có thật).
 | POST | `/admin/restaurants/bulk-visibility` | `restaurant_ids`*, `is_active`* |
 | GET | `/admin/dishes` | query `q`, `filter`, `page`, `page_size`, `limit` |
 | GET | `/admin/dishes/{dish_id}` | |
+| PATCH | `/admin/dishes/{dish_id}` | `description` (gửi `null` hoặc chuỗi rỗng = gỡ bản sửa, về mô tả gốc). Ghi nhật ký `update_dish`. UC18 |
 | GET | `/admin/dishes/{dish_id}/restaurants` | query `limit` |
 | GET | `/admin/issues` | Việc cần xử lý; query `priority` |
 | GET | `/admin/issues/resolved` | query `limit` |
 | GET | `/admin/issues/{key}` | query `limit` |
 | POST | `/admin/issues/resolve` | `key`*, `target_id`*, `note` |
 | DELETE | `/admin/issues/resolve` | query `key`*, `target_id`* (bỏ đánh dấu đã xử lý) |
+| GET | `/admin/closure-reports` | Báo đóng cửa, quán bị ẩn đứng đầu. Xem blockquote ở mục 3 (2026-10-06) |
+| POST | `/admin/restaurants/{restaurant_id}/closure-reports/clear` | Gỡ các lượt báo đóng cửa của quán. Ghi nhật ký `clear_closure_reports` |
+| GET | `/admin/posts` | Mọi bài viết, kể cả nháp; query `status` = `draft` \| `published` (UC23, 2026-11-12) |
+| POST | `/admin/posts` | Tạo bài: `title`*, `summary`, `body`, `status` (mặc định `draft`), `last_updated`, `image_url`, `image_credit`. Ghi nhật ký `create_post` |
+| GET | `/admin/posts/{post_id}` | Một bài (kể cả nháp) |
+| PUT | `/admin/posts/{post_id}` | Sửa bài — gửi ĐỦ mọi trường như POST. Ghi nhật ký `update_post` |
+| DELETE | `/admin/posts/{post_id}` | Xoá bài. Ghi nhật ký `delete_post` |
 
 Tạo tài khoản admin: `python scripts/make_admin_user.py` (admin là một dòng `role='admin'`
 trong bảng `users` từ 2026-09-29).

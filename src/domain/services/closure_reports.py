@@ -1,4 +1,9 @@
-"""Người dùng BÁO quán đã đóng cửa — đếm và quyết định khi nào thì ẩn.
+"""Người dùng BÁO quán đã đóng cửa — đếm lượt báo để đưa vào hàng chờ quản trị.
+
+THEO BIỂU ĐỒ `UC06`/`UC21` (đổi 2026-11-12): lượt báo KHÔNG tự ẩn quán. Nó đưa quán vào
+hàng chờ "Quán bị khách báo đóng cửa", và quản trị quyết định: quán thật sự đã đóng thì
+ẩn quán (ghi nhật ký `hide_restaurant`), không thì gỡ lượt báo. Trước đó quán tự ẩn khi đủ
+3 người báo (quyết định 2026-10-06); bản đó đã bỏ theo biểu đồ.
 
 VÌ SAO CẦN CÁI NÀY
 ------------------
@@ -45,20 +50,10 @@ import threading
 from collections import defaultdict
 from typing import Dict, Iterable, Optional, Set, Tuple
 
-# Số NGƯỜI BÁO khác nhau (theo `reporter_key_from_ip`) phải cùng báo thì mới ẩn quán.
-#
-# CHỌN 3, và đây là đánh đổi giữa hai kiểu sai:
-#   - Ngưỡng quá thấp (1): một lượt báo nhầm là xoá sổ một quán đang buôn bán bình thường.
-#     Người dùng cũng hay bấm nhầm, hoặc báo vì quán đóng cửa lúc 2 giờ chiều.
-#   - Ngưỡng quá cao (10): với quán ít người ghé, sẽ không bao giờ đủ - tức là tính năng
-#     này chỉ chạy cho quán đông khách, đúng nhóm ít cần nó nhất.
-# 3 người độc lập cùng nói một chuyện là đủ tin ở mức "thôi đừng gợi ý nữa", vì hậu quả
-# SỬA ĐƯỢC: admin gỡ lượt báo qua `POST /admin/restaurants/{id}/closure-reports/clear`.
-#
-# ⚠️ Nút "Khôi phục" (`/admin/restaurants/{id}/restore`) KHÔNG gỡ được loại ẩn này: nút
-# đó chỉ đặt `is_active=1`, còn quán bị ẩn vì lượt báo có `is_active` vẫn là 1. Hai cơ chế
-# ẩn ĐỘC LẬP nhau (admin tắt quán ≠ người dùng báo đóng cửa), nên có hai nút riêng.
-MIN_REPORTS_TO_HIDE = 3
+# KHÔNG CÒN NGƯỠNG ẨN. Biểu đồ UC06 đưa quán bị báo vào hàng chờ quản trị; quản trị là
+# người quyết định ẩn (UC21). Bộ đếm chỉ đếm số NGƯỜI BÁO khác nhau để hàng chờ ưu tiên
+# quán bị nhiều người báo nhất. Chống phá hoại (một người không đếm hai lần, khoá là IP
+# băm do server tính) vẫn giữ nguyên, vì hàng chờ mà bị bơm giả thì admin mất thời gian.
 
 # Tiền tố khoá người báo. Có tiền tố để sau này thêm loại khoá khác (VD đã xác minh số
 # điện thoại) mà không đụng độ với khoá cũ trong nhật ký.
@@ -85,7 +80,7 @@ def reporter_key_from_ip(client_ip: str, salt: str) -> str:
     VÌ SAO CÓ `salt`: IPv4 chỉ có ~4 tỷ giá trị, băm trần thì vét cạn ngược lại được trong
     vài phút. HMAC với một secret của máy chủ thì không. Đổi secret -> cùng một IP sẽ ra
     khoá mới, tức là MỘT người có thể được đếm hai lần quanh mốc đổi secret. Chấp nhận
-    được: ngưỡng là 3 và admin gỡ được lượt báo.
+    được; admin gỡ được lượt báo.
     """
     digest = hmac.new(
         (salt or "").encode("utf-8"), (client_ip or "").encode("utf-8"), hashlib.sha256
@@ -102,15 +97,14 @@ class ClosureReportTally:
     lý nhất. Đổi lại, tra cứu là O(1) - việc này nằm trên đường đi của MỌI lượt tìm kiếm
     nên không được phép đọc file.
 
-    Có khoá vì nhiều request chạy song song: `hidden_place_ids()` duyệt dict trong khi một
+    Có khoá vì nhiều request chạy song song: `reported_counts()` duyệt dict trong khi một
     request khác thêm quán mới vào sẽ ném "dictionary changed size during iteration".
     """
 
-    __slots__ = ("_reporters_by_place", "_threshold", "_lock")
+    __slots__ = ("_reporters_by_place", "_lock")
 
-    def __init__(self, threshold: int = MIN_REPORTS_TO_HIDE) -> None:
+    def __init__(self) -> None:
         self._reporters_by_place: Dict[str, Set[str]] = defaultdict(set)
-        self._threshold = max(1, threshold)
         self._lock = threading.Lock()
 
     def record(self, place_id: str, reporter_key: str) -> int:
@@ -143,44 +137,24 @@ class ClosureReportTally:
         reporters = self._reporters_by_place.get(str(place_id))
         return len(reporters) if reporters else 0
 
-    def is_reported_closed(self, place_id: str) -> bool:
-        """Đã đủ số người báo để ẩn quán chưa."""
-        return self.report_count(place_id) >= self._threshold
-
-    @property
-    def threshold(self) -> int:
-        return self._threshold
-
     def reported_counts(self) -> Dict[str, int]:
         """{place_id: số người báo} cho MỌI quán có ít nhất 1 lượt báo. Cho trang quản trị."""
         with self._lock:
             return {p: len(r) for p, r in self._reporters_by_place.items() if r}
 
-    def hidden_place_ids(self) -> Set[str]:
-        """Toàn bộ quán đang bị ẩn vì bị báo. Dùng cho trang quản trị và /health."""
-        return {p for p, n in self.reported_counts().items() if n >= self._threshold}
-
     def status(self) -> dict:
         """Tự mô tả cho /health, giống các adapter khác."""
-        dem = self.reported_counts()
-        return {
-            "ready": True,
-            "nguong_an": self._threshold,
-            "quan_bi_bao": len(dem),
-            "quan_da_an": sum(1 for n in dem.values() if n >= self._threshold),
-        }
+        return {"ready": True, "quan_bi_bao": len(self.reported_counts())}
 
 
-def tally_from_events(
-    events: Iterable[ClosureEvent], threshold: int = MIN_REPORTS_TO_HIDE
-) -> ClosureReportTally:
+def tally_from_events(events: Iterable[ClosureEvent]) -> ClosureReportTally:
     """Dựng lại bộ đếm từ nhật ký, ĐÚNG THỨ TỰ đã ghi.
 
     Thứ tự là điều cốt lõi: "báo, báo, báo, ADMIN GỠ, báo" phải ra 1 người báo chứ không
     phải 4. Lượt báo không có khoá người báo (bản ghi trước 2026-10-06 chỉ có session_id)
     bị BỎ QUA ở đây — xem `JsonlInteractionRepository.replay_closure_events`.
     """
-    tally = ClosureReportTally(threshold)
+    tally = ClosureReportTally()
     for kind, place_id, reporter_key in events:
         if kind == EVENT_CLEAR:
             tally.clear(place_id)
@@ -190,7 +164,6 @@ def tally_from_events(
 
 
 __all__ = [
-    "MIN_REPORTS_TO_HIDE",
     "EVENT_REPORT",
     "EVENT_CLEAR",
     "ClosureEvent",

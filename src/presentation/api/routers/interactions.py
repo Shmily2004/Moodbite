@@ -52,9 +52,10 @@ def log_interaction(
     cũng tự cộng điểm cho mình bằng cách gọi thẳng API.
 
     GIỚI HẠN TẦN SUẤT theo IP (2026-10-06): vượt -> 429 RATE_LIMITED + `Retry-After`.
-    `report_closed` có hạn mức RIÊNG, chặt hơn hẳn — một lượt báo góp phần ẩn quán với
-    mọi người. Lượt báo được đếm theo KHOÁ NGƯỜI BÁO (IP đã băm) do server tính, KHÔNG
-    theo `session_id` client gửi lên (3 session_id bịa từng đủ ẩn bất kỳ quán nào).
+    `report_closed` có hạn mức RIÊNG, chặt hơn hẳn — một lượt báo đưa quán vào hàng chờ
+    quản trị (UC06). Lượt báo được đếm theo KHOÁ NGƯỜI BÁO (IP đã băm) do server tính,
+    KHÔNG theo `session_id` client gửi lên, để một người không chiếm hàng chờ bằng nhiều
+    session_id.
     """
     limit_interaction_rate(request, body.action_type, container)
     la_bao_dong_cua = body.action_type == ActionType.REPORT_CLOSED

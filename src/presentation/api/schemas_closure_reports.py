@@ -25,12 +25,11 @@ class ClosureReportItem(BaseModel):
     )
     report_count: int = Field(..., description="Số NGƯỜI BÁO khác nhau (theo IP đã băm).")
     is_hidden: bool = Field(
-        ..., description="Đủ ngưỡng -> đang bị ẩn khỏi MỌI luồng người dùng."
+        ..., description="Quán đang bị QUẢN TRỊ ẩn (is_active=0). Lượt báo không tự ẩn."
     )
 
 
 class ClosureReportListData(BaseModel):
-    threshold: int = Field(..., description="Số người báo cần để ẩn quán.")
     items: List[ClosureReportItem]
 
 

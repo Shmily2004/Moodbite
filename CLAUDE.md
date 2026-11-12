@@ -212,7 +212,7 @@ Không được nhảy cóc, đặc biệt không được viết logic nghiệp
 Bốn quy ước dưới đây phản ánh dữ liệu THẬT của dự án. Vi phạm = hiển thị sai cho người dùng.
 
 1. **`None` nghĩa là CHƯA CÓ DỮ LIỆU, không phải 0.**
-   Chỉ 350/4170 quán có rating, 228/4170 có giá. Biến `None` thành `0` là nói dối người
+   Chỉ 1.177/52.871 quán có rating, 670/52.871 có giá (đo 2026-11-12). Biến `None` thành `0` là nói dối người
    dùng ("0 sao", "miễn phí"). Được phép coi là 0 **chỉ khi xếp hạng nội bộ**, và giá trị
    trả về vẫn phải là `None`.
 
@@ -328,7 +328,7 @@ merge_and_prepare_raw  →  data_cleaning  →  feature_engineering  →  cluste
 | 1. Phân cụm trải nghiệm | ✅ KMeans k=7 | `data_pipeline/clustering.py` (offline) |
 | 2. Tìm kiếm ngữ nghĩa | ✅ TF-IDF cosine | `infrastructure/adapters/tfidf_semantic_search.py` |
 | 3. Xếp hạng ngữ cảnh | 🟡 công thức trọng số | `domain/services/search_ranking.py` |
-| 4. Tóm tắt review | ✅ trích rút, câu nguyên văn | `data_pipeline/review_summary.py` (offline) — 884/1.025 quán có ≥3 review |
+| 4. Tóm tắt review | ✅ trích rút, câu nguyên văn | `data_pipeline/review_summary.py` (offline) — 884/1.025 quán có ≥3 review (đo 2026-10-10) |
 | 5. Gợi ý món | ✅ **cửa vào chính** | `domain/services/dish_ranking.py` + `use_cases/suggest_dishes.py` |
 
 **Quy tắc bắt buộc khi động vào các lớp này:**

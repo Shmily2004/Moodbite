@@ -1,12 +1,12 @@
 /**
  * VIEWMODEL "Quán bị khách báo đóng cửa" (thêm 2026-10-06).
  *
- * VÌ SAO CÓ: khách báo đủ `threshold` người (đếm theo IP đã băm) thì quán tự ẩn khỏi mọi
- * luồng. Trước ngày này admin KHÔNG có cách nào gỡ - nút "Khôi phục" chỉ bỏ ẩn do admin,
- * còn lượt báo được đọc lại từ nhật ký mỗi lần khởi động nên quán bị ẩn vĩnh viễn.
+ * THEO BIỂU ĐỒ UC21 (đổi 2026-11-12): khách báo quán đóng cửa thì quán vào HÀNG CHỜ, KHÔNG
+ * tự ẩn. Quản trị kiểm tra rồi chọn: "Ẩn quán" (quán thật sự đã đóng) hoặc "Gỡ lượt báo"
+ * (không thật sự đóng).
  *
- * Gỡ xong thì TẢI LẠI danh sách từ server thay vì tự sửa state: `is_hidden` còn phụ thuộc
- * trạng thái ẩn do admin - frontend không được tự suy (CLAUDE.md mục 1b).
+ * Làm xong thì TẢI LẠI danh sách từ server thay vì tự sửa state: `is_hidden` là trạng thái
+ * thật của quán, frontend không được tự suy (CLAUDE.md mục 1b).
  */
 import { useCallback, useEffect, useState } from 'react';
 import { adminApi, ApiError } from '@admin/shared/api';
@@ -14,12 +14,11 @@ import type { AdminClosureReportItem } from '@admin/shared/api';
 
 export interface UseClosureReportsResult {
   items: AdminClosureReportItem[];
-  /** Số người báo cần để ẩn quán - do backend trả, không chép cứng. */
-  threshold: number | null;
   loading: boolean;
   error: string | null;
-  /** Quán đang được gỡ (để khoá nút, tránh bấm hai lần). */
+  /** Quán đang được xử lý (để khoá nút, tránh bấm hai lần). */
   dangGo: string | null;
+  anQuan: (restaurantId: string) => Promise<void>;
   goBaoCao: (restaurantId: string) => Promise<void>;
 }
 
@@ -32,7 +31,6 @@ const thongBao = (err: unknown) =>
 
 export function useClosureReports(): UseClosureReportsResult {
   const [items, setItems] = useState<AdminClosureReportItem[]>([]);
-  const [threshold, setThreshold] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [dangGo, setDangGo] = useState<string | null>(null);
@@ -46,7 +44,6 @@ export function useClosureReports(): UseClosureReportsResult {
       .then((kq) => {
         if (!conSong) return;
         setItems(kq.items);
-        setThreshold(kq.threshold);
         setError(null);
       })
       .catch((err: unknown) => {
@@ -60,6 +57,19 @@ export function useClosureReports(): UseClosureReportsResult {
     };
   }, [lan]);
 
+  /** UC21, nhánh "quán thật sự đã đóng cửa": ẩn quán (ghi nhật ký `hide_restaurant`). */
+  const anQuan = useCallback(async (restaurantId: string) => {
+    setDangGo(restaurantId);
+    try {
+      await adminApi.hideRestaurant(restaurantId);
+      setLan((n) => n + 1);
+    } catch (err) {
+      setError(thongBao(err));
+    } finally {
+      setDangGo(null);
+    }
+  }, []);
+
   const goBaoCao = useCallback(async (restaurantId: string) => {
     setDangGo(restaurantId);
     try {
@@ -72,5 +82,5 @@ export function useClosureReports(): UseClosureReportsResult {
     }
   }, []);
 
-  return { items, threshold, loading, error, dangGo, goBaoCao };
+  return { items, loading, error, dangGo, anQuan, goBaoCao };
 }

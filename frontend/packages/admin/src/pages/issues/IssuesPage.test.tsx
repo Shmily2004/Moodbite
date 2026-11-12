@@ -24,7 +24,7 @@ vi.mock('@admin/shared/api', async () => {
   const that = await vi.importActual<typeof import('@admin/shared/api')>('@admin/shared/api');
   return { ...that, adminApi: { issues, issueDetail, resolvedIssues, resolveIssue,
     // Khối "báo đóng cửa" (2026-10-06) nằm chung trang: trả rỗng để không gây nhiễu.
-    closureReports: () => Promise.resolve({ threshold: 3, items: [] }),
+    closureReports: () => Promise.resolve({ items: [] }),
   } };
 });
 

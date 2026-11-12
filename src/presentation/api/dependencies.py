@@ -463,10 +463,10 @@ def build_container(settings: Optional[Settings] = None) -> Container:
     # Từ 2026-10-06 đếm theo KHOÁ NGƯỜI BÁO (IP đã băm) chứ không theo session_id do client
     # tự đặt; lượt báo cũ chỉ có session_id bị bỏ qua — xem `replay_closure_events`.
     closure_tally = tally_from_events(interaction_repository.replay_closure_events())
-    if closure_tally.hidden_place_ids():
+    if closure_tally.reported_counts():
         logger.info(
-            "Có %d quán bị người dùng báo đã đóng cửa (ngưỡng %d người báo).",
-            len(closure_tally.hidden_place_ids()), closure_tally.threshold,
+            "Có %d quán đang chờ quản trị xem xét vì người dùng báo đóng cửa.",
+            len(closure_tally.reported_counts()),
         )
     rule_predictor = MlRulePredictor(
         settings.dish_model_path, mode=settings.dish_adapter_mode
@@ -685,7 +685,6 @@ def build_container(settings: Optional[Settings] = None) -> Container:
             context_provider=context_provider,
             rule_predictor=rule_predictor,
             semantic_search=semantic_search,
-            closure_tally=closure_tally,
         ),
         get_restaurant_details=GetRestaurantDetailsUseCase(
             details_repository, restaurant_repository, review_summaries
@@ -719,14 +718,12 @@ def build_container(settings: Optional[Settings] = None) -> Container:
             catalog=dish_catalog_repository,
             dish_restaurant_index=dish_restaurant_index,
             context_provider=context_provider,
-            closure_tally=closure_tally,
             restaurants=restaurant_repository,
         ),
         find_restaurants_for_dish=FindRestaurantsForDishUseCase(
             catalog=dish_catalog_repository,
             dish_restaurant_index=dish_restaurant_index,
             context_provider=context_provider,
-            closure_tally=closure_tally,
             restaurants=restaurant_repository,
         ),
         users=users,

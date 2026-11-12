@@ -2,13 +2,8 @@
  * VIEWMODEL của việc "báo quán đã đóng cửa".
  *
  * Backend đã sẵn sàng từ 2026-08-19: `POST /interactions` với `action_type=report_closed`,
- * đếm theo PHIÊN (bấm 50 lần từ một phiên vẫn chỉ tính 1 phiếu), đủ số phiên khác nhau
- * thì quán tự ẩn. Phần còn thiếu duy nhất là cái nút — đây là nó.
- *
- * ⚠️ NGƯỠNG ẨN QUÁN NẰM Ở BACKEND (`domain/services/closure_reports.py`), và phải ở
- * nguyên đó. Frontend cố tình KHÔNG biết con số ấy: viết lại nó ở đây là tạo nơi thứ hai
- * chứa cùng một quy tắc nghiệp vụ, và đổi ngưỡng sẽ phải sửa hai chỗ (CLAUDE.md mục 1b).
- * Vì vậy câu cảm ơn nói "cần thêm người xác nhận" chứ không nói "cần 3 người".
+ * đếm theo người báo. Theo biểu đồ UC06, lượt báo đưa quán vào hàng chờ quản trị và
+ * KHÔNG tự ẩn quán: quản trị mới là người quyết định (UC21).
  */
 import { useCallback, useState } from 'react';
 import { api } from '@/shared/api';

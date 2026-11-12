@@ -91,12 +91,14 @@ def test_search_warns_instead_of_silently_ignoring_dietary_filter():
 
 
 def test_search_warns_when_nothing_matches_the_text():
+    """Theo biểu đồ UC01: không có quán khớp -> thông báo + gợi ý nới bộ lọc, KHÔNG trả
+    danh sách "gần giống" (đổi 2026-11-12)."""
     use_case = build_search([make_restaurant("A", category="Quán ăn")])
     result = use_case.execute(
         SearchQuery(session_id=SESSION, query_text="zzzqqq khong ton tai")
     )
-    assert result.results, "vẫn phải trả kết quả thay vì rỗng"
-    assert any("không khớp" in w.lower() or "Không quán nào" in w for w in result.warnings)
+    assert result.results == []
+    assert any("nới bộ lọc" in w for w in result.warnings)
 
 
 def test_search_survives_broken_context_provider():

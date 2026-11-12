@@ -69,6 +69,7 @@ NHAN_HANH_DONG = {
     AuditAction.HIDE_RESTAURANT: "Ẩn quán",
     AuditAction.RESTORE_RESTAURANT: "Khôi phục quán",
     AuditAction.CLEAR_CLOSURE_REPORTS: "Gỡ lượt báo đóng cửa",
+    AuditAction.UPDATE_DISH: "Sửa mô tả món",
     AuditAction.CREATE_POST: "Tạo bài viết",
     AuditAction.UPDATE_POST: "Sửa bài viết",
     AuditAction.DELETE_POST: "Xoá bài viết",

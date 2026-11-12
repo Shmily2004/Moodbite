@@ -58,6 +58,8 @@ Mọi đường dẫn dưới đây gốc là `frontend/apps/client/src/`.
 | ↳ tab Đã lưu | `/account?tab=saved` | `pages/account/ui/tabs.tsx` → `SavedTab` | `features/save-favorite/model/useFavorites.ts` |
 | ↳ tab Cấp độ & huy hiệu | `/account?tab=badges` | `widgets/user-progress/ui/LevelCard.tsx` · `BadgeGrid.tsx` | `entities/user/model/useUserStats.ts` |
 | ↳ tab Cài đặt | `/account?tab=settings` | `pages/account/ui/AccountPage.tsx` (cuối file) | — |
+| ↳ **Tin tức** (UC14, 2026-11-12) | `/tin-tuc` | `pages/news/ui/NewsPage.tsx` · `entities/post/ui/NewsList.tsx` | `entities/post/model/useNewsList.ts` |
+| ↳ **Đọc một bài** (UC14) | `/tin-tuc/:slug` | `pages/news-article/ui/NewsArticlePage.tsx` · `entities/post/ui/NewsArticleView.tsx` | `entities/post/model/useNewsArticle.ts` |
 | **404** | đường dẫn sai bất kỳ | `pages/not-found/ui/NotFoundPage.tsx` | — |
 
 **Thanh trên (logo · điều hướng · ngôn ngữ · nền tối · tài khoản)** dùng chung ở nhiều
@@ -95,10 +97,21 @@ Gốc `frontend/packages/admin/src/`. Từ 2026-11-01 không còn cổng 5174 ri
 <http://localhost:5173/login>, tài khoản admin được đưa vào <http://localhost:5173/quan-tri>.
 Bật bằng `python scripts/run_dev.py`.
 
-| Màn hình | Đường dẫn | File |
+| Màn hình | Đường dẫn (sau `/quan-tri`) | File |
 |---|---|---|
-| Đăng nhập quản trị | `/login` | `pages/login/ui/LoginPage.tsx` |
-| Danh sách quán (sửa/ẩn) | `/` | `pages/restaurants/ui/RestaurantsPage.tsx` |
+| Đăng nhập quản trị | `/login` (app chính) | `pages/login/ui/LoginPage.tsx` |
+| Tổng quan (UC17) | `/quan-tri` | `pages/overview/ui/OverviewPage.tsx` |
+| Quản lý quán (UC19) | `/quan-tri/quan-an` | `pages/restaurants/ui/RestaurantsPage.tsx` |
+| Quản lý món (UC18) | `/quan-tri/mon-an` | `pages/dishes/ui/DishesPage.tsx` |
+| Chi tiết món, sửa mô tả (UC18) | `/quan-tri/mon-an/:dishId` | `pages/dish-detail/ui/DishDetailPage.tsx` |
+| Chất lượng dữ liệu (UC22) | `/quan-tri/chat-luong` | `pages/quality/ui/QualityPage.tsx` |
+| Cần xử lý / xem xét báo đóng cửa (UC20, UC21) | `/quan-tri/can-xu-ly` | `pages/issues/ui/IssuesPage.tsx` · `features/manage-closure-reports/` |
+| Gợi ý & hệ thống | `/quan-tri/goi-y` | `pages/recommendation/ui/RecommendationPage.tsx` |
+| Nhật ký hoạt động (UC24) | `/quan-tri/nhat-ky` | `pages/activity/ui/ActivityPage.tsx` |
+| Cài đặt hệ thống | `/quan-tri/cai-dat` | `pages/system/ui/SystemPage.tsx` |
+| Quản lý bài viết (UC23, 2026-11-12) | `/quan-tri/bai-viet` | `pages/posts/ui/PostsPage.tsx` · `features/manage-posts/` |
+
+Đối chiếu với `packages/admin/src/app/routes.tsx` ngày 2026-11-12. Bảng cũ chỉ ghi 2 màn.
 
 ---
 
@@ -146,6 +159,11 @@ Gốc `src/`. Kiến trúc **Clean Architecture**: phụ thuộc chỉ đi một
 | Đường dẫn HTTP `/dishes/*` | `presentation/api/routers/dishes.py` |
 | Đường dẫn HTTP `/auth/*` | `presentation/api/routers/auth.py` |
 | Đường dẫn HTTP `/me/*` (đã lưu, cấp độ) | `presentation/api/routers/me.py` |
+| Đường dẫn HTTP `/posts` (công khai) | `presentation/api/routers/posts.py` |
+| Đường dẫn HTTP `/admin/posts/*` (quản trị) | `presentation/api/routers/admin_posts.py` |
+| **Bài viết**: luật (slug, nguồn, ảnh) | `domain/entities/post.py` |
+| **Bài viết**: điều phối | `application/use_cases/manage_posts.py` |
+| **Bài viết**: kho SQLite | `infrastructure/repositories/sqlite_post_repository.py` |
 | **Hình dạng JSON** của mọi request/response | `presentation/api/schemas.py` |
 | **Mã lỗi → HTTP status** | `presentation/api/error_handlers.py` |
 | **Nối dây toàn hệ thống** (cái gì dùng cái gì) | `presentation/api/dependencies.py` ⬅ *quan trọng nhất khi muốn hiểu hệ thống* |
@@ -200,6 +218,7 @@ phân cụm.
 | `python scripts/refresh_check.py` | So dữ liệu mới/cũ: quán nào mới, mất, đổi tên |
 | `python scripts/build_sqlite.py` | Dựng CSDL SQLite từ CSV |
 | `python scripts/export_openapi.py` | Xuất đặc tả API cho frontend |
+| `python scripts/seed_bai_viet.py` | Nạp 3 bài viết mẫu (idempotent: chạy lại không tạo trùng; gắn ảnh còn thiếu) |
 
 ---
 

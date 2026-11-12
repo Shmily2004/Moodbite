@@ -1,5 +1,9 @@
 """Chống LẠM DỤNG nút "quán này đã đóng cửa" + cho admin GỠ được lượt báo.
 
+Theo biểu đồ UC06/UC21 (đổi 2026-11-12): lượt báo đưa quán vào hàng chờ quản trị, KHÔNG tự
+ẩn quán. Các test dưới đây khoá: đếm đúng người báo, không cho session_id bịa đếm thêm,
+và admin gỡ được lượt báo bền qua khởi động lại.
+
 BUG THẬT (rà soát 2026-10-06), tái hiện được:
   1. `POST /interactions` không cần đăng nhập, không giới hạn tần suất, và bộ đếm đếm theo
      `session_id` — chuỗi do CLIENT tự đặt. 3 lượt `report_closed` với 3 session_id bịa
@@ -25,7 +29,6 @@ from src.application.use_cases.manage_closure_reports import (
     ListClosureReportsUseCase,
 )
 from src.domain.services.closure_reports import (
-    MIN_REPORTS_TO_HIDE,
     ClosureReportTally,
     reporter_key_from_ip,
     tally_from_events,
@@ -38,21 +41,23 @@ from tests.fakes import FakeRestaurantRepo, make_restaurant
 from tests.test_api import SESSION, _container
 
 API = "/api/v1"
+# Số người báo dùng trong test. KHÔNG còn là ngưỡng ẩn: chỉ là một mốc đủ lớn để test.
+SO_NGUOI = 3
 QUAN = "id-Quan Pho"   # place_id của quán mặc định trong `tests.test_api._container`
 
 
 # --- Miền: bộ đếm có thể XOÁ -----------------------------------------------------------
 
 
-def test_xoa_luot_bao_thi_quan_hien_lai_va_dem_lai_tu_dau():
+def test_xoa_luot_bao_thi_quan_ra_khoi_hang_cho_va_dem_lai_tu_dau():
     tally = ClosureReportTally()
-    for i in range(MIN_REPORTS_TO_HIDE):
+    for i in range(SO_NGUOI):
         tally.record("q1", f"ip:{i}")
-    assert tally.is_reported_closed("q1")
+    assert "q1" in tally.reported_counts()
 
-    assert tally.clear("q1") == MIN_REPORTS_TO_HIDE
+    assert tally.clear("q1") == SO_NGUOI
 
-    assert tally.is_reported_closed("q1") is False
+    assert "q1" not in tally.reported_counts()
     assert tally.report_count("q1") == 0
     # Người cũ báo lại thì tính lại từ đầu — xoá là "bắt đầu lại", không phải "miễn nhiễm".
     tally.record("q1", "ip:0")
@@ -91,17 +96,16 @@ def _bao(uc, session, reporter_key):
 
 def test_doi_session_id_KHONG_tang_so_nguoi_bao(tmp_path):
     uc, tally, _ = _use_case(tmp_path)
-    for i in range(MIN_REPORTS_TO_HIDE + 2):
+    for i in range(SO_NGUOI + 2):
         _bao(uc, f"phien-bia-{i}", reporter_key="ip:cung-mot-may")
     assert tally.report_count(QUAN) == 1
-    assert tally.is_reported_closed(QUAN) is False
 
 
-def test_nguoi_bao_KHAC_NHAU_thi_moi_du_nguong(tmp_path):
+def test_nguoi_bao_KHAC_NHAU_duoc_dem_rieng(tmp_path):
     uc, tally, _ = _use_case(tmp_path)
-    for i in range(MIN_REPORTS_TO_HIDE):
+    for i in range(SO_NGUOI):
         _bao(uc, "cung-phien", reporter_key=f"ip:may-{i}")
-    assert tally.is_reported_closed(QUAN) is True
+    assert tally.report_count(QUAN) == SO_NGUOI
 
 
 def test_khong_co_khoa_nguoi_bao_thi_ghi_nhat_ky_nhung_KHONG_dem(tmp_path):
@@ -114,12 +118,12 @@ def test_khong_co_khoa_nguoi_bao_thi_ghi_nhat_ky_nhung_KHONG_dem(tmp_path):
 
 def test_nhat_ky_ghi_khoa_nguoi_bao_de_phat_lai_luc_khoi_dong(tmp_path):
     uc, _, log = _use_case(tmp_path)
-    for i in range(MIN_REPORTS_TO_HIDE):
+    for i in range(SO_NGUOI):
         _bao(uc, "s", reporter_key=f"ip:{i}")
 
     tally_moi = tally_from_events(log.replay_closure_events())
 
-    assert tally_moi.is_reported_closed(QUAN) is True
+    assert tally_moi.report_count(QUAN) == SO_NGUOI
 
 
 # --- Phát lại nhật ký: bản ghi cũ + sự kiện xoá -----------------------------------------
@@ -140,7 +144,7 @@ def test_ban_ghi_CU_khong_co_khoa_nguoi_bao_KHONG_duoc_tinh(tmp_path):
         for i in range(5)
     ])
     tally = tally_from_events(JsonlInteractionRepository(path).replay_closure_events())
-    assert tally.is_reported_closed("q1") is False
+    assert tally.report_count("q1") == 0
 
 
 def test_su_kien_XOA_duoc_phat_lai_dung_thu_tu(tmp_path):
@@ -156,7 +160,6 @@ def test_su_kien_XOA_duoc_phat_lai_dung_thu_tu(tmp_path):
 
     # Ba lượt TRƯỚC lần xoá không còn tính; chỉ còn lượt sau.
     assert tally.report_count("q1") == 1
-    assert tally.is_reported_closed("q1") is False
 
 
 def test_su_kien_xoa_KHONG_lam_ban_thong_ke_tuong_tac(tmp_path):
@@ -179,9 +182,9 @@ def _client_bao_dong_cua(tmp_path):
     return TestClient(create_app(container=c), raise_server_exceptions=False), c, log
 
 
-def test_HTTP_ba_session_id_bia_tu_MOT_may_KHONG_an_duoc_quan(tmp_path):
+def test_HTTP_ba_session_id_bia_tu_MOT_may_chi_chiem_1_cho_trong_hang_cho(tmp_path):
     client, c, _ = _client_bao_dong_cua(tmp_path)
-    for i in range(MIN_REPORTS_TO_HIDE):
+    for i in range(SO_NGUOI):
         res = client.post(f"{API}/interactions", json={
             "session_id": f"bia-{i}", "restaurant_id": QUAN,
             "action_type": "report_closed",
@@ -189,6 +192,7 @@ def test_HTTP_ba_session_id_bia_tu_MOT_may_KHONG_an_duoc_quan(tmp_path):
         assert res.status_code == 201, res.text
 
     assert c.closure_tally.report_count(QUAN) == 1
+    # Lượt báo KHÔNG tự ẩn quán (UC06): quán vẫn hiện trong tìm kiếm.
     ids = [r["restaurant_id"] for r in client.post(
         f"{API}/search", json={"session_id": SESSION}
     ).json()["data"]["results"]]
@@ -222,17 +226,17 @@ def test_HTTP_tuong_tac_thuong_KHONG_ghi_khoa_nguoi_bao(tmp_path):
 
 def test_use_case_xoa_ghi_nhat_ky_TRUOC_roi_moi_xoa_bo_dem(tmp_path):
     uc, tally, log = _use_case(tmp_path)
-    for i in range(MIN_REPORTS_TO_HIDE):
+    for i in range(SO_NGUOI):
         _bao(uc, "s", f"ip:{i}")
     restaurants = FakeRestaurantRepo([make_restaurant("Quan Pho", place_id=QUAN)])
     clear = ClearClosureReportsUseCase(tally=tally, log=log, restaurants=restaurants)
 
     kq = clear.execute(QUAN, actor="admin")
 
-    assert kq.cleared_reports == MIN_REPORTS_TO_HIDE
-    assert tally.is_reported_closed(QUAN) is False
+    assert kq.cleared_reports == SO_NGUOI
+    assert tally.report_count(QUAN) == 0
     # Khởi động lại (phát lại nhật ký) vẫn giữ trạng thái đã xoá.
-    assert tally_from_events(log.replay_closure_events()).is_reported_closed(QUAN) is False
+    assert tally_from_events(log.replay_closure_events()).report_count(QUAN) == 0
 
 
 def test_use_case_xoa_quan_khong_ton_tai_va_khong_co_luot_bao_thi_404(tmp_path):
@@ -259,15 +263,16 @@ def test_use_case_xoa_duoc_ca_quan_da_bien_khoi_du_lieu_neu_con_luot_bao(tmp_pat
 
 def test_liet_ke_quan_dang_bi_bao(tmp_path):
     _, tally, _ = _use_case(tmp_path)
-    for i in range(MIN_REPORTS_TO_HIDE):
+    for i in range(SO_NGUOI):
         tally.record(QUAN, f"ip:{i}")
     tally.record("q-le", "ip:z")
     restaurants = FakeRestaurantRepo([make_restaurant("Quan Pho", place_id=QUAN)])
 
     rows = ListClosureReportsUseCase(tally=tally, restaurants=restaurants).execute()
 
+    # Chưa ai ẩn quán: cả hai đều chưa xử lý (is_hidden=False), quán báo nhiều đứng trước.
     assert [(r.restaurant_id, r.report_count, r.is_hidden) for r in rows] == [
-        (QUAN, MIN_REPORTS_TO_HIDE, True),
+        (QUAN, SO_NGUOI, False),
         ("q-le", 1, False),
     ]
     assert rows[0].name == "Quan Pho"
@@ -313,28 +318,28 @@ def test_HTTP_admin_xem_va_xoa_luot_bao(admin_client):
     from tests.test_admin_api import auth_header
 
     client, c, log = admin_client
-    for i in range(MIN_REPORTS_TO_HIDE):
+    for i in range(SO_NGUOI):
         c.closure_tally.record("pho-1", f"ip:{i}")
     h = auth_header(client)
 
     ds = client.get(f"{API}/admin/closure-reports", headers=h)
     assert ds.status_code == 200, ds.text
     data = ds.json()["data"]
-    assert data["threshold"] == MIN_REPORTS_TO_HIDE
+    assert "threshold" not in data        # hàng chờ không còn ngưỡng ẩn
     assert data["items"] == [{
         "restaurant_id": "pho-1", "name": "Phở Bò Hàng Đồng",
-        "report_count": MIN_REPORTS_TO_HIDE, "is_hidden": True,
+        "report_count": SO_NGUOI, "is_hidden": False,
     }]
 
     res = client.post(f"{API}/admin/restaurants/pho-1/closure-reports/clear", headers=h)
     assert res.status_code == 200, res.text
     assert res.json()["data"] == {
-        "restaurant_id": "pho-1", "cleared_reports": MIN_REPORTS_TO_HIDE,
+        "restaurant_id": "pho-1", "cleared_reports": SO_NGUOI,
         "is_hidden": False,
     }
-    assert c.closure_tally.is_reported_closed("pho-1") is False
+    assert c.closure_tally.report_count("pho-1") == 0
     # Bền qua khởi động lại.
-    assert tally_from_events(log.replay_closure_events()).is_reported_closed("pho-1") is False
+    assert tally_from_events(log.replay_closure_events()).report_count("pho-1") == 0
     # Có dấu vết trong nhật ký hoạt động quản trị.
     hang = client.get(f"{API}/admin/activity", headers=h).json()["data"]["entries"]
     assert any(

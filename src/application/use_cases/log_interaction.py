@@ -128,8 +128,8 @@ class LogInteractionUseCase:
                     command.restaurant_id, command.reporter_key
                 )
                 logger.info(
-                    "Quán %s bị báo đã đóng cửa (%d/%d người báo)",
-                    command.restaurant_id, so_nguoi, self._closure_tally.threshold,
+                    "Quán %s được báo đã đóng cửa (%d người báo, chờ quản trị xem xét)",
+                    command.restaurant_id, so_nguoi,
                 )
             else:
                 logger.warning(

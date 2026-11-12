@@ -100,7 +100,7 @@ export const viMonQuan = {
     'Các câu trên được trích nguyên văn từ đánh giá của người dùng, không phải nhận xét của MoodBite.',
 
   // --- Báo đóng cửa (features/report-closure) --------------------------------
-  'closure.sent': 'Đã ghi nhận. Cảm ơn bạn — quán sẽ được ẩn khi có thêm người xác nhận.',
+  'closure.sent': 'Đã ghi nhận. Cảm ơn bạn — quán sẽ được đội ngũ MoodBite kiểm tra.',
   'closure.failed': 'Gửi không được, có thể do mất mạng. Bạn thử lại giúp nhé.',
   'closure.retry': 'Thử lại',
   'closure.confirmBefore': 'Xác nhận',
@@ -262,7 +262,7 @@ export const enMonQuan: Record<keyof typeof viMonQuan, string> = {
   'restDetail.summaryNote':
     "The sentences above are quoted verbatim from users' reviews, not MoodBite's own opinion.",
 
-  'closure.sent': 'Noted. Thank you — the place will be hidden once more people confirm.',
+  'closure.sent': 'Noted. Thank you — the MoodBite team will review this place.',
   'closure.failed': 'Could not send, maybe you are offline. Please try again.',
   'closure.retry': 'Try again',
   'closure.confirmBefore': 'Confirm that',

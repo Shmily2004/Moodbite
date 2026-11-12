@@ -2,11 +2,12 @@
  * Khối "Quán bị khách báo đóng cửa" trên trang Cần xử lý (thêm 2026-10-06).
  *
  * VIEW thuần: dữ liệu và thao tác đến từ `useClosureReports`. Không tự suy `is_hidden`.
+ * Theo biểu đồ UC21: mỗi quán có hai lựa chọn — ẩn quán, hoặc gỡ lượt báo.
  */
 import { useClosureReports } from '../model/useClosureReports';
 
 export function ClosureReportsPanel() {
-  const { items, threshold, loading, error, dangGo, goBaoCao } = useClosureReports();
+  const { items, loading, error, dangGo, anQuan, goBaoCao } = useClosureReports();
 
   return (
     <section className="panel bao-dong-cua" aria-labelledby="bao-dong-cua-tieu-de">
@@ -14,11 +15,8 @@ export function ClosureReportsPanel() {
         Quán bị khách báo đóng cửa
       </h3>
       <p className="muted">
-        {threshold != null
-          ? `Đủ ${threshold} người báo (đếm theo địa chỉ IP, không theo phiên) thì quán tự ẩn khỏi mọi luồng. `
-          : ''}
-        "Gỡ lượt báo" xoá các lượt báo của quán đó — KHÁC nút "Khôi phục" ở trang Quản lý quán
-        (nút đó chỉ bỏ ẩn do quản trị viên).
+        Lượt báo của khách KHÔNG tự ẩn quán. Kiểm tra từng quán: nếu thật sự đã đóng cửa thì
+        "Ẩn quán"; nếu không thì "Gỡ lượt báo" để xoá các lượt báo của quán đó.
       </p>
 
       {error && <p className="notice notice--warn">{error}</p>}
@@ -51,10 +49,20 @@ export function ClosureReportsPanel() {
                   {q.is_hidden ? (
                     <span className="nhan nhan--loi">Đang bị ẩn</span>
                   ) : (
-                    <span className="nhan nhan--canh-bao">Chưa đủ để ẩn</span>
+                    <span className="nhan nhan--canh-bao">Chờ xử lý</span>
                   )}
                 </td>
                 <td>
+                  {!q.is_hidden && (
+                    <button
+                      type="button"
+                      disabled={dangGo === q.restaurant_id}
+                      onClick={() => void anQuan(q.restaurant_id)}
+                      aria-label={`Ẩn quán ${q.name ?? q.restaurant_id} vì đã đóng cửa`}
+                    >
+                      Ẩn quán
+                    </button>
+                  )}{' '}
                   <button
                     type="button"
                     className="ghost"
@@ -62,7 +70,7 @@ export function ClosureReportsPanel() {
                     onClick={() => void goBaoCao(q.restaurant_id)}
                     aria-label={`Gỡ lượt báo đóng cửa của ${q.name ?? q.restaurant_id}`}
                   >
-                    {dangGo === q.restaurant_id ? 'Đang gỡ…' : 'Gỡ lượt báo'}
+                    {dangGo === q.restaurant_id ? 'Đang xử lý…' : 'Gỡ lượt báo'}
                   </button>
                 </td>
               </tr>

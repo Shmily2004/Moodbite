@@ -19,13 +19,13 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Frontend Client | ✅ **TypeScript + FSD** | có bản đồ, steiger trong CI. Số test: xem dòng **Test** bên dưới (con số "86 test" cũ là của 2026-08) |
 | Bản đồ | ✅ **Xong** | Leaflet + OpenStreetMap, miễn phí, không cần key |
 | Kiến trúc | ✅ Sạch | Clean Architecture + checker tự động trong CI |
-| Test | ✅ **1048 backend + 540 frontend** | Đo bằng `python scripts/verify.py` ngày 2026-11-08 (10/10 mục xanh) |
+| Test | ✅ **1062 backend + 546 frontend** | Đo bằng `python scripts/verify.py` ngày 2026-11-12 (10/10 mục xanh) |
 | Rà soát QA 2026-11-07 | 🟡 **4/9 đã xong, 1 xong một phần (Q5)** | Còn mở: lượt hiển thị (Q1, cần chủ dự án duyệt), proxy/giới hạn tần suất (Q2), tải đồng thời (Q7), Lớp 3 vs baseline (Q9). Chi tiết ở `docs/bao_cao_qa_2026-11-07.md` |
 | Giao diện | ✅ Theo bản duyệt · **trang chủ + tài khoản dựng lại 2026-08-22** | trang chủ = LƯỚI MÓN + chips lọc; trang món = giới thiệu + bản đồ + danh sách quán; `/tim-kiem` giữ bố cục bản đồ + rail cũ |
 | Router + layout | ✅ Xong | react-router v6, khung dùng chung, `RequireAuth` cho admin |
-| Chạy xem giao diện | ✅ **một lệnh** | `python scripts/run_dev.py --admin` |
+| Chạy xem giao diện | ✅ **một lệnh** | `python scripts/run_dev.py` |
 | Kho lưu trữ | ✅ CSV (mặc định) · ✅ SQLite (chọn được) | `MOODBITE_STORAGE=sqlite`, kết quả GIỐNG HỆT |
-| **Frontend Admin** | ✅ **8/8 màn xong 2026-09-08** | Cột trái + 8 trang, KHÔNG còn mục nào "chưa dựng". Tổng quan · Quản lý món · Quản lý quán · **Chất lượng dữ liệu** · **Cần xử lý** · Gợi ý & Hệ thống · Nhật ký hoạt động · Cài đặt. `python scripts/run_dev.py --admin` |
+| **Frontend Admin** | ✅ **8/8 màn xong 2026-09-08** | Cột trái + 8 trang, KHÔNG còn mục nào "chưa dựng". Tổng quan · Quản lý món · Quản lý quán · **Chất lượng dữ liệu** · **Cần xử lý** · Gợi ý & Hệ thống · Nhật ký hoạt động · Cài đặt. `python scripts/run_dev.py` |
 | ↳ **Nhật ký hoạt động quản trị** | ✅ **Mới 2026-08-26** | Trước đó việc admin ẩn/sửa/thêm quán KHÔNG được ghi ở đâu — quán biến mất mà không truy được ai làm. Nay có bảng `audit_log`, ghi tóm tắt "cũ -> mới". Chỉ ghi thêm, không sửa. Ghi nhật ký hỏng KHÔNG làm hỏng thao tác chính |
 | ↳ **Chất lượng dữ liệu (admin)** | ✅ **Mới 2026-09-08** | `/chat-luong` theo `design/quality data admin.png`. Độ phủ · vòng tròn hoàn thiện · theo nguồn · **biểu đồ xu hướng 7 ngày** · "so với tháng trước". Hai thứ sau dựa trên bảng `quality_snapshot` ghi **mỗi ngày một dòng** — trước đây không dựng được vì không có ảnh chụp theo ngày. Chưa đủ mốc thì hiện "chưa đủ dữ liệu để so sánh", **không** hiện `+0` |
 | ↳ **Cần xử lý (admin)** | ✅ **Mới 2026-09-08** | `/can-xu-ly` theo `design/needs to be handled admin.png`. **7 nhóm** vấn đề (thêm `trung_lap` và `ngoai_ha_noi`), 3 mức ưu tiên, mở ra bản ghi cụ thể và **đánh dấu đã xử lý** (bảng `issue_resolution`, gỡ ra được). Đánh dấu **KHÔNG** sửa dữ liệu gốc |
@@ -1604,6 +1604,32 @@ Chưa làm / cần quyết định:
 - Tài khoản cũ KHÔNG có email (tài khoản local duy nhất hiện nay) không có cách khai email sau, nên
   không bao giờ nhận được thư quên mật khẩu.
 - VPS vẫn chưa có `MOODBITE_SMTP_*` trong `.env.local` (xem `docs/trien_khai_vps.md` mục 6).
+
+### Đợt 2026-11-12 — tin tức/bài viết khớp biểu đồ, ảnh bài, rà toàn bộ tài liệu
+
+- ✅ **UC14 Xem tin tức** (khách): `/tin-tuc` và `/tin-tuc/:slug`, nằm trong nhóm `RequireLogin` đúng biểu đồ. Giao diện có ảnh bìa (tuỳ chọn) và đọc bài. Test: `pages/news/ui/NewsPage.test.tsx`, `pages/news-article/ui/NewsArticlePage.test.tsx`.
+- ✅ **UC23 Quản lý bài viết** (admin): `/quan-tri/bai-viet` soạn, sửa, xoá, lọc nháp/công khai. Backend ghi nhật ký `create_post` / `update_post` / `delete_post`.
+- ✅ **Ảnh minh hoạ bài**: cột `image_url` / `image_credit`, nâng cấp kho cũ tự động. Ảnh từ mạng bắt buộc có nguồn (domain kiểm).
+- ✅ **Điểm cấp độ**: bỏ điểm "thích/không thích" vì giao diện chưa có nút đó (xem `gamification.py`).
+- ✅ **Nhật ký**: bổ sung nhãn còn thiếu cho `update_dish` (trước đó hiện mã kỹ thuật) và mục lọc "Gỡ lượt báo đóng cửa". Test `tests/test_nhan_nhat_ky.py` khoá việc mọi hành động có nhãn.
+- ✅ **Tài liệu API** (`docs/extracted/MoodBite_Dac_Ta_API.md`): thêm các endpoint đã có trong code nhưng thiếu trong đặc tả — `/posts`, `/posts/{slug}`, `/admin/posts*`, `PATCH /admin/dishes/{id}`, `GET /admin/closure-reports`, `POST .../closure-reports/clear`. Ghi rõ `GET /restaurants/{id}/directions` là KHÔNG LÀM.
+- ✅ **Bản đồ dự án** (`docs/BAN_DO_DU_AN.md`): bảng màn quản trị cũ chỉ có 2/10 màn — đã đủ 10 màn; thêm dòng tin tức, bài viết, `seed_bai_viet.py`.
+- ✅ **Số liệu hiện tại** trong `CLAUDE.md` (mục 4): đo lại 2026-11-12 — 1.177/52.871 quán có rating, 670/52.871 có giá. Các số lịch sử khác đã có ngày đo.
+
+**Đã đối chiếu và KHỚP** (không cần sửa): 65 endpoint trong code ↔ `frontend/openapi.json` ↔ `schema.d.ts`; mọi endpoint trong `docs/bieu_do_uml` ↔ code; 24 file `puml_du_phong/hoat_dong` ↔ `sinh_bieu_do.py` (sinh lại không đổi byte nào); schema SQLite ↔ 10 repository (đọc thật trên bản sao `moodbite.db` và `moodbite_users.db`).
+
+**Còn mở (chưa sửa, cần quyết định):**
+- Biểu đồ UC14 yêu cầu đăng nhập để đọc tin; giao diện đã làm, nhưng `GET /api/v1/posts` vẫn công khai.
+- `docs/bieu_do_uml/README.md` tự ghi: 19/24 use case chưa đối chiếu lại với code (chỉ đối chiếu 5 UC).
+- Vài đường dẫn trong `PROJECT_CHECKLIST.md` (nhật ký cũ) trỏ tới file đã đổi tên hoặc chuyển đi; giữ nguyên vì là lịch sử.
+
+### Đợt 2026-11-12 (chiều) — chạy thử trình duyệt thật + đối chiếu biểu đồ
+
+- ✅ **Trình duyệt thật** (Microsoft Edge + Playwright): người dùng — trang chủ, món, quán, tìm kiếm (10 kết quả), gợi ý, tài khoản, tin tức, đọc bài, quên mật khẩu, 404, lưu quán, đăng xuất. **Quản trị** — đăng nhập, cả 10 trang, tạo và xoá bài viết (nhật ký ghi đủ), sửa rồi gỡ mô tả món (nhật ký ghi), ẩn rồi bỏ ẩn một quán (nhật ký ghi).
+- ✅ **Làm theo biểu đồ** (cùng đợt): **UC06/UC21** — lượt báo đóng cửa KHÔNG còn tự ẩn quán. Quán vào hàng chờ "Quán bị khách báo đóng cửa"; quản trị chọn **Ẩn quán** (`hide_restaurant`) hoặc **Gỡ lượt báo**. Bỏ ngưỡng 3 người (quyết định 2026-10-06 đã bị thay thế). **UC01** — không có quán khớp câu tìm thì hiện thông báo gợi ý nới bộ lọc, không trả danh sách "gần giống".
+- ⚠️ Còn lệch, cần quyết định: **UC15** — biểu đồ ghi "về trang chủ", code về trang đăng nhập, vì trang chủ bắt đăng nhập (chốt 2026-11-10). Muốn khớp hẳn thì phải bỏ yêu cầu đăng nhập ở trang chủ. **UC12** — sở thích lưu trên máy (localStorage), không lên máy chủ; biểu đồ không nói rõ.
+- ⚠️ Dữ liệu: 1 quán có ký tự điều khiển `` ở đầu tên (`overture:893b1199-…`), xuất hiện trong nhật ký. Cần làm sạch khi nạp dữ liệu.
+- Ghi chú vận hành: đã tạo và xoá một bài thử; đã ẩn rồi bỏ ẩn một quán; đã sửa rồi gỡ mô tả món Phở bò. Nhật ký có các dòng tương ứng.
 
 ## 🚧 VIỆC TIẾP THEO
 

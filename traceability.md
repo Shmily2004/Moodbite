@@ -78,7 +78,7 @@ mọi đường dẫn, ký hiệu, tên test trong file này phải tồn tại,
 | A2.4 | Bộ sưu tập | `src/presentation/api/routers/me_collections.py` · `src/application/use_cases/manage_collections.py` · `src/domain/entities/collection.py` | `test_ten_rong_bi_tu_choi` · `test_gioi_han_so_bo_suu_tap` |
 | A2.5 | Địa chỉ của tôi (chỉ trong Hà Nội) | `src/presentation/api/routers/me_addresses.py` · `src/application/use_cases/manage_addresses.py` · `src/domain/entities/user_address.py` | `test_toa_do_ngoai_ha_noi_bi_tu_choi_kem_ly_do` |
 | A3.1 | Ghi tương tác (`user_id` lấy từ token) | `src/presentation/api/routers/interactions.py` · `src/application/use_cases/log_interaction.py` · `src/domain/entities/interaction.py` | `tests/test_use_cases.py`, `tests/test_api.py` |
-| A3.2 | Báo quán đóng cửa — đủ ngưỡng mới ẩn | `src/domain/services/closure_reports.py` | `test_du_nguong_thi_an` · `tests/test_closure_reports.py` |
+| A3.2 | Báo quán đóng cửa — lượt báo vào hàng chờ quản trị, KHÔNG tự ẩn (UC06) | `src/domain/services/closure_reports.py` | `test_bao_nhieu_nguoi_cung_KHONG_lam_quan_bien_mat_khoi_ket_qua` · `tests/test_closure_reports.py` |
 
 ## Trang quản trị
 
@@ -92,7 +92,7 @@ mọi đường dẫn, ký hiệu, tên test trong file này phải tồn tại,
 | Q3.1 | Xem · sửa · ẩn quán | `src/application/use_cases/manage_restaurants.py` · `src/domain/value_objects/restaurant_edit.py` | `test_an_quan_thi_nguoi_dung_cuoi_khong_thay_nua` · `test_sua_quan_khong_ton_tai_tra_404` |
 | Q3.2 | Danh mục món cho admin | `src/application/use_cases/list_dishes_admin.py` | `test_bang_mon_tra_phan_trang_va_so_tren_nut_loc` · `test_chi_tiet_mon_co_so_quan_va_danh_sach_quan` |
 | Q3.3 | Inbox "Cần xử lý" | `src/application/use_cases/manage_issues.py` · `src/domain/services/data_issues.py` · `src/domain/entities/issue_resolution.py` | `test_tab_da_xu_ly_KHONG_bi_route_issues_key_nuot` · `test_can_xu_ly_giu_lai_ca_dong_bang_0` |
-| Q3.4 | Xem và gỡ lượt báo đóng cửa | `src/presentation/api/routers/admin_closures.py` · `src/application/use_cases/manage_closure_reports.py` | `test_xoa_luot_bao_thi_quan_hien_lai_va_dem_lai_tu_dau` |
+| Q3.4 | Hàng chờ báo đóng cửa: xem, ẩn quán hoặc gỡ lượt báo (UC21) | `src/presentation/api/routers/admin_closures.py` · `src/application/use_cases/manage_closure_reports.py` | `test_xoa_luot_bao_thi_quan_ra_khoi_hang_cho_va_dem_lai_tu_dau` · `test_HTTP_admin_xem_va_xoa_luot_bao` |
 | Q3.5 | Nhật ký hoạt động quản trị | `src/application/use_cases/manage_audit_log.py` · `src/domain/entities/audit_log.py` | `test_sua_quan_thi_nhat_ky_noi_ro_CU_ROI_MOI` · `test_GHI_NHAT_KY_HONG_KHONG_LAM_HONG_THAO_TAC` |
 | Q3.6 | Sửa mô tả món (bản sửa tay, đọc chồng lên danh mục gốc, có nhật ký) | `src/application/use_cases/edit_dish_description.py` · `src/domain/value_objects/dish_description.py` · `src/infrastructure/repositories/overlay_dish_catalog_repository.py` · `src/infrastructure/repositories/sqlite_dish_override_repository.py` | `test_sua_xong_chi_tiet_hien_ban_moi_va_danh_dau_da_sua` · `test_overlay_doc_chong_ban_sua_nhung_goc_van_nguyen` · `test_moi_lan_sua_deu_vao_nhat_ky` |
 | Q3.7 | Tìm quán (admin) không phân biệt dấu và hoa/thường | `src/infrastructure/repositories/sqlite_restaurant_repository.py` · `src/domain/value_objects/text.py` | `test_tim_khong_phan_biet_hoa_thuong_va_dau` · `test_tim_khong_dau_khop_quan_co_dau` |

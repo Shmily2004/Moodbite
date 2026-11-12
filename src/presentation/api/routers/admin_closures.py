@@ -52,12 +52,11 @@ def _require(use_case):
             responses=CLOSURE_ADMIN_ERROR_RESPONSES,
             summary="Quán đang bị người dùng báo đóng cửa")
 def list_closure_reports(container: Container = Depends(get_container)):
-    """Mọi quán có ít nhất 1 lượt báo. Quán ĐANG BỊ ẨN đứng đầu."""
+    """Hàng chờ UC21: mọi quán có ít nhất 1 lượt báo. Quán CHƯA XỬ LÝ (còn hiện) đứng đầu."""
     use_case = _require(container.list_closure_reports)
     rows = use_case.execute()
     return success(
         ClosureReportListData(
-            threshold=use_case.threshold,
             items=[
                 ClosureReportItem(
                     restaurant_id=r.restaurant_id,

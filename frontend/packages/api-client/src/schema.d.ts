@@ -148,9 +148,10 @@ export interface paths {
          *     cũng tự cộng điểm cho mình bằng cách gọi thẳng API.
          *
          *     GIỚI HẠN TẦN SUẤT theo IP (2026-10-06): vượt -> 429 RATE_LIMITED + `Retry-After`.
-         *     `report_closed` có hạn mức RIÊNG, chặt hơn hẳn — một lượt báo góp phần ẩn quán với
-         *     mọi người. Lượt báo được đếm theo KHOÁ NGƯỜI BÁO (IP đã băm) do server tính, KHÔNG
-         *     theo `session_id` client gửi lên (3 session_id bịa từng đủ ẩn bất kỳ quán nào).
+         *     `report_closed` có hạn mức RIÊNG, chặt hơn hẳn — một lượt báo đưa quán vào hàng chờ
+         *     quản trị (UC06). Lượt báo được đếm theo KHOÁ NGƯỜI BÁO (IP đã băm) do server tính,
+         *     KHÔNG theo `session_id` client gửi lên, để một người không chiếm hàng chờ bằng nhiều
+         *     session_id.
          */
         post: operations["log_interaction_api_v1_interactions_post"];
         delete?: never;
@@ -1148,7 +1149,7 @@ export interface paths {
         };
         /**
          * Quán đang bị người dùng báo đóng cửa
-         * @description Mọi quán có ít nhất 1 lượt báo. Quán ĐANG BỊ ẨN đứng đầu.
+         * @description Hàng chờ UC21: mọi quán có ít nhất 1 lượt báo. Quán CHƯA XỬ LÝ (còn hiện) đứng đầu.
          */
         get: operations["list_closure_reports_api_v1_admin_closure_reports_get"];
         put?: never;
@@ -2182,17 +2183,12 @@ export interface components {
             report_count: number;
             /**
              * Is Hidden
-             * @description Đủ ngưỡng -> đang bị ẩn khỏi MỌI luồng người dùng.
+             * @description Quán đang bị QUẢN TRỊ ẩn (is_active=0). Lượt báo không tự ẩn.
              */
             is_hidden: boolean;
         };
         /** ClosureReportListData */
         ClosureReportListData: {
-            /**
-             * Threshold
-             * @description Số người báo cần để ẩn quán.
-             */
-            threshold: number;
             /** Items */
             items: components["schemas"]["ClosureReportItem"][];
         };
@@ -2711,6 +2707,16 @@ export interface components {
              * @description Ngày nội dung được cập nhật
              */
             last_updated?: string | null;
+            /**
+             * Image Url
+             * @description Ảnh minh hoạ: `/anh/...` hoặc `https://...` (cần image_credit)
+             */
+            image_url?: string | null;
+            /**
+             * Image Credit
+             * @description Nguồn + giấy phép ảnh từ mạng
+             */
+            image_credit?: string | null;
         };
         /** RegisterRequest */
         RegisterRequest: {

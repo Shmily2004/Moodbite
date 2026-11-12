@@ -33,7 +33,6 @@ from src.domain.services.query_location import (
     find_ward,
     split_location_phrase,
 )
-from src.domain.services.closure_reports import ClosureReportTally
 from src.domain.services.search_ranking import DEFAULT_MAX_DISTANCE_KM
 from src.domain.value_objects.opening_hours import parse_opening_hours
 from src.domain.value_objects.text import normalize
@@ -134,26 +133,15 @@ class SearchRestaurantsUseCase:
         context_provider: Optional[ContextProvider] = None,
         rule_predictor: Optional[RulePredictor] = None,
         semantic_search: Optional[SemanticSearchPort] = None,
-        closure_tally: Optional[ClosureReportTally] = None,
     ) -> None:
         self._restaurants = restaurants
         self._dish_knowledge = dish_knowledge
         self._context_provider = context_provider
         self._rule_predictor = rule_predictor
         self._semantic_search = semantic_search
-        self._closure_tally = closure_tally
         # Tâm phường dựng LƯỜI ở lần đầu cần tới, rồi giữ lại: quét 52.871 quán cho mỗi
         # lượt tìm là phí, còn toạ độ quán thì gần như không đổi trong một phiên chạy.
         self._ward_centroids: Optional[List[WardCentroid]] = None
-
-    @property
-    def _bi_bao_dong(self):
-        """Vị từ "quán này đã bị báo đóng cửa chưa", đưa xuống tầng xếp hạng.
-
-        Trả `None` khi chưa lắp bộ đếm, và `rank_restaurants` hiểu `None` là không lọc gì
-        thêm - nhờ vậy mọi bộ test cũ chạy y như trước mà không phải sửa.
-        """
-        return self._closure_tally.is_reported_closed if self._closure_tally else None
 
     def execute(self, query: SearchQuery) -> SearchResult:
         # Dùng CHUNG chốt chặn với luồng món, để hai lối vào nói cùng một lệnh khắc phục.
@@ -181,15 +169,18 @@ class SearchRestaurantsUseCase:
             mood_weights=mood_weights,
             context=context,
             max_distance_km=query.max_distance_km,
-            is_reported_closed=self._bi_bao_dong,
             limit=max(1, min(query.limit, MAX_LIMIT)),
             semantic_scores=self._semantic_scores(query_text),
         )
 
+        # Theo biểu đồ UC01: câu tìm không khớp quán nào -> THÔNG BÁO và gợi ý nới bộ lọc,
+        # KHÔNG trả danh sách "gần giống". Trước đây trả quán theo mức phù hợp chung; đổi
+        # theo biểu đồ (2026-11-12).
         if query_text and not any(r.text_score > 0 for r in ranked):
+            ranked = []
             warnings.append(
-                "Không quán nào khớp trực tiếp nội dung tìm kiếm - kết quả dưới đây xếp "
-                "theo mức phù hợp chung, khoảng cách và đánh giá."
+                "Không có quán nào khớp với câu tìm kiếm của bạn. Thử nới bộ lọc: bỏ quận/huyện, "
+                "tăng bán kính, hoặc tìm bằng từ khoá ngắn hơn."
             )
 
         # Domain bỏ lọc bán kính khi không quán nào nằm trong đó (thà gợi ý quán xa còn hơn

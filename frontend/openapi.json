@@ -582,7 +582,7 @@
           "interactions"
         ],
         "summary": "Log Interaction",
-        "description": "Ghi một sự kiện tương tác gắn với một nhà hàng cụ thể.\n\n`is_positive_signal` được tính Ở SERVER theo quy tắc thống nhất, không để client tự\nsuy luận - nếu không, nhãn huấn luyện sẽ nhiễu.\n\nKHÁCH VẪN GỌI ĐƯỢC. Đã đăng nhập thì tương tác được gắn thêm `user_id` để đếm \"lượt\nkhám phá\" cho cấp độ. `user_id` lấy TỪ TOKEN, không lấy từ body — nếu không thì ai\ncũng tự cộng điểm cho mình bằng cách gọi thẳng API.\n\nGIỚI HẠN TẦN SUẤT theo IP (2026-10-06): vượt -> 429 RATE_LIMITED + `Retry-After`.\n`report_closed` có hạn mức RIÊNG, chặt hơn hẳn — một lượt báo góp phần ẩn quán với\nmọi người. Lượt báo được đếm theo KHOÁ NGƯỜI BÁO (IP đã băm) do server tính, KHÔNG\ntheo `session_id` client gửi lên (3 session_id bịa từng đủ ẩn bất kỳ quán nào).",
+        "description": "Ghi một sự kiện tương tác gắn với một nhà hàng cụ thể.\n\n`is_positive_signal` được tính Ở SERVER theo quy tắc thống nhất, không để client tự\nsuy luận - nếu không, nhãn huấn luyện sẽ nhiễu.\n\nKHÁCH VẪN GỌI ĐƯỢC. Đã đăng nhập thì tương tác được gắn thêm `user_id` để đếm \"lượt\nkhám phá\" cho cấp độ. `user_id` lấy TỪ TOKEN, không lấy từ body — nếu không thì ai\ncũng tự cộng điểm cho mình bằng cách gọi thẳng API.\n\nGIỚI HẠN TẦN SUẤT theo IP (2026-10-06): vượt -> 429 RATE_LIMITED + `Retry-After`.\n`report_closed` có hạn mức RIÊNG, chặt hơn hẳn — một lượt báo đưa quán vào hàng chờ\nquản trị (UC06). Lượt báo được đếm theo KHOÁ NGƯỜI BÁO (IP đã băm) do server tính,\nKHÔNG theo `session_id` client gửi lên, để một người không chiếm hàng chờ bằng nhiều\nsession_id.",
         "operationId": "log_interaction_api_v1_interactions_post",
         "requestBody": {
           "content": {
@@ -3566,7 +3566,7 @@
           "admin"
         ],
         "summary": "Quán đang bị người dùng báo đóng cửa",
-        "description": "Mọi quán có ít nhất 1 lượt báo. Quán ĐANG BỊ ẨN đứng đầu.",
+        "description": "Hàng chờ UC21: mọi quán có ít nhất 1 lượt báo. Quán CHƯA XỬ LÝ (còn hiện) đứng đầu.",
         "operationId": "list_closure_reports_api_v1_admin_closure_reports_get",
         "responses": {
           "200": {
@@ -6481,7 +6481,7 @@
           "is_hidden": {
             "type": "boolean",
             "title": "Is Hidden",
-            "description": "Đủ ngưỡng -> đang bị ẩn khỏi MỌI luồng người dùng."
+            "description": "Quán đang bị QUẢN TRỊ ẩn (is_active=0). Lượt báo không tự ẩn."
           }
         },
         "type": "object",
@@ -6494,11 +6494,6 @@
       },
       "ClosureReportListData": {
         "properties": {
-          "threshold": {
-            "type": "integer",
-            "title": "Threshold",
-            "description": "Số người báo cần để ẩn quán."
-          },
           "items": {
             "items": {
               "$ref": "#/components/schemas/ClosureReportItem"
@@ -6509,7 +6504,6 @@
         },
         "type": "object",
         "required": [
-          "threshold",
           "items"
         ],
         "title": "ClosureReportListData"
@@ -7722,6 +7716,30 @@
             ],
             "title": "Last Updated",
             "description": "Ngày nội dung được cập nhật"
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url",
+            "description": "Ảnh minh hoạ: `/anh/...` hoặc `https://...` (cần image_credit)"
+          },
+          "image_credit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Credit",
+            "description": "Nguồn + giấy phép ảnh từ mạng"
           }
         },
         "type": "object",

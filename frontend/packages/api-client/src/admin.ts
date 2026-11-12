@@ -281,8 +281,8 @@ export class MoodbiteAdminApi {
 
   /** Ẩn quán (soft-delete). Dữ liệu KHÔNG bị xoá. */
   /**
-   * Quán bị KHÁCH báo đã đóng cửa (thêm 2026-10-06). Đủ `threshold` người báo (đếm theo
-   * IP đã băm, không theo session client tự đặt) thì quán tự ẩn khỏi mọi luồng.
+   * Hàng chờ UC21: quán bị KHÁCH báo đóng cửa. Lượt báo KHÔNG tự ẩn quán; quản trị ẩn
+   * (`hideRestaurant`) hoặc gỡ (`clearClosureReports`). Đếm theo người báo (IP đã băm).
    */
   closureReports(options?: RequestOptions): Promise<AdminClosureReportsData> {
     return this.http.request<AdminClosureReportsData>('/admin/closure-reports', options);

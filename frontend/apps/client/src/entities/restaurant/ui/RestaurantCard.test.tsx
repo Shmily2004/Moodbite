@@ -144,7 +144,10 @@ describe('RestaurantCard', () => {
     rows.forEach((row) => {
       expect(row.querySelectorAll('svg[aria-hidden="true"]')).toHaveLength(1);
     });
-    expect(container.textContent).not.toMatch(/\p{Extended_Pictographic}/u);
+    // `★` ở điểm rating là KÝ TỰ CHỮ (dự án miễn trừ nó trong scripts/dem_emoji.py) nhưng
+    // Unicode xếp nó vào Extended_Pictographic -> phải bỏ ra trước, nếu không test đỏ oan.
+    const vanBanKhongSao = (container.textContent ?? '').replace(/★/g, '');
+    expect(vanBanKhongSao).not.toMatch(/\p{Extended_Pictographic}/u);
   });
 
   it('quán CÓ ảnh thì hiện ảnh thật', () => {

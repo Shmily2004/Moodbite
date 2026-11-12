@@ -1564,6 +1564,11 @@ HEAD sạch** (đã chạy lại trên HEAD khi tạm cất thay đổi), KHÔNG
 `test_ma_tran_that_cua_du_an_dat` + mục 10 (`traceability.md` dòng 171 trỏ `data_raw/floorplans_yolo`, thư mục
 bị `.gitignore`) và `RestaurantCard.test.tsx` (ký tự `★` ở điểm rating khớp `Extended_Pictographic`).
 
+✅ **Đã sửa 2026-11-12** — `python scripts/verify.py` đạt cả 10 mục (backend **1048 passed, 6 skipped**; frontend **540 passed**):
+`traceability.md` dòng 174 không còn ghi thư mục `floorplans_yolo` thành đường dẫn đầy đủ (nó bị `.gitignore` nên
+không tồn tại trên bản clone sạch → checker đòi một thứ không thể có), và `RestaurantCard.test.tsx` bỏ `★` ra trước khi
+dò emoji (dự án vốn miễn trừ `★` như ký tự chữ trong `scripts/dem_emoji.py`). Không đụng checker, không đụng code chạy thật.
+
 ⚠️ Dữ liệu catalog là **sinh ra** (`dish_catalog.json` không nằm trong git): sau khi pull phải chạy
 `python scripts/build_dish_catalog.py` (VPS: `python scripts/deploy_vps.py data`).
 

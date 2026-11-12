@@ -171,6 +171,6 @@ Số đo 2026-10-10.
 
 | ID | Việc | Trạng thái |
 |---|---|---|
-| X1 | Floorplan → Spatial JSON → 3D (SegFormer + YOLO) | **BỎ** — train trên bản vẽ kiến trúc không chuyển được sang ảnh chụp thật. Code ở `archive/spatial-3d/`; ảnh còn ở `data_pipeline/data_raw/floorplans_yolo` (xoá được) |
+| X1 | Floorplan → Spatial JSON → 3D (SegFormer + YOLO) | **BỎ** — train trên bản vẽ kiến trúc không chuyển được sang ảnh chụp thật. Code ở `archive/spatial-3d/`; ảnh (thư mục con `floorplans_yolo` của `data_raw`) bị `.gitignore` nên chỉ còn trên máy cũ, xoá được — cố ý KHÔNG ghi thành đường dẫn đầy đủ vì `check_traceability.py` sẽ đòi nó tồn tại trên mọi bản clone |
 | X2 | Photo → 3D bằng Depth Anything V2 | **TẠM DỪNG** |
 | X3 | Backend TypeScript song song | **BỎ** — ở `archive/typescript-backend/` |

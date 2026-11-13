@@ -133,14 +133,19 @@ import { MoodbiteMyPlacesApi } from './my-places';
 export const DEFAULT_API_BASE = 'http://localhost:8001/api/v1';
 
 /**
- * Client cho app NGƯỜI DÙNG CUỐI (`apps/client`) — phần KHÔNG cần đăng nhập.
+ * Client cho app NGƯỜI DÙNG CUỐI (`apps/client`): tìm quán, xem món, gợi ý, tương tác.
  *
- * Cố tình KHÔNG nhận token: tìm quán, xem món, gợi ý theo tâm trạng đều dùng được khi
- * chưa có tài khoản, và lớp trả về không hề có method quản trị nào. Phần cần tài khoản
- * đi qua `createAuthApi()` bên dưới.
+ * TRUYỀN `getAuthToken` từ 2026-11-13: backend đã chặn `/search`, `/dishes/*`,
+ * `/restaurants/{id}` bằng token. Client không gửi token thì mọi gợi ý trên trang chủ báo
+ * 401 — đúng lỗi "Món phù hợp với bạn hôm nay" đã gặp. Không có token (chưa đăng nhập) thì
+ * header không được gửi và backend trả 401 — giao diện đã chặn khách ở `RequireLogin`.
  */
-export function createApi(baseUrl: string = DEFAULT_API_BASE): MoodbiteApi {
-  return new MoodbiteApi(new HttpClient({ baseUrl }));
+export function createApi(
+  baseUrl: string = DEFAULT_API_BASE,
+  getAuthToken?: () => string | null,
+  onUnauthorized?: HttpClientOptions['onUnauthorized'],
+): MoodbiteApi {
+  return new MoodbiteApi(new HttpClient({ baseUrl, getAuthToken, onUnauthorized }));
 }
 
 /**

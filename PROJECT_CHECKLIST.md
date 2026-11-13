@@ -1856,3 +1856,7 @@ Chưa làm / ngoài khả năng của phiên này:
 - Đối chiếu từng bước 19 biểu đồ use case còn lại: chưa làm (mới kiểm điều kiện rẽ nhánh và chạy thử trên trình duyệt).
 - Mục "giao diện bài viết" chưa kiểm trên trình duyệt (cùng lý do cổng 5173).
 
+### Lỗi do chính thay đổi đăng nhập API (2026-11-13, sau rà soát)
+- [x] **"Món phù hợp với bạn hôm nay" báo lỗi.** Nguyên nhân: sau khi `/dishes/suggest` và `/search` yêu cầu token, client chính `api` (`shared/api/index.ts`) vẫn được tạo KHÔNG có `getAuthToken` nên request đi không header → 401. Sửa: `createApi` nhận `getAuthToken` + `onUnauthorized` như client tài khoản. Test khoá: `shared/api/apiGoiToken.test.ts`. Hệ quả có chủ đích: `POST /interactions` từ client chính nay gửi token, nên lượt tương tác của người đã đăng nhập ghi kèm `user_id` (đúng đặc tả mục 3.x).
+- Bài học: đổi quyền truy cập ở backend phải kiểm MỌI client gọi endpoint đó, không chỉ client đã biết. Test backend đã xanh vì không test nào đi qua client frontend.
+

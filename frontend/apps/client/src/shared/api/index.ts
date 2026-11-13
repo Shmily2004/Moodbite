@@ -9,7 +9,11 @@ import { API_BASE } from '../config/env';
 import { readToken } from '../lib/tokenStorage';
 import { handleUnauthorized } from '../lib/sessionExpiry';
 
-export const api = createApi(API_BASE);
+/**
+ * Client chính (tìm quán, món, gợi ý). Phải gắn token: từ 2026-11-13 các endpoint này yêu
+ * cầu đăng nhập. Cùng cách lấy token và xử lý 401 như `authApi` bên dưới.
+ */
+export const api = createApi(API_BASE, readToken, ({ token }) => handleUnauthorized(token));
 
 /**
  * Client cho phần TÀI KHOẢN (`/auth/*`). Tách khỏi `api` ở trên có chủ đích: luồng chính

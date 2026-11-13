@@ -1,8 +1,8 @@
 """HỢP ĐỒNG CHUNG cho mọi nguồn dữ liệu quán ăn.
 
 VÌ SAO CÓ FILE NÀY: trước đây mỗi lần thêm nguồn là viết một script riêng với định dạng
-riêng (`scrape_osm_hanoi.py`, `scrapers/foody_parser.py`, `scrapers/toididau_parser.py`),
-rồi phải sửa cả pipeline để hiểu định dạng mới. Nay mọi nguồn đều trả về CÙNG một cấu
+riêng (các script đó nay ở `archive/legacy-scrapers/`), rồi phải sửa cả pipeline để
+hiểu định dạng mới. Nguồn bị ToS cấm (ShopeeFood, Foody, Facebook...) KHÔNG được thêm. Nay mọi nguồn đều trả về CÙNG một cấu
 trúc `RawPlace`, nên thêm nguồn mới = viết 1 adapter, KHÔNG đụng vào pipeline.
 
 Luồng dữ liệu:

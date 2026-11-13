@@ -10,7 +10,7 @@ if (Đã đăng nhập?) then (có)
   |Hệ thống|
   :Thu hồi phiên đăng nhập;
   |Khách hàng|
-  :Tự động chuyển về trang chủ;
+  :Tự động chuyển tới trang đăng nhập;
   stop
 else (không)
   :Chuyển tới trang đăng nhập;

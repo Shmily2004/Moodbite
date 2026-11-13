@@ -457,3 +457,41 @@ def test_danh_dau_xong_KHONG_sua_du_lieu_quan(client):
 
     sau = client.get(f"{API}/admin/restaurants", headers=h).json()["data"]
     assert sau == truoc
+
+
+def test_danh_dau_va_go_danh_dau_deu_ghi_nhat_ky(client):
+    """Đánh dấu "đã xử lý" đổi thứ hiển thị ở "Cần xử lý ngay" nên phải truy được ai làm.
+
+    Trước 2026-11-13 hai thao tác này KHÔNG ghi nhật ký (lỗ hổng phát hiện khi rà soát).
+    """
+    h = auth_header(client)
+    client.post(
+        f"{API}/admin/issues/resolve",
+        json={"key": "thieu_lien_he", "target_id": "pho-1"},
+        headers=h,
+    )
+    client.delete(
+        f"{API}/admin/issues/resolve?key=thieu_lien_he&target_id=pho-1", headers=h
+    )
+
+    danh_dau = client.get(
+        f"{API}/admin/activity?action=mark_issue_resolved", headers=h
+    ).json()["data"]["entries"]
+    go = client.get(
+        f"{API}/admin/activity?action=unmark_issue_resolved", headers=h
+    ).json()["data"]["entries"]
+    assert [e["target_id"] for e in danh_dau] == ["pho-1"]
+    assert [e["target_id"] for e in go] == ["pho-1"]
+    assert danh_dau[0]["actor"] == "admin"
+
+
+def test_go_danh_dau_chua_tung_dat_khong_ghi_nhat_ky(client):
+    h = auth_header(client)
+    client.delete(
+        f"{API}/admin/issues/resolve?key=dong_tam&target_id=khong-ton-tai", headers=h
+    )
+
+    go = client.get(
+        f"{API}/admin/activity?action=unmark_issue_resolved", headers=h
+    ).json()["data"]["entries"]
+    assert go == []

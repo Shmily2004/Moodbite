@@ -10,9 +10,44 @@ import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 // `fireEvent` chứ không phải `user-event`: form này chỉ cần gõ chữ và bấm nút, thêm một
 // gói npm nữa cho từng ấy việc là không đáng - cùng lý do với `ReportClosureButton.test`.
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { UserSessionProvider } from '@/entities/user';
 import { LoginPage } from '../index';
+
+/** Giả lập máy chủ cho tài khoản ADMIN: `/auth/login` trả role admin, `/admin/login` cấp phiên quản trị. */
+function mockLoginAdmin() {
+  return vi.fn().mockImplementation(async (url: string) => {
+    const laAdminLogin = String(url).includes('/admin/login');
+    const data = laAdminLogin
+      ? { token: 'token-quan-tri', token_type: 'bearer', expires_in: 3600 }
+      : {
+          user: { user_id: 'a1', username: 'quantri', role: 'admin', display_name: 'QT' },
+          token: TOKEN,
+          token_type: 'bearer',
+          expires_in: 86400,
+        };
+    return { ok: true, status: 200, json: async () => ({ data }) };
+  });
+}
+
+/** Đăng nhập admin từ một trang đích `from` (như khi RequireLogin đá sang), rồi xem đi đâu. */
+function renderLoginTuTrang(from: string | null) {
+  return render(
+    <MemoryRouter
+      initialEntries={[from ? { pathname: '/login', state: { from } } : '/login']}
+    >
+      <UserSessionProvider>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/" element={<p>TRANG CHU KHACH</p>} />
+          <Route path="/tim-kiem" element={<p>TRANG TIM KIEM</p>} />
+          <Route path="/quan-tri" element={<p>KHU QUAN TRI</p>} />
+          <Route path="/quan-tri/bai-viet" element={<p>TRANG BAI VIET</p>} />
+        </Routes>
+      </UserSessionProvider>
+    </MemoryRouter>,
+  );
+}
 
 const TOKEN = 'token-gia-lap';
 
@@ -143,5 +178,35 @@ describe('LoginPage', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Ẩn mật khẩu' }));
     expect(oMatKhau).toHaveAttribute('type', 'password');
+  });
+
+  // Admin đăng nhập xong phải VÀO THẲNG khu quản trị, không dừng ở trang khách rồi bắt bấm
+  // nút "Quản trị". Có `from` là trang khách (vd. /tim-kiem) cũng KHÔNG được kéo admin ra ngoài.
+  it('admin đăng nhập từ trang khách thì vào THẲNG khu quản trị', async () => {
+    vi.stubGlobal('fetch', mockLoginAdmin());
+    renderLoginTuTrang('/tim-kiem');
+
+    dangNhap();
+
+    expect(await screen.findByText('KHU QUAN TRI')).toBeInTheDocument();
+    expect(screen.queryByText('TRANG TIM KIEM')).not.toBeInTheDocument();
+  });
+
+  it('admin đăng nhập từ đúng một trang quản trị thì quay lại trang đó', async () => {
+    vi.stubGlobal('fetch', mockLoginAdmin());
+    renderLoginTuTrang('/quan-tri/bai-viet');
+
+    dangNhap();
+
+    expect(await screen.findByText('TRANG BAI VIET')).toBeInTheDocument();
+  });
+
+  it('khách đăng nhập từ trang tìm kiếm thì quay lại trang tìm kiếm (không đổi)', async () => {
+    vi.stubGlobal('fetch', mockLoginOk());
+    renderLoginTuTrang('/tim-kiem');
+
+    dangNhap();
+
+    expect(await screen.findByText('TRANG TIM KIEM')).toBeInTheDocument();
   });
 });

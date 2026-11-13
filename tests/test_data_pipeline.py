@@ -203,3 +203,22 @@ class TestLocQuanTrongHaNoi:
         giu = self._chay(monkeypatch, [q], ranh_gioi={})
 
         assert len(giu) == 1
+
+
+def test_file_du_lieu_app_doc_khong_con_ky_tu_dieu_khien():
+    """Khoá lỗi `\x08` trong tên quán (phát hiện 2026-11-13).
+
+    `_lam_sach_ten` đã xoá ký tự này, nhưng file CSV được sinh TRƯỚC bước đó nên vẫn giữ nó.
+    Test đọc thẳng file app dùng, để một lần sinh lại từ bản cũ không đưa lỗi trở lại.
+    """
+    import re
+    from pathlib import Path
+
+    duong_dan = (
+        Path(__file__).resolve().parents[1]
+        / "data_pipeline" / "data_cleaned" / "dataset_moodbite_features.csv"
+    )
+    # Cho phép tab, xuống dòng, CR (cấu trúc CSV); cấm mọi ký tự điều khiển khác.
+    ky_tu_la = re.compile(rb"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
+    tim_thay = ky_tu_la.findall(duong_dan.read_bytes())
+    assert tim_thay == [], f"Còn {len(tim_thay)} ký tự điều khiển trong dữ liệu"

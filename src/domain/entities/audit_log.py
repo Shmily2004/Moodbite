@@ -59,6 +59,10 @@ class AuditAction(str, Enum):
     CREATE_POST = "create_post"
     UPDATE_POST = "update_post"
     DELETE_POST = "delete_post"
+    # Đánh dấu "đã xử lý" một vấn đề (UC20). Trước 2026-11-13 hai thao tác này KHÔNG được ghi
+    # nhật ký, trong khi chúng đổi trạng thái hiển thị của "Cần xử lý ngay".
+    MARK_ISSUE_RESOLVED = "mark_issue_resolved"
+    UNMARK_ISSUE_RESOLVED = "unmark_issue_resolved"
 
 
 # Nhãn tiếng Việt để giao diện khỏi tự dịch. Để ở domain vì đây là NGÔN NGỮ NGHIỆP VỤ —
@@ -73,6 +77,8 @@ NHAN_HANH_DONG = {
     AuditAction.CREATE_POST: "Tạo bài viết",
     AuditAction.UPDATE_POST: "Sửa bài viết",
     AuditAction.DELETE_POST: "Xoá bài viết",
+    AuditAction.MARK_ISSUE_RESOLVED: "Đánh dấu vấn đề đã xử lý",
+    AuditAction.UNMARK_ISSUE_RESOLVED: "Gỡ đánh dấu đã xử lý",
 }
 
 # Chặn trên độ dài câu tóm tắt. Không phải để "bảo mật" mà để một lần sửa 30 trường không

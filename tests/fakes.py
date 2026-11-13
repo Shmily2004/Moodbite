@@ -434,3 +434,38 @@ def attach_user_activity(container, tmp_path=None):
     container.list_favorites = ListFavoritesUseCase(saved)
     container.get_user_stats = GetUserStatsUseCase(tally, saved)
     return container
+
+
+# --- Đăng nhập NGƯỜI DÙNG cho bộ test API công khai ----------------------------------
+# Từ 2026-11-13 `/search`, `/dishes/*`, `/restaurants/{id}` và `/posts` yêu cầu token người
+# dùng (xem `presentation/api/main.py`). Các bộ test kiểm HÀNH VI của những endpoint đó, không
+# kiểm việc đăng nhập — nên dùng một tài khoản giả + token THẬT (cùng `UserTokenService` như
+# lúc chạy thật), và gắn token đó vào client. Việc chặn khách vô danh được test riêng ở
+# `tests/test_api.py::test_endpoint_nguoi_dung_chua_dang_nhap_bi_401`.
+
+TEST_USER_ID = "u-kiem-thu"
+_TEST_TOKEN_SECRET = "bi-mat-kiem-thu-du-dai-de-khong-bi-tu-choi-32-ky-tu"
+
+
+class _FakeUserRepo:
+    """Chỉ có đúng một tài khoản: `TEST_USER_ID`."""
+
+    is_ready = True
+
+    def __init__(self, user):
+        self._user = user
+
+    def get_by_id(self, user_id):
+        return self._user if user_id == self._user.user_id else None
+
+
+def attach_test_user(container) -> dict:
+    """Gắn tài khoản giả + dịch vụ token thật vào container. Trả về header Authorization."""
+    from src.domain.entities.user import User
+    from src.infrastructure.auth.user_auth import UserTokenService
+
+    user = User(user_id=TEST_USER_ID, username="nguoi-kiem-thu", password_hash="khong-dung")
+    tokens = UserTokenService(token_secret=_TEST_TOKEN_SECRET, token_ttl_seconds=3600)
+    container.user_tokens = tokens
+    container.users = _FakeUserRepo(user)
+    return {"Authorization": f"Bearer {tokens.issue(user)}"}

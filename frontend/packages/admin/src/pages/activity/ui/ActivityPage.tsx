@@ -25,6 +25,8 @@ const LOC: { khoa: string | null; nhan: string }[] = [
   { khoa: 'create_post', nhan: 'Tạo bài viết' },
   { khoa: 'update_post', nhan: 'Sửa bài viết' },
   { khoa: 'delete_post', nhan: 'Xoá bài viết' },
+  { khoa: 'mark_issue_resolved', nhan: 'Đánh dấu đã xử lý' },
+  { khoa: 'unmark_issue_resolved', nhan: 'Gỡ đánh dấu đã xử lý' },
 ];
 
 export function ActivityPage() {

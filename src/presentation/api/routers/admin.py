@@ -1007,6 +1007,13 @@ def admin_resolve_issue(
     ban_ghi = container.danh_dau_xong.danh_dau(
         khoa=body.key, target_id=body.target_id, actor=admin, ghi_chu=body.note
     )
+    container.ghi_nhat_ky.ghi(
+        actor=admin,
+        action="mark_issue_resolved",
+        target_type=body.key,
+        target_id=body.target_id,
+        summary=f"Đánh dấu đã xử lý: {body.key}",
+    )
     return success(
         {
             "key": ban_ghi.khoa,
@@ -1032,7 +1039,16 @@ def admin_unresolve_issue(
     Gỡ một dòng chưa từng được đánh dấu vẫn trả 200 với `resolved: false`, KHÔNG phải
     404: kết quả mong muốn ("dòng này hiện không bị đánh dấu") đã đạt được rồi.
     """
-    container.danh_dau_xong.bo_danh_dau(key, target_id)
+    da_go = container.danh_dau_xong.bo_danh_dau(key, target_id)
+    # Chỉ ghi khi thật sự có dòng bị gỡ. Gỡ một dòng vốn không được đánh dấu không đổi gì.
+    if da_go:
+        container.ghi_nhat_ky.ghi(
+            actor=_admin,
+            action="unmark_issue_resolved",
+            target_type=key,
+            target_id=target_id,
+            summary=f"Gỡ đánh dấu đã xử lý: {key}",
+        )
     return success(
         {
             "key": key,

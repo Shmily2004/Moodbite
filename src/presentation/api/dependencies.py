@@ -208,8 +208,8 @@ def _reporter_key_salt(settings: Settings) -> str:
     ký không dùng ngược lại được để ký token.
 
     ⚠️ Đổi `MOODBITE_AUTH_SECRET`/`MOODBITE_ADMIN_SECRET` -> cùng một IP ra khoá mới -> một
-    người có thể được đếm 2 lần quanh mốc đổi. Chấp nhận được: ngưỡng ẩn là 3 người và
-    admin gỡ được lượt báo.
+    người có thể được đếm 2 lần quanh mốc đổi. Chấp nhận được: lượt báo không tự ẩn quán
+    (từ 2026-11-12) và quản trị gỡ được lượt báo.
     """
     import hashlib
     import hmac

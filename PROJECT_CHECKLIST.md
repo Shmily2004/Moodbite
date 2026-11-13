@@ -19,7 +19,7 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | Frontend Client | ✅ **TypeScript + FSD** | có bản đồ, steiger trong CI. Số test: xem dòng **Test** bên dưới (con số "86 test" cũ là của 2026-08) |
 | Bản đồ | ✅ **Xong** | Leaflet + OpenStreetMap, miễn phí, không cần key |
 | Kiến trúc | ✅ Sạch | Clean Architecture + checker tự động trong CI |
-| Test | ✅ **1062 backend + 546 frontend** | Đo bằng `python scripts/verify.py` ngày 2026-11-12 (10/10 mục xanh) |
+| Test | ✅ **1067 backend + 550 frontend** | Đo bằng `python scripts/verify.py` ngày 2026-11-13 (10/10 mục xanh) |
 | Rà soát QA 2026-11-07 | 🟡 **4/9 đã xong, 1 xong một phần (Q5)** | Còn mở: lượt hiển thị (Q1, cần chủ dự án duyệt), proxy/giới hạn tần suất (Q2), tải đồng thời (Q7), Lớp 3 vs baseline (Q9). Chi tiết ở `docs/bao_cao_qa_2026-11-07.md` |
 | Giao diện | ✅ Theo bản duyệt · **trang chủ + tài khoản dựng lại 2026-08-22** | trang chủ = LƯỚI MÓN + chips lọc; trang món = giới thiệu + bản đồ + danh sách quán; `/tim-kiem` giữ bố cục bản đồ + rail cũ |
 | Router + layout | ✅ Xong | react-router v6, khung dùng chung, `RequireAuth` cho admin |
@@ -69,7 +69,7 @@ kế hoạch, không ghi theo tài liệu. Mỗi mục ✅ đều có lệnh đ�
 | **Lớp 4 — Tóm tắt review** | ✅ **XONG 2026-08-19** | Trích rút TF-IDF centroid, **884/1.025 quán** có ≥3 review được tóm tắt (358 quán có cả điểm yếu; đo lại 2026-10-10 — mốc 2026-08-19 là 851/1310, 339). Mọi câu TRÍCH NGUYÊN VĂN, không sinh chữ. `python -m data_pipeline.review_summary` |
 | Đăng nhập / tài khoản | ✅ **Đăng nhập · đăng ký · quên mật khẩu · TRANG TÀI KHOẢN 7 TAB (2026-08-23)** | `/api/v1/auth/*` + `/api/v1/me/*`. Trang `/account` có thanh bên 7 mục, ảnh đại diện, số liệu thật, cấp độ, huy hiệu. Đổi phạm vi có chủ đích so với SRS mục 8 — xem ghi chú dưới bảng |
 | Phân quyền (`role`) | ✅ Admin = tài khoản `role='admin'` trong bảng `users` (2026-09-29) | tạo bằng `python scripts/make_admin_user.py`; hạ quyền/đăng xuất có hiệu lực ngay |
-| **Quán & món yêu thích (server)** | ✅ **Xong 2026-08-23** | bảng `saved_items`, `GET/POST/DELETE /me/favorites`. Từ 2026-11-10 TOÀN BỘ app người dùng (trừ đăng nhập/đăng ký/quên mật khẩu) yêu cầu đăng nhập — `RequireLogin` ở `app/layout/`, chốt theo `docs/UI_REQUIREMENTS.md`. Backend `/search`, `/dishes`, `/restaurants` VẪN công khai: chặn thật ở server là việc riêng, cần duyệt. Dữ liệu cũ trên máy vẫn được đẩy lên khi đăng nhập |
+| **Quán & món yêu thích (server)** | ✅ **Xong 2026-08-23** | bảng `saved_items`, `GET/POST/DELETE /me/favorites`. Từ 2026-11-10 TOÀN BỘ app người dùng (trừ đăng nhập/đăng ký/quên mật khẩu) yêu cầu đăng nhập — `RequireLogin` ở `app/layout/`, chốt theo `docs/UI_REQUIREMENTS.md`. Backend `/search`, `/dishes`, `/restaurants`, `/posts` ĐÃ CHẶN bằng token từ 2026-11-13 (xem mục rà soát cuối file). Dữ liệu cũ trên máy vẫn được đẩy lên khi đăng nhập |
 | **Lượt khám phá · cấp độ · huy hiệu** | ✅ **Xong 2026-08-23** | `GET /me/stats`. `POST /interactions` nay ghi thêm `user_id` (LẤY TỪ TOKEN, không nhận từ body) |
 | **Song ngữ Việt–Anh** | ✅ **Giao diện xong 2026-08-23** · ⬜ dữ liệu vẫn tiếng Việt | `shared/i18n/tu_dien.ts` — 1 file, kiểm kiểu lúc biên dịch. Tên món/quán và chữ do máy chủ sinh KHÔNG dịch (cần i18n ở backend) |
 
@@ -1619,7 +1619,7 @@ Chưa làm / cần quyết định:
 **Đã đối chiếu và KHỚP** (không cần sửa): 65 endpoint trong code ↔ `frontend/openapi.json` ↔ `schema.d.ts`; mọi endpoint trong `docs/bieu_do_uml` ↔ code; 24 file `puml_du_phong/hoat_dong` ↔ `sinh_bieu_do.py` (sinh lại không đổi byte nào); schema SQLite ↔ 10 repository (đọc thật trên bản sao `moodbite.db` và `moodbite_users.db`).
 
 **Còn mở (chưa sửa, cần quyết định):**
-- Biểu đồ UC14 yêu cầu đăng nhập để đọc tin; giao diện đã làm, nhưng `GET /api/v1/posts` vẫn công khai.
+- Biểu đồ UC14 yêu cầu đăng nhập để đọc tin; giao diện đã làm, và từ 2026-11-13 `GET /api/v1/posts` cũng yêu cầu token (xem mục rà soát cuối file).
 - `docs/bieu_do_uml/README.md` tự ghi: 19/24 use case chưa đối chiếu lại với code (chỉ đối chiếu 5 UC).
 - Vài đường dẫn trong `PROJECT_CHECKLIST.md` (nhật ký cũ) trỏ tới file đã đổi tên hoặc chuyển đi; giữ nguyên vì là lịch sử.
 
@@ -1627,7 +1627,8 @@ Chưa làm / cần quyết định:
 
 - ✅ **Trình duyệt thật** (Microsoft Edge + Playwright): người dùng — trang chủ, món, quán, tìm kiếm (10 kết quả), gợi ý, tài khoản, tin tức, đọc bài, quên mật khẩu, 404, lưu quán, đăng xuất. **Quản trị** — đăng nhập, cả 10 trang, tạo và xoá bài viết (nhật ký ghi đủ), sửa rồi gỡ mô tả món (nhật ký ghi), ẩn rồi bỏ ẩn một quán (nhật ký ghi).
 - ✅ **Làm theo biểu đồ** (cùng đợt): **UC06/UC21** — lượt báo đóng cửa KHÔNG còn tự ẩn quán. Quán vào hàng chờ "Quán bị khách báo đóng cửa"; quản trị chọn **Ẩn quán** (`hide_restaurant`) hoặc **Gỡ lượt báo**. Bỏ ngưỡng 3 người (quyết định 2026-10-06 đã bị thay thế). **UC01** — không có quán khớp câu tìm thì hiện thông báo gợi ý nới bộ lọc, không trả danh sách "gần giống".
-- ⚠️ Còn lệch, cần quyết định: **UC15** — biểu đồ ghi "về trang chủ", code về trang đăng nhập, vì trang chủ bắt đăng nhập (chốt 2026-11-10). Muốn khớp hẳn thì phải bỏ yêu cầu đăng nhập ở trang chủ. **UC12** — sở thích lưu trên máy (localStorage), không lên máy chủ; biểu đồ không nói rõ.
+- ✅ **UC12 khớp biểu đồ** (kiểm 2026-11-12): biểu đồ chỉ lưu địa chỉ lên máy chủ (`/me/addresses`), không có endpoint sở thích. Sở thích lưu trên máy là đúng biểu đồ.
+- ✅ **UC15 khớp biểu đồ** (2026-11-12, theo quyết định chủ dự án: sửa biểu đồ cho khớp code): sau đăng xuất người dùng vào trang đăng nhập, vì trang chủ bắt đăng nhập (`RequireLogin`, chốt 2026-11-10). Biểu đồ `sinh_bieu_do.py` đã đổi thành "Tự động chuyển tới trang đăng nhập", SVG và PlantUML sinh lại. Nếu sau này bỏ yêu cầu đăng nhập ở trang chủ thì phải đổi lại biểu đồ này.
 - ⚠️ Dữ liệu: 1 quán có ký tự điều khiển `` ở đầu tên (`overture:893b1199-…`), xuất hiện trong nhật ký. Cần làm sạch khi nạp dữ liệu.
 - Ghi chú vận hành: đã tạo và xoá một bài thử; đã ẩn rồi bỏ ẩn một quán; đã sửa rồi gỡ mô tả món Phở bò. Nhật ký có các dòng tương ứng.
 
@@ -1834,3 +1835,24 @@ frontend/                            Monorepo npm workspaces — React + TS + FS
 - Chỉ đánh ✅ **sau khi đã chạy thật**.
 - Mỗi ✅ nên kèm cách kiểm chứng.
 - Phát hiện mục ✅ nào thực ra không chạy → **sửa lại ngay**, đây là lỗi nghiêm trọng nhất.
+
+---
+
+## Rà soát toàn dự án — 2026-11-13
+
+Đã sửa:
+- **API công khai → yêu cầu đăng nhập.** `/search`, `/dishes/*`, `/restaurants/{id}`, `/posts*` gắn `get_current_user` ở CẤP ROUTER (`presentation/api/main.py`). `/health`, `/moods`, `/auth/*`, `/admin/*` không đổi. Thiếu token → 401. Test: `tests/test_api.py::test_endpoint_nguoi_dung_chua_dang_nhap_bi_401`. Tài liệu API (`docs/extracted/MoodBite_Dac_Ta_API.md`) đã cập nhật cột xác thực.
+- **Nhật ký đánh dấu "đã xử lý".** `POST`/`DELETE /admin/issues/resolve` nay ghi `mark_issue_resolved` / `unmark_issue_resolved` (gỡ mà không có gì bị gỡ thì không ghi). Nhãn và bộ lọc màn nhật ký đã thêm. Test: `tests/test_admin_chat_luong.py`.
+- **Ký tự điều khiển trong dữ liệu.** Xoá `` khỏi tên một quán và thay `` trong một địa chỉ bằng dấu cách, trong `dataset_moodbite_features.csv`, `dataset_moodbite_clean.csv` và `moodbite.db`. Test khoá: `tests/test_data_pipeline.py::test_file_du_lieu_app_doc_khong_con_ky_tu_dieu_khien`.
+- **Comment cũ** về ngưỡng 3 người (`dependencies.py`, `admin_closures.py`), về scraper đã archive (`data_pipeline/sources/base.py`) và README biểu đồ UC15.
+- **Tài khoản thử** `kiemthu_ui01` (tạo khi test giao diện) đã xoá khỏi DB local cùng mục lưu của nó.
+
+Ghi nhận sai lệch trong quá trình rà soát:
+- Ẩn hàng loạt (`bulk-visibility`) ĐÃ được ghi nhật ký từ trước, ở tầng use case (`manage_restaurants.py`). Báo cáo trước đó nói là chưa ghi là SAI — đã kiểm lại và không thêm bản ghi trùng.
+
+Chưa làm / ngoài khả năng của phiên này:
+- Đổi mật khẩu admin đã lộ trong chat: do chủ dự án thực hiện.
+- Tiến trình Vite cũ (PID 8920) giữ cổng 5173: lệnh dừng bị từ chối nên chưa dừng. Cần tự đóng.
+- Đối chiếu từng bước 19 biểu đồ use case còn lại: chưa làm (mới kiểm điều kiện rẽ nhánh và chạy thử trên trình duyệt).
+- Mục "giao diện bài viết" chưa kiểm trên trình duyệt (cùng lý do cổng 5173).
+

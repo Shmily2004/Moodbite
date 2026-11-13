@@ -34,10 +34,13 @@ export function LoginPage() {
 
   if (session.isLoggedIn && vaoQuanTriDuoc) {
     // Đã đăng nhập mà vẫn mở /login -> đưa về nơi định đến, không hiện lại form.
-    // Tài khoản admin mặc định vào khu quản trị; khách về trang chủ.
-    const macDinh =
-      session.user?.role === 'admin' ? QUAN_TRI_ROUTES.overview : ROUTES.home;
-    return <Navigate to={from ?? macDinh} replace />;
+    // Tài khoản admin VÀO THẲNG khu quản trị, không qua trang chủ rồi bấm nút "Quản trị".
+    // Chỉ tôn trọng `from` khi nó đã là một trang quản trị: nếu không, admin vừa đăng nhập
+    // từ một trang khách (ví dụ /tim-kiem đá sang đăng nhập) sẽ bị đưa ngược ra ngoài.
+    const noiDen = session.user?.role === 'admin'
+      ? (from?.startsWith(QUAN_TRI_ROUTES.overview) ? from : QUAN_TRI_ROUTES.overview)
+      : (from ?? ROUTES.home);
+    return <Navigate to={noiDen} replace />;
   }
 
   return (

@@ -26,8 +26,8 @@
 <text x="735.0" y="397.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Thu hồi phiên đăng</text>
 <text x="735.0" y="412.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">nhập</text>
 <rect x="220.0" y="469.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
-<text x="300.0" y="491.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Tự động chuyển về</text>
-<text x="300.0" y="506.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">trang chủ</text>
+<text x="300.0" y="491.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Tự động chuyển tới</text>
+<text x="300.0" y="506.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">trang đăng nhập</text>
 <rect x="825.0" y="375.0" width="160" height="50" rx="12" fill="#fff" stroke="#000" stroke-width="1.2"/>
 <text x="905.0" y="397.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">Chuyển tới trang đăng</text>
 <text x="905.0" y="412.5" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#000">nhập</text>

@@ -19,6 +19,7 @@ from src.infrastructure.auth.admin_auth import AdminAuthService
 from src.presentation.api.dependencies import Container
 from src.presentation.api.main import create_app
 from tests.fakes import (
+    attach_test_user,
     FakeDetailsRepo,
     FakeDishCatalog,
     FakeDishKnowledge,
@@ -129,7 +130,8 @@ def make_client(dishes=None, index=None, catalog_ready=True):
         else {"bun-cha": [quan_bun_cha], "pho-bo": [quan_pho]},
         context_provider=context,
     )
-    return TestClient(create_app(container=c), raise_server_exceptions=False)
+    headers = attach_test_user(c)
+    return TestClient(create_app(container=c), raise_server_exceptions=False, headers=headers)
 
 
 @pytest.fixture

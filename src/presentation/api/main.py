@@ -8,11 +8,11 @@ from __future__ import annotations
 import logging
 from typing import Optional
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.infrastructure.config.settings import Settings
-from src.presentation.api.dependencies import build_container
+from src.presentation.api.dependencies import build_container, get_current_user
 from src.presentation.api.error_handlers import register_error_handlers
 from src.presentation.api.routers import (
     admin,
@@ -77,11 +77,16 @@ def create_app(
 
     register_error_handlers(app)
 
-    app.include_router(search.router, prefix=API_PREFIX)
+    # Tìm kiếm, món, quán và bài viết: CHỈ người ĐÃ ĐĂNG NHẬP (chốt 2026-11-10: khách phải
+    # đăng nhập mới dùng app). Trước đây giao diện đã chặn nhưng API vẫn công khai — người gọi
+    # thẳng vào API lấy được dữ liệu. Chốt chặn nằm ở router, không ở từng endpoint, để endpoint
+    # thêm sau không thể quên.
+    xac_thuc_nguoi_dung = [Depends(get_current_user)]
+    app.include_router(search.router, prefix=API_PREFIX, dependencies=xac_thuc_nguoi_dung)
     # Món ăn ĐỨNG TRƯỚC `restaurants`: `/dishes/{id}/restaurants` phải khớp router món,
     # không được để router quán nuốt mất.
-    app.include_router(dishes.router, prefix=API_PREFIX)
-    app.include_router(restaurants.router, prefix=API_PREFIX)
+    app.include_router(dishes.router, prefix=API_PREFIX, dependencies=xac_thuc_nguoi_dung)
+    app.include_router(restaurants.router, prefix=API_PREFIX, dependencies=xac_thuc_nguoi_dung)
     app.include_router(interactions.router, prefix=API_PREFIX)
     app.include_router(meta.router, prefix=API_PREFIX)
     # Tài khoản người dùng. `/register` và `/login` công khai (chúng là nơi phát token),
@@ -97,7 +102,7 @@ def create_app(
     # Xem/gỡ lượt "người dùng báo quán đã đóng cửa" — file riêng, cũng bắt buộc token admin.
     app.include_router(admin_closures.router, prefix=API_PREFIX)
     # Bài viết: công khai ở `/posts`, quản trị ở `/admin/posts` (router riêng, cũng token admin).
-    app.include_router(posts.router, prefix=API_PREFIX)
+    app.include_router(posts.router, prefix=API_PREFIX, dependencies=xac_thuc_nguoi_dung)
     app.include_router(admin_posts.router, prefix=API_PREFIX)
 
     # /health không prefix để hạ tầng (Railway/Heroku) probe được theo mặc định.

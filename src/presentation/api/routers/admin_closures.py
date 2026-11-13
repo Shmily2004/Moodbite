@@ -3,14 +3,14 @@
     GET  /api/v1/admin/closure-reports                          quán đang bị báo
     POST /api/v1/admin/restaurants/{id}/closure-reports/clear   gỡ mọi lượt báo của 1 quán
 
-VÌ SAO CÓ (rà soát 2026-10-06): quán đủ 3 người báo thì bị ẩn khỏi MỌI luồng, và trước
-router này admin KHÔNG có cách nào bỏ ẩn — lượt báo được phát lại từ nhật ký mỗi lần khởi
-động, còn nút "Khôi phục" chỉ đặt `is_active=1`.
+VÌ SAO CÓ: lượt báo đóng cửa cần một chỗ để quản trị xử lý. Từ 2026-11-12 (theo biểu đồ
+UC06/UC21) lượt báo KHÔNG tự ẩn quán nữa — trước đó đủ 3 người báo là quán bị ẩn, và admin
+không có cách nào bỏ ẩn từ router này. Nay quán vào hàng chờ, quản trị quyết định.
 
-⚠️ HAI CƠ CHẾ ẨN ĐỘC LẬP, HAI NÚT RIÊNG:
-  - Admin tắt quán (`/admin/restaurants/{id}/hide` | `/restore`) -> cột `is_active`.
-  - Người dùng báo đóng cửa (router này) -> bộ đếm lượt báo, quán vẫn `is_active=1`.
-  "Khôi phục" KHÔNG gỡ lượt báo, và "gỡ lượt báo" KHÔNG bật lại quán admin đã tắt.
+⚠️ HAI VIỆC ĐỘC LẬP, HAI NÚT RIÊNG:
+  - Ẩn quán (`/admin/restaurants/{id}/hide` | `/restore`) -> cột `is_active`.
+  - Lượt báo (router này) -> bộ đếm lượt báo, KHÔNG đụng `is_active`.
+  "Khôi phục" KHÔNG gỡ lượt báo, và "gỡ lượt báo" KHÔNG bật lại quán admin đã ẩn.
 
 File RIÊNG thay vì thêm vào `routers/admin.py` (~900 dòng, CLAUDE.md mục 6). Xác thực gắn
 ở CẤP ROUTER như `admin.router`, để endpoint thêm sau không thể quên.

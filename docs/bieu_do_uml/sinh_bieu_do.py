@@ -233,7 +233,9 @@ DAC_TA = [
         "hoat_dong": [
             ("lane", KH_TEN), ("act", "Bấm đăng xuất, xác nhận"),
             ("lane", "Hệ thống"), ("act", "Thu hồi phiên đăng nhập"),
-            ("lane", KH_TEN), ("act", "Tự động chuyển về trang chủ"), ("stop",),
+            # Trang chủ yêu cầu đăng nhập (chốt 2026-11-10), nên sau khi đăng xuất người dùng
+            # vào thẳng trang đăng nhập — không phải trang chủ. Đổi từ "về trang chủ" ngày 2026-11-12.
+            ("lane", KH_TEN), ("act", "Tự động chuyển tới trang đăng nhập"), ("stop",),
         ],
     },
     # ---------------- PHÍA QUẢN TRỊ ----------------

@@ -300,6 +300,68 @@
   font-size: var(--step--2); font-weight: 700; color: var(--ink-soft);
 }
 
+/* --- Form soạn bài viết (features/manage-posts) ---------------------------- */
+/* Ô textarea, select và date trước đây dùng style mặc định của trình duyệt — lệch hẳn với
+   các ô text đã style ở trên. Gom về một bộ để mọi ô trong form này nhìn như nhau. */
+.quan-tri textarea, .quan-tri select, .quan-tri input[type='date']{
+  width: 100%;
+  padding: 8px 11px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-sm);
+  font: inherit;
+  background: var(--surface);
+  color: var(--ink);
+}
+.quan-tri textarea{ resize: vertical; line-height: 1.6; }
+.quan-tri textarea:focus, .quan-tri select:focus, .quan-tri input[type='date']:focus{
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.quan-tri .post-editor__dau{
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  margin-bottom: 12px;
+}
+.quan-tri .post-editor__dau .panel__tieu-de{ margin: 0; }
+.quan-tri .post-editor__luoi{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px 16px;
+}
+.quan-tri .post-editor__luoi > label{
+  display: flex; flex-direction: column; gap: 4px;
+  font-size: var(--step--1); font-weight: 700; color: var(--ink-soft);
+}
+.quan-tri .post-editor__rong{ grid-column: 1 / -1; }
+.quan-tri .post-editor__goi-y{ font-weight: 400; font-size: var(--step--2); color: var(--muted); }
+.quan-tri .post-editor__goi-y code{ font-size: inherit; }
+.quan-tri .post-editor__anh-khung{
+  margin: 0; padding: 12px 14px; min-width: 0;
+  border: 1px solid var(--rule-soft); border-radius: var(--r-sm);
+}
+.quan-tri .post-editor__anh-khung legend{
+  padding: 0 6px; font-size: var(--step--1); font-weight: 700; color: var(--ink-soft);
+}
+.quan-tri .post-editor__anh-hang{
+  display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap;
+}
+.quan-tri .post-editor__anh-nhap{
+  flex: 1 1 260px; display: grid; gap: 10px;
+}
+.quan-tri .post-editor__anh-nhap > label{
+  display: flex; flex-direction: column; gap: 4px;
+  font-size: var(--step--1); font-weight: 700; color: var(--ink-soft);
+}
+.quan-tri .post-editor__anh-xem{
+  width: 180px; height: 110px; object-fit: cover;
+  border-radius: var(--r-sm); border: 1px solid var(--rule-soft);
+}
+.quan-tri .post-editor__chan{
+  display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap;
+  margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--rule-soft);
+}
+.quan-tri .post-editor__xoa{ margin-right: auto; }
+
 /* --- Trang phụ ------------------------------------------------------------ */
 
 .quan-tri .page{ padding-top: 4px; }

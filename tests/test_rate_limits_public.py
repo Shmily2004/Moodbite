@@ -12,6 +12,7 @@ from __future__ import annotations
 import pytest
 from fastapi.testclient import TestClient
 
+from tests.fakes import attach_test_user
 from src.infrastructure.auth.rate_limit import SlidingWindowRateLimiter
 from src.infrastructure.config.settings import (
     DEFAULT_CLOSURE_REPORT_RATE_LIMIT,
@@ -30,7 +31,8 @@ def _client(**limiters):
     c = _container()
     for ten, gioi_han in limiters.items():
         setattr(c, ten, gioi_han)
-    return TestClient(create_app(container=c), raise_server_exceptions=False), c
+    headers = attach_test_user(c)
+    return TestClient(create_app(container=c), raise_server_exceptions=False, headers=headers), c
 
 
 def test_search_qua_gioi_han_tra_429_kem_Retry_After():

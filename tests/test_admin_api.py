@@ -71,6 +71,7 @@ from src.infrastructure.repositories.sqlite_restaurant_repository import (
 from src.presentation.api.dependencies import Container
 from src.presentation.api.main import create_app
 from tests.fakes import (
+    attach_test_user,
     FakeDetailsRepo,
     FakeDishKnowledge,
     FakeInteractionRepo,
@@ -240,8 +241,11 @@ def build_client(db_path, *, configured=True, writable=True, dishes=None):
 
     # Tiêm container thẳng vào: nếu để create_app() tự lắp, mỗi test sẽ nạp lại toàn
     # bộ dataset thật rồi bị ghi đè ngay - tốn ~1.5s mỗi test cho việc bị vứt đi.
+    # Header người dùng cho các endpoint công khai (`/search`, `/dishes/*`...). Endpoint quản
+    # trị vẫn gửi token admin riêng ở từng request nên ghi đè được header này.
+    headers = attach_test_user(c)
     app = create_app(container=c)
-    return TestClient(app, raise_server_exceptions=False), repo
+    return TestClient(app, raise_server_exceptions=False, headers=headers), repo
 
 
 @pytest.fixture

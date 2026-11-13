@@ -52,12 +52,12 @@ Tên trường: giữ nguyên snake_case khớp trực tiếp với tên cột t
 
 1.4. Authentication
 
-Không áp dụng xác thực người dùng ở phạm vi tài liệu này — nhất quán với quyết định SRS “tài khoản người dùng và cá nhân hoá dài hạn” thuộc Won't-have. Endpoint công khai, không yêu cầu API key phía client. Nếu triển khai công khai ngoài phạm vi đồ án, cần bổ sung rate limiting ở tầng hạ tầng (không thuộc phạm vi đặc tả API này).
+Không áp dụng xác thực người dùng ở phạm vi tài liệu này — nhất quán với quyết định SRS “tài khoản người dùng và cá nhân hoá dài hạn” thuộc Won't-have. Từ 2026-11-13 các endpoint tìm kiếm, món, quán và bài viết (`/search`, `/dishes/*`, `/restaurants/{id}`, `/posts*`) YÊU CẦU token người dùng; thiếu token → 401. `/health`, `/moods`, `/auth/*` vẫn công khai. Không yêu cầu API key phía client. Nếu triển khai công khai ngoài phạm vi đồ án, cần bổ sung rate limiting ở tầng hạ tầng (không thuộc phạm vi đặc tả API này).
 
 > ⚠️ **ĐÃ THAY ĐỔI (2026-10):** nay ĐÃ CÓ tài khoản người dùng (`/auth/*`, `/me/*`) và trang
 > quản trị (`/admin/*`), xác thực bằng header `Authorization: Bearer <token>`, có thu hồi
-> token (đăng xuất) và rate limit ở tầng ứng dụng. Các endpoint tìm kiếm/món/quán vẫn
-> công khai, khách không đăng nhập vẫn dùng được. Xem mục **BỔ SUNG 2026-10** cuối tài liệu.
+> token (đăng xuất) và rate limit ở tầng ứng dụng. Từ 2026-11-13 các endpoint tìm kiếm/món/quán/bài viết
+> YÊU CẦU đăng nhập (trước đó công khai). Xem mục **BỔ SUNG 2026-10** cuối tài liệu.
 
 1.5. Response Envelope
 
@@ -582,19 +582,19 @@ vào (`/dishes/*` là luồng chính, `/search` là lối vào thứ hai). Đế
 (thiếu/hỏng/đã thu hồi → 401 `UNAUTHORIZED`) · 🛡 = cần token của tài khoản `role='admin'`
 (không phải admin → 403 `FORBIDDEN`; chưa cấu hình admin → 503 `DATA_NOT_READY`).
 
-## A. Tìm kiếm, món, quán (công khai)
+## A. Tìm kiếm, món, quán (cần đăng nhập, trừ ghi chú)
 
 | Method | Path | Auth | Ghi chú |
 |---|---|---|---|
-| POST | `/search` | 🔓 | Body thật: `session_id`*, `latitude`, `longitude`, `query_text`, `mood`, `max_distance_km`, `dietary_restrictions`, `opening_hours_constraint`, `district`, `limit`. **Không có** `budget_max` như mục 3.1 |
-| POST | `/dishes/suggest` | 🔓 | Mục 3.4 (đã bổ sung `limit`, `only_with_price`, `only_categories`) |
-| GET | `/dishes/{dish_id}` | 🔓 | Mục 3.5 |
-| GET | `/dishes/{dish_id}/restaurants` | 🔓 | Mục 3.6 |
-| GET | `/restaurants/{restaurant_id}` | 🔓 | Không có query param; quán chưa có chi tiết → 200 + `has_details: false` |
+| POST | `/search` | 👤 | Body thật: `session_id`*, `latitude`, `longitude`, `query_text`, `mood`, `max_distance_km`, `dietary_restrictions`, `opening_hours_constraint`, `district`, `limit`. **Không có** `budget_max` như mục 3.1 |
+| POST | `/dishes/suggest` | 👤 | Mục 3.4 (đã bổ sung `limit`, `only_with_price`, `only_categories`) |
+| GET | `/dishes/{dish_id}` | 👤 | Mục 3.5 |
+| GET | `/dishes/{dish_id}/restaurants` | 👤 | Mục 3.6 |
+| GET | `/restaurants/{restaurant_id}` | 👤 | Không có query param; quán chưa có chi tiết → 200 + `has_details: false` |
 | POST | `/interactions` | 🔓 (👤 tuỳ chọn) | Body thật: `session_id`*, `restaurant_id`*, `action_type`*, `search_query_id`, `dwell_time_ms`, `rank_position` — **không** dùng `search_result_item_id` như mục 3.4. `action_type`: `view_detail` · `get_directions` · `save` · `explicit_positive` · `explicit_negative` · `report_closed`. Trả **201**. Có token thì server gắn `user_id` LẤY TỪ TOKEN (không lấy từ body) |
 | GET | `/moods` | 🔓 | Danh sách mood cho nút bấm nhanh |
-| GET | `/posts` | 🔓 | Bài viết ĐÃ CÔNG KHAI (`{posts, total}`), không có nháp. UC14. Thêm 2026-11-12 |
-| GET | `/posts/{slug}` | 🔓 | Một bài đã công khai. Nháp hoặc không tồn tại → 404 `POST_NOT_FOUND` (cùng một câu). UC14 |
+| GET | `/posts` | 👤 | Bài viết ĐÃ CÔNG KHAI (`{posts, total}`), không có nháp. UC14. Thêm 2026-11-12 |
+| GET | `/posts/{slug}` | 👤 | Một bài đã công khai. Nháp hoặc không tồn tại → 404 `POST_NOT_FOUND` (cùng một câu). UC14 |
 | GET | `/health` | 🔓 | Xem ghi chú ở mục 3.5 (`status`, `api_version`, `services`, `synthetic_data`) |
 
 ## B. Tài khoản người dùng — `/auth/*`

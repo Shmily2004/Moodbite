@@ -14,6 +14,7 @@ from src.infrastructure.auth.admin_auth import AdminAuthService
 from src.presentation.api.dependencies import Container
 from src.presentation.api.main import create_app
 from tests.fakes import (
+    attach_test_user,
     FakeDetailsRepo,
     FakeDishKnowledge,
     FakeInteractionRepo,
@@ -92,9 +93,11 @@ def _container(restaurants=None, details=None, restaurants_ready=True):
 
 def make_client(**kwargs):
     # Tiêm container giả: create_app() tự lắp sẽ đọc cả dataset thật (~1.5s) rồi bị
-    # ghi đè ngay sau đó.
-    app = create_app(container=_container(**kwargs))
-    return TestClient(app, raise_server_exceptions=False)
+    # ghi đè ngay sau đó. Client gắn sẵn token người dùng (xem `attach_test_user`).
+    c = _container(**kwargs)
+    headers = attach_test_user(c)
+    app = create_app(container=c)
+    return TestClient(app, raise_server_exceptions=False, headers=headers)
 
 
 @pytest.fixture
@@ -407,3 +410,34 @@ def test_root_health_available_for_infrastructure_probe(client):
 def test_moods_endpoint_lists_supported_moods(client):
     data = client.get(f"{API}/moods").json()["data"]
     assert set(data["supported_moods"]) == {"happy", "sad", "excited", "relaxed"}
+
+
+def test_endpoint_nguoi_dung_chua_dang_nhap_bi_401():
+    """Khoá lỗ hổng phát hiện 2026-11-13: API tìm kiếm/món/quán/bài viết từng công khai.
+
+    Test đi qua `create_app` THẬT (không phải router lẻ) và có secret đăng nhập đã cấu hình,
+    để 401 là đúng nghĩa "chưa đăng nhập" chứ không phải 503 "chưa bật tài khoản".
+    `/health` và `/moods` vẫn công khai — chúng không lộ dữ liệu quán/món.
+    """
+    from tests.fakes import attach_test_user
+
+    c = _container()
+    attach_test_user(c)  # bật tài khoản, nhưng KHÔNG gắn token vào client
+    client = TestClient(create_app(container=c), raise_server_exceptions=False)
+
+    assert client.post(f"{API}/search", json={"query": "phở", "session_id": "s1"}).status_code == 401
+    assert client.post(f"{API}/dishes/suggest", json={"session_id": "s1"}).status_code == 401
+    assert client.get(f"{API}/dishes/pho-bo").status_code == 401
+    assert client.get(f"{API}/dishes/pho-bo/restaurants").status_code == 401
+    assert client.get(f"{API}/restaurants/quan-pho").status_code == 401
+    assert client.get(f"{API}/posts").status_code == 401
+
+    assert client.get(f"{API}/health").status_code == 200
+    assert client.get(f"{API}/moods").status_code == 200
+
+
+def test_endpoint_nguoi_dung_co_token_thi_qua(client):
+    """`client` đã gắn token người dùng (xem `make_client`): tìm kiếm phải chạy bình thường."""
+    assert client.post(
+        f"{API}/search", json={"query": "phở", "session_id": "s1"}
+    ).status_code == 200

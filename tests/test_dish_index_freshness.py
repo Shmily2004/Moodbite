@@ -23,6 +23,7 @@ import json
 import pytest
 from fastapi.testclient import TestClient
 
+from tests.fakes import attach_test_user
 from src.infrastructure.config.settings import Settings
 from src.infrastructure.repositories.sqlite_restaurant_repository import (
     SqliteRestaurantRepository,
@@ -85,7 +86,8 @@ def app_and_repo(tmp_path):
          "price": "1-100.000 ₫"},
     )
     container = build_container(_settings(tmp_path, db))
-    client = TestClient(create_app(container=container), raise_server_exceptions=False)
+    headers = attach_test_user(container)
+    client = TestClient(create_app(container=container), raise_server_exceptions=False, headers=headers)
     return client, container.restaurant_repository, container
 
 
@@ -182,7 +184,8 @@ def client_khong_co_quan(tmp_path):
     db_khong_ton_tai = tmp_path / "chua-dung.db"
     container = build_container(_settings(tmp_path, db_khong_ton_tai))
     assert container.restaurant_repository.is_ready is False
-    return TestClient(create_app(container=container), raise_server_exceptions=False)
+    headers = attach_test_user(container)
+    return TestClient(create_app(container=container), raise_server_exceptions=False, headers=headers)
 
 
 def test_thieu_du_lieu_quan_thi_trang_quan_cua_mon_tra_503(client_khong_co_quan):

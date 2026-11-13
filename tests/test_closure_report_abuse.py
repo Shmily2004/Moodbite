@@ -37,7 +37,7 @@ from src.infrastructure.repositories.jsonl_interaction_repository import (
     JsonlInteractionRepository,
 )
 from src.presentation.api.main import create_app
-from tests.fakes import FakeRestaurantRepo, make_restaurant
+from tests.fakes import attach_test_user, FakeRestaurantRepo, make_restaurant
 from tests.test_api import SESSION, _container
 
 API = "/api/v1"
@@ -179,7 +179,8 @@ def _client_bao_dong_cua(tmp_path):
     c.log_interaction = LogInteractionUseCase(
         log, c.restaurant_repository, closure_tally=c.closure_tally
     )
-    return TestClient(create_app(container=c), raise_server_exceptions=False), c, log
+    headers = attach_test_user(c)
+    return TestClient(create_app(container=c), raise_server_exceptions=False, headers=headers), c, log
 
 
 def test_HTTP_ba_session_id_bia_tu_MOT_may_chi_chiem_1_cho_trong_hang_cho(tmp_path):

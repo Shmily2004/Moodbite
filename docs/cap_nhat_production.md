@@ -64,6 +64,9 @@ ssh root@luunguyet.id.vn echo ok
 
 ### 1.3. Thử kết nối
 
+Lệnh dưới cần `python` chạy được. Nếu PowerShell báo `Python was not found`, bật `.venv` theo
+**mục 2.0** trước, rồi quay lại đây.
+
 ```
 python scripts/deploy_vps.py status
 ```
@@ -75,14 +78,52 @@ chỉ đọc, không đổi gì trên VPS.
 
 ## 2. Mỗi lần cập nhật
 
-Làm từ **thư mục gốc dự án** (`cd "E:\Projects IntelliiJ\Moodbite"`), bằng PowerShell thường
-(không cần quyền Administrator).
+Làm từ **thư mục gốc dự án**, bằng PowerShell thường (không cần quyền Administrator).
 
-Mọi lệnh trong tài liệu viết là `python scripts/...`. Nếu PowerShell báo `Python was not
-found` (Windows có sẵn lối tắt tới Microsoft Store che mất Python thật), dùng Python của dự án:
-`.\.venv\Scripts\python.exe scripts\deploy_vps.py status`. Hoặc mở **Terminal trong PyCharm**,
-nơi `python` đã trỏ đúng vào môi trường của dự án. Script chỉ dùng thư viện chuẩn nên chạy
-được với cả hai.
+### 2.0. Bật môi trường Python `.venv` (làm trước, mỗi cửa sổ PowerShell mới một lần)
+
+Mọi lệnh trong tài liệu viết là `python scripts/...`. Nhưng ở PowerShell vừa mở, `python`
+trỏ vào **lối tắt Microsoft Store** (`...\AppData\Local\Microsoft\WindowsApps\python.exe`),
+không phải Python thật, nên lệnh báo `Python was not found`. Python thật và đủ thư viện của dự
+án (fastapi, pytest...) nằm trong thư mục `.venv`. Bật nó lên thì `python` sẽ trỏ đúng vào đó.
+
+```
+cd "E:\Projects IntelliiJ\Moodbite"
+```
+
+```
+.\.venv\Scripts\Activate.ps1
+```
+
+Thành công khi đầu dòng lệnh hiện `(.venv)`. Kiểm tra lại cho chắc:
+
+```
+(Get-Command python).Source
+```
+
+Kết quả phải kết thúc bằng `Moodbite\.venv\Scripts\python.exe`. Từ đây mọi lệnh `python
+scripts/...` bên dưới chạy bình thường.
+
+Cần biết:
+- Bật venv chỉ có hiệu lực **trong cửa sổ đó**. Đóng cửa sổ, hoặc mở cửa sổ PowerShell mới,
+  là phải bật lại. Muốn tắt: gõ `deactivate`.
+- **Terminal trong PyCharm** thường tự bật `.venv`, nên bạn có thể bỏ qua bước này ở đó (thấy
+  `(.venv)` ở đầu dòng là đã bật).
+- Không muốn bật venv thì gọi thẳng Python của dự án:
+  `.\.venv\Scripts\python.exe scripts\deploy_vps.py status`. Cách này đủ cho
+  `deploy_vps.py` (chỉ dùng thư viện chuẩn). Riêng `verify.py` cần thư viện của dự án nên
+  phải dùng Python trong `.venv`, bằng một trong hai cách trên.
+
+Nếu `Activate.ps1` báo **`running scripts is disabled on this system`**, PowerShell đang chặn
+chạy script (ExecutionPolicy). Mở khoá cho riêng tài khoản của bạn, một lần duy nhất:
+
+```
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+```
+
+`RemoteSigned` cho chạy script viết trên máy mình và vẫn chặn script tải từ mạng chưa ký. Nó
+không đụng tới các tài khoản khác. Máy bạn đã ở mức này (đo 2026-11-14) nên thường không gặp
+lỗi trên; chỉ chạy lệnh này khi thật sự thấy lỗi.
 
 **Bước 1: trên máy bạn, chắc chắn bản mới ổn rồi đẩy lên GitHub.**
 
@@ -194,7 +235,10 @@ hỏng nó. Việc đó làm tay, cẩn thận, không có lệnh tự động.
 | Thấy gì | Nguyên nhân thường gặp |
 |---|---|
 | `Thieu hoac sai dia chi VPS` | Chưa đặt `MOODBITE_DEPLOY_HOST` (mục 1.1) hoặc chưa mở lại PowerShell |
-| `Python was not found; run without arguments to install from the Microsoft Store` | Lối tắt Microsoft Store che `python`. Dùng `.\.venv\Scripts\python.exe` hoặc Terminal của PyCharm (xem mục 2) |
+| `Python was not found; run without arguments to install from the Microsoft Store` | Lối tắt Microsoft Store che `python`, hoặc bạn chưa bật venv. Làm mục 2.0: `.\.venv\Scripts\Activate.ps1` (đầu dòng phải có `(.venv)`) |
+| `Activate.ps1 cannot be loaded because running scripts is disabled on this system` | ExecutionPolicy đang chặn. Chạy một lần `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned` (mục 2.0) |
+| `Activate.ps1 is not recognized` / `Cannot find path ...\.venv\Scripts\Activate.ps1` | Đứng sai thư mục, hoặc chưa tạo `.venv`. `cd "E:\Projects IntelliiJ\Moodbite"`; chưa có `.venv` thì làm phần "Cài một lần" trong `README.md` |
+| Vừa bật venv xong, mở cửa sổ mới lại báo `Python was not found` | Bật venv chỉ có hiệu lực trong cửa sổ đó. Bật lại ở cửa sổ mới (mục 2.0) |
 | `can't open file '...\scripts\deploy_vps.py': No such file` | Bạn đang đứng sai thư mục. `cd "E:\Projects IntelliiJ\Moodbite"` rồi chạy lại |
 | `Khong thay lenh 'ssh'` | Windows: Settings > Apps > Optional features > thêm **OpenSSH Client** |
 | `Connection timed out` | VPS tắt, hoặc mạng đang chặn cổng 22 |
@@ -244,6 +288,12 @@ Chi tiết từng lệnh và lý do nằm ở `docs/trien_khai_vps.md`.
 - Đoạn Python sao lưu SQLite chạy đúng trên một CSDL thử (3 dòng vào, 3 dòng ra).
 - Kiểm tra bản build chạy trên bản build thật của bạn: không có vấn đề.
 - `python scripts/deploy_vps.py all --dry-run` in đúng chuỗi lệnh, không chạm vào VPS.
+- Bật venv (mục 2.0), đo 2026-11-14 trên máy bạn, với ExecutionPolicy `RemoteSigned`: trước khi
+  bật `python` trỏ vào lối tắt Microsoft Store; sau `.\.venv\Scripts\Activate.ps1` nó trỏ vào
+  `.venv\Scripts\python.exe` (Python 3.14.7, import được fastapi) và `python
+  scripts/deploy_vps.py --help` chạy được; `deactivate` trả về như cũ. Chưa thử trường hợp
+  ExecutionPolicy là `Restricted` (máy bạn không ở mức đó), nên lệnh `Set-ExecutionPolicy` ở
+  mục 2.0 là theo cách làm chuẩn của PowerShell, chưa chạy thử ở đây.
 
 **CHƯA chạy thử:**
 - ssh, scp thật tới VPS của bạn: toàn bộ chuỗi sao lưu, `git pull`, khởi động lại, chép
